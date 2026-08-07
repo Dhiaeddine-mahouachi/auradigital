@@ -12,7 +12,8 @@ AURADIGITAL — EASY ACCESS / CLOUDFLARE READY
    with the visitor's message pre-filled. No backend is required.
 
 4) Background media
-   Hero fallback image and NFC/QR restaurant image are included in assets/.
+   Hero fallback image, project screenshots and NFC/QR restaurant image are included
+   directly beside index.html. There is no required assets/ subfolder.
    The hero and portfolio atmosphere sections stream Pexels background video when online.
    If offline, the local hero image remains visible automatically.
 
@@ -22,8 +23,8 @@ AURADIGITAL — EASY ACCESS / CLOUDFLARE READY
    and Arabic automatically switches the layout to right-to-left (RTL).
 
 6) Brand & motion
-   The public brand uses the compact triangular AuraDigital mark beside the lowercase
-   "auradigital" wordmark. The reusable mark is in assets/auradigital-mark.svg.
+   The public brand uses the supplied AuraDigital A mark beside the lowercase
+   "auradigital" wordmark. The reusable mark is logo.svg in the site root.
    The visual system uses deep green, acid lime, cream, mint and soft pastel accents,
    with full-bleed team media, rounded content cards and oversized typography.
    Scroll progress, staggered reveals, subtle pointer depth and responsive motion
