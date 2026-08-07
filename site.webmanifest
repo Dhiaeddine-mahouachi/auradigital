@@ -1,0 +1,17 @@
+{
+  "name": "AuraDigital",
+  "short_name": "AuraDigital",
+  "description": "AuraDigital — web, growth, NFC and digital menu studio.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f0e6",
+  "theme_color": "#0c1e18",
+  "icons": [
+    {
+      "src": "assets/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
