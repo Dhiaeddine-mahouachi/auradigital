@@ -440,3 +440,14 @@ chatForm?.addEventListener("submit", (e) => {
 const i18nScript = document.createElement("script");
 i18nScript.src = "i18n.js";
 document.head.appendChild(i18nScript);
+
+
+// AuraDigital aggregate analytics: stores only page + day + view count.
+if (!location.pathname.startsWith("/admin")) {
+  fetch("/api/track", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ path: location.pathname }),
+    keepalive: true,
+  }).catch(() => {});
+}
