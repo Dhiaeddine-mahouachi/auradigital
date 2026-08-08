@@ -3,6 +3,9 @@
   "name": "auradigital",
   "main": "src/worker.js",
   "compatibility_date": "2026-08-08",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "observability": {
     "enabled": true
   },
@@ -21,6 +24,24 @@
       "database_id": "6d89053c-4979-4e54-9976-bbfb884cb5ca"
     }
   ],
-  "workers_dev": true,
-  "preview_urls": true
+  "ratelimits": [
+    {
+      "name": "LOGIN_RATE_LIMITER",
+      "namespace_id": "1843701",
+      "simple": {
+        "limit": 5,
+        "period": 60
+      }
+    },
+    {
+      "name": "TRACK_RATE_LIMITER",
+      "namespace_id": "1843702",
+      "simple": {
+        "limit": 120,
+        "period": 60
+      }
+    }
+  ],
+  "workers_dev": false,
+  "preview_urls": false
 }

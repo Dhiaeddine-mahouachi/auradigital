@@ -1,5 +1,11 @@
-const COOKIE_NAME = "aura_admin";
+const COOKIE_NAME = "__Host-aura_admin";
 const SESSION_SECONDS = 60 * 60 * 8;
+const LOGIN_BODY_BYTES = 1024;
+const TRACK_BODY_BYTES = 1024;
+const ADMIN_BODY_BYTES = 32 * 1024;
+const MAX_TEXT_LENGTH = 4000;
+const MAX_LIST_ITEMS = 50;
+const MAX_LIST_ITEM_LENGTH = 240;
 const PUBLIC_SETTING_KEYS = [
   "nfc_price",
   "qr_menu_price",
@@ -7,6 +13,34 @@ const PUBLIC_SETTING_KEYS = [
   "web_multi_price",
   "web_dynamic_price",
 ];
+const TRACKABLE_PATHS = new Set([
+  "/",
+  "/index.html",
+  "/services.html",
+  "/portfolio.html",
+  "/aura-menu.html",
+  "/nfc.html",
+  "/qr-menu.html",
+  "/packages.html",
+  "/about.html",
+  "/contact.html",
+  "/home",
+  "/hizmetler",
+  "/nfc",
+  "/qr-menu",
+  "/paketler",
+  "/hakkimizda",
+  "/iletisim",
+]);
+
+class ApiError extends Error {
+  constructor(status, message, headers = {}) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.headers = headers;
+  }
+}
 
 const RESOURCES = {
   packages: {
@@ -95,9 +129,12 @@ export default {
       }
 
       if (url.pathname === "/api/track" && request.method === "POST") {
-        const body = await request.json().catch(() => ({}));
+        if (!sameOrigin(request)) return new Response(null, { status: 204 });
+        const limit = await env.TRACK_RATE_LIMITER.limit({ key: "aggregate-site-analytics" });
+        if (!limit.success) return new Response(null, { status: 204 });
+        const body = await readJson(request, TRACK_BODY_BYTES);
         const path = cleanPath(body.path);
-        if (path && !path.startsWith("/admin")) {
+        if (path) {
           await env.DB.prepare(
             "INSERT INTO analytics_daily (date, path, views) VALUES (date('now'), ?, 1) " +
             "ON CONFLICT(date, path) DO UPDATE SET views = views + 1"
@@ -107,18 +144,33 @@ export default {
       }
 
       if (url.pathname === "/api/admin/login" && request.method === "POST") {
-        if (!env.ADMIN_PASSWORD) return json({ error: "Admin password is not configured yet." }, 503);
-        const body = await request.json().catch(() => ({}));
+        if (!sameOrigin(request)) return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
+        const limit = await env.LOGIN_RATE_LIMITER.limit({ key: "admin-login" });
+        if (!limit.success) {
+          return json({ error: "Too many sign-in attempts. Try again in one minute." }, 429, {
+            "Cache-Control": "no-store",
+            "Retry-After": "60",
+          });
+        }
+        if (!env.ADMIN_PASSWORD) return json({ error: "Admin password is not configured yet." }, 503, { "Cache-Control": "no-store" });
+        const body = await readJson(request, LOGIN_BODY_BYTES);
         if (!(await safeEqual(String(body.password || ""), env.ADMIN_PASSWORD))) {
-          return json({ error: "Incorrect password." }, 401);
+          return json({ error: "Incorrect password." }, 401, { "Cache-Control": "no-store" });
         }
         const expires = Math.floor(Date.now() / 1000) + SESSION_SECONDS;
         const signature = await sign(String(expires), env.ADMIN_PASSWORD);
-        return json({ ok: true }, 200, { "Set-Cookie": cookieValue(expires + "." + signature, SESSION_SECONDS) });
+        return json({ ok: true }, 200, {
+          "Cache-Control": "no-store",
+          "Set-Cookie": cookieValue(expires + "." + signature, SESSION_SECONDS),
+        });
       }
 
       if (url.pathname === "/api/admin/logout" && request.method === "POST") {
-        return json({ ok: true }, 200, { "Set-Cookie": cookieValue("", 0) });
+        if (!sameOrigin(request)) return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
+        return json({ ok: true }, 200, {
+          "Cache-Control": "no-store",
+          "Set-Cookie": cookieValue("", 0),
+        });
       }
 
       if (url.pathname === "/api/admin/session" && request.method === "GET") {
@@ -149,7 +201,7 @@ export default {
       if (url.pathname.startsWith("/api/admin/settings/") && request.method === "PUT") {
         const key = decodeURIComponent(url.pathname.slice("/api/admin/settings/".length));
         if (!PUBLIC_SETTING_KEYS.includes(key)) return json({ error: "Unknown setting." }, 404);
-        const body = await request.json().catch(() => ({}));
+        const body = await readJson(request, ADMIN_BODY_BYTES);
         const value = String(body.value ?? "").trim();
         const amount = Number(value);
         if (!Number.isFinite(amount) || amount < 0 || amount > 10000000) {
@@ -170,7 +222,17 @@ export default {
 
       return json({ error: "Not found." }, 404);
     } catch (error) {
-      console.error("AuraDigital API error", error);
+      if (error instanceof ApiError) {
+        return json({ error: error.message }, error.status, {
+          "Cache-Control": "no-store",
+          ...error.headers,
+        });
+      }
+      console.error(JSON.stringify({
+        message: "AuraDigital API error",
+        path: url.pathname,
+        error: error instanceof Error ? error.message : String(error),
+      }));
       return json({ error: "Server error." }, 500);
     }
   },
@@ -271,7 +333,7 @@ async function handleResource(request, db, resource, id) {
   }
 
   if (request.method === "POST" && id === null) {
-    const body = await request.json().catch(() => ({}));
+    const body = await readJson(request, ADMIN_BODY_BYTES);
     const values = normalizeBody(body, config);
     const columns = config.fields;
     const placeholders = columns.map(() => "?").join(",");
@@ -280,7 +342,7 @@ async function handleResource(request, db, resource, id) {
   }
 
   if (request.method === "PUT" && id !== null) {
-    const body = await request.json().catch(() => ({}));
+    const body = await readJson(request, ADMIN_BODY_BYTES);
     const fields = config.fields.filter((field) => Object.prototype.hasOwnProperty.call(body, field));
     if (!fields.length) return json({ error: "Nothing to update." }, 400);
     const values = normalizeBody(body, config);
@@ -301,15 +363,30 @@ function normalizeBody(body, config) {
   const values = {};
   for (const field of config.fields) {
     let value = Object.prototype.hasOwnProperty.call(body, field) ? body[field] : null;
-    if (config.json.has(field)) value = JSON.stringify(Array.isArray(value) ? value : []);
+    if (config.json.has(field)) {
+      const list = Array.isArray(value) ? value : [];
+      if (list.length > MAX_LIST_ITEMS || list.some((item) => typeof item !== "string" || item.length > MAX_LIST_ITEM_LENGTH)) {
+        throw new ApiError(400, `Invalid ${field}.`);
+      }
+      value = JSON.stringify(list.map((item) => item.trim()).filter(Boolean));
+    }
     if (config.numeric.has(field)) {
       if (value === "" || value === null || value === undefined) value = null;
       else {
         const number = Number(value);
-        value = Number.isFinite(number) ? number : 0;
+        if (!Number.isFinite(number) || number < 0 || number > 1000000000) {
+          throw new ApiError(400, `Invalid ${field}.`);
+        }
+        value = number;
       }
     }
-    if (typeof value === "string") value = value.trim();
+    if (typeof value === "string") {
+      value = value.trim();
+      if (value.length > MAX_TEXT_LENGTH) throw new ApiError(400, `${field} is too long.`);
+      if (field === "url" && value && !/^https?:\/\//i.test(value)) {
+        throw new ApiError(400, "Portfolio URL must start with https:// or http://.");
+      }
+    }
     values[field] = value;
   }
   return values;
@@ -352,14 +429,55 @@ async function getAnalytics(db) {
 
 function cleanPath(value) {
   if (typeof value !== "string") return "";
-  const path = value.trim().slice(0, 160);
-  return path.startsWith("/") && !path.includes("?") ? path : "";
+  const path = value.trim();
+  return TRACKABLE_PATHS.has(path) ? path : "";
 }
 
 function sameOrigin(request) {
   const origin = request.headers.get("Origin");
-  if (!origin) return true;
-  return origin === new URL(request.url).origin;
+  return Boolean(origin) && origin === new URL(request.url).origin;
+}
+
+async function readJson(request, maxBytes) {
+  const contentLength = Number(request.headers.get("Content-Length") || 0);
+  if (Number.isFinite(contentLength) && contentLength > maxBytes) {
+    throw new ApiError(413, "Request body is too large.");
+  }
+  if (!request.body) return {};
+
+  const reader = request.body.getReader();
+  const chunks = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > maxBytes) {
+        await reader.cancel("Request body limit exceeded");
+        throw new ApiError(413, "Request body is too large.");
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  const text = new TextDecoder().decode(bytes);
+  if (!text.trim()) return {};
+  try {
+    const data = JSON.parse(text);
+    if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("JSON object required");
+    return data;
+  } catch {
+    throw new ApiError(400, "Invalid JSON request body.");
+  }
 }
 
 async function isAuthenticated(request, env) {
@@ -385,10 +503,7 @@ async function safeEqual(a, b) {
     crypto.subtle.digest("SHA-256", new TextEncoder().encode(a)),
     crypto.subtle.digest("SHA-256", new TextEncoder().encode(b)),
   ]);
-  const aa = new Uint8Array(ha), bb = new Uint8Array(hb);
-  let diff = aa.length ^ bb.length;
-  for (let i = 0; i < Math.min(aa.length, bb.length); i++) diff |= aa[i] ^ bb[i];
-  return diff === 0;
+  return crypto.subtle.timingSafeEqual(ha, hb);
 }
 
 function base64url(bytes) {
@@ -414,6 +529,12 @@ function cookieValue(value, maxAge) {
 function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json; charset=utf-8", ...headers },
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "no-referrer",
+      "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
+      ...headers,
+    },
   });
 }
