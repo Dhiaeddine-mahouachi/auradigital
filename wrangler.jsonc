@@ -1,13 +1,26 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "auradigital",
+  "main": "src/worker.js",
   "compatibility_date": "2026-08-08",
   "observability": {
     "enabled": true
   },
   "assets": {
-    "directory": "."
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*"
+    ],
+    "not_found_handling": "404-page"
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "auradigital-db",
+      "database_id": "6d89053c-4979-4e54-9976-bbfb884cb5ca"
+    }
+  ],
   "workers_dev": true,
   "preview_urls": true
 }
