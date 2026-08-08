@@ -36,6 +36,8 @@
     if (!grid || !items?.length) return;
     grid.innerHTML = items.map((item) => {
       const features = (item.features || []).map((feature) => `<li>${esc(feature)}</li>`).join("");
+      const buttonLabels = { Start: "Bu paketle başla", Growth: "Growth'u seç", Pro: "Pro'yu seç", Scale: "Scale'i seç" };
+      const buttonLabel = buttonLabels[item.name] || "Bu paketle başla";
       return `<article class="price-card ${item.featured ? "featured " : ""}reveal in">
         ${item.featured ? '<span class="popular">EN ÇOK TERCİH</span>' : ""}
         <h3>${esc(item.name)}</h3>
@@ -43,7 +45,7 @@
         <div class="price"><span data-monthly="${esc(money(item.monthly_price))} TL" data-weekly="${esc(money(item.weekly_price))} TL">${esc(money(item.monthly_price))} TL</span><small data-period>/ ay</small></div>
         <div class="dual-price"><span><b>Aylık</b> · ${esc(money(item.monthly_price))} TL</span><span><b>Haftalık</b> · ${esc(money(item.weekly_price))} TL</span></div>
         <ul>${features}</ul>
-        <a class="btn ${item.featured ? "btn-primary" : "btn-ghost"}" href="contact.html">${esc(item.name)} paketini seç</a>
+        <a class="btn ${item.featured ? "btn-primary" : "btn-ghost"}" href="contact.html">${esc(buttonLabel)}</a>
       </article>`;
     }).join("");
   }
@@ -92,6 +94,7 @@
       renderPackages(data.packages || []);
       renderServices(data.services || [], settings);
       renderPortfolio(data.portfolio || []);
+      window.AuraI18n?.setLanguage(window.AuraI18n.current(), false);
     } catch (_) {
       // Static HTML stays visible if the live content API is unavailable.
     }
