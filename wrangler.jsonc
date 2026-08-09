@@ -13,7 +13,10 @@
     "directory": ".",
     "binding": "ASSETS",
     "run_worker_first": [
-      "/api/*"
+      "/api/*",
+      "/quicksite",
+      "/quicksite/*",
+      "/_next/*"
     ],
     "not_found_handling": "404-page"
   },
