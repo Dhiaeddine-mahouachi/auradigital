@@ -16,7 +16,8 @@
       "/api/*",
       "/quicksite",
       "/quicksite/*",
-      "/_next/*"
+      "/_next/*",
+      "/assets/*"
     ],
     "not_found_handling": "404-page"
   },
