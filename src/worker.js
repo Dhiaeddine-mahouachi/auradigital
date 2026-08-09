@@ -39,7 +39,14 @@ const QUICKSITE_BODY_BYTES = 96 * 1024;
 async function proxyQuickSite(request, url) {
   const upstreamPath = url.pathname.startsWith("/quicksite") ? (url.pathname.slice("/quicksite".length) || "/") : url.pathname;
   const target = new URL(upstreamPath + url.search, QUICKSITE_ORIGIN);
-  return fetch(new Request(target, request));
+  const upstream = await fetch(new Request(target, request));
+  const headers = new Headers(upstream.headers);
+  headers.delete("Set-Cookie");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  headers.set("Strict-Transport-Security", "max-age=31536000");
+  return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
 }
 function qsClean(value, max = 500) { return typeof value === "string" ? value.trim().slice(0, max) : ""; }
 function qsUrl(value) {
@@ -202,7 +209,7 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    if (url.pathname === "/quicksite" || url.pathname.startsWith("/quicksite/") || url.pathname.startsWith("/_next/") || url.pathname === "/api/projects") return proxyQuickSite(request, url);
+    if (url.pathname === "/quicksite" || url.pathname.startsWith("/quicksite/") || url.pathname.startsWith("/_next/") || url.pathname.startsWith("/assets/") || url.pathname === "/api/projects") return proxyQuickSite(request, url);
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(request);
 
     try {
