@@ -40,7 +40,7 @@
 
   <script>
     const NAV = [
-      ["overview","Overview"],["pricing","Pricing"],["packages","Packages"],["services","Services"],["portfolio","Portfolio"],
+      ["overview","Overview"],["quicksite","QuickSite Requests"],["pricing","Pricing"],["packages","Packages"],["services","Services"],["portfolio","Portfolio"],
       ["clients","Clients"],["orders","NFC / QR Orders"],["invoices","Invoices"],["subscriptions","Subscriptions"],["expenses","Expenses"],["analytics","Analytics"]
     ];
 
@@ -95,10 +95,10 @@
     }
 
     async function checkSession(){try{const session=await api("/api/admin/session");if(session.authenticated)return showDashboard()}catch(_){}$("loginView").classList.remove("hidden");$("dashboardView").classList.add("hidden")}
-    async function showDashboard(){$("loginView").classList.add("hidden");$("dashboardView").classList.remove("hidden");buildNav();await openView("overview")}
+    async function showDashboard(){$("loginView").classList.add("hidden");$("dashboardView").classList.remove("hidden");buildNav();await openView(location.hash==="#quicksite"?"quicksite":"overview")}
 
-    async function openView(view){state.view=view;buildNav();const meta=RESOURCE[view];$("pageTitle").textContent=meta?.title||({overview:"Overview",pricing:"Pricing",analytics:"Analytics"}[view]||view);$("pageSubtitle").textContent=meta?.subtitle||({overview:"Your business at a glance.",pricing:"Control all public starting prices from one place.",analytics:"Privacy-friendly aggregate website traffic for the last 30 days."}[view]||"");$("content").innerHTML='<section class="panel"><p>Loading…</p></section>';
-      try{if(view==="overview")await renderOverview();else if(view==="pricing")await renderPricing();else if(view==="analytics")await renderAnalytics();else await renderResource(view)}catch(error){if(error.status===401)return checkSession();$("content").innerHTML=`<section class="panel"><div class="notice error">${esc(error.message)}</div></section>`}}
+    async function openView(view){state.view=view;buildNav();const meta=RESOURCE[view];$("pageTitle").textContent=meta?.title||({overview:"Overview",quicksite:"QuickSite Requests",pricing:"Pricing",analytics:"Analytics"}[view]||view);$("pageSubtitle").textContent=meta?.subtitle||({overview:"Your business at a glance.",quicksite:"Review customer websites, confirm payment and approve publishing.",pricing:"Control all public starting prices from one place.",analytics:"Privacy-friendly aggregate website traffic for the last 30 days."}[view]||"");$("content").innerHTML='<section class="panel"><p>Loading…</p></section>';
+      try{if(view==="overview")await renderOverview();else if(view==="quicksite")await renderQuickSite();else if(view==="pricing")await renderPricing();else if(view==="analytics")await renderAnalytics();else await renderResource(view)}catch(error){if(error.status===401)return checkSession();$("content").innerHTML=`<section class="panel"><div class="notice error">${esc(error.message)}</div></section>`}}
 
     async function renderOverview(){const d=await api("/api/admin/overview");const cards=[["Leads",d.leads],["Active clients",d.activeClients],["Open orders",d.openOrders],["Unpaid invoices",d.unpaidInvoices],["Paid revenue",money(d.revenue),"good"],["Expenses",money(d.expenses),"warn"],["Profit",money(d.profit),d.profit>=0?"good":"warn"],["Recurring / month",money(d.recurringRevenue),"good"],["Website views · 30d",d.views30d]];$("content").innerHTML=`<div class="metrics">${cards.map(([label,value,cls=""])=>`<div class="metric ${cls}"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div><section class="panel"><div class="panel-head"><div><h2>Control center is live</h2><p>Website content, CRM, orders, billing and KPIs now share the same D1 database.</p></div><span class="status">Connected</span></div><p>Use the sections on the left to manage AuraDigital. Public package, service, portfolio and starting-price changes flow to the website automatically.</p></section>`}
 
@@ -120,6 +120,42 @@
 
     async function deleteItem(resource,id){if(!confirm("Delete this record?"))return;try{await api(`/api/admin/${resource}/${id}`,{method:"DELETE"});await openView(resource)}catch(error){alert(error.message)}}
     function closeModal(){$("modal").classList.add("hidden");$("modal").setAttribute("aria-hidden","true");state.editing=null}
+
+async function renderQuickSite(){
+  const data=await api("/api/admin/quicksite");
+  const items=data.projects||[];
+  const pending=items.filter(item=>item.status==="pending").length;
+  const unpaid=items.filter(item=>item.paymentStatus!=="paid").length;
+  const live=items.filter(item=>item.status==="approved").length;
+  const rows=items.map(item=>`<tr>
+    <td><strong>${esc(item.businessName)}</strong><small style="display:block;color:#6b7280">${esc(item.contactName)} · ${esc(item.email)}</small></td>
+    <td>${esc(item.templateId)}<small style="display:block;color:#6b7280">/${esc(item.slug)}</small></td>
+    <td><span class="pill ${item.paymentStatus==="paid"?"ok":"warn"}">${item.paymentStatus==="paid"?"Paid":"Unpaid"}</span></td>
+    <td><span class="pill ${item.status==="approved"?"ok":"warn"}">${esc(item.status)}</span></td>
+    <td><div class="row-actions">
+      <a class="btn btn-light btn-sm" href="/quicksite/preview/${encodeURIComponent(item.id)}" target="_blank">Preview</a>
+      <button class="btn btn-light btn-sm" data-quick-pay="${esc(item.id)}">${item.paymentStatus==="paid"?"Mark unpaid":"Payment received"}</button>
+      <button class="btn btn-dark btn-sm" data-quick-approve="${esc(item.id)}" ${item.paymentStatus!=="paid"?"disabled":""}>Approve</button>
+      <button class="btn btn-danger btn-sm" data-quick-reject="${esc(item.id)}">Request changes</button>
+      ${item.status==="approved"?`<a class="btn btn-light btn-sm" href="/quicksite/${encodeURIComponent(item.slug)}" target="_blank">Live ↗</a>`:""}
+    </div></td>
+  </tr>`).join("");
+  $("content").innerHTML=`<div class="metrics">
+    <div class="metric"><span>New requests</span><strong>${pending}</strong></div>
+    <div class="metric warn"><span>Waiting payment</span><strong>${unpaid}</strong></div>
+    <div class="metric good"><span>Published</span><strong>${live}</strong></div>
+  </div>
+  <section class="panel"><div class="panel-head"><div><h2>QuickSite customer requests</h2><p>Every submitted website appears here before it can be published.</p></div><a class="btn btn-dark" href="/quicksite" target="_blank">Open QuickSite ↗</a></div>
+  ${items.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Customer</th><th>Website</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">No QuickSite requests yet.</div>'}</section>`;
+  document.querySelectorAll("[data-quick-pay]").forEach(button=>button.addEventListener("click",()=>updateQuickSite(button.dataset.quickPay,{paymentStatus:button.textContent.includes("received")?"paid":"unpaid"})));
+  document.querySelectorAll("[data-quick-approve]").forEach(button=>button.addEventListener("click",()=>updateQuickSite(button.dataset.quickApprove,{status:"approved"})));
+  document.querySelectorAll("[data-quick-reject]").forEach(button=>button.addEventListener("click",()=>updateQuickSite(button.dataset.quickReject,{status:"rejected"})));
+}
+
+async function updateQuickSite(id,patch){
+  try{await api("/api/admin/quicksite/"+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify(patch)});await renderQuickSite()}
+  catch(error){alert(error.message)}
+}
 
     async function renderAnalytics(){const data=await api("/api/admin/analytics");const daily=data.daily||[],pages=data.pages||[];const maxDay=Math.max(1,...daily.map(x=>Number(x.views||0))),maxPage=Math.max(1,...pages.map(x=>Number(x.views||0)));$("content").innerHTML=`<div class="analytics-grid"><section class="panel"><div class="panel-head"><div><h2>Daily views</h2><p>Last 30 days · aggregate counts only</p></div></div>${daily.length?`<div class="chart">${daily.map(x=>barRow(x.date,x.views,maxDay)).join("")}</div>`:'<div class="empty">Traffic will appear here as visitors browse the site.</div>'}</section><section class="panel"><div class="panel-head"><div><h2>Top pages</h2><p>No visitor identity or IP data stored.</p></div></div>${pages.length?`<div class="chart">${pages.map(x=>barRow(x.path,x.views,maxPage)).join("")}</div>`:'<div class="empty">No page-view data yet.</div>'}</section></div>`}
     function barRow(label,value,max){return `<div class="bar-row"><span title="${esc(label)}">${esc(String(label).length>16?String(label).slice(0,15)+"…":label)}</span><div class="bar-track"><div class="bar" style="width:${Math.max(3,Math.round(Number(value||0)/max*100))}%"></div></div><strong>${esc(value)}</strong></div>`}
