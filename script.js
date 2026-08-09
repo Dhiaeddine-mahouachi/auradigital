@@ -29,7 +29,7 @@ if (header) {
     )
     .join(
       "",
-    )}</div><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Dil" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">TR</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="contact.html">Projenizi Konuşalım <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Menüyü aç" aria-expanded="false">☰</button></div>`;
+    )}<a class="nav-quicksite-mobile" href="https://auradigital-builder.dhiamahouachi115.chatgpt.site">QuickSite <span>↗</span></a></div><a class="nav-quicksite" href="https://auradigital-builder.dhiamahouachi115.chatgpt.site">QuickSite <span>↗</span></a><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Dil" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">TR</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="contact.html">Projenizi Konuşalım <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Menüyü aç" aria-expanded="false">☰</button></div>`;
 }
 const footer = document.getElementById("siteFooter");
 if (footer) {
