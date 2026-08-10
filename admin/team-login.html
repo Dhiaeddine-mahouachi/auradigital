@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>AuraDigital Team Login</title>
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#101516;background:#eef3ef}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#eef3ef,#e1eff0)}main{width:min(430px,100%);background:#fff;border:1px solid #dfe5e2;border-radius:22px;padding:30px;box-shadow:0 20px 70px rgba(11,28,31,.12)}.mark{width:44px;height:44px;border-radius:13px;background:#0b1c1f;color:#fff;display:grid;place-items:center;font-size:20px;font-weight:900}.mark span{color:#65d3db}h1{font-size:28px;letter-spacing:-.04em;margin:12px 0 8px}p{color:#687272;line-height:1.55;margin:0 0 20px}form{display:grid;gap:14px}label{display:grid;gap:7px;font-size:12px;font-weight:750}input{width:100%;border:1px solid #ccd5d1;border-radius:10px;padding:12px;background:#fff;outline:none;font-size:16px}input:focus{border-color:#1b9aaa;box-shadow:0 0 0 3px rgba(27,154,170,.11)}button{border:0;border-radius:10px;padding:12px 15px;background:#0b1c1f;color:#fff;font-weight:800;cursor:pointer;min-height:46px}button:disabled{opacity:.55;cursor:not-allowed}.notice{min-height:20px;margin-top:12px;font-size:13px;color:#687272}.notice.error{color:#b42318}.links{display:flex;justify-content:space-between;gap:12px;margin-top:18px;font-size:12px}.links a{color:#1b9aaa;text-decoration:none;font-weight:750}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="mark">A<span>·</span></div>
+    <h1>Team sign in</h1>
+    <p>For AuraDigital staff accounts. Access is limited by your assigned role.</p>
+    <form id="loginForm">
+      <label>Email<input id="email" type="email" autocomplete="username" required></label>
+      <label>Password<input id="password" type="password" autocomplete="current-password" required></label>
+      <button id="submitBtn" type="submit">Sign in securely</button>
+    </form>
+    <div id="notice" class="notice"></div>
+    <div class="links"><a href="/admin/">Owner login</a><a href="/">AuraDigital</a></div>
+  </main>
+  <script>
+    const form=document.getElementById('loginForm');
+    const notice=document.getElementById('notice');
+    const button=document.getElementById('submitBtn');
+    form.addEventListener('submit',async(event)=>{
+      event.preventDefault();
+      notice.className='notice';notice.textContent='Signing in…';button.disabled=true;
+      try{
+        const response=await fetch('/api/security/team-login',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('email').value,password:document.getElementById('password').value})});
+        const data=await response.json().catch(()=>({}));
+        if(!response.ok)throw new Error(data.error||'Sign in failed.');
+        location.href='/admin/';
+      }catch(error){notice.className='notice error';notice.textContent=error.message||'Sign in failed.';}
+      finally{button.disabled=false;}
+    });
+  </script>
+</body>
+</html>
