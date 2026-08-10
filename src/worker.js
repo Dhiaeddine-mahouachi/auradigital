@@ -215,10 +215,16 @@ async function proxyQuickSite(request, url) {
   const upstream = await fetch(new Request(target, request));
   const headers = new Headers(upstream.headers);
   headers.delete("Set-Cookie");
+  headers.delete("Server");
+  headers.delete("X-Powered-By");
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   headers.set("Strict-Transport-Security", "max-age=31536000");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  headers.set("Cross-Origin-Resource-Policy", "same-site");
+  headers.set("X-Permitted-Cross-Domain-Policies", "none");
   return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
 }
 function qsClean(value, max = 500) { return typeof value === "string" ? value.trim().slice(0, max) : ""; }
@@ -663,7 +669,7 @@ const RESOURCES = {
   },
 };
 
-let schemaPromise;
+let schemaReady = false;
 
 export default {
   async fetch(request, env) {
@@ -676,7 +682,8 @@ export default {
       await ensureSchema(env.DB);
 
       if (url.pathname === "/api/quicksite/projects" && request.method === "POST") {
-        const limit = await env.TRACK_RATE_LIMITER.limit({ key: "quicksite-requests" });
+        const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
+        const limit = await env.TRACK_RATE_LIMITER.limit({ key: `quicksite-request:${clientKey}` });
         if (!limit.success) return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429);
         return createQuickSiteRequest(request, env.DB);
       }
@@ -745,7 +752,8 @@ export default {
 
       if (url.pathname === "/api/track" && request.method === "POST") {
         if (!sameOrigin(request)) return new Response(null, { status: 204 });
-        const limit = await env.TRACK_RATE_LIMITER.limit({ key: "aggregate-site-analytics" });
+        const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
+        const limit = await env.TRACK_RATE_LIMITER.limit({ key: `site-track:${clientKey}` });
         if (!limit.success) return new Response(null, { status: 204 });
         const body = await readJson(request, TRACK_BODY_BYTES);
         const path = cleanPath(body.path);
@@ -760,7 +768,8 @@ export default {
 
       if (url.pathname === "/api/admin/login" && request.method === "POST") {
         if (!sameOrigin(request)) return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
-        const limit = await env.LOGIN_RATE_LIMITER.limit({ key: "admin-login" });
+        const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
+        const limit = await env.LOGIN_RATE_LIMITER.limit({ key: `admin-login:${clientKey}` });
         if (!limit.success) {
           return json({ error: "Too many sign-in attempts. Try again in one minute." }, 429, {
             "Cache-Control": "no-store",
@@ -866,8 +875,7 @@ export default {
 };
 
 async function ensureSchema(db) {
-  if (schemaPromise) return schemaPromise;
-  schemaPromise = (async () => {
+  if (schemaReady) return;
     await db.batch([
       db.prepare("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL DEFAULT (datetime('now')))"),
       db.prepare("CREATE TABLE IF NOT EXISTS packages (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', monthly_price INTEGER NOT NULL DEFAULT 0, weekly_price INTEGER NOT NULL DEFAULT 0, features TEXT NOT NULL DEFAULT '[]', featured INTEGER NOT NULL DEFAULT 0, active INTEGER NOT NULL DEFAULT 1, sort_order INTEGER NOT NULL DEFAULT 0, updated_at TEXT NOT NULL DEFAULT (datetime('now')))"),
@@ -901,11 +909,7 @@ async function ensureSchema(db) {
       await seedPublicContent(db);
       await db.prepare("INSERT INTO settings (key, value) VALUES ('dashboard_seed_v2', '1')").run();
     }
-  })().catch((error) => {
-    schemaPromise = null;
-    throw error;
-  });
-  return schemaPromise;
+  schemaReady = true;
 }
 
 function settingSeed(db, key, value) {
