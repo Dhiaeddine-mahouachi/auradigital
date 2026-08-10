@@ -466,17 +466,13 @@ async function createAuraMenuRequest(request, db, corsHeaders) {
     return json({ error: "Geçerli bir e-posta adresi girin." }, 400, corsHeaders);
   }
   const categories = normalizeAuraMenuCategories(body.categories);
-  const domainMode = body.domainMode === "custom" ? "custom" : "auramenu";
   const serviceMode = body.serviceMode === "managed" ? "managed" : "self";
-  const customDomain = domainMode === "custom" ? qsClean(body.customDomain, 180).replace(/^https?:\/\//i, "").replace(/\/$/, "") : "";
   const optionSummary = [
     "[AURAMENU OPTIONS]",
     "Build: " + (serviceMode === "managed" ? "AuraDigital managed" : "Customer self-service"),
-    "Address: " + (domainMode === "custom" ? "Customer domain" : "auramenu.space"),
-    customDomain ? "Domain: " + customDomain : "",
     "",
     qsClean(body.notes, 750),
-  ].filter((line, index) => line || index === 4).join("\n").slice(0, 1000);
+  ].join("\n").slice(0, 1000);
   const requestedSlug = qsSlug(qsClean(body.slug, 60) || businessName);
   if (requestedSlug.length < 3) return json({ error: "En az 3 karakterli bir menü adresi seçin." }, 400, corsHeaders);
 
