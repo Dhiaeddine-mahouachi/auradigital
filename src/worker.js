@@ -67,6 +67,7 @@ function mapNfcRequest(row, publicStatus = false) {
     businessName: row.business_name,
     status: row.status,
     paymentStatus: row.payment_status,
+    quantity: row.quantity,
     updatedAt: row.updated_at,
     approvedAt: row.approved_at,
     revision: row.revision,
@@ -151,7 +152,7 @@ async function createNfcRequest(request, db) {
 }
 
 async function getNfcRequestStatus(db, id) {
-  const row = await db.prepare("SELECT id, card_type, business_name, status, payment_status, updated_at, approved_at, revision FROM nfc_requests WHERE id = ? LIMIT 1")
+  const row = await db.prepare("SELECT id, card_type, business_name, status, payment_status, quantity, updated_at, approved_at, revision FROM nfc_requests WHERE id = ? LIMIT 1")
     .bind(id).first();
   if (!row) return json({ error: "NFC kart talebi bulunamadı." }, 404, { "Cache-Control": "no-store" });
   return json({ request: mapNfcRequest(row, true) }, 200, { "Cache-Control": "no-store" });
