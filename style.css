@@ -5536,3 +5536,7 @@ body[data-page="packages"] .page-hero .crumb a {
 .menu-choice-badge{align-self:flex-start;padding:6px 9px;border-radius:999px;background:#d8ff45;color:#0c1e18;font-size:9px;font-weight:950;letter-spacing:.08em}
 .menu-choice-action.managed-option{min-height:150px}
 @media(max-width:620px){.menu-choice-actions{grid-template-columns:1fr}.menu-choice-action.self-featured{min-height:170px}}
+
+/* AuraMenu now uses one self-customization path */
+.menu-choice-actions{grid-template-columns:1fr}
+.menu-choice-action.self-featured{width:100%}
