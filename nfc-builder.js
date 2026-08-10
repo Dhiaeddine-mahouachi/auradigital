@@ -126,7 +126,7 @@
       const statusLink = document.getElementById("statusLink");
       statusLink.href = `nfc-status.html?id=${encodeURIComponent(data.request.id)}&lang=${language}`;
       try { localStorage.setItem("aura-nfc-last-request", data.request.id); } catch {}
-      document.getElementById("successPanel").hidden = false;
+      location.href = statusLink.href;
     } catch (error) {
       notice.className = "form-notice error";
       notice.textContent = error.message || copy[language].error;
