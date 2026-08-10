@@ -51,16 +51,25 @@ const AURAMENU_ORIGINS = new Set([
   "http://127.0.0.1:4173",
 ]);
 const NFC_BODY_BYTES = 32 * 1024;
-const NFC_CARD_TYPES = new Set(["reviews", "website"]);
+const NFC_CARD_TYPES = new Set(["reviews", "website", "menu"]);
 const NFC_CARD_LANGUAGES = new Set(["tr", "en", "ar"]);
 const NFC_CARD_FINISHES = new Set(["matte", "glossy"]);
-
+const NFC_META_PREFIX = "__NFC_OPTIONS__";
+function parseNfcOptions(value) {
+  const text = String(value || "");
+  if (!text.startsWith(NFC_META_PREFIX)) return { meta: {}, notes: text };
+  const newline = text.indexOf("\n");
+  const raw = newline === -1 ? text.slice(NFC_META_PREFIX.length) : text.slice(NFC_META_PREFIX.length, newline);
+  return { meta: qsParse(raw, {}), notes: newline === -1 ? "" : text.slice(newline + 1) };
+}
 function nfcColor(value, fallback) {
   const color = qsClean(value, 7);
   return /^#[0-9a-fA-F]{6}$/.test(color) ? color.toLowerCase() : fallback;
 }
 
 function mapNfcRequest(row, publicStatus = false) {
+  const parsedNotes = parseNfcOptions(row.notes);
+  const meta = parsedNotes.meta;
   const base = {
     id: row.id,
     cardType: row.card_type,
@@ -68,6 +77,14 @@ function mapNfcRequest(row, publicStatus = false) {
     status: row.status,
     paymentStatus: row.payment_status,
     quantity: row.quantity,
+    cardSize: meta.cardSize || "small",
+    fontStyle: meta.fontStyle || "modern",
+    layoutStyle: meta.layoutStyle || "centered",
+    cornerStyle: meta.cornerStyle || "rounded",
+    deliveryMethod: meta.deliveryMethod || "pickup",
+    deliveryFee: Number(meta.deliveryFee || 0),
+    unitPrice: Number(meta.unitPrice || 700),
+    total: Number(meta.total || (Number(row.quantity || 1) * 700)),
     updatedAt: row.updated_at,
     approvedAt: row.approved_at,
     revision: row.revision,
@@ -90,7 +107,7 @@ function mapNfcRequest(row, publicStatus = false) {
     email: row.email,
     city: row.city,
     paymentReference: row.payment_reference,
-    notes: row.notes,
+    notes: parsedNotes.notes,
     ownerNote: row.owner_note,
     createdAt: row.created_at,
   };
@@ -108,6 +125,14 @@ async function createNfcRequest(request, db) {
   const email = qsClean(body.email, 160).toLowerCase();
   const destinationUrl = qsUrl(body.destinationUrl);
   const quantity = Number(body.quantity);
+  const cardSize = ["small", "large"].includes(String(body.cardSize)) ? String(body.cardSize) : "small";
+  const fontStyle = ["modern", "elegant", "bold"].includes(String(body.fontStyle)) ? String(body.fontStyle) : "modern";
+  const layoutStyle = ["centered", "minimal", "split"].includes(String(body.layoutStyle)) ? String(body.layoutStyle) : "centered";
+  const cornerStyle = ["rounded", "square"].includes(String(body.cornerStyle)) ? String(body.cornerStyle) : "rounded";
+  const deliveryMethod = ["pickup", "delivery", "onsite"].includes(String(body.deliveryMethod)) ? String(body.deliveryMethod) : "pickup";
+  const deliveryFee = deliveryMethod === "delivery" ? 60 : deliveryMethod === "onsite" ? 100 : 0;
+  const unitPrice = 700;
+  const total = quantity * unitPrice + deliveryFee;
 
   if (!NFC_CARD_TYPES.has(cardType) || !businessName || !contactName || !contactPhone || !destinationUrl) {
     return json({ error: "Kart türü, işletme, hedef bağlantı ve iletişim alanlarını kontrol edin." }, 400, { "Cache-Control": "no-store" });
@@ -126,6 +151,8 @@ async function createNfcRequest(request, db) {
   }
 
   const id = crypto.randomUUID();
+  const nfcMeta = { cardSize, fontStyle, layoutStyle, cornerStyle, deliveryMethod, deliveryFee, unitPrice, total };
+  const storedNotes = (NFC_META_PREFIX + JSON.stringify(nfcMeta) + "\n" + qsClean(body.notes, 700)).slice(0, 1000);
   await db.prepare("INSERT INTO nfc_requests (id, card_type, card_language, business_name, headline, instruction_text, destination_url, background_color, accent_color, text_color, show_qr, finish, quantity, contact_name, contact_phone, email, city, payment_reference, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
     .bind(
       id,
@@ -146,13 +173,13 @@ async function createNfcRequest(request, db) {
       email,
       qsClean(body.city, 100),
       qsClean(body.paymentReference, 200),
-      qsClean(body.notes, 1000),
+      storedNotes,
     ).run();
-  return json({ request: { id, status: "pending", paymentStatus: "unpaid" } }, 201, { "Cache-Control": "no-store" });
+  return json({ request: { id, status: "pending", paymentStatus: "unpaid", total } }, 201, { "Cache-Control": "no-store" });
 }
 
 async function getNfcRequestStatus(db, id) {
-  const row = await db.prepare("SELECT id, card_type, business_name, status, payment_status, quantity, updated_at, approved_at, revision FROM nfc_requests WHERE id = ? LIMIT 1")
+  const row = await db.prepare("SELECT id, card_type, business_name, status, payment_status, quantity, notes, updated_at, approved_at, revision FROM nfc_requests WHERE id = ? LIMIT 1")
     .bind(id).first();
   if (!row) return json({ error: "NFC kart talebi bulunamadı." }, 404, { "Cache-Control": "no-store" });
   return json({ request: mapNfcRequest(row, true) }, 200, { "Cache-Control": "no-store" });
@@ -439,6 +466,17 @@ async function createAuraMenuRequest(request, db, corsHeaders) {
     return json({ error: "Geçerli bir e-posta adresi girin." }, 400, corsHeaders);
   }
   const categories = normalizeAuraMenuCategories(body.categories);
+  const domainMode = body.domainMode === "custom" ? "custom" : "auramenu";
+  const serviceMode = body.serviceMode === "managed" ? "managed" : "self";
+  const customDomain = domainMode === "custom" ? qsClean(body.customDomain, 180).replace(/^https?:\/\//i, "").replace(/\/$/, "") : "";
+  const optionSummary = [
+    "[AURAMENU OPTIONS]",
+    "Build: " + (serviceMode === "managed" ? "AuraDigital managed" : "Customer self-service"),
+    "Address: " + (domainMode === "custom" ? "Customer domain" : "auramenu.space"),
+    customDomain ? "Domain: " + customDomain : "",
+    "",
+    qsClean(body.notes, 750),
+  ].filter((line, index) => line || index === 4).join("\n").slice(0, 1000);
   const requestedSlug = qsSlug(qsClean(body.slug, 60) || businessName);
   if (requestedSlug.length < 3) return json({ error: "En az 3 karakterli bir menü adresi seçin." }, 400, corsHeaders);
 
@@ -471,7 +509,7 @@ async function createAuraMenuRequest(request, db, corsHeaders) {
       qsClean(body.city, 100),
       qsClean(body.paymentReference, 200),
       JSON.stringify(categories),
-      qsClean(body.notes, 1000),
+      optionSummary,
     );
   const imageInserts = images.map((image) =>
     db.prepare("INSERT INTO auramenu_images (id, request_id, content_type, image_bytes) VALUES (?, ?, ?, ?)")
