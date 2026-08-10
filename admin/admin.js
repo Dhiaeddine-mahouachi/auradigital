@@ -90,7 +90,7 @@ async function renderNfc(){
   const rows=items.map(item=>`<tr>
     <td><span class="request-state ${esc(item.status)}"><i></i>${esc(item.status)}</span></td>
     <td><strong>${esc(item.businessName)}</strong><small style="display:block;color:#6b7280">${esc(item.contactName)} · ${esc(item.contactPhone)}</small></td>
-    <td>${item.cardType==="reviews"?"Google reviews":"Website"}<small style="display:block;color:#6b7280">${esc(item.quantity)} card${Number(item.quantity)===1?"":"s"} · ${esc(item.finish)}</small></td>
+    <td>${item.cardType==="reviews"?"Google reviews":item.cardType==="menu"?"Digital menu":"Website"}<small style="display:block;color:#6b7280">${esc(item.quantity)} card${Number(item.quantity)===1?"":"s"} · ${esc(item.finish)}</small></td>
     <td><span class="pill ${item.paymentStatus==="paid"?"ok":"warn"}">${item.paymentStatus==="paid"?"Paid":"Unpaid"}</span></td>
     <td><div class="row-actions">
       <button class="btn btn-light btn-sm" data-nfc-details="${esc(item.id)}">Design details</button>
@@ -105,7 +105,7 @@ async function renderNfc(){
     <div class="metric warn"><span>Waiting payment</span><strong>${unpaid}</strong></div>
     <div class="metric good"><span>Green · approved</span><strong>${approved}</strong></div>
   </div>
-  <section class="panel"><div class="panel-head"><div><h2>NFC card design requests</h2><p>Customers choose a review or website card, colors and details. Confirm payment before approving the design for production.</p></div><a class="btn btn-dark" href="/nfc-builder.html" target="_blank" rel="noopener noreferrer">Open NFC Studio ↗</a></div>
+  <section class="panel"><div class="panel-head"><div><h2>NFC card design requests</h2><p>Customers choose review, website or digital-menu NFC, size, design, quantity and delivery. Confirm payment before approving the design for production.</p></div><a class="btn btn-dark" href="/nfc-builder.html" target="_blank" rel="noopener noreferrer">Open NFC Studio ↗</a></div>
   ${items.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Status</th><th>Customer</th><th>Card</th><th>Payment</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">No NFC design requests yet.</div>'}</section>`;
   document.querySelectorAll("[data-nfc-details]").forEach(button=>button.addEventListener("click",()=>showNfcDetails(items.find(item=>item.id===button.dataset.nfcDetails))));
   document.querySelectorAll("[data-nfc-pay]").forEach(button=>button.addEventListener("click",()=>{const item=items.find(value=>value.id===button.dataset.nfcPay);return updateNfc(item.id,{paymentStatus:item.paymentStatus==="paid"?"unpaid":"paid"})}));
@@ -116,17 +116,18 @@ async function renderNfc(){
 function showNfcDetails(item){
   if(!item)return;
   const destination=safeLink(item.destinationUrl);
-  const icon=item.cardType==="reviews"?"★":"↗";
+  const icon=item.cardType==="reviews"?"★":item.cardType==="menu"?"▦":"↗";
   $("modalTitle").textContent=item.businessName+" · NFC design";
   $("modalForm").innerHTML=`<div class="request-details span-2">
     <article class="nfc-admin-preview ${item.finish==="glossy"?"glossy":""}" style="--nfc-bg:${esc(item.backgroundColor)};--nfc-accent:${esc(item.accentColor)};--nfc-text:${esc(item.textColor)}">
       <div class="nfc-admin-top"><strong>${esc(item.businessName)}</strong><i>NFC )))</i></div>
       <div class="nfc-admin-main"><span>${icon}</span><h3>${esc(item.headline||item.businessName)}</h3><p>${esc(item.instructionText||"")}</p></div>
-      <div class="nfc-admin-bottom"><strong>${item.cardType==="reviews"?"GOOGLE REVIEWS":"WEBSITE"}</strong><span>AURA NFC</span></div>
+      <div class="nfc-admin-bottom"><strong>${item.cardType==="reviews"?"GOOGLE REVIEWS":item.cardType==="menu"?"DIGITAL MENU":"WEBSITE"}</strong><span>AURA NFC</span></div>
     </article>
     <dl>
-      <div><dt>Purpose</dt><dd>${item.cardType==="reviews"?"Google reviews":"Website"}</dd></div><div><dt>Card language</dt><dd>${esc(item.cardLanguage)}</dd></div>
+      <div><dt>Purpose</dt><dd>${item.cardType==="reviews"?"Google reviews":item.cardType==="menu"?"Digital menu":"Website"}</dd></div><div><dt>Card language</dt><dd>${esc(item.cardLanguage)}</dd></div>
       <div><dt>Destination</dt><dd>${destination?`<a href="${esc(destination)}" target="_blank" rel="noopener noreferrer">${esc(destination)} ↗</a>`:"—"}</dd></div><div><dt>Quantity / finish</dt><dd>${esc(item.quantity)} · ${esc(item.finish)}</dd></div>
+      <div><dt>Size / design</dt><dd>${esc(item.cardSize)} · ${esc(item.fontStyle)} · ${esc(item.layoutStyle)} · ${esc(item.cornerStyle)}</dd></div><div><dt>Delivery / total</dt><dd>${esc(item.deliveryMethod)} · ${esc(item.deliveryFee)} TL fee · ${esc(item.total)} TL total</dd></div>
       <div><dt>QR backup</dt><dd>${item.showQr?"Yes":"No"}</dd></div><div><dt>Colors</dt><dd>${esc(item.backgroundColor)} · ${esc(item.accentColor)} · ${esc(item.textColor)}</dd></div>
       <div><dt>Contact</dt><dd>${esc(item.contactName)} · ${esc(item.contactPhone)}</dd></div><div><dt>Email / city</dt><dd>${esc(item.email||"—")} · ${esc(item.city||"—")}</dd></div>
       <div><dt>Payment reference</dt><dd>${esc(item.paymentReference||"—")}</dd></div><div><dt>Created</dt><dd>${esc(new Date(item.createdAt).toLocaleString())}</dd></div>
