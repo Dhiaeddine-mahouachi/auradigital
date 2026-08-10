@@ -1033,9 +1033,9 @@
     ],
     ["Tasarımları keşfet ↓", "Explore designs ↓", "استكشف التصاميم ↓"],
     [
-      "Kendi tasarımımı istiyorum ↗",
-      "I want a custom design ↗",
-      "أريد تصميماً خاصاً ↗",
+      "Menümü siz hazırlayın ↗",
+      "You build my menu ↗",
+      "أنتم تبنون قائمتي ↗",
     ],
     ["Bir stil seçin.", "Choose a style.", "اختر أسلوباً."],
     [
@@ -1157,9 +1157,9 @@
       "زيارة الموقع المباشر ↗",
     ],
     [
-      "Canlı AuraMenu'yi gör ↗",
-      "View live AuraMenu ↗",
-      "شاهد AuraMenu مباشرة ↗",
+      "Menümü kendim oluşturacağım ↗",
+      "I build my menu ↗",
+      "سأبني قائمتي بنفسي ↗",
     ],
     ["WhatsApp'tan gönder ↗", "Send via WhatsApp ↗", "إرسال عبر WhatsApp ↗"],
     ["700 TL'den başlayan", "Starting from 700 TL", "ابتداءً من 700 TL"],
