@@ -2,14 +2,12 @@
   const modal = document.getElementById("menuChoiceModal");
   if (!modal) return;
   const selfLink = document.getElementById("menuSelfBuild");
-  const managedLink = document.getElementById("menuManagedBuild");
   const designLabel = document.getElementById("menuChoiceDesign");
   let template = "modern";
 
   function updateLinks() {
     const base = "https://auramenu.space/builder.html";
     selfLink.href = `${base}?template=${encodeURIComponent(template)}&mode=self`;
-    managedLink.href = `${base}?template=${encodeURIComponent(template)}&mode=managed`;
   }
 
   function openChoice(trigger) {
