@@ -117,7 +117,7 @@ async function renderAuraMenu(){
 
 function showAuraMenuDetails(item){
   if(!item)return;
-  const categories=(item.categories||[]).map(category=>`<section class="request-category"><h3>${esc(category.emoji||"🍽️")} ${esc(category.name)}</h3><ul>${(category.items||[]).map(product=>`<li><strong>${esc(product.name)}</strong> · ${esc(product.price||"—")} ${esc(item.currency)}${product.description?` — ${esc(product.description)}`:""}</li>`).join("")||"<li>No products</li>"}</ul></section>`).join("");
+  const categories=(item.categories||[]).map(category=>`<section class="request-category"><h3>${esc(category.emoji||"🍽️")} ${esc(category.name)}</h3><ul>${(category.items||[]).map(product=>`<li class="request-product">${product.imageUrl?`<img src="${esc(product.imageUrl)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:`<span class="request-product-placeholder">${esc(category.emoji||"🍽️")}</span>`}<div><strong>${esc(product.name)}</strong><small>${esc(product.price||"—")} ${esc(item.currency)}${product.description?` · ${esc(product.description)}`:""}</small></div></li>`).join("")||"<li>No products</li>"}</ul></section>`).join("");
   $("modalTitle").textContent=item.businessName+" · AuraMenu request";
   $("modalForm").innerHTML=`<div class="request-details span-2"><dl>
     <div><dt>Requested URL</dt><dd>auramenu.space/${esc(item.slug)}</dd></div><div><dt>Template</dt><dd>${esc(item.templateId)}</dd></div>
