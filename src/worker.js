@@ -36,7 +36,11 @@ const TRACKABLE_PATHS = new Set([
 
 const QUICKSITE_ORIGIN = "https://auradigital-builder.dhiamahouachi115.chatgpt.site";
 const QUICKSITE_BODY_BYTES = 96 * 1024;
-const AURAMENU_BODY_BYTES = 128 * 1024;
+const AURAMENU_BODY_BYTES = 5 * 1024 * 1024;
+const AURAMENU_IMAGE_BYTES = 280 * 1024;
+const AURAMENU_IMAGE_DATA_CHARS = Math.ceil((AURAMENU_IMAGE_BYTES * 4) / 3) + 64;
+const AURAMENU_MAX_IMAGES = 12;
+const AURAMENU_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const AURAMENU_ORIGINS = new Set([
   "https://auramenu.space",
   "https://www.auramenu.space",
@@ -175,12 +179,17 @@ function normalizeAuraMenuCategories(value) {
       }
       const itemName = qsClean(item.name, 100);
       if (!itemName) throw new ApiError(400, `${name} kategorisindeki ürün adını girin.`);
+      const imageData = typeof item.imageData === "string" ? item.imageData.trim() : "";
+      if (imageData.length > AURAMENU_IMAGE_DATA_CHARS) {
+        throw new ApiError(413, "Ürün fotoğrafı çok büyük. Lütfen daha küçük bir fotoğraf seçin.");
+      }
       itemCount += 1;
       return {
         name: itemName,
         description: qsClean(item.description, 300),
         price: qsClean(item.price, 40),
         imageUrl: qsUrl(item.imageUrl),
+        imageData,
         featured: Boolean(item.featured),
       };
     });
@@ -190,6 +199,59 @@ function normalizeAuraMenuCategories(value) {
     throw new ApiError(400, "Menüde 1 ile 100 arasında ürün olmalıdır.");
   }
   return categories;
+}
+
+function hasBytes(bytes, expected, offset = 0) {
+  return expected.every((value, index) => bytes[offset + index] === value);
+}
+
+function decodeAuraMenuImage(dataUrl) {
+  const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]*={0,2})$/i.exec(dataUrl);
+  if (!match) {
+    throw new ApiError(400, "Yalnızca JPG, PNG veya WebP ürün fotoğrafı yükleyebilirsiniz.");
+  }
+  const contentType = match[1].toLowerCase();
+  const encoded = match[2];
+  if (!AURAMENU_IMAGE_TYPES.has(contentType) || !encoded || encoded.length % 4 !== 0) {
+    throw new ApiError(400, "Ürün fotoğrafı geçersiz.");
+  }
+  let binary;
+  try {
+    binary = atob(encoded);
+  } catch {
+    throw new ApiError(400, "Ürün fotoğrafı geçersiz.");
+  }
+  if (!binary.length || binary.length > AURAMENU_IMAGE_BYTES) {
+    throw new ApiError(413, "Ürün fotoğrafı çok büyük. Lütfen daha küçük bir fotoğraf seçin.");
+  }
+  const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  const valid =
+    (contentType === "image/jpeg" && hasBytes(bytes, [0xff, 0xd8, 0xff])) ||
+    (contentType === "image/png" && hasBytes(bytes, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) ||
+    (contentType === "image/webp" &&
+      hasBytes(bytes, [0x52, 0x49, 0x46, 0x46]) &&
+      hasBytes(bytes, [0x57, 0x45, 0x42, 0x50], 8));
+  if (!valid) throw new ApiError(400, "Ürün fotoğrafı içeriği geçersiz.");
+  return { contentType, bytes: bytes.buffer };
+}
+
+function prepareAuraMenuImages(categories, requestId, origin) {
+  const images = [];
+  for (const category of categories) {
+    for (const item of category.items) {
+      const dataUrl = item.imageData;
+      delete item.imageData;
+      if (!dataUrl) continue;
+      if (images.length >= AURAMENU_MAX_IMAGES) {
+        throw new ApiError(400, "Bir menü talebine en fazla 12 ürün fotoğrafı ekleyebilirsiniz.");
+      }
+      const image = decodeAuraMenuImage(dataUrl);
+      const id = crypto.randomUUID();
+      item.imageUrl = `${origin}/api/auramenu/images/${id}`;
+      images.push({ id, requestId, ...image });
+    }
+  }
+  return images;
 }
 
 function mapAuraMenuRequest(row, publicSite = false) {
@@ -253,7 +315,8 @@ async function createAuraMenuRequest(request, db, corsHeaders) {
   if (recent) return json({ error: "Talebiniz alındı. Yeni bir talep göndermeden önce biraz bekleyin." }, 429, corsHeaders);
 
   const id = crypto.randomUUID();
-  await db.prepare("INSERT INTO auramenu_requests (id, slug, template_id, interface_language, menu_language, business_name, tagline, description, address, business_phone, whatsapp, opening_hours, currency, contact_name, contact_phone, email, city, payment_reference, categories_json, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+  const images = prepareAuraMenuImages(categories, id, new URL(request.url).origin);
+  const requestInsert = db.prepare("INSERT INTO auramenu_requests (id, slug, template_id, interface_language, menu_language, business_name, tagline, description, address, business_phone, whatsapp, opening_hours, currency, contact_name, contact_phone, email, city, payment_reference, categories_json, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
     .bind(
       id,
       requestedSlug,
@@ -275,10 +338,41 @@ async function createAuraMenuRequest(request, db, corsHeaders) {
       qsClean(body.paymentReference, 200),
       JSON.stringify(categories),
       qsClean(body.notes, 1000),
-    ).run();
+    );
+  const imageInserts = images.map((image) =>
+    db.prepare("INSERT INTO auramenu_images (id, request_id, content_type, image_bytes) VALUES (?, ?, ?, ?)")
+      .bind(image.id, image.requestId, image.contentType, image.bytes),
+  );
+  await db.batch([requestInsert, ...imageInserts]);
   return json({ request: { id, slug: requestedSlug, status: "pending", paymentStatus: "unpaid" } }, 201, {
     "Cache-Control": "no-store",
     ...corsHeaders,
+  });
+}
+
+async function getAuraMenuImage(db, id, corsHeaders) {
+  const row = await db.prepare("SELECT i.content_type, i.image_bytes FROM auramenu_images i INNER JOIN auramenu_requests r ON r.id = i.request_id WHERE i.id = ? LIMIT 1")
+    .bind(id).first();
+  if (!row) return json({ error: "Fotoğraf bulunamadı." }, 404, corsHeaders);
+  let imageBytes = null;
+  if (row.image_bytes instanceof ArrayBuffer) imageBytes = row.image_bytes;
+  else if (ArrayBuffer.isView(row.image_bytes)) {
+    imageBytes = row.image_bytes.buffer.slice(
+      row.image_bytes.byteOffset,
+      row.image_bytes.byteOffset + row.image_bytes.byteLength,
+    );
+  } else if (Array.isArray(row.image_bytes)) imageBytes = Uint8Array.from(row.image_bytes).buffer;
+  if (!imageBytes || !AURAMENU_IMAGE_TYPES.has(row.content_type)) {
+    return json({ error: "Fotoğraf okunamadı." }, 500, corsHeaders);
+  }
+  return new Response(imageBytes, {
+    headers: {
+      "Content-Type": row.content_type,
+      "Content-Length": String(imageBytes.byteLength),
+      "Cache-Control": "public, max-age=31536000, immutable",
+      "X-Content-Type-Options": "nosniff",
+      ...corsHeaders,
+    },
   });
 }
 
@@ -429,6 +523,11 @@ export default {
           const limit = await env.TRACK_RATE_LIMITER.limit({ key: `auramenu-request:${clientKey}` });
           if (!limit.success) return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429, corsHeaders);
           return createAuraMenuRequest(request, env.DB, corsHeaders);
+        }
+
+        const auraMenuImage = url.pathname.match(/^\/api\/auramenu\/images\/([a-f0-9-]+)$/i);
+        if (auraMenuImage && request.method === "GET") {
+          return getAuraMenuImage(env.DB, auraMenuImage[1], corsHeaders);
         }
 
         const auraMenuStatus = url.pathname.match(/^\/api\/auramenu\/requests\/([a-f0-9-]+)$/i);
@@ -598,7 +697,9 @@ async function ensureSchema(db) {
       db.prepare("CREATE TABLE IF NOT EXISTS expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, category TEXT NOT NULL DEFAULT 'General', description TEXT NOT NULL DEFAULT '', amount REAL NOT NULL DEFAULT 0, date TEXT NOT NULL DEFAULT (date('now')), notes TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')))"),
       db.prepare("CREATE TABLE IF NOT EXISTS quicksite_projects (id TEXT PRIMARY KEY NOT NULL, slug TEXT NOT NULL UNIQUE, template_id TEXT NOT NULL, language TEXT NOT NULL DEFAULT 'tr', business_name TEXT NOT NULL, tagline TEXT NOT NULL DEFAULT '', description TEXT NOT NULL DEFAULT '', primary_color TEXT NOT NULL DEFAULT '#a3ff12', phone TEXT NOT NULL DEFAULT '', whatsapp TEXT NOT NULL DEFAULT '', email TEXT NOT NULL, address TEXT NOT NULL DEFAULT '', contact_name TEXT NOT NULL, offers_json TEXT NOT NULL DEFAULT '[]', details_json TEXT NOT NULL DEFAULT '{}', payment_status TEXT NOT NULL DEFAULT 'unpaid', status TEXT NOT NULL DEFAULT 'pending', owner_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')), approved_at TEXT, revision INTEGER NOT NULL DEFAULT 1)"),
       db.prepare("CREATE TABLE IF NOT EXISTS auramenu_requests (id TEXT PRIMARY KEY NOT NULL, slug TEXT NOT NULL UNIQUE, template_id TEXT NOT NULL, interface_language TEXT NOT NULL DEFAULT 'tr', menu_language TEXT NOT NULL DEFAULT 'tr', business_name TEXT NOT NULL, tagline TEXT NOT NULL DEFAULT '', description TEXT NOT NULL DEFAULT '', address TEXT NOT NULL DEFAULT '', business_phone TEXT NOT NULL DEFAULT '', whatsapp TEXT NOT NULL DEFAULT '', opening_hours TEXT NOT NULL DEFAULT '', currency TEXT NOT NULL DEFAULT 'TRY', contact_name TEXT NOT NULL, contact_phone TEXT NOT NULL, email TEXT NOT NULL DEFAULT '', city TEXT NOT NULL DEFAULT '', payment_reference TEXT NOT NULL DEFAULT '', categories_json TEXT NOT NULL DEFAULT '[]', notes TEXT NOT NULL DEFAULT '', payment_status TEXT NOT NULL DEFAULT 'unpaid', status TEXT NOT NULL DEFAULT 'pending', owner_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')), approved_at TEXT, revision INTEGER NOT NULL DEFAULT 1)"),
+      db.prepare("CREATE TABLE IF NOT EXISTS auramenu_images (id TEXT PRIMARY KEY NOT NULL, request_id TEXT NOT NULL, content_type TEXT NOT NULL, image_bytes BLOB NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime('now')), FOREIGN KEY (request_id) REFERENCES auramenu_requests(id) ON DELETE CASCADE)"),
       db.prepare("CREATE INDEX IF NOT EXISTS idx_auramenu_requests_status_created ON auramenu_requests(status, created_at DESC)"),
+      db.prepare("CREATE INDEX IF NOT EXISTS idx_auramenu_images_request ON auramenu_images(request_id)"),
       db.prepare("CREATE TABLE IF NOT EXISTS analytics_daily (date TEXT NOT NULL, path TEXT NOT NULL, views INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (date, path))"),
     ]);
 
