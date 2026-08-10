@@ -17,6 +17,7 @@
     label{display:grid;gap:7px;font-size:12px;font-weight:750}label small{font-weight:400;color:var(--muted)}input,textarea,select{width:100%;border:1px solid #ccd5d1;border-radius:10px;padding:11px 12px;background:#fff;outline:none;color:var(--ink)}textarea{min-height:92px;resize:vertical}input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(27,154,170,.11)}input[type=checkbox]{width:18px;height:18px;box-shadow:none}.check{display:flex;align-items:center;gap:9px;padding-top:7px}
     .pricing-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.pricing-form .wide-actions{grid-column:1/-1;display:flex;align-items:center;gap:12px}.notice{min-height:20px;font-size:12px;color:var(--muted)}.notice.error{color:var(--danger)}.notice.success{color:var(--ok)}
     .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px}.data-table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}.data-table th,.data-table td{padding:12px 13px;text-align:left;border-bottom:1px solid #edf0ee;vertical-align:middle}.data-table th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:#f8faf8}.data-table td{font-size:13px}.data-table tr:last-child td{border-bottom:0}.row-actions{display:flex;gap:6px;justify-content:flex-end}.empty{padding:30px;text-align:center;color:var(--muted)}.pill{display:inline-flex;border-radius:999px;padding:5px 8px;background:#eef3f0;color:#40504d;font-size:11px;font-weight:750}.pill.ok{background:#e9f7f2;color:var(--ok)}.pill.warn{background:#fff5e6;color:var(--warn)}
+    .request-state{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;text-transform:capitalize}.request-state i{width:9px;height:9px;border-radius:50%;background:#89918e;box-shadow:0 0 0 4px rgba(137,145,142,.12)}.request-state.pending{color:var(--danger)}.request-state.pending i{background:var(--danger);box-shadow:0 0 0 4px rgba(180,35,24,.11)}.request-state.approved{color:var(--ok)}.request-state.approved i{background:var(--ok);box-shadow:0 0 0 4px rgba(19,121,91,.12)}.request-details{display:grid;gap:13px}.request-details dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0}.request-details dl div{padding:11px;border:1px solid var(--line);border-radius:10px;background:#f8faf8}.request-details dt{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em}.request-details dd{margin:4px 0 0;font-size:13px;font-weight:700;overflow-wrap:anywhere}.request-category{padding:12px;border:1px solid var(--line);border-radius:11px}.request-category h3{margin:0 0 8px;font-size:14px}.request-category ul{margin:0;padding-left:18px;color:var(--muted);font-size:12px;line-height:1.7}
     .chart{display:grid;gap:9px}.bar-row{display:grid;grid-template-columns:105px minmax(0,1fr) 55px;gap:10px;align-items:center;font-size:12px}.bar-track{height:10px;border-radius:999px;background:#edf1ef;overflow:hidden}.bar{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),#65d3db)}.analytics-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
     .modal{position:fixed;inset:0;background:rgba(3,15,17,.56);display:grid;place-items:center;padding:18px;z-index:50}.modal-card{width:min(720px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.25)}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.modal-head h2{margin:0}.modal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.modal-grid .span-2{grid-column:1/-1}.modal-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:9px;padding-top:6px}
     @media(max-width:1050px){.metrics{grid-template-columns:repeat(2,1fr)}.pricing-form{grid-template-columns:repeat(2,1fr)}.analytics-grid{grid-template-columns:1fr}}
@@ -40,7 +41,7 @@
 
   <script>
     const NAV = [
-      ["overview","Overview"],["quicksite","QuickSite Requests"],["pricing","Pricing"],["packages","Packages"],["services","Services"],["portfolio","Portfolio"],
+      ["overview","Overview"],["auramenu","AuraMenu Requests"],["quicksite","QuickSite Requests"],["pricing","Pricing"],["packages","Packages"],["services","Services"],["portfolio","Portfolio"],
       ["clients","Clients"],["orders","NFC / QR Orders"],["invoices","Invoices"],["subscriptions","Subscriptions"],["expenses","Expenses"],["analytics","Analytics"]
     ];
 
@@ -95,12 +96,12 @@
     }
 
     async function checkSession(){try{const session=await api("/api/admin/session");if(session.authenticated)return showDashboard()}catch(_){}$("loginView").classList.remove("hidden");$("dashboardView").classList.add("hidden")}
-    async function showDashboard(){$("loginView").classList.add("hidden");$("dashboardView").classList.remove("hidden");buildNav();await openView(location.hash==="#quicksite"?"quicksite":"overview")}
+    async function showDashboard(){$("loginView").classList.add("hidden");$("dashboardView").classList.remove("hidden");buildNav();const requested=location.hash.slice(1);await openView(NAV.some(([id])=>id===requested)?requested:"overview")}
 
-    async function openView(view){state.view=view;buildNav();const meta=RESOURCE[view];$("pageTitle").textContent=meta?.title||({overview:"Overview",quicksite:"QuickSite Requests",pricing:"Pricing",analytics:"Analytics"}[view]||view);$("pageSubtitle").textContent=meta?.subtitle||({overview:"Your business at a glance.",quicksite:"Review customer websites, confirm payment and approve publishing.",pricing:"Control all public starting prices from one place.",analytics:"Privacy-friendly aggregate website traffic for the last 30 days."}[view]||"");$("content").innerHTML='<section class="panel"><p>Loading…</p></section>';
-      try{if(view==="overview")await renderOverview();else if(view==="quicksite")await renderQuickSite();else if(view==="pricing")await renderPricing();else if(view==="analytics")await renderAnalytics();else await renderResource(view)}catch(error){if(error.status===401)return checkSession();$("content").innerHTML=`<section class="panel"><div class="notice error">${esc(error.message)}</div></section>`}}
+    async function openView(view){state.view=view;location.hash=view==="overview"?"":view;buildNav();const meta=RESOURCE[view];$("pageTitle").textContent=meta?.title||({overview:"Overview",auramenu:"AuraMenu Requests",quicksite:"QuickSite Requests",pricing:"Pricing",analytics:"Analytics"}[view]||view);$("pageSubtitle").textContent=meta?.subtitle||({overview:"Your business at a glance.",auramenu:"Verify payment, review the requested menu and approve publishing.",quicksite:"Review customer websites, confirm payment and approve publishing.",pricing:"Control all public starting prices from one place.",analytics:"Privacy-friendly aggregate website traffic for the last 30 days."}[view]||"");$("content").innerHTML='<section class="panel"><p>Loading…</p></section>';
+      try{if(view==="overview")await renderOverview();else if(view==="auramenu")await renderAuraMenu();else if(view==="quicksite")await renderQuickSite();else if(view==="pricing")await renderPricing();else if(view==="analytics")await renderAnalytics();else await renderResource(view)}catch(error){if(error.status===401)return checkSession();$("content").innerHTML=`<section class="panel"><div class="notice error">${esc(error.message)}</div></section>`}}
 
-    async function renderOverview(){const d=await api("/api/admin/overview");const cards=[["Leads",d.leads],["Active clients",d.activeClients],["Open orders",d.openOrders],["Unpaid invoices",d.unpaidInvoices],["Paid revenue",money(d.revenue),"good"],["Expenses",money(d.expenses),"warn"],["Profit",money(d.profit),d.profit>=0?"good":"warn"],["Recurring / month",money(d.recurringRevenue),"good"],["Website views · 30d",d.views30d]];$("content").innerHTML=`<div class="metrics">${cards.map(([label,value,cls=""])=>`<div class="metric ${cls}"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div><section class="panel"><div class="panel-head"><div><h2>Control center is live</h2><p>Website content, CRM, orders, billing and KPIs now share the same D1 database.</p></div><span class="status">Connected</span></div><p>Use the sections on the left to manage AuraDigital. Public package, service, portfolio and starting-price changes flow to the website automatically.</p></section>`}
+    async function renderOverview(){const d=await api("/api/admin/overview");const cards=[["AuraMenu requests",d.pendingAuraMenus,"warn"],["QuickSite requests",d.pendingQuickSites,"warn"],["Leads",d.leads],["Active clients",d.activeClients],["Open orders",d.openOrders],["Unpaid invoices",d.unpaidInvoices],["Paid revenue",money(d.revenue),"good"],["Expenses",money(d.expenses),"warn"],["Profit",money(d.profit),d.profit>=0?"good":"warn"],["Recurring / month",money(d.recurringRevenue),"good"],["Website views · 30d",d.views30d]];$("content").innerHTML=`<div class="metrics">${cards.map(([label,value,cls=""])=>`<div class="metric ${cls}"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div><section class="panel"><div class="panel-head"><div><h2>Control center is live</h2><p>Website content, customer requests, CRM, orders, billing and KPIs share the same D1 database.</p></div><span class="status">Connected</span></div><p>New AuraMenu and QuickSite submissions remain red and locked until you confirm payment and approve publishing.</p></section>`}
 
     async function renderPricing(){const data=await api("/api/admin/settings");const map=Object.fromEntries((data.settings||[]).map(item=>[item.key,item.value]));$("content").innerHTML=`<section class="panel"><div class="panel-head"><div><h2>Public starting prices</h2><p>These values are used by the live NFC, QR Menu and website pricing areas.</p></div><span class="status">Live settings</span></div><div class="pricing-form">${PRICE_FIELDS.map(([key,label,help])=>`<label>${esc(label)} (TL)<small>${esc(help)}</small><input type="number" min="0" step="1" data-price-key="${key}" value="${esc(map[key]||0)}"></label>`).join("")}<div class="wide-actions"><button id="savePrices" class="btn btn-dark">Save all prices</button><span id="priceNotice" class="notice"></span></div></div></section>`;$("savePrices").addEventListener("click",savePrices)}
 
@@ -120,6 +121,62 @@
 
     async function deleteItem(resource,id){if(!confirm("Delete this record?"))return;try{await api(`/api/admin/${resource}/${id}`,{method:"DELETE"});await openView(resource)}catch(error){alert(error.message)}}
     function closeModal(){$("modal").classList.add("hidden");$("modal").setAttribute("aria-hidden","true");state.editing=null}
+
+async function renderAuraMenu(){
+  const data=await api("/api/admin/auramenu");
+  const items=data.requests||[];
+  state.auraMenus=items;
+  const pending=items.filter(item=>item.status==="pending").length;
+  const unpaid=items.filter(item=>item.paymentStatus!=="paid").length;
+  const live=items.filter(item=>item.status==="approved").length;
+  const rows=items.map(item=>`<tr>
+    <td><span class="request-state ${esc(item.status)}"><i></i>${esc(item.status)}</span></td>
+    <td><strong>${esc(item.businessName)}</strong><small style="display:block;color:#6b7280">${esc(item.contactName)} · ${esc(item.contactPhone)}</small></td>
+    <td>${esc(item.templateId)}<small style="display:block;color:#6b7280">auramenu.space/${esc(item.slug)}</small></td>
+    <td><span class="pill ${item.paymentStatus==="paid"?"ok":"warn"}">${item.paymentStatus==="paid"?"Paid":"Unpaid"}</span></td>
+    <td>${esc((item.categories||[]).length)} categories<small style="display:block;color:#6b7280">${esc((item.categories||[]).reduce((sum,category)=>sum+(category.items||[]).length,0))} products</small></td>
+    <td><div class="row-actions">
+      <button class="btn btn-light btn-sm" data-menu-details="${esc(item.id)}">Details</button>
+      <a class="btn btn-light btn-sm" href="https://auramenu.space/status.html?id=${encodeURIComponent(item.id)}" target="_blank" rel="noopener noreferrer">Status</a>
+      <button class="btn btn-light btn-sm" data-menu-pay="${esc(item.id)}">${item.paymentStatus==="paid"?"Mark unpaid":"Payment received"}</button>
+      <button class="btn btn-dark btn-sm" data-menu-approve="${esc(item.id)}" ${item.paymentStatus!=="paid"||item.status==="approved"?"disabled":""}>Approve → green</button>
+      <button class="btn btn-danger btn-sm" data-menu-reject="${esc(item.id)}">Request changes</button>
+      ${item.status==="approved"?`<a class="btn btn-light btn-sm" href="https://auramenu.space/${encodeURIComponent(item.slug)}" target="_blank" rel="noopener noreferrer">Live ↗</a>`:""}
+    </div></td>
+  </tr>`).join("");
+  $("content").innerHTML=`<div class="metrics">
+    <div class="metric warn"><span>Red · pending</span><strong>${pending}</strong></div>
+    <div class="metric warn"><span>Waiting payment</span><strong>${unpaid}</strong></div>
+    <div class="metric good"><span>Green · published</span><strong>${live}</strong></div>
+  </div>
+  <section class="panel"><div class="panel-head"><div><h2>AuraMenu customer requests</h2><p>Requests start red. Confirm payment, inspect the menu, then approve it to publish the customer URL.</p></div><a class="btn btn-dark" href="https://auramenu.space" target="_blank" rel="noopener noreferrer">Open AuraMenu ↗</a></div>
+  ${items.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Status</th><th>Customer</th><th>Menu</th><th>Payment</th><th>Content</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">No AuraMenu requests yet.</div>'}</section>`;
+  document.querySelectorAll("[data-menu-details]").forEach(button=>button.addEventListener("click",()=>showAuraMenuDetails(items.find(item=>item.id===button.dataset.menuDetails))));
+  document.querySelectorAll("[data-menu-pay]").forEach(button=>button.addEventListener("click",()=>{const item=items.find(value=>value.id===button.dataset.menuPay);return updateAuraMenu(item.id,{paymentStatus:item.paymentStatus==="paid"?"unpaid":"paid"})}));
+  document.querySelectorAll("[data-menu-approve]").forEach(button=>button.addEventListener("click",()=>updateAuraMenu(button.dataset.menuApprove,{status:"approved"})));
+  document.querySelectorAll("[data-menu-reject]").forEach(button=>button.addEventListener("click",()=>updateAuraMenu(button.dataset.menuReject,{status:"rejected"})));
+}
+
+function showAuraMenuDetails(item){
+  if(!item)return;
+  const categories=(item.categories||[]).map(category=>`<section class="request-category"><h3>${esc(category.emoji||"🍽️")} ${esc(category.name)}</h3><ul>${(category.items||[]).map(product=>`<li><strong>${esc(product.name)}</strong> · ${esc(product.price||"—")} ${esc(item.currency)}${product.description?` — ${esc(product.description)}`:""}</li>`).join("")||"<li>No products</li>"}</ul></section>`).join("");
+  $("modalTitle").textContent=item.businessName+" · AuraMenu request";
+  $("modalForm").innerHTML=`<div class="request-details span-2"><dl>
+    <div><dt>Requested URL</dt><dd>auramenu.space/${esc(item.slug)}</dd></div><div><dt>Template</dt><dd>${esc(item.templateId)}</dd></div>
+    <div><dt>Menu language</dt><dd>${esc(item.menuLanguage)}</dd></div><div><dt>Created</dt><dd>${esc(new Date(item.createdAt).toLocaleString())}</dd></div>
+    <div><dt>Contact</dt><dd>${esc(item.contactName)} · ${esc(item.contactPhone)}</dd></div><div><dt>Email</dt><dd>${esc(item.email||"—")}</dd></div>
+    <div><dt>Business phone</dt><dd>${esc(item.businessPhone||"—")}</dd></div><div><dt>WhatsApp</dt><dd>${esc(item.whatsapp||"—")}</dd></div>
+    <div><dt>Address</dt><dd>${esc(item.address||"—")}</dd></div><div><dt>Payment reference</dt><dd>${esc(item.paymentReference||"—")}</dd></div>
+  </dl>${categories}<label>Owner note<textarea id="menuOwnerNote" maxlength="500">${esc(item.ownerNote||"")}</textarea></label></div>
+  <div class="modal-actions"><button type="button" id="saveMenuNote" class="btn btn-dark">Save note</button><button type="button" id="closeMenuDetails" class="btn btn-light">Close</button></div>`;
+  state.editing=null;$("modal").classList.remove("hidden");$("modal").setAttribute("aria-hidden","false");
+  $("closeMenuDetails").addEventListener("click",closeModal);$("saveMenuNote").addEventListener("click",async()=>{await updateAuraMenu(item.id,{ownerNote:$("menuOwnerNote").value},false);closeModal();await renderAuraMenu()});
+}
+
+async function updateAuraMenu(id,patch,refresh=true){
+  try{await api("/api/admin/auramenu/"+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify(patch)});if(refresh)await renderAuraMenu()}
+  catch(error){alert(error.message)}
+}
 
 async function renderQuickSite(){
   const data=await api("/api/admin/quicksite");
