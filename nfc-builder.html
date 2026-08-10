@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Google yorum veya web sitesi için NFC kartınızı özelleştirin ve AuraDigital'e tasarım talebi gönderin." />
+    <title>NFC Kart Tasarla — AuraDigital</title>
+    <link rel="icon" href="logo.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="nfc-builder.css" />
+  </head>
+  <body>
+    <header class="builder-header">
+      <a class="builder-brand" href="nfc.html" aria-label="AuraDigital NFC">
+        <img src="logo.svg" alt="" />
+        <span>auradigital</span>
+      </a>
+      <div class="builder-header-actions">
+        <a class="back-link" href="nfc.html" data-i18n="back">← NFC</a>
+        <div class="language-switch" role="group" aria-label="Language">
+          <button type="button" data-ui-lang="tr">TR</button>
+          <button type="button" data-ui-lang="en">EN</button>
+          <button type="button" data-ui-lang="ar">AR</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="builder-shell">
+      <section class="builder-intro">
+        <span class="builder-kicker" data-i18n="kicker">NFC kart tasarım stüdyosu</span>
+        <h1 data-i18n="title">Kartınızı hazırlayın, tasarımı canlı görün.</h1>
+        <p data-i18n="intro">Şimdilik Google yorum ve web sitesi kartı hazırlayabilirsiniz. Menü kartı daha sonra eklenecek.</p>
+        <div class="workflow" role="group" aria-label="Request workflow">
+          <span class="active"><i>1</i><b data-i18n="workflowDesign">Tasarla</b></span>
+          <span><i>2</i><b data-i18n="workflowRequest">Talep gönder</b></span>
+          <span><i>3</i><b data-i18n="workflowApprove">Ödeme + onay</b></span>
+          <span><i>4</i><b data-i18n="workflowProduction">Üretime hazır</b></span>
+        </div>
+      </section>
+
+      <div class="builder-layout">
+        <form id="nfcForm" class="builder-form">
+          <section class="form-card">
+            <div class="section-number">01</div>
+            <div class="section-copy"><h2 data-i18n="typeTitle">Kartın amacı</h2><p data-i18n="typeHelp">Kart dokunulduğunda hangi bağlantı açılsın?</p></div>
+            <div class="type-grid full-row">
+              <label class="type-option">
+                <input type="radio" name="cardType" value="reviews" checked />
+                <span class="type-icon">★</span>
+                <span><strong data-i18n="reviewsTitle">Google yorum kartı</strong><small data-i18n="reviewsHelp">Müşteriyi doğrudan yorum sayfasına gönderir.</small></span>
+              </label>
+              <label class="type-option">
+                <input type="radio" name="cardType" value="website" />
+                <span class="type-icon">↗</span>
+                <span><strong data-i18n="websiteTitle">Web sitesi kartı</strong><small data-i18n="websiteHelp">İşletmenizin web sitesini tek dokunuşla açar.</small></span>
+              </label>
+            </div>
+          </section>
+
+          <section class="form-card">
+            <div class="section-number">02</div>
+            <div class="section-copy"><h2 data-i18n="contentTitle">Kart üzerindeki bilgiler</h2><p data-i18n="contentHelp">Yazdıklarınız sağdaki tasarımda anında görünür.</p></div>
+            <div class="fields full-row">
+              <label><span data-i18n="business">İşletme / marka adı *</span><input name="businessName" type="text" maxlength="100" required value="Aura Coffee" /></label>
+              <label><span data-i18n="cardLanguage">Kart dili</span><select name="cardLanguage"><option value="tr">Türkçe</option><option value="en">English</option><option value="ar">العربية</option></select></label>
+              <label class="span-2"><span data-i18n="headline">Ana mesaj</span><input name="headline" type="text" maxlength="100" value="Bizi Google'da değerlendirin" /></label>
+              <label class="span-2"><span data-i18n="instruction">Kısa açıklama</span><textarea name="instructionText" maxlength="240">Telefonunuzu karta yaklaştırın veya QR kodu tarayın.</textarea></label>
+              <label class="span-2"><span id="destinationLabel" data-i18n="reviewUrl">Google yorum bağlantısı *</span><input name="destinationUrl" type="url" maxlength="800" required placeholder="https://g.page/r/.../review" /></label>
+            </div>
+          </section>
+
+          <section class="form-card">
+            <div class="section-number">03</div>
+            <div class="section-copy"><h2 data-i18n="designTitle">Renk ve görünüm</h2><p data-i18n="designHelp">Markanıza yakın bir hazır palet seçin veya renkleri tek tek değiştirin.</p></div>
+            <div class="palette-grid full-row" role="group" aria-label="Color palettes">
+              <button type="button" class="palette active" data-palette="#102326,#64d7df,#ffffff"><i></i><i></i><i></i><span>Midnight</span></button>
+              <button type="button" class="palette" data-palette="#f3eadc,#c75b39,#261a15"><i></i><i></i><i></i><span>Terracotta</span></button>
+              <button type="button" class="palette" data-palette="#151515,#d8ff45,#ffffff"><i></i><i></i><i></i><span>Neon</span></button>
+              <button type="button" class="palette" data-palette="#edf4ff,#2855c5,#15244a"><i></i><i></i><i></i><span>Studio Blue</span></button>
+            </div>
+            <div class="fields full-row color-fields">
+              <label><span data-i18n="backgroundColor">Zemin</span><input name="backgroundColor" type="color" value="#102326" /></label>
+              <label><span data-i18n="accentColor">Vurgu</span><input name="accentColor" type="color" value="#64d7df" /></label>
+              <label><span data-i18n="textColor">Yazı</span><input name="textColor" type="color" value="#ffffff" /></label>
+              <label><span data-i18n="finish">Yüzey</span><select name="finish"><option value="matte" data-i18n="matte">Mat</option><option value="glossy" data-i18n="glossy">Parlak</option></select></label>
+              <label class="check-label"><input name="showQr" type="checkbox" checked /><span data-i18n="showQr">Arka yüzde QR yedeği göster</span></label>
+              <label><span data-i18n="quantity">Kart adedi *</span><input name="quantity" type="number" min="1" max="100" step="1" value="1" required /></label>
+            </div>
+          </section>
+
+          <section class="form-card">
+            <div class="section-number">04</div>
+            <div class="section-copy"><h2 data-i18n="contactTitle">İletişim ve talep</h2><p data-i18n="contactHelp">Tasarım onayı ve ödeme bilgisi için size ulaşabilelim.</p></div>
+            <div class="fields full-row">
+              <label><span data-i18n="contactName">Yetkili adı *</span><input name="contactName" type="text" maxlength="100" autocomplete="name" required /></label>
+              <label><span data-i18n="contactPhone">Telefon / WhatsApp *</span><input name="contactPhone" type="tel" maxlength="40" autocomplete="tel" required /></label>
+              <label><span data-i18n="email">E-posta</span><input name="email" type="email" maxlength="160" autocomplete="email" /></label>
+              <label><span data-i18n="city">Şehir</span><input name="city" type="text" maxlength="100" autocomplete="address-level2" /></label>
+              <label class="span-2"><span data-i18n="paymentReference">Ödeme referansı (varsa)</span><input name="paymentReference" type="text" maxlength="200" /></label>
+              <label class="span-2"><span data-i18n="notes">Ek not</span><textarea name="notes" maxlength="1000" data-i18n-placeholder="notesPlaceholder" placeholder="Logo yerleşimi, teslimat veya tasarım notlarınız..."></textarea></label>
+            </div>
+            <div class="submit-row full-row">
+              <p><span class="pending-dot"></span><span data-i18n="pendingNote">Talep önce kırmızı / beklemede görünür. Ödeme ve tasarım onayından sonra yeşile döner.</span></p>
+              <button id="submitButton" class="submit-button" type="submit"><span data-i18n="submit">Tasarım talebi gönder</span><b>↗</b></button>
+              <div id="formNotice" class="form-notice" role="status" aria-live="polite"></div>
+            </div>
+          </section>
+        </form>
+
+        <aside class="preview-panel">
+          <div class="preview-head"><div><span data-i18n="livePreview">Canlı önizleme</span><strong data-i18n="physicalSize">85.6 × 54 mm kart oranı</strong></div><span id="finishBadge">MATTE</span></div>
+          <div class="card-scene">
+            <div class="card-caption" data-i18n="front">Ön yüz</div>
+            <article id="cardFront" class="nfc-card front">
+              <div class="card-grain"></div>
+              <div class="card-top"><span id="previewBrand">Aura Coffee</span><span class="nfc-mark"><i></i><i></i><i></i></span></div>
+              <div class="card-center"><span id="previewIcon" class="purpose-icon">★</span><h2 id="previewHeadline">Bizi Google'da değerlendirin</h2><p id="previewInstruction">Telefonunuzu karta yaklaştırın veya QR kodu tarayın.</p></div>
+              <div class="card-bottom"><span id="previewType">GOOGLE REVIEWS</span><b>AURA NFC</b></div>
+            </article>
+          </div>
+          <div class="card-scene back-scene">
+            <div class="card-caption" data-i18n="backSide">Arka yüz</div>
+            <article id="cardBack" class="nfc-card back">
+              <div class="card-grain"></div>
+              <canvas id="qrPreview" width="126" height="126" role="img" aria-label="QR preview"></canvas>
+              <div class="back-copy"><strong id="backHeadline">Bizi Google'da değerlendirin</strong><span id="previewHost">Bağlantınızı girin</span><small data-i18n="qrMock">QR görseli tasarım önizlemesidir.</small></div>
+            </article>
+          </div>
+          <div class="preview-note"><span>◎</span><p data-i18n="previewNote">Bu önizleme tasarım kararını gösterir. Baskı dosyası onaydan sonra AuraDigital tarafından hazırlanır.</p></div>
+        </aside>
+      </div>
+    </main>
+
+    <section id="successPanel" class="success-overlay" hidden>
+      <div class="success-card">
+        <span class="success-icon">✓</span>
+        <span class="builder-kicker" data-i18n="received">Talebiniz alındı</span>
+        <h2 data-i18n="successTitle">NFC kart tasarımınız incelemeye gönderildi.</h2>
+        <p data-i18n="successText">Talep şu anda kırmızı / beklemede. Ödeme kontrolü ve tasarım onayından sonra yeşil görünecek.</p>
+        <a id="statusLink" class="submit-button" href="nfc-status.html"><span data-i18n="openStatus">Talep durumunu aç</span><b>↗</b></a>
+        <button id="closeSuccess" class="text-button" type="button" data-i18n="close">Kapat</button>
+      </div>
+    </section>
+
+    <script src="nfc-builder.js"></script>
+  </body>
+</html>

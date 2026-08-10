@@ -1,5 +1,5 @@
     const NAV = [
-      ["overview","Overview"],["auramenu","AuraMenu Requests"],["quicksite","QuickSite Requests"],["pricing","Pricing"],["packages","Packages"],["services","Services"],["portfolio","Portfolio"],
+      ["overview","Overview"],["nfc","NFC Design Requests"],["auramenu","AuraMenu Requests"],["quicksite","QuickSite Requests"],["pricing","Pricing"],["packages","Packages"],["services","Services"],["portfolio","Portfolio"],
       ["clients","Clients"],["orders","NFC / QR Orders"],["invoices","Invoices"],["subscriptions","Subscriptions"],["expenses","Expenses"],["analytics","Analytics"]
     ];
 
@@ -56,10 +56,10 @@
     async function checkSession(){try{const session=await api("/api/admin/session");if(session.authenticated)return showDashboard()}catch(_){}$("loginView").classList.remove("hidden");$("dashboardView").classList.add("hidden")}
     async function showDashboard(){$("loginView").classList.add("hidden");$("dashboardView").classList.remove("hidden");buildNav();const requested=location.hash.slice(1);await openView(NAV.some(([id])=>id===requested)?requested:"overview")}
 
-    async function openView(view){state.view=view;location.hash=view==="overview"?"":view;buildNav();const meta=RESOURCE[view];$("pageTitle").textContent=meta?.title||({overview:"Overview",auramenu:"AuraMenu Requests",quicksite:"QuickSite Requests",pricing:"Pricing",analytics:"Analytics"}[view]||view);$("pageSubtitle").textContent=meta?.subtitle||({overview:"Your business at a glance.",auramenu:"Verify payment, review the requested menu and approve publishing.",quicksite:"Review customer websites, confirm payment and approve publishing.",pricing:"Control all public starting prices from one place.",analytics:"Privacy-friendly aggregate website traffic for the last 30 days."}[view]||"");$("content").innerHTML='<section class="panel"><p>Loading…</p></section>';
-      try{if(view==="overview")await renderOverview();else if(view==="auramenu")await renderAuraMenu();else if(view==="quicksite")await renderQuickSite();else if(view==="pricing")await renderPricing();else if(view==="analytics")await renderAnalytics();else await renderResource(view)}catch(error){if(error.status===401)return checkSession();$("content").innerHTML=`<section class="panel"><div class="notice error">${esc(error.message)}</div></section>`}}
+    async function openView(view){state.view=view;location.hash=view==="overview"?"":view;buildNav();const meta=RESOURCE[view];$("pageTitle").textContent=meta?.title||({overview:"Overview",nfc:"NFC Design Requests",auramenu:"AuraMenu Requests",quicksite:"QuickSite Requests",pricing:"Pricing",analytics:"Analytics"}[view]||view);$("pageSubtitle").textContent=meta?.subtitle||({overview:"Your business at a glance.",nfc:"Review colors and card details, confirm payment, then approve production.",auramenu:"Verify payment, review the requested menu and approve publishing.",quicksite:"Review customer websites, confirm payment and approve publishing.",pricing:"Control all public starting prices from one place.",analytics:"Privacy-friendly aggregate website traffic for the last 30 days."}[view]||"");$("content").innerHTML='<section class="panel"><p>Loading…</p></section>';
+      try{if(view==="overview")await renderOverview();else if(view==="nfc")await renderNfc();else if(view==="auramenu")await renderAuraMenu();else if(view==="quicksite")await renderQuickSite();else if(view==="pricing")await renderPricing();else if(view==="analytics")await renderAnalytics();else await renderResource(view)}catch(error){if(error.status===401)return checkSession();$("content").innerHTML=`<section class="panel"><div class="notice error">${esc(error.message)}</div></section>`}}
 
-    async function renderOverview(){const d=await api("/api/admin/overview");const cards=[["AuraMenu requests",d.pendingAuraMenus,"warn"],["QuickSite requests",d.pendingQuickSites,"warn"],["Leads",d.leads],["Active clients",d.activeClients],["Open orders",d.openOrders],["Unpaid invoices",d.unpaidInvoices],["Paid revenue",money(d.revenue),"good"],["Expenses",money(d.expenses),"warn"],["Profit",money(d.profit),d.profit>=0?"good":"warn"],["Recurring / month",money(d.recurringRevenue),"good"],["Website views · 30d",d.views30d]];$("content").innerHTML=`<div class="metrics">${cards.map(([label,value,cls=""])=>`<div class="metric ${cls}"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div><section class="panel"><div class="panel-head"><div><h2>Control center is live</h2><p>Website content, customer requests, CRM, orders, billing and KPIs share the same D1 database.</p></div><span class="status">Connected</span></div><p>New AuraMenu and QuickSite submissions remain red and locked until you confirm payment and approve publishing.</p></section>`}
+    async function renderOverview(){const d=await api("/api/admin/overview");const cards=[["NFC design requests",d.pendingNfcRequests,"warn"],["AuraMenu requests",d.pendingAuraMenus,"warn"],["QuickSite requests",d.pendingQuickSites,"warn"],["Leads",d.leads],["Active clients",d.activeClients],["Open orders",d.openOrders],["Unpaid invoices",d.unpaidInvoices],["Paid revenue",money(d.revenue),"good"],["Expenses",money(d.expenses),"warn"],["Profit",money(d.profit),d.profit>=0?"good":"warn"],["Recurring / month",money(d.recurringRevenue),"good"],["Website views · 30d",d.views30d]];$("content").innerHTML=`<div class="metrics">${cards.map(([label,value,cls=""])=>`<div class="metric ${cls}"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div><section class="panel"><div class="panel-head"><div><h2>Control center is live</h2><p>Website content, customer requests, CRM, orders, billing and KPIs share the same D1 database.</p></div><span class="status">Connected</span></div><p>New NFC, AuraMenu and QuickSite submissions remain red and locked until you confirm payment and approve them.</p></section>`}
 
     async function renderPricing(){const data=await api("/api/admin/settings");const map=Object.fromEntries((data.settings||[]).map(item=>[item.key,item.value]));$("content").innerHTML=`<section class="panel"><div class="panel-head"><div><h2>Public starting prices</h2><p>These values are used by the live NFC, QR Menu and website pricing areas.</p></div><span class="status">Live settings</span></div><div class="pricing-form">${PRICE_FIELDS.map(([key,label,help])=>`<label>${esc(label)} (TL)<small>${esc(help)}</small><input type="number" min="0" step="1" data-price-key="${key}" value="${esc(map[key]||0)}"></label>`).join("")}<div class="wide-actions"><button id="savePrices" class="btn btn-dark">Save all prices</button><span id="priceNotice" class="notice"></span></div></div></section>`;$("savePrices").addEventListener("click",savePrices)}
 
@@ -79,6 +79,70 @@
 
     async function deleteItem(resource,id){if(!confirm("Delete this record?"))return;try{await api(`/api/admin/${resource}/${id}`,{method:"DELETE"});await openView(resource)}catch(error){alert(error.message)}}
     function closeModal(){$("modal").classList.add("hidden");$("modal").setAttribute("aria-hidden","true");state.editing=null}
+
+async function renderNfc(){
+  const data=await api("/api/admin/nfc");
+  const items=data.requests||[];
+  state.nfcRequests=items;
+  const pending=items.filter(item=>item.status==="pending").length;
+  const unpaid=items.filter(item=>item.paymentStatus!=="paid").length;
+  const approved=items.filter(item=>item.status==="approved").length;
+  const rows=items.map(item=>`<tr>
+    <td><span class="request-state ${esc(item.status)}"><i></i>${esc(item.status)}</span></td>
+    <td><strong>${esc(item.businessName)}</strong><small style="display:block;color:#6b7280">${esc(item.contactName)} · ${esc(item.contactPhone)}</small></td>
+    <td>${item.cardType==="reviews"?"Google reviews":"Website"}<small style="display:block;color:#6b7280">${esc(item.quantity)} card${Number(item.quantity)===1?"":"s"} · ${esc(item.finish)}</small></td>
+    <td><span class="pill ${item.paymentStatus==="paid"?"ok":"warn"}">${item.paymentStatus==="paid"?"Paid":"Unpaid"}</span></td>
+    <td><div class="row-actions">
+      <button class="btn btn-light btn-sm" data-nfc-details="${esc(item.id)}">Design details</button>
+      <a class="btn btn-light btn-sm" href="/nfc-status.html?id=${encodeURIComponent(item.id)}" target="_blank" rel="noopener noreferrer">Customer status</a>
+      <button class="btn btn-light btn-sm" data-nfc-pay="${esc(item.id)}">${item.paymentStatus==="paid"?"Mark unpaid":"Payment received"}</button>
+      <button class="btn btn-dark btn-sm" data-nfc-approve="${esc(item.id)}" ${item.paymentStatus!=="paid"||item.status==="approved"?"disabled":""}>Approve → green</button>
+      <button class="btn btn-danger btn-sm" data-nfc-reject="${esc(item.id)}">Request changes</button>
+    </div></td>
+  </tr>`).join("");
+  $("content").innerHTML=`<div class="metrics">
+    <div class="metric warn"><span>Red · pending</span><strong>${pending}</strong></div>
+    <div class="metric warn"><span>Waiting payment</span><strong>${unpaid}</strong></div>
+    <div class="metric good"><span>Green · approved</span><strong>${approved}</strong></div>
+  </div>
+  <section class="panel"><div class="panel-head"><div><h2>NFC card design requests</h2><p>Customers choose a review or website card, colors and details. Confirm payment before approving the design for production.</p></div><a class="btn btn-dark" href="/nfc-builder.html" target="_blank" rel="noopener noreferrer">Open NFC Studio ↗</a></div>
+  ${items.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Status</th><th>Customer</th><th>Card</th><th>Payment</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">No NFC design requests yet.</div>'}</section>`;
+  document.querySelectorAll("[data-nfc-details]").forEach(button=>button.addEventListener("click",()=>showNfcDetails(items.find(item=>item.id===button.dataset.nfcDetails))));
+  document.querySelectorAll("[data-nfc-pay]").forEach(button=>button.addEventListener("click",()=>{const item=items.find(value=>value.id===button.dataset.nfcPay);return updateNfc(item.id,{paymentStatus:item.paymentStatus==="paid"?"unpaid":"paid"})}));
+  document.querySelectorAll("[data-nfc-approve]").forEach(button=>button.addEventListener("click",()=>updateNfc(button.dataset.nfcApprove,{status:"approved"})));
+  document.querySelectorAll("[data-nfc-reject]").forEach(button=>button.addEventListener("click",()=>updateNfc(button.dataset.nfcReject,{status:"rejected"})));
+}
+
+function showNfcDetails(item){
+  if(!item)return;
+  const destination=safeLink(item.destinationUrl);
+  const icon=item.cardType==="reviews"?"★":"↗";
+  $("modalTitle").textContent=item.businessName+" · NFC design";
+  $("modalForm").innerHTML=`<div class="request-details span-2">
+    <article class="nfc-admin-preview ${item.finish==="glossy"?"glossy":""}" style="--nfc-bg:${esc(item.backgroundColor)};--nfc-accent:${esc(item.accentColor)};--nfc-text:${esc(item.textColor)}">
+      <div class="nfc-admin-top"><strong>${esc(item.businessName)}</strong><i>NFC )))</i></div>
+      <div class="nfc-admin-main"><span>${icon}</span><h3>${esc(item.headline||item.businessName)}</h3><p>${esc(item.instructionText||"")}</p></div>
+      <div class="nfc-admin-bottom"><strong>${item.cardType==="reviews"?"GOOGLE REVIEWS":"WEBSITE"}</strong><span>AURA NFC</span></div>
+    </article>
+    <dl>
+      <div><dt>Purpose</dt><dd>${item.cardType==="reviews"?"Google reviews":"Website"}</dd></div><div><dt>Card language</dt><dd>${esc(item.cardLanguage)}</dd></div>
+      <div><dt>Destination</dt><dd>${destination?`<a href="${esc(destination)}" target="_blank" rel="noopener noreferrer">${esc(destination)} ↗</a>`:"—"}</dd></div><div><dt>Quantity / finish</dt><dd>${esc(item.quantity)} · ${esc(item.finish)}</dd></div>
+      <div><dt>QR backup</dt><dd>${item.showQr?"Yes":"No"}</dd></div><div><dt>Colors</dt><dd>${esc(item.backgroundColor)} · ${esc(item.accentColor)} · ${esc(item.textColor)}</dd></div>
+      <div><dt>Contact</dt><dd>${esc(item.contactName)} · ${esc(item.contactPhone)}</dd></div><div><dt>Email / city</dt><dd>${esc(item.email||"—")} · ${esc(item.city||"—")}</dd></div>
+      <div><dt>Payment reference</dt><dd>${esc(item.paymentReference||"—")}</dd></div><div><dt>Created</dt><dd>${esc(new Date(item.createdAt).toLocaleString())}</dd></div>
+      <div><dt>Customer notes</dt><dd>${esc(item.notes||"—")}</dd></div><div><dt>Status</dt><dd>${esc(item.status)} · ${esc(item.paymentStatus)}</dd></div>
+    </dl>
+    <label>Owner note<textarea id="nfcOwnerNote" maxlength="500">${esc(item.ownerNote||"")}</textarea></label>
+  </div>
+  <div class="modal-actions"><button type="button" id="saveNfcNote" class="btn btn-dark">Save note</button><button type="button" id="closeNfcDetails" class="btn btn-light">Close</button></div>`;
+  state.editing=null;$("modal").classList.remove("hidden");$("modal").setAttribute("aria-hidden","false");
+  $("closeNfcDetails").addEventListener("click",closeModal);$("saveNfcNote").addEventListener("click",async()=>{await updateNfc(item.id,{ownerNote:$("nfcOwnerNote").value},false);closeModal();await renderNfc()});
+}
+
+async function updateNfc(id,patch,refresh=true){
+  try{await api("/api/admin/nfc/"+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify(patch)});if(refresh)await renderNfc()}
+  catch(error){alert(error.message)}
+}
 
 async function renderAuraMenu(){
   const data=await api("/api/admin/auramenu");
