@@ -99,7 +99,7 @@
                 </p>
                 <a
                   class="btn btn-ghost"
-                  href="contact.html?design=3D-Orbit-Menu"
+                  href="#" data-menu-choice data-template="orbit" data-design="3D Orbit Menu"
                   >Open Design ↗</a
                 >
               </div>
@@ -128,7 +128,7 @@
                 </p>
                 <a
                   class="btn btn-ghost"
-                  href="contact.html?design=Luxury-Editorial-Menu"
+                  href="#" data-menu-choice data-template="maison" data-design="Luxury Editorial Menu"
                   >Open Design ↗</a
                 >
               </div>
@@ -164,7 +164,7 @@
                 </p>
                 <a
                   class="btn btn-ghost"
-                  href="contact.html?design=Premium-3D-Showcase"
+                  href="#" data-menu-choice data-template="taste3d" data-design="Premium 3D Showcase"
                   >Open Design ↗</a
                 >
               </div>
@@ -202,7 +202,7 @@
                 </p>
                 <a
                   class="btn btn-ghost"
-                  href="contact.html?design=Modern-Mobile-Menu"
+                  href="#" data-menu-choice data-template="modern" data-design="Modern Mobile Menu"
                   >Open Design ↗</a
                 >
               </div>
@@ -280,7 +280,28 @@
       </section>
     </main>
     <footer id="siteFooter"></footer>
+    <div class="menu-choice-modal" id="menuChoiceModal" hidden aria-hidden="true">
+      <div class="menu-choice-backdrop" data-menu-choice-close></div>
+      <section class="menu-choice-card" role="dialog" aria-modal="true" aria-labelledby="menuChoiceTitle">
+        <button class="menu-choice-close" type="button" data-menu-choice-close aria-label="Kapat">×</button>
+        <span class="eyebrow">AURAMENU · 2.500 TL</span>
+        <h2 id="menuChoiceTitle">Menünüzü nasıl yayınlayalım?</h2>
+        <p id="menuChoiceDesign">Seçilen tasarım</p>
+        <fieldset>
+          <legend>1. Menü adresi</legend>
+          <label><input type="radio" name="menuDomainMode" value="auramenu" checked><span><b>AuraMenu adresi</b><small>auramenu.space/isletmeniz · domain ücreti yok</small></span></label>
+          <label><input type="radio" name="menuDomainMode" value="custom"><span><b>Kendi domainim</b><small>Sahip olduğunuz domain bağlanır · domain satın alma dahil değil</small></span></label>
+        </fieldset>
+        <div class="menu-choice-actions">
+          <a class="btn btn-primary" id="menuSelfBuild" href="https://auramenu.space/builder.html">Kendim özelleştireceğim ↗</a>
+          <a class="btn btn-live" id="menuManagedBuild" href="https://auramenu.space/builder.html">AuraDigital hazırlasın ↗</a>
+        </div>
+        <small class="menu-choice-note">Her iki seçenekte de ödeme kontrolünden önce menü yayınlanmaz.</small>
+      </section>
+    </div>
+
     <script src="site-settings.js"></script>
     <script src="script.js"></script>
+    <script src="aura-menu-choice.js"></script>
   </body>
 </html>
