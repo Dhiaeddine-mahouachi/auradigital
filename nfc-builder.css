@@ -18,3 +18,36 @@ html[dir=rtl] .workflow span:not(:last-child)::after{margin:0 10px}html[dir=rtl]
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
 .order-total{display:block;font-size:12px;color:#365054}.order-total b{color:var(--ink);font-size:17px}.nfc-card.size-large{aspect-ratio:.72/1;max-width:330px;margin-inline:auto}.nfc-card.corners-square{border-radius:4px}.nfc-card[data-font=elegant]{font-family:Georgia,"Times New Roman",serif}.nfc-card[data-font=bold] h2,.nfc-card[data-font=bold] strong{font-weight:950;text-transform:uppercase}.nfc-card[data-layout=minimal] .purpose-icon{display:none}.nfc-card[data-layout=minimal] .card-center{text-align:center;margin-inline:auto}.nfc-card[data-layout=split] .card-center{max-width:60%;margin-left:auto;text-align:right}@media(max-width:780px){.type-grid{grid-template-columns:1fr}}
+
+/* Complete phone layout */
+@media(max-width:650px){
+  body{min-width:320px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  .builder-header{height:64px;padding:0 12px;gap:8px}
+  .builder-header-actions{gap:7px}
+  .builder-brand img{width:33px;height:33px}
+  .language-switch button{width:35px;min-height:32px}
+  .builder-shell{padding:28px 10px 58px}
+  .builder-intro{margin-bottom:24px}
+  .builder-intro h1{font-size:clamp(33px,11vw,43px);line-height:1}
+  .builder-intro>p{margin:15px 0 20px;font-size:14px;line-height:1.55}
+  .workflow{justify-content:space-between;overflow:visible}
+  .workflow span{gap:0}
+  .workflow span:not(:last-child)::after{width:clamp(12px,7vw,28px);margin:0 5px}
+  .workflow i{width:30px;height:30px}
+  .form-card{padding:17px 13px;grid-template-columns:34px minmax(0,1fr);gap:0 9px;border-radius:18px}
+  .section-number{width:32px;height:32px;border-radius:10px}
+  .section-copy h2{font-size:18px}
+  .section-copy p{font-size:12px}
+  .full-row{margin-top:18px}
+  .type-option{padding:14px}
+  .fields{gap:12px}
+  .fields input,.fields textarea,.fields select{font-size:16px;min-height:46px}
+  .palette-grid{grid-template-columns:repeat(2,1fr)}
+  .preview-panel{padding:13px;border-radius:18px}
+  .preview-head{align-items:flex-start;gap:10px}
+  .nfc-card.size-large{max-width:270px}
+  .submit-row{gap:14px}
+  .submit-button{min-height:50px}
+  .success-overlay{padding:10px}
+  .success-card{max-height:calc(100svh - 20px);overflow:auto;border-radius:20px}
+}
