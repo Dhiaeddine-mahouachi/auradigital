@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#f4f0e8" />
+  <title>QuickSite — Choose your website</title>
+  <meta name="description" content="Choose a ready-made QuickSite design, replace the content and send your website request to AuraDigital." />
+  <link rel="stylesheet" href="/quicksite-v2.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">auradigital<span>·</span></a>
+    <div class="topbar-copy"><strong>QuickSite</strong><small>Ready-made websites. Your data, your style.</small></div>
+    <a class="ghost-link" href="/">Back to AuraDigital ↗</a>
+  </header>
+
+  <main>
+    <section class="hero shell">
+      <div class="hero-copy">
+        <span class="eyebrow">QUICKSITE TEMPLATE STUDIO</span>
+        <h1>Pick the website.<br><em>Change only the data.</em></h1>
+        <p>Choose your business category and one of three finished designs. Add your business details, photos, offers and preferred payment presentation. AuraDigital receives the complete request in the dashboard.</p>
+        <div class="hero-actions">
+          <a class="primary-btn" href="#templates">Explore templates ↓</a>
+          <span>18 website designs · 3 payment layouts</span>
+        </div>
+      </div>
+      <div class="hero-stack" aria-hidden="true">
+        <div class="stack-card s1"><span>COFFEE</span><b>Roast House</b></div>
+        <div class="stack-card s2"><span>RESTAURANT</span><b>Table No. 7</b></div>
+        <div class="stack-card s3"><span>BEAUTY</span><b>Studio Aura</b></div>
+      </div>
+    </section>
+
+    <section class="shell builder" id="templates">
+      <div class="section-heading">
+        <div><span class="eyebrow">01 · BUSINESS TYPE</span><h2>What are you building?</h2></div>
+        <p>Each category has three different design directions.</p>
+      </div>
+      <div class="category-tabs" id="categoryTabs"></div>
+
+      <div class="section-heading template-heading">
+        <div><span class="eyebrow">02 · DESIGN</span><h2>Choose your template</h2></div>
+        <p id="templateCount">3 designs</p>
+      </div>
+      <div class="template-grid" id="templateGrid"></div>
+
+      <section class="customizer" id="customizer">
+        <div class="customizer-form">
+          <div class="section-heading compact">
+            <div><span class="eyebrow">03 · YOUR DATA</span><h2>Make it yours</h2></div>
+            <span class="selected-pill" id="selectedPill">Choose a template</span>
+          </div>
+
+          <form id="quicksiteForm">
+            <div class="form-grid two">
+              <label>Business name<input name="businessName" required placeholder="Minoa Coffee" /></label>
+              <label>Website address<input name="slug" placeholder="minoa-coffee" /></label>
+              <label>Tagline<input name="tagline" placeholder="Coffee worth slowing down for." /></label>
+              <label>Main color<input name="primaryColor" type="color" value="#a24d2b" /></label>
+            </div>
+            <label>Short description<textarea name="description" rows="3" placeholder="Tell customers what makes your business special."></textarea></label>
+
+            <div class="form-grid two">
+              <label>Hero photo URL<input name="heroImageUrl" type="url" placeholder="https://..." /></label>
+              <label>Logo URL<input name="logoUrl" type="url" placeholder="https://..." /></label>
+            </div>
+            <div class="photo-row">
+              <label>Gallery photo 1<input name="gallery1" type="url" placeholder="https://..." /></label>
+              <label>Gallery photo 2<input name="gallery2" type="url" placeholder="https://..." /></label>
+              <label>Gallery photo 3<input name="gallery3" type="url" placeholder="https://..." /></label>
+            </div>
+
+            <div class="offers-title"><strong>Products / services</strong><button type="button" id="addOffer">+ Add item</button></div>
+            <div id="offers" class="offers"></div>
+
+            <div class="form-grid two contact-grid">
+              <label>Phone<input name="phone" placeholder="+90 ..." /></label>
+              <label>WhatsApp<input name="whatsapp" placeholder="+90 ..." /></label>
+              <label>Email<input name="email" type="email" required placeholder="hello@business.com" /></label>
+              <label>Instagram<input name="instagram" placeholder="@yourbusiness" /></label>
+              <label>Address<input name="address" placeholder="Istanbul, Türkiye" /></label>
+              <label>Working hours<input name="workingHours" placeholder="Mon–Sun · 08:00–22:00" /></label>
+            </div>
+
+            <div class="section-heading compact payment-title">
+              <div><span class="eyebrow">04 · PAYMENT LOOK</span><h2>Choose payment style</h2></div>
+              <p>Visual style for your payment/deposit section.</p>
+            </div>
+            <div class="payment-grid" id="paymentGrid"></div>
+            <p class="payment-note">This selects the payment-page presentation. Actual online card processing can be connected later to your payment provider.</p>
+
+            <div class="form-grid two final-grid">
+              <label>Contact person<input name="contactName" required placeholder="Your name" /></label>
+              <label>Language<select name="language"><option value="tr">Türkçe</option><option value="en" selected>English</option><option value="ar">العربية</option></select></label>
+            </div>
+            <label>Extra request<textarea name="requestMessage" rows="3" placeholder="Anything you want AuraDigital to change before publishing?"></textarea></label>
+
+            <button class="submit-btn" type="submit">Send QuickSite request <span>↗</span></button>
+            <p class="submit-status" id="submitStatus" role="status"></p>
+          </form>
+        </div>
+
+        <aside class="live-preview-wrap">
+          <div class="preview-top"><span>LIVE PREVIEW</span><span id="previewDevice">Mobile</span></div>
+          <div class="phone" id="phonePreview"><div id="livePreview" class="site-preview"></div></div>
+        </aside>
+      </section>
+    </section>
+  </main>
+
+  <footer><div class="shell"><strong>auradigital · QuickSite</strong><span>Choose → Customize → Request → Pay → AuraDigital publishes</span></div></footer>
+  <script src="/quicksite-v2.js"></script>
+</body>
+</html>
