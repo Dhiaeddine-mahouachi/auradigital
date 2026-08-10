@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>AuraDigital Team Access</title>
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#101516;background:#f4f7f4;--line:#dfe5e2;--muted:#687272;--accent:#1b9aaa;--dark:#0b1c1f;--danger:#b42318}*{box-sizing:border-box}body{margin:0}header{background:var(--dark);color:#fff;padding:18px clamp(16px,4vw,48px);display:flex;justify-content:space-between;gap:18px;align-items:center}header strong{font-size:20px}header strong span{color:#65d3db}header a{color:#fff;text-decoration:none;font-size:13px}main{width:min(1100px,calc(100% - 28px));margin:28px auto 50px;display:grid;gap:18px}.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 8px 30px rgba(18,38,39,.035)}h1,h2{margin:0 0 8px;letter-spacing:-.035em}p{margin:0 0 18px;color:var(--muted);line-height:1.55}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}label{display:grid;gap:7px;font-size:12px;font-weight:750}input,select{width:100%;border:1px solid #ccd5d1;border-radius:10px;padding:11px 12px;background:#fff;font-size:15px;outline:none}input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(27,154,170,.11)}button{border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}.primary{background:var(--dark);color:#fff}.danger{background:#fff0ed;color:var(--danger)}.light{background:#e8eeeb;color:#101516}.actions{grid-column:1/-1;display:flex;gap:10px;align-items:center}.notice{font-size:12px;color:var(--muted)}.notice.error{color:var(--danger)}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:12px;border-bottom:1px solid #edf0ee;text-align:left;font-size:13px;vertical-align:middle}th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:#f8faf8}.pill{display:inline-flex;padding:5px 8px;border-radius:999px;background:#eef3f0;font-size:11px;font-weight:800}.muted{color:var(--muted);font-size:12px}.row-actions{display:flex;gap:7px}.roles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.role{background:#f8faf8;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:12px}.role strong{display:block;margin-bottom:5px}.role span{color:var(--muted);line-height:1.45}@media(max-width:760px){header{align-items:flex-start;flex-direction:column}.grid,.roles{grid-template-columns:1fr}.actions{grid-column:auto;align-items:stretch;flex-direction:column}.actions button{width:100%;min-height:44px}.panel{padding:16px}}
+  </style>
+</head>
+<body>
+<header><strong>Aura<span>Digital</span> · Team Access</strong><nav><a href="/admin/">← Dashboard</a></nav></header>
+<main>
+  <section class="panel">
+    <h1>Team accounts</h1>
+    <p>Create a separate account for each employee. Never share your owner password.</p>
+    <div class="roles">
+      <div class="role"><strong>Admin</strong><span>Broad operational access, but cannot manage owner/team security settings.</span></div>
+      <div class="role"><strong>Sales</strong><span>Clients, orders and read-only customer design requests.</span></div>
+      <div class="role"><strong>Designer</strong><span>QuickSite, AuraMenu and NFC requests only.</span></div>
+      <div class="role"><strong>Accountant</strong><span>Orders, invoices, subscriptions and expenses.</span></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Add team member</h2>
+    <p>Passwords must be at least 12 characters with uppercase, lowercase, a number and a symbol.</p>
+    <form id="createForm" class="grid">
+      <label>Name<input id="displayName" maxlength="100" required></label>
+      <label>Email<input id="email" type="email" maxlength="160" required></label>
+      <label>Role<select id="role"><option value="admin">Admin</option><option value="sales">Sales</option><option value="designer">Designer</option><option value="accountant">Accountant</option></select></label>
+      <label>Temporary password<input id="password" type="password" minlength="12" autocomplete="new-password" required></label>
+      <div class="actions"><button class="primary" type="submit">Create secure account</button><span id="notice" class="notice"></span></div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Current team</h2>
+    <p>Disabling an account takes effect on its next API request, even if that user still has an old browser session.</p>
+    <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last login</th><th></th></tr></thead><tbody id="rows"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody></table></div>
+  </section>
+
+  <section class="panel">
+    <h2>Recent security activity</h2>
+    <p>Owner and admin accounts can review recent admin mutations and team sign-ins.</p>
+    <div class="table-wrap"><table><thead><tr><th>Time</th><th>Actor</th><th>Role</th><th>Action</th><th>Path</th></tr></thead><tbody id="activity"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody></table></div>
+  </section>
+</main>
+<script>
+  const rows=document.getElementById('rows'),activity=document.getElementById('activity'),notice=document.getElementById('notice');
+  const esc=(v)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  async function api(url,options={}){const response=await fetch(url,{credentials:'same-origin',...options,headers:{'Content-Type':'application/json',...(options.headers||{})}});const data=await response.json().catch(()=>({}));if(response.status===401){location.href='/admin/';throw new Error('Please sign in as owner.')}if(!response.ok)throw new Error(data.error||'Request failed.');return data}
+  async function loadUsers(){try{const data=await api('/api/security/admin-users');const users=data.users||[];rows.innerHTML=users.length?users.map(u=>`<tr><td>${esc(u.display_name||'—')}</td><td>${esc(u.email)}</td><td><span class="pill">${esc(u.role)}</span></td><td>${u.active?'Active':'Disabled'}</td><td>${esc(u.last_login_at||'Never')}</td><td><div class="row-actions"><button class="light" data-role="${esc(u.id)}" data-current="${esc(u.role)}">Change role</button><button class="${u.active?'danger':'primary'}" data-toggle="${esc(u.id)}" data-active="${u.active?1:0}">${u.active?'Disable':'Enable'}</button></div></td></tr>`).join(''):'<tr><td colspan="6" class="muted">No team accounts yet.</td></tr>';}
+    catch(error){rows.innerHTML=`<tr><td colspan="6" class="muted">${esc(error.message)}</td></tr>`}}
+  async function loadActivity(){try{const data=await api('/api/security/activity');activity.innerHTML=(data.activity||[]).slice(0,50).map(a=>`<tr><td>${esc(a.created_at)}</td><td>${esc(a.actor_email||a.actor_id)}</td><td>${esc(a.actor_role)}</td><td>${esc(a.action)}</td><td>${esc(a.path)}</td></tr>`).join('')||'<tr><td colspan="5" class="muted">No activity yet.</td></tr>';}catch(error){activity.innerHTML=`<tr><td colspan="5" class="muted">${esc(error.message)}</td></tr>`}}
+  document.getElementById('createForm').addEventListener('submit',async e=>{e.preventDefault();notice.className='notice';notice.textContent='Creating…';try{await api('/api/security/admin-users',{method:'POST',body:JSON.stringify({displayName:document.getElementById('displayName').value,email:document.getElementById('email').value,role:document.getElementById('role').value,password:document.getElementById('password').value})});e.target.reset();notice.textContent='Account created.';await Promise.all([loadUsers(),loadActivity()]);}catch(error){notice.className='notice error';notice.textContent=error.message}});
+  rows.addEventListener('click',async e=>{const toggle=e.target.closest('[data-toggle]');const roleButton=e.target.closest('[data-role]');try{if(toggle){await api('/api/security/admin-users/'+toggle.dataset.toggle,{method:'PATCH',body:JSON.stringify({active:toggle.dataset.active!=='1'})});await Promise.all([loadUsers(),loadActivity()]);}if(roleButton){const next=prompt('Role: admin, sales, designer, accountant',roleButton.dataset.current);if(!next)return;await api('/api/security/admin-users/'+roleButton.dataset.role,{method:'PATCH',body:JSON.stringify({role:next.trim().toLowerCase()})});await Promise.all([loadUsers(),loadActivity()]);}}catch(error){alert(error.message)}});
+  Promise.all([loadUsers(),loadActivity()]);
+</script>
+</body>
+</html>
