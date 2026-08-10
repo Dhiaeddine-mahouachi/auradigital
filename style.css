@@ -5540,3 +5540,96 @@ body[data-page="packages"] .page-hero .crumb a {
 /* AuraMenu now uses one self-customization path */
 .menu-choice-actions{grid-template-columns:1fr}
 .menu-choice-action.self-featured{width:100%}
+
+/* AuraMenu hero: three clear customer paths */
+.auramenu-hero .hero-actions{
+  width:min(930px,100%);
+  display:grid;
+  grid-template-columns:.82fr 1.2fr 1fr;
+  align-items:stretch;
+  gap:12px;
+  margin-top:34px;
+}
+.auramenu-hero .menu-action{
+  position:relative;
+  min-height:64px;
+  padding:16px 20px;
+  border-radius:18px;
+  font-size:.8rem;
+  line-height:1.25;
+  text-align:center;
+  letter-spacing:-.01em;
+  box-shadow:0 12px 30px rgba(12,30,24,.08);
+  transform:none;
+}
+.auramenu-hero .menu-action:hover{
+  transform:translateY(-3px);
+  box-shadow:0 18px 42px rgba(12,30,24,.16);
+}
+.auramenu-hero .menu-action-designs{
+  background:rgba(255,255,255,.62);
+  color:var(--ink);
+  border:1px solid rgba(12,30,24,.2);
+}
+.auramenu-hero .menu-action-designs:hover{
+  background:#fff;
+  color:var(--ink);
+  border-color:var(--ink);
+}
+.auramenu-hero .menu-action-self{
+  min-height:72px;
+  background:var(--lime);
+  color:var(--ink);
+  border:2px solid var(--ink);
+  font-size:.88rem;
+  box-shadow:0 17px 36px rgba(101,130,18,.22);
+}
+.auramenu-hero .menu-action-self::before{
+  content:"✦";
+  width:27px;
+  height:27px;
+  flex:0 0 27px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:var(--ink);
+  color:#fff;
+  font-size:.68rem;
+}
+.auramenu-hero .menu-action-self:hover{
+  background:#f0ff98;
+  color:var(--ink);
+}
+.auramenu-hero .menu-action-assisted{
+  background:var(--ink);
+  color:#fff;
+  border:2px solid var(--ink);
+  font-size:.84rem;
+}
+.auramenu-hero .menu-action-assisted::before{
+  content:"A";
+  width:27px;
+  height:27px;
+  flex:0 0 27px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:var(--soft);
+  color:var(--ink);
+  font-size:.7rem;
+  font-weight:950;
+}
+.auramenu-hero .menu-action-assisted:hover{
+  background:#174c3c;
+  color:#fff;
+}
+@media(max-width:900px){
+  .auramenu-hero .hero-actions{grid-template-columns:1fr 1fr}
+  .auramenu-hero .menu-action-designs{grid-column:1/-1}
+}
+@media(max-width:600px){
+  .auramenu-hero .hero-actions{grid-template-columns:1fr}
+  .auramenu-hero .menu-action-designs{grid-column:auto}
+  .auramenu-hero .menu-action{width:100%;min-height:60px}
+  .auramenu-hero .menu-action-self{min-height:68px}
+}
