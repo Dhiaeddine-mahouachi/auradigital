@@ -1,3 +1,4 @@
+# AuraDigital public indexing policy
 User-agent: *
 Allow: /
 Disallow: /admin/
