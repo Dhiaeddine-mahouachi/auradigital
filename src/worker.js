@@ -20,6 +20,8 @@ const TRACKABLE_PATHS = new Set([
   "/portfolio.html",
   "/aura-menu.html",
   "/nfc.html",
+  "/nfc-builder.html",
+  "/nfc-status.html",
   "/qr-menu.html",
   "/packages.html",
   "/about.html",
@@ -48,6 +50,137 @@ const AURAMENU_ORIGINS = new Set([
   "http://localhost:4173",
   "http://127.0.0.1:4173",
 ]);
+const NFC_BODY_BYTES = 32 * 1024;
+const NFC_CARD_TYPES = new Set(["reviews", "website"]);
+const NFC_CARD_LANGUAGES = new Set(["tr", "en", "ar"]);
+const NFC_CARD_FINISHES = new Set(["matte", "glossy"]);
+
+function nfcColor(value, fallback) {
+  const color = qsClean(value, 7);
+  return /^#[0-9a-fA-F]{6}$/.test(color) ? color.toLowerCase() : fallback;
+}
+
+function mapNfcRequest(row, publicStatus = false) {
+  const base = {
+    id: row.id,
+    cardType: row.card_type,
+    businessName: row.business_name,
+    status: row.status,
+    paymentStatus: row.payment_status,
+    updatedAt: row.updated_at,
+    approvedAt: row.approved_at,
+    revision: row.revision,
+  };
+  if (publicStatus) return base;
+  return {
+    ...base,
+    cardLanguage: row.card_language,
+    headline: row.headline,
+    instructionText: row.instruction_text,
+    destinationUrl: row.destination_url,
+    backgroundColor: row.background_color,
+    accentColor: row.accent_color,
+    textColor: row.text_color,
+    showQr: Boolean(row.show_qr),
+    finish: row.finish,
+    quantity: row.quantity,
+    contactName: row.contact_name,
+    contactPhone: row.contact_phone,
+    email: row.email,
+    city: row.city,
+    paymentReference: row.payment_reference,
+    notes: row.notes,
+    ownerNote: row.owner_note,
+    createdAt: row.created_at,
+  };
+}
+
+async function createNfcRequest(request, db) {
+  if (!sameOrigin(request)) return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
+  const body = await readJson(request, NFC_BODY_BYTES);
+  const cardType = qsClean(body.cardType, 20);
+  const cardLanguage = qsClean(body.cardLanguage, 5);
+  const finish = qsClean(body.finish, 20);
+  const businessName = qsClean(body.businessName, 100);
+  const contactName = qsClean(body.contactName, 100);
+  const contactPhone = qsClean(body.contactPhone, 40);
+  const email = qsClean(body.email, 160).toLowerCase();
+  const destinationUrl = qsUrl(body.destinationUrl);
+  const quantity = Number(body.quantity);
+
+  if (!NFC_CARD_TYPES.has(cardType) || !businessName || !contactName || !contactPhone || !destinationUrl) {
+    return json({ error: "Kart türü, işletme, hedef bağlantı ve iletişim alanlarını kontrol edin." }, 400, { "Cache-Control": "no-store" });
+  }
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 100) {
+    return json({ error: "Kart adedi 1 ile 100 arasında olmalıdır." }, 400, { "Cache-Control": "no-store" });
+  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return json({ error: "Geçerli bir e-posta adresi girin." }, 400, { "Cache-Control": "no-store" });
+  }
+
+  const recent = await db.prepare("SELECT id FROM nfc_requests WHERE (contact_phone = ? OR (? <> '' AND email = ?)) AND created_at >= datetime('now','-2 minutes') LIMIT 1")
+    .bind(contactPhone, email, email).first();
+  if (recent) {
+    return json({ error: "Talebiniz alındı. Yeni bir talep göndermeden önce biraz bekleyin." }, 429, { "Cache-Control": "no-store" });
+  }
+
+  const id = crypto.randomUUID();
+  await db.prepare("INSERT INTO nfc_requests (id, card_type, card_language, business_name, headline, instruction_text, destination_url, background_color, accent_color, text_color, show_qr, finish, quantity, contact_name, contact_phone, email, city, payment_reference, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    .bind(
+      id,
+      cardType,
+      NFC_CARD_LANGUAGES.has(cardLanguage) ? cardLanguage : "tr",
+      businessName,
+      qsClean(body.headline, 100),
+      qsClean(body.instructionText, 240),
+      destinationUrl,
+      nfcColor(body.backgroundColor, "#102326"),
+      nfcColor(body.accentColor, "#64d7df"),
+      nfcColor(body.textColor, "#ffffff"),
+      body.showQr === false ? 0 : 1,
+      NFC_CARD_FINISHES.has(finish) ? finish : "matte",
+      quantity,
+      contactName,
+      contactPhone,
+      email,
+      qsClean(body.city, 100),
+      qsClean(body.paymentReference, 200),
+      qsClean(body.notes, 1000),
+    ).run();
+  return json({ request: { id, status: "pending", paymentStatus: "unpaid" } }, 201, { "Cache-Control": "no-store" });
+}
+
+async function getNfcRequestStatus(db, id) {
+  const row = await db.prepare("SELECT id, card_type, business_name, status, payment_status, updated_at, approved_at, revision FROM nfc_requests WHERE id = ? LIMIT 1")
+    .bind(id).first();
+  if (!row) return json({ error: "NFC kart talebi bulunamadı." }, 404, { "Cache-Control": "no-store" });
+  return json({ request: mapNfcRequest(row, true) }, 200, { "Cache-Control": "no-store" });
+}
+
+async function handleNfcAdmin(request, db, id) {
+  if (request.method === "GET" && !id) {
+    const rows = await db.prepare("SELECT * FROM nfc_requests ORDER BY created_at DESC LIMIT 100").all();
+    return json({ requests: (rows.results || []).map((row) => mapNfcRequest(row)) }, 200, { "Cache-Control": "no-store" });
+  }
+  if (request.method !== "PATCH" || !id) return json({ error: "Not found." }, 404);
+  const body = await readJson(request, ADMIN_BODY_BYTES);
+  const current = await db.prepare("SELECT * FROM nfc_requests WHERE id = ? LIMIT 1").bind(id).first();
+  if (!current) return json({ error: "NFC kart talebi bulunamadı." }, 404);
+  const status = body.status === undefined ? current.status : String(body.status);
+  const payment = body.paymentStatus === undefined ? current.payment_status : String(body.paymentStatus);
+  if (!["pending", "approved", "rejected"].includes(status) || !["unpaid", "paid"].includes(payment)) {
+    return json({ error: "Geçersiz durum." }, 400);
+  }
+  if (status === "approved" && payment !== "paid") {
+    return json({ error: "Kart tasarımını onaylamadan önce ödemeyi onaylayın." }, 409);
+  }
+  const ownerNote = body.ownerNote === undefined ? current.owner_note : qsClean(body.ownerNote, 500);
+  const now = new Date().toISOString();
+  await db.prepare("UPDATE nfc_requests SET status = ?, payment_status = ?, owner_note = ?, updated_at = ?, approved_at = ?, revision = revision + 1 WHERE id = ?")
+    .bind(status, payment, ownerNote, now, status === "approved" ? (current.approved_at || now) : null, id).run();
+  const updated = await db.prepare("SELECT * FROM nfc_requests WHERE id = ? LIMIT 1").bind(id).first();
+  return json({ request: mapNfcRequest(updated) }, 200, { "Cache-Control": "no-store" });
+}
 async function proxyQuickSite(request, url) {
   const upstreamPath = url.pathname.startsWith("/quicksite") ? (url.pathname.slice("/quicksite".length) || "/") : url.pathname;
   const target = new URL(upstreamPath + url.search, QUICKSITE_ORIGIN);
@@ -513,6 +646,18 @@ export default {
         return createQuickSiteRequest(request, env.DB);
       }
 
+      if (url.pathname === "/api/nfc/requests" && request.method === "POST") {
+        const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
+        const limit = await env.TRACK_RATE_LIMITER.limit({ key: `nfc-request:${clientKey}` });
+        if (!limit.success) return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429, { "Cache-Control": "no-store" });
+        return createNfcRequest(request, env.DB);
+      }
+
+      const nfcStatus = url.pathname.match(/^\/api\/nfc\/requests\/([a-f0-9-]+)$/i);
+      if (nfcStatus && request.method === "GET") {
+        return getNfcRequestStatus(env.DB, nfcStatus[1]);
+      }
+
       if (url.pathname.startsWith("/api/auramenu/")) {
         const corsHeaders = auraMenuCors(request);
         if (corsHeaders === null) return json({ error: "Bu kaynaktan talep kabul edilmiyor." }, 403);
@@ -626,6 +771,9 @@ export default {
       const auraMenuAdmin = url.pathname.match(/^\/api\/admin\/auramenu(?:\/([a-f0-9-]+))?$/i);
       if (auraMenuAdmin) return handleAuraMenuAdmin(request, env.DB, auraMenuAdmin[1] || null);
 
+      const nfcAdmin = url.pathname.match(/^\/api\/admin\/nfc(?:\/([a-f0-9-]+))?$/i);
+      if (nfcAdmin) return handleNfcAdmin(request, env.DB, nfcAdmin[1] || null);
+
       if (url.pathname === "/api/admin/overview" && request.method === "GET") {
         return json(await getOverview(env.DB), 200, { "Cache-Control": "no-store" });
       }
@@ -698,8 +846,10 @@ async function ensureSchema(db) {
       db.prepare("CREATE TABLE IF NOT EXISTS quicksite_projects (id TEXT PRIMARY KEY NOT NULL, slug TEXT NOT NULL UNIQUE, template_id TEXT NOT NULL, language TEXT NOT NULL DEFAULT 'tr', business_name TEXT NOT NULL, tagline TEXT NOT NULL DEFAULT '', description TEXT NOT NULL DEFAULT '', primary_color TEXT NOT NULL DEFAULT '#a3ff12', phone TEXT NOT NULL DEFAULT '', whatsapp TEXT NOT NULL DEFAULT '', email TEXT NOT NULL, address TEXT NOT NULL DEFAULT '', contact_name TEXT NOT NULL, offers_json TEXT NOT NULL DEFAULT '[]', details_json TEXT NOT NULL DEFAULT '{}', payment_status TEXT NOT NULL DEFAULT 'unpaid', status TEXT NOT NULL DEFAULT 'pending', owner_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')), approved_at TEXT, revision INTEGER NOT NULL DEFAULT 1)"),
       db.prepare("CREATE TABLE IF NOT EXISTS auramenu_requests (id TEXT PRIMARY KEY NOT NULL, slug TEXT NOT NULL UNIQUE, template_id TEXT NOT NULL, interface_language TEXT NOT NULL DEFAULT 'tr', menu_language TEXT NOT NULL DEFAULT 'tr', business_name TEXT NOT NULL, tagline TEXT NOT NULL DEFAULT '', description TEXT NOT NULL DEFAULT '', address TEXT NOT NULL DEFAULT '', business_phone TEXT NOT NULL DEFAULT '', whatsapp TEXT NOT NULL DEFAULT '', opening_hours TEXT NOT NULL DEFAULT '', currency TEXT NOT NULL DEFAULT 'TRY', contact_name TEXT NOT NULL, contact_phone TEXT NOT NULL, email TEXT NOT NULL DEFAULT '', city TEXT NOT NULL DEFAULT '', payment_reference TEXT NOT NULL DEFAULT '', categories_json TEXT NOT NULL DEFAULT '[]', notes TEXT NOT NULL DEFAULT '', payment_status TEXT NOT NULL DEFAULT 'unpaid', status TEXT NOT NULL DEFAULT 'pending', owner_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')), approved_at TEXT, revision INTEGER NOT NULL DEFAULT 1)"),
       db.prepare("CREATE TABLE IF NOT EXISTS auramenu_images (id TEXT PRIMARY KEY NOT NULL, request_id TEXT NOT NULL, content_type TEXT NOT NULL, image_bytes BLOB NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime('now')), FOREIGN KEY (request_id) REFERENCES auramenu_requests(id) ON DELETE CASCADE)"),
+      db.prepare("CREATE TABLE IF NOT EXISTS nfc_requests (id TEXT PRIMARY KEY NOT NULL, card_type TEXT NOT NULL, card_language TEXT NOT NULL DEFAULT 'tr', business_name TEXT NOT NULL, headline TEXT NOT NULL DEFAULT '', instruction_text TEXT NOT NULL DEFAULT '', destination_url TEXT NOT NULL, background_color TEXT NOT NULL DEFAULT '#102326', accent_color TEXT NOT NULL DEFAULT '#64d7df', text_color TEXT NOT NULL DEFAULT '#ffffff', show_qr INTEGER NOT NULL DEFAULT 1, finish TEXT NOT NULL DEFAULT 'matte', quantity INTEGER NOT NULL DEFAULT 1, contact_name TEXT NOT NULL, contact_phone TEXT NOT NULL, email TEXT NOT NULL DEFAULT '', city TEXT NOT NULL DEFAULT '', payment_reference TEXT NOT NULL DEFAULT '', notes TEXT NOT NULL DEFAULT '', payment_status TEXT NOT NULL DEFAULT 'unpaid', status TEXT NOT NULL DEFAULT 'pending', owner_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')), approved_at TEXT, revision INTEGER NOT NULL DEFAULT 1)"),
       db.prepare("CREATE INDEX IF NOT EXISTS idx_auramenu_requests_status_created ON auramenu_requests(status, created_at DESC)"),
       db.prepare("CREATE INDEX IF NOT EXISTS idx_auramenu_images_request ON auramenu_images(request_id)"),
+      db.prepare("CREATE INDEX IF NOT EXISTS idx_nfc_requests_status_created ON nfc_requests(status, created_at DESC)"),
       db.prepare("CREATE TABLE IF NOT EXISTS analytics_daily (date TEXT NOT NULL, path TEXT NOT NULL, views INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (date, path))"),
     ]);
 
@@ -862,12 +1012,13 @@ async function getOverview(db) {
     db.prepare("SELECT COALESCE(SUM(views),0) AS value FROM analytics_daily WHERE date >= date('now','-29 day')"),
     db.prepare("SELECT COUNT(*) AS value FROM quicksite_projects WHERE status = 'pending'"),
     db.prepare("SELECT COUNT(*) AS value FROM auramenu_requests WHERE status = 'pending'"),
+    db.prepare("SELECT COUNT(*) AS value FROM nfc_requests WHERE status = 'pending'"),
   ]);
   const values = results.map((result) => Number(result.results?.[0]?.value || 0));
   return {
     leads: values[0], activeClients: values[1], openOrders: values[2], unpaidInvoices: values[3],
     revenue: values[4], expenses: values[5], profit: values[4] - values[5], recurringRevenue: values[6], views30d: values[7],
-    pendingQuickSites: values[8], pendingAuraMenus: values[9],
+    pendingQuickSites: values[8], pendingAuraMenus: values[9], pendingNfcRequests: values[10],
   };
 }
 

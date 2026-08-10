@@ -1,6 +1,8 @@
 /home /index.html 200
 /hizmetler /services.html 200
 /nfc /nfc.html 200
+/nfc-studio /nfc-builder.html 200
+/nfc-durum /nfc-status.html 200
 /qr-menu /qr-menu.html 200
 /paketler /packages.html 200
 /hakkimizda /about.html 200

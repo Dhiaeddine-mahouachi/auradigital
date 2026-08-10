@@ -1,11 +1,12 @@
 AURADIGITAL — EASY ACCESS / CLOUDFLARE READY
 
 1) Preview locally
-   Double-click index.html. No npm, no terminal and no build command are required.
+   Double-click index.html or nfc-builder.html to inspect the static design.
+   To test form submission and the dashboard API, run `npx wrangler dev`.
 
-2) Deploy to Cloudflare Pages
-   Upload the contents of this folder as a static site. No build command is required.
-   The included _headers and _redirects files are understood by Cloudflare Pages.
+2) Deploy to Cloudflare Workers
+   The site uses Workers Static Assets, src/worker.js and the D1 database configured
+   in wrangler.jsonc. No frontend build command is required.
 
 3) Contact destination
    Contact form and Aura Assistant handoff open WhatsApp to +90 538 550 76 74
@@ -35,5 +36,17 @@ AURADIGITAL — EASY ACCESS / CLOUDFLARE READY
    choice. Aura Assistant provides local FAQ answers for Web, AuraMenu, NFC, packages,
    portfolio and contact questions in Turkish, English and Arabic. It needs no backend.
 
+8) NFC design request files
+   nfc-builder.html = customer form and live front/back card preview
+   nfc-builder.css  = isolated builder and physical card styling
+   nfc-builder.js   = TR/EN/AR copy, live colors, QR mock and request submission
+   nfc-status.html / css / js = private request-status page
+   admin/index.html + admin/admin.js = red pending / paid / green approved controls
+   src/worker.js = validation, D1 storage and public/admin NFC API routes
+
+   Supported card purposes now: Google reviews and website.
+   Menu NFC is intentionally reserved for a later update.
+
 Main pages: index.html, services.html, portfolio.html, aura-menu.html, nfc.html,
-qr-menu.html, packages.html, about.html, contact.html.
+qr-menu.html, packages.html, about.html, contact.html, nfc-builder.html,
+nfc-status.html.
