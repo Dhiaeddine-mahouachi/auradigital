@@ -1,8 +1,19 @@
-**/.git
-**/.github
-**/.wrangler
-**/src
-.gitignore
-.assetsignore
+# Never publish server code, configuration, secrets, or development files as static assets
+src/**
+migrations/**
+node_modules/**
+.git/**
+.github/**
+.vscode/**
+.wrangler/**
+.dev.vars*
+.env*
 wrangler.jsonc
-README.txt
+wrangler.toml
+package*.json
+tsconfig*.json
+*.map
+*.log
+README*
+LICENSE*
+.assetsignore
