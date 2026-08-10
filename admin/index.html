@@ -34,6 +34,43 @@
     .nfc-admin-preview{--nfc-bg:#102326;--nfc-accent:#64d7df;--nfc-text:#fff;aspect-ratio:1.585/1;width:min(440px,100%);margin:0 auto;border-radius:20px;padding:24px;background:var(--nfc-bg);color:var(--nfc-text);display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 20px 45px rgba(11,28,31,.22),inset 0 0 0 1px rgba(255,255,255,.14);position:relative;overflow:hidden}
     .nfc-admin-preview::before{content:"";position:absolute;width:190px;height:190px;border-radius:50%;background:var(--nfc-accent);opacity:.12;right:-70px;top:-90px}.nfc-admin-preview.glossy::after{content:"";position:absolute;inset:-80% -30%;background:linear-gradient(110deg,transparent 40%,rgba(255,255,255,.2) 49%,transparent 58%);transform:translateX(-12%)}.nfc-admin-top,.nfc-admin-main,.nfc-admin-bottom{position:relative;z-index:2}.nfc-admin-top,.nfc-admin-bottom{display:flex;justify-content:space-between;gap:12px;align-items:center}.nfc-admin-top{font-weight:850;font-size:14px}.nfc-admin-top i{font-style:normal;color:var(--nfc-accent)}.nfc-admin-main span{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:var(--nfc-accent);color:var(--nfc-bg);font-size:20px;font-weight:900}.nfc-admin-main h3{font-size:25px;line-height:1.05;letter-spacing:-.05em;margin:12px 0 7px}.nfc-admin-main p{font-size:10px;color:inherit;opacity:.7;max-width:300px}.nfc-admin-bottom{font-size:8px;letter-spacing:.14em}.nfc-admin-bottom strong{color:var(--nfc-accent)}
   </style>
+  <style>
+    @media(max-width:620px){
+      body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+      main{padding:14px 10px 28px}
+      .topbar{align-items:stretch;flex-direction:column;gap:14px;margin-bottom:18px}
+      .topbar h1{font-size:25px}
+      .top-actions{width:100%;display:grid;grid-template-columns:1fr auto;align-items:stretch}
+      .mobile-nav{width:100%;min-height:44px;font-size:16px}
+      .top-actions .btn{min-height:44px}
+      .metrics{grid-template-columns:1fr 1fr;gap:9px}
+      .metric{padding:14px}.metric strong{font-size:22px}
+      .panel{padding:16px;border-radius:14px}
+      .panel-head{align-items:stretch;flex-direction:column}
+      .panel-head .btn{width:100%;min-height:44px}
+      .pricing-form{grid-template-columns:1fr}
+      input,textarea,select{min-height:44px;font-size:16px}
+      .pricing-form .wide-actions{align-items:stretch;flex-direction:column}
+      .pricing-form .wide-actions .btn{width:100%}
+      .table-wrap{-webkit-overflow-scrolling:touch}
+      .data-table{min-width:640px}
+      .row-actions{flex-wrap:wrap}
+      .modal{padding:7px}
+      .modal-card{max-height:calc(100svh - 14px);padding:16px;border-radius:14px}
+      .modal-head{align-items:flex-start}
+      .modal-grid{grid-template-columns:1fr}
+      .modal-actions{grid-column:auto;display:grid;grid-template-columns:1fr 1fr}
+      .request-details dl{grid-template-columns:1fr}
+      .bar-row{grid-template-columns:64px minmax(0,1fr) 38px;gap:7px;font-size:10px}
+      .nfc-admin-preview{padding:17px;border-radius:16px}
+      .nfc-admin-main h3{font-size:20px}
+    }
+    @media(max-width:390px){
+      .metrics{grid-template-columns:1fr}
+      .top-actions{grid-template-columns:1fr}
+      .modal-actions{grid-template-columns:1fr}
+    }
+  </style>
 </head>
 <body>
   <section id="loginView" class="login-wrap">
