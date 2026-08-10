@@ -36,6 +36,14 @@ const TRACKABLE_PATHS = new Set([
 
 const QUICKSITE_ORIGIN = "https://auradigital-builder.dhiamahouachi115.chatgpt.site";
 const QUICKSITE_BODY_BYTES = 96 * 1024;
+const AURAMENU_BODY_BYTES = 128 * 1024;
+const AURAMENU_ORIGINS = new Set([
+  "https://auramenu.space",
+  "https://www.auramenu.space",
+  "https://dhiaeddine-mahouachi.github.io",
+  "http://localhost:4173",
+  "http://127.0.0.1:4173",
+]);
 async function proxyQuickSite(request, url) {
   const upstreamPath = url.pathname.startsWith("/quicksite") ? (url.pathname.slice("/quicksite".length) || "/") : url.pathname;
   const target = new URL(upstreamPath + url.search, QUICKSITE_ORIGIN);
@@ -135,6 +143,196 @@ async function handleQuickSiteAdmin(request, db, id) {
   return json({ project: mapQuickSite(updated) }, 200, { "Cache-Control": "no-store" });
 }
 
+function auraMenuCors(request) {
+  const origin = request.headers.get("Origin");
+  if (!origin) return {};
+  if (!AURAMENU_ORIGINS.has(origin)) return null;
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
+  };
+}
+
+function normalizeAuraMenuCategories(value) {
+  if (!Array.isArray(value) || value.length < 1 || value.length > 12) {
+    throw new ApiError(400, "Menüde 1 ile 12 arasında kategori olmalıdır.");
+  }
+  let itemCount = 0;
+  const categories = value.map((category, categoryIndex) => {
+    if (!category || typeof category !== "object" || Array.isArray(category)) {
+      throw new ApiError(400, `Kategori ${categoryIndex + 1} geçersiz.`);
+    }
+    const name = qsClean(category.name, 80);
+    if (!name) throw new ApiError(400, `Kategori ${categoryIndex + 1} için isim girin.`);
+    const rawItems = Array.isArray(category.items) ? category.items : [];
+    if (rawItems.length > 20) throw new ApiError(400, "Bir kategoride en fazla 20 ürün olabilir.");
+    const items = rawItems.map((item, itemIndex) => {
+      if (!item || typeof item !== "object" || Array.isArray(item)) {
+        throw new ApiError(400, `${name} kategorisindeki ${itemIndex + 1}. ürün geçersiz.`);
+      }
+      const itemName = qsClean(item.name, 100);
+      if (!itemName) throw new ApiError(400, `${name} kategorisindeki ürün adını girin.`);
+      itemCount += 1;
+      return {
+        name: itemName,
+        description: qsClean(item.description, 300),
+        price: qsClean(item.price, 40),
+        imageUrl: qsUrl(item.imageUrl),
+        featured: Boolean(item.featured),
+      };
+    });
+    return { name, emoji: qsClean(category.emoji, 12), items };
+  });
+  if (itemCount < 1 || itemCount > 100) {
+    throw new ApiError(400, "Menüde 1 ile 100 arasında ürün olmalıdır.");
+  }
+  return categories;
+}
+
+function mapAuraMenuRequest(row, publicSite = false) {
+  const base = {
+    id: row.id,
+    slug: row.slug,
+    templateId: row.template_id,
+    interfaceLanguage: row.interface_language,
+    menuLanguage: row.menu_language,
+    businessName: row.business_name,
+    tagline: row.tagline,
+    description: row.description,
+    address: row.address,
+    businessPhone: row.business_phone,
+    whatsapp: row.whatsapp,
+    openingHours: row.opening_hours,
+    currency: row.currency,
+    categories: qsParse(row.categories_json, []),
+    status: row.status,
+    updatedAt: row.updated_at,
+    approvedAt: row.approved_at,
+    revision: row.revision,
+  };
+  if (publicSite) return base;
+  return {
+    ...base,
+    contactName: row.contact_name,
+    contactPhone: row.contact_phone,
+    email: row.email,
+    city: row.city,
+    paymentReference: row.payment_reference,
+    notes: row.notes,
+    paymentStatus: row.payment_status,
+    ownerNote: row.owner_note,
+    createdAt: row.created_at,
+  };
+}
+
+async function createAuraMenuRequest(request, db, corsHeaders) {
+  const body = await readJson(request, AURAMENU_BODY_BYTES);
+  const templateId = qsClean(body.templateId, 30);
+  const businessName = qsClean(body.businessName, 100);
+  const contactName = qsClean(body.contactName, 100);
+  const contactPhone = qsClean(body.contactPhone, 40);
+  const email = qsClean(body.email, 160).toLowerCase();
+  const allowedTemplates = ["modern", "orbit", "maison", "taste3d"];
+  if (!allowedTemplates.includes(templateId) || !businessName || !contactName || !contactPhone) {
+    return json({ error: "İşletme, yetkili, telefon ve tasarım alanlarını kontrol edin." }, 400, corsHeaders);
+  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return json({ error: "Geçerli bir e-posta adresi girin." }, 400, corsHeaders);
+  }
+  const categories = normalizeAuraMenuCategories(body.categories);
+  const requestedSlug = qsSlug(qsClean(body.slug, 60) || businessName);
+  if (requestedSlug.length < 3) return json({ error: "En az 3 karakterli bir menü adresi seçin." }, 400, corsHeaders);
+
+  const duplicate = await db.prepare("SELECT id FROM auramenu_requests WHERE slug = ? LIMIT 1").bind(requestedSlug).first();
+  if (duplicate) return json({ error: "Bu menü adresi kullanılıyor. Başka bir adres seçin." }, 409, corsHeaders);
+  const recent = await db.prepare("SELECT id FROM auramenu_requests WHERE (contact_phone = ? OR (? <> '' AND email = ?)) AND created_at >= datetime('now','-2 minutes') LIMIT 1")
+    .bind(contactPhone, email, email).first();
+  if (recent) return json({ error: "Talebiniz alındı. Yeni bir talep göndermeden önce biraz bekleyin." }, 429, corsHeaders);
+
+  const id = crypto.randomUUID();
+  await db.prepare("INSERT INTO auramenu_requests (id, slug, template_id, interface_language, menu_language, business_name, tagline, description, address, business_phone, whatsapp, opening_hours, currency, contact_name, contact_phone, email, city, payment_reference, categories_json, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    .bind(
+      id,
+      requestedSlug,
+      templateId,
+      ["tr", "en", "ar"].includes(String(body.interfaceLanguage)) ? body.interfaceLanguage : "tr",
+      ["tr", "en", "ar"].includes(String(body.menuLanguage)) ? body.menuLanguage : "tr",
+      businessName,
+      qsClean(body.tagline, 140),
+      qsClean(body.description, 600),
+      qsClean(body.address, 220),
+      qsClean(body.businessPhone, 40),
+      qsClean(body.whatsapp, 40),
+      qsClean(body.openingHours, 100),
+      ["TRY", "EUR", "USD", "TND"].includes(String(body.currency)) ? body.currency : "TRY",
+      contactName,
+      contactPhone,
+      email,
+      qsClean(body.city, 100),
+      qsClean(body.paymentReference, 200),
+      JSON.stringify(categories),
+      qsClean(body.notes, 1000),
+    ).run();
+  return json({ request: { id, slug: requestedSlug, status: "pending", paymentStatus: "unpaid" } }, 201, {
+    "Cache-Control": "no-store",
+    ...corsHeaders,
+  });
+}
+
+async function getAuraMenuRequestStatus(request, db, id, corsHeaders) {
+  const row = await db.prepare("SELECT id, slug, template_id, business_name, status, payment_status, updated_at, approved_at FROM auramenu_requests WHERE id = ? LIMIT 1").bind(id).first();
+  if (!row) return json({ error: "Talep bulunamadı." }, 404, corsHeaders);
+  return json({
+    request: {
+      id: row.id,
+      slug: row.slug,
+      templateId: row.template_id,
+      businessName: row.business_name,
+      status: row.status,
+      paymentStatus: row.payment_status,
+      updatedAt: row.updated_at,
+      approvedAt: row.approved_at,
+    },
+  }, 200, { "Cache-Control": "no-store", ...corsHeaders });
+}
+
+async function getPublishedAuraMenu(request, db, slug, corsHeaders) {
+  const row = await db.prepare("SELECT * FROM auramenu_requests WHERE slug = ? AND status = 'approved' LIMIT 1").bind(slug).first();
+  if (!row) return json({ error: "Menü henüz yayında değil." }, 404, corsHeaders);
+  return json({ menu: mapAuraMenuRequest(row, true) }, 200, {
+    "Cache-Control": "public, max-age=30",
+    ...corsHeaders,
+  });
+}
+
+async function handleAuraMenuAdmin(request, db, id) {
+  if (request.method === "GET" && !id) {
+    const rows = await db.prepare("SELECT * FROM auramenu_requests ORDER BY created_at DESC LIMIT 100").all();
+    return json({ requests: (rows.results || []).map((row) => mapAuraMenuRequest(row)) }, 200, { "Cache-Control": "no-store" });
+  }
+  if (request.method !== "PATCH" || !id) return json({ error: "Not found." }, 404);
+  const body = await readJson(request, ADMIN_BODY_BYTES);
+  const current = await db.prepare("SELECT * FROM auramenu_requests WHERE id = ? LIMIT 1").bind(id).first();
+  if (!current) return json({ error: "Menü talebi bulunamadı." }, 404);
+  const status = body.status === undefined ? current.status : String(body.status);
+  const payment = body.paymentStatus === undefined ? current.payment_status : String(body.paymentStatus);
+  if (!["pending", "approved", "rejected"].includes(status) || !["unpaid", "paid"].includes(payment)) {
+    return json({ error: "Geçersiz durum." }, 400);
+  }
+  if (status === "approved" && payment !== "paid") {
+    return json({ error: "Menüyü yayınlamadan önce ödemeyi onaylayın." }, 409);
+  }
+  const ownerNote = body.ownerNote === undefined ? current.owner_note : qsClean(body.ownerNote, 500);
+  const now = new Date().toISOString();
+  await db.prepare("UPDATE auramenu_requests SET status = ?, payment_status = ?, owner_note = ?, updated_at = ?, approved_at = ?, revision = revision + 1 WHERE id = ?")
+    .bind(status, payment, ownerNote, now, status === "approved" ? (current.approved_at || now) : null, id).run();
+  const updated = await db.prepare("SELECT * FROM auramenu_requests WHERE id = ? LIMIT 1").bind(id).first();
+  return json({ request: mapAuraMenuRequest(updated) }, 200, { "Cache-Control": "no-store" });
+}
+
 class ApiError extends Error {
   constructor(status, message, headers = {}) {
     super(message);
@@ -221,6 +419,29 @@ export default {
         return createQuickSiteRequest(request, env.DB);
       }
 
+      if (url.pathname.startsWith("/api/auramenu/")) {
+        const corsHeaders = auraMenuCors(request);
+        if (corsHeaders === null) return json({ error: "Bu kaynaktan talep kabul edilmiyor." }, 403);
+        if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+
+        if (url.pathname === "/api/auramenu/requests" && request.method === "POST") {
+          const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
+          const limit = await env.TRACK_RATE_LIMITER.limit({ key: `auramenu-request:${clientKey}` });
+          if (!limit.success) return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429, corsHeaders);
+          return createAuraMenuRequest(request, env.DB, corsHeaders);
+        }
+
+        const auraMenuStatus = url.pathname.match(/^\/api\/auramenu\/requests\/([a-f0-9-]+)$/i);
+        if (auraMenuStatus && request.method === "GET") {
+          return getAuraMenuRequestStatus(request, env.DB, auraMenuStatus[1], corsHeaders);
+        }
+
+        const publishedAuraMenu = url.pathname.match(/^\/api\/auramenu\/sites\/([a-z0-9-]+)$/);
+        if (publishedAuraMenu && request.method === "GET") {
+          return getPublishedAuraMenu(request, env.DB, publishedAuraMenu[1], corsHeaders);
+        }
+      }
+
       const quickPreview = url.pathname.match(/^\/api\/quicksite\/projects\/([a-f0-9-]+)$/i);
       if (quickPreview && request.method === "GET") return getQuickSiteProject(env.DB, "id", quickPreview[1]);
 
@@ -296,12 +517,15 @@ export default {
         return json({ error: "Unauthorized." }, 401, { "Cache-Control": "no-store" });
       }
 
-      if (["POST", "PUT", "DELETE"].includes(request.method) && !sameOrigin(request)) {
+      if (["POST", "PUT", "PATCH", "DELETE"].includes(request.method) && !sameOrigin(request)) {
         return json({ error: "Invalid request origin." }, 403);
       }
 
       const quickAdmin = url.pathname.match(/^\/api\/admin\/quicksite(?:\/([a-f0-9-]+))?$/i);
       if (quickAdmin) return handleQuickSiteAdmin(request, env.DB, quickAdmin[1] || null);
+
+      const auraMenuAdmin = url.pathname.match(/^\/api\/admin\/auramenu(?:\/([a-f0-9-]+))?$/i);
+      if (auraMenuAdmin) return handleAuraMenuAdmin(request, env.DB, auraMenuAdmin[1] || null);
 
       if (url.pathname === "/api/admin/overview" && request.method === "GET") {
         return json(await getOverview(env.DB), 200, { "Cache-Control": "no-store" });
@@ -340,9 +564,12 @@ export default {
 
       return json({ error: "Not found." }, 404);
     } catch (error) {
+      const publicCors = url.pathname.startsWith("/api/auramenu/") ? auraMenuCors(request) : {};
+      const corsHeaders = publicCors && publicCors !== null ? publicCors : {};
       if (error instanceof ApiError) {
         return json({ error: error.message }, error.status, {
           "Cache-Control": "no-store",
+          ...corsHeaders,
           ...error.headers,
         });
       }
@@ -351,7 +578,7 @@ export default {
         path: url.pathname,
         error: error instanceof Error ? error.message : String(error),
       }));
-      return json({ error: "Server error." }, 500);
+      return json({ error: "Server error." }, 500, corsHeaders);
     }
   },
 };
@@ -370,6 +597,8 @@ async function ensureSchema(db) {
       db.prepare("CREATE TABLE IF NOT EXISTS subscriptions (id INTEGER PRIMARY KEY AUTOINCREMENT, client_id INTEGER, plan TEXT NOT NULL DEFAULT '', amount REAL NOT NULL DEFAULT 0, interval TEXT NOT NULL DEFAULT 'monthly', status TEXT NOT NULL DEFAULT 'active', next_billing_date TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')))"),
       db.prepare("CREATE TABLE IF NOT EXISTS expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, category TEXT NOT NULL DEFAULT 'General', description TEXT NOT NULL DEFAULT '', amount REAL NOT NULL DEFAULT 0, date TEXT NOT NULL DEFAULT (date('now')), notes TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')))"),
       db.prepare("CREATE TABLE IF NOT EXISTS quicksite_projects (id TEXT PRIMARY KEY NOT NULL, slug TEXT NOT NULL UNIQUE, template_id TEXT NOT NULL, language TEXT NOT NULL DEFAULT 'tr', business_name TEXT NOT NULL, tagline TEXT NOT NULL DEFAULT '', description TEXT NOT NULL DEFAULT '', primary_color TEXT NOT NULL DEFAULT '#a3ff12', phone TEXT NOT NULL DEFAULT '', whatsapp TEXT NOT NULL DEFAULT '', email TEXT NOT NULL, address TEXT NOT NULL DEFAULT '', contact_name TEXT NOT NULL, offers_json TEXT NOT NULL DEFAULT '[]', details_json TEXT NOT NULL DEFAULT '{}', payment_status TEXT NOT NULL DEFAULT 'unpaid', status TEXT NOT NULL DEFAULT 'pending', owner_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')), approved_at TEXT, revision INTEGER NOT NULL DEFAULT 1)"),
+      db.prepare("CREATE TABLE IF NOT EXISTS auramenu_requests (id TEXT PRIMARY KEY NOT NULL, slug TEXT NOT NULL UNIQUE, template_id TEXT NOT NULL, interface_language TEXT NOT NULL DEFAULT 'tr', menu_language TEXT NOT NULL DEFAULT 'tr', business_name TEXT NOT NULL, tagline TEXT NOT NULL DEFAULT '', description TEXT NOT NULL DEFAULT '', address TEXT NOT NULL DEFAULT '', business_phone TEXT NOT NULL DEFAULT '', whatsapp TEXT NOT NULL DEFAULT '', opening_hours TEXT NOT NULL DEFAULT '', currency TEXT NOT NULL DEFAULT 'TRY', contact_name TEXT NOT NULL, contact_phone TEXT NOT NULL, email TEXT NOT NULL DEFAULT '', city TEXT NOT NULL DEFAULT '', payment_reference TEXT NOT NULL DEFAULT '', categories_json TEXT NOT NULL DEFAULT '[]', notes TEXT NOT NULL DEFAULT '', payment_status TEXT NOT NULL DEFAULT 'unpaid', status TEXT NOT NULL DEFAULT 'pending', owner_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')), approved_at TEXT, revision INTEGER NOT NULL DEFAULT 1)"),
+      db.prepare("CREATE INDEX IF NOT EXISTS idx_auramenu_requests_status_created ON auramenu_requests(status, created_at DESC)"),
       db.prepare("CREATE TABLE IF NOT EXISTS analytics_daily (date TEXT NOT NULL, path TEXT NOT NULL, views INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (date, path))"),
     ]);
 
@@ -530,11 +759,14 @@ async function getOverview(db) {
     db.prepare("SELECT COALESCE(SUM(amount),0) AS value FROM expenses"),
     db.prepare("SELECT COALESCE(SUM(CASE WHEN interval = 'weekly' THEN amount * 4.33 ELSE amount END),0) AS value FROM subscriptions WHERE status = 'active'"),
     db.prepare("SELECT COALESCE(SUM(views),0) AS value FROM analytics_daily WHERE date >= date('now','-29 day')"),
+    db.prepare("SELECT COUNT(*) AS value FROM quicksite_projects WHERE status = 'pending'"),
+    db.prepare("SELECT COUNT(*) AS value FROM auramenu_requests WHERE status = 'pending'"),
   ]);
   const values = results.map((result) => Number(result.results?.[0]?.value || 0));
   return {
     leads: values[0], activeClients: values[1], openOrders: values[2], unpaidInvoices: values[3],
     revenue: values[4], expenses: values[5], profit: values[4] - values[5], recurringRevenue: values[6], views30d: values[7],
+    pendingQuickSites: values[8], pendingAuraMenus: values[9],
   };
 }
 
