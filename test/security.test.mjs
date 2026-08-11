@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  hashBootstrapPassword,
   hashPassword,
   normalizeUsername,
   safeEqual,
@@ -27,4 +28,11 @@ test("password and username validation rejects weak input", () => {
 test("legacy bootstrap comparison does not short-circuit on length", async () => {
   assert.equal(await safeEqual("same-value", "same-value"), true);
   assert.equal(await safeEqual("short", "a much longer secret"), false);
+});
+
+test("legacy owner bootstrap accepts a password below the normal minimum", async () => {
+  const password = "short";
+  const hash = await hashBootstrapPassword(password);
+  assert.equal(await verifyPassword(password, hash), true);
+  await assert.rejects(() => hashBootstrapPassword(""));
 });
