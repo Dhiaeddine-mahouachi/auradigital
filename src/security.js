@@ -3,7 +3,10 @@ export const SESSION_SECONDS = 60 * 60 * 8;
 export const ADMIN_ROLES = new Set(["owner", "manager", "viewer"]);
 const PASSWORD_ALGORITHM = "PBKDF2";
 const PASSWORD_DIGEST = "SHA-256";
-const PASSWORD_ITERATIONS = 600_000;
+// Keep password hashing within the Cloudflare Workers Free CPU budget.
+// Verification still accepts older, more expensive hashes.
+const PASSWORD_ITERATIONS = 25_000;
+const PASSWORD_MIN_ITERATIONS = 25_000;
 const PASSWORD_HASH_BYTES = 32;
 const encoder = new TextEncoder();
 
@@ -53,7 +56,7 @@ export async function verifyPassword(value, storedHash) {
   const expected = fromBase64url(parts[3]);
   if (
     !Number.isInteger(iterations) ||
-    iterations < 100_000 ||
+    iterations < PASSWORD_MIN_ITERATIONS ||
     iterations > 2_000_000 ||
     salt.length < 16 ||
     expected.length !== PASSWORD_HASH_BYTES
