@@ -5522,24 +5522,26 @@ body[data-page="packages"] .page-hero .crumb a {
 
 .menu-choice-modal{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:18px}.menu-choice-modal[hidden]{display:none}.menu-choice-backdrop{position:absolute;inset:0;background:rgba(4,15,12,.72);backdrop-filter:blur(10px)}.menu-choice-card{position:relative;width:min(620px,100%);max-height:calc(100vh - 36px);overflow:auto;border-radius:28px;background:#f8f3e8;padding:clamp(24px,5vw,42px);box-shadow:0 35px 120px rgba(0,0,0,.35)}.menu-choice-close{position:absolute;top:16px;right:16px;width:40px;height:40px;border:1px solid rgba(12,30,24,.14);border-radius:50%;background:#fff;color:#0c1e18;font-size:24px;cursor:pointer}.menu-choice-card h2{font-size:clamp(30px,5vw,48px);line-height:1;letter-spacing:-.055em;margin:10px 40px 8px 0}.menu-choice-card>p{color:#68746f;margin:0 0 22px}.menu-choice-card fieldset{border:0;padding:0;margin:0;display:grid;gap:10px}.menu-choice-card legend{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px}.menu-choice-card fieldset label{display:flex;gap:12px;align-items:flex-start;padding:15px;border:1px solid #d9d9cf;border-radius:16px;background:#fff;cursor:pointer}.menu-choice-card fieldset label:has(input:checked){border-color:#167a5a;box-shadow:0 0 0 3px rgba(22,122,90,.12)}.menu-choice-card input{margin-top:3px;accent-color:#167a5a}.menu-choice-card fieldset span{display:grid;gap:4px}.menu-choice-card fieldset b{font-size:14px}.menu-choice-card fieldset small,.menu-choice-note{color:#68746f;font-size:11px;line-height:1.5}.menu-choice-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}.menu-choice-actions .btn{justify-content:center;text-align:center}.menu-choice-note{display:block;margin-top:13px;text-align:center}@media(max-width:620px){.menu-choice-actions{grid-template-columns:1fr}.menu-choice-card{border-radius:22px}.menu-choice-card h2{font-size:34px}}
 
-/* AuraMenu choice: make self-customization unmistakable */
-.menu-choice-card{width:min(690px,100%);background:linear-gradient(145deg,#f7f2e6 0%,#eff8e9 100%);border:1px solid rgba(12,30,24,.12)}
-.menu-choice-actions{grid-template-columns:1.35fr .85fr;align-items:stretch;margin-top:24px}
-.menu-choice-action{position:relative;display:flex;flex-direction:column;justify-content:center;gap:9px;min-height:156px;padding:22px;border:1px solid rgba(12,30,24,.14);border-radius:21px;background:#fff;color:#0c1e18;text-decoration:none;transition:transform .2s,box-shadow .2s,border-color .2s}
+/* AuraMenu choice: two distinct production paths */
+.menu-choice-card{width:min(760px,100%);background:linear-gradient(145deg,#f7f2e6 0%,#eff8e9 100%);border:1px solid rgba(12,30,24,.12)}
+.menu-choice-actions{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin-top:24px}
+.menu-choice-action{position:relative;display:flex;flex-direction:column;justify-content:flex-start;gap:9px;min-height:216px;padding:22px;border:1px solid rgba(12,30,24,.14);border-radius:21px;background:#fff;color:#0c1e18;text-decoration:none;transition:transform .2s,box-shadow .2s,border-color .2s}
 .menu-choice-action:hover{transform:translateY(-3px);box-shadow:0 18px 45px rgba(12,30,24,.12);border-color:#167a5a}
 .menu-choice-action>b{display:flex;justify-content:space-between;gap:12px;font-size:18px;line-height:1.15}
 .menu-choice-action b i{font-style:normal}
 .menu-choice-action>small{color:#68746f;font-size:12px;line-height:1.5}
-.menu-choice-action.self-featured{min-height:190px;padding:26px;background:#0c1e18;color:#fff;border-color:#0c1e18;box-shadow:0 18px 48px rgba(12,30,24,.22)}
+.menu-choice-action.self-featured{min-height:216px;background:#0c1e18;color:#fff;border-color:#0c1e18;box-shadow:0 18px 48px rgba(12,30,24,.22)}
 .menu-choice-action.self-featured>small{color:#dbe9e2}
-.menu-choice-action.self-featured b{font-size:23px}
+.menu-choice-action.self-featured>b{font-size:20px}
 .menu-choice-badge{align-self:flex-start;padding:6px 9px;border-radius:999px;background:#d8ff45;color:#0c1e18;font-size:9px;font-weight:950;letter-spacing:.08em}
-.menu-choice-action.managed-option{min-height:150px}
-@media(max-width:620px){.menu-choice-actions{grid-template-columns:1fr}.menu-choice-action.self-featured{min-height:170px}}
-
-/* AuraMenu now uses one self-customization path */
-.menu-choice-actions{grid-template-columns:1fr}
-.menu-choice-action.self-featured{width:100%}
+.menu-choice-badge.managed-badge{background:#e6ede5;color:#167a5a}
+.menu-choice-action.managed-option{min-height:216px;border-color:rgba(22,122,90,.28)}
+.menu-choice-includes{display:grid;gap:4px;margin-top:auto;padding-top:13px;border-top:1px solid rgba(12,30,24,.12)}
+.menu-choice-includes strong{font-size:16px;line-height:1.2}
+.menu-choice-includes em{color:#68746f;font-size:10px;font-style:normal;font-weight:800;line-height:1.35}
+.menu-choice-action.self-featured .menu-choice-includes{border-top-color:rgba(255,255,255,.18)}
+.menu-choice-action.self-featured .menu-choice-includes em{color:#dbe9e2}
+@media(max-width:620px){.menu-choice-actions{grid-template-columns:1fr;gap:10px;margin-top:16px}.menu-choice-action,.menu-choice-action.self-featured,.menu-choice-action.managed-option{min-height:0;padding:16px}.menu-choice-action.self-featured>b{font-size:18px}.menu-choice-action>small{font-size:11px}.menu-choice-includes{padding-top:10px}}
 
 /* AuraMenu hero: three clear customer paths */
 .auramenu-hero .hero-actions{
@@ -5718,7 +5720,6 @@ body[data-page="packages"] .page-hero .crumb a {
   .menu-choice-modal{padding:10px}
   .menu-choice-card{max-height:calc(100svh - 20px);padding:24px 18px;border-radius:20px}
   .menu-choice-card h2{font-size:clamp(30px,10vw,40px)}
-  .menu-choice-action.self-featured{min-height:158px;padding:22px}
 }
 @media (max-width: 480px) {
   .container{width:min(calc(100% - 20px),var(--max))}
