@@ -26,10 +26,21 @@ export function validatePassword(value) {
 }
 
 export async function hashPassword(value) {
-  const password = validatePassword(value);
+  return createPasswordHash(validatePassword(value));
+}
+
+export async function hashBootstrapPassword(value) {
+  const password = String(value ?? "");
+  if (!password || password.length > 200) {
+    throw new Error("Bootstrap password must contain between 1 and 200 characters.");
+  }
+  return createPasswordHash(password);
+}
+
+async function createPasswordHash(password) {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const hash = await derivePassword(password, salt, PASSWORD_ITERATIONS);
-  return `pbkdf2-sha256$${PASSWORD_ITERATIONS}$${base64url(salt)}$${base64url(hash)}`;
+  return `pbkdf2-sha256${PASSWORD_ITERATIONS}${base64url(salt)}${base64url(hash)}`;
 }
 
 export async function verifyPassword(value, storedHash) {
