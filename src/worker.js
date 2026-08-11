@@ -1080,7 +1080,7 @@ async function bootstrapOwner(db, env, username, password) {
   try {
     passwordHash = await hashPassword(password);
   } catch {
-    throw new ApiError(503, "ADMIN_PASSWORD must contain at least 12 characters before the owner account can be created.");
+    throw new ApiError(503, "ADMIN_PASSWORD must contain at least 8 characters before the owner account can be created.");
   }
 
   const id = crypto.randomUUID();
