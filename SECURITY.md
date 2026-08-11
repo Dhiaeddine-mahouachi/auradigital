@@ -6,7 +6,7 @@
 - `owner` can manage accounts and read the security log.
 - `manager` can read and update customer and business data.
 - `viewer` is read-only.
-- Use a unique password with at least 12 characters. A password reset revokes all sessions for that account.
+- Use a unique password with at least 8 characters. A password reset revokes all sessions for that account.
 - Keep `ADMIN_PASSWORD` only until the first `owner` account has been created. Then remove that Worker secret.
 
 ## Cloudflare production settings
