@@ -5,7 +5,7 @@ export default {
     const url = new URL(request.url);
     if ((url.pathname === '/quicksite' || url.pathname === '/quicksite/') && request.method === 'GET') {
       const assetUrl = new URL('/quicksite-v2.html', url);
-      return env.ASSETS.fetch(new Request(assetUrl, request));
+      return Response.redirect(assetUrl.toString(), 302);
     }
     return app.fetch(request, env, ctx);
   },
