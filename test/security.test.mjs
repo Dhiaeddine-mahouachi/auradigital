@@ -16,7 +16,7 @@ test("password hashes are salted and verifiable", async () => {
   assert.notEqual(first, second);
   assert.equal(await verifyPassword(password, first), true);
   assert.equal(await verifyPassword("incorrect password", first), false);
-  assert.match(first, /^pbkdf2-sha256\\$25000\\$/);
+  assert.match(first, /^pbkdf2-sha256\$25000\$/);
 });
 
 test("password and username validation rejects weak input", () => {
