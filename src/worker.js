@@ -1089,8 +1089,9 @@ async function bootstrapOwner(db, env, username, password) {
   let passwordHash;
   try {
     passwordHash = await hashBootstrapPassword(password);
-  } catch {
-    throw new ApiError(503, "ADMIN_PASSWORD must not be empty before the owner account can be created.");
+  } catch (error) {
+    console.error("Owner password hashing failed during bootstrap.", error);
+    throw new ApiError(503, "The owner password could not be secured. Check the Worker logs and try again.");
   }
 
   const id = crypto.randomUUID();
