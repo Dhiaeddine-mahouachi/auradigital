@@ -12,6 +12,7 @@
     <link rel="icon" href="logo.svg" type="image/svg+xml" />
     <link rel="manifest" href="site.webmanifest" />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="responsive.css" />
   </head>
   <body data-page="portfolio">
     <header id="siteHeader"></header>
@@ -157,15 +158,16 @@
         <div class="container">
           <div class="video-panel reveal">
             <video
+              data-background-video
               autoplay
               muted
               loop
               playsinline
               preload="metadata"
-              poster="hero-agency.png"
+              disablepictureinpicture
             >
               <source
-                src="https://www.pexels.com/download/video/7967229/"
+                src="media/aura-portfolio.mp4"
                 type="video/mp4"
               />
             </video>

@@ -12,26 +12,25 @@
     <link rel="icon" href="logo.svg" type="image/svg+xml" />
     <link rel="manifest" href="site.webmanifest" />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="responsive.css" />
   </head>
   <body data-page="home">
     <header id="siteHeader"></header>
     <main>
       <section class="hero reference-hero">
         <div class="hero-media">
-          <img
-            src="hero-agency.png"
-            alt="AuraDigital yaratıcı dijital ekip çalışma ortamı"
-          /><video
+          <video
+            data-background-video
             autoplay
             muted
             loop
             playsinline
-            preload="metadata"
-            poster="hero-agency.png"
+            preload="auto"
+            disablepictureinpicture
             aria-hidden="true"
           >
             <source
-              src="https://www.pexels.com/fr-fr/download/video/6558324/"
+              src="media/aura-hero.mp4"
               type="video/mp4"
             />
           </video>
@@ -161,7 +160,7 @@
                   Restoran ve kafeler için farklı tasarım stillerinden
                   seçilebilen, hızlı ve telefona uyumlu dijital menüler.
                 </p>
-                <span class="service-price">2.500 TL'den başlayan</span>
+                <span class="service-price" data-setting="auramenu_self_price" data-suffix=" TL'den başlayan">1.599 TL'den başlayan</span>
               </div>
               <span class="service-link">Tasarımları keşfet →</span></a
             >
@@ -349,16 +348,17 @@
         <div class="container">
           <div class="video-panel reveal">
             <video
+              data-background-video
               autoplay
               muted
               loop
               playsinline
               preload="metadata"
-              poster="hero-agency.png"
+              disablepictureinpicture
               aria-label="AuraDigital ekibi işletme reklam stratejisi üzerinde çalışıyor"
             >
               <source
-                src="https://www.pexels.com/download/video/6561343/"
+                src="media/aura-studio.mp4"
                 type="video/mp4"
               />
             </video>

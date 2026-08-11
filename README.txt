@@ -13,10 +13,11 @@ AURADIGITAL — EASY ACCESS / CLOUDFLARE READY
    with the visitor's message pre-filled. No backend is required.
 
 4) Background media
-   Hero fallback image, project screenshots and NFC/QR restaurant image are included
-   directly beside index.html. There is no required assets/ subfolder.
-   The hero and portfolio atmosphere sections stream Pexels background video when online.
-   If offline, the local hero image remains visible automatically.
+   The hero, studio and portfolio atmosphere sections use small, locally served MP4
+   files in media/ so playback does not depend on a third-party connection.
+   The landing-page image fallback was removed so it cannot overlap the hero video.
+   script.js fades video in only after it can play, resumes it after tab visibility
+   changes, and respects the visitor's reduced-motion preference.
 
 5) Languages
    Turkish, English and Arabic are built in and work without a translation service.
@@ -43,6 +44,8 @@ AURADIGITAL — EASY ACCESS / CLOUDFLARE READY
    nfc-status.html / css / js = private request-status page
    admin/index.html + admin/admin.js = red pending / paid / green approved controls
    src/worker.js = validation, D1 storage and public/admin NFC API routes
+   src/http.js = bounded JSON parsing and consistent locked-down API responses
+   src/security.js = origin checks, signed random admin sessions and secure cookies
 
    Supported card purposes now: Google reviews and website.
    Menu NFC is intentionally reserved for a later update.
@@ -50,3 +53,16 @@ AURADIGITAL — EASY ACCESS / CLOUDFLARE READY
 Main pages: index.html, services.html, portfolio.html, aura-menu.html, nfc.html,
 qr-menu.html, packages.html, about.html, contact.html, nfc-builder.html,
 nfc-status.html.
+
+9) AuraMenu pricing
+   AuraMenu self-build publishing is 1,599 TL. The public
+   /api/auramenu/pricing endpoint and admin Pricing view share the
+   auramenu_self_price setting. AuraDigital-managed menu setup remains a separate
+   price controlled by qr_menu_price.
+
+10) Source and deployment security
+   Browser-delivered HTML, CSS and JavaScript are necessarily public. Secrets and
+   server-only code are not included in static assets: .assetsignore excludes src,
+   migrations, Wrangler configuration, environment files and repository metadata.
+   Production deployment is Cloudflare Workers only; the legacy workflow that
+   uploaded the entire repository to GitHub Pages has been removed.

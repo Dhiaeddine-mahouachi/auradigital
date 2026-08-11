@@ -1,5 +1,13 @@
-const COOKIE_NAME = "__Host-aura_admin";
-const SESSION_SECONDS = 60 * 60 * 8;
+import { ApiError, json, readJson } from "./http.js";
+import {
+  SESSION_SECONDS,
+  createSessionToken,
+  isAuthenticated,
+  safeEqual,
+  sameOrigin,
+  sessionCookie,
+} from "./security.js";
+
 const LOGIN_BODY_BYTES = 1024;
 const TRACK_BODY_BYTES = 1024;
 const ADMIN_BODY_BYTES = 32 * 1024;
@@ -8,6 +16,7 @@ const MAX_LIST_ITEMS = 50;
 const MAX_LIST_ITEM_LENGTH = 240;
 const PUBLIC_SETTING_KEYS = [
   "nfc_price",
+  "auramenu_self_price",
   "qr_menu_price",
   "web_single_price",
   "web_multi_price",
@@ -210,13 +219,36 @@ async function handleNfcAdmin(request, db, id) {
   return json({ request: mapNfcRequest(updated) }, 200, { "Cache-Control": "no-store" });
 }
 async function proxyQuickSite(request, url) {
+  if (!['GET', 'HEAD'].includes(request.method)) {
+    return json({ error: "Method not allowed." }, 405, { Allow: "GET, HEAD" });
+  }
   const upstreamPath = url.pathname.startsWith("/quicksite") ? (url.pathname.slice("/quicksite".length) || "/") : url.pathname;
   const target = new URL(upstreamPath + url.search, QUICKSITE_ORIGIN);
-  const upstream = await fetch(new Request(target, request));
+  const requestHeaders = new Headers(request.headers);
+  [
+    "Authorization",
+    "Cookie",
+    "CF-Connecting-IP",
+    "CF-IPCountry",
+    "CF-Ray",
+    "Origin",
+    "Proxy-Authorization",
+    "Referer",
+    "X-Forwarded-For",
+    "X-Real-IP",
+  ].forEach((name) => requestHeaders.delete(name));
+  const upstream = await fetch(target, {
+    method: request.method,
+    headers: requestHeaders,
+    redirect: "follow",
+  });
   const headers = new Headers(upstream.headers);
   headers.delete("Set-Cookie");
+  headers.delete("Set-Cookie2");
   headers.delete("Server");
   headers.delete("X-Powered-By");
+  headers.delete("Report-To");
+  headers.delete("NEL");
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
@@ -225,6 +257,12 @@ async function proxyQuickSite(request, url) {
   headers.set("Cross-Origin-Opener-Policy", "same-origin");
   headers.set("Cross-Origin-Resource-Policy", "same-site");
   headers.set("X-Permitted-Cross-Domain-Policies", "none");
+  if ((headers.get("Content-Type") || "").includes("text/html")) {
+    headers.set(
+      "Content-Security-Policy",
+      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self'; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+    );
+  }
   return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
 }
 function qsClean(value, max = 500) { return typeof value === "string" ? value.trim().slice(0, max) : ""; }
@@ -260,7 +298,44 @@ function mapQuickSite(row) {
     updatedAt: row.updated_at, approvedAt: row.approved_at, revision: row.revision,
   };
 }
+function mapQuickSitePublic(row, includeRequestState = false) {
+  const project = mapQuickSite(row);
+  const safeProject = {
+    slug: project.slug,
+    templateId: project.templateId,
+    language: project.language,
+    businessName: project.businessName,
+    tagline: project.tagline,
+    description: project.description,
+    primaryColor: project.primaryColor,
+    phone: project.phone,
+    whatsapp: project.whatsapp,
+    email: project.email,
+    address: project.address,
+    offers: project.offers,
+    industry: project.industry,
+    eyebrow: project.eyebrow,
+    aboutTitle: project.aboutTitle,
+    primaryCta: project.primaryCta,
+    workingHours: project.workingHours,
+    instagram: project.instagram,
+    mapUrl: project.mapUrl,
+    logoUrl: project.logoUrl,
+    heroImageUrl: project.heroImageUrl,
+    galleryUrls: project.galleryUrls,
+    benefits: project.benefits,
+  };
+  if (includeRequestState) {
+    safeProject.id = project.id;
+    safeProject.status = project.status;
+    safeProject.updatedAt = project.updatedAt;
+  }
+  return safeProject;
+}
 async function createQuickSiteRequest(request, db) {
+  if (!sameOrigin(request)) {
+    return json({ error: "Invalid request origin." }, 403);
+  }
   const body = await readJson(request, QUICKSITE_BODY_BYTES);
   const businessName = qsClean(body.businessName, 100);
   const email = qsClean(body.email, 160);
@@ -291,7 +366,9 @@ async function createQuickSiteRequest(request, db) {
 }
 async function getQuickSiteProject(db, key, value, approvedOnly = false) {
   const row = await db.prepare("SELECT * FROM quicksite_projects WHERE " + key + " = ?" + (approvedOnly ? " AND status = 'approved'" : "") + " LIMIT 1").bind(value).first();
-  return row ? json({ project: mapQuickSite(row) }, 200, { "Cache-Control": "no-store" }) : json({ error: "Not found." }, 404);
+  return row
+    ? json({ project: mapQuickSitePublic(row, !approvedOnly) }, 200, { "Cache-Control": approvedOnly ? "public, max-age=60" : "no-store" })
+    : json({ error: "Not found." }, 404);
 }
 async function handleQuickSiteAdmin(request, db, id) {
   if (request.method === "GET" && !id) {
@@ -601,15 +678,6 @@ async function handleAuraMenuAdmin(request, db, id) {
   return json({ request: mapAuraMenuRequest(updated) }, 200, { "Cache-Control": "no-store" });
 }
 
-class ApiError extends Error {
-  constructor(status, message, headers = {}) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-    this.headers = headers;
-  }
-}
-
 const RESOURCES = {
   packages: {
     table: "packages",
@@ -705,6 +773,20 @@ export default {
         if (corsHeaders === null) return json({ error: "Bu kaynaktan talep kabul edilmiyor." }, 403);
         if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 
+        if (url.pathname === "/api/auramenu/pricing" && request.method === "GET") {
+          const settings = await getPublicSettings(env.DB);
+          const selfBuildPrice = Number(settings.auramenu_self_price);
+          const managedBuildPrice = Number(settings.qr_menu_price);
+          return json({
+            selfBuildPrice: Number.isFinite(selfBuildPrice) && selfBuildPrice > 0 ? selfBuildPrice : 1599,
+            managedBuildPrice: Number.isFinite(managedBuildPrice) && managedBuildPrice > 0 ? managedBuildPrice : 2500,
+            currency: "TRY",
+          }, 200, {
+            ...corsHeaders,
+            "Cache-Control": "public, max-age=30, stale-while-revalidate=300",
+          });
+        }
+
         if (url.pathname === "/api/auramenu/requests" && request.method === "POST") {
           const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
           const limit = await env.TRACK_RATE_LIMITER.limit({ key: `auramenu-request:${clientKey}` });
@@ -781,11 +863,10 @@ export default {
         if (!(await safeEqual(String(body.password || ""), env.ADMIN_PASSWORD))) {
           return json({ error: "Incorrect password." }, 401, { "Cache-Control": "no-store" });
         }
-        const expires = Math.floor(Date.now() / 1000) + SESSION_SECONDS;
-        const signature = await sign(String(expires), env.ADMIN_PASSWORD);
+        const token = await createSessionToken(env.ADMIN_PASSWORD);
         return json({ ok: true }, 200, {
           "Cache-Control": "no-store",
-          "Set-Cookie": cookieValue(expires + "." + signature, SESSION_SECONDS),
+          "Set-Cookie": sessionCookie(token, SESSION_SECONDS),
         });
       }
 
@@ -793,7 +874,7 @@ export default {
         if (!sameOrigin(request)) return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
         return json({ ok: true }, 200, {
           "Cache-Control": "no-store",
-          "Set-Cookie": cookieValue("", 0),
+          "Set-Cookie": sessionCookie("", 0),
         });
       }
 
@@ -898,6 +979,7 @@ async function ensureSchema(db) {
 
     await db.batch([
       settingSeed(db, "nfc_price", "700"),
+      settingSeed(db, "auramenu_self_price", "1599"),
       settingSeed(db, "qr_menu_price", "2500"),
       settingSeed(db, "web_single_price", "5000"),
       settingSeed(db, "web_multi_price", "8000"),
@@ -1073,110 +1155,4 @@ function cleanPath(value) {
   if (typeof value !== "string") return "";
   const path = value.trim();
   return TRACKABLE_PATHS.has(path) ? path : "";
-}
-
-function sameOrigin(request) {
-  const origin = request.headers.get("Origin");
-  return Boolean(origin) && origin === new URL(request.url).origin;
-}
-
-async function readJson(request, maxBytes) {
-  const contentLength = Number(request.headers.get("Content-Length") || 0);
-  if (Number.isFinite(contentLength) && contentLength > maxBytes) {
-    throw new ApiError(413, "Request body is too large.");
-  }
-  if (!request.body) return {};
-
-  const reader = request.body.getReader();
-  const chunks = [];
-  let total = 0;
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      total += value.byteLength;
-      if (total > maxBytes) {
-        await reader.cancel("Request body limit exceeded");
-        throw new ApiError(413, "Request body is too large.");
-      }
-      chunks.push(value);
-    }
-  } finally {
-    reader.releaseLock();
-  }
-
-  const bytes = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  const text = new TextDecoder().decode(bytes);
-  if (!text.trim()) return {};
-  try {
-    const data = JSON.parse(text);
-    if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("JSON object required");
-    return data;
-  } catch {
-    throw new ApiError(400, "Invalid JSON request body.");
-  }
-}
-
-async function isAuthenticated(request, env) {
-  if (!env.ADMIN_PASSWORD) return false;
-  const token = parseCookies(request.headers.get("Cookie") || "")[COOKIE_NAME];
-  if (!token) return false;
-  const split = token.lastIndexOf(".");
-  if (split < 1) return false;
-  const expiresText = token.slice(0, split);
-  const signature = token.slice(split + 1);
-  const expires = Number(expiresText);
-  if (!Number.isFinite(expires) || expires < Math.floor(Date.now() / 1000)) return false;
-  return safeEqual(signature, await sign(expiresText, env.ADMIN_PASSWORD));
-}
-
-async function sign(message, secret) {
-  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  return base64url(new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(message))));
-}
-
-async function safeEqual(a, b) {
-  const [ha, hb] = await Promise.all([
-    crypto.subtle.digest("SHA-256", new TextEncoder().encode(a)),
-    crypto.subtle.digest("SHA-256", new TextEncoder().encode(b)),
-  ]);
-  return crypto.subtle.timingSafeEqual(ha, hb);
-}
-
-function base64url(bytes) {
-  let binary = "";
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-}
-
-function parseCookies(header) {
-  const result = {};
-  for (const item of header.split(";")) {
-    const index = item.indexOf("=");
-    if (index < 0) continue;
-    result[item.slice(0, index).trim()] = item.slice(index + 1).trim();
-  }
-  return result;
-}
-
-function cookieValue(value, maxAge) {
-  return `${COOKIE_NAME}=${value}; Path=/; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Strict`;
-}
-
-function json(data, status = 200, headers = {}) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "X-Content-Type-Options": "nosniff",
-      "Referrer-Policy": "no-referrer",
-      "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
-      ...headers,
-    },
-  });
 }

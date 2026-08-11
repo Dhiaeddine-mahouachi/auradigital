@@ -1,0 +1,84 @@
+/* Final responsive and media refinements. Loaded after the core design system. */
+[data-background-video] {
+  opacity: 0;
+  transform: scale(1.025) translateZ(0);
+  transition: opacity 700ms ease, transform 1400ms cubic-bezier(.2,.7,.2,1);
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+}
+
+.hero-media.is-video-ready [data-background-video],
+.video-panel.is-video-ready [data-background-video] {
+  opacity: 1;
+  transform: scale(1.01) translateZ(0);
+}
+
+.reference-hero .hero-media {
+  background: #0c1e18;
+}
+
+.menu-price-banner p b {
+  display: block;
+  margin-bottom: 4px;
+  color: #fff;
+}
+
+.menu-price-banner p b span {
+  color: var(--orange);
+  font-weight: 900;
+}
+
+.menu-choice-card > .eyebrow b {
+  color: inherit;
+}
+
+@media (max-width: 760px) {
+  .brand-wordmark,
+  .footer-wordmark,
+  .footer-col a,
+  .cookie-settings-link,
+  .chat-close,
+  .chat-quick button,
+  .lang-menu button {
+    min-height: 44px;
+  }
+
+  .chat-close {
+    min-width: 44px;
+  }
+
+  .chat-quick button {
+    padding-inline: 14px;
+  }
+
+  .footer-col a {
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-price-banner p {
+    text-align: start;
+  }
+}
+
+@media (max-width: 420px) {
+  .container {
+    width: min(calc(100% - 20px), var(--max));
+  }
+
+  .hero-actions .btn,
+  .menu-action {
+    width: 100%;
+  }
+
+  .menu-choice-close {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-background-video] {
+    display: none;
+  }
+}

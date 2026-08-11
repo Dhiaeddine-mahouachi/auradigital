@@ -31,7 +31,7 @@
     };
 
     const PRICE_FIELDS = [
-      ["nfc_price","NFC Card","Standard card price"],["qr_menu_price","QR Menu","Digital menu setup"],["web_single_price","1-page Website","Starting price"],["web_multi_price","Multi-page Website","Starting price"],["web_dynamic_price","Dynamic Website","Starting price"]
+      ["nfc_price","NFC Card","Standard card price"],["auramenu_self_price","AuraMenu Self-build","Customer builds the menu"],["qr_menu_price","AuraMenu Managed","AuraDigital builds the menu"],["web_single_price","1-page Website","Starting price"],["web_multi_price","Multi-page Website","Starting price"],["web_dynamic_price","Dynamic Website","Starting price"]
     ];
 
     const state={view:"overview",clients:[],editing:null};

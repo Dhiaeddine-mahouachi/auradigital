@@ -1163,6 +1163,15 @@
     ],
     ["WhatsApp'tan gönder ↗", "Send via WhatsApp ↗", "إرسال عبر WhatsApp ↗"],
     ["700 TL'den başlayan", "Starting from 700 TL", "ابتداءً من 700 TL"],
+    ["Kendin oluştur", "Build it yourself", "أنشئها بنفسك"],
+    ["tek seferlik yayın", "one-time publishing", "نشر لمرة واحدة"],
+    ["AuraDigital hazırlasın:", "AuraDigital builds it:", "تجهزها AuraDigital:"],
+    [
+      "· Mobil tasarım · QR yayınlama · marka uyarlaması · temel ürün kurulumu",
+      "· Mobile design · QR publishing · brand adaptation · basic product setup",
+      "· تصميم للهاتف · نشر QR · تخصيص العلامة · إعداد المنتجات الأساسي",
+    ],
+    ["1.599 TL'den başlayan", "Starting from 1,599 TL", "ابتداءً من 1,599 TL"],
     ["2.500 TL'den başlayan", "Starting from 2,500 TL", "ابتداءً من 2,500 TL"],
     [
       "Form gönderildiğinde mesajınız WhatsApp'ta +90 538 550 76 74 numarasına hazır olarak açılır. Göndermeden önce mesajı kontrol edebilirsiniz.",

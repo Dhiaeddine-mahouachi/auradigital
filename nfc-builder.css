@@ -25,7 +25,7 @@ html[dir=rtl] .workflow span:not(:last-child)::after{margin:0 10px}html[dir=rtl]
   .builder-header{height:64px;padding:0 12px;gap:8px}
   .builder-header-actions{gap:7px}
   .builder-brand img{width:33px;height:33px}
-  .language-switch button{width:35px;min-height:32px}
+  .language-switch button{width:44px;height:44px}
   .builder-shell{padding:28px 10px 58px}
   .builder-intro{margin-bottom:24px}
   .builder-intro h1{font-size:clamp(33px,11vw,43px);line-height:1}

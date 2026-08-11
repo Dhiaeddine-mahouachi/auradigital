@@ -4,6 +4,8 @@ migrations/**
 node_modules/**
 .git/**
 .github/**
+.gitignore
+.cloudflare-deploy-trigger
 .vscode/**
 .wrangler/**
 .dev.vars*
