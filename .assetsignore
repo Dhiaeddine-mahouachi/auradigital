@@ -4,6 +4,7 @@ migrations/**
 scripts/**
 test/**
 backups/**
+tools/**
 node_modules/**
 .git/**
 .github/**

@@ -1,0 +1,12 @@
+{
+  "name": "wrangler",
+  "version": "4.120.1-aura.1",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "wrangler": "bin/wrangler.mjs"
+  },
+  "dependencies": {
+    "cloudflare-wrangler": "npm:wrangler@4.120.1"
+  }
+}

@@ -11,6 +11,6 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20260811.1",
-    "wrangler": "4.120.1"
+    "wrangler": "file:tools/wrangler-safe"
   }
 }
