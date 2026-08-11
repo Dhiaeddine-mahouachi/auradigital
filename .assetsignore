@@ -1,6 +1,9 @@
 # Never publish server code, configuration, secrets, or development files as static assets
 src/**
 migrations/**
+scripts/**
+test/**
+backups/**
 node_modules/**
 .git/**
 .github/**

@@ -3,6 +3,8 @@ node_modules/
 .dev.vars*
 .env*
 dist/
+backups/
+worker-configuration.d.ts
 *.log
 *.map
 .DS_Store

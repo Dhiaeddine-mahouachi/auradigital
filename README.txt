@@ -76,3 +76,15 @@ nfc-status.html.
    Before deployment, enable Email Routing for auradigital.ink, verify the receiving
    address in Cloudflare, then set the secret with:
    npx wrangler secret put NOTIFICATION_EMAIL
+
+12) Admin security migration
+   The first login uses username "owner" and the existing ADMIN_PASSWORD Worker
+   secret. This creates an owner record with a unique PBKDF2-SHA256 password hash
+   and a revocable, opaque session in D1. After that first successful login, remove
+   ADMIN_PASSWORD from the Worker secrets. Team & Access supports owner, manager and
+   read-only viewer accounts; password resets and account deactivation revoke active
+   sessions. Security Log records administrator actions without storing visitor IPs.
+
+   Run `npm run check`, `npm test`, and `npm run deploy:check` before deployment.
+   Run `bash scripts/backup-d1.sh` at least weekly and before database changes.
+   Full production security operations are documented in SECURITY.md.

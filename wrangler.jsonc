@@ -35,7 +35,8 @@
     {
       "binding": "DB",
       "database_name": "auradigital-db",
-      "database_id": "6d89053c-4979-4e54-9976-bbfb884cb5ca"
+      "database_id": "6d89053c-4979-4e54-9976-bbfb884cb5ca",
+      "migrations_dir": "migrations"
     }
   ],
   "send_email": [
@@ -65,7 +66,6 @@
   "preview_urls": false,
   "secrets": {
     "required": [
-      "ADMIN_PASSWORD",
       "NOTIFICATION_EMAIL"
     ]
   }

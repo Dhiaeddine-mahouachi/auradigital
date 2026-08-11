@@ -1,12 +1,18 @@
 import { ApiError, json, readJson } from "./http.js";
 import { queueRequestNotification } from "./notifications.js";
 import {
+  ADMIN_ROLES,
   SESSION_SECONDS,
-  createSessionToken,
-  isAuthenticated,
+  createSession,
+  getAuthenticatedAdmin,
+  hashPassword,
+  normalizeUsername,
+  revokeSession,
   safeEqual,
   sameOrigin,
   sessionCookie,
+  validatePassword,
+  verifyPassword,
 } from "./security.js";
 
 const LOGIN_BODY_BYTES = 1024;
@@ -899,21 +905,36 @@ export default {
 
       if (url.pathname === "/api/admin/login" && request.method === "POST") {
         if (!sameOrigin(request)) return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
+        const body = await readJson(request, LOGIN_BODY_BYTES);
+        const username = normalizeUsername(body.username || "owner");
         const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
-        const limit = await env.LOGIN_RATE_LIMITER.limit({ key: `admin-login:${clientKey}` });
+        const limit = await env.LOGIN_RATE_LIMITER.limit({ key: `admin-login:${clientKey}:${username || "invalid"}` });
         if (!limit.success) {
           return json({ error: "Too many sign-in attempts. Try again in one minute." }, 429, {
             "Cache-Control": "no-store",
             "Retry-After": "60",
           });
         }
-        if (!env.ADMIN_PASSWORD) return json({ error: "Admin password is not configured yet." }, 503, { "Cache-Control": "no-store" });
-        const body = await readJson(request, LOGIN_BODY_BYTES);
-        if (!(await safeEqual(String(body.password || ""), env.ADMIN_PASSWORD))) {
-          return json({ error: "Incorrect password." }, 401, { "Cache-Control": "no-store" });
+        if (!username) return json({ error: "Incorrect username or password." }, 401, { "Cache-Control": "no-store" });
+
+        let admin = await findAdminByUsername(env.DB, username);
+        if (!admin) {
+          admin = await bootstrapOwner(env.DB, env, username, String(body.password || ""));
         }
-        const token = await createSessionToken(env.ADMIN_PASSWORD);
-        return json({ ok: true }, 200, {
+
+        if (!admin || !admin.active || !(await verifyPassword(String(body.password || ""), admin.password_hash))) {
+          await auditAction(env.DB, null, "login_failed", "authentication", username, request);
+          return json({ error: "Incorrect username or password." }, 401, { "Cache-Control": "no-store" });
+        }
+
+        await env.DB.batch([
+          env.DB.prepare("UPDATE admin_users SET last_login_at = datetime('now'), updated_at = datetime('now') WHERE id = ?").bind(admin.id),
+          env.DB.prepare("DELETE FROM admin_sessions WHERE expires_at <= datetime('now')"),
+        ]);
+        const token = await createSession(env.DB, admin.id);
+        const sessionAdmin = publicAdmin(admin);
+        await auditAction(env.DB, sessionAdmin, "login_succeeded", "authentication", admin.id, request);
+        return json({ ok: true, user: sessionAdmin }, 200, {
           "Cache-Control": "no-store",
           "Set-Cookie": sessionCookie(token, SESSION_SECONDS),
         });
@@ -921,6 +942,9 @@ export default {
 
       if (url.pathname === "/api/admin/logout" && request.method === "POST") {
         if (!sameOrigin(request)) return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
+        const admin = await getAuthenticatedAdmin(request, env.DB);
+        await revokeSession(request, env.DB);
+        if (admin) await auditAction(env.DB, admin, "logout", "authentication", admin.id, request);
         return json({ ok: true }, 200, {
           "Cache-Control": "no-store",
           "Set-Cookie": sessionCookie("", 0),
@@ -928,10 +952,12 @@ export default {
       }
 
       if (url.pathname === "/api/admin/session" && request.method === "GET") {
-        return json({ authenticated: await isAuthenticated(request, env) }, 200, { "Cache-Control": "no-store" });
+        const admin = await getAuthenticatedAdmin(request, env.DB);
+        return json({ authenticated: Boolean(admin), user: admin }, 200, { "Cache-Control": "no-store" });
       }
 
-      if (!(await isAuthenticated(request, env))) {
+      const admin = await getAuthenticatedAdmin(request, env.DB);
+      if (!admin) {
         return json({ error: "Unauthorized." }, 401, { "Cache-Control": "no-store" });
       }
 
@@ -939,14 +965,45 @@ export default {
         return json({ error: "Invalid request origin." }, 403);
       }
 
+      if (["POST", "PUT", "PATCH", "DELETE"].includes(request.method) && admin.role === "viewer") {
+        return json({ error: "This account has read-only access." }, 403);
+      }
+
+      const adminUserMatch = url.pathname.match(/^\/api\/admin\/users(?:\/([a-f0-9-]+))?$/i);
+      if (adminUserMatch) {
+        if (admin.role !== "owner") return json({ error: "Owner access is required." }, 403);
+        return await handleAdminUsers(request, env.DB, admin, adminUserMatch[1] || null);
+      }
+
+      if (url.pathname === "/api/admin/audit-logs" && request.method === "GET") {
+        if (admin.role !== "owner") return json({ error: "Owner access is required." }, 403);
+        const rows = await env.DB.prepare(
+          "SELECT id, username_snapshot AS username, action, resource, target_id AS targetId, request_id AS requestId, created_at AS createdAt " +
+          "FROM admin_audit_log ORDER BY created_at DESC LIMIT 150"
+        ).all();
+        return json({ items: rows.results || [] }, 200, { "Cache-Control": "no-store" });
+      }
+
       const quickAdmin = url.pathname.match(/^\/api\/admin\/quicksite(?:\/([a-f0-9-]+))?$/i);
-      if (quickAdmin) return await handleQuickSiteAdmin(request, env.DB, quickAdmin[1] || null);
+      if (quickAdmin) {
+        const response = await handleQuickSiteAdmin(request, env.DB, quickAdmin[1] || null);
+        await auditAdminResponse(response, request, env.DB, admin, "quicksite", quickAdmin[1] || "collection");
+        return response;
+      }
 
       const auraMenuAdmin = url.pathname.match(/^\/api\/admin\/auramenu(?:\/([a-f0-9-]+))?$/i);
-      if (auraMenuAdmin) return await handleAuraMenuAdmin(request, env.DB, auraMenuAdmin[1] || null);
+      if (auraMenuAdmin) {
+        const response = await handleAuraMenuAdmin(request, env.DB, auraMenuAdmin[1] || null);
+        await auditAdminResponse(response, request, env.DB, admin, "auramenu", auraMenuAdmin[1] || "collection");
+        return response;
+      }
 
       const nfcAdmin = url.pathname.match(/^\/api\/admin\/nfc(?:\/([a-f0-9-]+))?$/i);
-      if (nfcAdmin) return await handleNfcAdmin(request, env.DB, nfcAdmin[1] || null);
+      if (nfcAdmin) {
+        const response = await handleNfcAdmin(request, env.DB, nfcAdmin[1] || null);
+        await auditAdminResponse(response, request, env.DB, admin, "nfc", nfcAdmin[1] || "collection");
+        return response;
+      }
 
       if (url.pathname === "/api/admin/overview" && request.method === "GET") {
         return json(await getOverview(env.DB), 200, { "Cache-Control": "no-store" });
@@ -974,13 +1031,16 @@ export default {
           "INSERT INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now')) " +
           "ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')"
         ).bind(key, String(Math.round(amount))).run();
+        await auditAction(env.DB, admin, "update", "settings", key, request);
         return json({ ok: true, key, value: String(Math.round(amount)) }, 200, { "Cache-Control": "no-store" });
       }
 
       const match = url.pathname.match(/^\/api\/admin\/(packages|services|portfolio|clients|orders|invoices|subscriptions|expenses)(?:\/(\d+))?$/);
       if (match) {
         const [, resource, idText] = match;
-        return await handleResource(request, env.DB, resource, idText ? Number(idText) : null);
+        const response = await handleResource(request, env.DB, resource, idText ? Number(idText) : null);
+        await auditAdminResponse(response, request, env.DB, admin, resource, idText || "collection");
+        return response;
       }
 
       return json({ error: "Not found." }, 404);
@@ -1004,6 +1064,149 @@ export default {
   },
 };
 
+async function findAdminByUsername(db, username) {
+  return db.prepare(
+    "SELECT id, username, display_name, password_hash, role, active, created_at, updated_at, last_login_at " +
+    "FROM admin_users WHERE username = ? COLLATE NOCASE LIMIT 1"
+  ).bind(username).first();
+}
+
+async function bootstrapOwner(db, env, username, password) {
+  const count = await db.prepare("SELECT COUNT(*) AS value FROM admin_users").first();
+  if (Number(count?.value || 0) !== 0 || username !== "owner" || !env.ADMIN_PASSWORD) return null;
+  if (!(await safeEqual(password, env.ADMIN_PASSWORD))) return null;
+
+  let passwordHash;
+  try {
+    passwordHash = await hashPassword(password);
+  } catch {
+    throw new ApiError(503, "ADMIN_PASSWORD must contain at least 12 characters before the owner account can be created.");
+  }
+
+  const id = crypto.randomUUID();
+  await db.prepare(
+    "INSERT INTO admin_users (id, username, display_name, password_hash, role, active) VALUES (?, 'owner', 'AuraDigital Owner', ?, 'owner', 1)"
+  ).bind(id, passwordHash).run();
+  return findAdminByUsername(db, "owner");
+}
+
+function publicAdmin(row) {
+  return {
+    id: row.id,
+    username: row.username,
+    displayName: row.displayName || row.display_name,
+    role: row.role,
+    active: row.active === undefined ? true : Boolean(row.active),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    lastLoginAt: row.last_login_at,
+  };
+}
+
+async function handleAdminUsers(request, db, actor, id) {
+  if (request.method === "GET" && !id) {
+    const rows = await db.prepare(
+      "SELECT id, username, display_name, role, active, created_at, updated_at, last_login_at " +
+      "FROM admin_users ORDER BY CASE role WHEN 'owner' THEN 0 WHEN 'manager' THEN 1 ELSE 2 END, username"
+    ).all();
+    return json({ items: (rows.results || []).map(publicAdmin) }, 200, { "Cache-Control": "no-store" });
+  }
+
+  if (request.method === "POST" && !id) {
+    const body = await readJson(request, ADMIN_BODY_BYTES);
+    const username = normalizeUsername(body.username);
+    const displayName = cleanAdminDisplayName(body.displayName);
+    const role = String(body.role || "viewer");
+    if (!username || !displayName || !ADMIN_ROLES.has(role)) {
+      return json({ error: "Enter a valid username, display name and role." }, 400);
+    }
+    if (await findAdminByUsername(db, username)) {
+      return json({ error: "That username is already in use." }, 409);
+    }
+    const passwordHash = await securePasswordHash(body.password);
+    const userId = crypto.randomUUID();
+    await db.prepare(
+      "INSERT INTO admin_users (id, username, display_name, password_hash, role, active) VALUES (?, ?, ?, ?, ?, 1)"
+    ).bind(userId, username, displayName, passwordHash, role).run();
+    await auditAction(db, actor, "create", "admin_user", userId, request);
+    return json({ user: publicAdmin(await findAdminByUsername(db, username)) }, 201);
+  }
+
+  if (request.method === "PATCH" && id) {
+    const current = await db.prepare(
+      "SELECT id, username, display_name, password_hash, role, active, created_at, updated_at, last_login_at FROM admin_users WHERE id = ? LIMIT 1"
+    ).bind(id).first();
+    if (!current) return json({ error: "Admin account not found." }, 404);
+
+    const body = await readJson(request, ADMIN_BODY_BYTES);
+    const displayName = body.displayName === undefined ? current.display_name : cleanAdminDisplayName(body.displayName);
+    const role = body.role === undefined ? current.role : String(body.role);
+    if (body.active !== undefined && typeof body.active !== "boolean") {
+      return json({ error: "Active must be true or false." }, 400);
+    }
+    const active = body.active === undefined ? Number(current.active) : (body.active ? 1 : 0);
+    if (!displayName || !ADMIN_ROLES.has(role)) return json({ error: "Enter a valid display name and role." }, 400);
+    if (id === actor.id && (role !== "owner" || active !== 1)) {
+      return json({ error: "You cannot remove your own owner access or deactivate your own account." }, 409);
+    }
+    if (current.role === "owner" && (role !== "owner" || active !== 1)) {
+      const owners = await db.prepare("SELECT COUNT(*) AS value FROM admin_users WHERE role = 'owner' AND active = 1").first();
+      if (Number(owners?.value || 0) <= 1) return json({ error: "At least one active owner account is required." }, 409);
+    }
+
+    const passwordHash = body.password ? await securePasswordHash(body.password) : current.password_hash;
+    await db.prepare(
+      "UPDATE admin_users SET display_name = ?, password_hash = ?, role = ?, active = ?, updated_at = datetime('now') WHERE id = ?"
+    ).bind(displayName, passwordHash, role, active, id).run();
+    if (body.password || active !== 1) {
+      await db.prepare("DELETE FROM admin_sessions WHERE user_id = ?").bind(id).run();
+    }
+    await auditAction(db, actor, "update", "admin_user", id, request);
+    const updated = await db.prepare(
+      "SELECT id, username, display_name, role, active, created_at, updated_at, last_login_at FROM admin_users WHERE id = ? LIMIT 1"
+    ).bind(id).first();
+    return json({ user: publicAdmin(updated) }, 200);
+  }
+
+  return json({ error: "Method not allowed." }, 405, { Allow: "GET, POST, PATCH" });
+}
+
+async function securePasswordHash(value) {
+  try {
+    validatePassword(value);
+    return await hashPassword(value);
+  } catch (error) {
+    throw new ApiError(400, error instanceof Error ? error.message : "Invalid password.");
+  }
+}
+
+function cleanAdminDisplayName(value) {
+  const displayName = String(value || "").replace(/\s+/g, " ").trim();
+  return displayName.length >= 2 && displayName.length <= 100 ? displayName : "";
+}
+
+async function auditAdminResponse(response, request, db, admin, resource, targetId) {
+  if (!response.ok || !["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) return;
+  const action = ({ POST: "create", PUT: "update", PATCH: "update", DELETE: "delete" })[request.method];
+  await auditAction(db, admin, action, resource, targetId, request);
+}
+
+async function auditAction(db, admin, action, resource, targetId, request) {
+  const requestId = String(request.headers.get("CF-Ray") || "").slice(0, 80);
+  await db.prepare(
+    "INSERT INTO admin_audit_log (id, admin_user_id, username_snapshot, action, resource, target_id, request_id) " +
+    "VALUES (?, ?, ?, ?, ?, ?, ?)"
+  ).bind(
+    crypto.randomUUID(),
+    admin?.id || null,
+    String(admin?.username || "unknown").slice(0, 64),
+    String(action || "unknown").slice(0, 64),
+    String(resource || "unknown").slice(0, 64),
+    String(targetId || "").slice(0, 128),
+    requestId,
+  ).run();
+}
+
 async function ensureSchema(db) {
   if (schemaReady) return;
     await db.batch([
@@ -1024,6 +1227,12 @@ async function ensureSchema(db) {
       db.prepare("CREATE INDEX IF NOT EXISTS idx_auramenu_images_request ON auramenu_images(request_id)"),
       db.prepare("CREATE INDEX IF NOT EXISTS idx_nfc_requests_status_created ON nfc_requests(status, created_at DESC)"),
       db.prepare("CREATE TABLE IF NOT EXISTS analytics_daily (date TEXT NOT NULL, path TEXT NOT NULL, views INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (date, path))"),
+      db.prepare("CREATE TABLE IF NOT EXISTS admin_users (id TEXT PRIMARY KEY NOT NULL, username TEXT NOT NULL UNIQUE COLLATE NOCASE, display_name TEXT NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL CHECK (role IN ('owner','manager','viewer')), active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0,1)), created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')), last_login_at TEXT)"),
+      db.prepare("CREATE TABLE IF NOT EXISTS admin_sessions (id TEXT PRIMARY KEY NOT NULL, user_id TEXT NOT NULL, token_hash TEXT NOT NULL UNIQUE, expires_at TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime('now')), FOREIGN KEY (user_id) REFERENCES admin_users(id) ON DELETE CASCADE)"),
+      db.prepare("CREATE INDEX IF NOT EXISTS idx_admin_sessions_user ON admin_sessions(user_id)"),
+      db.prepare("CREATE INDEX IF NOT EXISTS idx_admin_sessions_expires ON admin_sessions(expires_at)"),
+      db.prepare("CREATE TABLE IF NOT EXISTS admin_audit_log (id TEXT PRIMARY KEY NOT NULL, admin_user_id TEXT, username_snapshot TEXT NOT NULL, action TEXT NOT NULL, resource TEXT NOT NULL, target_id TEXT NOT NULL DEFAULT '', request_id TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), FOREIGN KEY (admin_user_id) REFERENCES admin_users(id) ON DELETE SET NULL)"),
+      db.prepare("CREATE INDEX IF NOT EXISTS idx_admin_audit_created ON admin_audit_log(created_at DESC)"),
     ]);
 
     await db.batch([
