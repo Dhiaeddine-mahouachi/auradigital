@@ -1,5 +1,9 @@
 import { ApiError, json, readJson } from "./http.js";
 import { queueRequestNotification } from "./notifications.js";
+import { handleAdminCustomerAccounts } from "./customer/admin.js";
+import { handleCustomerApi } from "./customer/api.js";
+import { getTenantMenu, getTenantWebsite, handleTenantPublicApi } from "./customer/public.js";
+import { handleUploads, serveUpload } from "./customer/uploads.js";
 import {
   ADMIN_ROLES,
   SESSION_SECONDS,
@@ -796,11 +800,31 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
+    const mediaResponse = await serveUpload(request, env, url);
+    if (mediaResponse) return mediaResponse;
     if (url.pathname === "/quicksite" || url.pathname.startsWith("/quicksite/") || url.pathname.startsWith("/_next/") || url.pathname.startsWith("/assets/") || url.pathname === "/api/projects") return proxyQuickSite(request, url);
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(request);
 
     try {
       await ensureSchema(env.DB);
+
+      const uploadResponse = await handleUploads(request, env, url);
+      if (uploadResponse) return uploadResponse;
+
+      const customerResponse = await handleCustomerApi(request, env, url);
+      if (customerResponse) return customerResponse;
+
+      if (url.pathname.startsWith("/api/public/menu/")) {
+        const corsHeaders = auraMenuCors(request);
+        if (corsHeaders === null) return json({ error: "Bu kaynaktan talep kabul edilmiyor." }, 403);
+        if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+        const publicResponse = await handleTenantPublicApi(request, env.DB, url, corsHeaders);
+        if (publicResponse) return publicResponse;
+      }
+      if (url.pathname.startsWith("/api/public/site/")) {
+        const publicResponse = await handleTenantPublicApi(request, env.DB, url);
+        if (publicResponse) return publicResponse;
+      }
 
       if (url.pathname === "/api/quicksite/projects" && request.method === "POST") {
         if (!sameOrigin(request)) return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
@@ -861,6 +885,8 @@ export default {
 
         const publishedAuraMenu = url.pathname.match(/^\/api\/auramenu\/sites\/([a-z0-9-]+)$/);
         if (publishedAuraMenu && request.method === "GET") {
+          const tenantMenu = await getTenantMenu(env.DB, publishedAuraMenu[1], corsHeaders);
+          if (tenantMenu) return tenantMenu;
           return await getPublishedAuraMenu(request, env.DB, publishedAuraMenu[1], corsHeaders);
         }
       }
@@ -869,7 +895,11 @@ export default {
       if (quickPreview && request.method === "GET") return await getQuickSiteProject(env.DB, "id", quickPreview[1]);
 
       const quickPublic = url.pathname.match(/^\/api\/quicksite\/sites\/([a-z0-9-]+)$/);
-      if (quickPublic && request.method === "GET") return await getQuickSiteProject(env.DB, "slug", quickPublic[1], true);
+      if (quickPublic && request.method === "GET") {
+        const tenantWebsite = await getTenantWebsite(env.DB, quickPublic[1]);
+        if (tenantWebsite) return tenantWebsite;
+        return await getQuickSiteProject(env.DB, "slug", quickPublic[1], true);
+      }
 
       if (url.pathname === "/api/settings" && request.method === "GET") {
         return json(await getPublicSettings(env.DB), 200, { "Cache-Control": "public, max-age=30" });
@@ -984,6 +1014,15 @@ export default {
         return json({ items: rows.results || [] }, 200, { "Cache-Control": "no-store" });
       }
 
+      if (url.pathname.startsWith("/api/admin/customer-accounts")) {
+        if (admin.role !== "owner") return json({ error: "Owner access is required." }, 403);
+        const customerAccountResponse = await handleAdminCustomerAccounts(request, env.DB, url);
+        if (customerAccountResponse) {
+          await auditAdminResponse(customerAccountResponse, request, env.DB, admin, "customer-account", url.pathname.split("/")[4] || "collection");
+          return customerAccountResponse;
+        }
+      }
+
       const quickAdmin = url.pathname.match(/^\/api\/admin\/quicksite(?:\/([a-f0-9-]+))?$/i);
       if (quickAdmin) {
         const response = await handleQuickSiteAdmin(request, env.DB, quickAdmin[1] || null);
@@ -1045,7 +1084,7 @@ export default {
 
       return json({ error: "Not found." }, 404);
     } catch (error) {
-      const publicCors = url.pathname.startsWith("/api/auramenu/") ? auraMenuCors(request) : {};
+      const publicCors = (url.pathname.startsWith("/api/auramenu/") || url.pathname.startsWith("/api/public/menu/")) ? auraMenuCors(request) : {};
       const corsHeaders = publicCors && publicCors !== null ? publicCors : {};
       if (error instanceof ApiError) {
         return json({ error: error.message }, error.status, {

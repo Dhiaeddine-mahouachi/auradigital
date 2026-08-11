@@ -17,6 +17,8 @@ wrangler.jsonc
 wrangler.toml
 package*.json
 tsconfig*.json
+vitest.config.*
+worker-configuration.d.ts
 *.map
 *.log
 README*

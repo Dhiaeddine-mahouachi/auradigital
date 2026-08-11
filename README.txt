@@ -88,3 +88,29 @@ nfc-status.html.
    Run `npm run check`, `npm test`, and `npm run deploy:check` before deployment.
    Run `bash scripts/backup-d1.sh` at least weekly and before database changes.
    Full production security operations are documented in SECURITY.md.
+
+13) Multi-tenant customer content editor
+   /customer/ is the secure customer dashboard. Customer accounts are created from
+   Admin > Customer Accounts and may receive AuraMenu, QuickSite, or both editors.
+   The authenticated session determines tenant ownership on the server. Private API
+   queries always include both tenant_id and business/website ownership constraints;
+   IDs supplied by the browser are never used as an authorization boundary.
+
+   D1 tables are defined in migrations/0002_multi_tenant.sql. Existing request tables
+   remain unchanged. Assigning an approved request to a new customer copies its current
+   content into normalized tenant-owned tables and preserves the original request.
+
+   Customer uploads use the private R2 bucket bound as CUSTOMER_UPLOADS. Only JPG, PNG
+   and WebP files up to 5 MB are accepted, signatures are verified, object names are
+   randomized, and tenant ownership is stored as R2 custom metadata.
+
+   Production order for the first release:
+   1. Export/backup the existing D1 database.
+   2. Create the R2 bucket: npx wrangler r2 bucket create auradigital-customer-uploads
+   3. Apply additive migrations: npx wrangler d1 migrations apply auradigital-db --remote
+   4. Validate: npm run check && npm test && npm run deploy:check
+   5. Deploy: npx wrangler deploy
+
+   Normal customer saves do not deploy code. Public menu/site responses read D1 on each
+   short cache window (5 seconds) and use a revision ETag, so saved content appears live
+   almost immediately. Template source code remains controlled by AuraDigital.
