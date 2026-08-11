@@ -43,7 +43,7 @@ export async function hashBootstrapPassword(value) {
 async function createPasswordHash(password) {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const hash = await derivePassword(password, salt, PASSWORD_ITERATIONS);
-  return `pbkdf2-sha256${PASSWORD_ITERATIONS}${base64url(salt)}${base64url(hash)}`;
+  return ["pbkdf2-sha256", String(PASSWORD_ITERATIONS), base64url(salt), base64url(hash)].join("$");
 }
 
 export async function verifyPassword(value, storedHash) {
