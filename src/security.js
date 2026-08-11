@@ -19,8 +19,8 @@ export function normalizeUsername(value) {
 
 export function validatePassword(value) {
   const password = String(value || "");
-  if (password.length < 12 || password.length > 200) {
-    throw new Error("Password must contain between 12 and 200 characters.");
+  if (password.length < 8 || password.length > 200) {
+    throw new Error("Password must contain between 8 and 200 characters.");
   }
   return password;
 }
