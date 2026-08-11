@@ -1,4 +1,5 @@
 import { ApiError, json, readJson } from "./http.js";
+import { queueRequestNotification } from "./notifications.js";
 import {
   SESSION_SECONDS,
   createSessionToken,
@@ -122,7 +123,7 @@ function mapNfcRequest(row, publicStatus = false) {
   };
 }
 
-async function createNfcRequest(request, db) {
+async function createNfcRequest(request, db, env, ctx) {
   if (!sameOrigin(request)) return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
   const body = await readJson(request, NFC_BODY_BYTES);
   const cardType = qsClean(body.cardType, 20);
@@ -184,6 +185,20 @@ async function createNfcRequest(request, db) {
       qsClean(body.paymentReference, 200),
       storedNotes,
     ).run();
+  queueRequestNotification(ctx, env, {
+    requestType: "NFC card",
+    requestId: id,
+    businessName,
+    contactName,
+    customerEmail: email,
+    phone: contactPhone,
+    dashboardUrl: new URL("/admin/", request.url).toString(),
+    details: [
+      ["Card type", cardType],
+      ["Quantity", String(quantity)],
+      ["Total", `${total} TL`],
+    ],
+  });
   return json({ request: { id, status: "pending", paymentStatus: "unpaid", total } }, 201, { "Cache-Control": "no-store" });
 }
 
@@ -337,7 +352,7 @@ function mapQuickSitePublic(row, includeRequestState = false) {
   }
   return safeProject;
 }
-async function createQuickSiteRequest(request, db) {
+async function createQuickSiteRequest(request, db, env, ctx) {
   if (!sameOrigin(request)) {
     return json({ error: "Invalid request origin." }, 403);
   }
@@ -367,6 +382,19 @@ async function createQuickSiteRequest(request, db) {
   const id = crypto.randomUUID();
   await db.prepare("INSERT INTO quicksite_projects (id, slug, template_id, language, business_name, tagline, description, primary_color, phone, whatsapp, email, address, contact_name, offers_json, details_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
     .bind(id, slug, templateId, ["tr", "en", "ar"].includes(String(body.language)) ? body.language : "tr", businessName, qsClean(body.tagline, 140), qsClean(body.description, 600), /^#[0-9a-fA-F]{6}$/.test(String(body.primaryColor)) ? String(body.primaryColor) : "#a3ff12", qsClean(body.phone, 40), qsClean(body.whatsapp, 40), email, qsClean(body.address, 200), contactName, JSON.stringify(offers), JSON.stringify(details)).run();
+  queueRequestNotification(ctx, env, {
+    requestType: "QuickSite",
+    requestId: id,
+    businessName,
+    contactName,
+    customerEmail: email,
+    phone: qsClean(body.phone, 40),
+    dashboardUrl: new URL("/admin/", request.url).toString(),
+    details: [
+      ["Template", templateId],
+      ["Requested address", slug],
+    ],
+  });
   return json({ project: { id, slug, status: "pending" } }, 201, { "Cache-Control": "no-store" });
 }
 async function getQuickSiteProject(db, key, value, approvedOnly = false) {
@@ -539,7 +567,7 @@ function mapAuraMenuRequest(row, publicSite = false) {
   };
 }
 
-async function createAuraMenuRequest(request, db, corsHeaders) {
+async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   const body = await readJson(request, AURAMENU_BODY_BYTES);
   const templateId = qsClean(body.templateId, 30);
   const businessName = qsClean(body.businessName, 100);
@@ -600,6 +628,20 @@ async function createAuraMenuRequest(request, db, corsHeaders) {
       .bind(image.id, image.requestId, image.contentType, image.bytes),
   );
   await db.batch([requestInsert, ...imageInserts]);
+  queueRequestNotification(ctx, env, {
+    requestType: "AuraMenu",
+    requestId: id,
+    businessName,
+    contactName,
+    customerEmail: email,
+    phone: contactPhone,
+    dashboardUrl: new URL("/admin/", request.url).toString(),
+    details: [
+      ["Build option", serviceMode === "managed" ? "AuraDigital builds it" : "Customer self-build"],
+      ["Template", templateId],
+      ["Requested address", requestedSlug],
+    ],
+  });
   return json({ request: { id, slug: requestedSlug, status: "pending", paymentStatus: "unpaid" } }, 201, {
     "Cache-Control": "no-store",
     ...corsHeaders,
@@ -745,7 +787,7 @@ const RESOURCES = {
 let schemaReady = false;
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.pathname === "/quicksite" || url.pathname.startsWith("/quicksite/") || url.pathname.startsWith("/_next/") || url.pathname.startsWith("/assets/") || url.pathname === "/api/projects") return proxyQuickSite(request, url);
@@ -759,7 +801,7 @@ export default {
         const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
         const limit = await env.TRACK_RATE_LIMITER.limit({ key: `quicksite-request:${clientKey}` });
         if (!limit.success) return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429);
-        return await createQuickSiteRequest(request, env.DB);
+        return await createQuickSiteRequest(request, env.DB, env, ctx);
       }
 
       if (url.pathname === "/api/nfc/requests" && request.method === "POST") {
@@ -767,7 +809,7 @@ export default {
         const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
         const limit = await env.TRACK_RATE_LIMITER.limit({ key: `nfc-request:${clientKey}` });
         if (!limit.success) return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429, { "Cache-Control": "no-store" });
-        return await createNfcRequest(request, env.DB);
+        return await createNfcRequest(request, env.DB, env, ctx);
       }
 
       const nfcStatus = url.pathname.match(/^\/api\/nfc\/requests\/([a-f0-9-]+)$/i);
@@ -798,7 +840,7 @@ export default {
           const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
           const limit = await env.TRACK_RATE_LIMITER.limit({ key: `auramenu-request:${clientKey}` });
           if (!limit.success) return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429, corsHeaders);
-          return await createAuraMenuRequest(request, env.DB, corsHeaders);
+          return await createAuraMenuRequest(request, env.DB, corsHeaders, env, ctx);
         }
 
         const auraMenuImage = url.pathname.match(/^\/api\/auramenu\/images\/([a-f0-9-]+)$/i);

@@ -38,6 +38,11 @@
       "database_id": "6d89053c-4979-4e54-9976-bbfb884cb5ca"
     }
   ],
+  "send_email": [
+    {
+      "name": "REQUEST_NOTIFICATIONS"
+    }
+  ],
   "ratelimits": [
     {
       "name": "LOGIN_RATE_LIMITER",
@@ -60,7 +65,8 @@
   "preview_urls": false,
   "secrets": {
     "required": [
-      "ADMIN_PASSWORD"
+      "ADMIN_PASSWORD",
+      "NOTIFICATION_EMAIL"
     ]
   }
 }

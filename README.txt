@@ -66,3 +66,13 @@ nfc-status.html.
    migrations, Wrangler configuration, environment files and repository metadata.
    Production deployment is Cloudflare Workers only; the legacy workflow that
    uploaded the entire repository to GitHub Pages has been removed.
+
+11) New-request email notifications
+   Successful QuickSite, AuraMenu and NFC submissions queue a private email alert
+   after the request is stored in D1. The recipient is read from the encrypted
+   NOTIFICATION_EMAIL Worker secret; no personal inbox is committed to this public
+   repository. REQUEST_NOTIFICATIONS is the Cloudflare Email Service binding.
+
+   Before deployment, enable Email Routing for auradigital.ink, verify the receiving
+   address in Cloudflare, then set the secret with:
+   npx wrangler secret put NOTIFICATION_EMAIL
