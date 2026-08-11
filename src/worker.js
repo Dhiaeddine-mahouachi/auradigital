@@ -237,11 +237,16 @@ async function proxyQuickSite(request, url) {
     "X-Forwarded-For",
     "X-Real-IP",
   ].forEach((name) => requestHeaders.delete(name));
-  const upstream = await fetch(target, {
-    method: request.method,
-    headers: requestHeaders,
-    redirect: "follow",
-  });
+  let upstream;
+  try {
+    upstream = await fetch(target, {
+      method: request.method,
+      headers: requestHeaders,
+      redirect: "follow",
+    });
+  } catch {
+    return json({ error: "QuickSite is temporarily unavailable." }, 502);
+  }
   const headers = new Headers(upstream.headers);
   headers.delete("Set-Cookie");
   headers.delete("Set-Cookie2");
@@ -750,22 +755,24 @@ export default {
       await ensureSchema(env.DB);
 
       if (url.pathname === "/api/quicksite/projects" && request.method === "POST") {
+        if (!sameOrigin(request)) return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
         const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
         const limit = await env.TRACK_RATE_LIMITER.limit({ key: `quicksite-request:${clientKey}` });
         if (!limit.success) return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429);
-        return createQuickSiteRequest(request, env.DB);
+        return await createQuickSiteRequest(request, env.DB);
       }
 
       if (url.pathname === "/api/nfc/requests" && request.method === "POST") {
+        if (!sameOrigin(request)) return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
         const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
         const limit = await env.TRACK_RATE_LIMITER.limit({ key: `nfc-request:${clientKey}` });
         if (!limit.success) return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429, { "Cache-Control": "no-store" });
-        return createNfcRequest(request, env.DB);
+        return await createNfcRequest(request, env.DB);
       }
 
       const nfcStatus = url.pathname.match(/^\/api\/nfc\/requests\/([a-f0-9-]+)$/i);
       if (nfcStatus && request.method === "GET") {
-        return getNfcRequestStatus(env.DB, nfcStatus[1]);
+        return await getNfcRequestStatus(env.DB, nfcStatus[1]);
       }
 
       if (url.pathname.startsWith("/api/auramenu/")) {
@@ -791,30 +798,30 @@ export default {
           const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
           const limit = await env.TRACK_RATE_LIMITER.limit({ key: `auramenu-request:${clientKey}` });
           if (!limit.success) return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429, corsHeaders);
-          return createAuraMenuRequest(request, env.DB, corsHeaders);
+          return await createAuraMenuRequest(request, env.DB, corsHeaders);
         }
 
         const auraMenuImage = url.pathname.match(/^\/api\/auramenu\/images\/([a-f0-9-]+)$/i);
         if (auraMenuImage && request.method === "GET") {
-          return getAuraMenuImage(env.DB, auraMenuImage[1], corsHeaders);
+          return await getAuraMenuImage(env.DB, auraMenuImage[1], corsHeaders);
         }
 
         const auraMenuStatus = url.pathname.match(/^\/api\/auramenu\/requests\/([a-f0-9-]+)$/i);
         if (auraMenuStatus && request.method === "GET") {
-          return getAuraMenuRequestStatus(request, env.DB, auraMenuStatus[1], corsHeaders);
+          return await getAuraMenuRequestStatus(request, env.DB, auraMenuStatus[1], corsHeaders);
         }
 
         const publishedAuraMenu = url.pathname.match(/^\/api\/auramenu\/sites\/([a-z0-9-]+)$/);
         if (publishedAuraMenu && request.method === "GET") {
-          return getPublishedAuraMenu(request, env.DB, publishedAuraMenu[1], corsHeaders);
+          return await getPublishedAuraMenu(request, env.DB, publishedAuraMenu[1], corsHeaders);
         }
       }
 
       const quickPreview = url.pathname.match(/^\/api\/quicksite\/projects\/([a-f0-9-]+)$/i);
-      if (quickPreview && request.method === "GET") return getQuickSiteProject(env.DB, "id", quickPreview[1]);
+      if (quickPreview && request.method === "GET") return await getQuickSiteProject(env.DB, "id", quickPreview[1]);
 
       const quickPublic = url.pathname.match(/^\/api\/quicksite\/sites\/([a-z0-9-]+)$/);
-      if (quickPublic && request.method === "GET") return getQuickSiteProject(env.DB, "slug", quickPublic[1], true);
+      if (quickPublic && request.method === "GET") return await getQuickSiteProject(env.DB, "slug", quickPublic[1], true);
 
       if (url.pathname === "/api/settings" && request.method === "GET") {
         return json(await getPublicSettings(env.DB), 200, { "Cache-Control": "public, max-age=30" });
@@ -891,13 +898,13 @@ export default {
       }
 
       const quickAdmin = url.pathname.match(/^\/api\/admin\/quicksite(?:\/([a-f0-9-]+))?$/i);
-      if (quickAdmin) return handleQuickSiteAdmin(request, env.DB, quickAdmin[1] || null);
+      if (quickAdmin) return await handleQuickSiteAdmin(request, env.DB, quickAdmin[1] || null);
 
       const auraMenuAdmin = url.pathname.match(/^\/api\/admin\/auramenu(?:\/([a-f0-9-]+))?$/i);
-      if (auraMenuAdmin) return handleAuraMenuAdmin(request, env.DB, auraMenuAdmin[1] || null);
+      if (auraMenuAdmin) return await handleAuraMenuAdmin(request, env.DB, auraMenuAdmin[1] || null);
 
       const nfcAdmin = url.pathname.match(/^\/api\/admin\/nfc(?:\/([a-f0-9-]+))?$/i);
-      if (nfcAdmin) return handleNfcAdmin(request, env.DB, nfcAdmin[1] || null);
+      if (nfcAdmin) return await handleNfcAdmin(request, env.DB, nfcAdmin[1] || null);
 
       if (url.pathname === "/api/admin/overview" && request.method === "GET") {
         return json(await getOverview(env.DB), 200, { "Cache-Control": "no-store" });
@@ -931,7 +938,7 @@ export default {
       const match = url.pathname.match(/^\/api\/admin\/(packages|services|portfolio|clients|orders|invoices|subscriptions|expenses)(?:\/(\d+))?$/);
       if (match) {
         const [, resource, idText] = match;
-        return handleResource(request, env.DB, resource, idText ? Number(idText) : null);
+        return await handleResource(request, env.DB, resource, idText ? Number(idText) : null);
       }
 
       return json({ error: "Not found." }, 404);
