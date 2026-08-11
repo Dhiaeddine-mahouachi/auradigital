@@ -4,13 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check src/worker-entry.js && node --check src/worker.js && node --check src/security.js && node --check src/http.js && node --check src/notifications.js && node --check admin/admin.js",
-    "test": "node --test test/*.test.mjs",
+    "check": "node --check src/worker-entry.js && node --check src/worker.js && node --check src/security.js && node --check src/http.js && node --check src/notifications.js && node --check src/customer/api.js && node --check src/customer/admin.js && node --check src/customer/uploads.js && node --check src/customer/public.js && node --check customer/customer.js && node --check admin/admin.js",
+    "test": "node --test test/*.test.mjs && vitest run",
     "deploy:check": "wrangler deploy --dry-run --outdir .wrangler/dry-run",
     "cf:types": "wrangler types worker-configuration.d.ts"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "0.21.0",
     "@cloudflare/workers-types": "5.20260811.1",
+    "@types/node": "^24.0.0",
+    "vitest": "4.1.10",
     "wrangler": "4.120.1"
   }
 }

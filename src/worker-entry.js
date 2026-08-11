@@ -7,6 +7,10 @@ export default {
       const assetUrl = new URL('/quicksite-v2.html', url);
       return env.ASSETS.fetch(new Request(assetUrl, request));
     }
+    if ((url.pathname === '/customer' || url.pathname === '/customer/') && request.method === 'GET') {
+      const assetUrl = new URL('/customer/index.html', url);
+      return env.ASSETS.fetch(new Request(assetUrl, request));
+    }
     return app.fetch(request, env, ctx);
   },
 };

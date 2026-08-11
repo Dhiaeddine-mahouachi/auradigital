@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>AuraDigital Müşteri Paneli</title>
+  <link rel="stylesheet" href="/customer/customer.css">
+</head>
+<body>
+  <section id="loginView" class="login-screen">
+    <form id="loginForm" class="login-card">
+      <div class="logo">A<span>·</span></div>
+      <p class="eyebrow">AURADIGITAL</p>
+      <h1>İçeriğinizi yönetin.</h1>
+      <p class="muted">Menünüzü veya web sitenizi telefondan güncelleyin. Kod ve yeniden yayınlama gerekmez.</p>
+      <label>E-posta<input id="loginEmail" type="email" autocomplete="username" required></label>
+      <label>Şifre<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+      <button class="button primary wide" type="submit">Giriş yap</button>
+      <div id="loginNotice" class="notice" role="status"></div>
+    </form>
+  </section>
+
+  <div id="appView" class="app hidden">
+    <aside>
+      <div><div class="brand">aura<span>digital</span></div><small>Müşteri paneli</small></div>
+      <nav id="desktopNav"></nav>
+      <button id="logoutButton" class="button ghost wide">Çıkış yap</button>
+    </aside>
+    <main>
+      <header>
+        <div><p id="businessName" class="eyebrow"></p><h1 id="pageTitle">Panel</h1></div>
+        <select id="mobileNav" aria-label="Bölüm seç"></select>
+      </header>
+      <div id="notice" class="toast hidden" role="status"></div>
+      <div id="content"></div>
+    </main>
+  </div>
+
+  <dialog id="editorDialog">
+    <form id="editorForm" method="dialog">
+      <div class="dialog-head"><h2 id="dialogTitle">Düzenle</h2><button class="icon-button" type="button" data-close-dialog aria-label="Kapat">×</button></div>
+      <div id="dialogFields" class="form-grid"></div>
+      <div class="dialog-actions"><button class="button ghost" type="button" data-close-dialog>İptal</button><button id="dialogSave" class="button primary" type="submit">Kaydet</button></div>
+    </form>
+  </dialog>
+  <script src="/customer/customer.js"></script>
+</body>
+</html>
