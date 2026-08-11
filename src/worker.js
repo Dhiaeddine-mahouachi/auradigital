@@ -5,6 +5,7 @@ import {
   SESSION_SECONDS,
   createSession,
   getAuthenticatedAdmin,
+  hashBootstrapPassword,
   hashPassword,
   normalizeUsername,
   revokeSession,
@@ -1087,9 +1088,9 @@ async function bootstrapOwner(db, env, username, password) {
 
   let passwordHash;
   try {
-    passwordHash = await hashPassword(password);
+    passwordHash = await hashBootstrapPassword(password);
   } catch {
-    throw new ApiError(503, "ADMIN_PASSWORD must contain at least 8 characters before the owner account can be created.");
+    throw new ApiError(503, "ADMIN_PASSWORD must not be empty before the owner account can be created.");
   }
 
   const id = crypto.randomUUID();
