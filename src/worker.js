@@ -699,8 +699,10 @@ async function getAuraMenuRequestStatus(request, db, id, corsHeaders) {
 }
 
 async function getPublishedAuraMenu(request, db, slug, corsHeaders) {
-  const row = await db.prepare("SELECT * FROM auramenu_requests WHERE slug = ? AND status = 'approved' LIMIT 1").bind(slug).first();
-  if (!row) return json({ error: "Menü henüz yayında değil." }, 404, corsHeaders);
+  const row = await db.prepare("SELECT * FROM auramenu_requests WHERE lower(trim(slug)) = lower(?) LIMIT 1").bind(slug).first();
+  const status = String(row?.status || "").trim().toLowerCase();
+  const published = status === "approved" || Boolean(row?.approved_at);
+  if (!row || !published) return json({ error: "Menü henüz yayında değil." }, 404, corsHeaders);
   return json({ menu: mapAuraMenuRequest(row, true) }, 200, {
     "Cache-Control": "public, max-age=30",
     ...corsHeaders,
