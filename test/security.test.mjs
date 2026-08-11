@@ -18,7 +18,8 @@ test("password hashes are salted and verifiable", async () => {
 });
 
 test("password and username validation rejects weak input", () => {
-  assert.throws(() => validatePassword("short"));
+  assert.throws(() => validatePassword("1234567"));
+  assert.equal(validatePassword("12345678"), "12345678");
   assert.equal(normalizeUsername(" Owner "), "owner");
   assert.equal(normalizeUsername("bad username"), "");
 });
