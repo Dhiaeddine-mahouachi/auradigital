@@ -1,17 +1,26 @@
 #!/usr/bin/env node
 
 import { spawn } from "node:child_process";
-import { createRequire } from "node:module";
-
-const require = createRequire(import.meta.url);
-const realWrangler = require.resolve("cloudflare-wrangler");
 const args = process.argv.slice(2);
+const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 
 // AuraDigital has no R2 binding. Disabling Wrangler's beta automatic resource
 // provisioning prevents an obsolete remote draft from recreating an R2 bucket.
+if (args.includes("deploy")) {
+  console.log("AuraDigital deploy: automatic resource provisioning disabled.");
+}
+
 const child = spawn(
-  process.execPath,
-  ["--no-warnings", realWrangler, "--no-experimental-provision", ...args],
+  npmCommand,
+  [
+    "exec",
+    "--yes",
+    "--package=wrangler@4.120.1",
+    "--",
+    "wrangler",
+    "--no-experimental-provision",
+    ...args,
+  ],
   {
     stdio: "inherit",
     env: process.env,
