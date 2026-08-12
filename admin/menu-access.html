@@ -1,1 +1,111 @@
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>AuraDigital — AuraMenu Access</title><style>body{margin:0;font-family:Inter,Arial,sans-serif;background:#07110e;color:#eef8f2}.wrap{max-width:1100px;margin:auto;padding:28px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:24px}.top a{color:#9ee18a;text-decoration:none}.card{background:#0d1c17;border:1px solid #1f3b31;border-radius:18px;padding:18px;margin:12px 0}.row{display:grid;grid-template-columns:1.2fr .9fr .8fr auto;gap:14px;align-items:center}.muted{color:#98aaa2;font-size:13px}.pill{display:inline-block;padding:5px 10px;border-radius:999px;background:#173127;font-size:12px}.requested{background:#5a3712;color:#ffd59a}.active{background:#173d22;color:#b7f5c3}.actions{display:flex;gap:8px;flex-wrap:wrap}button{border:0;border-radius:10px;padding:10px 13px;font-weight:700;cursor:pointer}.approve{background:#7ec151;color:#09200f}.lock{background:#273630;color:#fff}.error{padding:16px;background:#481b1b;border-radius:12px}@media(max-width:760px){.row{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}}</style></head><body><main class="wrap"><div class="top"><div><div class="muted">AURADIGITAL ADMIN</div><h1>AuraMenu editing access</h1><p class="muted">100 TL = 24 hours. Approving starts the timer immediately.</p></div><a href="/admin/">← Main dashboard</a></div><div id="status" class="muted">Loading…</div><div id="list"></div></main><script>const api='/api/admin/auramenu-access';const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));function fmt(v){if(!v)return '—';try{return new Date(v).toLocaleString('tr-TR')}catch{return v}}async function load(){const status=document.getElementById('status'),list=document.getElementById('list');try{const r=await fetch(api,{credentials:'same-origin'});if(r.status===401){location.href='/admin/';return}const d=await r.json();if(!r.ok)throw new Error(d.error||'Request failed');status.textContent=`${d.items.length} menu`;list.innerHTML=d.items.map(x=>`<section class="card"><div class="row"><div><strong>${esc(x.business_name)}</strong><div class="muted">auramenu.space/${esc(x.slug)} · ${esc(x.contact_name||'')}</div></div><div><span class="pill ${x.request_status==='requested'?'requested':''} ${x.accessActive?'active':''}">${x.accessActive?'Editing active':x.request_status==='requested'?'Access requested':'Locked'}</span><div class="muted">Until: ${fmt(x.access_until)}</div></div><div><strong>100 TL / day</strong><div class="muted">Paid recorded: ${Number(x.paid_amount||0)} TL</div></div><div class="actions"><button class="approve" onclick="act('${x.id}','activate')">Activate 24h</button><button class="lock" onclick="act('${x.id}','lock')">Lock</button></div></div></section>`).join('')}catch(e){status.className='error';status.textContent=e.message}}async function act(id,action){const r=await fetch(`${api}/${id}`,{method:'PATCH',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,days:1})});const d=await r.json().catch(()=>({}));if(!r.ok){alert(d.error||'Failed');return}load()}load();</script></body></html>
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>AuraDigital — AuraMenu Access</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#07110e;color:#eef8f2}
+    .wrap{max-width:1180px;margin:auto;padding:28px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:24px}
+    .top a{color:#9ee18a;text-decoration:none}.card{background:#0d1c17;border:1px solid #1f3b31;border-radius:18px;padding:18px;margin:12px 0}
+    .row{display:grid;grid-template-columns:minmax(220px,1.35fr) minmax(180px,.8fr) minmax(180px,.75fr) minmax(260px,auto);gap:16px;align-items:center}
+    .muted{color:#98aaa2;font-size:13px;line-height:1.5}.request-number{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;word-break:break-all;color:#d9efe4;margin-top:6px}
+    .pill{display:inline-block;padding:5px 10px;border-radius:999px;background:#173127;font-size:12px}.requested{background:#5a3712;color:#ffd59a}.active{background:#173d22;color:#b7f5c3}
+    .actions{display:grid;grid-template-columns:minmax(120px,1fr) auto;gap:8px;align-items:end}.actions label{display:grid;gap:5px;font-size:11px;color:#98aaa2}
+    button,select{border:0;border-radius:10px;padding:10px 13px;font:inherit;font-weight:700}.approve{background:#7ec151;color:#09200f;cursor:pointer}.lock{background:#273630;color:#fff;cursor:pointer}
+    select{background:#13241e;color:#fff;border:1px solid #2b493e}.price{font-weight:800;color:#b7f5c3;margin-top:5px}.error{padding:16px;background:#481b1b;border-radius:12px}
+    @media(max-width:900px){.row{grid-template-columns:1fr 1fr}.actions{grid-column:1/-1}}
+    @media(max-width:620px){.row{grid-template-columns:1fr}.actions{grid-column:auto;grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.wrap{padding:18px 12px}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top">
+    <div>
+      <div class="muted">AURADIGITAL ADMIN</div>
+      <h1>AuraMenu editing access</h1>
+      <p class="muted">1 gün = 100 TL. Ödemeyi onayladığınız anda sayaç başlar ve süre bittiğinde düzenleme otomatik kilitlenir.</p>
+    </div>
+    <a href="/admin/">← Main dashboard</a>
+  </div>
+  <div id="status" class="muted">Loading…</div>
+  <div id="list"></div>
+</main>
+<script>
+const api='/api/admin/auramenu-access';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>new Intl.NumberFormat('tr-TR').format(Number(n||0))+' TL';
+function fmt(v){if(!v)return '—';try{return new Date(v).toLocaleString('tr-TR')}catch{return v}}
+function options(selected){
+  const base=[1,2,3,5,7,14,30],n=Math.max(1,Number(selected)||1);
+  if(!base.includes(n))base.push(n);
+  return base.sort((a,b)=>a-b).map(x=>`<option value="${x}" ${x===n?'selected':''}>${x} gün — ${money(x*100)}</option>`).join('');
+}
+function updatePrice(id){
+  const select=document.getElementById(`days-${id}`),price=document.getElementById(`price-${id}`);
+  if(select&&price)price.textContent=`Toplam: ${money(Number(select.value)*100)}`;
+}
+async function load(){
+  const status=document.getElementById('status'),list=document.getElementById('list');
+  try{
+    const r=await fetch(api,{credentials:'same-origin'});
+    if(r.status===401){location.href='/admin/';return}
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||'Request failed');
+    const requested=d.items.filter(x=>x.request_status==='requested').length;
+    status.className='muted';
+    status.textContent=`${d.items.length} menü · ${requested} erişim talebi bekliyor`;
+    list.innerHTML=d.items.map(x=>{
+      const requestedDays=Math.max(1,Number(x.requested_days)||1);
+      const requestedAmount=Number(x.requested_amount)||(requestedDays*100);
+      const state=x.accessActive?'Editing active':x.request_status==='requested'?'Payment / approval waiting':'Locked';
+      return `<section class="card"><div class="row">
+        <div>
+          <strong>${esc(x.business_name)}</strong>
+          <div class="muted">auramenu.space/${esc(x.slug)}</div>
+          <div class="request-number"><strong>Request Number:</strong> ${esc(x.id)}</div>
+        </div>
+        <div>
+          <span class="pill ${x.request_status==='requested'?'requested':''} ${x.accessActive?'active':''}">${state}</span>
+          <div class="muted">Requested: ${x.request_status==='requested'?`${requestedDays} gün · ${money(requestedAmount)}`:'—'}</div>
+          <div class="muted">Access until: ${fmt(x.access_until)}</div>
+        </div>
+        <div>
+          <strong>100 TL / gün</strong>
+          <div class="muted">Recorded payment: ${money(x.paid_amount||0)}</div>
+        </div>
+        <div class="actions">
+          <label>Süre
+            <select id="days-${esc(x.id)}" onchange="updatePrice('${esc(x.id)}')">${options(requestedDays)}</select>
+            <span class="price" id="price-${esc(x.id)}">Toplam: ${money(requestedDays*100)}</span>
+          </label>
+          <div>
+            <button class="approve" onclick="act('${esc(x.id)}','activate')">Ödemeyi onayla & erişimi aç</button>
+            <button class="lock" onclick="act('${esc(x.id)}','lock')">Kilitle</button>
+          </div>
+        </div>
+      </div></section>`;
+    }).join('');
+  }catch(e){
+    status.className='error';
+    status.textContent=e.message;
+  }
+}
+async function act(id,action){
+  const days=action==='activate'?Number(document.getElementById(`days-${id}`)?.value||1):undefined;
+  if(action==='activate'&&!confirm(`${days} gün / ${money(days*100)} ödeme alındı ve erişim şimdi açılsın mı?`))return;
+  const r=await fetch(`${api}/${id}`,{
+    method:'PATCH',
+    credentials:'same-origin',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(action==='activate'?{action,days}:{action})
+  });
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok){alert(d.error||'Failed');return}
+  load();
+}
+load();
+</script>
+</body>
+</html>
