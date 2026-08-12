@@ -40,28 +40,12 @@
         <td><code style="font-size:11px;word-break:break-all">${esc(item.id)}</code></td>
         <td><span class="pill ${statusClass}">${status}</span><small style="display:block;color:#6b7280;margin-top:5px">${item.request_status === "requested" ? `${requestedDays} day${requestedDays === 1 ? "" : "s"} · ${money(requestedAmount)}` : "No pending request"}</small></td>
         <td>${formatDate(item.access_until)}<small style="display:block;color:#6b7280">Paid: ${money(item.paid_amount || 0)}</small></td>
-        <td>
-          <select data-access-days="${esc(item.id)}" style="min-width:145px">${dayOptions(requestedDays)}</select>
-          <small data-access-total="${esc(item.id)}" style="display:block;color:#6b7280;margin-top:5px">Total: ${money(requestedDays * 100)}</small>
-        </td>
-        <td><div class="row-actions">
-          <button class="btn btn-dark btn-sm" data-access-action="activate" data-access-id="${esc(item.id)}">Confirm payment & open</button>
-          <button class="btn btn-danger btn-sm" data-access-action="lock" data-access-id="${esc(item.id)}">Lock</button>
-          ${item.slug ? `<a class="btn btn-light btn-sm" href="https://auramenu.space/${encodeURIComponent(item.slug)}" target="_blank" rel="noopener noreferrer">Live menu ↗</a>` : ""}
-        </div></td>
+        <td><select data-access-days="${esc(item.id)}" style="min-width:145px">${dayOptions(requestedDays)}</select><small data-access-total="${esc(item.id)}" style="display:block;color:#6b7280;margin-top:5px">Total: ${money(requestedDays * 100)}</small></td>
+        <td><div class="row-actions"><button class="btn btn-dark btn-sm" data-access-action="activate" data-access-id="${esc(item.id)}">Confirm payment & open</button><button class="btn btn-danger btn-sm" data-access-action="lock" data-access-id="${esc(item.id)}">Lock</button>${item.slug ? `<a class="btn btn-light btn-sm" href="https://auramenu.space/${encodeURIComponent(item.slug)}" target="_blank" rel="noopener noreferrer">Live menu ↗</a>` : ""}</div></td>
       </tr>`;
     }).join("");
 
-    $("content").innerHTML = `<div class="metrics">
-      <div class="metric warn"><span>Waiting payment</span><strong>${waiting}</strong></div>
-      <div class="metric good"><span>Editing active</span><strong>${active}</strong></div>
-      <div class="metric"><span>Locked</span><strong>${locked}</strong></div>
-      <div class="metric"><span>Price / day</span><strong>100 TL</strong></div>
-    </div>
-    <section class="panel">
-      <div class="panel-head"><div><h2>AuraMenu editing access</h2><p>Customers request access using only their Request Number. Confirm payment to start the paid timer. When the timer expires, editing locks automatically while the public menu and QR keep working.</p></div><span class="status">Server timed</span></div>
-      ${items.length ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Menu</th><th>Request Number</th><th>Status</th><th>Access until</th><th>Duration</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<div class="empty">No AuraMenu menus yet.</div>'}
-    </section>`;
+    $("content").innerHTML = `<div class="metrics"><div class="metric warn"><span>Waiting payment</span><strong>${waiting}</strong></div><div class="metric good"><span>Editing active</span><strong>${active}</strong></div><div class="metric"><span>Locked</span><strong>${locked}</strong></div><div class="metric"><span>Price / day</span><strong>100 TL</strong></div></div><section class="panel"><div class="panel-head"><div><h2>AuraMenu editing access</h2><p>Customers request access using only their Request Number. Confirm payment to start the paid timer. When the timer expires, editing locks automatically while the public menu and QR keep working.</p></div><span class="status">Server timed</span></div>${items.length ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Menu</th><th>Request Number</th><th>Status</th><th>Access until</th><th>Duration</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<div class="empty">No AuraMenu menus yet.</div>'}</section>`;
 
     document.querySelectorAll("[data-access-days]").forEach(select => {
       select.addEventListener("change", () => {
@@ -80,10 +64,7 @@
         if (action === "activate" && !confirm(`Confirm ${money(days * 100)} payment and open editing for ${days} day${days === 1 ? "" : "s"}?`)) return;
         button.disabled = true;
         try {
-          await api(`/api/admin/auramenu-access/${encodeURIComponent(id)}`, {
-            method: "PATCH",
-            body: JSON.stringify(action === "activate" ? { action, days } : { action })
-          });
+          await api(`/api/admin/auramenu-access/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(action === "activate" ? { action, days } : { action }) });
           await renderMenuAccess();
           applyReadOnlyUi();
         } catch (error) {
@@ -110,6 +91,15 @@
       $("content").innerHTML = `<section class="panel"><div class="notice error">${esc(error.message)}</div></section>`;
     }
   };
+
+  const theme = document.createElement("link");
+  theme.rel = "stylesheet";
+  theme.href = "/admin/admin-theme.css";
+  document.head.appendChild(theme);
+
+  const workspace = document.createElement("script");
+  workspace.src = "/admin/workspace-panel.js";
+  document.body.appendChild(workspace);
 
   if (!$("dashboardView").classList.contains("hidden")) buildNav();
 })();
