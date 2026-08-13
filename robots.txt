@@ -1,8 +1,7 @@
-# AuraDigital public indexing policy
+# AuraDigital search crawling policy
 User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /api/
-Disallow: /nfc-status
 
 Sitemap: https://auradigital.ink/sitemap.xml
