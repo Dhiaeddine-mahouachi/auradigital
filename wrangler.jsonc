@@ -22,6 +22,7 @@
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
+    "html_handling": "none",
     "run_worker_first": [
       "/api/*",
       "/quicksite",
