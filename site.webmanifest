@@ -1,8 +1,10 @@
 {
   "name": "AuraDigital",
   "short_name": "AuraDigital",
-  "description": "AuraDigital — web, growth, NFC and digital menu studio.",
-  "start_url": "./index.html",
+  "description": "İstanbul merkezli web tasarım, dijital pazarlama, NFC ve QR menü stüdyosu.",
+  "start_url": "/",
+  "scope": "/",
+  "lang": "tr",
   "display": "standalone",
   "background_color": "#f5f0e6",
   "theme_color": "#0c1e18",
