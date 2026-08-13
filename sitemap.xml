@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://auradigital.ink/</loc><priority>1.0</priority></url>
-  <url><loc>https://auradigital.ink/services.html</loc><priority>0.9</priority></url>
-  <url><loc>https://auradigital.ink/aura-menu.html</loc><priority>0.9</priority></url>
-  <url><loc>https://auradigital.ink/nfc.html</loc><priority>0.9</priority></url>
-  <url><loc>https://auradigital.ink/qr-menu.html</loc><priority>0.8</priority></url>
-  <url><loc>https://auradigital.ink/quicksite.html</loc><priority>0.8</priority></url>
-  <url><loc>https://auradigital.ink/portfolio.html</loc><priority>0.8</priority></url>
-  <url><loc>https://auradigital.ink/packages.html</loc><priority>0.8</priority></url>
-  <url><loc>https://auradigital.ink/about.html</loc><priority>0.7</priority></url>
-  <url><loc>https://auradigital.ink/contact.html</loc><priority>0.8</priority></url>
+  <url><loc>https://auradigital.ink/</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://auradigital.ink/services.html</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://auradigital.ink/portfolio.html</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://auradigital.ink/aura-menu.html</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://auradigital.ink/nfc.html</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://auradigital.ink/nfc-builder.html</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://auradigital.ink/qr-menu.html</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://auradigital.ink/packages.html</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://auradigital.ink/about.html</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://auradigital.ink/contact.html</loc><lastmod>2026-08-13</lastmod></url>
+  <url><loc>https://auradigital.ink/quicksite-v2.html</loc><lastmod>2026-08-13</lastmod></url>
 </urlset>
