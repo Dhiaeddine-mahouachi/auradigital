@@ -4,3 +4,5 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 Disallow: /nfc-status
+
+Sitemap: https://auradigital.ink/sitemap.xml
