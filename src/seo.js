@@ -121,8 +121,8 @@ export async function serveSeoAsset(request, env) {
   const shouldNoindex = NOINDEX_PATHS.has(pathname);
   if (!meta && !shouldNoindex) return null;
 
-  const assetRequest = pathname === "/" && url.pathname === "/index.html"
-    ? new URL("/index.html", request.url)
+  const assetRequest = pathname === "/"
+    ? new Request(new URL("/index.html", request.url), request)
     : request;
   const response = await env.ASSETS.fetch(assetRequest);
 
