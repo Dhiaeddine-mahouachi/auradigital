@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc" shape-rendering="geometricPrecision">
   <title id="title">AuraDigital logo</title>
-  <desc id="desc">High quality animated AuraDigital A mark.</desc>
+  <desc id="desc">High quality smoothly animated AuraDigital A mark.</desc>
 
   <defs>
     <linearGradient id="outer" x1="0" y1="0" x2="1" y2="1">
@@ -31,55 +31,45 @@
     </filter>
   </defs>
 
-  <style>
-    .logo-float {
-      transform-box: fill-box;
-      transform-origin: center;
-      animation: aura-float 5.4s cubic-bezier(.45,0,.55,1) infinite;
-    }
-    .logo-dot {
-      transform-box: fill-box;
-      transform-origin: center;
-      animation: aura-dot 3.6s cubic-bezier(.45,0,.55,1) infinite;
-    }
-    .logo-glint {
-      animation: aura-glint 4.8s ease-in-out infinite;
-    }
-    @keyframes aura-float {
-      0%, 100% { transform: translate3d(0,0,0) rotate(0deg); }
-      50% { transform: translate3d(0,-5px,0) rotate(-0.7deg); }
-    }
-    @keyframes aura-dot {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.055); }
-    }
-    @keyframes aura-glint {
-      0%, 100% { opacity: .27; }
-      50% { opacity: .43; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .logo-float,
-      .logo-dot,
-      .logo-glint { animation: none !important; }
-    }
-  </style>
+  <g id="floating-mark">
+    <animateTransform
+      attributeName="transform"
+      type="translate"
+      values="0 0; 0 -12; 0 0"
+      keyTimes="0;0.5;1"
+      dur="3.8s"
+      calcMode="spline"
+      keySplines="0.42 0 0.58 1;0.42 0 0.58 1"
+      repeatCount="indefinite"/>
 
-  <g class="logo-float">
     <g filter="url(#shadow)">
       <rect x="28" y="24" width="456" height="456" rx="104" fill="url(#outer)"/>
       <rect x="35" y="31" width="442" height="442" rx="98" fill="none" stroke="#ffffff" stroke-opacity="0.78" stroke-width="5"/>
       <rect x="68" y="70" width="376" height="368" rx="78" fill="url(#orange)" stroke="#9d351c" stroke-width="4"/>
-      <path class="logo-glint" d="M91 101c44-19 95-25 165-25 69 0 122 8 165 26" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-width="10"/>
+      <path d="M91 101c44-19 95-25 165-25 69 0 122 8 165 26" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-width="10" opacity="0.3">
+        <animate attributeName="opacity" values="0.25;0.5;0.25" dur="3.8s" repeatCount="indefinite"/>
+      </path>
     </g>
 
     <g filter="url(#soft)">
       <path fill="url(#black)" stroke="#3a3a37" stroke-width="3" fill-rule="evenodd" d="M149 366 240 151h47l91 215h-63l-20-51h-65l-19 51h-62Zm104-101h31l-15-43-16 43Z"/>
     </g>
 
-    <g class="logo-dot">
-      <circle cx="366" cy="153" r="34" fill="#6d7a32" opacity="0.62"/>
-      <circle cx="363" cy="146" r="34" fill="url(#dot)"/>
-      <ellipse cx="351" cy="133" rx="12" ry="9" fill="#ffffff" opacity="0.42"/>
+    <g transform="translate(363 146)">
+      <g>
+        <animateTransform
+          attributeName="transform"
+          type="scale"
+          values="1;1.11;1"
+          keyTimes="0;0.5;1"
+          dur="2.4s"
+          calcMode="spline"
+          keySplines="0.42 0 0.58 1;0.42 0 0.58 1"
+          repeatCount="indefinite"/>
+        <circle cx="3" cy="7" r="34" fill="#6d7a32" opacity="0.62"/>
+        <circle cx="0" cy="0" r="34" fill="url(#dot)"/>
+        <ellipse cx="-12" cy="-13" rx="12" ry="9" fill="#ffffff" opacity="0.42"/>
+      </g>
     </g>
   </g>
 </svg>
