@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Qusai Workspace · AuraDigital</title>
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/qusai/styles.css" />
+  </head>
+  <body>
+    <section id="authView" class="auth-shell">
+      <div class="auth-copy">
+        <a class="brand" href="/" aria-label="AuraDigital home">
+          <span class="brand-mark">A<span>·</span></span>
+          <span>AuraDigital</span>
+        </a>
+        <p class="eyebrow">PRIVATE EMPLOYEE WORKSPACE</p>
+        <h1>Customer context,<br /><em>ready when you need it.</em></h1>
+        <p class="auth-intro">
+          Keep customer details, services, notes and follow-ups together without access to the AuraDigital owner dashboard.
+        </p>
+        <div class="privacy-points" aria-label="Portal security features">
+          <span>Separate login</span>
+          <span>Private customer list</span>
+          <span>Secure cloud storage</span>
+        </div>
+      </div>
+
+      <div class="auth-card">
+        <div id="loginPanel">
+          <span class="portal-avatar" aria-hidden="true">Q</span>
+          <p class="eyebrow dark">QUSAI WORKSPACE</p>
+          <h2>Welcome back</h2>
+          <p class="muted">Enter your employee password. This account cannot open the main administration dashboard.</p>
+          <form id="loginForm" class="stack">
+            <label>
+              Password
+              <input id="loginPassword" name="password" type="password" autocomplete="current-password" required maxlength="200" placeholder="Your private password" />
+            </label>
+            <button id="loginButton" class="button button-primary" type="submit">Open workspace</button>
+          </form>
+          <p id="loginNotice" class="notice" role="status" aria-live="polite"></p>
+          <button id="showSetupButton" class="text-button" type="button">Owner: first-time setup</button>
+        </div>
+
+        <div id="setupPanel" class="hidden">
+          <button id="backToLoginButton" class="back-button" type="button">← Back to login</button>
+          <p class="eyebrow dark">OWNER SETUP</p>
+          <h2>Create Qusai’s password</h2>
+          <p class="muted">
+            First sign in to the main AuraDigital dashboard as the owner in another tab. Then return here and create a different password for Qusai.
+          </p>
+          <form id="setupForm" class="stack">
+            <label>
+              New employee password
+              <input id="setupPassword" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="200" required />
+              <small>Use at least 12 characters. Do not reuse the owner password.</small>
+            </label>
+            <label>
+              Confirm password
+              <input id="setupPasswordConfirm" name="passwordConfirm" type="password" autocomplete="new-password" minlength="12" maxlength="200" required />
+            </label>
+            <button id="setupButton" class="button button-primary" type="submit">Create private account</button>
+          </form>
+          <p id="setupNotice" class="notice" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <div id="dashboardView" class="dashboard hidden">
+      <header class="topbar">
+        <a class="brand brand-dark" href="/" aria-label="AuraDigital home">
+          <span class="brand-mark">A<span>·</span></span>
+          <span>AuraDigital</span>
+        </a>
+        <div class="top-actions">
+          <div class="employee-chip">
+            <span class="employee-avatar">Q</span>
+            <span><strong id="employeeName">Qusai</strong><small>Employee workspace</small></span>
+          </div>
+          <button id="logoutButton" class="button button-soft" type="button">Log out</button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="workspace-hero">
+          <div>
+            <p class="eyebrow">CUSTOMER WORKSPACE</p>
+            <h1>Good <span id="dayPart">day</span>, <em id="heroName">Qusai.</em></h1>
+            <p>Register customers, remember every detail and keep the next conversation clear.</p>
+          </div>
+          <button id="addCustomerButton" class="button button-inverse" type="button">+ Add customer</button>
+        </section>
+
+        <section class="metrics" aria-label="Customer metrics">
+          <article class="metric-card metric-green"><span>Total customers</span><strong id="metricTotal">0</strong><small>All records</small></article>
+          <article class="metric-card metric-blue"><span>Active customers</span><strong id="metricActive">0</strong><small>Currently served</small></article>
+          <article class="metric-card metric-gold"><span>Follow-ups</span><strong id="metricFollowUps">0</strong><small>Due within 7 days</small></article>
+          <article class="metric-card metric-coral"><span>New leads</span><strong id="metricLeads">0</strong><small>Waiting to convert</small></article>
+        </section>
+
+        <section class="customer-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow dark">CUSTOMERS</p>
+              <h2>Your customer list</h2>
+              <p class="muted">Only customers registered in this employee account appear here.</p>
+            </div>
+            <div class="filters">
+              <label class="search-field">
+                <span class="sr-only">Search customers</span>
+                <input id="searchInput" type="search" placeholder="Search name, company or service" autocomplete="off" />
+              </label>
+              <label>
+                <span class="sr-only">Filter by status</span>
+                <select id="statusFilter">
+                  <option value="all">All statuses</option>
+                  <option value="lead">Lead</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="active">Active</option>
+                  <option value="waiting">Waiting</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div id="emptyState" class="empty-state hidden">
+            <span aria-hidden="true">◎</span>
+            <h3>No customers yet</h3>
+            <p>Add the first customer to begin building Qusai’s private list.</p>
+            <button id="emptyAddButton" class="button button-primary" type="button">Add first customer</button>
+          </div>
+
+          <div id="tableWrap" class="table-wrap hidden">
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Contact</th>
+                  <th>Service</th>
+                  <th>Status</th>
+                  <th>Next follow-up</th>
+                  <th><span class="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="customerRows"></tbody>
+            </table>
+          </div>
+          <p id="listNotice" class="notice panel-notice" role="status" aria-live="polite"></p>
+        </section>
+      </main>
+    </div>
+
+    <div id="customerModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div><p class="eyebrow dark">CUSTOMER RECORD</p><h2 id="modalTitle">Add customer</h2></div>
+          <button id="closeModalButton" class="icon-button" type="button" aria-label="Close">×</button>
+        </div>
+        <form id="customerForm" class="customer-form">
+          <input id="customerId" name="id" type="hidden" />
+          <label>Customer name<input id="customerName" name="name" maxlength="100" autocomplete="name" placeholder="Contact person" /></label>
+          <label>Company<input id="customerCompany" name="company" maxlength="120" autocomplete="organization" placeholder="Business name" /></label>
+          <label>Phone<input id="customerPhone" name="phone" maxlength="40" autocomplete="tel" placeholder="+90 ..." /></label>
+          <label>WhatsApp<input id="customerWhatsapp" name="whatsapp" maxlength="40" autocomplete="tel" placeholder="+90 ..." /></label>
+          <label>Email<input id="customerEmail" name="email" type="email" maxlength="160" autocomplete="email" placeholder="customer@example.com" /></label>
+          <label>Service<input id="customerService" name="service" maxlength="160" list="serviceSuggestions" placeholder="Package or requested service" /></label>
+          <datalist id="serviceSuggestions">
+            <option value="Start package"></option><option value="Growth package"></option><option value="Pro package"></option><option value="AuraMenu"></option><option value="QuickSite"></option><option value="NFC card"></option><option value="Website"></option><option value="Google Ads"></option>
+          </datalist>
+          <label>Status<select id="customerStatus" name="status"><option value="lead">Lead</option><option value="contacted">Contacted</option><option value="active">Active</option><option value="waiting">Waiting</option><option value="completed">Completed</option></select></label>
+          <label>Last contact<input id="customerLastContact" name="lastContact" type="date" /></label>
+          <label>Next follow-up<input id="customerNextFollowUp" name="nextFollowUp" type="date" /></label>
+          <label class="full-field">Notes<textarea id="customerNotes" name="notes" maxlength="4000" rows="6" placeholder="Needs, agreements, previous conversations and useful context"></textarea></label>
+          <p class="form-help full-field">Enter at least a customer name or company. Never store passwords, card numbers or bank credentials.</p>
+          <div class="modal-actions full-field">
+            <button id="deleteCustomerButton" class="button button-danger hidden" type="button">Delete</button>
+            <span class="action-spacer"></span>
+            <button id="cancelModalButton" class="button button-soft" type="button">Cancel</button>
+            <button id="saveCustomerButton" class="button button-primary" type="submit">Save customer</button>
+          </div>
+          <p id="formNotice" class="notice full-field" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+
+    <script type="module" src="/qusai/app.js"></script>
+  </body>
+</html>

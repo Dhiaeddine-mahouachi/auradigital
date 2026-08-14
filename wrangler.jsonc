@@ -25,6 +25,8 @@
     "html_handling": "none",
     "run_worker_first": [
       "/api/*",
+      "/qusai",
+      "/qusai/",
       "/quicksite",
       "/quicksite/*",
       "/_next/*",

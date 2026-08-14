@@ -1,6 +1,7 @@
 import app from './worker.js';
 import { handleAuraMenuDashboard } from './auramenu-dashboard.js';
 import { handleAdminWorkspace } from './admin-workspace.js';
+import { serveEmployeePortal } from './employee-portal.js';
 import { permanentSeoRedirect, serveSeoAsset } from './seo.js';
 
 export default {
@@ -17,6 +18,9 @@ export default {
 
     const seoRedirect = permanentSeoRedirect(request);
     if (seoRedirect) return seoRedirect;
+
+    const employeePortalResponse = await serveEmployeePortal(request, env);
+    if (employeePortalResponse) return employeePortalResponse;
 
     const workspaceResponse = await handleAdminWorkspace(request, env);
     if (workspaceResponse) return workspaceResponse;
