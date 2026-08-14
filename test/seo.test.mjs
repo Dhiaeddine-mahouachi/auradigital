@@ -16,3 +16,9 @@ test('short service URL redirects once to the canonical HTML URL', () => {
   const canonicalResponse = permanentSeoRedirect(new Request('https://auradigital.ink/services.html'));
   assert.equal(canonicalResponse, null);
 });
+
+test('admin shortcut redirects to the deployed dashboard entry point', async () => {
+  const redirects = await readFile(new URL('../_redirects', import.meta.url), 'utf8');
+  assert.match(redirects, /^\/admin \/admin\/index\.html 301$/m);
+  assert.match(redirects, /^\/admin\/ \/admin\/index\.html 301$/m);
+});

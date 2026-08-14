@@ -16,3 +16,5 @@
 /iletisim /contact.html 301
 /quicksite /quicksite-v2.html 301
 /quicksite/ /quicksite-v2.html 301
+/admin /admin/index.html 301
+/admin/ /admin/index.html 301
