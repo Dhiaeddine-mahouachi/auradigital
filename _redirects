@@ -14,16 +14,3 @@
 
 /nfc-studio /nfc-builder.html 200
 /nfc-builder /nfc-studio 301
-
-/index.html / 301
-/services.html /services 301
-/portfolio.html /portfolio 301
-/aura-menu.html /aura-menu 301
-/nfc.html /nfc 301
-/nfc-builder.html /nfc-studio 301
-/nfc-status.html /nfc-status 301
-/qr-menu.html /qr-menu 301
-/packages.html /packages 301
-/about.html /about 301
-/contact.html /contact 301
-/quicksite-v2.html /quicksite 301
