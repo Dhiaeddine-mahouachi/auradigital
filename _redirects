@@ -1,20 +1,14 @@
 /home / 301
-/services /services.html 301
-/hizmetler /services.html 301
-/portfolio /portfolio.html 301
-/aura-menu /aura-menu.html 301
-/nfc /nfc.html 301
-/nfc-studio /nfc-builder.html 301
-/nfc-durum /nfc-status.html 301
-/nfc-status /nfc-status.html 301
-/qr-menu /qr-menu.html 301
-/packages /packages.html 301
-/paketler /packages.html 301
-/about /about.html 301
-/hakkimizda /about.html 301
-/contact /contact.html 301
-/iletisim /contact.html 301
-/quicksite /quicksite-v2.html 301
-/quicksite/ /quicksite-v2.html 301
-/admin /admin/index.html 301
-/admin/ /admin/index.html 301
+
+/hizmetler /services 301
+/paketler /packages 301
+/hakkimizda /about 301
+/iletisim /contact 301
+/nfc-durum /nfc-status 301
+
+/quicksite/ /quicksite 301
+/quicksite /quicksite-v2.html 200
+/quicksite-v2 /quicksite 301
+
+/nfc-studio /nfc-builder.html 200
+/nfc-builder /nfc-studio 301
