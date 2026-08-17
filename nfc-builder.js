@@ -131,7 +131,7 @@
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || copy[language].error);
       const statusLink = document.getElementById("statusLink");
-      statusLink.href = `nfc-status.html?id=${encodeURIComponent(data.request.id)}&lang=${language}`;
+      statusLink.href = `/nfc-status?id=${encodeURIComponent(data.request.id)}&lang=${language}`;
       try { localStorage.setItem("aura-nfc-last-request", data.request.id); } catch {}
       location.href = statusLink.href;
     } catch (error) {

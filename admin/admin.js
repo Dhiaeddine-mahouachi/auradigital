@@ -98,7 +98,7 @@ async function renderNfc(){
     <td><span class="pill ${item.paymentStatus==="paid"?"ok":"warn"}">${item.paymentStatus==="paid"?"Paid":"Unpaid"}</span></td>
     <td><div class="row-actions">
       <button class="btn btn-light btn-sm" data-nfc-details="${esc(item.id)}">Design details</button>
-      <a class="btn btn-light btn-sm" href="/nfc-status.html?id=${encodeURIComponent(item.id)}" target="_blank" rel="noopener noreferrer">Customer status</a>
+      <a class="btn btn-light btn-sm" href="//nfc-status?id=${encodeURIComponent(item.id)}" target="_blank" rel="noopener noreferrer">Customer status</a>
       <button class="btn btn-light btn-sm" data-nfc-pay="${esc(item.id)}">${item.paymentStatus==="paid"?"Mark unpaid":"Payment received"}</button>
       <button class="btn btn-dark btn-sm" data-nfc-approve="${esc(item.id)}" ${item.paymentStatus!=="paid"||item.status==="approved"?"disabled":""}>Approve → green</button>
       <button class="btn btn-danger btn-sm" data-nfc-reject="${esc(item.id)}">Request changes</button>
@@ -109,7 +109,7 @@ async function renderNfc(){
     <div class="metric warn"><span>Waiting payment</span><strong>${unpaid}</strong></div>
     <div class="metric good"><span>Green · approved</span><strong>${approved}</strong></div>
   </div>
-  <section class="panel"><div class="panel-head"><div><h2>NFC card design requests</h2><p>Customers choose review, website or digital-menu NFC, size, design, quantity and delivery. Confirm payment before approving the design for production.</p></div><a class="btn btn-dark" href="/nfc-builder.html" target="_blank" rel="noopener noreferrer">Open NFC Studio ↗</a></div>
+  <section class="panel"><div class="panel-head"><div><h2>NFC card design requests</h2><p>Customers choose review, website or digital-menu NFC, size, design, quantity and delivery. Confirm payment before approving the design for production.</p></div><a class="btn btn-dark" href="//nfc-studio" target="_blank" rel="noopener noreferrer">Open NFC Studio ↗</a></div>
   ${items.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Status</th><th>Customer</th><th>Card</th><th>Payment</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">No NFC design requests yet.</div>'}</section>`;
   document.querySelectorAll("[data-nfc-details]").forEach(button=>button.addEventListener("click",()=>showNfcDetails(items.find(item=>item.id===button.dataset.nfcDetails))));
   document.querySelectorAll("[data-nfc-pay]").forEach(button=>button.addEventListener("click",()=>{const item=items.find(value=>value.id===button.dataset.nfcPay);return updateNfc(item.id,{paymentStatus:item.paymentStatus==="paid"?"unpaid":"paid"})}));

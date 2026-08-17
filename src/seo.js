@@ -9,66 +9,66 @@ const PAGE_SEO = {
     description: "AuraDigital İstanbul'da web tasarım, Google ve Meta reklamları, SEO, NFC kart ve QR dijital menü çözümleri sunan dijital büyüme stüdyosudur.",
     type: "WebPage",
   },
-  "/services.html": {
+  "/services": {
     lang: "tr",
     title: "Dijital Pazarlama & Web Tasarım İstanbul | AuraDigital",
     description: "İstanbul'da web tasarım, Google Ads, Meta Ads, SEO, Google Maps, sosyal medya, içerik ve otomasyon hizmetlerini AuraDigital ile tek çatı altında yönetin.",
     type: "CollectionPage",
     serviceType: ["Web Tasarım", "Dijital Pazarlama", "Google Ads", "Meta Ads", "SEO", "Sosyal Medya Yönetimi"],
   },
-  "/portfolio.html": {
+  "/portfolio": {
     lang: "tr",
     title: "Web Tasarım & Dijital Projeler | AuraDigital İstanbul",
     description: "AuraDigital'in web tasarım, yerel işletme, marka ve dijital deneyim projelerini inceleyin. İstanbul merkezli seçili çalışmalar ve gerçek proje örnekleri.",
     type: "CollectionPage",
   },
-  "/aura-menu.html": {
+  "/aura-menu": {
     lang: "tr",
     title: "QR Menü & Dijital Menü Tasarımı İstanbul | AuraMenu",
     description: "Restoran ve kafeler için mobil uyumlu QR menü ve dijital menü tasarımı. AuraMenu ile tasarımınızı seçin, ürünlerinizi ve marka renklerinizi özelleştirin.",
     type: "WebPage",
     serviceType: ["QR Menü", "Dijital Menü Tasarımı", "Restoran Menü Tasarımı"],
   },
-  "/nfc.html": {
+  "/nfc": {
     lang: "tr",
     title: "NFC Kart & Google Yorum Kartı İstanbul | AuraDigital",
     description: "Google yorum, web sitesi, QR menü ve sosyal medya için özelleştirilebilir NFC kart çözümleri. İstanbul'da işletmenize özel NFC kart tasarımı.",
     type: "WebPage",
     serviceType: ["NFC Kart", "Google Yorum NFC Kartı", "İşletme NFC Kartı"],
   },
-  "/nfc-builder.html": {
+  "/nfc-studio": {
     lang: "tr",
     title: "NFC Kart Tasarla | Google Yorum & Web NFC Kartı | AuraDigital",
     description: "NFC kartınızı online tasarlayın; renk, metin, QR kod ve hedef bağlantıyı özelleştirip Google yorum veya web sitesi için tasarım talebi gönderin.",
     type: "WebPage",
     serviceType: ["NFC Kart Tasarımı"],
   },
-  "/qr-menu.html": {
+  "/qr-menu": {
     lang: "tr",
     title: "QR Menü Tasarımı İstanbul | Restoran Dijital Menü | AuraDigital",
     description: "İstanbul'daki restoran ve kafeler için hızlı, mobil uyumlu ve markaya özel QR dijital menü tasarımı. Ürün, fiyat ve görsellerinizi kolayca sunun.",
     type: "WebPage",
     serviceType: ["QR Menü Tasarımı", "Restoran Dijital Menü"],
   },
-  "/packages.html": {
+  "/packages": {
     lang: "tr",
     title: "Dijital Pazarlama Paketleri İstanbul | AuraDigital",
     description: "Sosyal medya, reklam, içerik, web desteği ve optimizasyonu birleştiren haftalık ve aylık dijital pazarlama paketlerini inceleyin.",
     type: "WebPage",
   },
-  "/about.html": {
+  "/about": {
     lang: "tr",
     title: "AuraDigital Hakkında | İstanbul Dijital Ajans",
     description: "AuraDigital; web, reklam, sosyal medya, NFC ve QR deneyimlerini tek sistemde birleştiren İstanbul merkezli bağımsız dijital büyüme stüdyosudur.",
     type: "AboutPage",
   },
-  "/contact.html": {
+  "/contact": {
     lang: "tr",
     title: "Dijital Ajans İstanbul İletişim & Teklif | AuraDigital",
     description: "Web tasarım, dijital reklam, SEO, NFC kart veya QR menü projeniz için AuraDigital ile iletişime geçin ve işletmenize özel teklif alın.",
     type: "ContactPage",
   },
-  "/quicksite-v2.html": {
+  "/quicksite": {
     lang: "en",
     title: "QuickSite Website Builder for Businesses | AuraDigital",
     description: "Preview a ready-made business website, customize its content and style, and send your QuickSite request to AuraDigital for publishing.",
@@ -85,21 +85,23 @@ const NOINDEX_PATHS = new Set([
 
 export const SEO_REDIRECTS = new Map([
   ["/home", "/"],
-  ["/services", "/services.html"],
-  ["/hizmetler", "/services.html"],
-  ["/portfolio", "/portfolio.html"],
-  ["/aura-menu", "/aura-menu.html"],
-  ["/nfc", "/nfc.html"],
-  ["/nfc-studio", "/nfc-builder.html"],
-  ["/nfc-durum", "/nfc-status.html"],
-  ["/nfc-status", "/nfc-status.html"],
-  ["/qr-menu", "/qr-menu.html"],
-  ["/packages", "/packages.html"],
-  ["/paketler", "/packages.html"],
-  ["/about", "/about.html"],
-  ["/hakkimizda", "/about.html"],
-  ["/contact", "/contact.html"],
-  ["/iletisim", "/contact.html"],
+  ["/index.html", "/"],
+  ["/services.html", "/services"],
+  ["/hizmetler", "/services"],
+  ["/portfolio.html", "/portfolio"],
+  ["/aura-menu.html", "/aura-menu"],
+  ["/nfc.html", "/nfc"],
+  ["/nfc-builder.html", "/nfc-studio"],
+  ["/nfc-durum", "/nfc-status"],
+  ["/nfc-status.html", "/nfc-status"],
+  ["/qr-menu.html", "/qr-menu"],
+  ["/packages.html", "/packages"],
+  ["/paketler", "/packages"],
+  ["/about.html", "/about"],
+  ["/hakkimizda", "/about"],
+  ["/contact.html", "/contact"],
+  ["/iletisim", "/contact"],
+  ["/quicksite-v2.html", "/quicksite"],
 ]);
 
 export function permanentSeoRedirect(request) {
@@ -121,9 +123,8 @@ export async function serveSeoAsset(request, env) {
   const shouldNoindex = NOINDEX_PATHS.has(pathname);
   if (!meta && !shouldNoindex) return null;
 
-  const assetRequest = pathname === "/"
-    ? new Request(new URL("/index.html", request.url), request)
-    : request;
+  const assetPath = SEO_ASSETS.get(pathname) || pathname;
+  const assetRequest = new Request(new URL(assetPath, request.url), request);
   const response = await env.ASSETS.fetch(assetRequest);
 
   if (request.method === "HEAD" || !isHtml(response)) {
@@ -182,6 +183,21 @@ function canonicalPath(pathname) {
   if (pathname === "/index.html") return "/";
   return pathname;
 }
+
+const SEO_ASSETS = new Map([
+  ["/", "/index.html"],
+  ["/services", "/services.html"],
+  ["/portfolio", "/portfolio.html"],
+  ["/aura-menu", "/aura-menu.html"],
+  ["/nfc", "/nfc.html"],
+  ["/nfc-studio", "/nfc-builder.html"],
+  ["/nfc-status", "/nfc-status.html"],
+  ["/qr-menu", "/qr-menu.html"],
+  ["/packages", "/packages.html"],
+  ["/about", "/about.html"],
+  ["/contact", "/contact.html"],
+  ["/quicksite", "/quicksite-v2.html"],
+]);
 
 function isHtml(response) {
   const contentType = response.headers.get("Content-Type") || "";

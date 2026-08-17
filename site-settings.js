@@ -45,7 +45,7 @@
         <div class="price"><span data-monthly="${esc(money(item.monthly_price))} TL" data-weekly="${esc(money(item.weekly_price))} TL">${esc(money(item.monthly_price))} TL</span><small data-period>/ ay</small></div>
         <div class="dual-price"><span><b>Aylık</b> · ${esc(money(item.monthly_price))} TL</span><span><b>Haftalık</b> · ${esc(money(item.weekly_price))} TL</span></div>
         <ul>${features}</ul>
-        <a class="btn ${item.featured ? "btn-primary" : "btn-ghost"}" href="contact.html">${esc(buttonLabel)}</a>
+        <a class="btn ${item.featured ? "btn-primary" : "btn-ghost"}" href="/contact">${esc(buttonLabel)}</a>
       </article>`;
     }).join("");
   }

@@ -11,9 +11,9 @@ export default {
       url.hostname = 'auradigital.ink';
       return Response.redirect(url.toString(), 301);
     }
-    if ((url.pathname === '/quicksite' || url.pathname === '/quicksite/') && (request.method === 'GET' || request.method === 'HEAD')) {
-      const assetUrl = new URL('/quicksite-v2.html', url);
-      return Response.redirect(assetUrl.toString(), 301);
+    if (url.pathname === '/quicksite/' && (request.method === 'GET' || request.method === 'HEAD')) {
+      url.pathname = '/quicksite';
+      return Response.redirect(url.toString(), 301);
     }
 
     const seoRedirect = permanentSeoRedirect(request);

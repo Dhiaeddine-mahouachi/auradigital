@@ -12,29 +12,29 @@ addEventListener(
 );
 const page = document.body.dataset.page || "home";
 const pages = [
-  ["home", "index.html", "Ana Sayfa"],
-  ["services", "services.html", "Hizmetler"],
-  ["portfolio", "portfolio.html", "Portfolio"],
-  ["auramenu", "aura-menu.html", "AuraMenu"],
-  ["packages", "packages.html", "Paketler"],
-  ["about", "about.html", "Hakkımızda"],
+  ["home", "/", "Ana Sayfa"],
+  ["services", "/services", "Hizmetler"],
+  ["portfolio", "/portfolio", "Portfolio"],
+  ["auramenu", "/aura-menu", "AuraMenu"],
+  ["packages", "/packages", "Paketler"],
+  ["about", "/about", "Hakkımızda"],
 ];
 const header = document.getElementById("siteHeader");
 if (header) {
   header.className = "site-header";
-  header.innerHTML = `<div class="container nav"><a class="brand brand-wordmark" href="index.html" aria-label="AuraDigital ana sayfa"><img class="brand-logo" src="logo.svg" alt="" aria-hidden="true"><strong>auradigital</strong></a><div class="nav-links" id="navLinks">${pages
+  header.innerHTML = `<div class="container nav"><a class="brand brand-wordmark" href="/" aria-label="AuraDigital ana sayfa"><img class="brand-logo" src="logo.svg" alt="" aria-hidden="true"><strong>auradigital</strong></a><div class="nav-links" id="navLinks">${pages
     .map(
       ([id, href, label]) =>
         `<a class="${page === id ? "active" : ""}" href="${href}">${label}</a>`,
     )
     .join(
       "",
-    )}<a class="nav-quicksite-mobile" href="/quicksite">QuickSite <span>↗</span></a></div><a class="nav-quicksite" href="/quicksite">QuickSite <span>↗</span></a><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Dil" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">TR</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="contact.html">Projenizi Konuşalım <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Menüyü aç" aria-expanded="false">☰</button></div>`;
+    )}<a class="nav-quicksite-mobile" href="/quicksite">QuickSite <span>↗</span></a></div><a class="nav-quicksite" href="/quicksite">QuickSite <span>↗</span></a><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Dil" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">TR</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Projenizi Konuşalım <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Menüyü aç" aria-expanded="false">☰</button></div>`;
 }
 const footer = document.getElementById("siteFooter");
 if (footer) {
   footer.className = "site-footer";
-  footer.innerHTML = `<div class="container"><div class="footer-top"><div><a class="brand brand-wordmark footer-wordmark" href="index.html"><img class="brand-logo" src="logo.svg" alt="" aria-hidden="true"><strong>auradigital</strong></a><p class="footer-blurb">Web tasarımından reklam yönetimine, NFC deneyimlerinden AuraMenu'ye kadar markanızın dijital sistemini tek bir profesyonel ekip gibi kuruyoruz.</p></div><div class="footer-col"><h4>Hizmetler</h4><a href="services.html">Web & Growth</a><a href="nfc.html">NFC Kartlar</a><a href="aura-menu.html">AuraMenu</a><a href="packages.html">Abonelikler</a></div><div class="footer-col"><h4>Şirket</h4><a href="portfolio.html">Portfolio</a><a href="about.html">Hakkımızda</a><a href="contact.html">İletişim</a><a href="packages.html#faq">Sık Sorulanlar</a></div><div class="footer-col"><h4>Başlayalım</h4><a href="https://wa.me/${AURA.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp · +90 538 550 76 74</a><a href="mailto:${AURA.email}">Email · ${AURA.email}</a><a href="https://${AURA.domain}" target="_blank" rel="noopener noreferrer">${AURA.domain}</a></div></div><div class="footer-bottom"><span>© 2026 AuraDigital. Tüm hakları saklıdır.</span><span>İstanbul · Türkiye</span></div></div>`;
+  footer.innerHTML = `<div class="container"><div class="footer-top"><div><a class="brand brand-wordmark footer-wordmark" href="/"><img class="brand-logo" src="logo.svg" alt="" aria-hidden="true"><strong>auradigital</strong></a><p class="footer-blurb">Web tasarımından reklam yönetimine, NFC deneyimlerinden AuraMenu'ye kadar markanızın dijital sistemini tek bir profesyonel ekip gibi kuruyoruz.</p></div><div class="footer-col"><h4>Hizmetler</h4><a href="/services">Web & Growth</a><a href="/nfc">NFC Kartlar</a><a href="/aura-menu">AuraMenu</a><a href="/packages">Abonelikler</a></div><div class="footer-col"><h4>Şirket</h4><a href="/portfolio">Portfolio</a><a href="/about">Hakkımızda</a><a href="/contact">İletişim</a><a href="/packages#faq">Sık Sorulanlar</a></div><div class="footer-col"><h4>Başlayalım</h4><a href="https://wa.me/${AURA.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp · +90 538 550 76 74</a><a href="mailto:${AURA.email}">Email · ${AURA.email}</a><a href="https://${AURA.domain}" target="_blank" rel="noopener noreferrer">${AURA.domain}</a></div></div><div class="footer-bottom"><span>© 2026 AuraDigital. Tüm hakları saklıdır.</span><span>İstanbul · Türkiye</span></div></div>`;
 }
 document.body.insertAdjacentHTML(
   "afterbegin",
@@ -382,7 +382,7 @@ const addChatMessage = (text, role = "bot", actions = false) => {
     const row = document.createElement("div");
     row.className = "chat-actions";
     const contactLink = document.createElement("a");
-    contactLink.href = `contact.html?lang=${chatLang()}`;
+    contactLink.href = `/contact?lang=${chatLang()}`;
     contactLink.textContent = getChatCopy().contactBtn;
     const mailLink = document.createElement("a");
     const body = encodeURIComponent(

@@ -23,7 +23,7 @@
       lang: language,
     });
     selfLink.href = `https://auramenu.space/builder.html?${selfParams}`;
-    managedLink.href = `contact.html?${managedParams}`;
+    managedLink.href = `/contact?${managedParams}`;
   }
 
   function openChoice(trigger) {
