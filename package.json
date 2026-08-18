@@ -10,7 +10,7 @@
     "cf:types": "wrangler types worker-configuration.d.ts"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "5.20260811.1",
+    "@cloudflare/workers-types": "5.20260815.1",
     "wrangler": "file:tools/wrangler-safe"
   }
 }
