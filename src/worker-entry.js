@@ -15,6 +15,10 @@ export default {
       url.pathname = '/quicksite';
       return Response.redirect(url.toString(), 301);
     }
+    if ((url.pathname === '/restaurants/dashboard' || url.pathname === '/restaurants/dashboard/') && (request.method === 'GET' || request.method === 'HEAD')) {
+      const assetUrl = new URL('/restaurants/dashboard/index.html', url);
+      return env.ASSETS.fetch(new Request(assetUrl, request));
+    }
 
     const seoRedirect = permanentSeoRedirect(request);
     if (seoRedirect) return seoRedirect;
