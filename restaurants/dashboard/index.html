@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#102326">
+  <title>Restaurant Dashboard — AuraDigital</title>
+  <link rel="stylesheet" href="/restaurants/dashboard/styles.css">
+</head>
+<body>
+  <div class="mobile-head"><button id="menuBtn" aria-label="Open menu">☰</button><strong>AURA<span>DIG</span></strong><div class="avatar">AS</div></div>
+  <div class="app-shell">
+    <aside id="sidebar">
+      <div class="brand">AURA<span>DIG</span><small>Restaurant OS</small></div>
+      <div class="restaurant"><div class="restaurant-mark">AS</div><div><strong>Al Sham Restaurant</strong><small>Main branch · Istanbul</small></div></div>
+      <nav id="nav">
+        <button class="active" data-view="overview">⌂ <span>Overview</span></button>
+        <button data-view="orders">▣ <span>Orders</span><b>4</b></button>
+        <button data-view="customers">♙ <span>Customers</span></button>
+        <button data-view="suppliers">◇ <span>Suppliers</span></button>
+        <button data-view="inventory">□ <span>Inventory</span><i>3</i></button>
+        <button data-view="reports">↗ <span>Reports</span></button>
+      </nav>
+      <div class="aside-bottom"><button data-view="settings">⚙ <span>Settings</span></button><div class="profile"><div class="avatar">AS</div><div><strong>Ahmad Saleh</strong><small>Owner</small></div><button aria-label="More">•••</button></div></div>
+    </aside>
+    <main>
+      <header><div><p id="eyebrow">Wednesday, 19 August</p><h1 id="title">Good afternoon, Ahmad</h1><p id="subtitle">Here’s what’s happening in your restaurant today.</p></div><div class="header-actions"><button class="icon-btn" aria-label="Notifications">♢<i></i></button><button id="primaryAction" class="primary">＋ New order</button></div></header>
+      <section id="content"></section>
+    </main>
+  </div>
+  <div id="scrim"></div>
+  <dialog id="itemDialog"><form method="dialog" id="itemForm"><div class="dialog-head"><div><small id="dialogKicker">CREATE</small><h2 id="dialogTitle">New order</h2></div><button value="cancel" aria-label="Close">×</button></div><div id="formFields" class="form-fields"></div><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button id="saveBtn" value="default" class="primary">Save</button></div></form></dialog>
+  <script src="/restaurants/dashboard/app.js"></script>
+</body>
+</html>
