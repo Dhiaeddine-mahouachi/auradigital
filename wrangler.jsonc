@@ -29,6 +29,8 @@
       "/qusai/",
       "/quicksite",
       "/quicksite/*",
+      "/restaurants/dashboard",
+      "/restaurants/dashboard/*",
       "/_next/*",
       "/assets/*",
       "/",
