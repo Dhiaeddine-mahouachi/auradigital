@@ -88,6 +88,12 @@
   ],
   "workers_dev": false,
   "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "app.auradigital.ink",
+      "custom_domain": true
+    }
+  ],
   "secrets": {
     "required": [
       "NOTIFICATION_EMAIL"
