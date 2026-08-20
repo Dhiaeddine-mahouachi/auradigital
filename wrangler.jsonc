@@ -89,6 +89,14 @@
   "preview_urls": false,
   "routes": [
     {
+      "pattern": "auradigital.ink",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.auradigital.ink",
+      "custom_domain": true
+    },
+    {
       "pattern": "app.auradigital.ink",
       "custom_domain": true
     }
