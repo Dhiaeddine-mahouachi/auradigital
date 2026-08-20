@@ -89,12 +89,12 @@
   "preview_urls": false,
   "routes": [
     {
-      "pattern": "auradigital.ink",
-      "custom_domain": true
+      "pattern": "auradigital.ink/*",
+      "zone_name": "auradigital.ink"
     },
     {
-      "pattern": "www.auradigital.ink",
-      "custom_domain": true
+      "pattern": "www.auradigital.ink/*",
+      "zone_name": "auradigital.ink"
     },
     {
       "pattern": "app.auradigital.ink",
