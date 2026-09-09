@@ -11,10 +11,6 @@ export default {
       url.hostname = 'auradigital.ink';
       return Response.redirect(url.toString(), 301);
     }
-    if (url.pathname === '/quicksite/' && (request.method === 'GET' || request.method === 'HEAD')) {
-      url.pathname = '/quicksite';
-      return Response.redirect(url.toString(), 301);
-    }
     if ((url.pathname === '/restaurants/dashboard' || url.pathname === '/restaurants/dashboard/') && (request.method === 'GET' || request.method === 'HEAD')) {
       const assetUrl = new URL('/restaurants/dashboard/index.html', url);
       return env.ASSETS.fetch(new Request(assetUrl, request));
