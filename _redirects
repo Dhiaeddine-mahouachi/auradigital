@@ -8,9 +8,6 @@
 /iletisim /contact 301
 /nfc-durum /nfc-status 301
 
-/quicksite/ /quicksite 301
-/quicksite /quicksite-v2.html 200
-/quicksite-v2 /quicksite 301
 
 /nfc-studio /nfc-builder.html 200
 /nfc-builder /nfc-studio 301
