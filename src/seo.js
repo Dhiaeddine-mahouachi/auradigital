@@ -68,13 +68,6 @@ const PAGE_SEO = {
     description: "Web tasarım, dijital reklam, SEO, NFC kart veya QR menü projeniz için AuraDigital ile iletişime geçin ve işletmenize özel teklif alın.",
     type: "ContactPage",
   },
-  "/quicksite": {
-    lang: "en",
-    title: "QuickSite Website Builder for Businesses | AuraDigital",
-    description: "Preview a ready-made business website, customize its content and style, and send your QuickSite request to AuraDigital for publishing.",
-    type: "WebPage",
-    serviceType: ["Business Website Builder", "Small Business Website Design"],
-  },
 };
 
 const NOINDEX_PATHS = new Set([
@@ -101,7 +94,6 @@ export const SEO_REDIRECTS = new Map([
   ["/hakkimizda", "/about"],
   ["/contact.html", "/contact"],
   ["/iletisim", "/contact"],
-  ["/quicksite-v2.html", "/quicksite"],
 ]);
 
 export function permanentSeoRedirect(request) {
@@ -196,7 +188,6 @@ const SEO_ASSETS = new Map([
   ["/packages", "/packages.html"],
   ["/about", "/about.html"],
   ["/contact", "/contact.html"],
-  ["/quicksite", "/quicksite-v2.html"],
 ]);
 
 function isHtml(response) {
