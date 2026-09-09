@@ -811,6 +811,12 @@ export default {
       });
     }
 
+    if (url.pathname.startsWith("/api/quicksite/")) {
+      return json({ error: "QuickSite is no longer available." }, 410, {
+        "Cache-Control": "no-store",
+      });
+    }
+
     try {
       await ensureSchema(env.DB);
 
