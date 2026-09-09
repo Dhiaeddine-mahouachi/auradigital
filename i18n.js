@@ -1375,6 +1375,7 @@
     updateSwitcher(lang);
     if (save) storageSet(lang);
     window.__auraLang = lang;
+    window.dispatchEvent(new CustomEvent("aura:languagechange", { detail: { lang } }));
   }
   function period(mode) {
     const lang = window.__auraLang || initial();
