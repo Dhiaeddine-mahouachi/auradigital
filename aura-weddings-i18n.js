@@ -99,7 +99,7 @@
       themesTitle: "A visual world <em>that fits your story.</em>",
       themesIntro: "Every theme is a starting direction; we reinterpret its colors, type, details and content for you.",
       themeLabels: ["01 · CLASSIC", "02 · TUNISIA", "03 · LUXURY", "04 · ORGANIC"],
-      themeNames: ["Classic Letter", "Sidi Bou Saïd", "Gece Altını", "Mediterranean Garden"],
+      themeNames: ["Classic Letter", "Sidi Bou Saïd", "Midnight Gold", "Mediterranean Garden"],
       themeBodies: ["Antique ivory parchment, seal and vertical opening animation.", "Blue-and-white doors, ceramic texture and Mediterranean lightness.", "Burgundy, midnight blue and metallic gold for an evening atmosphere.", "Soft greens, natural textures and modern romance."],
       phoneMeta: "OUR WEDDING · 29.06.2027",
       phoneGreeting: "In the name of God",
