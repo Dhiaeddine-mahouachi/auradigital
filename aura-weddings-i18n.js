@@ -49,6 +49,7 @@
       phoneMeta: "DÜĞÜNÜMÜZ · 29.06.2027",
       phoneGreeting: "Allah'ın adıyla",
       phoneBody: "Büyük günümüzde mutluluğumuzu paylaşmanız bizi onurlandırır.",
+      countdownLabels: ["Gün", "Saat", "Dakika"],
       showcaseEyebrow: "Telefon için tasarlandı",
       showcaseTitle: "Misafirinizin cebinde, <em>sizin gününüz.</em>",
       showcaseBody: "Paylaşılabilir tek bir bağlantı; WhatsApp, Instagram veya davet mesajınızdan açılır. Her ekran boyutunda okunaklı, hızlı ve dokunması kolay bir deneyim.",
@@ -103,6 +104,7 @@
       phoneMeta: "OUR WEDDING · 29.06.2027",
       phoneGreeting: "In the name of God",
       phoneBody: "Your presence would make our special day complete.",
+      countdownLabels: ["Days", "Hours", "Minutes"],
       showcaseEyebrow: "Built for the phone",
       showcaseTitle: "Your day, <em>in your guests' hands.</em>",
       showcaseBody: "One shareable link opens from WhatsApp, Instagram or your invitation message. Clear, fast and easy to use on every screen.",
@@ -157,6 +159,7 @@
       phoneMeta: "زفافنا · 29.06.2027",
       phoneGreeting: "على بركة الله",
       phoneBody: "يشرفنا حضوركم ومشاركتنا فرحتنا في يومنا الكبير.",
+      countdownLabels: ["يوم", "ساعة", "دقيقة"],
       showcaseEyebrow: "مصممة للهاتف",
       showcaseTitle: "يومكم، <em>في يد ضيوفكم.</em>",
       showcaseBody: "رابط واحد يفتح من WhatsApp أو Instagram أو رسالة الدعوة. واضح وسريع وسهل الاستخدام على كل شاشة.",
@@ -237,6 +240,10 @@
     one(".wedding-phone-screen > small", t.phoneMeta);
     one(".wedding-phone-screen h3", t.phoneGreeting);
     one(".wedding-phone-screen p", t.phoneBody);
+    document.querySelectorAll(".wedding-countdown span").forEach((element, index) => {
+      const number = element.querySelector("b");
+      element.replaceChildren(number || document.createTextNode(""), document.createTextNode(t.countdownLabels[index] || ""));
+    });
     one(".wedding-showcase-copy .eyebrow", t.showcaseEyebrow);
     one(".wedding-showcase-copy h2", t.showcaseTitle, true);
     one(".wedding-showcase-copy > p", t.showcaseBody);
