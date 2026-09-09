@@ -59,7 +59,7 @@
       processTitle: "Basit bir akış, <em>özel bir sonuç.</em>",
       processIntro: "İçeriğinizi ve tercihlerinizi aldıktan sonra davetiyenizi birlikte netleştiriyoruz.",
       processLabels: ["01 · SEÇ", "02 · KİŞİSELLEŞTİR", "03 · İNCELE", "04 · PAYLAŞ"],
-      processTitles: ["Temayı seçin", "Detayları gönderin", "Taslağı görün", "Linki paylaşın"],
+      processTitles: ["Temayı seçin", "Detayları gönderin", "Taslağı görün", "Bağlantıyı paylaşın"],
       processBodies: ["Klasik mektup, Tunus esintisi, lüks veya daha sade bir yön.", "İsimler, tarih, mekan, fotoğraflar, diller ve istediğiniz müzik.", "Mobil önizlemeyi inceleyin; metin, renk ve akışı birlikte düzeltelim.", "Misafirlerinize özel bağlantıyı ve isterseniz QR kodu kullanın."],
       includedEyebrow: "Her temada dahil",
       includedTitle: "Güzel görünür, <em>kolay kullanılır.</em>",
