@@ -16,6 +16,7 @@ const pages = [
   ["services", "/services", "Hizmetler"],
   ["portfolio", "/portfolio", "Portfolio"],
   ["auramenu", "/aura-menu", "AuraMenu"],
+  ["auraweddings", "/aura-weddings", "AuraWeddings"],
   ["packages", "/packages", "Paketler"],
   ["about", "/about", "Hakkımızda"],
 ];
@@ -34,7 +35,7 @@ if (header) {
 const footer = document.getElementById("siteFooter");
 if (footer) {
   footer.className = "site-footer";
-  footer.innerHTML = `<div class="container"><div class="footer-top"><div><a class="brand brand-wordmark footer-wordmark" href="/"><img class="brand-logo" src="logo.svg" alt="" aria-hidden="true"><strong>auradigital</strong></a><p class="footer-blurb">Web tasarımından reklam yönetimine, NFC deneyimlerinden AuraMenu'ye kadar markanızın dijital sistemini tek bir profesyonel ekip gibi kuruyoruz.</p></div><div class="footer-col"><h4>Hizmetler</h4><a href="/services">Web & Growth</a><a href="/nfc">NFC Kartlar</a><a href="/aura-menu">AuraMenu</a><a href="/packages">Abonelikler</a></div><div class="footer-col"><h4>Şirket</h4><a href="/portfolio">Portfolio</a><a href="/about">Hakkımızda</a><a href="/contact">İletişim</a><a href="/packages#faq">Sık Sorulanlar</a></div><div class="footer-col"><h4>Başlayalım</h4><a href="https://wa.me/${AURA.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp · +90 538 550 76 74</a><a href="mailto:${AURA.email}">Email · ${AURA.email}</a><a href="https://${AURA.domain}" target="_blank" rel="noopener noreferrer">${AURA.domain}</a></div></div><div class="footer-bottom"><span>© 2026 AuraDigital. Tüm hakları saklıdır.</span><span>İstanbul · Türkiye</span></div></div>`;
+  footer.innerHTML = `<div class="container"><div class="footer-top"><div><a class="brand brand-wordmark footer-wordmark" href="/"><img class="brand-logo" src="logo.svg" alt="" aria-hidden="true"><strong>auradigital</strong></a><p class="footer-blurb">Web tasarımından reklam yönetimine, NFC deneyimlerinden AuraMenu ve AuraWeddings'e kadar markanızın dijital sistemini tek bir profesyonel ekip gibi kuruyoruz.</p></div><div class="footer-col"><h4>Hizmetler</h4><a href="/services">Web & Growth</a><a href="/nfc">NFC Kartlar</a><a href="/aura-menu">AuraMenu</a><a href="/aura-weddings">AuraWeddings</a><a href="/packages">Abonelikler</a></div><div class="footer-col"><h4>Şirket</h4><a href="/portfolio">Portfolio</a><a href="/about">Hakkımızda</a><a href="/contact">İletişim</a><a href="/packages#faq">Sık Sorulanlar</a></div><div class="footer-col"><h4>Başlayalım</h4><a href="https://wa.me/${AURA.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp · +90 538 550 76 74</a><a href="mailto:${AURA.email}">Email · ${AURA.email}</a><a href="https://${AURA.domain}" target="_blank" rel="noopener noreferrer">${AURA.domain}</a></div></div><div class="footer-bottom"><span>© 2026 AuraDigital. Tüm hakları saklıdır.</span><span>İstanbul · Türkiye</span></div></div>`;
 }
 document.body.insertAdjacentHTML(
   "afterbegin",
@@ -219,8 +220,16 @@ document.querySelectorAll("[data-price-mode]").forEach((btn) =>
 );
 const form = document.querySelector("[data-contact-form]");
 if (form) {
-  const design = new URLSearchParams(location.search).get("design");
-  if (design) {
+  const params = new URLSearchParams(location.search);
+  const design = params.get("design");
+  const requestedService = params.get("service");
+  if (requestedService === "auraweddings") {
+    const service = form.querySelector('[name="service"]');
+    const message = form.querySelector('[name="message"]');
+    if (service) service.value = "AuraWeddings";
+    if (message && !message.value)
+      message.value = "AuraWeddings request: Please share your date, venue, languages and preferred theme.";
+  } else if (design) {
     const service = form.querySelector('[name="service"]');
     const message = form.querySelector('[name="message"]');
     if (service) service.value = "AuraMenu";
