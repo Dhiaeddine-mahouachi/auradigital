@@ -39,9 +39,9 @@ export default {
   async fetch(request, env, ctx) {
     try {
       const rejection = await requestPolicy(request, env);
-      return secureResponse(rejection || await router.fetch(request, env, ctx), request);
+      return secureResponse(rejection || await router.fetch(request, env, ctx), request, env, ctx);
     } catch (error) {
-      return secureResponse(errorResponse(error, request), request);
+      return secureResponse(errorResponse(error, request, env, ctx), request, env, ctx);
     }
   }
 };
