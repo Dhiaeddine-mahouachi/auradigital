@@ -1,0 +1,9 @@
+collector.env
+*.pem
+*.key
+*.p12
+*.jks
+wazuh-install-files.tar
+wazuh-passwords.txt
+seen.json
+*.log

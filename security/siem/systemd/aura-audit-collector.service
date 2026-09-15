@@ -1,0 +1,20 @@
+[Unit]
+Description=AuraDigital security audit collector for Wazuh
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+EnvironmentFile=/etc/auradigital-siem/collector.env
+ExecStart=/usr/local/sbin/aura-audit-collector
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/log/auradigital /var/lib/auradigital-siem
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target
