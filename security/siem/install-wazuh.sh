@@ -14,7 +14,7 @@ AURA_STATE_DIR="/var/lib/auradigital-siem"
 AURA_LOG_DIR="/var/log/auradigital"
 AURA_LOG_FILE="${AURA_LOG_DIR}/audit.jsonl"
 OSSEC_CONF="/var/ossec/etc/ossec.conf"
-RULES_FILE="/var/ossec/etc/rules/local_rules.xml"
+RULES_FILE="/var/ossec/etc/rules/aura_digital_rules.xml"
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
@@ -34,11 +34,8 @@ else
   echo "Wazuh appears to be installed; skipping central-component installation."
 fi
 
-# Install AuraDigital custom rules.
+# Install AuraDigital rules separately so existing Wazuh/local rules are preserved.
 if [[ -f "${SCRIPT_DIR}/wazuh/local_rules.xml" ]]; then
-  if [[ -f "${RULES_FILE}" ]]; then
-    cp -a "${RULES_FILE}" "${RULES_FILE}.bak.$(date +%Y%m%d%H%M%S)"
-  fi
   install -m 640 "${SCRIPT_DIR}/wazuh/local_rules.xml" "${RULES_FILE}"
 fi
 
