@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#02070c">
+  <title>Aura Secure SOC</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="noise"></div>
+  <div id="loginView" class="login-shell">
+    <form id="loginForm" class="login-card" autocomplete="on">
+      <div class="brand-lockup">
+        <div class="brand-mark">A<span>·</span></div>
+        <div><strong>Aura Secure</strong><small>SOC / SIEM</small></div>
+      </div>
+      <div class="login-grid-glow"></div>
+      <p class="eyebrow">SECURITY OPERATIONS</p>
+      <h1>Enter the command center</h1>
+      <p class="muted">Private real-time security monitoring for AuraDigital.</p>
+      <label>Username<input id="username" name="username" value="owner" autocomplete="username" required></label>
+      <label>Password<input id="password" name="password" type="password" autocomplete="current-password" required></label>
+      <button type="submit" class="primary">Authenticate</button>
+      <p id="loginMessage" class="message" aria-live="polite"></p>
+    </form>
+  </div>
+
+  <div id="appView" class="app hidden">
+    <aside class="sidebar">
+      <div>
+        <div class="brand-lockup sidebar-brand">
+          <div class="brand-mark">A<span>·</span></div>
+          <div><strong>Aura Secure</strong><small>SOC / SIEM</small></div>
+        </div>
+        <nav id="nav">
+          <button class="active" data-view="overview"><span class="nav-icon">⌂</span><span>Overview</span></button>
+          <button data-view="alerts"><span class="nav-icon">◌</span><span>Alert Queue</span><b id="alertBadge">0</b></button>
+          <button data-view="events"><span class="nav-icon">⌕</span><span>Event Explorer</span></button>
+          <button data-view="sources"><span class="nav-icon">◫</span><span>Log Sources</span></button>
+          <button data-view="rules"><span class="nav-icon">◇</span><span>Detection Rules</span></button>
+          <button data-view="audit"><span class="nav-icon">▤</span><span>Audit Trail</span></button>
+        </nav>
+      </div>
+      <div class="globe-wrap" aria-hidden="true"><div class="globe"></div><p>DETECT<br>INVESTIGATE<br>RESPOND<br>STAY AHEAD</p></div>
+      <div class="side-footer"><span><i class="status-dot"></i> Production monitoring</span><button id="logoutBtn">Sign out</button></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="title-block"><p class="eyebrow">SECURITY OPERATIONS</p><h1 id="viewTitle">Overview</h1><p id="viewSubtitle">Real-time visibility. Smarter detection. A more secure tomorrow.</p></div>
+        <div class="top-actions">
+          <div class="search-shell"><span>⌕</span><input id="globalSearch" placeholder="Search events, users, rules…"><kbd>Ctrl K</kbd></div>
+          <span class="live-pill"><i></i> Live</span>
+          <button id="refreshBtn" class="refresh">↻ Refresh</button>
+          <div class="clock"><span id="clockDate"></span><strong id="clockTime"></strong></div>
+          <div class="analyst"><span class="avatar">SC</span><div><strong>Security Analyst</strong><small id="analystName">Owner</small></div></div>
+        </div>
+      </header>
+
+      <section id="overview" class="view active-view">
+        <div class="metrics" id="metricGrid"></div>
+        <div class="analytics-grid">
+          <article class="panel trend-panel"><div class="panel-head"><div><p class="eyebrow">LIVE TELEMETRY</p><h3>Threat Activity Trend</h3></div><span class="panel-range">Last 24 hours</span></div><div id="trendChart" class="chart-frame"></div></article>
+          <article class="panel severity-panel"><div class="panel-head"><h3>Alerts by Severity</h3><span class="panel-range">Last 24 hours</span></div><div id="severityChart" class="donut-layout"></div></article>
+          <article class="panel targeted-panel"><div class="panel-head"><h3>Most Targeted Areas</h3><span class="panel-range">Last 24 hours</span></div><div id="targetChart" class="chart-frame"></div></article>
+        </div>
+        <div class="operations-grid">
+          <article class="panel priority-panel"><div class="panel-head"><h3>Priority Alerts</h3><button class="text-btn" data-jump="alerts">View all →</button></div><div id="priorityAlerts"></div></article>
+          <article class="panel events-panel"><div class="panel-head"><div class="inline-title"><h3>Recent Events</h3><span class="live-feed"><i></i> Live Feed</span></div><button class="text-btn" data-jump="events">View all →</button></div><div id="recentEvents"></div></article>
+        </div>
+        <div class="bottom-grid">
+          <article class="panel incidents-panel"><div class="panel-head"><h3>Recent Incidents</h3><button class="text-btn" data-jump="alerts">View all →</button></div><div id="incidentTable"></div></article>
+          <article class="brand-panel"><div><p class="eyebrow">AURA SECURE</p><h3>A safer digital tomorrow together.</h3><span>AuraDigital</span></div></article>
+        </div>
+      </section>
+
+      <section id="alerts" class="view"><article class="panel full-panel"><div class="panel-head"><div><p class="eyebrow">TRIAGE</p><h3>Alert Queue</h3></div><select id="alertFilter"><option value="open">Open</option><option value="acknowledged">Acknowledged</option><option value="resolved">Resolved</option><option value="all">All</option></select></div><div id="alertTable"></div></article></section>
+      <section id="events" class="view"><article class="panel full-panel"><div class="panel-head"><div><p class="eyebrow">TELEMETRY</p><h3>Event Explorer</h3></div><div class="filters"><select id="severityFilter"><option value="all">All severities</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select><select id="sourceFilter"><option value="all">All sources</option><option value="security">Security events</option><option value="audit">Admin audit</option></select></div></div><div id="eventTable"></div></article></section>
+      <section id="sources" class="view"><div id="sourceCards" class="source-grid"></div></section>
+      <section id="rules" class="view"><div id="ruleCards" class="rule-grid"></div></section>
+      <section id="audit" class="view"><article class="panel full-panel"><div class="panel-head"><div><p class="eyebrow">ACCOUNTABILITY</p><h3>Administrative Audit Trail</h3></div><span class="owner-pill">Owner only</span></div><div id="auditTable"></div></article></section>
+    </main>
+  </div>
+  <script src="/app.js" defer></script>
+</body>
+</html>
