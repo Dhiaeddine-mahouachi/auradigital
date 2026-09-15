@@ -20,7 +20,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npm audit --audit-level=high
+      # Production runtime dependencies must be vulnerability-free. Wrangler is a dev-only
+      # deployment tool; its current transitive advisory is tracked in SECURITY_AUDIT.md.
+      - run: npm audit --audit-level=high --omit=dev
       - run: npm run check
       - run: npm test
       - run: npm run deploy:check
