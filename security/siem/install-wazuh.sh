@@ -9,6 +9,8 @@ fi
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 WAZUH_INSTALL_URL="https://packages.wazuh.com/4.14/wazuh-install.sh"
 WAZUH_INSTALLER="/root/wazuh-install.sh"
+AURA_ETC_DIR="/etc/auradigital-siem"
+AURA_STATE_DIR="/var/lib/auradigital-siem"
 AURA_LOG_DIR="/var/log/auradigital"
 AURA_LOG_FILE="${AURA_LOG_DIR}/audit.jsonl"
 OSSEC_CONF="/var/ossec/etc/ossec.conf"
@@ -16,8 +18,10 @@ RULES_FILE="/var/ossec/etc/rules/local_rules.xml"
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y curl ca-certificates jq ufw
+apt-get install -y curl ca-certificates jq ufw python3
 
+install -d -m 700 "${AURA_ETC_DIR}"
+install -d -m 700 "${AURA_STATE_DIR}"
 install -d -m 750 "${AURA_LOG_DIR}"
 touch "${AURA_LOG_FILE}"
 chmod 640 "${AURA_LOG_FILE}"
@@ -52,6 +56,22 @@ p.write_text(text.replace(marker, block + marker, 1))
 PY
 fi
 
+# Stage the collector and timer. The timer is only enabled after real credentials are supplied.
+install -m 700 "${SCRIPT_DIR}/collect-audit.py" /usr/local/sbin/aura-audit-collector
+install -m 644 "${SCRIPT_DIR}/systemd/aura-audit-collector.service" /etc/systemd/system/aura-audit-collector.service
+install -m 644 "${SCRIPT_DIR}/systemd/aura-audit-collector.timer" /etc/systemd/system/aura-audit-collector.timer
+
+if [[ ! -f "${AURA_ETC_DIR}/collector.env" ]]; then
+  cat > "${AURA_ETC_DIR}/collector.env.example" <<'EOF'
+AURA_BASE_URL=https://auradigital.ink
+AURA_ADMIN_USERNAME=owner
+AURA_ADMIN_PASSWORD=CHANGE_ME
+EOF
+  chmod 600 "${AURA_ETC_DIR}/collector.env.example"
+fi
+
+systemctl daemon-reload
+
 # Wazuh recommends disabling its package repository after installation to avoid accidental upgrades.
 if [[ -f /etc/apt/sources.list.d/wazuh.list ]]; then
   sed -i 's/^deb /#deb /' /etc/apt/sources.list.d/wazuh.list
@@ -61,15 +81,22 @@ fi
 systemctl restart wazuh-manager
 systemctl enable wazuh-manager wazuh-indexer wazuh-dashboard >/dev/null 2>&1 || true
 
+if [[ -f "${AURA_ETC_DIR}/collector.env" ]] && ! grep -q 'CHANGE_ME' "${AURA_ETC_DIR}/collector.env"; then
+  chmod 600 "${AURA_ETC_DIR}/collector.env"
+  systemctl enable --now aura-audit-collector.timer
+else
+  echo "Collector timer staged but not enabled: configure ${AURA_ETC_DIR}/collector.env first."
+fi
+
 cat <<'EOF'
 
 Aura Secure SIEM base installation is complete.
 
 Next:
-1. Read the Wazuh installer output and store the admin password in a password manager.
-2. Create /etc/auradigital-siem/collector.env (mode 0600); never commit it.
-3. Install/enable the audit collector systemd timer from this directory.
+1. Store the generated Wazuh admin password in a password manager.
+2. Configure /etc/auradigital-siem/collector.env with the AuraDigital owner credentials and mode 0600.
+3. Run: systemctl enable --now aura-audit-collector.timer
 4. Restrict dashboard/agent ports with a firewall, VPN, or Cloudflare Access before production use.
-5. Point soc.auradigital.ink to this server only after access controls and TLS are ready.
+5. Point soc.auradigital.ink to this server only after access controls and trusted TLS are ready.
 
 EOF
