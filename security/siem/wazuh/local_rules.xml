@@ -1,0 +1,39 @@
+<group name="auradigital,web,">
+  <rule id="100100" level="3">
+    <decoded_as>json</decoded_as>
+    <field name="integration">^auradigital$</field>
+    <description>AuraDigital administrative audit event</description>
+    <group>auradigital_audit,</group>
+  </rule>
+
+  <rule id="100101" level="5">
+    <if_sid>100100</if_sid>
+    <field name="action" type="pcre2">(?i)(create|update|edit|approve|publish)</field>
+    <description>AuraDigital privileged change: $(action) on $(resource)</description>
+    <group>auradigital_change,</group>
+  </rule>
+
+  <rule id="100102" level="8">
+    <if_sid>100100</if_sid>
+    <field name="action" type="pcre2">(?i)(delete|remove|disable|deactivate|revoke)</field>
+    <description>AuraDigital destructive/privilege-revoking action: $(action) on $(resource)</description>
+    <group>auradigital_destructive,</group>
+  </rule>
+
+  <rule id="100103" level="9">
+    <if_sid>100100</if_sid>
+    <field name="action" type="pcre2">(?i)(password|role|permission|admin|owner|session|token)</field>
+    <description>AuraDigital identity or access-control change: $(action) on $(resource)</description>
+    <group>auradigital_identity,</group>
+    <mitre>
+      <id>T1098</id>
+    </mitre>
+  </rule>
+
+  <rule id="100104" level="7">
+    <if_sid>100100</if_sid>
+    <field name="resource" type="pcre2">(?i)(users|security|auth|sessions)</field>
+    <description>AuraDigital security-sensitive resource changed: $(action) on $(resource)</description>
+    <group>auradigital_security,</group>
+  </rule>
+</group>
