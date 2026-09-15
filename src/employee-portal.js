@@ -2,6 +2,8 @@ import { ApiError, json, readJson } from "./http.js";
 import {
   getAuthenticatedAdmin,
   hashPassword,
+  needsPasswordUpgrade,
+  upgradePasswordHash,
   sameOrigin,
   verifyPassword,
 } from "./security.js";
@@ -92,6 +94,11 @@ export async function handleEmployeePortalApi(request, env) {
       return json({ error: "Incorrect password." }, 401);
     }
 
+    if (needsPasswordUpgrade(employee.password_hash, body.password)) {
+      await env.DB.prepare("UPDATE employee_users SET password_hash=? WHERE id=? AND password_hash=?")
+        .bind(await upgradePasswordHash(body.password), employee.id, employee.password_hash).run();
+    }
+    await revokeEmployeeSession(request, env.DB);
     await env.DB.batch([
       env.DB.prepare("UPDATE employee_users SET last_login_at = datetime('now'), updated_at = datetime('now') WHERE id = ?").bind(employee.id),
       env.DB.prepare("DELETE FROM employee_sessions WHERE expires_at <= datetime('now')"),
@@ -437,7 +444,7 @@ function mainDashboardNotes(client) {
 }
 
 async function loginAllowed(env, request, action) {
-  if (!env.LOGIN_RATE_LIMITER?.limit) return true;
+  if (!env.LOGIN_RATE_LIMITER?.limit) throw new ApiError(503, "Sign-in temporarily unavailable.");
   const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
   const result = await env.LOGIN_RATE_LIMITER.limit({ key: `employee-${action}:${PORTAL_SLUG}:${clientKey}` });
   return Boolean(result.success);

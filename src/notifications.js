@@ -32,7 +32,7 @@ export function queueRequestNotification(ctx, env, notification) {
           message: "Request email notification failed",
           requestId,
           requestType,
-          error: error instanceof Error ? error.message : String(error),
+          error: "notification_delivery_failed",
         }));
       }),
   );

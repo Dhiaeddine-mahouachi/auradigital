@@ -8,6 +8,13 @@
   const language = ["tr","en","ar"].includes(params.get("lang")) ? params.get("lang") : (() => { try { const stored=localStorage.getItem("aura-nfc-lang"); return ["tr","en","ar"].includes(stored)?stored:"tr"; } catch { return "tr"; } })();
   const text = translations[language];
   const requestId = params.get("id") || (() => { try { return localStorage.getItem("aura-nfc-last-request"); } catch { return ""; } })();
+  let statusToken = new URLSearchParams(location.hash.slice(1)).get('token') || '';
+  if (statusToken) {
+    try { localStorage.setItem(`aura-nfc-token:${requestId}`, statusToken); } catch {}
+    history.replaceState(null, '', location.pathname + location.search);
+  } else {
+    try { statusToken = localStorage.getItem(`aura-nfc-token:${requestId}`) || ''; } catch {}
+  }
   const PAYMENT = Object.freeze({ iban: "TR940001009010394706205001", holder: "DHIAEDDINE MAHOUACHI", unitPrice: 700, whatsapp: "905385507674" });
   document.documentElement.lang=language;document.documentElement.dir=language==="ar"?"rtl":"ltr";
   const byId=(id)=>document.getElementById(id);
@@ -46,6 +53,6 @@
     byId("receiptWhatsApp").href=`https://wa.me/${PAYMENT.whatsapp}?text=${encodeURIComponent(receiptMessage(request,total))}`;
     byId("paymentBankWarning").textContent=text.bankWarning;byId("paymentReceiptHelp").textContent=text.receiptHelp;
   }
-  async function load(){const notice=byId("statusNotice");if(!requestId){notice.className="form-notice error";notice.textContent=text.missing;return}byId("refreshButton").disabled=true;notice.className="form-notice";notice.textContent=text.loading;try{const response=await fetch(`/api/nfc/requests/${encodeURIComponent(requestId)}`,{headers:{Accept:"application/json"}});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(text.notFound);const request=data.request;const status=["approved","rejected"].includes(request.status)?request.status:"pending";byId("statusSignal").className=`status-signal ${status}`;byId("statusLabel").textContent=text[status];byId("statusTitle").textContent=text[`${status}Title`];byId("statusMessage").textContent=text[`${status}Message`];byId("businessValue").textContent=request.businessName;byId("typeValue").textContent=text[request.cardType]||request.cardType;byId("paymentValue").textContent=request.paymentStatus==="paid"?text.paid:text.unpaid;byId("updatedValue").textContent=new Intl.DateTimeFormat(language,{dateStyle:"medium",timeStyle:"short"}).format(new Date(request.updatedAt));byId("requestDetails").hidden=false;renderPayment(request);notice.textContent=""}catch(error){notice.className="form-notice error";notice.textContent=error.message||text.notFound}finally{byId("refreshButton").disabled=false}}
+  async function load(){const notice=byId("statusNotice");if(!requestId){notice.className="form-notice error";notice.textContent=text.missing;return}byId("refreshButton").disabled=true;notice.className="form-notice";notice.textContent=text.loading;try{const response=await fetch(`/api/nfc/requests/${encodeURIComponent(requestId)}`,{headers:{Accept:"application/json", "X-Aura-Nfc-Token":statusToken}});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(text.notFound);const request=data.request;const status=["approved","rejected"].includes(request.status)?request.status:"pending";byId("statusSignal").className=`status-signal ${status}`;byId("statusLabel").textContent=text[status];byId("statusTitle").textContent=text[`${status}Title`];byId("statusMessage").textContent=text[`${status}Message`];byId("businessValue").textContent=request.businessName;byId("typeValue").textContent=text[request.cardType]||request.cardType;byId("paymentValue").textContent=request.paymentStatus==="paid"?text.paid:text.unpaid;byId("updatedValue").textContent=new Intl.DateTimeFormat(language,{dateStyle:"medium",timeStyle:"short"}).format(new Date(request.updatedAt));byId("requestDetails").hidden=false;renderPayment(request);notice.textContent=""}catch(error){notice.className="form-notice error";notice.textContent=error.message||text.notFound}finally{byId("refreshButton").disabled=false}}
   baseCopy();byId("refreshButton").addEventListener("click",load);load();
 })();

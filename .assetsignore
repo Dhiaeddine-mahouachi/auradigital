@@ -23,3 +23,13 @@ tsconfig*.json
 README*
 LICENSE*
 .assetsignore
+
+SECURITY*.md
+AGENTS.md
+*.sql
+*.sqlite*
+*.db
+*.pem
+*.key
+*.p12
+*.pfx

@@ -1,11 +1,12 @@
-import { json, readJson } from './http.js';
+import { ApiError, json, readJson } from './http.js';
 import { getAuthenticatedAdmin, sameOrigin } from './security.js';
+import { ensureMenuAccess as ensure, tokenHash as sha256, menuTokenAccess as requireToken, newMenuToken } from './menu-ownership.js';
 
 const ORIGINS = new Set([
   'https://auramenu.space',
   'https://www.auramenu.space',
-  'http://localhost:4173',
-  'http://127.0.0.1:4173',
+  'https://auradigital.ink',
+  'https://app.auradigital.ink',
 ]);
 const BODY_BYTES = 5 * 1024 * 1024;
 const IMAGE_BYTES = 280 * 1024;
@@ -55,40 +56,6 @@ function normalizeDays(value) {
   return Number.isInteger(days) && days >= 1 && days <= MAX_ACCESS_DAYS ? days : 0;
 }
 
-async function sha256(value) {
-  const bytes = new TextEncoder().encode(value);
-  const hash = await crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(hash), b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function ensure(db) {
-  await db.prepare(
-    "CREATE TABLE IF NOT EXISTS auramenu_edit_access (" +
-      "menu_id TEXT PRIMARY KEY NOT NULL, " +
-      "token_hash TEXT NOT NULL DEFAULT '', " +
-      "request_status TEXT NOT NULL DEFAULT 'none', " +
-      "requested_at TEXT, " +
-      "requested_days INTEGER NOT NULL DEFAULT 0, " +
-      "requested_amount INTEGER NOT NULL DEFAULT 0, " +
-      "access_until TEXT, " +
-      "paid_amount INTEGER NOT NULL DEFAULT 0, " +
-      "updated_at TEXT NOT NULL DEFAULT (datetime('now')), " +
-      "FOREIGN KEY (menu_id) REFERENCES auramenu_requests(id) ON DELETE CASCADE" +
-    ")"
-  ).run();
-
-  const columns = await db.prepare('PRAGMA table_info(auramenu_edit_access)').all();
-  const names = new Set((columns.results || []).map(column => String(column.name || '')));
-  const migrations = [];
-  if (!names.has('requested_days')) {
-    migrations.push(db.prepare('ALTER TABLE auramenu_edit_access ADD COLUMN requested_days INTEGER NOT NULL DEFAULT 0'));
-  }
-  if (!names.has('requested_amount')) {
-    migrations.push(db.prepare('ALTER TABLE auramenu_edit_access ADD COLUMN requested_amount INTEGER NOT NULL DEFAULT 0'));
-  }
-  if (migrations.length) await db.batch(migrations);
-}
-
 function active(row) {
   return Boolean(row?.access_until && Date.parse(row.access_until) > Date.now());
 }
@@ -136,33 +103,25 @@ async function accessFor(db, id) {
   return db.prepare('SELECT * FROM auramenu_edit_access WHERE menu_id = ? LIMIT 1').bind(id).first();
 }
 
-async function requireToken(request, db, id) {
-  const token = clean(request.headers.get('X-Aura-Menu-Token'), 200);
-  if (!token) return null;
-  const access = await accessFor(db, id);
-  if (!access?.token_hash) return null;
-  return (await sha256(token)) === access.token_hash ? access : null;
-}
-
 function hasBytes(bytes, expected, offset = 0) {
   return expected.every((v, i) => bytes[offset + i] === v);
 }
 
 function decodeImage(dataUrl) {
   const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]*={0,2})$/i.exec(String(dataUrl || '').trim());
-  if (!match) throw new Error('Yalnızca JPG, PNG veya WebP fotoğraf yükleyebilirsiniz.');
+  if (!match) throw new ApiError(400, 'Yalnızca JPG, PNG veya WebP fotoğraf yükleyebilirsiniz.');
   const contentType = match[1].toLowerCase();
   const encoded = match[2];
   if (!IMAGE_TYPES.has(contentType) || !encoded || encoded.length % 4 !== 0 || encoded.length > IMAGE_CHARS) {
-    throw new Error('Fotoğraf geçersiz veya çok büyük.');
+    throw new ApiError(400, 'Fotoğraf geçersiz veya çok büyük.');
   }
   let binary;
   try {
     binary = atob(encoded);
   } catch {
-    throw new Error('Fotoğraf geçersiz.');
+    throw new ApiError(400, 'Fotoğraf geçersiz.');
   }
-  if (!binary.length || binary.length > IMAGE_BYTES) throw new Error('Fotoğraf çok büyük.');
+  if (!binary.length || binary.length > IMAGE_BYTES) throw new ApiError(400, 'Fotoğraf çok büyük.');
   const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
   const valid =
     (contentType === 'image/jpeg' && hasBytes(bytes, [0xff, 0xd8, 0xff])) ||
@@ -170,26 +129,27 @@ function decodeImage(dataUrl) {
     (contentType === 'image/webp' &&
       hasBytes(bytes, [0x52, 0x49, 0x46, 0x46]) &&
       hasBytes(bytes, [0x57, 0x45, 0x42, 0x50], 8));
-  if (!valid) throw new Error('Fotoğraf içeriği geçersiz.');
+  if (!valid) throw new ApiError(400, 'Fotoğraf içeriği geçersiz.');
   return { contentType, bytes: bytes.buffer };
 }
 
 function normalizeCategories(value) {
   if (!Array.isArray(value) || value.length < 1 || value.length > 12) {
-    throw new Error('1 ile 12 kategori olmalıdır.');
+    throw new ApiError(400, '1 ile 12 kategori olmalıdır.');
   }
   let count = 0;
   const categories = value.map((category, index) => {
     const name = clean(category?.name, 80);
-    if (!name) throw new Error(`Kategori ${index + 1} için isim girin.`);
+    if (!name) throw new ApiError(400, `Kategori ${index + 1} için isim girin.`);
     const items = Array.isArray(category?.items) ? category.items : [];
-    if (items.length > 20) throw new Error('Bir kategoride en fazla 20 ürün olabilir.');
+    if (items.length > 20) throw new ApiError(400, 'Bir kategoride en fazla 20 ürün olabilir.');
     return {
       name,
       emoji: clean(category?.emoji, 12),
       items: items.map((item, itemIndex) => {
+        if (!item || typeof item !== 'object' || Array.isArray(item)) throw new ApiError(400, 'Invalid menu item.');
         const itemName = clean(item?.name, 100);
-        if (!itemName) throw new Error(`${name} kategorisindeki ${itemIndex + 1}. ürün adını girin.`);
+        if (!itemName) throw new ApiError(400, `${name} kategorisindeki ${itemIndex + 1}. ürün adını girin.`);
         count += 1;
         return {
           name: itemName,
@@ -202,7 +162,7 @@ function normalizeCategories(value) {
       }),
     };
   });
-  if (count < 1 || count > 100) throw new Error('Menüde 1 ile 100 ürün olmalıdır.');
+  if (count < 1 || count > 100) throw new ApiError(400, 'Menüde 1 ile 100 ürün olmalıdır.');
   return categories;
 }
 
@@ -224,7 +184,8 @@ async function replaceImages(db, id, categories, origin) {
       );
     }
   }
-  if (inserts.length) await db.batch(inserts);
+  if (inserts.length > 12) throw new ApiError(400, "At most 12 images per update.");
+  return inserts;
 }
 
 export async function handleAuraMenuDashboard(request, env) {
@@ -243,21 +204,13 @@ export async function handleAuraMenuDashboard(request, env) {
     const claim = u.pathname.match(/^\/api\/auramenu\/dashboard\/([a-f0-9-]+)\/claim$/i);
     if (claim && request.method === 'POST') {
       const body = await readJson(request, 8192);
+      const token = typeof body.existingToken === 'string' ? body.existingToken : '';
+      const tokenRequest = new Request(request.url, { headers: { 'X-Aura-Menu-Token': token } });
+      const access = await requireToken(tokenRequest, env.DB, claim[1]);
+      if (!access) return json({ error: 'Dashboard access denied.' }, 401, headers);
       const row = await rowFor(env.DB, claim[1]);
-      if (!row) return json({ error: 'Request Number bulunamadı.' }, 404, { 'Cache-Control': 'no-store', ...headers });
-
-      let access = await accessFor(env.DB, row.id);
-      let token = clean(body.existingToken, 200);
-      if (!token || !access?.token_hash || (await sha256(token)) !== access.token_hash) {
-        token = Array.from(crypto.getRandomValues(new Uint8Array(32)), b => b.toString(16).padStart(2, '0')).join('');
-        const hash = await sha256(token);
-        await env.DB.prepare(
-          "INSERT INTO auramenu_edit_access (menu_id, token_hash) VALUES (?, ?) " +
-          "ON CONFLICT(menu_id) DO UPDATE SET token_hash=excluded.token_hash, updated_at=datetime('now')"
-        ).bind(row.id, hash).run();
-        access = await accessFor(env.DB, row.id);
-      }
-      return json({ token, menu: publicMenu(row, access) }, 200, { 'Cache-Control': 'no-store', ...headers });
+      if (!row) return json({ error: 'Dashboard access denied.' }, 401, headers);
+      return json({ token, menu: publicMenu(row, access) }, 200, headers);
     }
 
     const match = u.pathname.match(/^\/api\/auramenu\/dashboard\/([a-f0-9-]+)(?:\/(access-request))?$/i);
@@ -313,7 +266,7 @@ export async function handleAuraMenuDashboard(request, env) {
       }
       const body = await readJson(request, BODY_BYTES);
       const categories = normalizeCategories(body.categories);
-      await replaceImages(env.DB, id, categories, new URL(request.url).origin);
+      const imageInserts = await replaceImages(env.DB, id, categories, new URL(request.url).origin);
       const template = ['modern', 'orbit', 'maison', 'taste3d'].includes(String(body.templateId))
         ? String(body.templateId)
         : row.template_id;
@@ -324,7 +277,7 @@ export async function handleAuraMenuDashboard(request, env) {
         ? String(body.currency)
         : row.currency;
 
-      await env.DB.prepare(
+      const update = env.DB.prepare(
         "UPDATE auramenu_requests SET template_id=?, menu_language=?, business_name=?, tagline=?, description=?, " +
         "address=?, business_phone=?, whatsapp=?, opening_hours=?, currency=?, categories_json=?, " +
         "updated_at=datetime('now'), revision=revision+1 WHERE id=?"
@@ -341,7 +294,13 @@ export async function handleAuraMenuDashboard(request, env) {
         currency,
         JSON.stringify(categories),
         id
-      ).run();
+      );
+      // All validation finishes before writes; D1 batch is transactional.
+      const retained = categories.flatMap(c => c.items).map(i => i.imageUrl);
+      const imageRows = await env.DB.prepare('SELECT id FROM auramenu_images WHERE request_id=?').bind(id).all();
+      const deletions = (imageRows.results || []).filter(image => !retained.some(value => value.endsWith(`/api/auramenu/images/${image.id}`)))
+        .map(image => env.DB.prepare('DELETE FROM auramenu_images WHERE id=? AND request_id=?').bind(image.id, id));
+      await env.DB.batch([...imageInserts, update, ...deletions]);
 
       return json(
         { menu: publicMenu(await rowFor(env.DB, id), await accessFor(env.DB, id)) },
@@ -355,7 +314,8 @@ export async function handleAuraMenuDashboard(request, env) {
 
   const admin = await getAuthenticatedAdmin(request, env.DB);
   if (!admin) return json({ error: 'Unauthorized.' }, 401, { 'Cache-Control': 'no-store' });
-  if (['POST', 'PATCH', 'DELETE'].includes(request.method) && !sameOrigin(request)) {
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method) && admin.role === 'viewer') return json({ error: 'This account has read-only access.' }, 403);
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method) && !sameOrigin(request)) {
     return json({ error: 'Invalid request origin.' }, 403);
   }
 
@@ -387,8 +347,17 @@ export async function handleAuraMenuDashboard(request, env) {
     const body = await readJson(request, 8192);
     const currentAccess = await accessFor(env.DB, id);
 
+    if (body.action === 'rotate-token') {
+      if (admin.role !== 'owner') return json({ error: 'Owner access is required.' }, 403);
+      const token = newMenuToken();
+      await env.DB.prepare("INSERT INTO auramenu_edit_access (menu_id, token_hash) VALUES (?, ?) ON CONFLICT(menu_id) DO UPDATE SET token_hash=excluded.token_hash, updated_at=datetime('now')")
+        .bind(id, await sha256(token)).run();
+      return json({ ok: true, token });
+    }
+
     if (body.action === 'activate') {
-      const days = normalizeDays(body.days) || normalizeDays(currentAccess?.requested_days) || 1;
+      const days = body.days === undefined ? (normalizeDays(currentAccess?.requested_days) || 1) : normalizeDays(body.days);
+      if (!days) return json({ error: 'Invalid access duration.' }, 400);
       const amount = ACCESS_PRICE * days;
       await env.DB.prepare(
         "INSERT INTO auramenu_edit_access " +
@@ -409,7 +378,7 @@ export async function handleAuraMenuDashboard(request, env) {
         amount
       ).run();
 
-      return json({ ok: true, access: await accessFor(env.DB, id), amount, days }, 200, {
+      return json({ ok: true, editAccess: publicMenu(row, await accessFor(env.DB, id)).editAccess, amount, days }, 200, {
         'Cache-Control': 'no-store',
       });
     }

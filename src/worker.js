@@ -1,5 +1,7 @@
 import { ApiError, json, readJson } from "./http.js";
 import { queueRequestNotification } from "./notifications.js";
+import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
+import { securityEvent } from "./security-policy.js";
 import { handleEmployeePortalApi } from "./employee-portal.js";
 import {
   ADMIN_ROLES,
@@ -8,6 +10,8 @@ import {
   getAuthenticatedAdmin,
   hashBootstrapPassword,
   hashPassword,
+  needsPasswordUpgrade,
+  upgradePasswordHash,
   normalizeUsername,
   revokeSession,
   safeEqual,
@@ -68,8 +72,8 @@ const AURAMENU_ORIGINS = new Set([
   "https://auramenu.space",
   "https://www.auramenu.space",
   "https://dhiaeddine-mahouachi.github.io",
-  "http://localhost:4173",
-  "http://127.0.0.1:4173",
+  "https://auradigital.ink",
+  "https://app.auradigital.ink",
 ]);
 const NFC_BODY_BYTES = 32 * 1024;
 const NFC_CARD_TYPES = new Set(["reviews", "website", "menu"]);
@@ -196,6 +200,8 @@ async function createNfcRequest(request, db, env, ctx) {
       qsClean(body.paymentReference, 200),
       storedNotes,
     ).run();
+  const token = newMenuToken();
+  await db.prepare("INSERT INTO nfc_status_tokens (request_id, token_hash) VALUES (?, ?)").bind(id, await tokenHash(token)).run();
   queueRequestNotification(ctx, env, {
     requestType: "NFC card",
     requestId: id,
@@ -210,17 +216,21 @@ async function createNfcRequest(request, db, env, ctx) {
       ["Total", `${total} TL`],
     ],
   });
-  return json({ request: { id, status: "pending", paymentStatus: "unpaid", total } }, 201, { "Cache-Control": "no-store" });
+  return json({ token, request: { id, status: "pending", paymentStatus: "unpaid", total } }, 201, { "Cache-Control": "no-store" });
 }
 
-async function getNfcRequestStatus(db, id) {
+async function getNfcRequestStatus(request, db, id) {
+  const token = request.headers.get("X-Aura-Nfc-Token") || "";
+  const access = /^[a-f0-9]{64}$/.test(token) && await db.prepare("SELECT request_id FROM nfc_status_tokens WHERE request_id=? AND token_hash=?").bind(id, await tokenHash(token)).first();
+  if (!access && !(await getAuthenticatedAdmin(request, db))) return json({ error: "Not found." }, 404);
+
   const row = await db.prepare("SELECT id, card_type, business_name, status, payment_status, quantity, notes, updated_at, approved_at, revision FROM nfc_requests WHERE id = ? LIMIT 1")
     .bind(id).first();
   if (!row) return json({ error: "NFC kart talebi bulunamadı." }, 404, { "Cache-Control": "no-store" });
   return json({ request: mapNfcRequest(row, true) }, 200, { "Cache-Control": "no-store" });
 }
 
-async function handleNfcAdmin(request, db, id) {
+async function handleNfcAdmin(request, db, id, actor) {
   if (request.method === "GET" && !id) {
     const rows = await db.prepare("SELECT * FROM nfc_requests ORDER BY created_at DESC LIMIT 100").all();
     return json({ requests: (rows.results || []).map((row) => mapNfcRequest(row)) }, 200, { "Cache-Control": "no-store" });
@@ -229,6 +239,13 @@ async function handleNfcAdmin(request, db, id) {
   const body = await readJson(request, ADMIN_BODY_BYTES);
   const current = await db.prepare("SELECT * FROM nfc_requests WHERE id = ? LIMIT 1").bind(id).first();
   if (!current) return json({ error: "NFC kart talebi bulunamadı." }, 404);
+  if (body.action === "rotate-token") {
+    if (actor.role !== "owner") return json({ error: "Owner access is required." }, 403);
+    const token = newMenuToken();
+    await db.prepare("INSERT INTO nfc_status_tokens (request_id, token_hash) VALUES (?, ?) ON CONFLICT(request_id) DO UPDATE SET token_hash=excluded.token_hash")
+      .bind(id, await tokenHash(token)).run();
+    return json({ ok: true, token });
+  }
   const status = body.status === undefined ? current.status : String(body.status);
   const payment = body.paymentStatus === undefined ? current.payment_status : String(body.paymentStatus);
   if (!["pending", "approved", "rejected"].includes(status) || !["unpaid", "paid"].includes(payment)) {
@@ -250,7 +267,11 @@ async function proxyQuickSite(request, url) {
   }
   const upstreamPath = url.pathname.startsWith("/quicksite") ? (url.pathname.slice("/quicksite".length) || "/") : url.pathname;
   const target = new URL(upstreamPath + url.search, QUICKSITE_ORIGIN);
-  const requestHeaders = new Headers(request.headers);
+  if (target.origin !== QUICKSITE_ORIGIN || target.protocol !== "https:") return json({ error: "Invalid destination." }, 400);
+  const requestHeaders = new Headers();
+  for (const name of ["Accept", "Accept-Language", "If-None-Match"]) {
+    if (request.headers.has(name)) requestHeaders.set(name, request.headers.get(name));
+  }
   [
     "Authorization",
     "Cookie",
@@ -268,11 +289,13 @@ async function proxyQuickSite(request, url) {
     upstream = await fetch(target, {
       method: request.method,
       headers: requestHeaders,
-      redirect: "follow",
+      redirect: "manual",
+      signal: AbortSignal.timeout(10000),
     });
   } catch {
     return json({ error: "QuickSite is temporarily unavailable." }, 502);
   }
+  if (upstream.status >= 300 && upstream.status < 400) return json({ error: "Upstream redirect rejected." }, 502);
   const headers = new Headers(upstream.headers);
   headers.delete("Set-Cookie");
   headers.delete("Set-Cookie2");
@@ -441,7 +464,7 @@ function auraMenuCors(request) {
   if (!AURAMENU_ORIGINS.has(origin)) return null;
   return {
     "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, X-Aura-Menu-Token",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Max-Age": "86400",
     Vary: "Origin",
@@ -638,7 +661,11 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
     db.prepare("INSERT INTO auramenu_images (id, request_id, content_type, image_bytes) VALUES (?, ?, ?, ?)")
       .bind(image.id, image.requestId, image.contentType, image.bytes),
   );
-  await db.batch([requestInsert, ...imageInserts]);
+  await ensureMenuAccess(db);
+  const token = newMenuToken();
+  await db.batch([requestInsert, ...imageInserts,
+    db.prepare("INSERT INTO auramenu_edit_access (menu_id, token_hash) VALUES (?, ?)").bind(id, await tokenHash(token))
+  ]);
   queueRequestNotification(ctx, env, {
     requestType: "AuraMenu",
     requestId: id,
@@ -653,16 +680,20 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
       ["Requested address", requestedSlug],
     ],
   });
-  return json({ request: { id, slug: requestedSlug, status: "pending", paymentStatus: "unpaid" } }, 201, {
+  return json({ token, request: { id, slug: requestedSlug, status: "pending", paymentStatus: "unpaid" } }, 201, {
     "Cache-Control": "no-store",
     ...corsHeaders,
   });
 }
 
-async function getAuraMenuImage(db, id, corsHeaders) {
-  const row = await db.prepare("SELECT i.content_type, i.image_bytes FROM auramenu_images i INNER JOIN auramenu_requests r ON r.id = i.request_id WHERE i.id = ? LIMIT 1")
+async function getAuraMenuImage(request, db, id, corsHeaders) {
+  const row = await db.prepare("SELECT i.content_type, i.image_bytes, r.id AS menu_id, r.status, r.payment_status FROM auramenu_images i INNER JOIN auramenu_requests r ON r.id = i.request_id WHERE i.id = ? LIMIT 1")
     .bind(id).first();
   if (!row) return json({ error: "Fotoğraf bulunamadı." }, 404, corsHeaders);
+  const published = row.status === "approved" && row.payment_status === "paid";
+  if (!published && !(await getAuthenticatedAdmin(request, db)) && !(await menuTokenAccess(request, db, row.menu_id))) {
+    return json({ error: "Not found." }, 404, corsHeaders);
+  }
   let imageBytes = null;
   if (row.image_bytes instanceof ArrayBuffer) imageBytes = row.image_bytes;
   else if (ArrayBuffer.isView(row.image_bytes)) {
@@ -678,7 +709,7 @@ async function getAuraMenuImage(db, id, corsHeaders) {
     headers: {
       "Content-Type": row.content_type,
       "Content-Length": String(imageBytes.byteLength),
-      "Cache-Control": "public, max-age=31536000, immutable",
+      "Cache-Control": published ? "public, max-age=60" : "no-store",
       "X-Content-Type-Options": "nosniff",
       ...corsHeaders,
     },
@@ -686,6 +717,9 @@ async function getAuraMenuImage(db, id, corsHeaders) {
 }
 
 async function getAuraMenuRequestStatus(request, db, id, corsHeaders) {
+  if (!(await getAuthenticatedAdmin(request, db)) && !(await menuTokenAccess(request, db, id))) {
+    return json({ error: "Not found." }, 404, corsHeaders);
+  }
   const row = await db.prepare("SELECT id, slug, template_id, business_name, status, payment_status, updated_at, approved_at FROM auramenu_requests WHERE id = ? LIMIT 1").bind(id).first();
   if (!row) return json({ error: "Talep bulunamadı." }, 404, corsHeaders);
   return json({
@@ -705,7 +739,7 @@ async function getAuraMenuRequestStatus(request, db, id, corsHeaders) {
 async function getPublishedAuraMenu(request, db, slug, corsHeaders) {
   const row = await db.prepare("SELECT * FROM auramenu_requests WHERE lower(trim(slug)) = lower(?) LIMIT 1").bind(slug).first();
   const status = String(row?.status || "").trim().toLowerCase();
-  const published = status === "approved" || Boolean(row?.approved_at);
+  const published = status === "approved" && row?.payment_status === "paid";
   if (!row || !published) return json({ error: "Menü henüz yayında değil." }, 404, corsHeaders);
   return json({ menu: mapAuraMenuRequest(row, true) }, 200, {
     "Cache-Control": "public, max-age=30",
@@ -845,7 +879,7 @@ export default {
 
       const nfcStatus = url.pathname.match(/^\/api\/nfc\/requests\/([a-f0-9-]+)$/i);
       if (nfcStatus && request.method === "GET") {
-        return await getNfcRequestStatus(env.DB, nfcStatus[1]);
+        return await getNfcRequestStatus(request, env.DB, nfcStatus[1]);
       }
 
       if (url.pathname.startsWith("/api/auramenu/")) {
@@ -876,7 +910,7 @@ export default {
 
         const auraMenuImage = url.pathname.match(/^\/api\/auramenu\/images\/([a-f0-9-]+)$/i);
         if (auraMenuImage && request.method === "GET") {
-          return await getAuraMenuImage(env.DB, auraMenuImage[1], corsHeaders);
+          return await getAuraMenuImage(request, env.DB, auraMenuImage[1], corsHeaders);
         }
 
         const auraMenuStatus = url.pathname.match(/^\/api\/auramenu\/requests\/([a-f0-9-]+)$/i);
@@ -933,7 +967,7 @@ export default {
         const body = await readJson(request, LOGIN_BODY_BYTES);
         const username = normalizeUsername(body.username || "owner");
         const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
-        const limit = await env.LOGIN_RATE_LIMITER.limit({ key: `admin-login:${clientKey}:${username || "invalid"}` });
+        const limit = await env.LOGIN_RATE_LIMITER.limit({ key: `admin-login-account:${username || "invalid"}` });
         if (!limit.success) {
           return json({ error: "Too many sign-in attempts. Try again in one minute." }, 429, {
             "Cache-Control": "no-store",
@@ -952,6 +986,11 @@ export default {
           return json({ error: "Incorrect username or password." }, 401, { "Cache-Control": "no-store" });
         }
 
+        if (needsPasswordUpgrade(admin.password_hash, body.password)) {
+          await env.DB.prepare("UPDATE admin_users SET password_hash=? WHERE id=? AND password_hash=?")
+            .bind(await upgradePasswordHash(body.password), admin.id, admin.password_hash).run();
+        }
+        await revokeSession(request, env.DB);
         await env.DB.batch([
           env.DB.prepare("UPDATE admin_users SET last_login_at = datetime('now'), updated_at = datetime('now') WHERE id = ?").bind(admin.id),
           env.DB.prepare("DELETE FROM admin_sessions WHERE expires_at <= datetime('now')"),
@@ -1025,7 +1064,7 @@ export default {
 
       const nfcAdmin = url.pathname.match(/^\/api\/admin\/nfc(?:\/([a-f0-9-]+))?$/i);
       if (nfcAdmin) {
-        const response = await handleNfcAdmin(request, env.DB, nfcAdmin[1] || null);
+        const response = await handleNfcAdmin(request, env.DB, nfcAdmin[1] || null, admin);
         await auditAdminResponse(response, request, env.DB, admin, "nfc", nfcAdmin[1] || "collection");
         return response;
       }
@@ -1079,11 +1118,7 @@ export default {
           ...error.headers,
         });
       }
-      console.error(JSON.stringify({
-        message: "AuraDigital API error",
-        path: url.pathname,
-        error: error instanceof Error ? error.message : String(error),
-      }));
+      securityEvent(request, "server_error", 500);
       return json({ error: "Server error." }, 500, corsHeaders);
     }
   },
@@ -1105,8 +1140,8 @@ async function bootstrapOwner(db, env, username, password) {
   try {
     passwordHash = await hashBootstrapPassword(password);
   } catch (error) {
-    console.error("Owner password hashing failed during bootstrap.", error);
-    throw new ApiError(503, "The owner password could not be secured. Check the Worker logs and try again.");
+    console.error("Owner password hashing failed during bootstrap.");
+    throw new ApiError(503, "Sign-in temporarily unavailable.");
   }
 
   const id = crypto.randomUUID();
@@ -1184,7 +1219,7 @@ async function handleAdminUsers(request, db, actor, id) {
     await db.prepare(
       "UPDATE admin_users SET display_name = ?, password_hash = ?, role = ?, active = ?, updated_at = datetime('now') WHERE id = ?"
     ).bind(displayName, passwordHash, role, active, id).run();
-    if (body.password || active !== 1) {
+    if (body.password || active !== 1 || role !== current.role) {
       await db.prepare("DELETE FROM admin_sessions WHERE user_id = ?").bind(id).run();
     }
     await auditAction(db, actor, "update", "admin_user", id, request);
@@ -1218,6 +1253,7 @@ async function auditAdminResponse(response, request, db, admin, resource, target
 }
 
 async function auditAction(db, admin, action, resource, targetId, request) {
+  securityEvent(request, action === "login_failed" ? "login_failed" : "admin_" + action, action === "login_failed" ? 401 : 200);
   const requestId = String(request.headers.get("CF-Ray") || "").slice(0, 80);
   await db.prepare(
     "INSERT INTO admin_audit_log (id, admin_user_id, username_snapshot, action, resource, target_id, request_id) " +
@@ -1251,6 +1287,7 @@ async function ensureSchema(db) {
       db.prepare("CREATE TABLE IF NOT EXISTS nfc_requests (id TEXT PRIMARY KEY NOT NULL, card_type TEXT NOT NULL, card_language TEXT NOT NULL DEFAULT 'tr', business_name TEXT NOT NULL, headline TEXT NOT NULL DEFAULT '', instruction_text TEXT NOT NULL DEFAULT '', destination_url TEXT NOT NULL, background_color TEXT NOT NULL DEFAULT '#102326', accent_color TEXT NOT NULL DEFAULT '#64d7df', text_color TEXT NOT NULL DEFAULT '#ffffff', show_qr INTEGER NOT NULL DEFAULT 1, finish TEXT NOT NULL DEFAULT 'matte', quantity INTEGER NOT NULL DEFAULT 1, contact_name TEXT NOT NULL, contact_phone TEXT NOT NULL, email TEXT NOT NULL DEFAULT '', city TEXT NOT NULL DEFAULT '', payment_reference TEXT NOT NULL DEFAULT '', notes TEXT NOT NULL DEFAULT '', payment_status TEXT NOT NULL DEFAULT 'unpaid', status TEXT NOT NULL DEFAULT 'pending', owner_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')), approved_at TEXT, revision INTEGER NOT NULL DEFAULT 1)"),
       db.prepare("CREATE INDEX IF NOT EXISTS idx_auramenu_requests_status_created ON auramenu_requests(status, created_at DESC)"),
       db.prepare("CREATE INDEX IF NOT EXISTS idx_auramenu_images_request ON auramenu_images(request_id)"),
+      db.prepare("CREATE TABLE IF NOT EXISTS nfc_status_tokens (request_id TEXT PRIMARY KEY NOT NULL REFERENCES nfc_requests(id) ON DELETE CASCADE, token_hash TEXT NOT NULL)"),
       db.prepare("CREATE INDEX IF NOT EXISTS idx_nfc_requests_status_created ON nfc_requests(status, created_at DESC)"),
       db.prepare("CREATE TABLE IF NOT EXISTS analytics_daily (date TEXT NOT NULL, path TEXT NOT NULL, views INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (date, path))"),
       db.prepare("CREATE TABLE IF NOT EXISTS admin_users (id TEXT PRIMARY KEY NOT NULL, username TEXT NOT NULL UNIQUE COLLATE NOCASE, display_name TEXT NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL CHECK (role IN ('owner','manager','viewer')), active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0,1)), created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')), last_login_at TEXT)"),

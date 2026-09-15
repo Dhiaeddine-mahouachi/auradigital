@@ -131,8 +131,8 @@
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || copy[language].error);
       const statusLink = document.getElementById("statusLink");
-      statusLink.href = `/nfc-status?id=${encodeURIComponent(data.request.id)}&lang=${language}`;
-      try { localStorage.setItem("aura-nfc-last-request", data.request.id); } catch {}
+      statusLink.href = `/nfc-status?id=${encodeURIComponent(data.request.id)}&lang=${language}#token=${encodeURIComponent(data.token)}`;
+      try { localStorage.setItem("aura-nfc-last-request", data.request.id); localStorage.setItem(`aura-nfc-token:${data.request.id}`, data.token); } catch {}
       location.href = statusLink.href;
     } catch (error) {
       notice.className = "form-notice error";

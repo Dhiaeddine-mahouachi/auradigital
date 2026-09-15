@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+umask 077
 
 backup_dir="${1:-backups}"
 mkdir -p "$backup_dir"
