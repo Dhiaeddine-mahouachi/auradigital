@@ -1,10 +1,11 @@
+import { requestPolicy, secureResponse, errorResponse } from './security-policy.js';
 import app from './worker.js';
 import { handleAuraMenuDashboard } from './auramenu-dashboard.js';
 import { handleAdminWorkspace } from './admin-workspace.js';
 import { serveEmployeePortal } from './employee-portal.js';
 import { permanentSeoRedirect, serveSeoAsset } from './seo.js';
 
-export default {
+const router = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.hostname === 'www.auradigital.ink') {
@@ -32,4 +33,15 @@ export default {
 
     return app.fetch(request, env, ctx);
   },
+};
+
+export default {
+  async fetch(request, env, ctx) {
+    try {
+      const rejection = await requestPolicy(request, env);
+      return secureResponse(rejection || await router.fetch(request, env, ctx), request);
+    } catch (error) {
+      return secureResponse(errorResponse(error, request), request);
+    }
+  }
 };

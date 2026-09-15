@@ -1,11 +1,11 @@
+import bcrypt from "bcryptjs";
 const COOKIE_NAME = "__Host-aura_admin";
 export const SESSION_SECONDS = 60 * 60 * 8;
 export const ADMIN_ROLES = new Set(["owner", "manager", "viewer"]);
 const PASSWORD_ALGORITHM = "PBKDF2";
 const PASSWORD_DIGEST = "SHA-256";
-// Keep password hashing within the Cloudflare Workers Free CPU budget.
-// Verification still accepts older, more expensive hashes.
-const PASSWORD_ITERATIONS = 25_000;
+// Legacy PBKDF2 verification only; new hashes use bcrypt cost 12.
+const BCRYPT_COST = 12;
 const PASSWORD_MIN_ITERATIONS = 25_000;
 const PASSWORD_HASH_BYTES = 32;
 const encoder = new TextEncoder();
@@ -22,8 +22,8 @@ export function normalizeUsername(value) {
 
 export function validatePassword(value) {
   const password = String(value || "");
-  if (password.length < 8 || password.length > 200) {
-    throw new Error("Password must contain between 8 and 200 characters.");
+  if (password.length < 12 || encoder.encode(password).length > 72) {
+    throw new Error("Password must contain at least 12 characters and at most 72 UTF-8 bytes.");
   }
   return password;
 }
@@ -33,21 +33,29 @@ export async function hashPassword(value) {
 }
 
 export async function hashBootstrapPassword(value) {
-  const password = String(value ?? "");
-  if (!password || password.length > 200) {
-    throw new Error("Bootstrap password must contain between 1 and 200 characters.");
-  }
-  return createPasswordHash(password);
+  return hashPassword(value);
 }
 
 async function createPasswordHash(password) {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const hash = await derivePassword(password, salt, PASSWORD_ITERATIONS);
-  return ["pbkdf2-sha256", String(PASSWORD_ITERATIONS), base64url(salt), base64url(hash)].join("$");
+  return bcrypt.hash(password, BCRYPT_COST);
+}
+
+export function needsPasswordUpgrade(storedHash, password) {
+  // Do not truncate existing long passphrases during legacy migration.
+  return !String(storedHash).startsWith('$2') && new TextEncoder().encode(password).length <= 72;
+}
+
+export async function upgradePasswordHash(password) {
+  return createPasswordHash(password);
 }
 
 export async function verifyPassword(value, storedHash) {
   const password = String(value || "");
+  if (!password || password.length > 200) return false;
+  if (/^\$2[aby]\$(1[0-4])\$[./A-Za-z0-9]{53}$/.test(String(storedHash))) {
+    if (encoder.encode(password).length > 72) return false;
+    return bcrypt.compare(password, storedHash);
+  }
   const parts = String(storedHash || "").split("$");
   if (parts.length !== 4 || parts[0] !== "pbkdf2-sha256") return false;
 

@@ -2,7 +2,9 @@
 
 import { spawn } from "node:child_process";
 const args = process.argv.slice(2);
-const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const wranglerEntry = require.resolve("wrangler-cli/bin/wrangler.js");
 
 // AuraDigital has no R2 binding. Disabling Wrangler's beta automatic resource
 // provisioning prevents an obsolete remote draft from recreating an R2 bucket.
@@ -11,13 +13,9 @@ if (args.includes("deploy")) {
 }
 
 const child = spawn(
-  npmCommand,
+  process.execPath,
   [
-    "exec",
-    "--yes",
-    "--package=wrangler@4.120.1",
-    "--",
-    "wrangler",
+    wranglerEntry,
     "--no-experimental-provision",
     ...args,
   ],
