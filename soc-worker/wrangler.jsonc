@@ -1,0 +1,31 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "aura-secure-siem",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "routes": [
+    { "pattern": "soc.auradigital.ink", "custom_domain": true }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "auradigital-db",
+      "database_id": "6d89053c-4979-4e54-9976-bbfb884cb5ca"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "SOC_LOGIN_RATE_LIMITER",
+      "namespace_id": "1843710",
+      "simple": { "limit": 5, "period": 60 }
+    }
+  ]
+}

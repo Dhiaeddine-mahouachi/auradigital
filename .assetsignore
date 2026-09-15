@@ -33,3 +33,6 @@ AGENTS.md
 *.key
 *.p12
 *.pfx
+
+soc-worker/**
+security/siem/**

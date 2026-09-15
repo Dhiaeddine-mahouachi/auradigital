@@ -1,11 +1,37 @@
 import { ApiError, json } from './http.js';
 
-export function securityEvent(request, event, status) {
+export function securityEvent(request, event, status, env, ctx) {
   // Fixed fields only: no bodies, cookies, tokens, query strings, IPs or exception text.
   const parts = new URL(request.url).pathname.split('/');
   const area = ['admin', 'employee', 'auramenu', 'nfc', 'track'].includes(parts[2]) ? parts[2] : 'other';
-  console.log(JSON.stringify({ timestamp: new Date().toISOString(), service: 'auradigital',
-    category: 'security', event, area, method: request.method, status }));
+  const record = {
+    id: crypto.randomUUID(),
+    timestamp: new Date().toISOString(),
+    service: 'auradigital',
+    category: 'security',
+    event,
+    area,
+    method: request.method,
+    status,
+    requestId: String(request.headers.get('CF-Ray') || '').slice(0, 80),
+  };
+  console.log(JSON.stringify(record));
+
+  if (!env?.DB) return;
+  const persist = Promise.resolve().then(() => env.DB.prepare(
+    "INSERT INTO security_events (id, service, category, event, area, method, status, request_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+  ).bind(
+    record.id,
+    record.service,
+    record.category,
+    String(record.event).slice(0, 80),
+    String(record.area).slice(0, 40),
+    String(record.method).slice(0, 10),
+    Number(record.status) || 0,
+    record.requestId,
+    record.timestamp.slice(0, 19).replace('T', ' '),
+  ).run()).catch(() => {});
+  if (ctx?.waitUntil) ctx.waitUntil(persist);
 }
 
 export async function requestPolicy(request, env) {
@@ -31,7 +57,7 @@ export async function requestPolicy(request, env) {
   return null;
 }
 
-export function secureResponse(response, request) {
+export function secureResponse(response, request, env, ctx) {
   const headers = new Headers(response.headers);
   headers.set('Strict-Transport-Security', 'max-age=31536000');
   headers.set('X-Content-Type-Options', 'nosniff');
@@ -43,13 +69,13 @@ export function secureResponse(response, request) {
       : "default-src 'none'; frame-ancestors 'none'; base-uri 'none'");
   if (new URL(request.url).pathname.startsWith('/api/admin/')) headers.set('Cache-Control', 'no-store');
   for (const name of ['Server', 'X-Powered-By']) headers.delete(name);
-  if ([401, 403, 429].includes(response.status)) securityEvent(request, 'request_denied', response.status);
-  if (response.ok && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) securityEvent(request, 'mutation_succeeded', response.status);
+  if ([401, 403, 429].includes(response.status)) securityEvent(request, 'request_denied', response.status, env, ctx);
+  if (response.ok && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) securityEvent(request, 'mutation_succeeded', response.status, env, ctx);
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
-export function errorResponse(error, request) {
+export function errorResponse(error, request, env, ctx) {
   const status = error instanceof ApiError ? error.status : 500;
-  securityEvent(request, 'request_error', status);
+  securityEvent(request, 'request_error', status, env, ctx);
   return json({ error: error instanceof ApiError && status < 500 ? error.message : 'Server error.' }, status);
 }
