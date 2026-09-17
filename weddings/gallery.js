@@ -1,4 +1,4 @@
-import {themes} from './themes.js';
+import {themes} from './themes.js?v=20260917-2';
 
 const host=document.querySelector('.wedding-theme-grid');
 const filters=document.querySelector('.aw-filters');
