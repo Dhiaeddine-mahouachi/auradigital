@@ -227,12 +227,13 @@ if (form) {
     const service = form.querySelector('[name="service"]');
     const message = form.querySelector('[name="message"]');
     if (service) service.value = "AuraWeddings";
-    if (message && !message.value)
+    if (message && !message.value) {
       const chosenTheme = params.get("theme");
       const weddingThemes = ["royal-ivory", "sidi-bou-said", "midnight-gold", "andalusian-palace", "rose-garden", "olive-estate", "bordeaux-velvet", "pearl-minimal", "desert-sunset", "celestial-blue"];
       message.value = weddingThemes.includes(chosenTheme)
         ? `AuraWeddings request — selected theme: ${chosenTheme.replaceAll("-", " ")}. Wedding date: ... Venue: ... Languages: ...`
         : "AuraWeddings request: Please share your date, venue, languages and preferred theme.";
+    }
   } else if (design) {
     const service = form.querySelector('[name="service"]');
     const message = form.querySelector('[name="message"]');
