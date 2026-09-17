@@ -1,4 +1,4 @@
-import {themes} from './themes.js?v=20260917-2';
+import {themes} from './themes.js?v=20260917-3';
 
 const host=document.querySelector('.wedding-theme-grid');
 const filters=document.querySelector('.aw-filters');
@@ -34,7 +34,7 @@ function render(lang=language){
 
 function openModal(slug){
   const theme=themes.find(item=>item.slug===slug);if(!theme)return;const t=labels[language]||labels.en;
-  const dialog=document.createElement('dialog');dialog.className='aw-theme-dialog';dialog.innerHTML=`<div class="aw-modal-art" style="--paper:${theme.paper};--ink:${theme.color};--accent:${theme.accent}"><img src="${theme.image}" alt="${theme.name} wedding design"><span></span><div><small>${t.eyebrow}</small><strong>Amelia <i>&amp;</i> Adam</strong><em>29 · 06 · 2027</em></div></div><div class="aw-modal-copy"><button class="aw-modal-close" aria-label="${t.close}">×</button><small>${theme.category} collection</small><h2>${theme.name}</h2><p>${theme.note}</p><h3>${t.features}</h3><ul>${features.map(feature=>`<li>${feature}</li>`).join('')}</ul><div class="aw-modal-actions"><a class="aw-live" href="/weddings/${theme.slug}.html">${t.open} ↗</a><a class="aw-choose" href="/contact?service=auraweddings&theme=${theme.slug}">${t.choose} →</a></div></div>`;
+  const dialog=document.createElement('dialog');dialog.className=`aw-theme-dialog ${theme.slug}`;dialog.innerHTML=`<div class="aw-modal-art" style="--paper:${theme.paper};--ink:${theme.color};--accent:${theme.accent}"><img src="${theme.image}" alt="${theme.name} wedding design"><span></span><div><small>${t.eyebrow}</small><strong>Amelia <i>&amp;</i> Adam</strong><em>29 · 06 · 2027</em></div></div><div class="aw-modal-copy"><button class="aw-modal-close" aria-label="${t.close}">×</button><small>${theme.category} collection</small><h2>${theme.name}</h2><p>${theme.note}</p><h3>${t.features}</h3><ul>${features.map(feature=>`<li>${feature}</li>`).join('')}</ul><div class="aw-modal-actions"><a class="aw-live" href="/weddings/${theme.slug}.html">${t.open} ↗</a><a class="aw-choose" href="/contact?service=auraweddings&theme=${theme.slug}">${t.choose} →</a></div></div>`;
   document.body.append(dialog);dialog.showModal();document.body.classList.add('modal-open');
   const close=()=>{dialog.close();dialog.remove();document.body.classList.remove('modal-open')};
   dialog.querySelector('.aw-modal-close').addEventListener('click',close);dialog.addEventListener('click',event=>{if(event.target===dialog)close()});dialog.addEventListener('close',()=>document.body.classList.remove('modal-open'));
