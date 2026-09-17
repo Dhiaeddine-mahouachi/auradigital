@@ -10,7 +10,7 @@ root.innerHTML=`<div class="progress" aria-hidden="true"></div>
   <div class="gate-glow" aria-hidden="true"></div>
   <div class="wedding-card">
     <span class="card-kicker">Together with their families</span>
-    <div class="card-photo-wrap"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=86" alt="Amelia and Adam wedding portrait"><span class="photo-ring" aria-hidden="true">A <i>&amp;</i> A</span></div>
+    <div class="card-photo-wrap"><img src="${theme.image}" alt="Amelia and Adam in the ${theme.name} invitation"><span class="photo-ring" aria-hidden="true">A <i>&amp;</i> A</span></div>
     <p class="save-date">Save the date</p><h1>Amelia <i>&amp;</i> Adam</h1>
     <div class="card-divider" aria-hidden="true"><span>♡</span></div>
     <time datetime="2027-06-29T18:00:00+03:00">29 · JUNE · 2027</time>
