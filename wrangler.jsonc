@@ -30,6 +30,7 @@
       "/restaurants/dashboard",
       "/_next/*",
       "/assets/*",
+      "/weddings/*",
       "/",
       "/*.html",
       "!/admin/*",
