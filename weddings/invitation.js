@@ -1,4 +1,4 @@
-import {themes} from './themes.js?v=20260917-2';
+import {themes} from './themes.js?v=20260917-3';
 const theme=themes.find(t=>t.slug===document.body.dataset.theme);
 if(!theme) throw new Error('Unknown invitation theme');
 document.body.className=`${theme.slug} ${theme.kind} ${theme.dark?'dark':''}`;
