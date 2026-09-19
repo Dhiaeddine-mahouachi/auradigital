@@ -1,14 +1,15 @@
-import {themes} from './themes.js?v=20260917-4';
+import {themes} from './themes.js?v=20260919-50';
 
 const host=document.querySelector('.wedding-theme-grid');
 const filters=document.querySelector('.aw-filters');
 const labels={
-  en:{open:'Preview design',choose:'Choose this theme',eyebrow:'Save the date',features:'Included features',close:'Close preview',note:'Ten complete invitation previews. Tap a design to see its details, then open the live experience.'},
-  tr:{open:'Tasarımı incele',choose:'Bu temayı seç',eyebrow:'Tarihi kaydedin',features:'Dahil özellikler',close:'Önizlemeyi kapat',note:'On tam davetiye önizlemesi. Detayları görmek için tasarıma dokunun, ardından canlı deneyimi açın.'},
-  ar:{open:'معاينة التصميم',choose:'اختر هذا التصميم',eyebrow:'احفظوا التاريخ',features:'الميزات المشمولة',close:'إغلاق المعاينة',note:'عشر تجارب دعوة كاملة. اضغط على التصميم لرؤية التفاصيل ثم افتح التجربة الحية.'}
+  en:{open:'Preview design',choose:'Choose this theme',eyebrow:'Save the date',features:'Included features',close:'Close preview',note:'50 complete invitation previews. Personalize above, filter the collection, then open any live experience.'},
+  tr:{open:'Tasarımı incele',choose:'Bu temayı seç',eyebrow:'Tarihi kaydedin',features:'Dahil özellikler',close:'Önizlemeyi kapat',note:'50 eksiksiz davetiye önizlemesi. Bilgilerinizi girin, koleksiyonu filtreleyin ve canlı deneyimi açın.'},
+  ar:{open:'معاينة التصميم',choose:'اختر هذا التصميم',eyebrow:'احفظوا التاريخ',features:'الميزات المشمولة',close:'إغلاق المعاينة',note:'50 تجربة دعوة كاملة. خصّص التفاصيل، صفِّ المجموعة، ثم افتح أي تجربة مباشرة.'}
 };
 let language=window.AuraI18n?.current?.()||document.documentElement.lang||'en';
 let activeFilter='all';
+let searchTerm='';
 const features=['Animated opening','Couple photo gallery','Music and countdown','Google Maps location','Event schedule','RSVP-ready experience'];
 const personalizer=document.querySelector('#weddingPersonalizer');
 const status=document.querySelector('.aw-personalizer-status');
@@ -34,13 +35,13 @@ function render(lang=language){
   if(!host)return;language=lang;const t=labels[lang]||labels.en;
   host.className='wedding-theme-grid aw-gallery';
   host.innerHTML=themes.map((theme,index)=>card(theme,index,t)).join('');
-  host.querySelectorAll('.aw-theme').forEach(el=>el.hidden=activeFilter!=='all'&&el.dataset.category!==activeFilter);
+  host.querySelectorAll('.aw-theme').forEach((el,index)=>{const theme=themes[index],matchesFilter=activeFilter==='all'||el.dataset.category===activeFilter,matchesSearch=!searchTerm||`${theme.name} ${theme.note} ${theme.category}`.toLowerCase().includes(searchTerm);el.hidden=!matchesFilter||!matchesSearch});
   let note=document.querySelector('.aw-gallery-note');if(!note){note=document.createElement('p');note.className='aw-gallery-note';host.after(note)}note.textContent=t.note;
 }
 
 function openModal(slug){
   const theme=themes.find(item=>item.slug===slug);if(!theme)return;const t=labels[language]||labels.en;
-  const dialog=document.createElement('dialog');dialog.className=`aw-theme-dialog ${theme.slug}`;dialog.innerHTML=`<div class="aw-modal-art" style="--paper:${theme.paper};--ink:${theme.color};--accent:${theme.accent}"><img src="${theme.image}" alt="${theme.name} wedding design"><span></span><div><small>${t.eyebrow}</small><strong>${safe(couple.partnerOne)} <i>&amp;</i> ${safe(couple.partnerTwo)}</strong><em>${safe(formattedDate())}</em></div></div><div class="aw-modal-copy"><button class="aw-modal-close" aria-label="${t.close}">×</button><small>${theme.category} collection</small><h2>${theme.name}</h2><p>${theme.note}</p><h3>${t.features}</h3><ul>${features.map(feature=>`<li>${feature}</li>`).join('')}</ul><div class="aw-modal-actions"><a class="aw-live" href="/weddings/${theme.slug}.html?${query()}">${t.open} ↗</a><a class="aw-choose" href="/contact?service=auraweddings&theme=${theme.slug}&${query()}">${t.choose} →</a></div></div>`;
+  const dialog=document.createElement('dialog');dialog.className=`aw-theme-dialog ${theme.slug}`;dialog.innerHTML=`<div class="aw-modal-art" style="--paper:${theme.paper};--ink:${theme.color};--accent:${theme.accent}"><img src="${theme.image}" alt="${theme.name} wedding design"><span></span><div><small>${t.eyebrow}</small><strong>${safe(couple.partnerOne)} <i>&amp;</i> ${safe(couple.partnerTwo)}</strong><em>${safe(formattedDate())}</em></div></div><div class="aw-modal-copy"><button class="aw-modal-close" aria-label="${t.close}">×</button><small>${theme.category} collection</small><h2>${theme.name}</h2><p>${theme.note}</p><h3>${t.features}</h3><ul>${features.map(feature=>`<li>${feature}</li>`).join('')}</ul><div class="aw-modal-actions"><a class="aw-live" href="/weddings/preview.html?theme=${theme.slug}&${query()}">${t.open} ↗</a><a class="aw-choose" href="/contact?service=auraweddings&theme=${theme.slug}&${query()}">${t.choose} →</a></div></div>`;
   document.body.append(dialog);dialog.showModal();document.body.classList.add('modal-open');
   const close=()=>{dialog.close();dialog.remove();document.body.classList.remove('modal-open')};
   dialog.querySelector('.aw-modal-close').addEventListener('click',close);dialog.addEventListener('click',event=>{if(event.target===dialog)close()});dialog.addEventListener('close',()=>document.body.classList.remove('modal-open'));
@@ -48,6 +49,7 @@ function openModal(slug){
 
 filters?.addEventListener('click',event=>{const button=event.target.closest('button[data-filter]');if(!button)return;activeFilter=button.dataset.filter;filters.querySelectorAll('button').forEach(item=>item.classList.toggle('active',item===button));render();});
 host?.addEventListener('click',event=>{const preview=event.target.closest('.aw-preview');if(preview)openModal(preview.dataset.theme)});
+document.querySelector('#themeSearch')?.addEventListener('input',event=>{searchTerm=event.target.value.trim().toLowerCase();render()});
 personalizer?.addEventListener('input',()=>{const data=new FormData(personalizer);couple=Object.fromEntries(data.entries());status.textContent=`Previewing ${couple.partnerOne||'Partner one'} & ${couple.partnerTwo||'Partner two'} · ${formattedDate()}`;render()});
 personalizer?.addEventListener('reset',()=>setTimeout(()=>{couple={partnerOne:'Amelia',partnerTwo:'Adam',date:'2027-06-29',venue:'Four Seasons Hotel Bosphorus, Istanbul'};status.textContent='Previewing Amelia & Adam · 29 June 2027';render()},0));
 render();
