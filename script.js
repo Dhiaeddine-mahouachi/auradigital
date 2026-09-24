@@ -134,8 +134,10 @@ const markVideoReady = (video) => video.parentElement?.classList.add("is-video-r
 backgroundVideos.forEach((video) => {
   video.muted = true;
   video.defaultMuted = true;
-  video.playbackRate = 0.9;
+  video.playbackRate = 1;
+  video.addEventListener("loadeddata", () => markVideoReady(video), { once: true });
   video.addEventListener("canplay", () => markVideoReady(video), { once: true });
+  video.addEventListener("playing", () => markVideoReady(video), { once: true });
   if (video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) markVideoReady(video);
   if (reducedMotion) {
     video.pause();

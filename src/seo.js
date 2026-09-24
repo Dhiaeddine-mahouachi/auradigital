@@ -161,7 +161,7 @@ export async function serveSeoAsset(request, env) {
     })
     .on("video[data-background-video]", {
       element(element) {
-        element.setAttribute("preload", "metadata");
+        element.setAttribute("preload", "auto");
       },
     })
     .on(".project-grid img", {
