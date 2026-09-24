@@ -7,6 +7,10 @@
   backface-visibility: hidden;
 }
 
+.hero-media [data-background-video] {
+  opacity: 1;
+}
+
 .hero-media.is-video-ready [data-background-video],
 .video-panel.is-video-ready [data-background-video] {
   opacity: 1;
