@@ -23,7 +23,7 @@ const pages = [
 const header = document.getElementById("siteHeader");
 if (header) {
   header.className = "site-header";
-  header.innerHTML = `<div class="container nav"><a class="brand brand-wordmark" href="/" aria-label="AuraDigital ana sayfa"><img class="brand-logo brand-logo-horizontal" src="auradigital-logo.svg" alt="AuraDigital"></a><div class="nav-links" id="navLinks">${pages
+  header.innerHTML = `<div class="container nav"><a class="brand brand-wordmark" href="/" aria-label="AuraDigital ana sayfa"><img class="brand-logo" src="logo.png" alt="AuraDigital"></a><div class="nav-links" id="navLinks">${pages
     .map(
       ([id, href, label]) =>
         `<a class="${page === id ? "active" : ""}" href="${href}">${label}</a>`,
@@ -35,7 +35,7 @@ if (header) {
 const footer = document.getElementById("siteFooter");
 if (footer) {
   footer.className = "site-footer";
-  footer.innerHTML = `<div class="container"><div class="footer-top"><div><a class="brand brand-wordmark footer-wordmark" href="/" aria-label="AuraDigital ana sayfa"><img class="brand-logo brand-logo-horizontal" src="auradigital-logo-light.svg" alt="AuraDigital"></a><p class="footer-blurb">Web tasarımından reklam yönetimine, NFC deneyimlerinden AuraMenu ve AuraWeddings'e kadar markanızın dijital sistemini tek bir profesyonel ekip gibi kuruyoruz.</p></div><div class="footer-col"><h4>Hizmetler</h4><a href="/services">Web & Growth</a><a href="/nfc">NFC Kartlar</a><a href="/aura-menu">AuraMenu</a><a href="/aura-weddings">AuraWeddings</a><a href="/packages">Abonelikler</a></div><div class="footer-col"><h4>Şirket</h4><a href="/portfolio">Portfolio</a><a href="/about">Hakkımızda</a><a href="/contact">İletişim</a><a href="/packages#faq">Sık Sorulanlar</a></div><div class="footer-col"><h4>Başlayalım</h4><a href="https://wa.me/${AURA.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp · +90 538 550 76 74</a><a href="mailto:${AURA.email}">Email · ${AURA.email}</a><a href="https://${AURA.domain}" target="_blank" rel="noopener noreferrer">${AURA.domain}</a></div></div><div class="footer-bottom"><span>© 2026 AuraDigital. Tüm hakları saklıdır.</span><span>İstanbul · Türkiye</span></div></div>`;
+  footer.innerHTML = `<div class="container"><div class="footer-top"><div><a class="brand brand-wordmark footer-wordmark" href="/" aria-label="AuraDigital ana sayfa"><img class="brand-logo" src="logo.png" alt="AuraDigital"></a><p class="footer-blurb">Web tasarımından reklam yönetimine, NFC deneyimlerinden AuraMenu ve AuraWeddings'e kadar markanızın dijital sistemini tek bir profesyonel ekip gibi kuruyoruz.</p></div><div class="footer-col"><h4>Hizmetler</h4><a href="/services">Web & Growth</a><a href="/nfc">NFC Kartlar</a><a href="/aura-menu">AuraMenu</a><a href="/aura-weddings">AuraWeddings</a><a href="/packages">Abonelikler</a></div><div class="footer-col"><h4>Şirket</h4><a href="/portfolio">Portfolio</a><a href="/about">Hakkımızda</a><a href="/contact">İletişim</a><a href="/packages#faq">Sık Sorulanlar</a></div><div class="footer-col"><h4>Başlayalım</h4><a href="https://wa.me/${AURA.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp · +90 538 550 76 74</a><a href="mailto:${AURA.email}">Email · ${AURA.email}</a><a href="https://${AURA.domain}" target="_blank" rel="noopener noreferrer">${AURA.domain}</a></div></div><div class="footer-bottom"><span>© 2026 AuraDigital. Tüm hakları saklıdır.</span><span>İstanbul · Türkiye</span></div></div>`;
 }
 document.body.insertAdjacentHTML(
   "afterbegin",
