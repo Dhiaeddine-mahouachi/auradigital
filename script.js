@@ -23,7 +23,7 @@ const pages = [
 const header = document.getElementById("siteHeader");
 if (header) {
   header.className = "site-header";
-  header.innerHTML = `<div class="container nav"><a class="brand brand-wordmark" href="/" aria-label="AuraDigital ana sayfa"><img class="brand-logo" src="logo.png" alt="AuraDigital"></a><div class="nav-links" id="navLinks">${pages
+  header.innerHTML = `<div class="container nav"><a class="brand brand-wordmark" href="/" aria-label="AuraDigital ana sayfa"><img class="brand-logo" src="logo.png" alt=""><span class="brand-name"><strong>Aura</strong>Digital</span></a><div class="nav-links" id="navLinks">${pages
     .map(
       ([id, href, label]) =>
         `<a class="${page === id ? "active" : ""}" href="${href}">${label}</a>`,
