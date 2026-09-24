@@ -1,10 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 100" role="img" aria-labelledby="title desc">
   <title id="title">AuraDigital</title>
-  <desc id="desc">Black AuraDigital chain monogram and acid-yellow wordmark on orange.</desc>
+  <desc id="desc">The supplied black chain monogram with the acid-yellow AuraDigital wordmark on orange.</desc>
   <rect width="430" height="100" rx="24" fill="#ff6b42"/>
-  <g fill="#080b09" transform="translate(15 12) scale(.76)">
-    <path d="M100 34H42C17 34 2 48 2 68s15 32 40 32h70V67H88v13H42c-11 0-18-5-18-13s7-13 18-13h58V34Z"/>
-    <path d="M70 0h68c25 0 40 14 40 37s-15 37-40 37H94V40h23v14h21c11 0 18-6 18-17s-7-17-18-17H70V0Z"/>
-  </g>
+  <image href="brand-monogram.png" x="15" y="17" width="138" height="67" preserveAspectRatio="xMidYMid meet"/>
   <text x="169" y="63" fill="#e6ff55" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="43" letter-spacing="-2"><tspan font-weight="700">Aura</tspan><tspan font-weight="400">Digital</tspan></text>
 </svg>

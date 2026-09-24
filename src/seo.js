@@ -236,7 +236,7 @@ function buildSchema(pathname, meta, canonical) {
     "@id": ORGANIZATION_ID,
     name: "AuraDigital",
     url: `${SITE_ORIGIN}/`,
-    logo: `${SITE_ORIGIN}/auradigital-mark.svg`,
+    logo: `${SITE_ORIGIN}/logo.png`,
     description: "İstanbul merkezli web, dijital pazarlama, NFC ve QR menü stüdyosu.",
     areaServed: [
       { "@type": "City", name: "İstanbul" },
