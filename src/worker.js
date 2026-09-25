@@ -163,6 +163,9 @@ async function createContactRequest(request, db, env, ctx) {
     ok: true,
     requestId,
     confirmationSent: Boolean(confirmation.sent),
+    confirmationReason: confirmation.reason || null,
+    confirmationDetail: confirmation.detail || null,
+    confirmationMessageId: confirmation.messageId || null,
   }, 201, { "Cache-Control": "no-store" });
 }
 
