@@ -1,4 +1,4 @@
-const SITE_ORIGIN = "https://auradigital.ink";
+const SITE_ORIGIN = "https://auradigitalworks.com";
 const ORGANIZATION_ID = `${SITE_ORIGIN}/#organization`;
 const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
 

@@ -90,6 +90,14 @@
   "preview_urls": false,
   "routes": [
     {
+      "pattern": "auradigitalworks.com/*",
+      "zone_name": "auradigitalworks.com"
+    },
+    {
+      "pattern": "www.auradigitalworks.com/*",
+      "zone_name": "auradigitalworks.com"
+    },
+    {
       "pattern": "auradigital.ink/*",
       "zone_name": "auradigital.ink"
     },
