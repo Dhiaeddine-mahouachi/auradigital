@@ -1,6 +1,6 @@
 const AURA = {
   email: "info@auradigital.ink",
-  domain: "auradigital.ink",
+  domain: "auradigitalworks.com",
   whatsapp: "905385507674",
 };
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
