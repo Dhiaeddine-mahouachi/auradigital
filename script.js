@@ -301,8 +301,14 @@ form?.addEventListener("submit", async (e) => {
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || copy.error);
 
-    status.textContent = data.confirmationSent ? copy.success : copy.successNoEmail;
-    status.dataset.state = "success";
+    if (data.confirmationSent) {
+      status.textContent = copy.success;
+      status.dataset.state = "success";
+    } else {
+      const diagnostic = data.confirmationDetail || data.confirmationReason || "";
+      status.textContent = `${copy.successNoEmail}${diagnostic ? ` — Email error: ${diagnostic}` : ""}`;
+      status.dataset.state = "error";
+    }
     form.reset();
     submit.textContent = copy.idle;
   } catch (error) {
