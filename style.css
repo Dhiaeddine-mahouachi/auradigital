@@ -2593,6 +2593,16 @@ html[dir="rtl"] .chat-message.user p {
   font-size: 0.65rem;
   color: #777770;
 }
+.form-note[data-state="success"] {
+  color: #2f6b4f;
+}
+.form-note[data-state="error"] {
+  color: #9a3f36;
+}
+.contact-form [data-contact-submit]:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
 
 /* FOOTER */
 .site-footer {

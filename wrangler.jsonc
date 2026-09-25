@@ -112,7 +112,8 @@
   ],
   "secrets": {
     "required": [
-      "NOTIFICATION_EMAIL"
+      "NOTIFICATION_EMAIL",
+      "RESEND_API_KEY"
     ]
   }
 }

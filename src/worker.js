@@ -1,5 +1,6 @@
 import { ApiError, json, readJson } from "./http.js";
 import { queueRequestNotification } from "./notifications.js";
+import { queueCustomerConfirmation } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
 import { securityEvent } from "./security-policy.js";
 import { handleEmployeePortalApi } from "./employee-portal.js";
@@ -23,6 +24,7 @@ import {
 
 const LOGIN_BODY_BYTES = 1024;
 const TRACK_BODY_BYTES = 1024;
+const CONTACT_BODY_BYTES = 12 * 1024;
 const ADMIN_BODY_BYTES = 32 * 1024;
 const MAX_TEXT_LENGTH = 4000;
 const MAX_LIST_ITEMS = 50;
@@ -93,6 +95,75 @@ function parseNfcOptions(value) {
 function nfcColor(value, fallback) {
   const color = qsClean(value, 7);
   return /^#[0-9a-fA-F]{6}$/.test(color) ? color.toLowerCase() : fallback;
+}
+
+
+async function createContactRequest(request, db, env, ctx) {
+  if (!sameOrigin(request)) {
+    return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
+  }
+
+  const body = await readJson(request, CONTACT_BODY_BYTES);
+  const name = qsClean(body.name, 120);
+  const email = qsClean(body.email, 160).toLowerCase();
+  const phone = qsClean(body.phone, 50);
+  const service = qsClean(body.service, 120);
+  const message = qsClean(body.message, 2000);
+  const language = ["tr", "en", "ar"].includes(String(body.language)) ? String(body.language) : "tr";
+
+  if (!name || !email || !phone || !service || !message) {
+    return json({ error: "Lütfen tüm alanları doldurun." }, 400, { "Cache-Control": "no-store" });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return json({ error: "Geçerli bir e-posta adresi girin." }, 400, { "Cache-Control": "no-store" });
+  }
+
+  const recent = await db.prepare(
+    "SELECT id FROM clients WHERE email = ? AND created_at >= datetime('now','-2 minutes') LIMIT 1"
+  ).bind(email).first();
+  if (recent) {
+    return json({ error: "Talebiniz zaten alındı. Lütfen tekrar göndermeden önce biraz bekleyin." }, 429, {
+      "Cache-Control": "no-store",
+    });
+  }
+
+  const notes = [
+    "[Website contact form]",
+    message,
+  ].join("\n\n").slice(0, 4000);
+
+  const result = await db.prepare(
+    "INSERT INTO clients (name, company, email, phone, service, status, notes) VALUES (?, '', ?, ?, ?, 'lead', ?)"
+  ).bind(name, email, phone, service, notes).run();
+
+  const requestId = `WEB-${String(result?.meta?.last_row_id || crypto.randomUUID()).slice(0, 36)}`;
+  queueRequestNotification(ctx, env, {
+    requestType: "Website contact",
+    requestId,
+    businessName: name,
+    contactName: name,
+    customerEmail: email,
+    phone,
+    dashboardUrl: new URL("/admin/", request.url).toString(),
+    details: [
+      ["Service", service],
+      ["Message", message],
+    ],
+  });
+
+  const confirmationQueued = queueCustomerConfirmation(ctx, env, {
+    requestId,
+    name,
+    email,
+    service,
+    language,
+  });
+
+  return json({
+    ok: true,
+    requestId,
+    confirmationQueued,
+  }, 201, { "Cache-Control": "no-store" });
 }
 
 function mapNfcRequest(row, publicStatus = false) {
@@ -947,6 +1018,17 @@ export default {
         return json({ settings, packages, services, portfolio }, 200, {
           "Cache-Control": "public, max-age=30",
         });
+      }
+
+      if (url.pathname === "/api/contact" && request.method === "POST") {
+        const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
+        const limit = await env.TRACK_RATE_LIMITER.limit({ key: `contact-request:${clientKey}` });
+        if (!limit.success) {
+          return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429, {
+            "Cache-Control": "no-store",
+          });
+        }
+        return await createContactRequest(request, env.DB, env, ctx);
       }
 
       if (url.pathname === "/api/track" && request.method === "POST") {

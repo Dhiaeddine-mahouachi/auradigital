@@ -77,15 +77,27 @@
                 />
               </div>
               <div class="field">
+                <label for="email">E-posta</label
+                ><input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  required
+                  placeholder="siz@ornek.com"
+                />
+              </div>
+              <div class="field">
                 <label for="phone">Telefon / WhatsApp</label
                 ><input
                   id="phone"
                   name="phone"
+                  autocomplete="tel"
                   required
                   placeholder="+90 ..."
                 />
               </div>
-              <div class="field full">
+              <div class="field">
                 <label for="service">İlgilendiğiniz hizmet</label
                 ><select id="service" name="service">
                   <option>Web Tasarım</option>
@@ -109,13 +121,12 @@
                 ></textarea>
               </div>
             </div>
-            <button class="btn btn-primary" type="submit">
-              WhatsApp'tan gönder ↗
+            <button class="btn btn-primary" type="submit" data-contact-submit>
+              Talebi gönder ↗
             </button>
-            <p class="form-note">
-              Form gönderildiğinde mesajınız WhatsApp'ta +90 538 550 76 74
-              numarasına hazır olarak açılır. Göndermeden önce mesajı kontrol
-              edebilirsiniz.
+            <p class="form-note" data-contact-status role="status" aria-live="polite">
+              Talebiniz AuraDigital ekibine iletilir. Gönderimden sonra e-posta
+              adresinize otomatik bir onay mesajı gönderilir.
             </p>
           </form>
         </div>

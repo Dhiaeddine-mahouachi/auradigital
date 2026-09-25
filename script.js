@@ -244,13 +244,74 @@ if (form) {
       message.value = `AuraMenu design: ${design.replaceAll("-", " ")}`;
   }
 }
-form?.addEventListener("submit", (e) => {
+const contactFormCopy = {
+  tr: {
+    idle: "Talebi gönder ↗",
+    sending: "Gönderiliyor…",
+    success: "Teşekkürler. Talebinizi aldık ve işlemeye başladık. E-posta adresinize otomatik bir onay mesajı gönderiyoruz.",
+    successNoEmail: "Teşekkürler. Talebinizi aldık ve işlemeye başladık.",
+    error: "Talep gönderilemedi. Lütfen tekrar deneyin veya WhatsApp üzerinden bize ulaşın.",
+  },
+  en: {
+    idle: "Send request ↗",
+    sending: "Sending…",
+    success: "Thank you. We received your request and started processing it. We’re sending an automatic confirmation to your email.",
+    successNoEmail: "Thank you. We received your request and started processing it.",
+    error: "We couldn’t send your request. Please try again or contact us on WhatsApp.",
+  },
+  ar: {
+    idle: "إرسال الطلب ←",
+    sending: "جارٍ الإرسال…",
+    success: "شكراً لك. استلمنا طلبك وبدأنا معالجته. نرسل الآن رسالة تأكيد تلقائية إلى بريدك الإلكتروني.",
+    successNoEmail: "شكراً لك. استلمنا طلبك وبدأنا معالجته.",
+    error: "تعذر إرسال الطلب. يرجى المحاولة مرة أخرى أو التواصل معنا عبر WhatsApp.",
+  },
+};
+const contactLanguage = () =>
+  document.documentElement.lang === "ar"
+    ? "ar"
+    : document.documentElement.lang === "en"
+      ? "en"
+      : "tr";
+
+form?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const fd = new FormData(form);
-  const body = encodeURIComponent(
-    `Merhaba AuraDigital 👋\n\nAd / İşletme: ${fd.get("name")}\nTelefon: ${fd.get("phone")}\nHizmet: ${fd.get("service")}\n\nProje / Mesaj:\n${fd.get("message")}`,
-  );
-  location.href = `https://wa.me/${AURA.whatsapp}?text=${body}`;
+  const submit = form.querySelector("[data-contact-submit]");
+  const status = form.querySelector("[data-contact-status]");
+  const language = contactLanguage();
+  const copy = contactFormCopy[language];
+  submit.disabled = true;
+  submit.textContent = copy.sending;
+  status.textContent = "";
+
+  try {
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: fd.get("name"),
+        email: fd.get("email"),
+        phone: fd.get("phone"),
+        service: fd.get("service"),
+        message: fd.get("message"),
+        language,
+      }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || copy.error);
+
+    status.textContent = data.confirmationQueued ? copy.success : copy.successNoEmail;
+    status.dataset.state = "success";
+    form.reset();
+    submit.textContent = copy.idle;
+  } catch (error) {
+    status.textContent = error?.message || copy.error;
+    status.dataset.state = "error";
+    submit.textContent = copy.idle;
+  } finally {
+    submit.disabled = false;
+  }
 });
 
 /* COOKIE CONSENT */
