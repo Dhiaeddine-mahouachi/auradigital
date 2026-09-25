@@ -166,6 +166,7 @@ async function createContactRequest(request, db, env, ctx) {
     confirmationReason: confirmation.reason || null,
     confirmationDetail: confirmation.detail || null,
     confirmationMessageId: confirmation.messageId || null,
+    contactEmailDebugVersion: "2026-09-25-2",
   }, 201, { "Cache-Control": "no-store" });
 }
 
