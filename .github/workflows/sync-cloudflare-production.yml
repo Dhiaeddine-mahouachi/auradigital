@@ -1,0 +1,22 @@
+name: Sync Cloudflare production branch
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync contact-autoreply to main
+        run: |
+          git push origin HEAD:contact-autoreply --force
