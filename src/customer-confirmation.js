@@ -35,6 +35,61 @@ const COPY = {
   },
 };
 
+export async function checkResendHealth(env) {
+  const apiKey = clean(env.RESEND_API_KEY, 300);
+  if (!apiKey) {
+    return {
+      configured: false,
+      apiKeyValid: false,
+      domainFound: false,
+      domainVerified: false,
+      detail: "missing_resend_api_key",
+    };
+  }
+
+  try {
+    const response = await fetch("https://api.resend.com/domains", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        Accept: "application/json",
+      },
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return {
+        configured: true,
+        apiKeyValid: false,
+        domainFound: false,
+        domainVerified: false,
+        detail: clean(result?.message || result?.error || `resend_http_${response.status}`, 180),
+      };
+    }
+
+    const domains = Array.isArray(result?.data) ? result.data : [];
+    const domain = domains.find((item) =>
+      String(item?.name || "").toLowerCase() === "auradigitalworks.com"
+    );
+    const status = clean(domain?.status, 40).toLowerCase();
+    return {
+      configured: true,
+      apiKeyValid: true,
+      domainFound: Boolean(domain),
+      domainVerified: status === "verified",
+      domainStatus: status || null,
+      detail: domain ? null : "domain_not_found_in_this_resend_account",
+    };
+  } catch {
+    return {
+      configured: true,
+      apiKeyValid: false,
+      domainFound: false,
+      domainVerified: false,
+      detail: "resend_health_request_failed",
+    };
+  }
+}
+
 export async function sendCustomerConfirmation(env, data) {
   const apiKey = clean(env.RESEND_API_KEY, 300);
   const email = clean(data.email, 254).toLowerCase();
