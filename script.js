@@ -301,7 +301,7 @@ form?.addEventListener("submit", async (e) => {
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || copy.error);
 
-    status.textContent = data.confirmationQueued ? copy.success : copy.successNoEmail;
+    status.textContent = data.confirmationSent ? copy.success : copy.successNoEmail;
     status.dataset.state = "success";
     form.reset();
     submit.textContent = copy.idle;
