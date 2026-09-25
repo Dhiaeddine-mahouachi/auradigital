@@ -73,6 +73,9 @@ const AURAMENU_ORIGINS = new Set([
   "https://www.auramenu.space",
   "https://dhiaeddine-mahouachi.github.io",
   "https://auradigital.ink",
+  "https://www.auradigital.ink",
+  "https://auradigitalworks.com",
+  "https://www.auradigitalworks.com",
   "https://app.auradigital.ink",
 ]);
 const NFC_BODY_BYTES = 32 * 1024;
