@@ -35,32 +35,39 @@ const COPY = {
   },
 };
 
-export function queueCustomerConfirmation(ctx, env, data) {
+export async function sendCustomerConfirmation(env, data) {
   const apiKey = clean(env.RESEND_API_KEY, 300);
   const email = clean(data.email, 254).toLowerCase();
   const requestId = clean(data.requestId, 80);
-  if (!apiKey || !validEmail(email)) {
+
+  if (!apiKey) {
     console.warn(JSON.stringify({
       message: "Customer confirmation email is not configured",
       requestId,
+      reason: "missing_resend_api_key",
     }));
-    return false;
+    return { sent: false, reason: "not_configured" };
+  }
+  if (!validEmail(email)) {
+    return { sent: false, reason: "invalid_email" };
   }
 
-  ctx.waitUntil(
-    sendConfirmation(apiKey, { ...data, email, requestId })
-      .then((id) => console.log(JSON.stringify({
-        message: "Customer confirmation email sent",
-        requestId,
-        messageId: id,
-      })))
-      .catch(() => console.error(JSON.stringify({
-        message: "Customer confirmation email failed",
-        requestId,
-        error: "customer_confirmation_delivery_failed",
-      }))),
-  );
-  return true;
+  try {
+    const id = await sendConfirmation(apiKey, { ...data, email, requestId });
+    console.log(JSON.stringify({
+      message: "Customer confirmation email accepted by Resend",
+      requestId,
+      messageId: id,
+    }));
+    return { sent: true, messageId: id };
+  } catch (error) {
+    console.error(JSON.stringify({
+      message: "Customer confirmation email failed",
+      requestId,
+      error: clean(error?.message, 180) || "customer_confirmation_delivery_failed",
+    }));
+    return { sent: false, reason: "provider_rejected" };
+  }
 }
 
 async function sendConfirmation(apiKey, data) {
@@ -126,8 +133,11 @@ async function sendConfirmation(apiKey, data) {
     }),
   });
 
-  if (!response.ok) throw new Error("resend_send_failed");
-  const result = await response.json();
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = clean(result?.message || result?.error || "resend_send_failed", 180);
+    throw new Error(message);
+  }
   return clean(result?.id, 120);
 }
 
