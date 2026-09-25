@@ -6,6 +6,9 @@ const ORIGINS = new Set([
   'https://auramenu.space',
   'https://www.auramenu.space',
   'https://auradigital.ink',
+  'https://www.auradigital.ink',
+  'https://auradigitalworks.com',
+  'https://www.auradigitalworks.com',
   'https://app.auradigital.ink',
 ]);
 const BODY_BYTES = 5 * 1024 * 1024;
