@@ -4,4 +4,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://auradigital.ink/sitemap.xml
+Sitemap: https://auradigitalworks.com/sitemap.xml
