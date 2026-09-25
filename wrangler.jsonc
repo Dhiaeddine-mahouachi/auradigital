@@ -109,11 +109,5 @@
       "pattern": "app.auradigital.ink",
       "custom_domain": true
     }
-  ],
-  "secrets": {
-    "required": [
-      "NOTIFICATION_EMAIL",
-      "RESEND_API_KEY"
-    ]
-  }
+  ]
 }
