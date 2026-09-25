@@ -1,6 +1,6 @@
 import { ApiError, json, readJson } from "./http.js";
 import { queueRequestNotification } from "./notifications.js";
-import { queueCustomerConfirmation } from "./customer-confirmation.js";
+import { sendCustomerConfirmation } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
 import { securityEvent } from "./security-policy.js";
 import { handleEmployeePortalApi } from "./employee-portal.js";
@@ -151,7 +151,7 @@ async function createContactRequest(request, db, env, ctx) {
     ],
   });
 
-  const confirmationQueued = queueCustomerConfirmation(ctx, env, {
+  const confirmation = await sendCustomerConfirmation(env, {
     requestId,
     name,
     email,
@@ -162,7 +162,7 @@ async function createContactRequest(request, db, env, ctx) {
   return json({
     ok: true,
     requestId,
-    confirmationQueued,
+    confirmationSent: Boolean(confirmation.sent),
   }, 201, { "Cache-Control": "no-store" });
 }
 
