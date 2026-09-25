@@ -305,8 +305,8 @@ form?.addEventListener("submit", async (e) => {
       status.textContent = copy.success;
       status.dataset.state = "success";
     } else {
-      const diagnostic = data.confirmationDetail || data.confirmationReason || "";
-      status.textContent = `${copy.successNoEmail}${diagnostic ? ` — Email error: ${diagnostic}` : ""}`;
+      const diagnostic = data.confirmationDetail || data.confirmationReason || (data.contactEmailDebugVersion ? "unknown_email_error" : "old_backend_or_cached_deployment");
+      status.textContent = `${copy.successNoEmail} — Email error: ${diagnostic}`;
       status.dataset.state = "error";
     }
     form.reset();
