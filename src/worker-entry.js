@@ -8,8 +8,12 @@ import { permanentSeoRedirect, serveSeoAsset } from './seo.js';
 const router = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (url.hostname === 'www.auradigital.ink') {
-      url.hostname = 'auradigital.ink';
+    if (url.hostname === 'auradigital.ink' || url.hostname === 'www.auradigital.ink') {
+      url.hostname = 'auradigitalworks.com';
+      return Response.redirect(url.toString(), 301);
+    }
+    if (url.hostname === 'www.auradigitalworks.com') {
+      url.hostname = 'auradigitalworks.com';
       return Response.redirect(url.toString(), 301);
     }
 
