@@ -1,6 +1,6 @@
 import { ApiError, json, readJson } from "./http.js";
 import { queueRequestNotification } from "./notifications.js";
-import { sendCustomerConfirmation } from "./customer-confirmation.js";
+import { sendCustomerConfirmation, checkResendHealth } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
 import { securityEvent } from "./security-policy.js";
 import { handleEmployeePortalApi } from "./employee-portal.js";
@@ -1009,11 +1009,12 @@ export default {
       if (quickPublic && request.method === "GET") return await getQuickSiteProject(env.DB, "slug", quickPublic[1], true);
 
       if (url.pathname === "/api/email-health" && request.method === "GET") {
+        const health = await checkResendHealth(env);
         return json({
-          ok: true,
+          ok: Boolean(health.configured && health.apiKeyValid && health.domainVerified),
           provider: "resend",
-          configured: Boolean(env.RESEND_API_KEY),
-          version: "2026-09-25-email-v3",
+          version: "2026-09-25-email-v4",
+          ...health,
         }, 200, { "Cache-Control": "no-store" });
       }
 
