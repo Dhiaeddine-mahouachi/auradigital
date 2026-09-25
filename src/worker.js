@@ -1008,6 +1008,15 @@ export default {
       const quickPublic = url.pathname.match(/^\/api\/quicksite\/sites\/([a-z0-9-]+)$/);
       if (quickPublic && request.method === "GET") return await getQuickSiteProject(env.DB, "slug", quickPublic[1], true);
 
+      if (url.pathname === "/api/email-health" && request.method === "GET") {
+        return json({
+          ok: true,
+          provider: "resend",
+          configured: Boolean(env.RESEND_API_KEY),
+          version: "2026-09-25-email-v3",
+        }, 200, { "Cache-Control": "no-store" });
+      }
+
       if (url.pathname === "/api/settings" && request.method === "GET") {
         return json(await getPublicSettings(env.DB), 200, { "Cache-Control": "public, max-age=30" });
       }
