@@ -1,5 +1,5 @@
 const AURA = {
-  email: "info@auradigital.ink",
+  email: "info@auradigitalworks.com",
   domain: "auradigitalworks.com",
   whatsapp: "905385507674",
 };
