@@ -17,8 +17,8 @@ const ids = { a: '100', b: '101' };
 const tokens = { a: newMenuToken(), b: newMenuToken() };
 let ownerCookie, viewerCookie, managerCookie, employeeCookie;
 function request(path, method='GET', body, headers={}) {
-  return new Request('https://auradigital.ink' + path, { method,
-    headers: { Origin:'https://auradigital.ink', ...(body === undefined ? {} : {'Content-Type':'application/json'}), ...headers },
+  return new Request('https://auradigitalworks.com' + path, { method,
+    headers: { Origin:'https://auradigitalworks.com', ...(body === undefined ? {} : {'Content-Type':'application/json'}), ...headers },
     body: body === undefined ? undefined : JSON.stringify(body) });
 }
 const call = (path, method, body, headers, customEnv=env) => app.fetch(request(path,method,body,headers),customEnv,ctx);
@@ -200,7 +200,7 @@ test('outer handler catches sub-router failures, enforces HTTPS, validates bodie
   assert.match(response.headers.get('content-security-policy'),/frame-ancestors 'none'/);
   for(const path of ['/api/admin/%00','/api/admin/%5c..%5c.env','/api/admin/%ZZ']) assert.equal((await call(path)).status,400);
   assert.equal((await app.fetch(new Request('http://auradigital.ink/api/admin/login',{method:'POST'}),env,ctx)).status,400);
-  const oversized=new Request('https://auradigital.ink/api/admin/login',{method:'POST',headers:{Origin:'https://auradigital.ink','Content-Type':'application/json'},body:JSON.stringify({password:'a'.repeat(2048)})});
+  const oversized=new Request('https://auradigitalworks.com/api/admin/login',{method:'POST',headers:{Origin:'https://auradigitalworks.com','Content-Type':'application/json'},body:JSON.stringify({password:'a'.repeat(2048)})});
   assert.equal((await app.fetch(oversized,env,ctx)).status,413);
 });
 
