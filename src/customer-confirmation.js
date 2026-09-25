@@ -66,7 +66,7 @@ export async function sendCustomerConfirmation(env, data) {
       requestId,
       error: clean(error?.message, 180) || "customer_confirmation_delivery_failed",
     }));
-    return { sent: false, reason: "provider_rejected" };
+    return { sent: false, reason: "provider_rejected", detail: clean(error?.message, 180) || "Resend rejected the request." };
   }
 }
 
