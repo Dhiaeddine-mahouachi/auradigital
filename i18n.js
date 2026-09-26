@@ -1271,7 +1271,6 @@
     ["Gönder", "Send", "إرسال"],
     ["/ ay", "/ mo", "/ شهر"],
     ["/ hafta", "/ wk", "/ أسبوع"],
-  ];
     ["AURA ECOSYSTEM / INTERACTIVE","AURA ECOSYSTEM / INTERACTIVE","نظام AURA / تفاعلي"],
     ["Bir fikirden","From an idea","من فكرة"],
     ["çalışan dijital sisteme.","to a working digital system.","إلى نظام رقمي يعمل."],
@@ -1369,6 +1368,7 @@
     ["QR MENU","QR MENU","قائمة QR"],
     ["GOOGLE","GOOGLE","GOOGLE"],
     ["CONTENT","CONTENT","المحتوى"],
+  ];
   const maps = { en: new Map(), ar: new Map() };
   rows.forEach(([tr, en, ar]) => {
     maps.en.set(tr, en);
