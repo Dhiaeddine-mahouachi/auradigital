@@ -8,6 +8,13 @@ on:
 permissions:
   contents: write
 
+# Multiple quick commits used to start overlapping force-push jobs and GitHub
+# could reject one while the production ref was being updated. Keep only one
+# production sync active at a time.
+concurrency:
+  group: cloudflare-production-sync
+  cancel-in-progress: true
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -18,5 +25,18 @@ jobs:
           fetch-depth: 0
 
       - name: Sync contact-autoreply to main
+        shell: bash
         run: |
-          git push origin HEAD:contact-autoreply --force
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if git push origin HEAD:contact-autoreply --force; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Production ref was busy; retrying in 2 seconds..."
+              sleep 2
+              git fetch origin contact-autoreply
+            fi
+          done
+          echo "Failed to sync the Cloudflare production branch after 3 attempts."
+          exit 1
