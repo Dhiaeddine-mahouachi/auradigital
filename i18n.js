@@ -1388,20 +1388,23 @@
   function storageSet(v) {
     try {
       localStorage.setItem("aura-lang", v);
+      localStorage.setItem("aura-lang-choice-v2", "1");
     } catch {}
   }
   function initial() {
     const q = new URLSearchParams(location.search).get("lang");
     if (supported.includes(q)) return q;
-    const s = storageGet();
+
+    // English is the true default. Ignore language values saved by older
+    // versions of the site until the visitor explicitly chooses a language
+    // with the current switcher.
     try {
-      const defaultVersion = localStorage.getItem("aura-lang-default");
-      if (defaultVersion !== "en-v1") {
-        localStorage.setItem("aura-lang-default", "en-v1");
-        if (!s || s === "tr") return "en";
-      }
+      const explicitChoice = localStorage.getItem("aura-lang-choice-v2") === "1";
+      const s = storageGet();
+      if (explicitChoice && supported.includes(s)) return s;
     } catch {}
-    return supported.includes(s) ? s : "en";
+
+    return "en";
   }
   function mapped(key, lang) {
     return lang === "tr" ? key : maps[lang].get(key) || key;
