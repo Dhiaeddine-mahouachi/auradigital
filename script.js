@@ -619,18 +619,19 @@ if (!location.pathname.startsWith("/admin")) {
       });
 
       window.setTimeout(() => {
+        const t = window.AuraI18n?.translate || ((value) => value);
         const prompt = canvas.querySelector("[data-aura-prompt]");
         const preview = canvas.querySelector("[data-aura-preview]");
-        if (prompt) prompt.textContent = scene.prompt;
+        if (prompt) prompt.textContent = t(scene.prompt);
         if (preview) preview.src = scene.preview;
 
         scene.nodes.forEach((node, index) => {
           const type = canvas.querySelector('[data-aura-node-type="' + index + '"]');
           const title = canvas.querySelector('[data-aura-node-title="' + index + '"]');
           const copy = canvas.querySelector('[data-aura-node-copy="' + index + '"]');
-          if (type) type.textContent = node[0];
-          if (title) title.textContent = node[1];
-          if (copy) copy.textContent = node[2];
+          if (type) type.textContent = t(node[0]);
+          if (title) title.textContent = t(node[1]);
+          if (copy) copy.textContent = t(node[2]);
         });
 
         canvas.classList.remove("is-switching");
@@ -700,16 +701,17 @@ if (!location.pathname.startsWith("/admin")) {
       personaTabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.persona === key));
 
       window.setTimeout(() => {
+        const t = window.AuraI18n?.translate || ((value) => value);
         const number = personaPanel.querySelector("[data-persona-number]");
         const kicker = personaPanel.querySelector("[data-persona-kicker]");
         const title = personaPanel.querySelector("[data-persona-title]");
         const copy = personaPanel.querySelector("[data-persona-copy]");
         const orbits = personaPanel.querySelectorAll(".persona-orbit");
         if (number) number.textContent = persona.number;
-        if (kicker) kicker.textContent = persona.kicker;
-        if (title) title.innerHTML = persona.title;
-        if (copy) copy.textContent = persona.copy;
-        orbits.forEach((orbit, index) => { orbit.textContent = persona.orbits[index] || ""; });
+        if (kicker) kicker.textContent = t(persona.kicker);
+        if (title) title.innerHTML = t(persona.title);
+        if (copy) copy.textContent = t(persona.copy);
+        orbits.forEach((orbit, index) => { orbit.textContent = t(persona.orbits[index] || ""); });
         personaPanel.classList.remove("is-switching");
       }, 180);
     };

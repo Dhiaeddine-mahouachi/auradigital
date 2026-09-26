@@ -1272,6 +1272,103 @@
     ["/ ay", "/ mo", "/ شهر"],
     ["/ hafta", "/ wk", "/ أسبوع"],
   ];
+    ["AURA ECOSYSTEM / INTERACTIVE","AURA ECOSYSTEM / INTERACTIVE","نظام AURA / تفاعلي"],
+    ["Bir fikirden","From an idea","من فكرة"],
+    ["çalışan dijital sisteme.","to a working digital system.","إلى نظام رقمي يعمل."],
+    ["Bir hizmet listesi değil. Markanız için web, görünürlük, içerik ve otomasyonun nasıl birbirine bağlandığını keşfedin.","Not a service list. Explore how web, visibility, content and automation connect for your brand.","ليست قائمة خدمات. اكتشف كيف يرتبط الموقع والظهور والمحتوى والأتمتة لعلامتك."],
+    ["Website","Website","الموقع"],
+    ["Growth","Growth","النمو"],
+    ["Restaurant","Restaurant","المطعم"],
+    ["Automation","Automation","الأتمتة"],
+    ["AURA / PROJECT SYSTEM","AURA / PROJECT SYSTEM","AURA / نظام المشروع"],
+    ["LIVE WORKFLOW","LIVE WORKFLOW","سير عمل مباشر"],
+    ["BRIEF","BRIEF","الموجز"],
+    ["Premium bir işletme sitesi oluştur, Google'da görünür yap ve gelen talepleri tek akışta topla.","Build a premium business website, make it visible on Google and collect incoming leads in one flow.","أنشئ موقعاً احترافياً للنشاط، واجعله ظاهراً على Google واجمع الطلبات الواردة في مسار واحد."],
+    ["STRATEGY","STRATEGY","الاستراتيجية"],
+    ["Positioning","Positioning","التموضع"],
+    ["Hedef, mesaj ve kullanıcı yolculuğu.","Goals, messaging and the user journey.","الأهداف والرسائل ورحلة المستخدم."],
+    ["DESIGN + BUILD","DESIGN + BUILD","التصميم + البناء"],
+    ["Hızlı, mobil ve dönüşüm odaklı deneyim.","A fast, mobile-first, conversion-focused experience.","تجربة سريعة ومتوافقة مع الهاتف ومركزة على التحويل."],
+    ["VISIBILITY","VISIBILITY","الظهور"],
+    ["SEO + Maps","SEO + Maps","SEO + الخرائط"],
+    ["Doğru aramada, doğru anda görünürlük.","Visibility in the right search at the right moment.","ظهور في البحث المناسب وفي الوقت المناسب."],
+    ["CONVERSION","CONVERSION","التحويل"],
+    ["Lead Flow","Lead Flow","مسار العملاء المحتملين"],
+    ["Form, WhatsApp ve ölçülebilir aksiyon.","Forms, WhatsApp and measurable actions.","النماذج وWhatsApp وإجراءات قابلة للقياس."],
+    ["SYSTEM STATUS","SYSTEM STATUS","حالة النظام"],
+    ["Connected","Connected","متصل"],
+    ["SOLUTIONS / BUILT AROUND YOUR BUSINESS","SOLUTIONS / BUILT AROUND YOUR BUSINESS","حلول / مصممة حول عملك"],
+    ["Restaurants","Restaurants","المطاعم"],
+    ["Padel & Sports","Padel & Sports","البادل والرياضة"],
+    ["Personal Brands","Personal Brands","العلامات الشخصية"],
+    ["Local Business","Local Business","الأعمال المحلية"],
+    ["MENU · WEB · MAPS · CONTENT","MENU · WEB · MAPS · CONTENT","القائمة · الموقع · الخرائط · المحتوى"],
+    ["Restoranınızın dijitalde ihtiyaç duyduğu her şey,","Everything your restaurant needs digitally,","كل ما يحتاجه مطعمك رقمياً،"],
+    ["tek sistemde.","in one system.","في نظام واحد."],
+    ["Restoranınızın dijitalde ihtiyaç duyduğu her şey, <em>tek sistemde.</em>","Everything your restaurant needs digitally, <em>in one system.</em>","كل ما يحتاجه مطعمك رقمياً، <em>في نظام واحد.</em>"],
+    ["Menüden Google görünürlüğüne, sosyal içerikten rezervasyon akışına kadar müşterinin sizi bulduğu ve seçtiği tüm temas noktalarını bağlıyoruz.","From menus and Google visibility to social content and reservation flows, we connect every touchpoint where customers find and choose you.","من القوائم والظهور على Google إلى المحتوى الاجتماعي ومسارات الحجز، نربط كل نقطة تواصل يجدك فيها العميل ويختارك."],
+    ["Bu sistemle başlayın ↗","Start with this system ↗","ابدأ بهذا النظام ↗"],
+    ["Start a project","Start a project","ابدأ مشروعاً"],
+    ["AuraDigital project preview","AuraDigital project preview","معاينة مشروع AuraDigital"],
+    ["Markanın görünürlüğünü artır, reklam trafiğini doğru landing page'e taşı ve sonucu ölç.","Increase brand visibility, drive ad traffic to the right landing page and measure the result.","زد ظهور العلامة، ووجّه زيارات الإعلانات إلى صفحة الهبوط المناسبة وقِس النتائج."],
+    ["AUDIT","AUDIT","التدقيق"],
+    ["Growth Map","Growth Map","خريطة النمو"],
+    ["Kanal, rakip ve fırsat analizi.","Channel, competitor and opportunity analysis.","تحليل القنوات والمنافسين والفرص."],
+    ["CREATIVE","CREATIVE","الإبداع"],
+    ["Campaign","Campaign","الحملة"],
+    ["Mesaj, görsel ve landing deneyimi.","Messaging, visuals and landing-page experience.","الرسائل والمرئيات وتجربة صفحة الهبوط."],
+    ["MEDIA","MEDIA","الإعلام"],
+    ["Google + Meta","Google + Meta","Google + Meta"],
+    ["Doğru kitleye kontrollü dağıtım.","Controlled distribution to the right audience.","توزيع مدروس للجمهور المناسب."],
+    ["DATA","DATA","البيانات"],
+    ["Optimize","Optimize","التحسين"],
+    ["Lead kalitesi, maliyet ve dönüşüm takibi.","Track lead quality, cost and conversions.","تتبع جودة العملاء المحتملين والتكلفة والتحويلات."],
+    ["Restoran için dijital menü, Google görünürlüğü, sosyal içerik ve müşteri aksiyonlarını tek sistemde bağla.","Connect a restaurant's digital menu, Google visibility, social content and customer actions in one system.","اربط القائمة الرقمية للمطعم وظهوره على Google والمحتوى الاجتماعي وإجراءات العملاء في نظام واحد."],
+    ["IDENTITY","IDENTITY","الهوية"],
+    ["Restaurant Brand","Restaurant Brand","علامة المطعم"],
+    ["Net konumlandırma ve dijital görünüm.","Clear positioning and digital presence.","تموضع واضح وحضور رقمي."],
+    ["PRODUCT","PRODUCT","المنتج"],
+    ["AuraMenu","AuraMenu","AuraMenu"],
+    ["Telefona uygun hızlı dijital menü.","A fast, mobile-friendly digital menu.","قائمة رقمية سريعة ومتوافقة مع الهاتف."],
+    ["LOCAL","LOCAL","محلي"],
+    ["Google Maps","Google Maps","خرائط Google"],
+    ["Arama, yorum ve yerel görünürlük.","Search, reviews and local visibility.","البحث والتقييمات والظهور المحلي."],
+    ["ACTION","ACTION","الإجراء"],
+    ["QR + NFC","QR + NFC","QR + NFC"],
+    ["Masadan menüye, yoruma veya iletişime.","From the table to the menu, review or contact.","من الطاولة إلى القائمة أو التقييم أو التواصل."],
+    ["Web sitesinden gelen talepleri topla, CRM'e aktar ve tekrar eden müşteri iletişimini otomatikleştir.","Capture website leads, send them to your CRM and automate recurring customer communication.","اجمع طلبات الموقع وانقلها إلى CRM وأتمت التواصل المتكرر مع العملاء."],
+    ["CAPTURE","CAPTURE","الالتقاط"],
+    ["Lead Input","Lead Input","إدخال العملاء"],
+    ["Form, WhatsApp ve kampanya kaynakları.","Forms, WhatsApp and campaign sources.","النماذج وWhatsApp ومصادر الحملات."],
+    ["SYSTEM","SYSTEM","النظام"],
+    ["CRM Flow","CRM Flow","مسار CRM"],
+    ["Müşteri verisini tek yerde düzenle.","Organize customer data in one place.","نظّم بيانات العملاء في مكان واحد."],
+    ["AUTOMATE","AUTOMATE","الأتمتة"],
+    ["Smart Actions","Smart Actions","إجراءات ذكية"],
+    ["Takip, bildirim ve tekrar eden görevler.","Follow-ups, notifications and recurring tasks.","المتابعات والإشعارات والمهام المتكررة."],
+    ["INSIGHT","INSIGHT","الرؤية"],
+    ["Dashboard","Dashboard","لوحة التحكم"],
+    ["Süreci görün, ölçün ve iyileştirin.","See, measure and improve the process.","شاهد العملية وقِسها وحسّنها."],
+    ["BOOKING · WEB · ADS · CRM","BOOKING · WEB · ADS · CRM","الحجز · الموقع · الإعلانات · CRM"],
+    ["İlk rezervasyondan sonraki kampanyaya, <em>aynı oyun planı.</em>","From the first booking to the next campaign, <em>one game plan.</em>","من أول حجز إلى الحملة التالية، <em>خطة لعب واحدة.</em>"],
+    ["Padel ve spor işletmeleri için premium web deneyimi, rezervasyon yönlendirmesi, içerik, reklam ve müşteri akışlarını birlikte tasarlıyoruz.","For padel and sports businesses, we design the premium web experience, booking flow, content, ads and customer journey together.","لأعمال البادل والرياضة، نصمم تجربة الويب المميزة ومسار الحجز والمحتوى والإعلانات ورحلة العميل معاً."],
+    ["BOOKING","BOOKING","الحجز"],
+    ["ADS","ADS","الإعلانات"],
+    ["CRM","CRM","CRM"],
+    ["STORY · PORTFOLIO · CONTENT · GROWTH","STORY · PORTFOLIO · CONTENT · GROWTH","القصة · الأعمال · المحتوى · النمو"],
+    ["İşinizi değil, <em>dünyanızı gösteren</em> bir dijital kimlik.","A digital identity that shows <em>your world, not just your work.</em>","هوية رقمية تعرض <em>عالمك، لا عملك فقط.</em>"],
+    ["Sanatçılar, yaratıcılar ve kişisel markalar için hikâyeyi büyük medya, güçlü tipografi ve seçili içerikle premium bir deneyime dönüştürüyoruz.","For artists, creators and personal brands, we turn the story into a premium experience with large-format media, strong typography and curated content.","للفنانين والمبدعين والعلامات الشخصية، نحوّل القصة إلى تجربة مميزة بوسائط كبيرة وطباعة قوية ومحتوى منتقى."],
+    ["STORY","STORY","القصة"],
+    ["GROWTH","GROWTH","النمو"],
+    ["WEBSITE · MAPS · REVIEWS · LEADS","WEBSITE · MAPS · REVIEWS · LEADS","الموقع · الخرائط · التقييمات · العملاء"],
+    ["Yakınınızdaki müşteri sizi aradığında, <em>hazır olun.</em>","When nearby customers search for you, <em>be ready.</em>","عندما يبحث عنك العملاء القريبون، <em>كن جاهزاً.</em>"],
+    ["Yerel işletmeler için hızlı web sitesi, Google Maps, yorum akışı, reklam ve doğrudan iletişimi tek bir büyüme sisteminde topluyoruz.","For local businesses, we bring a fast website, Google Maps, review flow, ads and direct contact into one growth system.","للأعمال المحلية، نجمع موقعاً سريعاً وخرائط Google ومسار التقييمات والإعلانات والتواصل المباشر في نظام نمو واحد."],
+    ["MAPS","MAPS","الخرائط"],
+    ["REVIEWS","REVIEWS","التقييمات"],
+    ["LEADS","LEADS","العملاء"],
+    ["QR MENU","QR MENU","قائمة QR"],
+    ["GOOGLE","GOOGLE","GOOGLE"],
+    ["CONTENT","CONTENT","المحتوى"],
   const maps = { en: new Map(), ar: new Map() };
   rows.forEach(([tr, en, ar]) => {
     maps.en.set(tr, en);
@@ -1297,7 +1394,14 @@
     const q = new URLSearchParams(location.search).get("lang");
     if (supported.includes(q)) return q;
     const s = storageGet();
-    return supported.includes(s) ? s : "tr";
+    try {
+      const defaultVersion = localStorage.getItem("aura-lang-default");
+      if (defaultVersion !== "en-v1") {
+        localStorage.setItem("aura-lang-default", "en-v1");
+        if (!s || s === "tr") return "en";
+      }
+    } catch {}
+    return supported.includes(s) ? s : "en";
   }
   function mapped(key, lang) {
     return lang === "tr" ? key : maps[lang].get(key) || key;
@@ -1367,7 +1471,7 @@
     if (cur) cur.textContent = lang.toUpperCase();
   }
   function apply(lang, save = true) {
-    if (!supported.includes(lang)) lang = "tr";
+    if (!supported.includes(lang)) lang = "en";
     setDir(lang);
     translateTextNodes(lang);
     translateAttrs(lang);
@@ -1395,6 +1499,7 @@
   window.AuraI18n = {
     setLanguage: apply,
     current: () => window.__auraLang || initial(),
+    translate: (key) => mapped(key, window.__auraLang || initial()),
     period,
   };
   apply(initial(), false);
