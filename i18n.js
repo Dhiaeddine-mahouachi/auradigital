@@ -1392,19 +1392,11 @@
     } catch {}
   }
   function initial() {
+    // URL state is authoritative. A clean URL always opens in English.
+    // Selecting Turkish or Arabic writes ?lang=... so that choice survives
+    // navigation/reload without an old browser preference overriding default EN.
     const q = new URLSearchParams(location.search).get("lang");
-    if (supported.includes(q)) return q;
-
-    // English is the true default. Ignore language values saved by older
-    // versions of the site until the visitor explicitly chooses a language
-    // with the current switcher.
-    try {
-      const explicitChoice = localStorage.getItem("aura-lang-choice-v2") === "1";
-      const s = storageGet();
-      if (explicitChoice && supported.includes(s)) return s;
-    } catch {}
-
-    return "en";
+    return supported.includes(q) ? q : "en";
   }
   function mapped(key, lang) {
     return lang === "tr" ? key : maps[lang].get(key) || key;
@@ -1448,18 +1440,23 @@
   function syncLinks(lang) {
     document.querySelectorAll("a[href]").forEach((a) => {
       const h = a.getAttribute("href");
-      if (!h || /^(https?:|mailto:|tel:|#)/i.test(h)) return;
-      const parts = h.split("#"),
-        pathAndQuery = parts[0],
-        base = pathAndQuery.split("?")[0];
-      if (!/\.html$/i.test(base)) return;
+      if (!h || /^(https?:|mailto:|tel:|#|javascript:)/i.test(h)) return;
+      const parts = h.split("#");
+      const pathAndQuery = parts[0];
+      const base = pathAndQuery.split("?")[0] || location.pathname;
       const query = new URLSearchParams(pathAndQuery.split("?")[1] || "");
-      query.set("lang", lang);
-      a.setAttribute(
-        "href",
-        `${base}?${query.toString()}${parts[1] ? "#" + parts[1] : ""}`,
-      );
+      if (lang === "en") query.delete("lang");
+      else query.set("lang", lang);
+      const qs = query.toString();
+      a.setAttribute("href", `${base}${qs ? "?" + qs : ""}${parts[1] ? "#" + parts[1] : ""}`);
     });
+  }
+
+  function syncUrl(lang) {
+    const url = new URL(location.href);
+    if (lang === "en") url.searchParams.delete("lang");
+    else url.searchParams.set("lang", lang);
+    history.replaceState(history.state, "", url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : "") + url.hash);
   }
   function setDir(lang) {
     document.documentElement.lang = lang;
@@ -1481,7 +1478,10 @@
     document.title = mapped(originalTitle, lang);
     syncLinks(lang);
     updateSwitcher(lang);
-    if (save) storageSet(lang);
+    if (save) {
+      storageSet(lang);
+      syncUrl(lang);
+    }
     window.__auraLang = lang;
     window.dispatchEvent(new CustomEvent("aura:languagechange", { detail: { lang } }));
   }

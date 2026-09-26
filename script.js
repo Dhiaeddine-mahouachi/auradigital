@@ -30,7 +30,7 @@ if (header) {
     )
     .join(
       "",
-    )}</div><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Dil" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">TR</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Projenizi Konuşalım <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Menüyü aç" aria-expanded="false">☰</button></div>`;
+    )}</div><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Dil" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">EN</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Projenizi Konuşalım <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Menüyü aç" aria-expanded="false">☰</button></div>`;
 }
 const footer = document.getElementById("siteFooter");
 if (footer) {
@@ -543,7 +543,7 @@ chatForm?.addEventListener("submit", (e) => {
   setTimeout(() => answerChat(classifyQuestion(value), value), 260);
 });
 const i18nScript = document.createElement("script");
-i18nScript.src = "i18n.js";
+i18nScript.src = "i18n.js?v=en-default-20260926-4";
 document.head.appendChild(i18nScript);
 
 
