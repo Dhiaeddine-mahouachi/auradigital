@@ -556,3 +556,172 @@ if (!location.pathname.startsWith("/admin")) {
     keepalive: true,
   }).catch(() => {});
 }
+
+
+/* Aura connected experience — interactive canvas + industry personas */
+(() => {
+  const initAuraConnectedExperience = () => {
+    const canvas = document.querySelector("[data-aura-canvas]");
+    const sceneTabs = Array.from(document.querySelectorAll("[data-aura-scene]"));
+
+    const scenes = {
+      website: {
+        prompt: "Premium bir işletme sitesi oluştur, Google'da görünür yap ve gelen talepleri tek akışta topla.",
+        preview: "project-mutlu.png",
+        nodes: [
+          ["STRATEGY", "Positioning", "Hedef, mesaj ve kullanıcı yolculuğu."],
+          ["DESIGN + BUILD", "Website", "Hızlı, mobil ve dönüşüm odaklı deneyim."],
+          ["VISIBILITY", "SEO + Maps", "Doğru aramada, doğru anda görünürlük."],
+          ["CONVERSION", "Lead Flow", "Form, WhatsApp ve ölçülebilir aksiyon."]
+        ]
+      },
+      growth: {
+        prompt: "Markanın görünürlüğünü artır, reklam trafiğini doğru landing page'e taşı ve sonucu ölç.",
+        preview: "growth-analytics.svg",
+        nodes: [
+          ["AUDIT", "Growth Map", "Kanal, rakip ve fırsat analizi."],
+          ["CREATIVE", "Campaign", "Mesaj, görsel ve landing deneyimi."],
+          ["MEDIA", "Google + Meta", "Doğru kitleye kontrollü dağıtım."],
+          ["DATA", "Optimize", "Lead kalitesi, maliyet ve dönüşüm takibi."]
+        ]
+      },
+      restaurant: {
+        prompt: "Restoran için dijital menü, Google görünürlüğü, sosyal içerik ve müşteri aksiyonlarını tek sistemde bağla.",
+        preview: "qr-menu-phone.svg",
+        nodes: [
+          ["IDENTITY", "Restaurant Brand", "Net konumlandırma ve dijital görünüm."],
+          ["PRODUCT", "AuraMenu", "Telefona uygun hızlı dijital menü."],
+          ["LOCAL", "Google Maps", "Arama, yorum ve yerel görünürlük."],
+          ["ACTION", "QR + NFC", "Masadan menüye, yoruma veya iletişime."]
+        ]
+      },
+      automation: {
+        prompt: "Web sitesinden gelen talepleri topla, CRM'e aktar ve tekrar eden müşteri iletişimini otomatikleştir.",
+        preview: "web-system.svg",
+        nodes: [
+          ["CAPTURE", "Lead Input", "Form, WhatsApp ve kampanya kaynakları."],
+          ["SYSTEM", "CRM Flow", "Müşteri verisini tek yerde düzenle."],
+          ["AUTOMATE", "Smart Actions", "Takip, bildirim ve tekrar eden görevler."],
+          ["INSIGHT", "Dashboard", "Süreci görün, ölçün ve iyileştirin."]
+        ]
+      }
+    };
+
+    const applyScene = (key) => {
+      if (!canvas || !scenes[key]) return;
+      const scene = scenes[key];
+      canvas.classList.add("is-switching");
+
+      sceneTabs.forEach((tab) => {
+        const active = tab.dataset.auraScene === key;
+        tab.classList.toggle("is-active", active);
+        tab.setAttribute("aria-selected", active ? "true" : "false");
+      });
+
+      window.setTimeout(() => {
+        const prompt = canvas.querySelector("[data-aura-prompt]");
+        const preview = canvas.querySelector("[data-aura-preview]");
+        if (prompt) prompt.textContent = scene.prompt;
+        if (preview) preview.src = scene.preview;
+
+        scene.nodes.forEach((node, index) => {
+          const type = canvas.querySelector('[data-aura-node-type="' + index + '"]');
+          const title = canvas.querySelector('[data-aura-node-title="' + index + '"]');
+          const copy = canvas.querySelector('[data-aura-node-copy="' + index + '"]');
+          if (type) type.textContent = node[0];
+          if (title) title.textContent = node[1];
+          if (copy) copy.textContent = node[2];
+        });
+
+        canvas.classList.remove("is-switching");
+      }, 190);
+    };
+
+    sceneTabs.forEach((tab) => {
+      tab.addEventListener("click", () => applyScene(tab.dataset.auraScene));
+    });
+
+    if (canvas && window.matchMedia("(pointer:fine)").matches && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const stage = canvas.querySelector(".aura-canvas-stage");
+      canvas.addEventListener("mousemove", (event) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width - 0.5) * -10;
+        const y = ((event.clientY - rect.top) / rect.height - 0.5) * -7;
+        if (stage) {
+          stage.style.setProperty("--canvas-x", x.toFixed(2) + "px");
+          stage.style.setProperty("--canvas-y", y.toFixed(2) + "px");
+        }
+      });
+      canvas.addEventListener("mouseleave", () => {
+        if (stage) {
+          stage.style.setProperty("--canvas-x", "0px");
+          stage.style.setProperty("--canvas-y", "0px");
+        }
+      });
+    }
+
+    const personaTabs = Array.from(document.querySelectorAll("[data-persona]"));
+    const personaPanel = document.querySelector(".aura-persona-panel");
+    const personas = {
+      restaurants: {
+        number: "01",
+        kicker: "MENU · WEB · MAPS · CONTENT",
+        title: "Restoranınızın dijitalde ihtiyaç duyduğu her şey, <em>tek sistemde.</em>",
+        copy: "Menüden Google görünürlüğüne, sosyal içerikten rezervasyon akışına kadar müşterinin sizi bulduğu ve seçtiği tüm temas noktalarını bağlıyoruz.",
+        orbits: ["QR MENU", "GOOGLE", "CONTENT"]
+      },
+      sports: {
+        number: "02",
+        kicker: "BOOKING · WEB · ADS · CRM",
+        title: "İlk rezervasyondan sonraki kampanyaya, <em>aynı oyun planı.</em>",
+        copy: "Padel ve spor işletmeleri için premium web deneyimi, rezervasyon yönlendirmesi, içerik, reklam ve müşteri akışlarını birlikte tasarlıyoruz.",
+        orbits: ["BOOKING", "ADS", "CRM"]
+      },
+      brands: {
+        number: "03",
+        kicker: "STORY · PORTFOLIO · CONTENT · GROWTH",
+        title: "İşinizi değil, <em>dünyanızı gösteren</em> bir dijital kimlik.",
+        copy: "Sanatçılar, yaratıcılar ve kişisel markalar için hikâyeyi büyük medya, güçlü tipografi ve seçili içerikle premium bir deneyime dönüştürüyoruz.",
+        orbits: ["STORY", "MEDIA", "GROWTH"]
+      },
+      local: {
+        number: "04",
+        kicker: "WEBSITE · MAPS · REVIEWS · LEADS",
+        title: "Yakınınızdaki müşteri sizi aradığında, <em>hazır olun.</em>",
+        copy: "Yerel işletmeler için hızlı web sitesi, Google Maps, yorum akışı, reklam ve doğrudan iletişimi tek bir büyüme sisteminde topluyoruz.",
+        orbits: ["MAPS", "REVIEWS", "LEADS"]
+      }
+    };
+
+    const applyPersona = (key) => {
+      const persona = personas[key];
+      if (!personaPanel || !persona) return;
+      personaPanel.classList.add("is-switching");
+      personaTabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.persona === key));
+
+      window.setTimeout(() => {
+        const number = personaPanel.querySelector("[data-persona-number]");
+        const kicker = personaPanel.querySelector("[data-persona-kicker]");
+        const title = personaPanel.querySelector("[data-persona-title]");
+        const copy = personaPanel.querySelector("[data-persona-copy]");
+        const orbits = personaPanel.querySelectorAll(".persona-orbit");
+        if (number) number.textContent = persona.number;
+        if (kicker) kicker.textContent = persona.kicker;
+        if (title) title.innerHTML = persona.title;
+        if (copy) copy.textContent = persona.copy;
+        orbits.forEach((orbit, index) => { orbit.textContent = persona.orbits[index] || ""; });
+        personaPanel.classList.remove("is-switching");
+      }, 180);
+    };
+
+    personaTabs.forEach((tab) => {
+      tab.addEventListener("click", () => applyPersona(tab.dataset.persona));
+    });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAuraConnectedExperience, { once: true });
+  } else {
+    initAuraConnectedExperience();
+  }
+})();
