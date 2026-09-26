@@ -543,7 +543,7 @@ chatForm?.addEventListener("submit", (e) => {
   setTimeout(() => answerChat(classifyQuestion(value), value), 260);
 });
 const i18nScript = document.createElement("script");
-i18nScript.src = "i18n.js?v=en-default-20260926-4";
+i18nScript.src = "i18n.js?v=en-default-20260926-5";
 document.head.appendChild(i18nScript);
 
 
