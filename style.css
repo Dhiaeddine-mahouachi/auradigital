@@ -5753,3 +5753,638 @@ body[data-page="packages"] .page-hero .crumb a {
 }
 
 /* AuraDigital deployment checkpoint 2026-08-11 */
+
+
+/* =========================================================
+   AURA / CONNECTED EXPERIENCE — 2026-09-26
+   Editorial canvas + persona system inspired by modern
+   creative software presentation patterns.
+   ========================================================= */
+
+body[data-page="home"] {
+  --aura-paper: #f2efe6;
+  --aura-ink: #0b1b16;
+  --aura-forest: #063d2e;
+  --aura-acid: #e1e100;
+  --aura-line: rgba(11,27,22,.16);
+}
+
+.aura-workspace {
+  position: relative;
+  padding: clamp(90px, 10vw, 160px) 0;
+  overflow: hidden;
+  background: var(--aura-paper);
+  color: var(--aura-ink);
+}
+
+.aura-workspace-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, .55fr);
+  gap: clamp(32px, 6vw, 100px);
+  align-items: end;
+  margin-bottom: 48px;
+}
+
+.aura-workspace-head h2 {
+  max-width: 920px;
+  margin: 18px 0 0;
+  font-size: clamp(3.5rem, 7vw, 7.6rem);
+  line-height: .88;
+  letter-spacing: -.07em;
+}
+
+.aura-workspace-head h2 em {
+  color: var(--aura-forest);
+  font-style: normal;
+}
+
+.aura-workspace-head > p {
+  max-width: 430px;
+  margin: 0 0 6px;
+  color: rgba(11,27,22,.64);
+  font-size: .9rem;
+  line-height: 1.72;
+}
+
+.aura-scene-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.aura-scene-tabs::-webkit-scrollbar { display: none; }
+
+.aura-scene-tab,
+.aura-persona-tab {
+  appearance: none;
+  border: 1px solid var(--aura-line);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.aura-scene-tab {
+  flex: 0 0 auto;
+  padding: 11px 17px;
+  border-radius: 999px;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  transition: background .35s cubic-bezier(.16,1,.3,1), color .35s cubic-bezier(.16,1,.3,1), transform .35s cubic-bezier(.16,1,.3,1);
+}
+
+.aura-scene-tab:hover { transform: translateY(-2px); }
+
+.aura-scene-tab.is-active {
+  border-color: var(--aura-ink);
+  background: var(--aura-ink);
+  color: #fff;
+}
+
+.aura-canvas {
+  position: relative;
+  overflow: hidden;
+  min-height: 760px;
+  border: 1px solid rgba(11,27,22,.18);
+  border-radius: 18px;
+  background:
+    linear-gradient(rgba(11,27,22,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11,27,22,.055) 1px, transparent 1px),
+    #f8f6ef;
+  background-size: 36px 36px;
+  box-shadow: 0 28px 90px rgba(8,25,19,.08);
+}
+
+.aura-canvas-toolbar {
+  position: relative;
+  z-index: 5;
+  height: 54px;
+  padding: 0 18px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  border-bottom: 1px solid rgba(11,27,22,.14);
+  background: rgba(248,246,239,.88);
+  backdrop-filter: blur(14px);
+}
+
+.aura-canvas-toolbar > span {
+  display: flex;
+  gap: 6px;
+}
+
+.aura-canvas-toolbar i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(11,27,22,.25);
+}
+
+.aura-canvas-toolbar b,
+.aura-canvas-toolbar small {
+  font-size: .55rem;
+  letter-spacing: .14em;
+}
+
+.aura-canvas-toolbar b { font-weight: 900; }
+.aura-canvas-toolbar small { justify-self: end; color: rgba(11,27,22,.48); }
+
+.aura-canvas-prompt {
+  position: relative;
+  z-index: 6;
+  width: min(760px, calc(100% - 48px));
+  min-height: 88px;
+  margin: 26px auto 0;
+  padding: 16px 70px 16px 18px;
+  border: 1px solid rgba(11,27,22,.16);
+  border-radius: 14px;
+  background: rgba(255,255,255,.9);
+  box-shadow: 0 16px 46px rgba(8,25,19,.08);
+}
+
+.aura-canvas-prompt > span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--aura-forest);
+  font-size: .52rem;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+
+.aura-canvas-prompt p {
+  margin: 0;
+  max-width: 630px;
+  color: rgba(11,27,22,.78);
+  font-size: .78rem;
+  line-height: 1.5;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.aura-canvas-prompt button {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  width: 42px;
+  height: 42px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 50%;
+  background: var(--aura-acid);
+  color: var(--aura-ink);
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: transform .35s cubic-bezier(.16,1,.3,1);
+}
+
+.aura-canvas-prompt button:hover { transform: translateY(-50%) scale(1.08) rotate(5deg); }
+
+.aura-canvas-stage {
+  position: relative;
+  min-height: 585px;
+  transform: translate3d(var(--canvas-x,0), var(--canvas-y,0), 0);
+  transition: transform .7s cubic-bezier(.16,1,.3,1);
+}
+
+.aura-connectors {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.aura-connectors path {
+  fill: none;
+  stroke: rgba(11,27,22,.28);
+  stroke-width: 1.2;
+  stroke-dasharray: 5 6;
+  vector-effect: non-scaling-stroke;
+}
+
+.aura-node {
+  position: absolute;
+  z-index: 2;
+  width: 220px;
+  min-height: 145px;
+  padding: 18px;
+  border: 1px solid rgba(11,27,22,.16);
+  border-radius: 14px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 18px 50px rgba(8,25,19,.08);
+  transition:
+    transform .6s cubic-bezier(.16,1,.3,1),
+    box-shadow .6s cubic-bezier(.16,1,.3,1),
+    opacity .22s ease;
+}
+
+.aura-node:hover {
+  z-index: 4;
+  transform: translateY(-7px) scale(1.015);
+  box-shadow: 0 28px 70px rgba(8,25,19,.14);
+}
+
+.aura-node-index {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  color: rgba(11,27,22,.34);
+  font-size: .52rem;
+  font-weight: 900;
+}
+
+.aura-node small {
+  color: var(--aura-forest);
+  font-size: .5rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.aura-node h3 {
+  margin: 20px 0 8px;
+  font-size: 1.4rem;
+  line-height: 1;
+  letter-spacing: -.045em;
+}
+
+.aura-node p {
+  margin: 0;
+  color: rgba(11,27,22,.56);
+  font-size: .68rem;
+  line-height: 1.55;
+}
+
+.aura-node-1 { left: 5%; top: 145px; }
+.aura-node-2 { left: 36%; top: 255px; }
+.aura-node-3 { right: 9%; top: 105px; }
+.aura-node-4 { right: 6%; top: 405px; }
+
+.aura-node-feature {
+  width: 300px;
+  min-height: 260px;
+  padding-bottom: 12px;
+}
+
+.aura-node-preview {
+  height: 112px;
+  margin-top: 15px;
+  overflow: hidden;
+  border-radius: 9px;
+  background: #d9ddd7;
+}
+
+.aura-node-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .7s cubic-bezier(.16,1,.3,1), opacity .2s ease;
+}
+
+.aura-node-feature:hover .aura-node-preview img { transform: scale(1.04); }
+
+.aura-canvas-status {
+  position: absolute;
+  left: 22px;
+  bottom: 22px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 13px;
+  border: 1px solid rgba(11,27,22,.14);
+  border-radius: 999px;
+  background: rgba(255,255,255,.86);
+  backdrop-filter: blur(10px);
+}
+
+.aura-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--aura-acid);
+  box-shadow: 0 0 0 4px rgba(225,225,0,.18);
+}
+
+.aura-canvas-status div { display: grid; gap: 1px; }
+.aura-canvas-status small { font-size: .45rem; letter-spacing: .12em; color: rgba(11,27,22,.42); }
+.aura-canvas-status strong { font-size: .62rem; }
+
+.aura-canvas.is-switching .aura-node,
+.aura-canvas.is-switching .aura-canvas-prompt p,
+.aura-canvas.is-switching .aura-node-preview img {
+  opacity: .25;
+  transform: translateY(6px);
+}
+
+.aura-personas {
+  padding: clamp(90px, 10vw, 150px) 0;
+  background: #07130f;
+  color: #f3efe4;
+}
+
+.aura-personas-label {
+  margin-bottom: 28px;
+  color: rgba(243,239,228,.48);
+  font-size: .56rem;
+  font-weight: 900;
+  letter-spacing: .16em;
+}
+
+.aura-personas-layout {
+  border-top: 1px solid rgba(243,239,228,.2);
+}
+
+.aura-persona-tabs {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid rgba(243,239,228,.2);
+}
+
+.aura-persona-tabs::-webkit-scrollbar { display: none; }
+
+.aura-persona-tab {
+  flex: 1 0 auto;
+  min-width: 160px;
+  padding: 18px 16px;
+  border: 0;
+  border-right: 1px solid rgba(243,239,228,.18);
+  color: rgba(243,239,228,.5);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+  transition: color .3s ease, background .3s ease;
+}
+
+.aura-persona-tab:hover { color: #fff; }
+.aura-persona-tab.is-active { background: var(--aura-acid); color: #07130f; }
+
+.aura-persona-panel {
+  position: relative;
+  min-height: 600px;
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr) minmax(360px, .72fr);
+  gap: 32px;
+  align-items: center;
+  overflow: hidden;
+}
+
+.aura-persona-number {
+  align-self: start;
+  padding-top: 48px;
+  color: var(--aura-acid);
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.aura-persona-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 790px;
+  transition: opacity .2s ease, transform .3s ease;
+}
+
+.aura-persona-copy > span {
+  color: rgba(243,239,228,.5);
+  font-size: .55rem;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+
+.aura-persona-copy h2 {
+  margin: 24px 0;
+  font-size: clamp(3.1rem, 6vw, 6.8rem);
+  line-height: .9;
+  letter-spacing: -.065em;
+}
+
+.aura-persona-copy h2 em { color: var(--aura-acid); font-style: normal; }
+
+.aura-persona-copy p {
+  max-width: 610px;
+  margin: 0 0 30px;
+  color: rgba(243,239,228,.62);
+  font-size: .82rem;
+  line-height: 1.7;
+}
+
+.aura-text-link {
+  display: inline-block;
+  padding-bottom: 5px;
+  border-bottom: 1px solid currentColor;
+  color: #fff;
+  text-decoration: none;
+  font-size: .66rem;
+  font-weight: 850;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.aura-persona-visual {
+  position: relative;
+  min-height: 460px;
+}
+
+.persona-core,
+.persona-orbit {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(243,239,228,.24);
+  border-radius: 50%;
+  font-size: .52rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.persona-core {
+  left: 50%;
+  top: 50%;
+  width: 170px;
+  height: 170px;
+  transform: translate(-50%,-50%);
+  background: var(--aura-acid);
+  color: #07130f;
+  font-size: .8rem;
+  line-height: 1;
+}
+
+.persona-core span { display: block; font-weight: 500; }
+
+.persona-orbit {
+  width: 112px;
+  height: 112px;
+  color: rgba(243,239,228,.7);
+  background: rgba(255,255,255,.03);
+  backdrop-filter: blur(8px);
+  animation: auraFloat 6s ease-in-out infinite;
+}
+
+.persona-orbit-a { left: 2%; top: 10%; }
+.persona-orbit-b { right: 2%; top: 24%; animation-delay: -2s; }
+.persona-orbit-c { left: 12%; bottom: 5%; animation-delay: -4s; }
+
+@keyframes auraFloat {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.aura-persona-panel.is-switching .aura-persona-copy {
+  opacity: .15;
+  transform: translateY(10px);
+}
+
+/* Portfolio becomes more editorial and image-led on the homepage. */
+body[data-page="home"] .work-showcase {
+  padding-top: clamp(100px, 11vw, 170px);
+  background: var(--aura-paper);
+}
+
+body[data-page="home"] .project-grid-home {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 2px;
+  background: rgba(11,27,22,.14);
+}
+
+body[data-page="home"] .project-grid-home .project-card {
+  border-radius: 0;
+  border: 0;
+  background: var(--aura-paper);
+}
+
+body[data-page="home"] .project-grid-home .project-card:first-child {
+  grid-column: 1 / -1;
+}
+
+body[data-page="home"] .project-grid-home .project-card:first-child .project-media {
+  aspect-ratio: 16 / 7;
+}
+
+body[data-page="home"] .project-grid-home .project-media {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+body[data-page="home"] .project-grid-home .project-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .9s cubic-bezier(.16,1,.3,1);
+}
+
+body[data-page="home"] .project-grid-home .project-card:hover .project-media img {
+  transform: scale(1.025);
+}
+
+body[data-page="home"] .project-grid-home .project-meta {
+  min-height: 120px;
+  padding: 22px 24px 28px;
+}
+
+body[data-page="home"] .project-grid-home .project-meta h3 {
+  font-size: clamp(1.6rem, 3vw, 3rem);
+  letter-spacing: -.055em;
+}
+
+/* Refine the existing cinematic hero rather than replacing it. */
+body[data-page="home"] .reference-hero {
+  min-height: 100svh;
+}
+
+body[data-page="home"] .reference-hero .hero-media video {
+  transform: scale(1.015);
+}
+
+body[data-page="home"] .reference-hero .hero-copy-block {
+  max-width: 920px;
+}
+
+body[data-page="home"] .reference-hero .hero-copy-block .display {
+  font-size: clamp(4rem, 7.8vw, 8.6rem);
+  line-height: .88;
+  letter-spacing: -.065em;
+}
+
+body[data-page="home"] .reference-hero .hero-note {
+  backdrop-filter: blur(16px);
+  background: rgba(5,22,16,.36);
+  border-color: rgba(255,255,255,.22);
+}
+
+@media (max-width: 900px) {
+  .aura-workspace-head { grid-template-columns: 1fr; gap: 20px; }
+  .aura-workspace-head > p { max-width: 620px; }
+  .aura-canvas { min-height: 720px; }
+  .aura-canvas-stage { min-height: 545px; }
+  .aura-node-1 { left: 4%; top: 115px; }
+  .aura-node-2 { left: 30%; top: 270px; }
+  .aura-node-3 { right: 4%; top: 95px; }
+  .aura-node-4 { right: 4%; top: 420px; }
+  .aura-persona-panel { grid-template-columns: 60px 1fr; min-height: 760px; padding: 40px 0; }
+  .aura-persona-visual { grid-column: 2; min-height: 300px; width: min(460px,100%); }
+  body[data-page="home"] .reference-hero .hero-copy-block .display {
+    font-size: clamp(3.7rem, 13vw, 6.8rem);
+  }
+}
+
+@media (max-width: 700px) {
+  .aura-workspace { padding: 78px 0; }
+  .aura-workspace-head h2 { font-size: clamp(3rem, 13vw, 5rem); }
+  .aura-canvas { min-height: auto; border-radius: 12px; }
+  .aura-canvas-toolbar { grid-template-columns: 1fr auto; }
+  .aura-canvas-toolbar small { display: none; }
+  .aura-canvas-prompt { width: calc(100% - 24px); margin-top: 12px; }
+  .aura-canvas-stage {
+    min-height: 0;
+    padding: 24px 12px 72px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    transform: none !important;
+  }
+  .aura-connectors { display: none; }
+  .aura-node,
+  .aura-node-feature,
+  .aura-node-1,
+  .aura-node-2,
+  .aura-node-3,
+  .aura-node-4 {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    min-height: 0;
+    padding: 18px;
+  }
+  .aura-node h3 { margin-top: 14px; }
+  .aura-node-preview { height: 150px; }
+  .aura-canvas-status { left: 16px; bottom: 18px; }
+  .aura-personas { padding: 78px 0; }
+  .aura-persona-panel { display: block; min-height: 0; padding: 34px 0 0; }
+  .aura-persona-number { padding: 0 0 28px; }
+  .aura-persona-copy h2 { font-size: clamp(3rem, 13vw, 5rem); }
+  .aura-persona-visual { min-height: 320px; margin: 26px auto 0; }
+  .persona-core { width: 135px; height: 135px; }
+  .persona-orbit { width: 90px; height: 90px; font-size: .43rem; }
+  body[data-page="home"] .project-grid-home { grid-template-columns: 1fr; }
+  body[data-page="home"] .project-grid-home .project-card:first-child { grid-column: auto; }
+  body[data-page="home"] .project-grid-home .project-card:first-child .project-media,
+  body[data-page="home"] .project-grid-home .project-media { aspect-ratio: 4 / 3; }
+  body[data-page="home"] .reference-hero .hero-copy-block .display {
+    font-size: clamp(3.2rem, 15vw, 5.2rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .persona-orbit { animation: none; }
+  .aura-node,
+  .aura-node-preview img,
+  .aura-scene-tab,
+  .aura-persona-copy { transition: none !important; }
+}
