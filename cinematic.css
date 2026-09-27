@@ -481,7 +481,7 @@ body.cinematic-enabled ::selection{background:var(--aura-accent);color:#090b08}
 .cinematic-enabled .cookie-copy p{color:var(--aura-muted)}
 
 /* micro interactions */
-.cinematic-enabled .tilt-card{transform:perspective(900px) rotateX(calc(var(--rx,0deg)*.35)) rotateY(calc(var(--ry,0deg)*.35));transition:transform .45s var(--aura-ease)}
+.cinematic-enabled .tilt-card{transition:transform .45s var(--aura-ease)}
 .cinematic-enabled .scroll-progress{height:1px;background:transparent}
 .cinematic-enabled .scroll-progress i{background:var(--aura-accent)}
 .cinematic-enabled .motion-orb{opacity:.38}
