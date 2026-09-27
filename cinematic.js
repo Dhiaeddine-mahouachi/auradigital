@@ -16,7 +16,7 @@
     theme.name = "theme-color";
     document.head.appendChild(theme);
   }
-  theme.content = "#070907";
+  theme.content = "#07180f";
 
   if (!reducedMotion) {
     const loader = document.createElement("div");
