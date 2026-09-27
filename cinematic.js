@@ -8,6 +8,7 @@
 
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const finePointer = matchMedia("(hover:hover) and (pointer:fine)").matches;
+  const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
 
   let theme = document.querySelector('meta[name="theme-color"]');
   if (!theme) {
@@ -92,16 +93,40 @@
     link.dataset.cinemaArrow = "";
   });
 
+  let story = null;
+  let storyTrack = null;
+  let storyLines = [];
+  let storyMeta = null;
+
   if (body.dataset.page === "home") {
     const ticker = document.querySelector(".aura-ticker");
-    const workspace = document.querySelector(".aura-workspace");
-    if (ticker && workspace && !document.querySelector(".cinema-build-rail")) {
-      const rail = document.createElement("section");
-      rail.className = "cinema-build-rail";
-      rail.setAttribute("aria-hidden", "true");
-      rail.innerHTML = '<div class="cinema-build-track"><span>BUILD</span><i>✦</i><span>GROW</span><i>✦</i><span>AUTOMATE</span><i>✦</i><span>CREATE</span><i>✦</i><span>BUILD</span></div>';
-      ticker.insertAdjacentElement("afterend", rail);
+    if (ticker && !document.querySelector(".cinema-scroll-story")) {
+      story = document.createElement("section");
+      story.className = "cinema-scroll-story";
+      story.setAttribute("aria-label", "AuraDigital build sequence");
+      story.innerHTML =
+        '<div class="cinema-scroll-sticky">' +
+          '<div class="cinema-scroll-grid" aria-hidden="true"></div>' +
+          '<div class="cinema-scroll-kicker">AURA / FROM IDEA TO IMPACT</div>' +
+          '<div class="cinema-scroll-track">' +
+            '<div class="cinema-scroll-line"><span>LET&#39;S</span><strong>BUILD</strong></div>' +
+            '<div class="cinema-scroll-line"><span>LET&#39;S</span><strong>BUILD</strong></div>' +
+            '<div class="cinema-scroll-line"><span>LET&#39;S</span><strong>BUILD</strong></div>' +
+            '<div class="cinema-scroll-line"><span>LET&#39;S</span><strong>BUILD</strong></div>' +
+            '<div class="cinema-scroll-line"><span>LET&#39;S</span><strong>BUILD</strong></div>' +
+            '<div class="cinema-scroll-line"><span>LET&#39;S</span><strong>BUILD</strong></div>' +
+            '<div class="cinema-scroll-line"><span>LET&#39;S</span><strong>BUILD</strong></div>' +
+          '</div>' +
+          '<div class="cinema-scroll-center" aria-hidden="true"><i></i></div>' +
+          '<div class="cinema-scroll-meta"><span>Where ambition meets execution.</span><small>KEEP SCROLLING ↓</small></div>' +
+        '</div>';
+      ticker.insertAdjacentElement("afterend", story);
     }
+
+    story = document.querySelector(".cinema-scroll-story");
+    storyTrack = story?.querySelector(".cinema-scroll-track") || null;
+    storyLines = [...(story?.querySelectorAll(".cinema-scroll-line") || [])];
+    storyMeta = story?.querySelector(".cinema-scroll-meta") || null;
   }
 
   const footer = document.querySelector(".site-footer");
@@ -118,36 +143,90 @@
     footer.prepend(marquee);
   }
 
+  const scrubHeadings = !reducedMotion
+    ? [...document.querySelectorAll(
+        ".section-head .display,.aura-workspace-head .display,.aura-persona-copy h2,.campaign-stage-copy h3"
+      )]
+    : [];
+  const scrubMedia = !reducedMotion
+    ? [...document.querySelectorAll(".video-panel video,.nfc-photo img,.visual-explainer img")]
+    : [];
+  scrubHeadings.forEach((el) => el.classList.add("cinema-scrub-heading"));
+  scrubMedia.forEach((el) => el.classList.add("cinema-scrub-media"));
+
   if (!reducedMotion) {
     const heroMedia = document.querySelector(".hero-media video");
-    const rail = document.querySelector(".cinema-build-rail");
-    const railTrack = rail ? rail.querySelector(".cinema-build-track") : null;
     let scheduled = false;
 
     const renderScrollMotion = () => {
       scheduled = false;
 
       if (heroMedia) {
-        const progress = Math.min(1, Math.max(0, scrollY / Math.max(innerHeight, 1)));
-        heroMedia.style.transform = "scale(" + (1.01 + progress * 0.035) + ") translate3d(0," + (progress * 18) + "px,0)";
+        const progress = clamp(scrollY / Math.max(innerHeight, 1));
+        heroMedia.style.transform =
+          "scale(" + (1.01 + progress * 0.05) + ") translate3d(0," + (progress * 24) + "px,0)";
       }
 
-      if (rail && railTrack) {
-        const rect = rail.getBoundingClientRect();
-        const span = innerHeight + rect.height;
-        const progress = Math.min(1, Math.max(0, (innerHeight - rect.top) / span));
-        const distance = Math.max(220, railTrack.scrollWidth - innerWidth + 80);
-        railTrack.style.setProperty("--cinema-rail", (-progress * distance * 0.62) + "px");
+      if (story && storyTrack && storyLines.length) {
+        const rect = story.getBoundingClientRect();
+        const scrollable = Math.max(1, story.offsetHeight - innerHeight);
+        const progress = clamp(-rect.top / scrollable);
+        const trackHeight = storyTrack.scrollHeight;
+        const startY = innerHeight * 0.58;
+        const travel = trackHeight + innerHeight * 0.12;
+        const y = startY - progress * travel;
+
+        story.style.setProperty("--story-progress", progress.toFixed(4));
+        storyTrack.style.transform = "translate3d(0," + y + "px,0)";
+
+        const active = progress * (storyLines.length - 1);
+        storyLines.forEach((line, index) => {
+          const distance = Math.abs(index - active);
+          const opacity = clamp(1 - distance * 0.56, 0.10, 1);
+          const scale = clamp(1.09 - distance * 0.055, 0.88, 1.09);
+          const shift = (index % 2 === 0 ? -1 : 1) * Math.min(34, distance * 12);
+          line.style.opacity = opacity.toFixed(3);
+          line.style.transform =
+            "translate3d(" + shift + "px,0,0) scale(" + scale.toFixed(3) + ")";
+        });
+
+        if (storyMeta) {
+          const metaProgress = clamp((progress - 0.80) / 0.14);
+          storyMeta.style.opacity = metaProgress.toFixed(3);
+          storyMeta.style.transform =
+            "translate3d(0," + ((1 - metaProgress) * 28) + "px,0)";
+        }
       }
+
+      scrubHeadings.forEach((heading) => {
+        const rect = heading.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > innerHeight) return;
+        const progress = clamp((innerHeight * 0.90 - rect.top) / (innerHeight * 0.72));
+        const y = (1 - progress) * 36;
+        const squeeze = 1 + (1 - progress) * 0.018;
+        heading.style.transform =
+          "translate3d(0," + y.toFixed(2) + "px,0) scaleY(" + squeeze.toFixed(4) + ")";
+        heading.style.setProperty("--cinema-title-reveal", progress.toFixed(4));
+      });
+
+      scrubMedia.forEach((media) => {
+        const rect = media.getBoundingClientRect();
+        if (rect.bottom < -100 || rect.top > innerHeight + 100) return;
+        const center = rect.top + rect.height / 2;
+        const normalized = clamp(center / innerHeight, -0.3, 1.3);
+        const y = (0.5 - normalized) * 34;
+        media.style.setProperty("--cinema-media-y", y.toFixed(2) + "px");
+      });
     };
 
-    addEventListener("scroll", () => {
-      if (!scheduled) {
-        scheduled = true;
-        requestAnimationFrame(renderScrollMotion);
-      }
-    }, { passive: true });
-    addEventListener("resize", renderScrollMotion, { passive: true });
+    const requestRender = () => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(renderScrollMotion);
+    };
+
+    addEventListener("scroll", requestRender, { passive: true });
+    addEventListener("resize", requestRender, { passive: true });
     renderScrollMotion();
   }
 
@@ -160,7 +239,8 @@
         const rect = media.getBoundingClientRect();
         const x = (event.clientX - rect.left) / rect.width - 0.5;
         const y = (event.clientY - rect.top) / rect.height - 0.5;
-        image.style.transform = "scale(1.045) translate3d(" + (x * -8) + "px," + (y * -8) + "px,0)";
+        image.style.transform =
+          "scale(1.05) translate3d(" + (x * -10) + "px," + (y * -10) + "px,0)";
       });
 
       media.addEventListener("pointerleave", () => {
