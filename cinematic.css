@@ -826,3 +826,105 @@ body.cinematic-enabled ::selection{background:var(--aura-accent);color:#090b08}
     filter:none!important;
   }
 }
+
+
+/* HEADER COLOR MATCH · unified with AuraDigital cinematic palette */
+.cinematic-enabled .site-header{
+  background:linear-gradient(180deg,rgba(7,9,7,.94),rgba(7,9,7,.60) 68%,rgba(7,9,7,0));
+}
+.cinematic-enabled .site-header .nav{
+  background:rgba(8,11,8,.66);
+  border-color:rgba(242,243,236,.10);
+  backdrop-filter:blur(18px) saturate(118%);
+  -webkit-backdrop-filter:blur(18px) saturate(118%);
+}
+.cinematic-enabled .site-header.scrolled .nav{
+  background:rgba(8,11,8,.92);
+  border-color:rgba(242,243,236,.15);
+  box-shadow:0 14px 46px rgba(0,0,0,.30);
+}
+.cinematic-enabled .nav-links a{
+  color:rgba(242,243,236,.72);
+}
+.cinematic-enabled .nav-links a:hover{
+  color:var(--aura-text);
+}
+.cinematic-enabled .nav-links a.active{
+  color:var(--aura-accent);
+}
+.cinematic-enabled .nav-links a.active::after{
+  background:var(--aura-accent);
+}
+.cinematic-enabled .lang-current{
+  height:42px;
+  border:1px solid var(--aura-line);
+  background:rgba(13,17,13,.88);
+  color:var(--aura-text);
+  box-shadow:none;
+}
+.cinematic-enabled .lang-current:hover,
+.cinematic-enabled .lang-current[aria-expanded="true"]{
+  background:rgba(20,25,20,.96);
+  border-color:rgba(225,225,0,.40);
+}
+.cinematic-enabled .lang-globe{
+  color:var(--aura-accent);
+}
+.cinematic-enabled .lang-chevron{
+  color:var(--aura-muted);
+}
+.cinematic-enabled .lang-menu{
+  background:rgba(10,13,10,.98);
+  border:1px solid var(--aura-line);
+  box-shadow:0 24px 70px rgba(0,0,0,.42);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.cinematic-enabled .lang-menu button{
+  color:rgba(242,243,236,.82);
+}
+.cinematic-enabled .lang-menu button:hover,
+.cinematic-enabled .lang-menu button.active{
+  background:rgba(225,225,0,.10);
+  color:var(--aura-accent);
+}
+.cinematic-enabled .menu-btn{
+  background:rgba(13,17,13,.88);
+  border-color:var(--aura-line);
+  color:var(--aura-text);
+}
+.cinematic-enabled .menu-btn:hover{
+  border-color:rgba(225,225,0,.42);
+  color:var(--aura-accent);
+}
+.cinematic-enabled .nav-cta{
+  background:var(--aura-accent);
+  color:#080a08;
+  border-color:var(--aura-accent);
+}
+.cinematic-enabled .nav-cta:hover{
+  background:var(--aura-text);
+  color:#080a08;
+  border-color:var(--aura-text);
+}
+@media (max-width:860px){
+  .cinematic-enabled .site-header{
+    background:transparent;
+  }
+  .cinematic-enabled .site-header .nav,
+  .cinematic-enabled .site-header.scrolled .nav{
+    background:rgba(8,11,8,.94);
+    border-color:rgba(242,243,236,.14);
+  }
+  .cinematic-enabled .nav-links{
+    background:rgba(8,11,8,.985);
+    border:1px solid rgba(242,243,236,.14);
+  }
+  .cinematic-enabled .nav-links a{
+    color:rgba(242,243,236,.82);
+    border-bottom-color:rgba(242,243,236,.10);
+  }
+  .cinematic-enabled .nav-links a.active{
+    color:var(--aura-accent);
+  }
+}
