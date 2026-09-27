@@ -521,13 +521,11 @@ body.cinematic-enabled ::selection{background:var(--aura-accent);color:#090b08}
   .cinematic-enabled .project-arrow{margin-top:18px}
   .cinematic-enabled .cta-box{min-height:62svh;border-radius:12px;padding:28px 20px}
   .cinematic-enabled .cta-box .display{font-size:clamp(3rem,14vw,4.6rem)}
-  .cinema-build-rail{height:180px}
-  .cinema-build-track span{font-size:clamp(4.4rem,24vw,7rem)}
   .cinema-loader-number{font-size:5.4rem}
 }
 @media (prefers-reduced-motion:reduce){
   .cinema-loader{display:none}
-  .cinema-build-track,.cinema-footer-track{animation:none!important;transform:none!important}
+  .cinema-footer-track{animation:none!important;transform:none!important}
   .cinematic-enabled .reveal{opacity:1!important;transform:none!important;filter:none!important;transition:none!important}
   .cinema-glow{display:none}
 }
