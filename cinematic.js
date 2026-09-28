@@ -298,6 +298,7 @@
       const p = clamp((enterProgress(card, 0.94, 0.62) - index * 0.035) / 0.9);
       setMotion(card, (1 - p) * 28 * compact, 0.38 + p * 0.62);
       card.style.setProperty("--service-line", p.toFixed(3));
+      card.style.setProperty("--service-icon-scale", (0.82 + p * 0.18).toFixed(3));
     });
 
     explainers.forEach((item, index) => {
@@ -352,6 +353,7 @@
       ctaBox.style.setProperty("--cta-y", ((1 - p) * 38 * compact).toFixed(2) + "px");
       ctaBox.style.setProperty("--cta-opacity", (0.42 + p * 0.58).toFixed(3));
       ctaBox.style.setProperty("--cta-accent", p.toFixed(3));
+      ctaBox.style.setProperty("--cta-glow", (p * 22).toFixed(2) + "px");
     }
   };
 
