@@ -240,3 +240,129 @@
     cinematicSections.forEach((section) => section.classList.add("cinema-in-view"));
   }
 })();
+
+/* CONTEXTUAL HOME SCROLL — 2026-09-28 */
+(() => {
+  "use strict";
+
+  const body = document.body;
+  if (!body || body.dataset.page !== "home") return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  body.classList.add("context-scroll-enabled");
+
+  const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+  const hero = document.querySelector(".reference-hero");
+  const serviceCards = [...document.querySelectorAll(".services-grid .service-card")];
+  const explainers = [...document.querySelectorAll(".visual-explainer")];
+  const studioPanel = document.querySelector(".studio-video .video-panel");
+  const campaignStage = document.querySelector(".campaign-stage");
+  const adCards = [...document.querySelectorAll(".campaign-stage .ad-card")];
+  const flowSteps = [...document.querySelectorAll(".business-flow > div")];
+  const processSteps = [...document.querySelectorAll(".process .process-step")];
+  const ctaBox = document.querySelector(".cta-band .cta-box");
+
+  let scheduled = false;
+
+  const enterProgress = (el, start = 0.92, distance = 0.72) => {
+    if (!el) return 0;
+    const rect = el.getBoundingClientRect();
+    return clamp((innerHeight * start - rect.top) / Math.max(innerHeight * distance, 1));
+  };
+
+  const sceneProgress = (el) => {
+    if (!el) return 0;
+    const rect = el.getBoundingClientRect();
+    return clamp((innerHeight - rect.top) / Math.max(innerHeight + rect.height, 1));
+  };
+
+  const setMotion = (el, y, opacity, x = 0) => {
+    if (!el) return;
+    el.style.setProperty("--ctx-y", y.toFixed(2) + "px");
+    el.style.setProperty("--ctx-x", x.toFixed(2) + "px");
+    el.style.setProperty("--ctx-opacity", opacity.toFixed(3));
+  };
+
+  const render = () => {
+    scheduled = false;
+    const compact = innerWidth <= 700 ? 0.58 : 1;
+
+    if (hero) {
+      const p = clamp(scrollY / Math.max(innerHeight * 0.9, 1));
+      hero.style.setProperty("--hero-scroll-y", (-24 * p * compact).toFixed(2) + "px");
+      hero.style.setProperty("--hero-scroll-opacity", (1 - p * 0.34).toFixed(3));
+      hero.style.setProperty("--hero-note-y", (-12 * p * compact).toFixed(2) + "px");
+    }
+
+    serviceCards.forEach((card, index) => {
+      const p = clamp((enterProgress(card, 0.94, 0.62) - index * 0.035) / 0.9);
+      setMotion(card, (1 - p) * 28 * compact, 0.38 + p * 0.62);
+      card.style.setProperty("--service-line", p.toFixed(3));
+    });
+
+    explainers.forEach((item, index) => {
+      const p = enterProgress(item, 0.93, 0.68);
+      const direction = index % 2 === 0 ? -1 : 1;
+      setMotion(item, (1 - p) * 12 * compact, 0.46 + p * 0.54, direction * (1 - p) * 34 * compact);
+    });
+
+    if (studioPanel) {
+      const enter = enterProgress(studioPanel, 0.96, 0.9);
+      const through = sceneProgress(studioPanel);
+      studioPanel.style.setProperty("--studio-scale", (1.085 - enter * 0.05 + through * 0.012).toFixed(4));
+      studioPanel.style.setProperty("--studio-copy-y", ((1 - enter) * 34 * compact).toFixed(2) + "px");
+      studioPanel.style.setProperty("--studio-copy-opacity", (0.4 + enter * 0.6).toFixed(3));
+    }
+
+    if (campaignStage) {
+      const stageEnter = enterProgress(campaignStage, 0.95, 0.86);
+      const stageThrough = sceneProgress(campaignStage);
+      const starts = [
+        { x: -86, y: 58, fromRot: -10, toRot: -3 },
+        { x: 92, y: 76, fromRot: 11, toRot: 4 },
+        { x: -34, y: 96, fromRot: -7, toRot: -1 }
+      ];
+
+      adCards.forEach((card, index) => {
+        const spec = starts[index] || { x: 0, y: 70, fromRot: 0, toRot: 0 };
+        const p = clamp((stageEnter - index * 0.11) / 0.76);
+        const drift = (stageThrough - 0.5) * (index === 1 ? -10 : 8) * compact;
+        card.style.setProperty("--ad-x", ((1 - p) * spec.x * compact).toFixed(2) + "px");
+        card.style.setProperty("--ad-y", ((1 - p) * spec.y * compact + drift).toFixed(2) + "px");
+        card.style.setProperty("--ad-rot", (spec.fromRot + (spec.toRot - spec.fromRot) * p).toFixed(2) + "deg");
+        card.style.setProperty("--ad-opacity", (0.18 + p * 0.82).toFixed(3));
+      });
+    }
+
+    flowSteps.forEach((step, index) => {
+      const p = clamp((enterProgress(step, 0.94, 0.56) - index * 0.055) / 0.86);
+      setMotion(step, (1 - p) * 22 * compact, 0.36 + p * 0.64);
+      step.style.setProperty("--flow-progress", p.toFixed(3));
+    });
+
+    processSteps.forEach((step, index) => {
+      const p = clamp((enterProgress(step, 0.94, 0.58) - index * 0.035) / 0.9);
+      step.style.setProperty("--step-progress", p.toFixed(3));
+      step.style.setProperty("--step-copy-x", ((1 - p) * 26 * compact).toFixed(2) + "px");
+      step.style.setProperty("--step-copy-opacity", (0.36 + p * 0.64).toFixed(3));
+    });
+
+    if (ctaBox) {
+      const p = enterProgress(ctaBox, 0.96, 0.82);
+      ctaBox.style.setProperty("--cta-y", ((1 - p) * 38 * compact).toFixed(2) + "px");
+      ctaBox.style.setProperty("--cta-opacity", (0.42 + p * 0.58).toFixed(3));
+      ctaBox.style.setProperty("--cta-accent", p.toFixed(3));
+    }
+  };
+
+  const requestRender = () => {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(render);
+  };
+
+  addEventListener("scroll", requestRender, { passive: true });
+  addEventListener("resize", requestRender, { passive: true });
+  render();
+})();
+
