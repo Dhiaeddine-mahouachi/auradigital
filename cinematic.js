@@ -22,40 +22,78 @@
     const loader = document.createElement("div");
     loader.className = "cinema-loader";
     loader.setAttribute("aria-hidden", "true");
-    loader.innerHTML = '<div class="cinema-loader-inner"><div class="cinema-loader-top"><span>AuraDigital</span><span>Digital studio · 2026</span></div><div class="cinema-loader-number">0</div><div class="cinema-loader-line"><i></i></div></div>';
-    body.prepend(loader);
 
-    const number = loader.querySelector(".cinema-loader-number");
-    const line = loader.querySelector(".cinema-loader-line i");
-    const started = performance.now();
-    let current = 0;
+    const loaderVideoSrc =
+      body.dataset.page === "home" &&
+      typeof window.AURA_LOADER_VIDEO === "string"
+        ? window.AURA_LOADER_VIDEO
+        : "";
 
-    const paintLoader = (now) => {
-      const elapsed = now - started;
-      const target = document.readyState === "complete" ? 100 : Math.min(88, 14 + elapsed / 12);
-      current += (target - current) * 0.11;
-      const value = Math.min(100, Math.round(current));
-      number.textContent = String(value).padStart(2, "0");
-      line.style.transform = "scaleX(" + (value / 100) + ")";
+    if (loaderVideoSrc) {
+      loader.classList.add("cinema-loader--video");
+      loader.innerHTML =
+        '<video class="cinema-loader-video" autoplay muted playsinline preload="auto" disablepictureinpicture aria-hidden="true"></video>';
+      body.prepend(loader);
 
-      if (value >= 99 && document.readyState === "complete") {
+      const video = loader.querySelector(".cinema-loader-video");
+      let dismissed = false;
+      const dismissLoader = () => {
+        if (dismissed || !loader.isConnected) return;
+        dismissed = true;
+        loader.classList.add("is-done");
+        setTimeout(() => loader.remove(), 760);
+      };
+
+      video.src = loaderVideoSrc;
+      video.addEventListener("ended", dismissLoader, { once: true });
+      video.addEventListener(
+        "error",
+        () => setTimeout(dismissLoader, 500),
+        { once: true }
+      );
+
+      const playAttempt = video.play();
+      if (playAttempt && typeof playAttempt.catch === "function") {
+        playAttempt.catch(() => setTimeout(dismissLoader, 700));
+      }
+
+      setTimeout(dismissLoader, 7200);
+    } else {
+      loader.innerHTML = '<div class="cinema-loader-inner"><div class="cinema-loader-top"><span>AuraDigital</span><span>Digital studio · 2026</span></div><div class="cinema-loader-number">0</div><div class="cinema-loader-line"><i></i></div></div>';
+      body.prepend(loader);
+
+      const number = loader.querySelector(".cinema-loader-number");
+      const line = loader.querySelector(".cinema-loader-line i");
+      const started = performance.now();
+      let current = 0;
+
+      const paintLoader = (now) => {
+        const elapsed = now - started;
+        const target = document.readyState === "complete" ? 100 : Math.min(88, 14 + elapsed / 12);
+        current += (target - current) * 0.11;
+        const value = Math.min(100, Math.round(current));
+        number.textContent = String(value).padStart(2, "0");
+        line.style.transform = "scaleX(" + (value / 100) + ")";
+
+        if (value >= 99 && document.readyState === "complete") {
+          number.textContent = "100";
+          line.style.transform = "scaleX(1)";
+          setTimeout(() => loader.classList.add("is-done"), 120);
+          setTimeout(() => loader.remove(), 1200);
+          return;
+        }
+        requestAnimationFrame(paintLoader);
+      };
+      requestAnimationFrame(paintLoader);
+
+      setTimeout(() => {
+        if (!loader.isConnected) return;
         number.textContent = "100";
         line.style.transform = "scaleX(1)";
-        setTimeout(() => loader.classList.add("is-done"), 120);
-        setTimeout(() => loader.remove(), 1200);
-        return;
-      }
-      requestAnimationFrame(paintLoader);
-    };
-    requestAnimationFrame(paintLoader);
-
-    setTimeout(() => {
-      if (!loader.isConnected) return;
-      number.textContent = "100";
-      line.style.transform = "scaleX(1)";
-      loader.classList.add("is-done");
-      setTimeout(() => loader.remove(), 1000);
-    }, 2600);
+        loader.classList.add("is-done");
+        setTimeout(() => loader.remove(), 1000);
+      }, 2600);
+    }
   }
 
   if (finePointer && !reducedMotion) {
