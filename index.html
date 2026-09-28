@@ -15,7 +15,10 @@
       /* Inline so the loader covers the homepage before external files or scripts finish. */
       html{background:#080808}
       #landingLoader{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#080808;color:#111114;opacity:1;visibility:visible;animation:loader-safety 5.6s step-end forwards}
+      #landingLoader .cinema-loader-lockup{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,3vmin,28px)}
       #landingLoader .cinema-loader-orb{width:clamp(230px,56vmin,480px);aspect-ratio:1;position:relative;display:block;overflow:hidden;border-radius:50%;background:#ffff00}
+      #landingLoader .cinema-loader-title{display:block;color:#f2f5ef;font-family:inherit;font-size:clamp(1.65rem,4vw,2.7rem);font-weight:800;line-height:1;letter-spacing:-.055em;text-align:center}
+      #landingLoader .cinema-loader-title b{color:#e1e100;font-weight:inherit}
       #landingLoader .cinema-loader-art{display:block;width:125%;height:auto;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
       #landingLoader.is-done{animation:none;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility .45s ease}
       @keyframes loader-safety{to{opacity:0;visibility:hidden;pointer-events:none}}
@@ -38,6 +41,7 @@
   </head>
   <body data-page="home">
     <div id="landingLoader" class="cinema-loader cinema-loader--draw" role="status" aria-label="AuraDigital loading">
+      <div class="cinema-loader-lockup">
       <span class="cinema-loader-orb">
       <svg viewBox="0 0 1774 887" xmlns="http://www.w3.org/2000/svg"
            aria-hidden="true" class="cinema-loader-art">
@@ -65,6 +69,8 @@
         </g>
       </svg>
       </span>
+      <span class="cinema-loader-title" aria-hidden="true"><b>aura</b>digital</span>
+      </div>
     </div>
     <header id="siteHeader"></header>
     <main>
