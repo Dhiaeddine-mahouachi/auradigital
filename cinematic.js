@@ -37,14 +37,28 @@
 
       const video = loader.querySelector(".cinema-loader-video");
       let dismissed = false;
+      let safetyTimer = 0;
       const dismissLoader = () => {
         if (dismissed || !loader.isConnected) return;
         dismissed = true;
+        if (safetyTimer) clearTimeout(safetyTimer);
         loader.classList.add("is-done");
         setTimeout(() => loader.remove(), 760);
       };
+      const armSafetyTimer = () => {
+        if (safetyTimer) clearTimeout(safetyTimer);
+        const duration =
+          Number.isFinite(video.duration) && video.duration > 0
+            ? video.duration
+            : 10;
+        safetyTimer = setTimeout(
+          dismissLoader,
+          Math.min(15000, Math.max(4500, (duration + 1) * 1000))
+        );
+      };
 
       video.src = loaderVideoSrc;
+      video.addEventListener("loadedmetadata", armSafetyTimer, { once: true });
       video.addEventListener("ended", dismissLoader, { once: true });
       video.addEventListener(
         "error",
@@ -57,7 +71,7 @@
         playAttempt.catch(() => setTimeout(dismissLoader, 700));
       }
 
-      setTimeout(dismissLoader, 7200);
+      armSafetyTimer();
     } else {
       loader.innerHTML = '<div class="cinema-loader-inner"><div class="cinema-loader-top"><span>AuraDigital</span><span>Digital studio · 2026</span></div><div class="cinema-loader-number">0</div><div class="cinema-loader-line"><i></i></div></div>';
       body.prepend(loader);
