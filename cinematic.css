@@ -1272,6 +1272,6 @@ body.cinematic-enabled::before{
 }
 
 /* Horizontal AuraDigital mark across cinematic navigation and footer. */
-.cinematic-enabled .brand-wordmark .brand-logo { width: 76px; height: 42px; flex: 0 0 76px; border-radius: 5px !important; }
-.cinematic-enabled .footer-wordmark .brand-logo { width: 110px; height: 59px; flex-basis: 110px; }
-@media (max-width: 760px) { .cinematic-enabled .brand-wordmark .brand-logo { width: 62px; height: 36px; flex-basis: 62px; } }
+.cinematic-enabled .brand-wordmark .brand-logo { width: 48px; height: 27px; flex: 0 0 48px; border-radius: 5px !important; }
+.cinematic-enabled .footer-wordmark .brand-logo { width: 64px; height: 36px; flex-basis: 64px; }
+@media (max-width: 760px) { .cinematic-enabled .brand-wordmark .brand-logo { width: 44px; height: 25px; flex-basis: 44px; } }
