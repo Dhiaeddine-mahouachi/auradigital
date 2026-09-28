@@ -1388,3 +1388,129 @@ body[data-page="home"].cinematic-enabled .reference-hero .hero-media::after{
     background:linear-gradient(0deg,rgba(7,24,15,.66) 0%,rgba(7,24,15,.18) 48%,rgba(7,24,15,.08) 100%);
   }
 }
+
+/* CONTEXTUAL HOME SCROLL — 2026-09-28 */
+.context-scroll-enabled .reference-hero .hero-copy-block{
+  transform:translate3d(0,var(--hero-scroll-y,0),0);
+  opacity:var(--hero-scroll-opacity,1);
+  will-change:transform,opacity;
+}
+.context-scroll-enabled .reference-hero .hero-note{
+  transform:translate3d(0,var(--hero-note-y,0),0);
+  will-change:transform;
+}
+
+.context-scroll-enabled .services-grid .service-card>div,
+.context-scroll-enabled .services-grid .service-card>.service-link{
+  transform:translate3d(var(--ctx-x,0),var(--ctx-y,0),0);
+  opacity:var(--ctx-opacity,1);
+  will-change:transform,opacity;
+}
+.context-scroll-enabled .services-grid .service-card::before{
+  transform:scaleY(var(--service-line,1));
+  transform-origin:top;
+}
+.context-scroll-enabled .visual-explainer>div{
+  transform:translate3d(var(--ctx-x,0),var(--ctx-y,0),0);
+  opacity:var(--ctx-opacity,1);
+  will-change:transform,opacity;
+}
+
+.context-scroll-enabled .studio-video .video-panel video.cinema-scrub-media{
+  transform:
+    translate3d(0,var(--cinema-media-y,0px),0)
+    scale(var(--studio-scale,1.035));
+  will-change:transform;
+}
+.context-scroll-enabled .studio-video .video-overlay{
+  transform:translate3d(0,var(--studio-copy-y,0),0);
+  opacity:var(--studio-copy-opacity,1);
+  will-change:transform,opacity;
+}
+
+.context-scroll-enabled .campaign-stage .ad-card{
+  animation:none!important;
+  transform:
+    translate3d(var(--ad-x,0),var(--ad-y,0),0)
+    rotate(var(--ad-rot,0deg));
+  opacity:var(--ad-opacity,1);
+  will-change:transform,opacity;
+}
+.context-scroll-enabled .business-flow>div{
+  position:relative;
+  transform:translate3d(var(--ctx-x,0),var(--ctx-y,0),0);
+  opacity:var(--ctx-opacity,1);
+  will-change:transform,opacity;
+}
+.context-scroll-enabled .business-flow>div::after{
+  content:"";
+  position:absolute;
+  left:24px;
+  right:24px;
+  bottom:0;
+  height:1px;
+  background:var(--aura-accent);
+  transform:scaleX(var(--flow-progress,0));
+  transform-origin:left;
+  opacity:.8;
+}
+
+.context-scroll-enabled .process-step{
+  overflow:hidden;
+}
+.context-scroll-enabled .process-step::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:100%;
+  height:1px;
+  background:linear-gradient(90deg,var(--aura-accent),rgba(225,225,0,.16));
+  transform:scaleX(var(--step-progress,0));
+  transform-origin:left;
+}
+.context-scroll-enabled .process-step>b,
+.context-scroll-enabled .process-step>h3,
+.context-scroll-enabled .process-step>p{
+  transform:translate3d(var(--step-copy-x,0),0,0);
+  opacity:var(--step-copy-opacity,1);
+  will-change:transform,opacity;
+}
+
+.context-scroll-enabled .cta-box .display,
+.context-scroll-enabled .cta-box .muted,
+.context-scroll-enabled .cta-box .hero-actions{
+  transform:translate3d(0,var(--cta-y,0),0);
+  opacity:var(--cta-opacity,1);
+  will-change:transform,opacity;
+}
+.context-scroll-enabled .cta-box .display em{
+  text-shadow:0 0 calc(28px * var(--cta-accent,0)) rgba(225,225,0,.18);
+}
+
+@media (max-width:700px){
+  .context-scroll-enabled .campaign-stage .ad-card{
+    --ad-x:0px!important;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .context-scroll-enabled .reference-hero .hero-copy-block,
+  .context-scroll-enabled .reference-hero .hero-note,
+  .context-scroll-enabled .services-grid .service-card>div,
+  .context-scroll-enabled .services-grid .service-card>.service-link,
+  .context-scroll-enabled .visual-explainer>div,
+  .context-scroll-enabled .studio-video .video-overlay,
+  .context-scroll-enabled .campaign-stage .ad-card,
+  .context-scroll-enabled .business-flow>div,
+  .context-scroll-enabled .process-step>b,
+  .context-scroll-enabled .process-step>h3,
+  .context-scroll-enabled .process-step>p,
+  .context-scroll-enabled .cta-box .display,
+  .context-scroll-enabled .cta-box .muted,
+  .context-scroll-enabled .cta-box .hero-actions{
+    transform:none!important;
+    opacity:1!important;
+  }
+}
+
