@@ -162,7 +162,7 @@ body.cinematic-enabled ::selection{background:var(--aura-accent);color:#081a11}
     linear-gradient(90deg,#07180f 0%,rgba(7,9,7,.76) 14%,rgba(7,9,7,.12) 48%,rgba(7,9,7,.1) 100%),
     linear-gradient(0deg,rgba(7,9,7,.7),transparent 48%);
 }
-.cinematic-enabled .hero-media video{filter:saturate(.82) contrast(1.08) brightness(.8)}
+.cinematic-enabled .hero-media video{filter:none}
 .cinematic-enabled .hero-grid{position:relative;z-index:4;grid-template-columns:minmax(0,1.2fr) minmax(240px,.38fr);gap:clamp(30px,7vw,120px);align-items:end}
 .cinematic-enabled .hero-copy-block{max-width:920px}
 .cinematic-enabled .hero .display{
@@ -1376,3 +1376,15 @@ body[data-page="auramenu"] .menu-action-assisted{
 .cookie-consent .btn-primary{background:#e1e100;color:#0b2417}
 .cookie-consent .cookie-reject{background:#f2f5ef;color:#0b2417}
 .btn-light{color:#0b2417}
+
+/* Keep the supplied homepage film visible while shading only the copy area. */
+body[data-page="home"].cinematic-enabled .reference-hero .hero-media{opacity:1}
+body[data-page="home"].cinematic-enabled .reference-hero .hero-media::after{
+  background:linear-gradient(90deg,rgba(7,24,15,.58) 0%,rgba(7,24,15,.30) 38%,rgba(7,24,15,.04) 75%);
+}
+@media (max-width:860px){
+  body[data-page="home"].cinematic-enabled .reference-hero .hero-media{opacity:1}
+  body[data-page="home"].cinematic-enabled .reference-hero .hero-media::after{
+    background:linear-gradient(0deg,rgba(7,24,15,.66) 0%,rgba(7,24,15,.18) 48%,rgba(7,24,15,.08) 100%);
+  }
+}
