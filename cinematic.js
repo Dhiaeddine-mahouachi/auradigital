@@ -18,7 +18,7 @@
   }
   theme.content = "#07180f";
 
-  if (!reducedMotion) {
+  if (body.dataset.page === "home" && !reducedMotion) {
     const loader = document.createElement("div");
     loader.className = "cinema-loader cinema-loader--draw";
     loader.setAttribute("role", "status");
