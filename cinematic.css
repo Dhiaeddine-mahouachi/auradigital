@@ -59,16 +59,12 @@ body.cinematic-enabled ::selection{background:var(--aura-accent);color:#081a11}
 /* preloader */
 .cinema-loader{
   position:fixed;inset:0;z-index:10000;display:grid;place-items:center;
-  background:#06140d;color:var(--aura-text);
-  transition:clip-path .9s var(--aura-ease),visibility .9s;
-  clip-path:inset(0 0 0 0);
+  background:#ffff00;color:#081a11;
+  opacity:1;transition:opacity .45s ease,visibility .45s;
 }
-.cinema-loader.is-done{clip-path:inset(0 0 100% 0);visibility:hidden}
-.cinema-loader-inner{width:min(520px,calc(100% - 48px))}
-.cinema-loader-top{display:flex;align-items:center;justify-content:space-between;gap:20px;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;font-weight:800}
-.cinema-loader-number{font-size:clamp(4rem,11vw,8rem);line-height:.8;letter-spacing:-.075em;font-weight:800;margin:32px 0 20px}
-.cinema-loader-line{height:1px;background:rgba(255,255,255,.18);overflow:hidden}
-.cinema-loader-line i{display:block;height:100%;width:100%;transform:scaleX(0);transform-origin:left;background:var(--aura-accent)}
+.cinema-loader.is-done{opacity:0;visibility:hidden;pointer-events:none}
+.cinema-loader-logo{display:block;width:clamp(88px,18vw,142px);height:auto;animation:cinema-logo-spin 1.4s linear infinite;will-change:transform}
+@keyframes cinema-logo-spin{to{transform:rotate(360deg)}}
 
 /* global motion */
 .cinema-glow{
@@ -523,7 +519,6 @@ body.cinematic-enabled ::selection{background:var(--aura-accent);color:#081a11}
   .cinematic-enabled .project-arrow{margin-top:18px}
   .cinematic-enabled .cta-box{min-height:62svh;border-radius:12px;padding:28px 20px}
   .cinematic-enabled .cta-box .display{font-size:clamp(3rem,14vw,4.6rem)}
-  .cinema-loader-number{font-size:5.4rem}
 }
 @media (prefers-reduced-motion:reduce){
   .cinema-loader{display:none}
@@ -1276,27 +1271,3 @@ body.cinematic-enabled::before{
 .cinematic-enabled .footer-wordmark .brand-logo { width: 64px; height: 36px; flex-basis: 64px; }
 @media (max-width: 760px) { .cinematic-enabled .brand-wordmark .brand-logo { width: 44px; height: 25px; flex-basis: 44px; } }
 
-
-/* Homepage video loader */
-.cinema-loader--video{
-  padding:0;
-  overflow:hidden;
-  background:rgb(228,241,48);
-  color:#081a11;
-  clip-path:none;
-  opacity:1;
-  transition:opacity .65s var(--aura-ease),visibility .65s;
-}
-.cinema-loader--video.is-done{
-  clip-path:none;
-  opacity:0;
-  visibility:hidden;
-}
-.cinema-loader-video{
-  display:block;
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  object-position:center;
-  background:rgb(228,241,48);
-}
