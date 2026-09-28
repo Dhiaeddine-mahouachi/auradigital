@@ -1355,3 +1355,24 @@ body.cinematic-enabled .btn-light:hover{
 .site-header .nav{
   background-color:rgba(10,30,20,.94);
 }
+
+/* First-paint contrast before the motion script marks the page ready. */
+body:is([data-page="packages"],[data-page="portfolio"],[data-page="auramenu"]) .page-hero .display{
+  color:#0b2417;
+}
+body:is([data-page="packages"],[data-page="portfolio"],[data-page="auramenu"]) .page-hero .eyebrow{
+  color:#244635;
+}
+body[data-page="auramenu"] .menu-action-designs{color:#0b2417}
+body[data-page="auramenu"] .menu-action-self{color:#0b2417}
+body[data-page="auramenu"] .menu-action-assisted{
+  background:#0b2417;
+  color:#f2f5ef;
+}
+.menu-phone.phone-mobile-pro,
+.menu-choice-card{color:#0b2417}
+.business-flow{background:#10281b;color:#f2f5ef}
+.aura-canvas-status{background:rgba(11,36,23,.96);color:#f2f5ef}
+.cookie-consent .btn-primary{background:#e1e100;color:#0b2417}
+.cookie-consent .cookie-reject{background:#f2f5ef;color:#0b2417}
+.btn-light{color:#0b2417}
