@@ -65,7 +65,7 @@ export function secureResponse(response, request, env, ctx) {
   if (!headers.has('Referrer-Policy')) headers.set('Referrer-Policy', 'no-referrer');
   if (!headers.has('Content-Security-Policy')) headers.set('Content-Security-Policy',
     (headers.get('Content-Type') || '').includes('text/html')
-      ? "default-src 'self'; script-src 'self' 'sha256-UAGFOclbJeOTJt6ykzUdMkWrB/JUYHloVyIHrRTFOAQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self'; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+      ? "default-src 'self'; script-src 'self' 'sha256-UAGFOclbJeOTJt6ykzUdMkWrB/JUYHloVyIHrRTFOAQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
       : "default-src 'none'; frame-ancestors 'none'; base-uri 'none'");
   if (new URL(request.url).pathname.startsWith('/api/admin/')) headers.set('Cache-Control', 'no-store');
   for (const name of ['Server', 'X-Powered-By']) headers.delete(name);
