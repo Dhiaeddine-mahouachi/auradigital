@@ -28,10 +28,10 @@
       };
       // The animation starts in the initial markup. Keep it visible until it completes,
       // but let CSS clear the overlay even if this script fails to load.
-      const whenReady = () => setTimeout(dismissLoader, Math.max(0, 4200 - performance.now()));
+      const whenReady = () => setTimeout(dismissLoader, Math.max(0, 3200 - performance.now()));
       if (document.readyState === "complete") whenReady();
       else addEventListener("load", whenReady, { once: true });
-      setTimeout(dismissLoader, 6100);
+      setTimeout(dismissLoader, 5100);
     }
   }
 
