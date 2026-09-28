@@ -1271,3 +1271,82 @@ body.cinematic-enabled::before{
 .cinematic-enabled .footer-wordmark .brand-logo { width: 64px; height: 36px; flex-basis: 64px; }
 @media (max-width: 760px) { .cinematic-enabled .brand-wordmark .brand-logo { width: 44px; height: 25px; flex-basis: 44px; } }
 
+
+
+/* Text contrast on intentionally light sections and controls. */
+body.cinematic-enabled:is([data-page="packages"],[data-page="portfolio"],[data-page="auramenu"]) .page-hero .display{
+  color:#0b2417;
+}
+body.cinematic-enabled:is([data-page="packages"],[data-page="portfolio"],[data-page="auramenu"]) .page-hero .eyebrow{
+  color:#244635;
+}
+body.cinematic-enabled .auramenu-hero .menu-action-designs{
+  background:rgba(255,255,255,.72);
+  color:#0b2417;
+  border-color:rgba(11,36,23,.3);
+}
+body.cinematic-enabled .auramenu-hero .menu-action-self{
+  background:#e1e100;
+  color:#0b2417;
+  border-color:#0b2417;
+}
+body.cinematic-enabled .auramenu-hero .menu-action-assisted{
+  background:#0b2417;
+  color:#f2f5ef;
+  border-color:#0b2417;
+}
+body.cinematic-enabled .auramenu-hero .menu-action-assisted:hover{
+  background:#174c3c;
+  color:#fff;
+}
+body.cinematic-enabled .menu-phone.phone-mobile-pro,
+body.cinematic-enabled .menu-choice-card{
+  color:#0b2417;
+}
+body.cinematic-enabled .aura-canvas-status{
+  background:rgba(11,36,23,.96);
+  border-color:rgba(225,225,0,.28);
+  color:#f2f5ef;
+}
+body.cinematic-enabled .aura-canvas-status small{
+  color:#b6c9ba;
+}
+body.cinematic-enabled .business-flow{
+  background:#10281b;
+  color:#f2f5ef;
+}
+body.cinematic-enabled .business-flow > div{
+  border-color:rgba(214,230,217,.14);
+}
+body.cinematic-enabled .project-live{
+  background:transparent;
+  color:#e1e100;
+  border:1px solid rgba(225,225,0,.42);
+}
+body.cinematic-enabled .project-live:hover{
+  background:#e1e100;
+  color:#0b2417;
+}
+body.cinematic-enabled .cookie-consent .btn-primary{
+  background:#e1e100;
+  color:#0b2417;
+  border-color:#e1e100;
+}
+body.cinematic-enabled .cookie-consent .cookie-reject{
+  background:#f2f5ef;
+  color:#0b2417;
+  border-color:rgba(11,36,23,.24);
+}
+body.cinematic-enabled .cookie-consent .cookie-reject:hover{
+  background:#e1e100;
+  color:#0b2417;
+}
+body.cinematic-enabled .btn-light{
+  background:#0b2417;
+  color:#f2f5ef;
+  border-color:rgba(225,225,0,.38);
+}
+body.cinematic-enabled .btn-light:hover{
+  background:#174c3c;
+  color:#fff;
+}
