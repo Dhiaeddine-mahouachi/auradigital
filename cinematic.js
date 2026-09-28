@@ -18,75 +18,21 @@
   }
   theme.content = "#07180f";
 
-  if (body.dataset.page === "home" && !reducedMotion) {
-    const loader = document.createElement("div");
-    loader.className = "cinema-loader cinema-loader--draw";
-    loader.setAttribute("role", "status");
-    loader.setAttribute("aria-label", "AuraDigital loading");
-    loader.innerHTML = `
-      <svg viewBox="0 0 1774 887" xmlns="http://www.w3.org/2000/svg"
-           aria-hidden="true" style="display:block;width:min(95vw,760px);height:auto;max-height:55svh">
-        <defs>
-          <mask id="aura-loader-d" maskUnits="userSpaceOnUse" x="0" y="0" width="1774" height="887">
-            <rect width="1774" height="887" fill="#000"/>
-            <path data-d-stroke d="M800,292 H1125 C1200,292 1232,340 1232,401 C1232,462 1200,511 1125,511 H955 V345"
-              fill="none" stroke="#fff" stroke-width="110" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1"/>
-            <rect data-d-fill width="1774" height="887" fill="#fff" opacity="0"/>
-          </mask>
-          <mask id="aura-loader-g" maskUnits="userSpaceOnUse" x="0" y="0" width="1774" height="887">
-            <rect width="1774" height="887" fill="#000"/>
-            <path data-g-stroke d="M890,396 H640 C580,396 541,445 541,494 C541,540 578,571 640,571 H814 V448"
-              fill="none" stroke="#fff" stroke-width="110" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1"/>
-            <rect data-g-fill width="1774" height="887" fill="#fff" opacity="0"/>
-          </mask>
-        </defs>
-        <g data-d-part fill="#111114">
-          <path mask="url(#aura-loader-d)"
-            d="M821,253 H1125 C1220,253 1284,320 1284,401 C1284,482 1220,550 1125,550 H905 V356 H975 C995,356 1006,368 1006,385 V473 H1110 C1150,473 1180,445 1180,403 C1180,360 1150,331 1110,331 H821 Z"/>
-        </g>
-        <g data-g-part fill="#111114">
-          <path mask="url(#aura-loader-g)"
-            d="M630,356 H868 V437 H640 C610,437 595,462 595,490 C595,510 610,530 640,530 H760 V500 C760,478 778,458 800,458 H868 V611 H620 C540,611 488,560 488,494 C488,420 550,356 630,356 Z"/>
-        </g>
-      </svg>`;
-    body.prepend(loader);
-
-    const dStroke = loader.querySelector("[data-d-stroke]");
-    const gStroke = loader.querySelector("[data-g-stroke]");
-    const dFill = loader.querySelector("[data-d-fill]");
-    const gFill = loader.querySelector("[data-g-fill]");
-    const dPart = loader.querySelector("[data-d-part]");
-    const gPart = loader.querySelector("[data-g-part]");
-    const ease = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    const overshoot = (t) => 1 + 2.9 * Math.pow(t - 1, 3) + 1.9 * Math.pow(t - 1, 2);
-    const started = performance.now();
-    let dismissed = false;
-    let animationFrame;
-    const draw = (now) => {
-      if (dismissed) return;
-      const t = Math.min(now - started, 4000);
-      dStroke.style.strokeDashoffset = String(1 - ease(clamp(t / 1400)));
-      gStroke.style.strokeDashoffset = String(1 - ease(clamp((t - 1400) / 1400)));
-      dFill.setAttribute("opacity", String(clamp((t - 1200) / 200)));
-      gFill.setAttribute("opacity", String(clamp((t - 2600) / 200)));
-      const join = t < 3100 ? 0 : overshoot(clamp((t - 3100) / 900));
-      gPart.setAttribute("transform", "translate(0," + (-24 + 24 * join) + ")");
-      dPart.setAttribute("transform", "translate(0," + (24 - 24 * join) + ")");
-      if (t < 4000) animationFrame = requestAnimationFrame(draw);
-    };
-    animationFrame = requestAnimationFrame(draw);
-
-    const dismissLoader = () => {
-      if (dismissed || !loader.isConnected) return;
-      dismissed = true;
-      cancelAnimationFrame(animationFrame);
-      loader.classList.add("is-done");
-      setTimeout(() => loader.remove(), 550);
-    };
-    const whenReady = () => setTimeout(dismissLoader, Math.max(0, 4200 - (performance.now() - started)));
-    if (document.readyState === "complete") whenReady();
-    else addEventListener("load", whenReady, { once: true });
-    setTimeout(dismissLoader, 6000);
+  if (body.dataset.page === "home") {
+    const loader = document.getElementById("landingLoader");
+    if (loader && !reducedMotion) {
+      const dismissLoader = () => {
+        if (!loader.isConnected || loader.classList.contains("is-done")) return;
+        loader.classList.add("is-done");
+        setTimeout(() => loader.remove(), 550);
+      };
+      // The animation starts in the initial markup. Keep it visible until it completes,
+      // but let CSS clear the overlay even if this script fails to load.
+      const whenReady = () => setTimeout(dismissLoader, Math.max(0, 4200 - performance.now()));
+      if (document.readyState === "complete") whenReady();
+      else addEventListener("load", whenReady, { once: true });
+      setTimeout(dismissLoader, 6100);
+    }
   }
 
   if (finePointer && !reducedMotion) {
