@@ -153,3 +153,8 @@
     display: none;
   }
 }
+
+/* The supplied horizontal mark remains legible next to the wordmark. */
+.brand-wordmark .brand-logo { width: 76px; height: 42px; flex: 0 0 76px; border-radius: 5px !important; }
+.footer-wordmark .brand-logo { width: 110px; height: 59px; flex-basis: 110px; }
+@media (max-width: 760px) { .brand-wordmark .brand-logo { width: 62px; height: 36px; flex-basis: 62px; } }
