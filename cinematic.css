@@ -1350,3 +1350,8 @@ body.cinematic-enabled .btn-light:hover{
   background:#174c3c;
   color:#fff;
 }
+
+/* Keep the navigation dark during the brief handoff from page markup to motion. */
+.site-header .nav{
+  background-color:rgba(10,30,20,.94);
+}
