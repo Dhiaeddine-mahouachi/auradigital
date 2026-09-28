@@ -1,5 +1,5 @@
 // The original GD animation uses these SVG masks, paths, easing and 24-unit join.
-// Scale its 4-second reveal to 3 seconds for the homepage loading screen.
+// Scale its 4-second reveal to 2 seconds for the homepage loading screen.
 (() => {
   const loader = document.getElementById("landingLoader");
   const find = selector => loader.querySelector(selector);
@@ -16,7 +16,7 @@
   const start = performance.now();
   function frame(now) {
     if (!loader.isConnected || loader.classList.contains("is-done")) return;
-    const t = Math.min(4000, (now - start) * (4 / 3));
+    const t = Math.min(4000, (now - start) * 2);
     pD.style.strokeDashoffset = 1 - ease(clamp(t / 1400));
     pG.style.strokeDashoffset = 1 - ease(clamp((t - 1400) / 1400));
     fD.setAttribute("opacity", clamp((t - 1200) / 200));
