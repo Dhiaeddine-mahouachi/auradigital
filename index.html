@@ -11,11 +11,61 @@
     />
     <link rel="icon" href="auradigital-mark-20260928.png" type="image/png" />
     <link rel="manifest" href="site.webmanifest" />
+    <style>
+      /* Inline so the loader covers the homepage before external files or scripts finish. */
+      html{background:#080808}
+      #landingLoader{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#080808;color:#111114;opacity:1;visibility:visible;animation:loader-safety 6.6s step-end forwards}
+      #landingLoader .cinema-loader-orb{width:clamp(230px,56vmin,480px);aspect-ratio:1;position:relative;display:block;overflow:hidden;border-radius:50%;background:#ffff00}
+      #landingLoader .cinema-loader-art{display:block;width:125%;height:auto;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+      #landingLoader.is-done{animation:none;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility .45s ease}
+      @keyframes loader-safety{to{opacity:0;visibility:hidden;pointer-events:none}}
+      #landingLoader [data-d-stroke]{animation:loader-draw 1.4s cubic-bezier(.65,0,.35,1) forwards}
+      #landingLoader [data-g-stroke]{animation:loader-draw 1.4s 1.4s cubic-bezier(.65,0,.35,1) forwards}
+      #landingLoader [data-d-fill]{animation:loader-fill .2s 1.2s linear forwards}
+      #landingLoader [data-g-fill]{animation:loader-fill .2s 2.6s linear forwards}
+      #landingLoader [data-d-part]{animation:loader-join-d .9s 3.1s cubic-bezier(.34,1.3,.5,1) forwards}
+      #landingLoader [data-g-part]{animation:loader-join-g .9s 3.1s cubic-bezier(.34,1.3,.5,1) forwards}
+      @keyframes loader-draw{to{stroke-dashoffset:0}}
+      @keyframes loader-fill{to{opacity:1}}
+      @keyframes loader-join-d{from{transform:translateY(9px)}to{transform:translateY(0)}}
+      @keyframes loader-join-g{from{transform:translateY(-9px)}to{transform:translateY(0)}}
+      @media(max-width:600px){#landingLoader .cinema-loader-orb{width:min(78vw,340px)}}
+      @media(prefers-reduced-motion:reduce){#landingLoader{display:none}}
+    </style>
     <link rel="stylesheet" href="style.css?v=darker-20260926-2" />
     <link rel="stylesheet" href="responsive.css?v=darker-20260926-2" />
     <link rel="stylesheet" href="cinematic.css?v=20260928-logo-spin-1" />
   </head>
   <body data-page="home">
+    <div id="landingLoader" class="cinema-loader cinema-loader--draw" role="status" aria-label="AuraDigital loading">
+      <span class="cinema-loader-orb">
+      <svg viewBox="0 0 1774 887" xmlns="http://www.w3.org/2000/svg"
+           aria-hidden="true" class="cinema-loader-art">
+        <defs>
+          <mask id="aura-loader-d" maskUnits="userSpaceOnUse" x="0" y="0" width="1774" height="887">
+            <rect width="1774" height="887" fill="#000"/>
+            <path data-d-stroke d="M800,292 H1125 C1200,292 1232,340 1232,401 C1232,462 1200,511 1125,511 H955 V345"
+              fill="none" stroke="#fff" stroke-width="110" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1"/>
+            <rect data-d-fill width="1774" height="887" fill="#fff" opacity="0"/>
+          </mask>
+          <mask id="aura-loader-g" maskUnits="userSpaceOnUse" x="0" y="0" width="1774" height="887">
+            <rect width="1774" height="887" fill="#000"/>
+            <path data-g-stroke d="M890,396 H640 C580,396 541,445 541,494 C541,540 578,571 640,571 H814 V448"
+              fill="none" stroke="#fff" stroke-width="110" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1"/>
+            <rect data-g-fill width="1774" height="887" fill="#fff" opacity="0"/>
+          </mask>
+        </defs>
+        <g data-d-part fill="#111114">
+          <path mask="url(#aura-loader-d)"
+            d="M821,253 H1125 C1220,253 1284,320 1284,401 C1284,482 1220,550 1125,550 H905 V356 H975 C995,356 1006,368 1006,385 V473 H1110 C1150,473 1180,445 1180,403 C1180,360 1150,331 1110,331 H821 Z"/>
+        </g>
+        <g data-g-part fill="#111114">
+          <path mask="url(#aura-loader-g)"
+            d="M630,356 H868 V437 H640 C610,437 595,462 595,490 C595,510 610,530 640,530 H760 V500 C760,478 778,458 800,458 H868 V611 H620 C540,611 488,560 488,494 C488,420 550,356 630,356 Z"/>
+        </g>
+      </svg>
+      </span>
+    </div>
     <header id="siteHeader"></header>
     <main>
       <section class="hero reference-hero">
@@ -519,6 +569,6 @@
     </main>
     <footer id="siteFooter"></footer>
     <script src="script.js?v=en-default-20260926-5"></script>
-    <script src="cinematic.js?v=20260928-logo-draw-2"></script>
+    <script src="cinematic.js?v=20260928-circle-3"></script>
   </body>
 </html>
