@@ -29,13 +29,6 @@ const PAGE_SEO = {
     type: "WebPage",
     serviceType: ["QR Menü", "Dijital Menü Tasarımı", "Restoran Menü Tasarımı"],
   },
-  "/aurapops": {
-    lang: "en",
-    title: "AuraPops | QR Popup Profiles, Links & Mini Games | AuraDigital",
-    description: "Build a custom QR popup profile with avatar, colors, background image, social links, maps, menus and playable Snake or Tetris. Activate after payment approval.",
-    type: "WebPage",
-    serviceType: ["QR Profile", "Digital Business Card", "Mini Game QR Experience"],
-  },
   "/aura-weddings": {
     lang: "tr",
     title: "Dijital Düğün Davetiyesi & Online Davetiye Tasarımı | AuraWeddings",
@@ -183,7 +176,6 @@ const SEO_ASSETS = new Map([
   ["/portfolio", "/portfolio.html"],
   ["/aura-menu", "/aura-menu.html"],
   ["/aura-weddings", "/aura-weddings.html"],
-  ["/aurapops", "/aurapops.html"],
   ["/nfc", "/nfc.html"],
   ["/nfc-studio", "/nfc-builder.html"],
   ["/nfc-status", "/nfc-status.html"],
