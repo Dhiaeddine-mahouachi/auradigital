@@ -16,6 +16,7 @@ const pages = [
   ["services", "/services", "Hizmetler"],
   ["portfolio", "/portfolio", "Portfolio"],
   ["auramenu", "/aura-menu", "AuraMenu"],
+  ["aurapops", "/aurapops", "AuraPops"],
   ["auraweddings", "/aura-weddings", "AuraWeddings"],
   ["packages", "/packages", "Paketler"],
   ["about", "/about", "Hakkımızda"],
