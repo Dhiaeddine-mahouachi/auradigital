@@ -15,6 +15,17 @@ test('legacy HTML service URL redirects once to the clean canonical URL', () => 
 
   const canonicalResponse = permanentSeoRedirect(new Request('https://auradigital.ink/services'));
   assert.equal(canonicalResponse, null);
+
+  const trackedResponse = permanentSeoRedirect(new Request('https://auradigitalworks.com/services.html?utm_source=google'));
+  assert.equal(trackedResponse?.headers.get('location'), 'https://auradigitalworks.com/services?utm_source=google');
+});
+
+test('public pages declare their visible default language in source HTML', async () => {
+  const pages = ['index', 'services', 'portfolio', 'aura-menu', 'aura-weddings', 'nfc', 'nfc-builder', 'qr-menu', 'packages', 'about', 'contact'];
+  for (const name of pages) {
+    const html = await readFile(new URL(`../${name}.html`, import.meta.url), 'utf8');
+    assert.match(html, /^<!doctype html>\s*<html lang="tr">/i, name);
+  }
 });
 
 test('admin shortcut redirects to the deployed dashboard entry point', async () => {

@@ -3,5 +3,7 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /qusai/
+Disallow: /restaurants/dashboard/
 
 Sitemap: https://auradigitalworks.com/sitemap.xml

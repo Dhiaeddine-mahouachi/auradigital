@@ -111,6 +111,7 @@ export function permanentSeoRedirect(request) {
   const targetPath = SEO_REDIRECTS.get(url.pathname);
   if (!targetPath) return null;
   const target = new URL(targetPath, url.origin);
+  target.search = url.search;
   return Response.redirect(target.toString(), 301);
 }
 
@@ -157,23 +158,6 @@ export async function serveSeoAsset(request, env) {
     .on("head", {
       element(element) {
         element.append(buildHeadMarkup(meta, canonical, schema), { html: true });
-      },
-    })
-    .on("video[data-background-video]", {
-      element(element) {
-        element.setAttribute("preload", "auto");
-      },
-    })
-    .on(".project-grid img", {
-      element(element) {
-        element.setAttribute("loading", "lazy");
-        element.setAttribute("decoding", "async");
-      },
-    })
-    .on(".visual-explainers img", {
-      element(element) {
-        element.setAttribute("loading", "lazy");
-        element.setAttribute("decoding", "async");
       },
     });
 
