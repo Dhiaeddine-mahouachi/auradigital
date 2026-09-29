@@ -3,7 +3,7 @@ import { ApiError, json } from './http.js';
 export function securityEvent(request, event, status, env, ctx) {
   // Fixed fields only: no bodies, cookies, tokens, query strings, IPs or exception text.
   const parts = new URL(request.url).pathname.split('/');
-  const area = ['admin', 'employee', 'auramenu', 'nfc', 'track'].includes(parts[2]) ? parts[2] : 'other';
+  const area = ['admin', 'employee', 'auramenu', 'aurapops', 'nfc', 'track'].includes(parts[2]) ? parts[2] : 'other';
   const record = {
     id: crypto.randomUUID(),
     timestamp: new Date().toISOString(),
