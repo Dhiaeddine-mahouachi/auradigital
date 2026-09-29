@@ -49,13 +49,8 @@
     return type === "snake" || type === "tetris";
   }
 
-  function defaultUrl(type) {
-    if (type === "instagram") return "https://instagram.com/";
-    if (type === "facebook") return "https://facebook.com/";
-    if (type === "tiktok") return "https://tiktok.com/@";
-    if (type === "whatsapp") return "https://wa.me/";
-    if (type === "maps") return "https://maps.google.com/";
-    return "https://";
+  function defaultUrl() {
+    return "";
   }
 
   function setNotice(message, kind = "") {
@@ -243,6 +238,21 @@
     }
   }
 
+  function validateLinks() {
+    for (let i = 0; i < state.links.length; i++) {
+      const item = state.links[i];
+      if (isGame(item.type)) continue;
+      const value = String(item.url || "").trim();
+      let parsed;
+      try { parsed = new URL(value); } catch { parsed = null; }
+      if (!parsed || !["http:","https:","mailto:","tel:"].includes(parsed.protocol)) {
+        const row = linkList.querySelector(`[data-index="${i}"]`);
+        row?.querySelector(".pop-link-url")?.focus();
+        throw new Error(`Add a valid link for "${item.label || presets[item.type]?.[0] || "this item"}".`);
+      }
+    }
+  }
+
   function payload() {
     const data = new FormData(form);
     const body = {
@@ -313,6 +323,7 @@
     button.disabled = true;
     setNotice(state.id ? "Saving changes…" : "Preparing your AuraPop…");
     try {
+      validateLinks();
       const options = {
         method: state.id ? "PATCH" : "POST",
         headers: {"Content-Type":"application/json"},
@@ -348,8 +359,7 @@
     }
   });
 
-  addItem("website","Website","https://");
-  addItem("maps","Find us","https://maps.google.com/");
+  renderLinks();
   renderPreview();
   restore();
 })();
