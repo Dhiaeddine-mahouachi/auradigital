@@ -9,7 +9,7 @@
   const previewAvatar = $("previewAvatar");
   const statusEl = $("builderStatus");
   const activation = $("activationPanel");
-  const STORAGE_KEY = "aurapops:draft:v1";
+  const STORAGE_KEY = "aurapops:draft:v2";
 
   const presets = {
     website: ["Website", "↗"],
