@@ -6,36 +6,48 @@
   <meta name="theme-color" content="#07180f" />
   <title>AuraPops — Smart QR Popup Profiles | AuraDigital</title>
   <meta name="description" content="Build a custom AuraPop with avatar, colors, background image, social links, maps, menus and playable Snake or Tetris. Create your QR and activate after payment." />
-  <link rel="icon" href="auradigital-mark-20260928.png" type="image/png" />
-  <link rel="manifest" href="site.webmanifest" />
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="responsive.css" />
-  <link rel="stylesheet" href="cinematic.css?v=20260928-contrast-6" />
-  <link rel="stylesheet" href="aurapops.css?v=20260930-1" />
+  <link rel="icon" href="/auradigital-mark-20260928.png" type="image/png" />
+  <link rel="stylesheet" href="/aurapops.css?v=20260930-3" />
 </head>
-<body class="cinematic-enabled" data-page="aurapops">
-  <header id="siteHeader"></header>
+<body data-page="aurapops">
+  <header class="ap-site-header">
+    <div class="ap-container ap-nav">
+      <a class="ap-brand" href="/" aria-label="AuraDigital home">
+        <img src="/auradigital-logo-20260928.png" alt="" />
+        <span><strong>Aura</strong>Digital</span>
+      </a>
+      <nav class="ap-main-nav" aria-label="Main navigation">
+        <a href="/services">Services</a>
+        <a href="/portfolio">Portfolio</a>
+        <a href="/aura-menu">AuraMenu</a>
+        <a class="active" href="/aurapops">AuraPops</a>
+        <a href="/aura-weddings">AuraWeddings</a>
+      </nav>
+      <a class="ap-nav-cta" href="/contact">Start a project ↗</a>
+    </div>
+  </header>
+
   <main>
-    <section class="page-hero aurapops-hero">
-      <div class="container">
-        <div class="crumb"><a href="/">AuraDigital</a> / AuraPops</div>
-        <span class="eyebrow">QR · Profile · Links · Mini games</span>
-        <h1 class="display">One scan. <em>Your whole world pops up.</em></h1>
-        <p>Create a personalized mobile popup with your avatar, background, links, menu, maps, social media and playable mini games. When you finish, your QR is ready; activation starts after payment approval.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#builder">Build your AuraPop ↓</a>
-          <a class="btn btn-ghost" href="#examples">See examples</a>
+    <section class="ap-hero">
+      <div class="ap-container">
+        <div class="ap-crumb"><a href="/">AuraDigital</a><span>/</span><b>AuraPops</b></div>
+        <span class="ap-eyebrow">QR · Profile · Links · Mini games</span>
+        <h1>One scan. <em>Your whole world pops up.</em></h1>
+        <p>Create a personalized mobile popup with your avatar, background, links, menu, maps, social media and playable mini games. Build first, get the QR, activate after payment.</p>
+        <div class="ap-hero-actions">
+          <a class="ap-btn ap-btn-primary" href="#builder">Build your AuraPop ↓</a>
+          <a class="ap-btn ap-btn-ghost" href="#examples">See examples</a>
         </div>
       </div>
     </section>
 
-    <section class="section aurapops-builder-section" id="builder">
-      <div class="container">
+    <section class="ap-section" id="builder">
+      <div class="ap-container">
         <div class="pop-builder-grid">
-          <form class="pop-builder-panel" id="popBuilder">
+          <form class="pop-builder-panel" id="popBuilder" novalidate>
             <div class="pop-builder-head">
               <div>
-                <span class="eyebrow">AuraPops Studio</span>
+                <span class="ap-eyebrow">AuraPops Studio</span>
                 <h2>Build your popup.</h2>
                 <p>Everything updates instantly in the phone preview.</p>
               </div>
@@ -85,7 +97,7 @@
                 </label>
                 <label class="pop-field span-2" id="backgroundUploadWrap" hidden>Background image
                   <input class="pop-upload" id="backgroundInput" type="file" accept="image/jpeg,image/png,image/webp" />
-                  <small>Use a vertical or square photo for the best result. Max 420 KB.</small>
+                  <small>Vertical or square works best. Max 420 KB.</small>
                 </label>
               </div>
             </section>
@@ -108,7 +120,7 @@
                 <button class="pop-add-link" id="addLink" type="button">+ Add item</button>
               </div>
               <div class="pop-link-list" id="linkList"></div>
-              <p class="pop-game-note">Snake and Tetris run directly inside the AuraPop — the visitor never needs to leave your popup.</p>
+              <p class="pop-game-note">Snake and Tetris run directly inside the AuraPop — visitors do not leave the popup.</p>
             </section>
 
             <section class="pop-step">
@@ -121,7 +133,7 @@
           </form>
 
           <aside class="pop-preview-panel">
-            <span class="eyebrow">Live preview</span>
+            <span class="ap-eyebrow">Live preview</span>
             <h2>See it before anyone scans it.</h2>
             <p>The QR will always open this exact mobile experience.</p>
 
@@ -154,32 +166,43 @@
                 </div>
               </div>
               <div class="pop-activation-actions">
-                <a class="btn btn-primary" href="https://wa.me/905385507674?text=Hello%20AuraDigital%2C%20I%20want%20to%20activate%20my%20AuraPop." target="_blank" rel="noopener noreferrer">Pay / activate via WhatsApp ↗</a>
+                <a class="ap-btn ap-btn-primary" href="https://wa.me/905385507674?text=Hello%20AuraDigital%2C%20I%20want%20to%20activate%20my%20AuraPop." target="_blank" rel="noopener noreferrer">Pay / activate via WhatsApp ↗</a>
               </div>
             </section>
           </aside>
         </div>
 
         <section class="pop-examples" id="examples">
-          <div class="section-head reveal">
-            <span class="eyebrow">Different businesses</span>
-            <div>
-              <h2 class="display">Same QR idea. <em>Different experience.</em></h2>
-            </div>
+          <div class="ap-section-head">
+            <span class="ap-eyebrow">Different businesses</span>
+            <h2>Same QR idea. <em>Different experience.</em></h2>
           </div>
           <div class="pop-example-grid">
-            <article class="pop-example reveal"><span>Restaurant</span><div><strong>Menu · Maps · Instagram</strong><p>Let guests scan once for the menu, directions, reviews and a quick game while they wait.</p></div></article>
-            <article class="pop-example reveal"><span>Personal / Creator</span><div><strong>Avatar · Social · Portfolio</strong><p>A compact profile for your NFC card, bio link, events or social media.</p></div></article>
-            <article class="pop-example reveal"><span>Business</span><div><strong>Website · Contact · Mini game</strong><p>A branded digital touchpoint that gives customers more than a normal QR code.</p></div></article>
+            <article class="pop-example"><span>Restaurant</span><div><strong>Menu · Maps · Instagram</strong><p>Let guests scan once for the menu, directions, reviews and a quick game while they wait.</p></div></article>
+            <article class="pop-example"><span>Personal / Creator</span><div><strong>Avatar · Social · Portfolio</strong><p>A compact profile for your NFC card, bio link, events or social media.</p></div></article>
+            <article class="pop-example"><span>Business</span><div><strong>Website · Contact · Mini game</strong><p>A branded digital touchpoint that gives customers more than a normal QR code.</p></div></article>
           </div>
         </section>
       </div>
     </section>
   </main>
 
-  <footer id="siteFooter"></footer>
-  <script src="site-settings.js"></script>
-  <script src="script.js?v=20260928-clean-home-1"></script>
-  <script src="aurapops.js?v=20260930-1"></script>
+  <footer class="ap-footer">
+    <div class="ap-container ap-footer-grid">
+      <a class="ap-brand ap-footer-brand" href="/">
+        <img src="/auradigital-logo-20260928.png" alt="" />
+        <span><strong>Aura</strong>Digital</span>
+      </a>
+      <div>
+        <a href="/services">Services</a>
+        <a href="/portfolio">Portfolio</a>
+        <a href="/aura-menu">AuraMenu</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <small>© 2026 AuraDigital · Istanbul</small>
+    </div>
+  </footer>
+
+  <script src="/aurapops.js?v=20260930-3"></script>
 </body>
 </html>
