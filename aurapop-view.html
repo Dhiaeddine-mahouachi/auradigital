@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#07100a" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <title>AuraPop</title>
+  <link rel="icon" href="/auradigital-mark-20260928.png" type="image/png" />
+  <link rel="stylesheet" href="/aurapop-view.css?v=20260930-1" />
+</head>
+<body>
+  <main class="ap-shell" id="shell">
+    <section class="ap-state" id="loadingState">
+      <h1>Opening AuraPop…</h1>
+      <p>Loading the profile and interactive links.</p>
+    </section>
+
+    <article class="ap-card" id="popCard" hidden>
+      <div class="ap-profile">
+        <div class="ap-avatar" id="avatar"><span>AP</span></div>
+        <h1 id="title"></h1>
+        <p id="subtitle"></p>
+      </div>
+      <div class="ap-links" id="links"></div>
+      <a class="ap-brand" href="https://auradigitalworks.com/aurapops" target="_blank" rel="noopener noreferrer">Made with <b>AuraPops</b> by AuraDigital</a>
+    </article>
+  </main>
+
+  <section class="ap-game-layer" id="gameLayer" aria-hidden="true">
+    <div class="ap-game-card" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
+      <div class="ap-game-head">
+        <h2 id="gameTitle">Game</h2>
+        <button class="ap-close" id="closeGame" type="button" aria-label="Close game">×</button>
+      </div>
+      <p class="ap-score" id="gameScore">Score: 0</p>
+      <div class="ap-canvas-wrap"><canvas id="gameCanvas" width="300" height="300"></canvas></div>
+      <div class="ap-controls" id="gameControls"></div>
+      <button class="ap-restart" id="restartGame" type="button">Restart</button>
+    </div>
+  </section>
+
+  <script src="/aurapop-view.js?v=20260930-1"></script>
+</body>
+</html>
