@@ -1,5 +1,5 @@
     const NAV = [
-      ["overview","Overview"],["nfc","NFC Design Requests"],["auramenu","AuraMenu Requests"],["aurapops","AuraPops"],["quicksite","QuickSite Requests"],["pricing","Pricing"],["packages","Packages"],["services","Services"],["portfolio","Portfolio"],
+      ["overview","Overview"],["nfc","NFC Design Requests"],["auramenu","AuraMenu Requests"],["quicksite","QuickSite Requests"],["pricing","Pricing"],["packages","Packages"],["services","Services"],["portfolio","Portfolio"],
       ["clients","Clients"],["orders","NFC / QR Orders"],["invoices","Invoices"],["subscriptions","Subscriptions"],["expenses","Expenses"],["analytics","Analytics"],["team","Team & Access","owner"],["audit","Security Log","owner"]
     ];
 
@@ -60,8 +60,8 @@
     async function checkSession(){try{const session=await api("/api/admin/session");if(session.authenticated){state.user=session.user;return showDashboard()}}catch(_){}state.user=null;$("loginView").classList.remove("hidden");$("dashboardView").classList.add("hidden")}
     async function showDashboard(){$("loginView").classList.add("hidden");$("dashboardView").classList.remove("hidden");$("currentUser").innerHTML=`<strong>${esc(state.user?.displayName||state.user?.username||"")}</strong><span>${esc(state.user?.role||"")}</span>`;buildNav();const requested=location.hash.slice(1);await openView(visibleNav().some(([id])=>id===requested)?requested:"overview")}
 
-    async function openView(view){if(!visibleNav().some(([id])=>id===view))view="overview";state.view=view;location.hash=view==="overview"?"":view;buildNav();const meta=RESOURCE[view];$("pageTitle").textContent=meta?.title||({overview:"Overview",nfc:"NFC Design Requests",auramenu:"AuraMenu Requests",quicksite:"QuickSite Requests",aurapops:"AuraPops",pricing:"Pricing",analytics:"Analytics",team:"Team & Access",audit:"Security Log"}[view]||view);$("pageSubtitle").textContent=meta?.subtitle||({overview:"Your business at a glance.",nfc:"Review colors and card details, confirm payment, then approve production.",auramenu:"Verify payment, review the requested menu and approve publishing.",quicksite:"Review customer websites, confirm payment and approve publishing.",aurapops:"Review QR popup profiles, confirm payment and activate the public QR.",pricing:"Control all public starting prices from one place.",analytics:"Privacy-friendly aggregate website traffic for the last 30 days.",team:"Individual accounts, roles and revocable access.",audit:"Recent administrator sign-ins and data changes."}[view]||"");$("content").innerHTML='<section class="panel"><p>Loading…</p></section>';
-      try{if(view==="overview")await renderOverview();else if(view==="nfc")await renderNfc();else if(view==="auramenu")await renderAuraMenu();else if(view==="aurapops")await renderAuraPops();else if(view==="quicksite")await renderQuickSite();else if(view==="pricing")await renderPricing();else if(view==="analytics")await renderAnalytics();else if(view==="team")await renderTeam();else if(view==="audit")await renderAudit();else await renderResource(view);applyReadOnlyUi()}catch(error){if(error.status===401)return checkSession();$("content").innerHTML=`<section class="panel"><div class="notice error">${esc(error.message)}</div></section>`}}
+    async function openView(view){if(!visibleNav().some(([id])=>id===view))view="overview";state.view=view;location.hash=view==="overview"?"":view;buildNav();const meta=RESOURCE[view];$("pageTitle").textContent=meta?.title||({overview:"Overview",nfc:"NFC Design Requests",auramenu:"AuraMenu Requests",quicksite:"QuickSite Requests",pricing:"Pricing",analytics:"Analytics",team:"Team & Access",audit:"Security Log"}[view]||view);$("pageSubtitle").textContent=meta?.subtitle||({overview:"Your business at a glance.",nfc:"Review colors and card details, confirm payment, then approve production.",auramenu:"Verify payment, review the requested menu and approve publishing.",quicksite:"Review customer websites, confirm payment and approve publishing.",pricing:"Control all public starting prices from one place.",analytics:"Privacy-friendly aggregate website traffic for the last 30 days.",team:"Individual accounts, roles and revocable access.",audit:"Recent administrator sign-ins and data changes."}[view]||"");$("content").innerHTML='<section class="panel"><p>Loading…</p></section>';
+      try{if(view==="overview")await renderOverview();else if(view==="nfc")await renderNfc();else if(view==="auramenu")await renderAuraMenu();else if(view==="quicksite")await renderQuickSite();else if(view==="pricing")await renderPricing();else if(view==="analytics")await renderAnalytics();else if(view==="team")await renderTeam();else if(view==="audit")await renderAudit();else await renderResource(view);applyReadOnlyUi()}catch(error){if(error.status===401)return checkSession();$("content").innerHTML=`<section class="panel"><div class="notice error">${esc(error.message)}</div></section>`}}
 
     async function renderOverview(){const d=await api("/api/admin/overview");const cards=[["NFC design requests",d.pendingNfcRequests,"warn"],["AuraMenu requests",d.pendingAuraMenus,"warn"],["QuickSite requests",d.pendingQuickSites,"warn"],["Leads",d.leads],["Active clients",d.activeClients],["Open orders",d.openOrders],["Unpaid invoices",d.unpaidInvoices],["Paid revenue",money(d.revenue),"good"],["Expenses",money(d.expenses),"warn"],["Profit",money(d.profit),d.profit>=0?"good":"warn"],["Recurring / month",money(d.recurringRevenue),"good"],["Website views · 30d",d.views30d]];$("content").innerHTML=`<div class="metrics">${cards.map(([label,value,cls=""])=>`<div class="metric ${cls}"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div><section class="panel"><div class="panel-head"><div><h2>Control center is live</h2><p>Website content, customer requests, CRM, orders, billing and KPIs share the same D1 database.</p></div><span class="status">Connected</span></div><p>New NFC, AuraMenu and QuickSite submissions remain red and locked until you confirm payment and approve them.</p></section>`}
 
@@ -84,58 +84,6 @@
     async function deleteItem(resource,id){if(!confirm("Delete this record?"))return;try{await api(`/api/admin/${resource}/${id}`,{method:"DELETE"});await openView(resource)}catch(error){alert(error.message)}}
     function closeModal(){$("modal").classList.add("hidden");$("modal").setAttribute("aria-hidden","true");state.editing=null}
 
-
-async function renderAuraPops(){
-  const data=await api("/api/admin/aurapops");
-  const items=data.items||[];
-  const pending=items.filter(item=>item.status==="pending").length;
-  const unpaid=items.filter(item=>item.paymentStatus!=="paid").length;
-  const active=items.filter(item=>item.status==="approved"&&item.paymentStatus==="paid").length;
-  const rows=items.map(item=>{
-    const live=item.status==="approved"&&item.paymentStatus==="paid";
-    const actionButtons=canWrite()?`
-      <button class="btn btn-light btn-sm" data-pop-pay="${esc(item.id)}">${item.paymentStatus==="paid"?"Mark unpaid":"Payment received"}</button>
-      <button class="btn btn-dark btn-sm" data-pop-activate="${esc(item.id)}" ${item.paymentStatus!=="paid"||live?"disabled":""}>Activate → green</button>
-      <button class="btn btn-danger btn-sm" data-pop-hold="${esc(item.id)}" ${item.status==="pending"?"disabled":""}>Pause / changes</button>
-    `:"";
-    return `<tr>
-      <td><span class="request-state ${live?"approved":"pending"}"><i></i>${live?"active":esc(item.status)}</span></td>
-      <td><strong>${esc(item.title)}</strong><small style="display:block;color:#6b7280">/pops/${esc(item.slug)}</small></td>
-      <td><span class="pill ${item.paymentStatus==="paid"?"ok":"warn"}">${item.paymentStatus==="paid"?"Paid":"Unpaid"}</span></td>
-      <td>${Array.isArray(item.links)?item.links.length:0}</td>
-      <td><div class="row-actions">
-        <a class="btn btn-light btn-sm" href="${esc(item.publicUrl)}" target="_blank" rel="noopener noreferrer">Open QR page ↗</a>
-        ${actionButtons}
-      </div></td>
-    </tr>`;
-  }).join("");
-  $("content").innerHTML=`<div class="metrics">
-    <div class="metric warn"><span>Pending</span><strong>${pending}</strong></div>
-    <div class="metric warn"><span>Waiting payment</span><strong>${unpaid}</strong></div>
-    <div class="metric good"><span>Active AuraPops</span><strong>${active}</strong></div>
-  </div>
-  <section class="panel"><div class="panel-head"><div><h2>AuraPops activation</h2><p>Customers build the popup and receive the QR immediately. The public profile only becomes available after payment is confirmed and you activate it.</p></div><span class="status">QR activation</span></div>
-  ${items.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Status</th><th>AuraPop</th><th>Payment</th><th>Items</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">No AuraPops yet.</div>'}</section>`;
-  if(!canWrite())return;
-  document.querySelectorAll("[data-pop-pay]").forEach(button=>button.addEventListener("click",async()=>{
-    const item=items.find(x=>String(x.id)===button.dataset.popPay);
-    if(!item)return;
-    button.disabled=true;
-    try{
-      const nextPayment=item.paymentStatus==="paid"?"unpaid":"paid";
-      await api("/api/admin/aurapops/"+encodeURIComponent(item.id),{method:"PATCH",body:JSON.stringify({paymentStatus:nextPayment,status:nextPayment==="unpaid"&&item.status==="approved"?"pending":item.status})});
-      await renderAuraPops();
-    }catch(error){alert(error.message)}
-  }));
-  document.querySelectorAll("[data-pop-activate]").forEach(button=>button.addEventListener("click",async()=>{
-    button.disabled=true;
-    try{await api("/api/admin/aurapops/"+encodeURIComponent(button.dataset.popActivate),{method:"PATCH",body:JSON.stringify({status:"approved",paymentStatus:"paid"})});await renderAuraPops()}catch(error){alert(error.message)}
-  }));
-  document.querySelectorAll("[data-pop-hold]").forEach(button=>button.addEventListener("click",async()=>{
-    button.disabled=true;
-    try{await api("/api/admin/aurapops/"+encodeURIComponent(button.dataset.popHold),{method:"PATCH",body:JSON.stringify({status:"pending"})});await renderAuraPops()}catch(error){alert(error.message)}
-  }));
-}
 
 async function renderNfc(){
   const data=await api("/api/admin/nfc");
