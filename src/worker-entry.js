@@ -4,7 +4,6 @@ import { handleAuraMenuDashboard } from './auramenu-dashboard.js';
 import { handleAdminWorkspace } from './admin-workspace.js';
 import { serveEmployeePortal } from './employee-portal.js';
 import { permanentSeoRedirect, serveSeoAsset } from './seo.js';
-import { handleAuraPops } from './aurapops.js';
 
 const router = {
   async fetch(request, env, ctx) {
@@ -27,11 +26,6 @@ const router = {
       return env.ASSETS.fetch(new Request(assetUrl, request));
     }
 
-    if (/^\/pops\/[a-z0-9-]+$/i.test(url.pathname) && (request.method === 'GET' || request.method === 'HEAD')) {
-      const assetUrl = new URL('/aurapop-view.html', url);
-      return env.ASSETS.fetch(new Request(assetUrl, request));
-    }
-
     const seoRedirect = permanentSeoRedirect(request);
     if (seoRedirect) return seoRedirect;
 
@@ -42,9 +36,6 @@ const router = {
     if (workspaceResponse) return workspaceResponse;
     const dashboardResponse = await handleAuraMenuDashboard(request, env);
     if (dashboardResponse) return dashboardResponse;
-
-    const auraPopsResponse = await handleAuraPops(request, env);
-    if (auraPopsResponse) return auraPopsResponse;
 
     const seoAssetResponse = await serveSeoAsset(request, env);
     if (seoAssetResponse) return seoAssetResponse;
