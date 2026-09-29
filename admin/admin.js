@@ -93,29 +93,29 @@ async function renderAuraPops(){
   const active=items.filter(item=>item.status==="approved"&&item.paymentStatus==="paid").length;
   const rows=items.map(item=>{
     const live=item.status==="approved"&&item.paymentStatus==="paid";
-    const actionButtons=canWrite()?\`
-      <button class="btn btn-light btn-sm" data-pop-pay="\${esc(item.id)}">\${item.paymentStatus==="paid"?"Mark unpaid":"Payment received"}</button>
-      <button class="btn btn-dark btn-sm" data-pop-activate="\${esc(item.id)}" \${item.paymentStatus!=="paid"||live?"disabled":""}>Activate → green</button>
-      <button class="btn btn-danger btn-sm" data-pop-hold="\${esc(item.id)}" \${item.status==="pending"?"disabled":""}>Pause / changes</button>
-    \`:"";
-    return \`<tr>
-      <td><span class="request-state \${live?"approved":"pending"}"><i></i>\${live?"active":esc(item.status)}</span></td>
-      <td><strong>\${esc(item.title)}</strong><small style="display:block;color:#6b7280">/pops/\${esc(item.slug)}</small></td>
-      <td><span class="pill \${item.paymentStatus==="paid"?"ok":"warn"}">\${item.paymentStatus==="paid"?"Paid":"Unpaid"}</span></td>
-      <td>\${Array.isArray(item.links)?item.links.length:0}</td>
+    const actionButtons=canWrite()?`
+      <button class="btn btn-light btn-sm" data-pop-pay="${esc(item.id)}">${item.paymentStatus==="paid"?"Mark unpaid":"Payment received"}</button>
+      <button class="btn btn-dark btn-sm" data-pop-activate="${esc(item.id)}" ${item.paymentStatus!=="paid"||live?"disabled":""}>Activate → green</button>
+      <button class="btn btn-danger btn-sm" data-pop-hold="${esc(item.id)}" ${item.status==="pending"?"disabled":""}>Pause / changes</button>
+    `:"";
+    return `<tr>
+      <td><span class="request-state ${live?"approved":"pending"}"><i></i>${live?"active":esc(item.status)}</span></td>
+      <td><strong>${esc(item.title)}</strong><small style="display:block;color:#6b7280">/pops/${esc(item.slug)}</small></td>
+      <td><span class="pill ${item.paymentStatus==="paid"?"ok":"warn"}">${item.paymentStatus==="paid"?"Paid":"Unpaid"}</span></td>
+      <td>${Array.isArray(item.links)?item.links.length:0}</td>
       <td><div class="row-actions">
-        <a class="btn btn-light btn-sm" href="\${esc(item.publicUrl)}" target="_blank" rel="noopener noreferrer">Open QR page ↗</a>
-        \${actionButtons}
+        <a class="btn btn-light btn-sm" href="${esc(item.publicUrl)}" target="_blank" rel="noopener noreferrer">Open QR page ↗</a>
+        ${actionButtons}
       </div></td>
-    </tr>\`;
+    </tr>`;
   }).join("");
-  $("content").innerHTML=\`<div class="metrics">
-    <div class="metric warn"><span>Pending</span><strong>\${pending}</strong></div>
-    <div class="metric warn"><span>Waiting payment</span><strong>\${unpaid}</strong></div>
-    <div class="metric good"><span>Active AuraPops</span><strong>\${active}</strong></div>
+  $("content").innerHTML=`<div class="metrics">
+    <div class="metric warn"><span>Pending</span><strong>${pending}</strong></div>
+    <div class="metric warn"><span>Waiting payment</span><strong>${unpaid}</strong></div>
+    <div class="metric good"><span>Active AuraPops</span><strong>${active}</strong></div>
   </div>
   <section class="panel"><div class="panel-head"><div><h2>AuraPops activation</h2><p>Customers build the popup and receive the QR immediately. The public profile only becomes available after payment is confirmed and you activate it.</p></div><span class="status">QR activation</span></div>
-  \${items.length?\`<div class="table-wrap"><table class="data-table"><thead><tr><th>Status</th><th>AuraPop</th><th>Payment</th><th>Items</th><th></th></tr></thead><tbody>\${rows}</tbody></table></div>\`:'<div class="empty">No AuraPops yet.</div>'}</section>\`;
+  ${items.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Status</th><th>AuraPop</th><th>Payment</th><th>Items</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">No AuraPops yet.</div>'}</section>`;
   if(!canWrite())return;
   document.querySelectorAll("[data-pop-pay]").forEach(button=>button.addEventListener("click",async()=>{
     const item=items.find(x=>String(x.id)===button.dataset.popPay);
