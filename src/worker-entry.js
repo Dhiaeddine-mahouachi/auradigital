@@ -1,6 +1,7 @@
 import { requestPolicy, secureResponse, errorResponse } from './security-policy.js';
 import app from './worker.js';
 import { handleAuraMenuDashboard } from './auramenu-dashboard.js';
+import { handleAuraPopsAdmin } from './aurapops-admin.js';
 import { handleAdminWorkspace } from './admin-workspace.js';
 import { serveEmployeePortal } from './employee-portal.js';
 import { permanentSeoRedirect, serveSeoAsset } from './seo.js';
@@ -32,6 +33,8 @@ const router = {
     const employeePortalResponse = await serveEmployeePortal(request, env);
     if (employeePortalResponse) return employeePortalResponse;
 
+    const auraPopsAdminResponse = await handleAuraPopsAdmin(request, env);
+    if (auraPopsAdminResponse) return auraPopsAdminResponse;
     const workspaceResponse = await handleAdminWorkspace(request, env);
     if (workspaceResponse) return workspaceResponse;
     const dashboardResponse = await handleAuraMenuDashboard(request, env);
