@@ -1,7 +1,7 @@
 (() => {
   const VIEW_ID = "aurapops";
   const VIEW_LABEL = "AuraPops Requests";
-  const POP_API = "/api/aurapops/admin";
+  const POP_API = "/api/admin/aurapops";
 
   if (!Array.isArray(NAV) || NAV.some(([id]) => id === VIEW_ID)) return;
   const auraMenuIndex = NAV.findIndex(([id]) => id === "auramenu");
