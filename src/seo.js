@@ -36,6 +36,13 @@ const PAGE_SEO = {
     type: "WebPage",
     serviceType: ["Dijital Düğün Davetiyesi", "Online Davetiye Tasarımı", "Dijital Davetiye"],
   },
+  "/aurapops": {
+    lang: "en",
+    title: "AuraPops Smart QR Popups | AuraDigital",
+    description: "Explore AuraPops smart QR popup designs for menus, social links, maps, contact actions and interactive mini games, then build yours on aurapops.online.",
+    type: "WebPage",
+    serviceType: ["Smart QR Popup", "Digital Link Profile", "Interactive QR Experience"],
+  },
   "/nfc": {
     lang: "tr",
     title: "NFC Kart & Google Yorum Kartı İstanbul | AuraDigital",
@@ -176,6 +183,7 @@ const SEO_ASSETS = new Map([
   ["/portfolio", "/portfolio.html"],
   ["/aura-menu", "/aura-menu.html"],
   ["/aura-weddings", "/aura-weddings.html"],
+  ["/aurapops", "/aurapops.html"],
   ["/nfc", "/nfc.html"],
   ["/nfc-studio", "/nfc-builder.html"],
   ["/nfc-status", "/nfc-status.html"],
