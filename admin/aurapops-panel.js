@@ -55,7 +55,7 @@
       return `<tr>
         <td>${visual(item)}</td>
         <td><span class="request-state ${live ? "approved" : esc(item.status)}"><i></i>${live ? "active" : esc(item.status)}</span></td>
-        <td><div class="aurapop-title"><strong>${esc(item.title)}</strong><small>/pops/${esc(item.slug)}</small></div></td>
+        <td><div class="aurapop-title"><strong>${esc(item.title)}</strong><small>aurapops.online/pops/${esc(item.slug)}</small></div></td>
         <td><span class="pill ${item.paymentStatus === "paid" ? "ok" : "warn"}">${item.paymentStatus === "paid" ? "Paid" : "Unpaid"}</span></td>
         <td>${Array.isArray(item.links) ? item.links.length : 0}</td>
         <td><small>${esc(item.updatedAt || "—")}</small></td>
@@ -79,7 +79,7 @@
       <section class="panel">
         <div class="panel-head">
           <div><h2>AuraPops requests</h2><p>Review each popup, confirm payment, activate it, pause it or reject it directly from the main AuraDigital dashboard.</p></div>
-          <a class="btn btn-dark" href="/aurapops" target="_blank" rel="noopener noreferrer">Open AuraPops Studio ↗</a>
+          <a class="btn btn-dark" href="https://aurapops.online/" target="_blank" rel="noopener noreferrer">Open AuraPops Studio ↗</a>
         </div>
         ${items.length ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Preview</th><th>Status</th><th>AuraPop</th><th>Payment</th><th>Items</th><th>Updated</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<div class="empty">No AuraPops requests yet.</div>'}
       </section>`;
