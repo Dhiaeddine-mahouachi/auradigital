@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#07180f" />
+    <title>AuraPops — Smart QR Popup Experiences | AuraDigital</title>
+    <meta name="description" content="Explore AuraPops smart QR popup designs by AuraDigital, then open the standalone AuraPops Studio to create your own branded popup." />
+    <link rel="icon" href="auradigital-mark-20260928.png" type="image/png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="responsive.css" />
+    <link rel="stylesheet" href="cinematic.css?v=20260928-contrast-6" />
+    <style>
+      .pops-hero{padding-bottom:72px}
+      .pops-hero-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.75fr);gap:56px;align-items:center}
+      .pops-hero .hero-actions{margin-top:28px}
+      .pops-studio-btn{background:#e1e100!important;color:#10140d!important;border-color:#e1e100!important}
+      .pops-stack{position:relative;min-height:540px;display:grid;place-items:center}
+      .pops-device{position:absolute;width:min(280px,72%);aspect-ratio:9/16;border:7px solid #1b2821;border-radius:34px;background:#0a160f;box-shadow:0 28px 70px rgba(0,0,0,.28);overflow:hidden}
+      .pops-device:nth-child(1){transform:translate(-24px,16px) rotate(-7deg)}
+      .pops-device:nth-child(2){transform:translate(52px,-18px) rotate(8deg)}
+      .pops-device-inner{height:100%;padding:48px 17px 22px;display:flex;flex-direction:column;align-items:center;background:radial-gradient(circle at 50% 12%,rgba(225,225,0,.16),transparent 34%),linear-gradient(180deg,#143323,#07120c);color:#fff}
+      .pops-device.blue .pops-device-inner{background:radial-gradient(circle at 50% 12%,rgba(93,189,255,.22),transparent 34%),linear-gradient(180deg,#122537,#08121c)}
+      .pops-avatar{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;border:3px solid #e1e100;background:#ebefe9;color:#122116;font-weight:950;font-size:22px}
+      .blue .pops-avatar{border-color:#7ed7ff}
+      .pops-device h3{margin:15px 0 4px;font-size:24px}
+      .pops-device p{margin:0 0 17px;font-size:11px;opacity:.7;text-align:center}
+      .pops-link{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 13px;margin:4px 0;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(255,255,255,.06);font-size:12px;font-weight:800}
+      .pops-link i{font-style:normal;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#e1e100;color:#10140d}
+      .blue .pops-link i{background:#7ed7ff}
+      .pops-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+      .pops-card{border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:18px;background:linear-gradient(180deg,rgba(16,36,25,.95),rgba(8,20,13,.98));overflow:hidden}
+      .pops-preview{aspect-ratio:4/5;border-radius:18px;padding:22px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+      .pops-preview::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 20%,rgba(3,8,5,.8))}
+      .pops-preview > *{position:relative;z-index:1}
+      .pops-preview.restaurant{background:radial-gradient(circle at 65% 18%,#d6a45c 0 7%,transparent 8%),linear-gradient(145deg,#2e1f14,#0f1d15)}
+      .pops-preview.creator{background:radial-gradient(circle at 50% 20%,#917cff 0 9%,transparent 10%),linear-gradient(145deg,#14152d,#10232d)}
+      .pops-preview.club{background:radial-gradient(circle at 50% 16%,#e1e100 0 8%,transparent 9%),linear-gradient(145deg,#172814,#06120b)}
+      .pops-mini-avatar{width:62px;height:62px;border-radius:50%;background:#fff;color:#111;display:grid;place-items:center;font-weight:950;border:3px solid #e1e100;margin-bottom:14px}
+      .pops-preview h3{margin:0 0 4px;color:#fff;font-size:26px}
+      .pops-preview p{margin:0;color:rgba(255,255,255,.68);font-size:12px}
+      .pops-tags{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0 4px}
+      .pops-tags span{border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 8px;font-size:10px;color:#a8b7ac}
+      .pops-card h3{margin:16px 0 7px}
+      .pops-card>p{color:var(--muted)}
+      .pops-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+      .pops-flow article{border-top:1px solid rgba(255,255,255,.16);padding-top:18px}
+      .pops-flow b{display:block;color:#e1e100;font-size:11px;letter-spacing:.12em;margin-bottom:10px}
+      .pops-flow h3{margin:0 0 8px}
+      .pops-flow p{margin:0;color:var(--muted)}
+      @media(max-width:980px){.pops-hero-grid{grid-template-columns:1fr}.pops-stack{min-height:480px}.pops-gallery{grid-template-columns:1fr 1fr}.pops-flow{grid-template-columns:1fr 1fr}}
+      @media(max-width:650px){.pops-stack{min-height:410px}.pops-device{width:230px}.pops-device:nth-child(1){transform:translate(-34px,10px) rotate(-6deg)}.pops-device:nth-child(2){transform:translate(40px,-8px) rotate(7deg)}.pops-gallery,.pops-flow{grid-template-columns:1fr}}
+    </style>
+  </head>
+  <body data-page="aurapops">
+    <header id="siteHeader"></header>
+    <main>
+      <section class="page-hero pops-hero">
+        <div class="container pops-hero-grid">
+          <div>
+            <div class="crumb"><a href="/">AuraDigital</a> / AuraPops</div>
+            <span class="eyebrow">SMART QR EXPERIENCES</span>
+            <h1 class="display">One QR. <em>Your whole digital world.</em></h1>
+            <p>AuraPops turns one scan into a branded mini experience: profile, menu, social links, maps, contact actions and even playable mini games. This page shows selected AuraPops design directions; the full builder lives independently at aurapops.online.</p>
+            <div class="hero-actions">
+              <a class="btn pops-studio-btn" href="https://aurapops.online/" target="_blank" rel="noopener noreferrer">Open AuraPops Studio ↗</a>
+              <a class="btn btn-ghost" href="#showcase">See designs ↓</a>
+            </div>
+          </div>
+          <div class="pops-stack" aria-label="AuraPops design previews">
+            <div class="pops-device">
+              <div class="pops-device-inner">
+                <div class="pops-avatar">A</div>
+                <h3>AURA CAFE</h3>
+                <p>Menu · Maps · Instagram</p>
+                <div class="pops-link"><span>Digital Menu</span><i>☰</i></div>
+                <div class="pops-link"><span>Find us</span><i>⌖</i></div>
+                <div class="pops-link"><span>Instagram</span><i>IG</i></div>
+                <div class="pops-link"><span>Play Snake</span><i>S</i></div>
+              </div>
+            </div>
+            <div class="pops-device blue">
+              <div class="pops-device-inner">
+                <div class="pops-avatar">DP</div>
+                <h3>DHIA PROFILE</h3>
+                <p>Portfolio · LinkedIn · Contact</p>
+                <div class="pops-link"><span>Portfolio</span><i>↗</i></div>
+                <div class="pops-link"><span>LinkedIn</span><i>in</i></div>
+                <div class="pops-link"><span>WhatsApp</span><i>WA</i></div>
+                <div class="pops-link"><span>Play Tetris</span><i>T</i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="showcase">
+        <div class="container">
+          <div class="section-head reveal">
+            <span class="eyebrow">Selected AuraPops work</span>
+            <div><h2 class="display">Different brands. <em>Different moods.</em></h2><p>Each AuraPop can use its own colors, avatar, background and link mix while keeping a clean mobile-first structure.</p></div>
+          </div>
+          <div class="pops-gallery">
+            <article class="pops-card reveal">
+              <div class="pops-preview restaurant">
+                <div class="pops-mini-avatar">RC</div>
+                <h3>Restaurant Card</h3>
+                <p>Menu · Reviews · Maps · WhatsApp</p>
+                <div class="pops-tags"><span>hospitality</span><span>dark editorial</span></div>
+              </div>
+              <h3>Hospitality popup</h3>
+              <p>A compact entry point for menus, location, reviews and direct ordering.</p>
+            </article>
+            <article class="pops-card reveal">
+              <div class="pops-preview creator">
+                <div class="pops-mini-avatar">CR</div>
+                <h3>Creator Link Hub</h3>
+                <p>Portfolio · Social · Contact · Media</p>
+                <div class="pops-tags"><span>creator</span><span>personal brand</span></div>
+              </div>
+              <h3>Creator popup</h3>
+              <p>A polished link profile for creators, freelancers and personal brands.</p>
+            </article>
+            <article class="pops-card reveal">
+              <div class="pops-preview club">
+                <div class="pops-mini-avatar">PC</div>
+                <h3>Padel Club</h3>
+                <p>Book · Location · Instagram · Game</p>
+                <div class="pops-tags"><span>sports</span><span>interactive</span></div>
+              </div>
+              <h3>Club popup</h3>
+              <p>A fast scan-to-action page for bookings, maps, social media and engagement.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section alt">
+        <div class="container">
+          <div class="section-head reveal"><span class="eyebrow">How it works</span><div><h2 class="display">Build there. <em>Manage here.</em></h2></div></div>
+          <div class="pops-flow">
+            <article class="reveal"><b>01 · CREATE</b><h3>Build on AuraPops</h3><p>Customers create and customize their popup directly on aurapops.online.</p></article>
+            <article class="reveal"><b>02 · REQUEST</b><h3>Send activation request</h3><p>The saved AuraPop enters the AuraDigital request queue automatically.</p></article>
+            <article class="reveal"><b>03 · APPROVE</b><h3>Confirm & activate</h3><p>Payment and activation are handled from the main AuraDigital admin dashboard.</p></article>
+            <article class="reveal"><b>04 · LIVE</b><h3>QR goes live</h3><p>Once approved, the public AuraPop becomes available at aurapops.online/pops/…</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-band">
+        <div class="container">
+          <div class="cta-box reveal">
+            <span class="eyebrow">AURAPOPS STUDIO</span>
+            <h2 class="display">Ready to make your own <em>AuraPop?</em></h2>
+            <p class="muted">The builder, QR generation and AuraPop management live on the standalone AuraPops platform.</p>
+            <div class="hero-actions"><a class="btn btn-primary" href="https://aurapops.online/" target="_blank" rel="noopener noreferrer">Go to aurapops.online ↗</a></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer id="siteFooter"></footer>
+    <script src="site-settings.js"></script>
+    <script src="script.js?v=en-default-20260926-5"></script>
+    <script src="cinematic.js?v=20260928-logo-draw-2"></script>
+  </body>
+</html>
