@@ -1,0 +1,118 @@
+name: GitHub Pages Backup
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages-backup
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build static backup mirror
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          import shutil
+
+          root = Path(".")
+          out = Path("_site")
+
+          excluded_dirs = {
+              ".git", ".github", "node_modules",
+              "migrations", "scripts", "security", "soc-worker",
+              "src", "test", "tools"
+          }
+          excluded_files = {
+              ".assetsignore", ".cloudflare-deploy-trigger", ".gitignore",
+              "_headers", "_redirects", "README.txt", "SECURITY.md",
+              "SECURITY_AUDIT.md", "package.json", "package-lock.json",
+              "wrangler.jsonc"
+          }
+
+          if out.exists():
+              shutil.rmtree(out)
+          out.mkdir()
+
+          for item in root.iterdir():
+              if item.name == "_site" or item.name in excluded_files:
+                  continue
+              if item.is_dir() and item.name in excluded_dirs:
+                  continue
+              dest = out / item.name
+              if item.is_dir():
+                  shutil.copytree(item, dest)
+              else:
+                  shutil.copy2(item, dest)
+
+          # GitHub Pages project URL is /auradigital/. Prefix root-relative
+          # browser paths without modifying the production source files.
+          text_exts = {".html", ".htm", ".js", ".mjs", ".css", ".json", ".webmanifest", ".xml"}
+          for path in out.rglob("*"):
+              if not path.is_file() or path.suffix.lower() not in text_exts:
+                  continue
+              try:
+                  text = path.read_text(encoding="utf-8")
+              except UnicodeDecodeError:
+                  continue
+
+              # Keep dynamic API calls pointed at the production backend.
+              text = text.replace('"/api/', '"https://auradigitalworks.com/api/')
+              text = text.replace("'/api/", "'https://auradigitalworks.com/api/")
+
+              # Prefix quoted root-relative paths, but leave protocol-relative URLs alone.
+              text = re.sub(r'(["\'])/(?!/|auradigital/)', r'\1/auradigital/', text)
+              path.write_text(text, encoding="utf-8")
+
+          # Create extensionless aliases for top-level HTML routes.
+          for page in out.glob("*.html"):
+              if page.name in {"index.html", "404.html"}:
+                  continue
+              route = page.stem
+              alias_dir = out / route
+              if alias_dir.exists() and not alias_dir.is_dir():
+                  continue
+              alias_dir.mkdir(exist_ok=True)
+              target = f"/auradigital/{page.name}"
+              (alias_dir / "index.html").write_text(
+                  "<!doctype html><meta charset='utf-8'>"
+                  f"<script>location.replace({target!r}+location.search+location.hash)</script>"
+                  f"<a href='{target}'>Continue</a>",
+                  encoding="utf-8",
+              )
+
+          (out / ".nojekyll").write_text("", encoding="utf-8")
+          PY
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload backup site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./_site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy backup site
+        id: deployment
+        uses: actions/deploy-pages@v4
