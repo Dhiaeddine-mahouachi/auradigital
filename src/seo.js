@@ -183,7 +183,7 @@ const SEO_ASSETS = new Map([
   ["/portfolio", "/portfolio.html"],
   ["/aura-menu", "/aura-menu.html"],
   ["/aura-weddings", "/aura-weddings.html"],
-  ["/aurapops", "/aurapops.html"],
+  ["/aurapops", "/aurapops-showcase.html"],
   ["/nfc", "/nfc.html"],
   ["/nfc-studio", "/nfc-builder.html"],
   ["/nfc-status", "/nfc-status.html"],
