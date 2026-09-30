@@ -5,6 +5,7 @@ import {
   hashPassword,
   normalizeUsername,
   safeEqual,
+  sameOrigin,
   validatePassword,
   verifyPassword,
 } from "../src/security.js";
@@ -34,4 +35,37 @@ test("legacy bootstrap comparison does not short-circuit on length", async () =>
 test("owner bootstrap rejects weak passwords", async () => {
   await assert.rejects(() => hashBootstrapPassword("short"));
   await assert.rejects(() => hashBootstrapPassword(""));
+});
+
+
+test("same-origin validation supports Cloudflare-routed public requests", () => {
+  const exact = new Request("https://auradigitalworks.com/api/admin/login", {
+    method: "POST",
+    headers: { Origin: "https://auradigitalworks.com" },
+  });
+  assert.equal(sameOrigin(exact), true);
+
+  const routed = new Request("https://internal-worker.example/api/admin/login", {
+    method: "POST",
+    headers: {
+      Origin: "https://auradigitalworks.com",
+      "Sec-Fetch-Site": "same-origin",
+    },
+  });
+  assert.equal(sameOrigin(routed), true);
+
+  const omittedOrigin = new Request("https://auradigitalworks.com/api/admin/login", {
+    method: "POST",
+    headers: { "Sec-Fetch-Site": "same-origin" },
+  });
+  assert.equal(sameOrigin(omittedOrigin), true);
+
+  const crossSite = new Request("https://auradigitalworks.com/api/admin/login", {
+    method: "POST",
+    headers: {
+      Origin: "https://evil.example",
+      "Sec-Fetch-Site": "cross-site",
+    },
+  });
+  assert.equal(sameOrigin(crossSite), false);
 });
