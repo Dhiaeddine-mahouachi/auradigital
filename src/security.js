@@ -10,9 +10,49 @@ const PASSWORD_MIN_ITERATIONS = 25_000;
 const PASSWORD_HASH_BYTES = 32;
 const encoder = new TextEncoder();
 
+const PUBLIC_APP_HOSTS = new Set([
+  "auradigitalworks.com",
+  "www.auradigitalworks.com",
+  "auradigital.ink",
+  "www.auradigital.ink",
+]);
+
 export function sameOrigin(request) {
-  const origin = request.headers.get("Origin");
-  return Boolean(origin) && origin === new URL(request.url).origin;
+  const requestUrl = new URL(request.url);
+  const originHeader = request.headers.get("Origin");
+  const fetchSite = String(request.headers.get("Sec-Fetch-Site") || "").toLowerCase();
+
+  if (originHeader) {
+    let originUrl;
+    try {
+      originUrl = new URL(originHeader);
+    } catch {
+      return false;
+    }
+
+    if (originUrl.origin === requestUrl.origin) return true;
+
+    // Cloudflare may evaluate API routes on an internal origin while the browser
+    // still correctly classifies the navigation/fetch as same-origin. Accept that
+    // case only for AuraDigital's HTTPS public hosts.
+    if (
+      fetchSite === "same-origin" &&
+      originUrl.protocol === "https:" &&
+      PUBLIC_APP_HOSTS.has(originUrl.hostname.toLowerCase())
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  // Some privacy-focused browsers can omit Origin on same-origin requests.
+  // Sec-Fetch-Site is browser-generated; combined with the public-host allowlist
+  // and SameSite=Strict admin cookies, this preserves CSRF protection.
+  return (
+    fetchSite === "same-origin" &&
+    requestUrl.protocol === "https:" &&
+    PUBLIC_APP_HOSTS.has(requestUrl.hostname.toLowerCase())
+  );
 }
 
 export function normalizeUsername(value) {
