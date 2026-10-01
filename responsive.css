@@ -154,6 +154,13 @@
   }
 }
 
+/* Keep the phone landing hero visible, matching its mobile autoplay policy. */
+@media (max-width: 700px) {
+  body[data-page="home"] .hero-media video[data-background-video] {
+    display: block;
+  }
+}
+
 /* The supplied horizontal mark remains legible next to the wordmark. */
 .brand-wordmark .brand-logo { width: 48px; height: 27px; flex: 0 0 48px; border-radius: 5px !important; }
 .footer-wordmark .brand-logo { width: 64px; height: 36px; flex-basis: 64px; }
