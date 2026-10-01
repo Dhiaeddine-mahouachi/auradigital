@@ -130,28 +130,70 @@ if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
 }
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const precisePointer = matchMedia("(hover:hover) and (pointer:fine)").matches;
+const mobileViewport = matchMedia("(max-width: 700px)").matches;
 const backgroundVideos = [...document.querySelectorAll("[data-background-video]")];
+const heroBackgroundVideo = document.querySelector(".hero-media video[data-background-video]");
 const markVideoReady = (video) => video.parentElement?.classList.add("is-video-ready");
+
+const playBackgroundVideo = (video) => {
+  if (!video) return;
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  video.setAttribute("muted", "");
+  video.setAttribute("playsinline", "");
+  video.setAttribute("webkit-playsinline", "");
+  video.play().catch(() => {});
+};
+
 backgroundVideos.forEach((video) => {
   video.muted = true;
   video.defaultMuted = true;
+  video.playsInline = true;
   video.playbackRate = 1;
   video.addEventListener("loadeddata", () => markVideoReady(video), { once: true });
   video.addEventListener("canplay", () => markVideoReady(video), { once: true });
   video.addEventListener("playing", () => markVideoReady(video), { once: true });
   if (video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) markVideoReady(video);
-  if (reducedMotion) {
+
+  // Keep the landing hero autoplaying on phones. Other background videos still
+  // respect the visitor's reduced-motion preference.
+  if (reducedMotion && !(mobileViewport && video === heroBackgroundVideo)) {
     video.pause();
     video.removeAttribute("autoplay");
   } else {
-    video.play().catch(() => {});
+    playBackgroundVideo(video);
   }
 });
+
+if (mobileViewport && heroBackgroundVideo) {
+  heroBackgroundVideo.setAttribute("autoplay", "");
+  heroBackgroundVideo.preload = "auto";
+
+  const startMobileHeroVideo = () => playBackgroundVideo(heroBackgroundVideo);
+  heroBackgroundVideo.addEventListener("loadedmetadata", startMobileHeroVideo);
+  heroBackgroundVideo.addEventListener("canplay", startMobileHeroVideo);
+  addEventListener("pageshow", startMobileHeroVideo);
+  addEventListener("load", startMobileHeroVideo, { once: true });
+
+  // iOS may defer media startup until the page receives its first interaction.
+  // Retry immediately on that interaction without changing sound state.
+  ["touchstart", "pointerdown"].forEach((eventName) => {
+    document.addEventListener(eventName, startMobileHeroVideo, {
+      once: true,
+      passive: true,
+    });
+  });
+}
+
 document.addEventListener("visibilitychange", () => {
-  if (reducedMotion) return;
   backgroundVideos.forEach((video) => {
-    if (document.hidden) video.pause();
-    else video.play().catch(() => {});
+    if (document.hidden) {
+      video.pause();
+      return;
+    }
+    if (reducedMotion && !(mobileViewport && video === heroBackgroundVideo)) return;
+    playBackgroundVideo(video);
   });
 });
 if (!reducedMotion && precisePointer) {
