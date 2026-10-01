@@ -1794,3 +1794,114 @@ body[data-page="services"].cinematic-enabled .service-card p{
     margin-bottom:70px!important;
   }
 }
+
+
+/* 2026-10-02 ACID WAVE SEPARATORS */
+.cinematic-enabled .acid-wave-separator{
+  --acid-wave:#e1e100;
+  position:relative;
+  z-index:6;
+  height:0;
+  width:min(1180px,calc(100% - 32px));
+  margin:0 auto;
+  pointer-events:none;
+  opacity:0;
+  transform:translate3d(0,18px,0) scaleX(.72);
+  transform-origin:center;
+  transition:
+    opacity .8s var(--aura-ease),
+    transform 1.15s var(--aura-ease);
+}
+.cinematic-enabled .acid-wave-separator::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:0;
+  width:clamp(92px,13vw,180px);
+  height:1px;
+  transform:translateX(-50%) scaleX(.2);
+  transform-origin:center;
+  background:linear-gradient(90deg,transparent,var(--acid-wave),transparent);
+  opacity:0;
+  transition:transform 1.1s .12s var(--aura-ease),opacity .7s .12s ease;
+}
+.cinematic-enabled .acid-wave-separator svg{
+  position:absolute;
+  left:50%;
+  top:0;
+  width:min(92vw,1100px);
+  height:clamp(72px,8vw,108px);
+  overflow:visible;
+  transform:translate(-50%,-50%);
+  filter:drop-shadow(0 0 10px rgba(225,225,0,.16));
+}
+.cinematic-enabled .acid-wave-separator .acid-wave-line{
+  fill:none;
+  stroke:var(--acid-wave);
+  stroke-width:1.35;
+  stroke-linecap:round;
+  vector-effect:non-scaling-stroke;
+  stroke-dasharray:1200;
+  stroke-dashoffset:1200;
+  opacity:.76;
+  transition:stroke-dashoffset 1.7s .12s cubic-bezier(.16,1,.3,1),opacity .8s ease;
+}
+.cinematic-enabled .acid-wave-separator .acid-wave-line--echo{
+  stroke-width:.7;
+  opacity:.18;
+  transform:translateY(8px);
+  transition-delay:.22s;
+}
+.cinematic-enabled .acid-wave-separator.is-visible{
+  opacity:1;
+  transform:translate3d(0,0,0) scaleX(1);
+}
+.cinematic-enabled .acid-wave-separator.is-visible::before{
+  opacity:.55;
+  transform:translateX(-50%) scaleX(1);
+}
+.cinematic-enabled .acid-wave-separator.is-visible .acid-wave-line{
+  stroke-dashoffset:0;
+}
+.cinematic-enabled .acid-wave-separator.is-visible svg{
+  animation:acid-ribbon-float 7.5s ease-in-out 1.65s infinite alternate;
+}
+.cinematic-enabled .acid-wave-separator:nth-of-type(even) svg{
+  animation-direction:alternate-reverse;
+}
+@keyframes acid-ribbon-float{
+  0%{transform:translate(-50%,-50%) translate3d(-8px,-2px,0) rotate(-.18deg)}
+  50%{transform:translate(-50%,-50%) translate3d(5px,3px,0) rotate(.16deg)}
+  100%{transform:translate(-50%,-50%) translate3d(9px,-1px,0) rotate(-.08deg)}
+}
+@media(max-width:700px){
+  .cinematic-enabled .acid-wave-separator{
+    width:calc(100% - 20px);
+  }
+  .cinematic-enabled .acid-wave-separator svg{
+    width:96vw;
+    height:66px;
+  }
+  .cinematic-enabled .acid-wave-separator .acid-wave-line{
+    stroke-width:1.1;
+  }
+  .cinematic-enabled .acid-wave-separator .acid-wave-line--echo{
+    display:none;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .cinematic-enabled .acid-wave-separator{
+    opacity:1;
+    transform:none;
+  }
+  .cinematic-enabled .acid-wave-separator::before{
+    opacity:.45;
+    transform:translateX(-50%) scaleX(1);
+  }
+  .cinematic-enabled .acid-wave-separator .acid-wave-line{
+    stroke-dashoffset:0;
+  }
+  .cinematic-enabled .acid-wave-separator svg{
+    animation:none!important;
+  }
+}
