@@ -226,6 +226,46 @@
     });
   }
 
+  /* 2026-10-02 ACID WAVE SEPARATORS */
+  const acidWaveTargets = [
+    ...document.querySelectorAll(
+      "main > section:not(.reference-hero):not(.hero):not(.page-hero):not(.trustbar)"
+    )
+  ];
+
+  acidWaveTargets.forEach((section, index) => {
+    if (section.previousElementSibling?.classList.contains("acid-wave-separator")) return;
+
+    const separator = document.createElement("div");
+    separator.className = "acid-wave-separator";
+    separator.setAttribute("aria-hidden", "true");
+    separator.dataset.waveIndex = String(index + 1);
+    separator.innerHTML =
+      '<svg viewBox="0 0 1200 100" preserveAspectRatio="none" focusable="false">' +
+        '<path class="acid-wave-line acid-wave-line--echo" pathLength="1200" d="M0 54 C145 8 292 8 432 50 C530 80 579 91 600 50 C621 9 670 20 768 50 C910 93 1056 91 1200 45"/>' +
+        '<path class="acid-wave-line" pathLength="1200" d="M0 48 C145 4 292 7 432 48 C530 77 579 87 600 48 C621 9 670 18 768 47 C910 90 1056 88 1200 41"/>' +
+      '</svg>';
+
+    section.insertAdjacentElement("beforebegin", separator);
+  });
+
+  const acidWaves = [...document.querySelectorAll(".acid-wave-separator")];
+  if (acidWaves.length) {
+    if ("IntersectionObserver" in window && !reducedMotion) {
+      const waveObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            waveObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: "0px 0px -10% 0px" });
+      acidWaves.forEach((wave) => waveObserver.observe(wave));
+    } else {
+      acidWaves.forEach((wave) => wave.classList.add("is-visible"));
+    }
+  }
+
   const cinematicSections = document.querySelectorAll(
     ".section,.aura-workspace,.aura-personas,.cta-band,.project-card,.menu-design"
   );
