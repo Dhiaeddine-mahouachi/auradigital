@@ -1515,3 +1515,30 @@ body[data-page="home"].cinematic-enabled .reference-hero .hero-media::after{
   }
 }
 
+
+
+/* 2026-10-02: white emphasis + CTA + footer breathing room */
+.cinematic-enabled .display em,
+.cinematic-enabled .campaign-stage-copy h3{
+  color:#f2f5ef;
+}
+
+.cinematic-enabled .nav-cta{
+  background:#f2f5ef;
+  color:#07180f;
+  border-color:#f2f5ef;
+}
+.cinematic-enabled .nav-cta:hover{
+  background:#e7eadf;
+  color:#07180f;
+  border-color:#e7eadf;
+}
+
+.cinematic-enabled .cinema-footer-marquee{
+  margin-bottom:clamp(84px,8vw,124px)!important;
+}
+@media (max-width:600px){
+  .cinematic-enabled .cinema-footer-marquee{
+    margin-bottom:68px!important;
+  }
+}
