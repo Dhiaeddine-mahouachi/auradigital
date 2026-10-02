@@ -247,5 +247,5 @@ test('AuraMenu selected plan is server priced, pending until payment, editable d
  const renewed=await call('/api/admin/auramenu/'+id,'PATCH',{action:'renew',expectedPaidUntil:'2020-01-01T00:00:00Z'},cookie(ownerCookie));assert.equal(renewed.status,200);
  assert.equal((await call('/api/auramenu/sites/subscription-test')).status,200);
  assert.equal((await call('/api/admin/auramenu/'+id,'PATCH',{action:'renew',expectedPaidUntil:'2020-01-01T00:00:00Z'},cookie(ownerCookie))).status,409);
- const invalid=await call('/api/auramenu/requests','POST',{...payload,planId:'free'});assert.equal(invalid.status,400);
+ for(const planId of ['free','constructor','toString']){const invalid=await call('/api/auramenu/requests','POST',{...payload,planId});assert.equal(invalid.status,400);}
 });

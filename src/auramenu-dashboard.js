@@ -95,7 +95,7 @@ function publicMenu(row, access, billing = null) {
       requestedAmount: Number(access?.requested_amount || 0),
       accessUntil: access?.access_until || null,
       paidAmount: Number(access?.paid_amount || 0),
-      active: billing ? (billing.active || (row.status === "pending" && !billing.paidUntil)) : active(access),
+      active: billing ? ((billing.active && row.payment_status === "paid") || (row.status === "pending" && !billing.paidUntil)) : active(access),
     },
   };
 }
@@ -264,7 +264,7 @@ export async function handleAuraMenuDashboard(request, env) {
     }
 
     if (!action && request.method === 'PATCH') {
-      if (!(billing ? (billing.active || (row.status === "pending" && !billing.paidUntil)) : active(tokenAccess))) {
+      if (!(billing ? ((billing.active && row.payment_status === "paid") || (row.status === "pending" && !billing.paidUntil)) : active(tokenAccess))) {
         return json(
           { error: `Düzenleme erişimi kilitli. Erişim ücreti günlük ${ACCESS_PRICE} TL'dir.` },
           403,

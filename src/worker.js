@@ -696,7 +696,8 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   }
   const categories = normalizeAuraMenuCategories(body.categories);
   const serviceMode = body.serviceMode === "managed" ? "managed" : "self";
-  const plan = MENU_PLANS[body.planId || 'starter'];
+  const planId = body.planId || 'starter';
+  const plan = Object.hasOwn(MENU_PLANS, planId) ? MENU_PLANS[planId] : null;
   if (!plan) return json({ error: 'Choose a valid AuraMenu plan.' }, 400, corsHeaders);
   await ensureMenuBilling(db);
   const optionSummary = [
@@ -835,7 +836,7 @@ async function getPublishedAuraMenu(request, db, slug, corsHeaders) {
 async function handleAuraMenuAdmin(request, db, id) {
   if (request.method === "GET" && !id) {
     const rows = await db.prepare("SELECT * FROM auramenu_requests ORDER BY created_at DESC LIMIT 100").all();
-    return json({ requests: await Promise.all((rows.results || []).map(async row => ({ ...mapAuraMenuRequest(row), billing: await menuBilling(db, row.id), live: (await menuEntitlement(db, row)).live }))) }, 200, { "Cache-Control": "no-store" });
+    return json({ requests: await Promise.all((rows.results || []).map(async row => ({ ...mapAuraMenuRequest(row), ...(await menuEntitlement(db, row)) }))) }, 200, { "Cache-Control": "no-store" });
   }
   if (request.method !== "PATCH" || !id) return json({ error: "Not found." }, 404);
   const body = await readJson(request, ADMIN_BODY_BYTES);
