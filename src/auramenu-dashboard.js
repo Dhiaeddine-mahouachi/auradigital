@@ -1,3 +1,4 @@
+import { menuBilling } from './menu-billing.js';
 import { ApiError, json, readJson } from './http.js';
 import { getAuthenticatedAdmin, sameOrigin } from './security.js';
 import { ensureMenuAccess as ensure, tokenHash as sha256, menuTokenAccess as requireToken, newMenuToken } from './menu-ownership.js';
@@ -63,7 +64,7 @@ function active(row) {
   return Boolean(row?.access_until && Date.parse(row.access_until) > Date.now());
 }
 
-function publicMenu(row, access) {
+function publicMenu(row, access, billing = null) {
   return {
     id: row.id,
     slug: row.slug,
@@ -84,6 +85,7 @@ function publicMenu(row, access) {
     revision: row.revision,
     updatedAt: row.updated_at,
     approvedAt: row.approved_at,
+    billing,
     editAccess: {
       pricePerDay: ACCESS_PRICE,
       maxDays: MAX_ACCESS_DAYS,
@@ -93,7 +95,7 @@ function publicMenu(row, access) {
       requestedAmount: Number(access?.requested_amount || 0),
       accessUntil: access?.access_until || null,
       paidAmount: Number(access?.paid_amount || 0),
-      active: active(access),
+      active: billing ? (billing.active || (row.status === "pending" && !billing.paidUntil)) : active(access),
     },
   };
 }
@@ -213,7 +215,7 @@ export async function handleAuraMenuDashboard(request, env) {
       if (!access) return json({ error: 'Dashboard access denied.' }, 401, headers);
       const row = await rowFor(env.DB, claim[1]);
       if (!row) return json({ error: 'Dashboard access denied.' }, 401, headers);
-      return json({ token, menu: publicMenu(row, access) }, 200, headers);
+      return json({ token, menu: publicMenu(row, access, await menuBilling(env.DB, row.id)) }, 200, headers);
     }
 
     const match = u.pathname.match(/^\/api\/auramenu\/dashboard\/([a-f0-9-]+)(?:\/(access-request))?$/i);
@@ -225,11 +227,13 @@ export async function handleAuraMenuDashboard(request, env) {
     if (!row) return json({ error: 'Menü bulunamadı.' }, 404, headers);
 
     const tokenAccess = await requireToken(request, env.DB, id);
+    const billing = await menuBilling(env.DB, id);
     if (!tokenAccess) {
       return json({ error: 'Dashboard access denied.' }, 401, { 'Cache-Control': 'no-store', ...headers });
     }
 
     if (action === 'access-request' && request.method === 'POST') {
+      if (billing) return json({ error: 'Editing is included in your plan. Renew from the payment page.' },409,headers);
       if (active(tokenAccess)) {
         return json({ error: 'Düzenleme erişimi zaten aktif.' }, 409, { 'Cache-Control': 'no-store', ...headers });
       }
@@ -249,18 +253,18 @@ export async function handleAuraMenuDashboard(request, env) {
       ).bind(requestedDays, amount, id).run();
 
       return json(
-        { menu: publicMenu(row, await accessFor(env.DB, id)), amount },
+        { menu: publicMenu(row, await accessFor(env.DB, id), billing), amount },
         200,
         { 'Cache-Control': 'no-store', ...headers }
       );
     }
 
     if (!action && request.method === 'GET') {
-      return json({ menu: publicMenu(row, tokenAccess) }, 200, { 'Cache-Control': 'no-store', ...headers });
+      return json({ menu: publicMenu(row, tokenAccess, billing) }, 200, { 'Cache-Control': 'no-store', ...headers });
     }
 
     if (!action && request.method === 'PATCH') {
-      if (!active(tokenAccess)) {
+      if (!(billing ? (billing.active || (row.status === "pending" && !billing.paidUntil)) : active(tokenAccess))) {
         return json(
           { error: `Düzenleme erişimi kilitli. Erişim ücreti günlük ${ACCESS_PRICE} TL'dir.` },
           403,
@@ -306,7 +310,7 @@ export async function handleAuraMenuDashboard(request, env) {
       await env.DB.batch([...imageInserts, update, ...deletions]);
 
       return json(
-        { menu: publicMenu(await rowFor(env.DB, id), await accessFor(env.DB, id)) },
+        { menu: publicMenu(await rowFor(env.DB, id), await accessFor(env.DB, id), billing) },
         200,
         { 'Cache-Control': 'no-store', ...headers }
       );
@@ -381,7 +385,7 @@ export async function handleAuraMenuDashboard(request, env) {
         amount
       ).run();
 
-      return json({ ok: true, editAccess: publicMenu(row, await accessFor(env.DB, id)).editAccess, amount, days }, 200, {
+      return json({ ok: true, editAccess: publicMenu(row, await accessFor(env.DB, id), await menuBilling(env.DB, id)).editAccess, amount, days }, 200, {
         'Cache-Control': 'no-store',
       });
     }

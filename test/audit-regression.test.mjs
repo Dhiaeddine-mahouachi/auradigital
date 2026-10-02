@@ -227,3 +227,25 @@ test('bcrypt rejects truncation, legacy hashes still verify, sessions revoke aft
   assert.equal((await call('/api/admin/logout','POST',{},cookie(session))).status,200);
   assert.equal((await call('/api/admin/clients','GET',undefined,cookie(session))).status,401);
 });
+
+test('AuraMenu selected plan is server priced, pending until payment, editable during its period and offline after expiry',async()=>{
+ const payload={templateId:'orbit',businessName:'Subscription test',slug:'subscription-test',contactName:'Test',contactPhone:'subscription-phone',email:'subscription@example.com',planId:'pro',amount:1,categories:[{name:'Food',emoji:'',items:[{name:'Dish',price:'100'}]}]};
+ const response=await call('/api/auramenu/requests','POST',payload);assert.equal(response.status,201);
+ const created=await response.json(),id=created.request.id,headers={'X-Aura-Menu-Token':created.token};
+ assert.equal(created.request.billing.amount,599);assert.equal(created.request.status,'pending');
+ assert.equal((await call('/api/auramenu/sites/subscription-test')).status,404);
+ assert.equal((await call('/api/auramenu/requests/'+id,'GET',undefined,headers)).status,200);
+ assert.equal((await (await call('/api/auramenu/dashboard/'+id,'GET',undefined,headers)).json()).menu.editAccess.active,true);
+ assert.equal((await call('/api/admin/auramenu/'+id,'PATCH',{status:'approved'},cookie(ownerCookie))).status,409);
+ assert.equal((await call('/api/admin/auramenu/'+id,'PATCH',{paymentStatus:'paid',status:'approved'},cookie(ownerCookie))).status,200);
+ assert.equal((await call('/api/auramenu/sites/subscription-test')).status,200);
+ const content={templateId:'orbit',businessName:'Updated',categories:payload.categories};
+ const edit=await call('/api/auramenu/dashboard/'+id,'PATCH',content,headers);assert.equal(edit.status,200);assert.equal((await edit.json()).menu.billing.amount,599);
+ await db.prepare('UPDATE auramenu_billing SET paid_until=? WHERE menu_id=?').bind('2020-01-01T00:00:00Z',id).run();
+ assert.equal((await call('/api/auramenu/sites/subscription-test')).status,404);
+ assert.equal((await call('/api/auramenu/dashboard/'+id,'PATCH',content,headers)).status,403);
+ const renewed=await call('/api/admin/auramenu/'+id,'PATCH',{action:'renew',expectedPaidUntil:'2020-01-01T00:00:00Z'},cookie(ownerCookie));assert.equal(renewed.status,200);
+ assert.equal((await call('/api/auramenu/sites/subscription-test')).status,200);
+ assert.equal((await call('/api/admin/auramenu/'+id,'PATCH',{action:'renew',expectedPaidUntil:'2020-01-01T00:00:00Z'},cookie(ownerCookie))).status,409);
+ const invalid=await call('/api/auramenu/requests','POST',{...payload,planId:'free'});assert.equal(invalid.status,400);
+});

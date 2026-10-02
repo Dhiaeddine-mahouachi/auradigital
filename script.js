@@ -279,6 +279,11 @@ if (form) {
         ? `AuraWeddings request — selected theme: ${chosenTheme.replaceAll("-", " ")}. Wedding date: ... Venue: ... Languages: ...`
         : "AuraWeddings request: Please share your date, venue, languages and preferred theme.";
     }
+  } else if (requestedService === "auramenu-custom") {
+    const service = form.querySelector('[name="service"]');
+    const message = form.querySelector('[name="message"]');
+    if (service) service.value = "AuraMenu";
+    if (message && !message.value) message.value = "Custom AuraMenu request: Business name: ... Design requirements: ... Menu content: ... Languages: ...";
   } else if (design) {
     const service = form.querySelector('[name="service"]');
     const message = form.querySelector('[name="message"]');

@@ -1,3 +1,4 @@
+import { MENU_PLANS, ensureMenuBilling, menuBilling, menuBillingInsert, activateMenuBilling, menuEntitlement } from "./menu-billing.js";
 import { ApiError, json, readJson } from "./http.js";
 import { queueRequestNotification } from "./notifications.js";
 import { sendCustomerConfirmation, checkResendHealth } from "./customer-confirmation.js";
@@ -695,8 +696,12 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   }
   const categories = normalizeAuraMenuCategories(body.categories);
   const serviceMode = body.serviceMode === "managed" ? "managed" : "self";
+  const plan = MENU_PLANS[body.planId || 'starter'];
+  if (!plan) return json({ error: 'Choose a valid AuraMenu plan.' }, 400, corsHeaders);
+  await ensureMenuBilling(db);
   const optionSummary = [
     "[AURAMENU OPTIONS]",
+    `Plan: ${plan.name} · ${plan.amount} TL · ${plan.interval}${plan.hostingAmount ? " + 200 TL hosting / 6 months" : " (hosting included)"}`,
     "Build: " + (serviceMode === "managed" ? "AuraDigital managed" : "Customer self-service"),
     "",
     qsClean(body.notes, 750),
@@ -741,7 +746,7 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   );
   await ensureMenuAccess(db);
   const token = newMenuToken();
-  await db.batch([requestInsert, ...imageInserts,
+  await db.batch([requestInsert, menuBillingInsert(db, id, plan), ...imageInserts,
     db.prepare("INSERT INTO auramenu_edit_access (menu_id, token_hash) VALUES (?, ?)").bind(id, await tokenHash(token))
   ]);
   queueRequestNotification(ctx, env, {
@@ -758,7 +763,7 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
       ["Requested address", requestedSlug],
     ],
   });
-  return json({ token, request: { id, slug: requestedSlug, status: "pending", paymentStatus: "unpaid" } }, 201, {
+  return json({ token, request: { id, slug: requestedSlug, status: "pending", paymentStatus: "unpaid", billing: await menuBilling(db, id) } }, 201, {
     "Cache-Control": "no-store",
     ...corsHeaders,
   });
@@ -768,7 +773,8 @@ async function getAuraMenuImage(request, db, id, corsHeaders) {
   const row = await db.prepare("SELECT i.content_type, i.image_bytes, r.id AS menu_id, r.status, r.payment_status FROM auramenu_images i INNER JOIN auramenu_requests r ON r.id = i.request_id WHERE i.id = ? LIMIT 1")
     .bind(id).first();
   if (!row) return json({ error: "Fotoğraf bulunamadı." }, 404, corsHeaders);
-  const published = row.status === "approved" && row.payment_status === "paid";
+  const entitlement = await menuEntitlement(db, { ...row, id: row.menu_id });
+  const published = entitlement.live;
   if (!published && !(await getAuthenticatedAdmin(request, db)) && !(await menuTokenAccess(request, db, row.menu_id))) {
     return json({ error: "Not found." }, 404, corsHeaders);
   }
@@ -810,17 +816,18 @@ async function getAuraMenuRequestStatus(request, db, id, corsHeaders) {
       paymentStatus: row.payment_status,
       updatedAt: row.updated_at,
       approvedAt: row.approved_at,
+      billing: await menuBilling(db, id),
+      live: (await menuEntitlement(db, row)).live,
     },
   }, 200, { "Cache-Control": "no-store", ...corsHeaders });
 }
 
 async function getPublishedAuraMenu(request, db, slug, corsHeaders) {
   const row = await db.prepare("SELECT * FROM auramenu_requests WHERE lower(trim(slug)) = lower(?) LIMIT 1").bind(slug).first();
-  const status = String(row?.status || "").trim().toLowerCase();
-  const published = status === "approved" && row?.payment_status === "paid";
+  const published = row && (await menuEntitlement(db, row)).live;
   if (!row || !published) return json({ error: "Menü henüz yayında değil." }, 404, corsHeaders);
   return json({ menu: mapAuraMenuRequest(row, true) }, 200, {
-    "Cache-Control": "public, max-age=30",
+    "Cache-Control": "no-store",
     ...corsHeaders,
   });
 }
@@ -828,12 +835,17 @@ async function getPublishedAuraMenu(request, db, slug, corsHeaders) {
 async function handleAuraMenuAdmin(request, db, id) {
   if (request.method === "GET" && !id) {
     const rows = await db.prepare("SELECT * FROM auramenu_requests ORDER BY created_at DESC LIMIT 100").all();
-    return json({ requests: (rows.results || []).map((row) => mapAuraMenuRequest(row)) }, 200, { "Cache-Control": "no-store" });
+    return json({ requests: await Promise.all((rows.results || []).map(async row => ({ ...mapAuraMenuRequest(row), billing: await menuBilling(db, row.id), live: (await menuEntitlement(db, row)).live }))) }, 200, { "Cache-Control": "no-store" });
   }
   if (request.method !== "PATCH" || !id) return json({ error: "Not found." }, 404);
   const body = await readJson(request, ADMIN_BODY_BYTES);
   const current = await db.prepare("SELECT * FROM auramenu_requests WHERE id = ? LIMIT 1").bind(id).first();
   if (!current) return json({ error: "Menü talebi bulunamadı." }, 404);
+  if (body.action === 'renew') {
+    if (current.payment_status !== 'paid') return json({ error: 'Confirm initial payment first.' },409);
+    const billing = await activateMenuBilling(db,id,true,body.expectedPaidUntil);
+    return json({ request: { ...mapAuraMenuRequest(current), billing } },200,{'Cache-Control':'no-store'});
+  }
   const status = body.status === undefined ? current.status : String(body.status);
   const payment = body.paymentStatus === undefined ? current.payment_status : String(body.paymentStatus);
   if (!["pending", "approved", "rejected"].includes(status) || !["unpaid", "paid"].includes(payment)) {
@@ -842,6 +854,7 @@ async function handleAuraMenuAdmin(request, db, id) {
   if (status === "approved" && payment !== "paid") {
     return json({ error: "Menüyü yayınlamadan önce ödemeyi onaylayın." }, 409);
   }
+  if (status === 'approved' || (payment === 'paid' && current.payment_status !== 'paid')) await activateMenuBilling(db,id);
   const ownerNote = body.ownerNote === undefined ? current.owner_note : qsClean(body.ownerNote, 500);
   const now = new Date().toISOString();
   await db.prepare("UPDATE auramenu_requests SET status = ?, payment_status = ?, owner_note = ?, updated_at = ?, approved_at = ?, revision = revision + 1 WHERE id = ?")
@@ -967,10 +980,10 @@ export default {
 
         if (url.pathname === "/api/auramenu/pricing" && request.method === "GET") {
           const settings = await getPublicSettings(env.DB);
-          const selfBuildPrice = Number(settings.auramenu_self_price);
           const managedBuildPrice = Number(settings.qr_menu_price);
           return json({
-            selfBuildPrice: Number.isFinite(selfBuildPrice) && selfBuildPrice > 0 ? selfBuildPrice : 1599,
+            selfBuildPrice: 399,
+            plans: Object.values(MENU_PLANS),
             managedBuildPrice: Number.isFinite(managedBuildPrice) && managedBuildPrice > 0 ? managedBuildPrice : 2500,
             currency: "TRY",
           }, 200, {

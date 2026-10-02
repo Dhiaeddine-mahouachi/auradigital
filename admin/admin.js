@@ -156,17 +156,17 @@ async function renderAuraMenu(){
   state.auraMenus=items;
   const pending=items.filter(item=>item.status==="pending").length;
   const unpaid=items.filter(item=>item.paymentStatus!=="paid").length;
-  const live=items.filter(item=>item.status==="approved").length;
+  const live=items.filter(item=>item.live ?? item.status==="approved").length;
   const rows=items.map(item=>`<tr>
     <td><span class="request-state ${esc(item.status)}"><i></i>${esc(item.status)}</span></td>
     <td><strong>${esc(item.businessName)}</strong><small style="display:block;color:#6b7280">${esc(item.contactName)} · ${esc(item.contactPhone)}</small></td>
-    <td>${esc(item.templateId)}<small style="display:block;color:#6b7280">auramenu.space/${esc(item.slug)}</small></td>
+    <td>${esc(item.templateId)}<small style="display:block;color:#6b7280">auramenu.space/${esc(item.slug)}</small>${item.billing?`<small>${esc(item.billing.planName)} · ${esc(item.billing.amount)} TL · ${esc(item.billing.interval)}<br>Paid until: ${esc(item.billing.paidUntil ? new Date(item.billing.paidUntil).toLocaleDateString() : "Awaiting payment")}${item.billing.hostingAmount?"<br>Hosting: 200 TL / 6 months":""}</small>`:""}</td>
     <td><span class="pill ${item.paymentStatus==="paid"?"ok":"warn"}">${item.paymentStatus==="paid"?"Paid":"Unpaid"}</span></td>
     <td>${esc((item.categories||[]).length)} categories<small style="display:block;color:#6b7280">${esc((item.categories||[]).reduce((sum,category)=>sum+(category.items||[]).length,0))} products</small></td>
     <td><div class="row-actions">
       <button class="btn btn-light btn-sm" data-menu-details="${esc(item.id)}">Details</button>
       <a class="btn btn-light btn-sm" href="https://auramenu.space/status.html?id=${encodeURIComponent(item.id)}" target="_blank" rel="noopener noreferrer">Status</a>
-      <button class="btn btn-light btn-sm" data-menu-pay="${esc(item.id)}">${item.paymentStatus==="paid"?"Mark unpaid":"Payment received"}</button>
+      ${item.billing?.paidUntil?`<button class="btn btn-light btn-sm" data-menu-renew="${esc(item.id)}">Confirm ${esc(item.billing.dueAmount)} TL renewal</button>`:""}<button class="btn btn-light btn-sm" data-menu-pay="${esc(item.id)}">${item.paymentStatus==="paid"?"Mark unpaid":"Payment received"}</button>
       <button class="btn btn-dark btn-sm" data-menu-approve="${esc(item.id)}" ${item.paymentStatus!=="paid"||item.status==="approved"?"disabled":""}>Approve → green</button>
       <button class="btn btn-danger btn-sm" data-menu-reject="${esc(item.id)}">Request changes</button>
       ${item.status==="approved"?`<a class="btn btn-light btn-sm" href="https://auramenu.space/${encodeURIComponent(item.slug)}" target="_blank" rel="noopener noreferrer">Live ↗</a>`:""}
@@ -179,6 +179,7 @@ async function renderAuraMenu(){
   </div>
   <section class="panel"><div class="panel-head"><div><h2>AuraMenu customer requests</h2><p>Requests start red. Confirm payment, inspect the menu, then approve it to publish the customer URL.</p></div><a class="btn btn-dark" href="https://auramenu.space" target="_blank" rel="noopener noreferrer">Open AuraMenu ↗</a></div>
   ${items.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Status</th><th>Customer</th><th>Menu</th><th>Payment</th><th>Content</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">No AuraMenu requests yet.</div>'}</section>`;
+  document.querySelectorAll("[data-menu-renew]").forEach(button=>button.addEventListener("click",()=>{const item=items.find(x=>x.id===button.dataset.menuRenew);if(confirm(`Confirm you received ${item.billing.dueAmount} TL for this renewal?`))return updateAuraMenu(item.id,{action:"renew",expectedPaidUntil:item.billing.paidUntil});}));
   document.querySelectorAll("[data-menu-details]").forEach(button=>button.addEventListener("click",()=>showAuraMenuDetails(items.find(item=>item.id===button.dataset.menuDetails))));
   document.querySelectorAll("[data-menu-pay]").forEach(button=>button.addEventListener("click",()=>{const item=items.find(value=>value.id===button.dataset.menuPay);return updateAuraMenu(item.id,{paymentStatus:item.paymentStatus==="paid"?"unpaid":"paid"})}));
   document.querySelectorAll("[data-menu-approve]").forEach(button=>button.addEventListener("click",()=>updateAuraMenu(button.dataset.menuApprove,{status:"approved"})));
@@ -211,7 +212,7 @@ async function renderQuickSite(){
   const items=data.projects||[];
   const pending=items.filter(item=>item.status==="pending").length;
   const unpaid=items.filter(item=>item.paymentStatus!=="paid").length;
-  const live=items.filter(item=>item.status==="approved").length;
+  const live=items.filter(item=>item.live ?? item.status==="approved").length;
   const rows=items.map(item=>`<tr>
     <td><strong>${esc(item.businessName)}</strong><small style="display:block;color:#6b7280">${esc(item.contactName)} · ${esc(item.email)}</small></td>
     <td>${esc(item.templateId)}<small style="display:block;color:#6b7280">/${esc(item.slug)}</small></td>
