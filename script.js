@@ -591,7 +591,7 @@ chatForm?.addEventListener("submit", (e) => {
   setTimeout(() => answerChat(classifyQuestion(value), value), 260);
 });
 const i18nScript = document.createElement("script");
-i18nScript.src = "i18n.js?v=english-source-20261003";
+i18nScript.src = "i18n.js?v=english-complete-20261003";
 document.head.appendChild(i18nScript);
 
 
