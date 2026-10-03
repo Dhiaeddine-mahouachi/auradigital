@@ -4,7 +4,6 @@
   const body = document.body;
   if (!body || body.dataset.cinematicReady === "true") return;
   body.dataset.cinematicReady = "true";
-  body.classList.add("cinematic-enabled");
 
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const finePointer = matchMedia("(hover:hover) and (pointer:fine)").matches;
