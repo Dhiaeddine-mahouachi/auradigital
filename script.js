@@ -12,31 +12,31 @@ addEventListener(
 );
 const page = document.body.dataset.page || "home";
 const pages = [
-  ["home", "/", "Ana Sayfa"],
-  ["services", "/services", "Hizmetler"],
+  ["home", "/", "Home"],
+  ["services", "/services", "Services"],
   ["portfolio", "/portfolio", "Portfolio"],
   ["auramenu", "/aura-menu", "AuraMenu"],
   ["aurapops", "/aurapops", "AuraPops"],
   ["auraweddings", "/aura-weddings", "AuraWeddings"],
-  ["packages", "/packages", "Paketler"],
-  ["about", "/about", "Hakkımızda"],
+  ["packages", "/packages", "Packages"],
+  ["about", "/about", "About"],
 ];
 const header = document.getElementById("siteHeader");
 if (header) {
   header.className = "site-header";
-  header.innerHTML = `<div class="container nav"><a class="brand brand-wordmark" href="/" aria-label="AuraDigital ana sayfa"><img class="brand-logo" src="auradigital-logo-20260928.png" alt=""><span class="brand-name"><strong>Aura</strong>Digital</span></a><div class="nav-links" id="navLinks">${pages
+  header.innerHTML = `<div class="container nav"><a class="brand brand-wordmark" href="/" aria-label="AuraDigital home"><img class="brand-logo" src="auradigital-logo-20260928.png" alt=""><span class="brand-name"><strong>Aura</strong>Digital</span></a><div class="nav-links" id="navLinks">${pages
     .map(
       ([id, href, label]) =>
         `<a class="${page === id ? "active" : ""}" href="${href}">${label}</a>`,
     )
     .join(
       "",
-    )}</div><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Dil" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">EN</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Projenizi Konuşalım <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Menüyü aç" aria-expanded="false">☰</button></div>`;
+    )}</div><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Language" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">EN</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Let's Talk <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button></div>`;
 }
 const footer = document.getElementById("siteFooter");
 if (footer) {
   footer.className = "site-footer";
-  footer.innerHTML = `<div class="container"><div class="footer-top"><div><a class="brand brand-wordmark footer-wordmark" href="/" aria-label="AuraDigital ana sayfa"><img class="brand-logo" src="auradigital-logo-20260928.png" alt="AuraDigital"></a><p class="footer-blurb">Web tasarımından reklam yönetimine, NFC deneyimlerinden AuraMenu ve AuraWeddings'e kadar markanızın dijital sistemini tek bir profesyonel ekip gibi kuruyoruz.</p></div><div class="footer-col"><h4>Hizmetler</h4><a href="/services">Web & Growth</a><a href="/nfc">NFC Kartlar</a><a href="/aura-menu">AuraMenu</a><a href="/aurapops">AuraPops</a><a href="/aura-weddings">AuraWeddings</a><a href="/packages">Abonelikler</a></div><div class="footer-col"><h4>Şirket</h4><a href="/portfolio">Portfolio</a><a href="/about">Hakkımızda</a><a href="/contact">İletişim</a><a href="/packages#faq">Sık Sorulanlar</a></div><div class="footer-col"><h4>Başlayalım</h4><a href="https://wa.me/${AURA.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp · +90 538 550 76 74</a><a href="mailto:${AURA.email}">Email · ${AURA.email}</a><a href="https://${AURA.domain}" target="_blank" rel="noopener noreferrer">${AURA.domain}</a></div></div><div class="footer-bottom"><span>© 2026 AuraDigital. Tüm hakları saklıdır.</span><span>İstanbul · Türkiye</span></div></div>`;
+  footer.innerHTML = `<div class="container"><div class="footer-top"><div><a class="brand brand-wordmark footer-wordmark" href="/" aria-label="AuraDigital home"><img class="brand-logo" src="auradigital-logo-20260928.png" alt="AuraDigital"></a><p class="footer-blurb">From websites and advertising to NFC experiences, AuraMenu and AuraWeddings, we build your brand’s digital system as one professional team.</p></div><div class="footer-col"><h4>Services</h4><a href="/services">Web & Growth</a><a href="/nfc">NFC Cards</a><a href="/aura-menu">AuraMenu</a><a href="/aurapops">AuraPops</a><a href="/aura-weddings">AuraWeddings</a><a href="/packages">Subscriptions</a></div><div class="footer-col"><h4>Company</h4><a href="/portfolio">Portfolio</a><a href="/about">About</a><a href="/contact">Contact</a><a href="/packages#faq">FAQ</a></div><div class="footer-col"><h4>Let's start</h4><a href="https://wa.me/${AURA.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp · +90 538 550 76 74</a><a href="mailto:${AURA.email}">Email · ${AURA.email}</a><a href="https://${AURA.domain}" target="_blank" rel="noopener noreferrer">${AURA.domain}</a></div></div><div class="footer-bottom"><span>© 2026 AuraDigital. All rights reserved.</span><span>Istanbul · Turkey</span></div></div>`;
 }
 document.body.insertAdjacentHTML(
   "afterbegin",
@@ -387,9 +387,9 @@ const saveConsent = (choice) => {
 };
 document.body.insertAdjacentHTML(
   "beforeend",
-  `<aside class="cookie-consent" id="cookieConsent" aria-label="Çerez tercihleri" aria-hidden="true">
-    <div class="cookie-copy"><span class="cookie-icon">◉</span><div><strong>Çerez tercihleri</strong><p>Daha iyi bir site deneyimi için gerekli depolamayı ve, izin verirseniz, gelecekteki performans ölçümlerini kullanabiliriz. Tercihinizi istediğiniz zaman değiştirebilirsiniz.</p></div></div>
-    <div class="cookie-actions"><button class="btn btn-primary" type="button" data-cookie="all">Tümünü kabul et</button><button class="btn cookie-necessary" type="button" data-cookie="necessary">Sadece gerekli</button><button class="btn cookie-reject" type="button" data-cookie="reject">Hepsini reddet</button></div>
+  `<aside class="cookie-consent" id="cookieConsent" aria-label="Cookie preferences" aria-hidden="true">
+    <div class="cookie-copy"><span class="cookie-icon">◉</span><div><strong>Cookie preferences</strong><p>We use necessary storage for a better site experience and, with your permission, may use performance measurement in the future. You can change your choice at any time.</p></div></div>
+    <div class="cookie-actions"><button class="btn btn-primary" type="button" data-cookie="all">Accept all</button><button class="btn cookie-necessary" type="button" data-cookie="necessary">Necessary only</button><button class="btn cookie-reject" type="button" data-cookie="reject">Reject all</button></div>
   </aside>`,
 );
 const cookieConsent = document.getElementById("cookieConsent");
@@ -413,7 +413,7 @@ if (footerBottom) {
   const settings = document.createElement("button");
   settings.type = "button";
   settings.className = "cookie-settings-link";
-  settings.textContent = "Çerez ayarları";
+  settings.textContent = "Cookie settings";
   settings.addEventListener("click", openCookieConsent);
   footerBottom.appendChild(settings);
 }
@@ -489,10 +489,10 @@ document.body.insertAdjacentHTML(
   "beforeend",
   `<button class="chat-launcher" id="chatLauncher" type="button" aria-label="Aura Assistant" aria-expanded="false"><span class="chat-launcher-icon">✦</span><span class="chat-dot"></span></button>
    <aside class="chat-panel" id="chatPanel" aria-label="Aura Assistant" aria-hidden="true">
-    <div class="chat-head"><div class="chat-avatar">A</div><div><strong>Aura Assistant</strong><span><i></i> Online · Quick answers</span></div><button class="chat-close" type="button" aria-label="Sohbeti kapat">×</button></div>
+    <div class="chat-head"><div class="chat-avatar">A</div><div><strong>Aura Assistant</strong><span><i></i> Online · Quick answers</span></div><button class="chat-close" type="button" aria-label="Close chat">×</button></div>
     <div class="chat-messages" id="chatMessages"></div>
-    <div class="chat-quick" id="chatQuick"><button data-question="web">Web</button><button data-question="menu">AuraMenu</button><button data-question="nfc">NFC</button><button data-question="package">Paketler</button><button data-question="portfolio">Portfolio</button><button data-question="contact">İletişim</button></div>
-    <form class="chat-form" id="chatForm"><input id="chatInput" autocomplete="off" maxlength="240" placeholder="Sorunuzu yazın…" aria-label="Sorunuzu yazın" /><button type="submit" aria-label="Gönder">↗</button></form>
+    <div class="chat-quick" id="chatQuick"><button data-question="web">Web</button><button data-question="menu">AuraMenu</button><button data-question="nfc">NFC</button><button data-question="package">Packages</button><button data-question="portfolio">Portfolio</button><button data-question="contact">Contact</button></div>
+    <form class="chat-form" id="chatForm"><input id="chatInput" autocomplete="off" maxlength="240" placeholder="Type your question…" aria-label="Type your question" /><button type="submit" aria-label="Send">↗</button></form>
    </aside>`,
 );
 const chatLauncher = document.getElementById("chatLauncher");
@@ -591,7 +591,7 @@ chatForm?.addEventListener("submit", (e) => {
   setTimeout(() => answerChat(classifyQuestion(value), value), 260);
 });
 const i18nScript = document.createElement("script");
-i18nScript.src = "i18n.js?v=en-default-20260926-5";
+i18nScript.src = "i18n.js?v=english-complete-20261003";
 document.head.appendChild(i18nScript);
 
 

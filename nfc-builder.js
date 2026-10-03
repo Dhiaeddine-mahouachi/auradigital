@@ -9,8 +9,8 @@
   const fields = form.elements;
   const supported = ["tr", "en", "ar"];
   const stored = (() => { try { return localStorage.getItem("aura-nfc-lang"); } catch { return null; } })();
-  let language = supported.includes(new URLSearchParams(location.search).get("lang")) ? new URLSearchParams(location.search).get("lang") : supported.includes(stored) ? stored : "tr";
-  let previousDefaults = { headline: copy.tr.reviewDefault, instruction: copy.tr.instructionDefault };
+  let language = supported.includes(new URLSearchParams(location.search).get("lang")) ? new URLSearchParams(location.search).get("lang") : "en";
+  let previousDefaults = { headline: copy.en.reviewDefault, instruction: copy.en.instructionDefault };
 
   function currentType() { return form.querySelector('[name="cardType"]:checked').value; }
   function setLanguage(next) {
