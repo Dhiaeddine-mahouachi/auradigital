@@ -1,3 +1,4 @@
+import { activationMail } from './service-mail.js';
 import { getAuthenticatedAdmin, sameOrigin } from "./security.js";
 
 const APP_ORIGIN = "https://aurapops.online";
@@ -118,9 +119,11 @@ export async function handleAuraPopsAdmin(request, env) {
     }
 
     const approvedAt = status === "approved" ? (current.approved_at || new Date().toISOString()) : null;
-    await env.DB.prepare(
+    const notification = await activationMail(env.DB, 'pop', current, { ...current, status, payment_status: paymentStatus, approved_at: approvedAt });
+    const update = env.DB.prepare(
       "UPDATE aurapops SET status=?, payment_status=?, admin_note=?, approved_at=?, updated_at=datetime('now') WHERE id=?"
-    ).bind(status, paymentStatus, adminNote, approvedAt, popMatch[1]).run();
+    ).bind(status, paymentStatus, adminNote, approvedAt, popMatch[1]);
+    await env.DB.batch(notification ? [update, notification] : [update]);
 
     const updated = await env.DB.prepare("SELECT * FROM aurapops WHERE id=? LIMIT 1").bind(popMatch[1]).first();
     return json({ pop: mapPop(updated) }, 200, { "Cache-Control": "no-store" });

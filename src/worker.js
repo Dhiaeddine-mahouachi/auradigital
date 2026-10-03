@@ -1,3 +1,4 @@
+import { activationMail } from './service-mail.js';
 import { MENU_PLANS, ensureMenuBilling, menuBilling, menuBillingInsert, activateMenuBilling, menuEntitlement } from "./menu-billing.js";
 import { ApiError, json, readJson } from "./http.js";
 import { queueRequestNotification } from "./notifications.js";
@@ -858,8 +859,11 @@ async function handleAuraMenuAdmin(request, db, id) {
   if (status === 'approved' || (payment === 'paid' && current.payment_status !== 'paid')) await activateMenuBilling(db,id);
   const ownerNote = body.ownerNote === undefined ? current.owner_note : qsClean(body.ownerNote, 500);
   const now = new Date().toISOString();
-  await db.prepare("UPDATE auramenu_requests SET status = ?, payment_status = ?, owner_note = ?, updated_at = ?, approved_at = ?, revision = revision + 1 WHERE id = ?")
-    .bind(status, payment, ownerNote, now, status === "approved" ? (current.approved_at || now) : null, id).run();
+  const approvedAt = status === "approved" ? (current.approved_at || now) : null;
+  const notification = await activationMail(db, 'menu', current, { ...current, status, payment_status: payment, approved_at: approvedAt });
+  const update = db.prepare("UPDATE auramenu_requests SET status = ?, payment_status = ?, owner_note = ?, updated_at = ?, approved_at = ?, revision = revision + 1 WHERE id = ?")
+    .bind(status, payment, ownerNote, now, approvedAt, id);
+  await db.batch(notification ? [update, notification] : [update]);
   const updated = await db.prepare("SELECT * FROM auramenu_requests WHERE id = ? LIMIT 1").bind(id).first();
   return json({ request: mapAuraMenuRequest(updated) }, 200, { "Cache-Control": "no-store" });
 }

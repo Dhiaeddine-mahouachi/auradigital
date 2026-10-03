@@ -1,3 +1,4 @@
+import { handleSupport, deliverMail } from './service-mail.js';
 import { requestPolicy, secureResponse, errorResponse } from './security-policy.js';
 import app from './worker.js';
 import { handleAuraMenuDashboard } from './auramenu-dashboard.js';
@@ -8,6 +9,8 @@ import { permanentSeoRedirect, serveSeoAsset } from './seo.js';
 
 const router = {
   async fetch(request, env, ctx) {
+    const support = await handleSupport(request, env);
+    if (support) return support;
     const url = new URL(request.url);
     if (url.hostname === 'auradigital.ink' || url.hostname === 'www.auradigital.ink') {
       url.hostname = 'auradigitalworks.com';
@@ -48,10 +51,13 @@ const router = {
 };
 
 export default {
+  async scheduled(event, env, ctx) { ctx.waitUntil(deliverMail(env)); },
   async fetch(request, env, ctx) {
     try {
       const rejection = await requestPolicy(request, env);
-      return secureResponse(rejection || await router.fetch(request, env, ctx), request, env, ctx);
+      const response = rejection || await router.fetch(request, env, ctx);
+      if (response.ok && ['POST','PATCH'].includes(request.method) && env.DB && env.RESEND_API_KEY) ctx.waitUntil(deliverMail(env).catch(() => console.error('aura_mail_retry_failed')));
+      return secureResponse(response, request, env, ctx);
     } catch (error) {
       return secureResponse(errorResponse(error, request, env, ctx), request, env, ctx);
     }
