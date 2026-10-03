@@ -4,111 +4,84 @@ const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
 
 const PAGE_SEO = {
   "/": {
-    "lang": "en",
-    "title": "Digital Agency Istanbul | Websites, Ads & QR Menus | AuraDigital",
-    "description": "AuraDigital is an Istanbul-based digital growth studio for websites, Google and Meta advertising, SEO, NFC cards and QR menus.",
-    "type": "WebPage"
+    lang: "tr",
+    title: "Dijital Ajans İstanbul | Web, Reklam & QR Menü | AuraDigital",
+    description: "AuraDigital İstanbul'da web tasarım, Google ve Meta reklamları, SEO, NFC kart ve QR dijital menü çözümleri sunan dijital büyüme stüdyosudur.",
+    type: "WebPage",
   },
   "/services": {
-    "lang": "en",
-    "title": "Web Design & Digital Marketing Istanbul | AuraDigital",
-    "description": "Manage websites, Google Ads, Meta Ads, SEO, Google Maps, social media, content and automation with AuraDigital.",
-    "type": "CollectionPage",
-    "serviceType": [
-      "Web Design",
-      "Digital Marketing",
-      "Google Ads",
-      "Meta Ads",
-      "SEO",
-      "Social Media Management"
-    ]
+    lang: "tr",
+    title: "Dijital Pazarlama & Web Tasarım İstanbul | AuraDigital",
+    description: "İstanbul'da web tasarım, Google Ads, Meta Ads, SEO, Google Maps, sosyal medya, içerik ve otomasyon hizmetlerini AuraDigital ile tek çatı altında yönetin.",
+    type: "CollectionPage",
+    serviceType: ["Web Tasarım", "Dijital Pazarlama", "Google Ads", "Meta Ads", "SEO", "Sosyal Medya Yönetimi"],
   },
   "/portfolio": {
-    "lang": "en",
-    "title": "Website & Digital Projects | AuraDigital Istanbul",
-    "description": "Explore selected AuraDigital website, branding and digital experience projects for local businesses and creative brands.",
-    "type": "CollectionPage"
+    lang: "tr",
+    title: "Web Tasarım & Dijital Projeler | AuraDigital İstanbul",
+    description: "AuraDigital'in web tasarım, yerel işletme, marka ve dijital deneyim projelerini inceleyin. İstanbul merkezli seçili çalışmalar ve gerçek proje örnekleri.",
+    type: "CollectionPage",
   },
   "/aura-menu": {
-    "lang": "en",
-    "title": "QR Menu & Digital Menu Design Istanbul | AuraMenu",
-    "description": "Mobile-friendly QR menus for restaurants and cafés. Choose your AuraMenu design and customize products, brand colors and languages.",
-    "type": "WebPage",
-    "serviceType": [
-      "QR Menus",
-      "Digital Menu Design",
-      "Restaurant Menu Design"
-    ]
+    lang: "tr",
+    title: "QR Menü & Dijital Menü Tasarımı İstanbul | AuraMenu",
+    description: "Restoran ve kafeler için mobil uyumlu QR menü ve dijital menü tasarımı. AuraMenu ile tasarımınızı seçin, ürünlerinizi ve marka renklerinizi özelleştirin.",
+    type: "WebPage",
+    serviceType: ["QR Menü", "Dijital Menü Tasarımı", "Restoran Menü Tasarımı"],
   },
   "/aura-weddings": {
-    "lang": "en",
-    "title": "Digital Wedding Invitations & Online Designs | AuraWeddings",
-    "description": "Digital wedding invitations in English, Turkish and Arabic with animated envelopes, custom themes, countdowns, RSVP, music and guest messages.",
-    "type": "WebPage",
-    "serviceType": [
-      "Digital Wedding Invitations",
-      "Online Invitation Design"
-    ]
+    lang: "tr",
+    title: "Dijital Düğün Davetiyesi & Online Davetiye Tasarımı | AuraWeddings",
+    description: "Arapça, Türkçe ve İngilizce dijital düğün davetiyeleri. Açılan mektup animasyonu, özel temalar, geri sayım, RSVP, müzik ve misafir mesajları.",
+    type: "WebPage",
+    serviceType: ["Dijital Düğün Davetiyesi", "Online Davetiye Tasarımı", "Dijital Davetiye"],
   },
   "/aurapops": {
-    "lang": "en",
-    "title": "AuraPops Smart QR Popups | AuraDigital",
-    "description": "Explore AuraPops smart QR popup designs for menus, social links, maps, contact actions and interactive mini games, then build yours on aurapops.online.",
-    "type": "WebPage",
-    "serviceType": [
-      "Smart QR Popup",
-      "Digital Link Profile",
-      "Interactive QR Experience"
-    ]
+    lang: "en",
+    title: "AuraPops Smart QR Popups | AuraDigital",
+    description: "Explore AuraPops smart QR popup designs for menus, social links, maps, contact actions and interactive mini games, then build yours on aurapops.online.",
+    type: "WebPage",
+    serviceType: ["Smart QR Popup", "Digital Link Profile", "Interactive QR Experience"],
   },
   "/nfc": {
-    "lang": "en",
-    "title": "NFC Cards & Google Review Cards Istanbul | AuraDigital",
-    "description": "Custom NFC cards for Google reviews, websites, QR menus and social media. Explore AuraDigital card designs for your business.",
-    "type": "WebPage",
-    "serviceType": [
-      "NFC Cards",
-      "Google Review Cards",
-      "Business NFC Cards"
-    ]
+    lang: "tr",
+    title: "NFC Kart & Google Yorum Kartı İstanbul | AuraDigital",
+    description: "Google yorum, web sitesi, QR menü ve sosyal medya için özelleştirilebilir NFC kart çözümleri. İstanbul'da işletmenize özel NFC kart tasarımı.",
+    type: "WebPage",
+    serviceType: ["NFC Kart", "Google Yorum NFC Kartı", "İşletme NFC Kartı"],
   },
   "/nfc-studio": {
-    "lang": "en",
-    "title": "Design Your NFC Card | AuraDigital",
-    "description": "Design your NFC card online. Customize colors, text, QR codes and destination links, then submit your design for review.",
-    "type": "WebPage",
-    "serviceType": [
-      "NFC Card Design"
-    ]
+    lang: "tr",
+    title: "NFC Kart Tasarla | Google Yorum & Web NFC Kartı | AuraDigital",
+    description: "NFC kartınızı online tasarlayın; renk, metin, QR kod ve hedef bağlantıyı özelleştirip Google yorum veya web sitesi için tasarım talebi gönderin.",
+    type: "WebPage",
+    serviceType: ["NFC Kart Tasarımı"],
   },
   "/qr-menu": {
-    "lang": "en",
-    "title": "QR Menu Design Istanbul | Restaurant Digital Menus | AuraDigital",
-    "description": "Fast, mobile-friendly QR digital menus for restaurants and cafés, tailored to your brand, products, prices and images.",
-    "type": "WebPage",
-    "serviceType": [
-      "QR Menu Design",
-      "Restaurant Digital Menus"
-    ]
+    lang: "tr",
+    title: "QR Menü Tasarımı İstanbul | Restoran Dijital Menü | AuraDigital",
+    description: "İstanbul'daki restoran ve kafeler için hızlı, mobil uyumlu ve markaya özel QR dijital menü tasarımı. Ürün, fiyat ve görsellerinizi kolayca sunun.",
+    type: "WebPage",
+    serviceType: ["QR Menü Tasarımı", "Restoran Dijital Menü"],
   },
   "/packages": {
-    "lang": "en",
-    "title": "Digital Marketing Plans Istanbul | AuraDigital",
-    "description": "Explore weekly and monthly digital marketing plans combining social media, advertising, content, website support and optimization.",
-    "type": "WebPage"
+    lang: "tr",
+    title: "Dijital Pazarlama Paketleri İstanbul | AuraDigital",
+    description: "Sosyal medya, reklam, içerik, web desteği ve optimizasyonu birleştiren haftalık ve aylık dijital pazarlama paketlerini inceleyin.",
+    type: "WebPage",
   },
   "/about": {
-    "lang": "en",
-    "title": "About AuraDigital | Digital Agency Istanbul",
-    "description": "AuraDigital is an independent Istanbul-based digital growth studio connecting websites, advertising, social media, NFC and QR experiences.",
-    "type": "AboutPage"
+    lang: "tr",
+    title: "AuraDigital Hakkında | İstanbul Dijital Ajans",
+    description: "AuraDigital; web, reklam, sosyal medya, NFC ve QR deneyimlerini tek sistemde birleştiren İstanbul merkezli bağımsız dijital büyüme stüdyosudur.",
+    type: "AboutPage",
   },
   "/contact": {
-    "lang": "en",
-    "title": "Contact AuraDigital | Website & Digital Marketing Projects",
-    "description": "Contact AuraDigital about your website, advertising, SEO, NFC card or QR menu project and get a tailored proposal.",
-    "type": "ContactPage"
-  }
+    lang: "tr",
+    title: "Dijital Ajans İstanbul İletişim & Teklif | AuraDigital",
+    description: "Web tasarım, dijital reklam, SEO, NFC kart veya QR menü projeniz için AuraDigital ile iletişime geçin ve işletmenize özel teklif alın.",
+    type: "ContactPage",
+  },
 };
 
 const NOINDEX_PATHS = new Set([
@@ -275,7 +248,7 @@ function buildSchema(pathname, meta, canonical) {
     "@id": WEBSITE_ID,
     url: `${SITE_ORIGIN}/`,
     name: "AuraDigital",
-    inLanguage: "en-US",
+    inLanguage: "tr-TR",
     publisher: { "@id": ORGANIZATION_ID },
   };
 

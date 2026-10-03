@@ -64,7 +64,6 @@
       "migrations_dir": "migrations"
     }
   ],
-  "triggers": { "crons": ["*/5 * * * *"] },
   "send_email": [
     {
       "name": "REQUEST_NOTIFICATIONS"

@@ -199,7 +199,7 @@
     });
   };
   const render = (language) => {
-    const t = copy[language] || copy.en;
+    const t = copy[language] || copy.tr;
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
     document.title = t.pageTitle;
@@ -270,7 +270,7 @@
     many(".weddings-cta .hero-actions .btn", t.ctaButtons);
   };
 
-  window.addEventListener("aura:languagechange", (event) => render(event.detail?.lang || "en"));
-  render(window.AuraI18n?.current?.() || "en");
-  setTimeout(() => render(window.AuraI18n?.current?.() || "en"), 120);
+  window.addEventListener("aura:languagechange", (event) => render(event.detail?.lang || "tr"));
+  render(window.AuraI18n?.current?.() || "tr");
+  setTimeout(() => render(window.AuraI18n?.current?.() || "tr"), 120);
 })();

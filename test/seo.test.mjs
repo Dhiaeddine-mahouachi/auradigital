@@ -24,7 +24,7 @@ test('public pages declare their visible default language in source HTML', async
   const pages = ['index', 'services', 'portfolio', 'aura-menu', 'aura-weddings', 'nfc', 'nfc-builder', 'qr-menu', 'packages', 'about', 'contact'];
   for (const name of pages) {
     const html = await readFile(new URL(`../${name}.html`, import.meta.url), 'utf8');
-    assert.match(html, /^<!doctype html>\s*<html lang="en">/i, name);
+    assert.match(html, /^<!doctype html>\s*<html lang="tr">/i, name);
   }
 });
 
