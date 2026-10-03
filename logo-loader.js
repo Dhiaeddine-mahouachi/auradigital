@@ -2,6 +2,8 @@
 // Scale its 4-second reveal to 2 seconds for the homepage loading screen.
 (() => {
   const loader = document.getElementById("landingLoader");
+  if (!loader) return;
+  if (document.documentElement.classList.contains('aura-intro-seen')) { loader.remove(); return; }
   const find = selector => loader.querySelector(selector);
   const pD = find("[data-d-stroke]");
   const pG = find("[data-g-stroke]");

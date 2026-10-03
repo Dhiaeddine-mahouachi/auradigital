@@ -20,7 +20,8 @@
 
   if (body.dataset.page === "home") {
     const loader = document.getElementById("landingLoader");
-    if (loader && !reducedMotion) {
+    if (loader && (document.documentElement.classList.contains('aura-intro-seen') || reducedMotion)) loader.remove();
+    else if (loader) {
       const dismissLoader = () => {
         if (!loader.isConnected || loader.classList.contains("is-done")) return;
         loader.classList.add("is-done");

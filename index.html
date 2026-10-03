@@ -11,7 +11,22 @@
     />
     <link rel="icon" href="auradigital-mark-20260928.png" type="image/png" />
     <link rel="manifest" href="site.webmanifest" />
+    <script>
+      (() => {
+        const key = 'auraDigitalIntroSeen';
+        let returning = false;
+        try { returning = sessionStorage.getItem(key) === '1'; sessionStorage.setItem(key, '1'); } catch (_) {}
+        try { if (document.referrer && new URL(document.referrer).origin === location.origin) returning = true; } catch (_) {}
+        const navigation = performance.getEntriesByType('navigation')[0];
+        if (navigation?.type === 'back_forward') returning = true;
+        if (returning) document.documentElement.classList.add('aura-intro-seen');
+        addEventListener('pageshow', event => {
+          if (event.persisted) { document.documentElement.classList.add('aura-intro-seen'); document.getElementById('landingLoader')?.remove(); }
+        });
+      })();
+    </script>
     <style>
+      html.aura-intro-seen #landingLoader{display:none!important}
       /* Inline so the loader covers the homepage before external files or scripts finish. */
       html{background:#080808}
       #landingLoader{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#080808;color:#111114;opacity:1;visibility:visible;animation:loader-safety 4.6s step-end forwards}
@@ -129,7 +144,7 @@
       <span class="cinema-loader-title" aria-hidden="true"><b>aura</b>digital</span>
       </div>
     </div>
-    <script src="logo-loader.js?v=20260928-faster-2"></script>
+    <script src="logo-loader.js?v=20261003-session"></script>
     <header id="siteHeader"></header>
     <main>
       <section class="hero reference-hero">
@@ -354,7 +369,7 @@
     </main>
     <footer id="siteFooter"></footer>
     <script src="script.js?v=20261001-mobile-autoplay-1"></script>
-    <script src="cinematic.js?v=20261002-acid-wave-1"></script>
+    <script src="cinematic.js?v=20261003-session-20261002-acid-wave-1"></script>
     <script src="service-network.js?v=20260929-1" defer></script>
   </body>
 </html>
