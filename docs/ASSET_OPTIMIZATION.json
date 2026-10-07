@@ -1,0 +1,26 @@
+[
+  {
+    "source": "project-mutlu.png",
+    "before": 530026,
+    "optimized": "media/project-mutlu.webp",
+    "after": 49488
+  },
+  {
+    "source": "project-erhan.png",
+    "before": 2331463,
+    "optimized": "media/project-erhan.webp",
+    "after": 117952
+  },
+  {
+    "source": "project-gateaux.png",
+    "before": 2367236,
+    "optimized": "media/project-gateaux.webp",
+    "after": 136412
+  },
+  {
+    "source": "nfc-restaurant.png",
+    "before": 1946843,
+    "optimized": "media/nfc-restaurant.webp",
+    "after": 95586
+  }
+]

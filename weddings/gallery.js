@@ -1,8 +1,11 @@
+// Existing local artwork provides a reliable fallback when the remote photo host fails.
+document.addEventListener('error',event=>{const image=event.target;if(image instanceof HTMLImageElement&&image.src.startsWith('https://images.unsplash.com/')){image.src='/weddings/art/garden.webp';image.alt='Wedding invitation illustration';}},true);
 import {themes} from './themes.js?v=20260919-50';
 
 const host=document.querySelector('.wedding-theme-grid');
 const filters=document.querySelector('.aw-filters');
 const labels={
+  fr:{open:'Voir le modèle',choose:'Choisir ce modèle',eyebrow:'Réservez la date',features:'Fonctionnalités incluses',close:'Fermer',note:'50 invitations à personnaliser. Explorez la collection et ouvrez un aperçu complet.'},
   en:{open:'Preview design',choose:'Choose this theme',eyebrow:'Save the date',features:'Included features',close:'Close preview',note:'50 complete invitation previews. Personalize above, filter the collection, then open any live experience.'},
   tr:{open:'Tasarımı incele',choose:'Bu temayı seç',eyebrow:'Tarihi kaydedin',features:'Dahil özellikler',close:'Önizlemeyi kapat',note:'50 eksiksiz davetiye önizlemesi. Bilgilerinizi girin, koleksiyonu filtreleyin ve canlı deneyimi açın.'},
   ar:{open:'معاينة التصميم',choose:'اختر هذا التصميم',eyebrow:'احفظوا التاريخ',features:'الميزات المشمولة',close:'إغلاق المعاينة',note:'50 تجربة دعوة كاملة. خصّص التفاصيل، صفِّ المجموعة، ثم افتح أي تجربة مباشرة.'}
@@ -15,8 +18,8 @@ const personalizer=document.querySelector('#weddingPersonalizer');
 const status=document.querySelector('.aw-personalizer-status');
 let couple={partnerOne:'Amelia',partnerTwo:'Adam',date:'2027-06-29',venue:'Four Seasons Hotel Bosphorus, Istanbul'};
 const safe=value=>String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-const formattedDate=()=>{const date=new Date(`${couple.date}T12:00:00`);return Number.isNaN(date.valueOf())?'Date to be announced':new Intl.DateTimeFormat(language==='tr'?'tr-TR':language==='ar'?'ar':'en-GB',{day:'numeric',month:'long',year:'numeric'}).format(date)};
-const query=()=>new URLSearchParams({one:couple.partnerOne||'Partner one',two:couple.partnerTwo||'Partner two',date:couple.date,venue:couple.venue}).toString();
+const formattedDate=()=>{const date=new Date(`${couple.date}T12:00:00`);return Number.isNaN(date.valueOf())?'Date to be announced':new Intl.DateTimeFormat(language==='tr'?'tr-TR':language==='ar'?'ar':language==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'long',year:'numeric'}).format(date)};
+const query=()=>new URLSearchParams({lang:language,one:couple.partnerOne||'Partner one',two:couple.partnerTwo||'Partner two',date:couple.date,venue:couple.venue}).toString();
 
 function card(theme,index,t){
   return `<article class="aw-theme" data-category="${theme.category}">
@@ -53,4 +56,6 @@ document.querySelector('#themeSearch')?.addEventListener('input',event=>{searchT
 personalizer?.addEventListener('input',()=>{const data=new FormData(personalizer);couple=Object.fromEntries(data.entries());status.textContent=`Previewing ${couple.partnerOne||'Partner one'} & ${couple.partnerTwo||'Partner two'} · ${formattedDate()}`;render()});
 personalizer?.addEventListener('reset',()=>setTimeout(()=>{couple={partnerOne:'Amelia',partnerTwo:'Adam',date:'2027-06-29',venue:'Four Seasons Hotel Bosphorus, Istanbul'};status.textContent='Previewing Amelia & Adam · 29 June 2027';render()},0));
 render();
-window.addEventListener('aura:languagechange',event=>render(event.detail?.lang||'en'));
+window.addEventListener('aura:languagechange',event=>render(['en','tr','ar','fr'].includes(event.detail?.lang)?event.detail.lang:'en'));
+
+document.querySelector('#invitationLanguage')?.addEventListener('change',event=>render(event.target.value));

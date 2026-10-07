@@ -52,6 +52,17 @@
   }
 
   function renderServices(items, settings) {
+    const editorial = document.querySelector('[data-editable-services]');
+    if (editorial) {
+      editorial.innerHTML = items.map((item,index) => {
+        const name=t(item.name), text=t(item.description), key=name.toLowerCase();
+        const web=/web|site/.test(key), growth=/ads|social|seo|growth|marketing/.test(key);
+        const href=web?'/websites':'/contact?service='+encodeURIComponent(name);
+        const image=web?'/web-system.svg':growth?'/growth-analytics.svg':'/qr-menu-phone.svg';
+        return `<article class="service-row reveal in"><span class="mono">${String(index+1).padStart(2,'0')}</span><div><h2>${esc(name)}</h2><p>${esc(text)}</p><a class="text-link" href="${esc(href)}">Explore this service ↗</a></div><div class="device-frame"><div class="device-body"><img src="${image}" width="900" height="600" loading="lazy" alt="${esc(name)} interface concept"></div></div></article>`;
+      }).join('');
+      return;
+    }
     const grid = document.querySelector("body[data-page='services'] .services-grid");
     if (!grid || !items?.length) return;
     grid.innerHTML = items.map((item) => {
@@ -66,6 +77,17 @@
   }
 
   function renderPortfolio(items) {
+    const editorial = document.querySelector('[data-editable-cases]');
+    if (editorial) {
+      const optimized={'project-mutlu.png':'/media/project-mutlu.webp','project-erhan.png':'/media/project-erhan.webp','project-gateaux.png':'/media/project-gateaux.webp'};
+      editorial.innerHTML=items.map(item=>{
+        const image=safeUrl(optimized[String(item.image||'').replace(/^\//,'')]||item.image),url=safeUrl(item.url);
+        const kind=/brand/i.test(item.type||'')?'brand':/system/i.test(item.type||'')?'systems':'web';
+        return `<article class="case-study reveal in" data-case-type="${kind}"><div class="case-meta"><h2>${esc(item.title)}</h2><span class="mono">${esc(t(item.type))}</span></div>${image?`<div class="case-media"><img src="${esc(image)}" width="1400" height="850" loading="lazy" alt="${esc(item.title)} project preview"></div>`:''}<p>${esc(t(item.description))}</p>${url?`<a class="btn btn-ghost" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Visit project ↗</a>`:''}</article>`;
+      }).join('');
+      document.querySelector('[data-work-filter][aria-pressed="true"]')?.click();
+      return;
+    }
     const grid = document.querySelector("body[data-page='portfolio'] .project-grid-full");
     if (!grid || !items?.length) return;
     grid.innerHTML = items.map((item, index) => {
@@ -92,7 +114,7 @@
       const data = await response.json();
       // Keep the English HTML visible until localization is ready, then render
       // database text in the selected language before adding it to the page.
-      if (!window.AuraI18n) await new Promise(resolve => window.addEventListener("aura:languagechange", resolve, { once: true }));
+      if (!window.AuraI18n) await new Promise(resolve => { const timer=setTimeout(resolve,1500); window.addEventListener("aura:languagechange", () => {clearTimeout(timer);resolve();}, { once: true }); });
       const settings = data.settings || {};
       applySettingTargets(settings);
       renderPackages(data.packages || []);

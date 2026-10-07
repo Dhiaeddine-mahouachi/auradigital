@@ -1,42 +1,19 @@
 const AURA = {
-  email: "info@auradigitalworks.com",
+  email: "hello@auradigitalworks.com",
   domain: "auradigitalworks.com",
   whatsapp: "905385507674",
 };
-if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-scrollTo(0, 0);
-addEventListener(
-  "pageshow",
-  () => requestAnimationFrame(() => scrollTo(0, 0)),
-  { once: true },
-);
 const page = document.body.dataset.page || "home";
-const pages = [
-  ["home", "/", "Home"],
-  ["services", "/services", "Services"],
-  ["portfolio", "/portfolio", "Portfolio"],
-  ["auramenu", "/aura-menu", "AuraMenu"],
-  ["aurapops", "/aurapops", "AuraPops"],
-  ["auraweddings", "/aura-weddings", "AuraWeddings"],
-  ["packages", "/packages", "Packages"],
-  ["about", "/about", "About"],
-];
+const pages = [["services","/services","Services"],["portfolio","/portfolio","Work"],["pricing","/pricing","Pricing / Build"],["about","/about","About"],["contact","/contact","Contact"]];
 const header = document.getElementById("siteHeader");
 if (header) {
   header.className = "site-header";
-  header.innerHTML = `<div class="container nav"><a class="brand brand-wordmark" href="/" aria-label="AuraDigital home"><img class="brand-logo" src="auradigital-logo-20260928.png" alt=""><span class="brand-name"><strong>Aura</strong>Digital</span></a><div class="nav-links" id="navLinks">${pages
-    .map(
-      ([id, href, label]) =>
-        `<a class="${page === id ? "active" : ""}" href="${href}">${label}</a>`,
-    )
-    .join(
-      "",
-    )}</div><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Language" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">EN</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Let's Talk <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button></div>`;
+  header.innerHTML = `<div class="container nav"><a class="brand" href="/" aria-label="AuraDigital home"><img class="brand-logo" src="/auradigital-mark-20260928.png" alt="" width="40" height="40"><span class="brand-name"><strong>Aura</strong>Digital</span></a><nav class="nav-links" id="navLinks" aria-label="Main navigation">${pages.slice(0,2).map(([id,href,label])=>`<a ${page===id?'aria-current="page" class="active"':''} href="${href}">${label}</a>`).join('')}<details class="nav-products"><summary>Products +</summary><div class="product-links"><a href="/aura-menu">AuraMenu</a><a href="/aurapops">AuraPops</a><a href="/aura-weddings">AuraWeddings</a><a href="/nfc">NFC / QR</a><a href="/systems">Systems</a></div></details>${pages.slice(2).map(([id,href,label])=>`<a ${page===id?'aria-current="page" class="active"':''} href="${href}">${label}</a>`).join('')}</nav><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Language" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">EN</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="en">English</button><button type="button" data-lang="tr">Türkçe</button><button type="button" data-lang="ar">العربية</button></div></div><a class="nav-cta" href="/contact">START A PROJECT ↗</a><button class="menu-btn" type="button" id="menuBtn" aria-controls="navLinks" aria-label="Open menu" aria-expanded="false">☰</button></div>`;
 }
 const footer = document.getElementById("siteFooter");
 if (footer) {
-  footer.className = "site-footer";
-  footer.innerHTML = `<div class="container"><div class="footer-top"><div><a class="brand brand-wordmark footer-wordmark" href="/" aria-label="AuraDigital home"><img class="brand-logo" src="auradigital-logo-20260928.png" alt="AuraDigital"></a><p class="footer-blurb">From websites and advertising to NFC experiences, AuraMenu and AuraWeddings, we build your brand’s digital system as one professional team.</p></div><div class="footer-col"><h4>Services</h4><a href="/services">Web & Growth</a><a href="/nfc">NFC Cards</a><a href="/aura-menu">AuraMenu</a><a href="/aurapops">AuraPops</a><a href="/aura-weddings">AuraWeddings</a><a href="/packages">Subscriptions</a></div><div class="footer-col"><h4>Company</h4><a href="/portfolio">Portfolio</a><a href="/about">About</a><a href="/contact">Contact</a><a href="/packages#faq">FAQ</a></div><div class="footer-col"><h4>Let's start</h4><a href="https://wa.me/${AURA.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp · +90 538 550 76 74</a><a href="mailto:${AURA.email}">Email · ${AURA.email}</a><a href="https://${AURA.domain}" target="_blank" rel="noopener noreferrer">${AURA.domain}</a></div></div><div class="footer-bottom"><span>© 2026 AuraDigital. All rights reserved.</span><span>Istanbul · Turkey</span></div></div>`;
+ footer.className="site-footer";
+ footer.innerHTML=`<div class="container"><div class="footer-head"><h2>LET’S BUILD<br>SOMETHING USEFUL.</h2><a class="btn btn-primary" href="/contact">START A PROJECT ↗</a></div><div class="footer-top"><div><a class="brand" href="/"><span class="brand-name"><strong>Aura</strong>Digital.</span></a><p class="footer-blurb">Design, products and systems. Built around the way your business works.</p></div><div class="footer-col"><h4>Products</h4><a href="/aura-menu">AuraMenu</a><a href="/aurapops">AuraPops</a><a href="/aura-weddings">AuraWeddings</a></div><div class="footer-col"><h4>Services</h4><a href="/websites">Websites</a><a href="/systems">Systems</a><a href="/services">Automation & Growth</a><a href="/nfc">NFC / QR</a></div><div class="footer-col"><h4>Company</h4><a href="/portfolio">Work</a><a href="/about">About</a><a href="/contact">Contact</a><a href="/pricing">Pricing</a></div><div class="footer-col"><h4>Get in touch</h4><a href="mailto:hello@auradigitalworks.com">Email ↗</a><a href="https://wa.me/${AURA.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp ↗</a><a href="https://${AURA.domain}">${AURA.domain}</a></div></div><div class="footer-word" aria-hidden="true">AURA</div><div class="footer-bottom"><span>© ${new Date().getFullYear()} AuraDigital</span><span>Istanbul · Working worldwide</span><a href="/privacy">Privacy</a></div></div>`;
 }
 document.body.insertAdjacentHTML(
   "afterbegin",
@@ -51,7 +28,8 @@ const onScroll = () => {
   progressBar?.style.setProperty("--progress", p);
 };
 onScroll();
-addEventListener("scroll", onScroll, { passive: true });
+let scrollScheduled=false;
+addEventListener("scroll",()=>{if(!scrollScheduled){scrollScheduled=true;requestAnimationFrame(()=>{scrollScheduled=false;onScroll();});}}, {passive:true});
 const menuBtn = document.getElementById("menuBtn"),
   navLinks = document.getElementById("navLinks");
 menuBtn?.addEventListener("click", () => {
@@ -81,6 +59,7 @@ document
         el.style.setProperty("--reveal-delay", `${i * 65}ms`),
       ),
   );
+document.documentElement.classList.add("motion-ready");
 const revealObserver = new IntersectionObserver(
   (entries) =>
     entries.forEach((e) => {
@@ -158,7 +137,7 @@ backgroundVideos.forEach((video) => {
 
   // Keep the landing hero autoplaying on phones. Other background videos still
   // respect the visitor's reduced-motion preference.
-  if (reducedMotion && !(mobileViewport && video === heroBackgroundVideo)) {
+  if (reducedMotion) {
     video.pause();
     video.removeAttribute("autoplay");
   } else {
@@ -166,7 +145,7 @@ backgroundVideos.forEach((video) => {
   }
 });
 
-if (mobileViewport && heroBackgroundVideo) {
+if (mobileViewport && heroBackgroundVideo && !reducedMotion) {
   heroBackgroundVideo.setAttribute("autoplay", "");
   heroBackgroundVideo.preload = "auto";
 
@@ -192,11 +171,11 @@ document.addEventListener("visibilitychange", () => {
       video.pause();
       return;
     }
-    if (reducedMotion && !(mobileViewport && video === heroBackgroundVideo)) return;
+    if (reducedMotion) return;
     playBackgroundVideo(video);
   });
 });
-if (!reducedMotion && precisePointer) {
+if (!reducedMotion && precisePointer && !document.body.classList.contains("ecosystem-page")) {
   document.body.classList.add("has-pointer");
   const orb = document.querySelector(".motion-orb");
   addEventListener(
@@ -423,9 +402,9 @@ const chatCopy = {
   tr: {
     intro:
       "Merhaba 👋 Ben Aura Assistant. Web, NFC, AuraMenu, paketler veya fiyatlar hakkında kısa soruları yanıtlayabilirim.",
-    web: "Web sitesi projeleri tek sayfa için 5.000 TL'den, çok sayfalı siteler için 8.000 TL'den ve dinamik projeler için 12.000 TL'den başlıyor. Kesin fiyat kapsamdan sonra netleşir.",
-    menu: "AuraMenu restoran ve kafeler için mobil dijital menü sistemimizdir. Kendin oluştur paketi 1.599 TL, AuraDigital'in hazırladığı kurulum ise 2.500 TL'den başlar.",
-    nfc: "Standart NFC kartlar 700 TL'den başlar. Google yorumları, AuraMenu, sosyal medya, iletişim bilgileri veya özel bir sayfaya tek dokunuşla yönlendirebilir.",
+    web: "Configure your website at /build to see current localized starting prices and a scope-based estimate.",
+    menu: "See current AuraMenu plans at /aura-menu. Build it yourself or ask AuraDigital to prepare it.",
+    nfc: "See current NFC options and prices at /nfc. Customize a card through /nfc-studio.",
     package:
       "Aylık paketler 3.590 TL'den başlıyor ve sosyal medya, reklam, içerik, web desteği ve optimizasyon seviyesine göre büyüyor. Paketler sayfasında 4 seviye var.",
     portfolio:
@@ -442,9 +421,9 @@ const chatCopy = {
   en: {
     intro:
       "Hi 👋 I'm Aura Assistant. I can answer quick questions about websites, NFC, AuraMenu, packages and pricing.",
-    web: "Website projects start at 5,000 TL for one-page sites, 8,000 TL for multi-page sites and 12,000 TL for dynamic projects. Final pricing depends on scope.",
-    menu: "AuraMenu is our mobile digital menu system for restaurants and cafés. The self-build package is 1,599 TL; AuraDigital-managed setup starts at 2,500 TL.",
-    nfc: "Standard NFC cards start at 700 TL. One tap can open Google Reviews, AuraMenu, social profiles, contact details or a custom page.",
+    web: "Configure your website at /build to see current localized starting prices and a scope-based estimate.",
+    menu: "See current AuraMenu plans at /aura-menu. Build it yourself or ask AuraDigital to prepare it.",
+    nfc: "See current NFC options and prices at /nfc. Customize a card through /nfc-studio.",
     package:
       "Monthly packages start at 3,590 TL and scale with social media, ads, content, web support and optimization. There are 4 levels on the Packages page.",
     portfolio:
@@ -461,9 +440,9 @@ const chatCopy = {
   ar: {
     intro:
       "مرحباً 👋 أنا Aura Assistant. يمكنني الإجابة عن أسئلة سريعة حول المواقع وNFC وAuraMenu والباقات والأسعار.",
-    web: "تبدأ مشاريع المواقع من 5,000 TL للصفحة الواحدة، و8,000 TL للمواقع متعددة الصفحات، و12,000 TL للمشاريع الديناميكية. السعر النهائي يعتمد على النطاق.",
-    menu: "AuraMenu هو نظام القوائم الرقمية للمطاعم والمقاهي. باقة الإنشاء الذاتي بسعر 1,599 TL، ويبدأ الإعداد بواسطة AuraDigital من 2,500 TL.",
-    nfc: "تبدأ بطاقات NFC القياسية من 700 TL. بلمسة واحدة يمكن فتح تقييمات Google أو AuraMenu أو حسابات التواصل أو بيانات الاتصال أو صفحة مخصصة.",
+    web: "Configure your website at /build to see current localized starting prices and a scope-based estimate.",
+    menu: "See current AuraMenu plans at /aura-menu. Build it yourself or ask AuraDigital to prepare it.",
+    nfc: "See current NFC options and prices at /nfc. Customize a card through /nfc-studio.",
     package:
       "تبدأ الباقات الشهرية من 3,590 TL وتتوسع حسب إدارة التواصل والإعلانات والمحتوى ودعم الموقع والتحسين. توجد 4 مستويات في صفحة الباقات.",
     portfolio:

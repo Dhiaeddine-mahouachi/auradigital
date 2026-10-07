@@ -1599,3 +1599,6 @@ function cleanPath(value) {
   const path = value.trim();
   return TRACKABLE_PATHS.has(path) ? path : "";
 }
+
+// Reuse the existing database initialization for the additive studio workflow.
+export {ensureSchema as initializeDatabase};

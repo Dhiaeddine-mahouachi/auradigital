@@ -1,0 +1,508 @@
+{
+  "pages": [
+    {
+      "route": "/",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/services",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/websites",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/systems",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/portfolio",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/about",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/pricing",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/build",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/contact",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/aura-menu",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/aurapops",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/aura-weddings",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/nfc",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/qr-menu",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/packages",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/nfc-studio",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/nfc-status",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/404.html",
+      "width": 320,
+      "overflow": false,
+      "scrollWidth": 320,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/services",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/websites",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/systems",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/portfolio",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/about",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/pricing",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/build",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/contact",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/aura-menu",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/aurapops",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/aura-weddings",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/nfc",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/qr-menu",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/packages",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/nfc-studio",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/nfc-status",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/404.html",
+      "width": 390,
+      "overflow": false,
+      "scrollWidth": 390,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/services",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/websites",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/systems",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/portfolio",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/about",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/pricing",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/build",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/contact",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/aura-menu",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/aurapops",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/aura-weddings",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/nfc",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/qr-menu",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/packages",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/nfc-studio",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/nfc-status",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    },
+    {
+      "route": "/404.html",
+      "width": 1440,
+      "overflow": false,
+      "scrollWidth": 1440,
+      "duplicateIds": [],
+      "h1": 1,
+      "missingAlt": 0
+    }
+  ],
+  "errors": [],
+  "interactions": [
+    "mobile navigation and Escape",
+    "localized pricing country switch",
+    "configurator steps, validation and actual local D1 request creation",
+    "AuraMenu choice modal",
+    "50 wedding themes, filtering, personalization and preview dialog",
+    "NFC destination switching and tap demo",
+    "EN/TR/AR/FR invitation, RTL and RSVP dialog Escape",
+    "existing admin-managed services and portfolio content rendering",
+    "local admin authentication, request details, status update and pricing editor"
+  ],
+  "browser": "Chromium",
+  "widths": [
+    320,
+    390,
+    1440
+  ]
+}

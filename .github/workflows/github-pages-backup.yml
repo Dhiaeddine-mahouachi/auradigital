@@ -35,7 +35,7 @@ jobs:
           excluded_dirs = {
               ".git", ".github", "node_modules",
               "migrations", "scripts", "security", "soc-worker",
-              "src", "test", "tools"
+              "src", "test", "tools", "docs", "backups", ".wrangler", ".vscode"
           }
           excluded_files = {
               ".assetsignore", ".cloudflare-deploy-trigger", ".gitignore",
@@ -49,7 +49,9 @@ jobs:
           out.mkdir()
 
           for item in root.iterdir():
-              if item.name == "_site" or item.name in excluded_files:
+              if (item.name == "_site" or item.name in excluded_files or item.name.startswith(".")
+                  or item.suffix.lower() in {".sql", ".sqlite", ".db", ".pem", ".key", ".p12", ".pfx", ".log", ".map"}
+                  or item.name.startswith(("SECURITY", "AGENTS", "README"))):
                   continue
               if item.is_dir() and item.name in excluded_dirs:
                   continue

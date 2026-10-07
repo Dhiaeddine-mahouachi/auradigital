@@ -36,3 +36,5 @@ AGENTS.md
 
 soc-worker/**
 security/siem/**
+
+docs/**

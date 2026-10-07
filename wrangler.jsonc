@@ -52,7 +52,13 @@
       "/iletisim",
       "/nfc-studio",
       "/nfc-durum",
-      "/nfc-status"
+      "/nfc-status",
+      "/websites",
+      "/systems",
+      "/pricing",
+      "/build",
+      "/privacy",
+      "/project/*"
     ],
     "not_found_handling": "404-page"
   },

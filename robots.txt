@@ -1,6 +1,8 @@
 # AuraDigital search crawling policy
 User-agent: *
 Allow: /
+Disallow: /project/
+Disallow: /project.html
 Disallow: /admin/
 Disallow: /api/
 Disallow: /qusai/

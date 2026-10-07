@@ -1,0 +1,4 @@
+export const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+export const money=(n,c)=>n===null?'Custom quotation required':new Intl.NumberFormat('en',{style:'currency',currency:c,maximumFractionDigits:0}).format(n);
+export async function api(path,options={}){const response=await fetch(path,{credentials:'same-origin',...options,headers:{Accept:'application/json',...(options.body?{'Content-Type':'application/json'}:{}),...options.headers},signal:options.signal||AbortSignal.timeout(15000)});const data=await response.json().catch(()=>({}));if(!response.ok){const e=new Error(data.error||'This service is temporarily unavailable. Please try again.');e.status=response.status;throw e;}return data;}
+export const pricing=()=>window.auraCatalogPromise||(window.auraCatalogPromise=api('/api/website-pricing'));
