@@ -1,5 +1,6 @@
 import { requestPolicy, secureResponse, errorResponse } from './security-policy.js';
 import app from './worker.js';
+import { handleProjects } from './projects.js';
 import { handleAuraMenuDashboard } from './auramenu-dashboard.js';
 import { handleAuraPopsAdmin } from './aurapops-admin.js';
 import { handleAdminWorkspace } from './admin-workspace.js';
@@ -27,6 +28,13 @@ const router = {
       return env.ASSETS.fetch(new Request(assetUrl, request));
     }
 
+    if (/^\/project\/AD-[A-Z0-9-]+$/.test(url.pathname) && ['GET','HEAD'].includes(request.method)) {
+      const response = await env.ASSETS.fetch(new Request(new URL('/project.html', url), request));
+      const headers = new Headers(response.headers); headers.set('X-Robots-Tag','noindex, nofollow'); headers.set('Cache-Control','no-store');
+      return new Response(response.body,{status:response.status,headers});
+    }
+    const projectResponse = await handleProjects(request, env, ctx);
+    if (projectResponse) return projectResponse;
     const seoRedirect = permanentSeoRedirect(request);
     if (seoRedirect) return seoRedirect;
 

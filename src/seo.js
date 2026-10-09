@@ -5,29 +5,21 @@ const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
 const PAGE_SEO = {
   "/": {
     "lang": "en",
-    "title": "Digital Agency Istanbul | Websites, Ads & QR Menus | AuraDigital",
-    "description": "AuraDigital is an Istanbul-based digital growth studio for websites, Google and Meta advertising, SEO, NFC cards and QR menus.",
+    "title": "AuraDigital — Websites, Systems &amp; Digital Products",
+    "description": "An independent digital product studio building premium websites, business systems, automation, menus, profiles and invitations.",
     "type": "WebPage"
   },
   "/services": {
     "lang": "en",
-    "title": "Web Design & Digital Marketing Istanbul | AuraDigital",
-    "description": "Manage websites, Google Ads, Meta Ads, SEO, Google Maps, social media, content and automation with AuraDigital.",
-    "type": "CollectionPage",
-    "serviceType": [
-      "Web Design",
-      "Digital Marketing",
-      "Google Ads",
-      "Meta Ads",
-      "SEO",
-      "Social Media Management"
-    ]
+    "title": "Services — Websites, Systems &amp; Automation | AuraDigital",
+    "description": "Explore AuraDigital web development, business systems, digital products, campaigns and automation.",
+    "type": "WebPage"
   },
   "/portfolio": {
     "lang": "en",
-    "title": "Website & Digital Projects | AuraDigital Istanbul",
-    "description": "Explore selected AuraDigital website, branding and digital experience projects for local businesses and creative brands.",
-    "type": "CollectionPage"
+    "title": "Selected Work &amp; Digital Products | AuraDigital",
+    "description": "Explore AuraDigital’s existing client websites and product experiences, with honest project context and large previews.",
+    "type": "WebPage"
   },
   "/aura-menu": {
     "lang": "en",
@@ -43,7 +35,7 @@ const PAGE_SEO = {
   "/aura-weddings": {
     "lang": "en",
     "title": "Digital Wedding Invitations & Online Designs | AuraWeddings",
-    "description": "Digital wedding invitations in English, Turkish and Arabic with animated envelopes, custom themes, countdowns, RSVP, music and guest messages.",
+    "description": "Digital wedding invitations in English, Turkish, Arabic and French with animated envelopes, custom themes, countdowns, RSVP, music and guest messages.",
     "type": "WebPage",
     "serviceType": [
       "Digital Wedding Invitations",
@@ -99,25 +91,63 @@ const PAGE_SEO = {
   },
   "/about": {
     "lang": "en",
-    "title": "About AuraDigital | Digital Agency Istanbul",
-    "description": "AuraDigital is an independent Istanbul-based digital growth studio connecting websites, advertising, social media, NFC and QR experiences.",
+    "title": "About AuraDigital — Independent Digital Studio",
+    "description": "AuraDigital connects design, websites, digital products, software and automation for businesses.",
     "type": "AboutPage"
   },
   "/contact": {
     "lang": "en",
-    "title": "Contact AuraDigital | Website & Digital Marketing Projects",
-    "description": "Contact AuraDigital about your website, advertising, SEO, NFC card or QR menu project and get a tailored proposal.",
+    "title": "Start a Project — AuraDigital",
+    "description": "Submit your website, dashboard, e-commerce, menu, profile, invitation, NFC or automation brief to AuraDigital.",
     "type": "ContactPage"
+  },
+  "/websites": {
+    "lang": "en",
+    "serviceType": ["Website Development", "Custom Web Systems"],
+    "title": "Website Development &amp; Custom Web Systems | AuraDigital",
+    "description": "Configure a static, premium, dashboard or payment-enabled website. See localized starting prices and submit a project brief.",
+    "type": "WebPage"
+  },
+  "/systems": {
+    "lang": "en",
+    "serviceType": ["Business Systems", "Dashboards", "SaaS Development"],
+    "title": "Business Systems, Dashboards &amp; SaaS | AuraDigital",
+    "description": "Custom dashboards, internal tools, CRM, ERP-like solutions, booking platforms, customer portals and automation.",
+    "type": "WebPage"
+  },
+  "/pricing": {
+    "lang": "en",
+    "title": "Website Prices &amp; Project Configurator | AuraDigital",
+    "description": "Explore localized website starting prices in TRY, TND, USD, EUR and GBP. Configure your scope for an instant estimate or custom quotation.",
+    "type": "WebPage"
+  },
+  "/build": {
+    "lang": "en",
+    "title": "Build Your Website — Live Project Estimate | AuraDigital",
+    "description": "Configure your website and submit a project request with localized pricing, feature selections and private supporting files.",
+    "type": "WebPage"
+  },
+  "/privacy": {
+    "lang": "en",
+    "title": "Privacy Information | AuraDigital",
+    "description": "How AuraDigital handles project intake information and private files.",
+    "type": "WebPage"
   }
 };
 
 const NOINDEX_PATHS = new Set([
+  "/project.html",
   "/404.html",
   "/nfc-status.html",
   "/nfc-status",
 ]);
 
 export const SEO_REDIRECTS = new Map([
+  ["/web-development.html", "/websites"],
+  ["/systems.html", "/systems"],
+  ["/pricing.html", "/pricing"],
+  ["/build.html", "/build"],
+  ["/privacy.html", "/privacy"],
   ["/home", "/"],
   ["/index.html", "/"],
   ["/services.html", "/services"],
@@ -175,6 +205,7 @@ export async function serveSeoAsset(request, env) {
   const canonical = `${SITE_ORIGIN}${pathname}`;
   const schema = buildSchema(pathname, meta, canonical);
   const rewriter = new HTMLRewriter()
+    .on('link[rel="canonical"], meta[property^="og:"], meta[name^="twitter:"], meta[name="robots"], script[type="application/ld+json"]', {element(element) {element.remove();}})
     .on("html", {
       element(element) {
         element.setAttribute("lang", meta.lang);
@@ -205,6 +236,11 @@ function canonicalPath(pathname) {
 }
 
 const SEO_ASSETS = new Map([
+  ["/websites", "/web-development.html"],
+  ["/systems", "/systems.html"],
+  ["/pricing", "/pricing.html"],
+  ["/build", "/build.html"],
+  ["/privacy", "/privacy.html"],
   ["/", "/index.html"],
   ["/services", "/services.html"],
   ["/portfolio", "/portfolio.html"],

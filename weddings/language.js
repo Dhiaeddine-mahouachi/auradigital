@@ -1,0 +1,52 @@
+const terms={
+'Together with their families':['Aileleriyle birlikte','مع عائلتيهما','Avec leurs familles'],
+'Save the date':['Tarihi kaydedin','احفظوا التاريخ','Réservez la date'],
+'Open invitation':['Davetiyeyi aç','افتح الدعوة','Ouvrir l’invitation'],
+'Tap to open our wedding invitation':['Davetiyemizi açmak için dokunun','اضغط لفتح دعوة زفافنا','Touchez pour ouvrir notre invitation'],
+'Scroll to enter our story ↓':['Hikâyemizi keşfetmek için kaydırın ↓','مرر لاكتشاف قصتنا ↓','Faites défiler pour découvrir notre histoire ↓'],
+'with love':['sevgiyle','بكل حب','avec amour'],
+'Ceremony information':['Tören bilgileri','تفاصيل الحفل','La cérémonie'],
+'joyfully announce the wedding':['düğününü sevinçle duyurur','يسعدهما الإعلان عن زفاف','ont la joie d’annoncer le mariage'],
+'of their beloved daughter':['sevgili kızlarının','ابنتهما الحبيبة','de leur fille bien-aimée'],
+'Mr. & Mrs.':['Sayın','السيد والسيدة','M. et Mme'],
+'Moments before forever':['Sonsuzluktan önceki anlar','لحظات قبل الأبد','Les instants avant toujours'],
+'Our photographs':['Fotoğraflarımız','صورنا','Nos photographies'],
+'Reception information':['Resepsiyon bilgileri','تفاصيل الاستقبال','La réception'],
+'Dinner beneath the lights':['Işıklar altında akşam yemeği','عشاء تحت الأضواء','Un dîner sous les lumières'],
+'The ceremony will begin at six in the evening':['Tören akşam saat altıda başlayacak','يبدأ الحفل في الساعة السادسة مساءً','La cérémonie commencera à dix-huit heures'],
+'Days':['Gün','أيام','Jours'],'Hours':['Saat','ساعات','Heures'],'Min':['Dak.','دقائق','Min'],'Sec':['Sn.','ثوانٍ','Sec'],
+'Confirm attendance':['Katılımı onayla','تأكيد الحضور','Confirmer ma présence'],
+'Wedding reception venue':['Düğün mekânı','مكان الحفل','Le lieu de réception'],
+'The garden':['Bahçe','الحديقة','Le jardin'],
+'by the sea.':['deniz kenarında.','بجانب البحر.','au bord de la mer.'],
+'Get directions ↗':['Yol tarifi ↗','الاتجاهات ↗','Itinéraire ↗'],
+'Add to calendar':['Takvime ekle','أضف إلى التقويم','Ajouter au calendrier'],
+'Dress code':['Kıyafet kodu','قواعد اللباس','Code vestimentaire'],
+'Evening elegance':['Akşam şıklığı','أناقة المساء','Élégance du soir'],
+'Formal attire · warm neutrals welcome':['Resmî kıyafet · sıcak nötr tonlar','لباس رسمي · ألوان هادئة ودافئة','Tenue de soirée · tons neutres et chaleureux'],
+'Wedding day schedule':['Düğün programı','برنامج يوم الزفاف','Le programme'],
+'Welcome':['Karşılama','الاستقبال','Accueil'],'Ceremony':['Tören','المراسم','Cérémonie'],'Dinner':['Akşam yemeği','العشاء','Dîner'],'First dance':['İlk dans','الرقصة الأولى','Première danse'],'Farewell':['Veda','الوداع','Au revoir'],
+'Guestbook':['Anı defteri','رسائل الضيوف','Livre d’or'],
+'Leave a little love':['Bir sevgi notu bırakın','اتركوا رسالة حب','Laissez un mot d’amour'],
+'Your name':['Adınız','اسمك','Votre nom'],'Your wishes':['Dilekleriniz','تهنئتك','Votre message'],
+'Send wishes':['Dilek gönder','أرسل التهنئة','Envoyer mon message'],
+'Gift box':['Hediye kutusu','صندوق الهدايا','Boîte à cadeaux'],
+'Your presence is our greatest gift.':['Varlığınız en büyük hediyemiz.','حضوركم هو أجمل هدية لنا.','Votre présence est notre plus beau cadeau.'],
+'Thank you for being part of our story.':['Hikâyemizin parçası olduğunuz için teşekkürler.','شكراً لكونكم جزءاً من قصتنا.','Merci de faire partie de notre histoire.'],
+'With love':['Sevgiyle','بكل حب','Avec amour'],
+'We cannot wait':['Sabırsızlanıyoruz','ننتظر بكل شوق','Nous avons hâte'],
+ 'to celebrate with you.':['sizinle kutlamak için.','للاحتفال معكم.','de célébrer avec vous.'],
+'Will you join us?':['Bize katılacak mısınız?','هل ستشاركوننا؟','Serez-vous des nôtres ?'],
+'Attendance':['Katılım','الحضور','Présence'],
+'Joyfully accepts':['Sevinçle katılıyorum','يسعدني الحضور','J’accepte avec joie'],
+'Regretfully declines':['Üzülerek katılamıyorum','أعتذر عن الحضور','Je ne pourrai pas venir'],
+'Number of guests':['Misafir sayısı','عدد الضيوف','Nombre d’invités'],
+'Send RSVP':['Yanıt gönder','أرسل الرد','Envoyer ma réponse'],
+'Demo only — your response has not been sent.':['Yalnızca demo — yanıtınız gönderilmedi.','معاينة فقط — لم يتم إرسال ردك.','Démonstration — votre réponse n’a pas été envoyée.']
+};
+export const selectedLanguage=params=>['en','tr','ar','fr'].includes(params.get('lang'))?params.get('lang'):'en';
+export function translateInvitation(root,lang){document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';if(lang==='en')return;const index={tr:0,ar:1,fr:2}[lang],walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);for(const node of nodes){const key=node.textContent.trim();if(terms[key])node.textContent=node.textContent.replace(key,terms[key][index]);}
+ const headings={tr:'Birlikte sonsuza.',ar:'معاً إلى الأبد.',fr:'Ensemble, pour toujours.'};root.querySelector('.ceremony h2').textContent=headings[lang];
+ const collection={tr:'Hikâyemiz burada başlıyor',ar:'قصتنا تبدأ هنا',fr:'Notre histoire commence ici'};root.querySelector('.hero-copy .eyeline').textContent=collection[lang];
+ const note=document.createElement('p');note.className='invitation-demo-note';note.textContent={tr:'Örnek davetiye · RSVP ve dilekler yalnızca bu önizlemede gösterilir.',ar:'دعوة تجريبية · الردود والرسائل تظهر في هذه المعاينة فقط.',fr:'Invitation de démonstration · réponses et messages restent dans cet aperçu.'}[lang];root.querySelector('.topbar').after(note);
+}

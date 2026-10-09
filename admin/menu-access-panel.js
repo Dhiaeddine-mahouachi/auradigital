@@ -95,7 +95,7 @@
   const theme = document.createElement("link");
   theme.rel = "stylesheet";
   theme.href = "/admin/admin-theme.css";
-  document.head.appendChild(theme);
+  document.head.insertBefore(theme, document.querySelector('link[href*="/admin/studio.css"]'));
 
   const workspace = document.createElement("script");
   workspace.src = "/admin/workspace-panel.js";

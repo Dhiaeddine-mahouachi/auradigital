@@ -1,6 +1,6 @@
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const FROM = "AuraDigital <noreply@auradigitalworks.com>";
-const REPLY_TO = "info@auradigitalworks.com";
+const REPLY_TO = "hello@auradigitalworks.com";
 
 const COPY = {
   tr: {
@@ -50,6 +50,7 @@ export async function checkResendHealth(env) {
   try {
     const response = await fetch("https://api.resend.com/domains", {
       method: "GET",
+      signal: AbortSignal.timeout(10000),
       headers: {
         Authorization: `Bearer ${apiKey}`,
         Accept: "application/json",
@@ -154,7 +155,7 @@ async function sendConfirmation(apiKey, data) {
     `<p style="margin:24px 0 0;font-size:12px;line-height:1.6;color:#7a877f">${escapeHtml(copy.note)}</p>`,
     `<p style="margin:18px 0 0"><a href="https://auradigitalworks.com/contact" style="color:#10231b;font-weight:700;text-decoration:none">${escapeHtml(copy.contact)} →</a></p>`,
     '</div>',
-    '<div style="padding:18px 30px;border-top:1px solid #edf0e8;font-size:12px;color:#87928b">auradigitalworks.com · info@auradigitalworks.com</div>',
+    '<div style="padding:18px 30px;border-top:1px solid #edf0e8;font-size:12px;color:#87928b">auradigitalworks.com · hello@auradigitalworks.com</div>',
     '</div></div>',
   ].join("");
 
@@ -173,6 +174,7 @@ async function sendConfirmation(apiKey, data) {
 
   const response = await fetch(RESEND_ENDPOINT, {
     method: "POST",
+    signal: AbortSignal.timeout(10000),
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",

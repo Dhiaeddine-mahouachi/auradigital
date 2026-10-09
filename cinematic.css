@@ -1357,12 +1357,6 @@ body.cinematic-enabled .btn-light:hover{
 }
 
 /* First-paint contrast before the motion script marks the page ready. */
-body:is([data-page="packages"],[data-page="portfolio"],[data-page="auramenu"]) .page-hero .display{
-  color:#0b2417;
-}
-body:is([data-page="packages"],[data-page="portfolio"],[data-page="auramenu"]) .page-hero .eyebrow{
-  color:#244635;
-}
 body[data-page="auramenu"] .menu-action-designs{color:#0b2417}
 body[data-page="auramenu"] .menu-action-self{color:#0b2417}
 body[data-page="auramenu"] .menu-action-assisted{
