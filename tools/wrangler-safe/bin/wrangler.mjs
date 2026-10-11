@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 import { spawn } from "node:child_process";
+import { dirname, join } from "node:path";
 const args = process.argv.slice(2);
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
-const wranglerEntry = require.resolve("wrangler-cli/bin/wrangler.js");
+const wranglerEntry = join(dirname(require.resolve("wrangler-cli/package.json")), "bin", "wrangler.js");
 
 // AuraDigital has no R2 binding. Disabling Wrangler's beta automatic resource
 // provisioning prevents an obsolete remote draft from recreating an R2 bucket.

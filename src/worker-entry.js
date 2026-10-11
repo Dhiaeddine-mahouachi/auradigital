@@ -1,3 +1,4 @@
+import { handleWeddings } from './weddings.js';
 import { requestPolicy, secureResponse, errorResponse } from './security-policy.js';
 import app from './worker.js';
 import { handleAuraMenuDashboard } from './auramenu-dashboard.js';
@@ -16,6 +17,16 @@ const router = {
     if (url.hostname === 'www.auradigitalworks.com') {
       url.hostname = 'auradigitalworks.com';
       return Response.redirect(url.toString(), 301);
+    }
+
+    const weddingResponse = await handleWeddings(request, env);
+    if (weddingResponse) return weddingResponse;
+    if (/^\/weddings\/i\/[a-f0-9-]+$/.test(url.pathname) && ['GET','HEAD'].includes(request.method)) {
+      const asset = await env.ASSETS.fetch(new Request(new URL('/weddings/signature.html', url), request));
+      const headers = new Headers(asset.headers);
+      headers.set('X-Robots-Tag','noindex, nofollow');
+      headers.set('Cache-Control','private, no-store');
+      return new Response(asset.body,{status:asset.status,headers});
     }
 
     if (url.pathname.startsWith('/weddings/') && (request.method === 'GET' || request.method === 'HEAD')) {

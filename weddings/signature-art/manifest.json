@@ -1,0 +1,377 @@
+[
+  {
+    "id": "obsidian-royal",
+    "hero": "/weddings/signature-art/obsidian-royal.webp",
+    "mobile": "/weddings/signature-art/obsidian-royal-mobile.webp",
+    "thumbnail": "/weddings/signature-art/obsidian-royal-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/obsidian-royal.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Romantic oud & piano",
+      "src": null
+    }
+  },
+  {
+    "id": "burgundy-royal-palace",
+    "hero": "/weddings/signature-art/burgundy-royal-palace.webp",
+    "mobile": "/weddings/signature-art/burgundy-royal-palace-mobile.webp",
+    "thumbnail": "/weddings/signature-art/burgundy-royal-palace-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/burgundy-royal-palace.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Gulf zaffa",
+      "src": null
+    }
+  },
+  {
+    "id": "ivory-botanical",
+    "hero": "/weddings/signature-art/ivory-botanical.webp",
+    "mobile": "/weddings/signature-art/ivory-botanical-mobile.webp",
+    "thumbnail": "/weddings/signature-art/ivory-botanical-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/ivory-botanical.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Oud & strings",
+      "src": null
+    }
+  },
+  {
+    "id": "emerald-heirloom",
+    "hero": "/weddings/signature-art/emerald-heirloom.webp",
+    "mobile": "/weddings/signature-art/emerald-heirloom-mobile.webp",
+    "thumbnail": "/weddings/signature-art/emerald-heirloom-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/emerald-heirloom.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Oud & qanun",
+      "src": null
+    }
+  },
+  {
+    "id": "modern-islamic-arch",
+    "hero": "/weddings/signature-art/modern-islamic-arch.webp",
+    "mobile": "/weddings/signature-art/modern-islamic-arch-mobile.webp",
+    "thumbnail": "/weddings/signature-art/modern-islamic-arch-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/modern-islamic-arch.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Peaceful ney & oud",
+      "src": null
+    }
+  },
+  {
+    "id": "desert-heritage",
+    "hero": "/weddings/signature-art/desert-heritage.webp",
+    "mobile": "/weddings/signature-art/desert-heritage-mobile.webp",
+    "thumbnail": "/weddings/signature-art/desert-heritage-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/desert-heritage.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Arabic heritage",
+      "src": null
+    }
+  },
+  {
+    "id": "mediterranean-sunset",
+    "hero": "/weddings/signature-art/mediterranean-sunset.webp",
+    "mobile": "/weddings/signature-art/mediterranean-sunset-mobile.webp",
+    "thumbnail": "/weddings/signature-art/mediterranean-sunset-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/mediterranean-sunset.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Piano & strings",
+      "src": null
+    }
+  },
+  {
+    "id": "midnight-lantern-garden",
+    "hero": "/weddings/signature-art/midnight-lantern-garden.webp",
+    "mobile": "/weddings/signature-art/midnight-lantern-garden-mobile.webp",
+    "thumbnail": "/weddings/signature-art/midnight-lantern-garden-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/midnight-lantern-garden.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Oud & strings",
+      "src": null
+    }
+  },
+  {
+    "id": "champagne-minimalist",
+    "hero": "/weddings/signature-art/champagne-minimalist.webp",
+    "mobile": "/weddings/signature-art/champagne-minimalist-mobile.webp",
+    "thumbnail": "/weddings/signature-art/champagne-minimalist-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/champagne-minimalist.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Minimal piano",
+      "src": null
+    }
+  },
+  {
+    "id": "rose-garden-dream",
+    "hero": "/weddings/signature-art/rose-garden-dream.webp",
+    "mobile": "/weddings/signature-art/rose-garden-dream-mobile.webp",
+    "thumbnail": "/weddings/signature-art/rose-garden-dream-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/rose-garden-dream.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Arabic romance",
+      "src": null
+    }
+  },
+  {
+    "id": "moroccan-zellige",
+    "hero": "/weddings/signature-art/moroccan-zellige.webp",
+    "mobile": "/weddings/signature-art/moroccan-zellige-mobile.webp",
+    "thumbnail": "/weddings/signature-art/moroccan-zellige-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/moroccan-zellige.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Moroccan wedding",
+      "src": null
+    }
+  },
+  {
+    "id": "ottoman-tulip",
+    "hero": "/weddings/signature-art/ottoman-tulip.webp",
+    "mobile": "/weddings/signature-art/ottoman-tulip-mobile.webp",
+    "thumbnail": "/weddings/signature-art/ottoman-tulip-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/ottoman-tulip.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Turkish classical",
+      "src": null
+    }
+  },
+  {
+    "id": "andalusian-courtyard",
+    "hero": "/weddings/signature-art/andalusian-courtyard.webp",
+    "mobile": "/weddings/signature-art/andalusian-courtyard-mobile.webp",
+    "thumbnail": "/weddings/signature-art/andalusian-courtyard-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/andalusian-courtyard.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Andalusian",
+      "src": null
+    }
+  },
+  {
+    "id": "celestial-arabian-night",
+    "hero": "/weddings/signature-art/celestial-arabian-night.webp",
+    "mobile": "/weddings/signature-art/celestial-arabian-night-mobile.webp",
+    "thumbnail": "/weddings/signature-art/celestial-arabian-night-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/celestial-arabian-night.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Cinematic Arabic",
+      "src": null
+    }
+  },
+  {
+    "id": "pearl-of-the-gulf",
+    "hero": "/weddings/signature-art/pearl-of-the-gulf.webp",
+    "mobile": "/weddings/signature-art/pearl-of-the-gulf-mobile.webp",
+    "thumbnail": "/weddings/signature-art/pearl-of-the-gulf-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/pearl-of-the-gulf.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Gulf romance",
+      "src": null
+    }
+  },
+  {
+    "id": "sidi-bou-said-romance",
+    "hero": "/weddings/signature-art/sidi-bou-said-romance.webp",
+    "mobile": "/weddings/signature-art/sidi-bou-said-romance-mobile.webp",
+    "thumbnail": "/weddings/signature-art/sidi-bou-said-romance-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/sidi-bou-said-romance.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Tunisian malouf",
+      "src": null
+    }
+  },
+  {
+    "id": "damascus-heritage",
+    "hero": "/weddings/signature-art/damascus-heritage.webp",
+    "mobile": "/weddings/signature-art/damascus-heritage-mobile.webp",
+    "thumbnail": "/weddings/signature-art/damascus-heritage-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/damascus-heritage.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Oud & qanun",
+      "src": null
+    }
+  },
+  {
+    "id": "parisian-classic",
+    "hero": "/weddings/signature-art/parisian-classic.webp",
+    "mobile": "/weddings/signature-art/parisian-classic-mobile.webp",
+    "thumbnail": "/weddings/signature-art/parisian-classic-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/parisian-classic.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Minimal piano",
+      "src": null
+    }
+  },
+  {
+    "id": "art-deco-grandeur",
+    "hero": "/weddings/signature-art/art-deco-grandeur.webp",
+    "mobile": "/weddings/signature-art/art-deco-grandeur-mobile.webp",
+    "thumbnail": "/weddings/signature-art/art-deco-grandeur-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/art-deco-grandeur.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Cinematic Arabic",
+      "src": null
+    }
+  },
+  {
+    "id": "vintage-love-letter",
+    "hero": "/weddings/signature-art/vintage-love-letter.webp",
+    "mobile": "/weddings/signature-art/vintage-love-letter-mobile.webp",
+    "thumbnail": "/weddings/signature-art/vintage-love-letter-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/vintage-love-letter.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Nostalgic oud & violin",
+      "src": null
+    }
+  },
+  {
+    "id": "white-palace",
+    "hero": "/weddings/signature-art/white-palace.webp",
+    "mobile": "/weddings/signature-art/white-palace-mobile.webp",
+    "thumbnail": "/weddings/signature-art/white-palace-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/white-palace.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Arabic orchestral",
+      "src": null
+    }
+  },
+  {
+    "id": "forest-fairytale",
+    "hero": "/weddings/signature-art/forest-fairytale.webp",
+    "mobile": "/weddings/signature-art/forest-fairytale-mobile.webp",
+    "thumbnail": "/weddings/signature-art/forest-fairytale-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/forest-fairytale.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Peaceful ney & oud",
+      "src": null
+    }
+  },
+  {
+    "id": "black-white-cinema",
+    "hero": "/weddings/signature-art/black-white-cinema.webp",
+    "mobile": "/weddings/signature-art/black-white-cinema-mobile.webp",
+    "thumbnail": "/weddings/signature-art/black-white-cinema-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/black-white-cinema.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Cinematic Arabic",
+      "src": null
+    }
+  },
+  {
+    "id": "golden-majlis",
+    "hero": "/weddings/signature-art/golden-majlis.webp",
+    "mobile": "/weddings/signature-art/golden-majlis-mobile.webp",
+    "thumbnail": "/weddings/signature-art/golden-majlis-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/golden-majlis.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Festive Arabic wedding",
+      "src": null
+    }
+  },
+  {
+    "id": "enchanted-moonlight",
+    "hero": "/weddings/signature-art/enchanted-moonlight.webp",
+    "mobile": "/weddings/signature-art/enchanted-moonlight-mobile.webp",
+    "thumbnail": "/weddings/signature-art/enchanted-moonlight-thumb.webp",
+    "stationeryIllustration": "/weddings/signature-art/enchanted-moonlight.svg",
+    "decorations": "authored CSS/SVG",
+    "source": "Original built-in image generation, 2026-10-11",
+    "usage": "Illustrative architectural artwork; no real venue or people claimed",
+    "audio": {
+      "status": "awaiting-authorized-recording",
+      "category": "Arabic romance",
+      "src": null
+    }
+  }
+]

@@ -8,3 +8,5 @@ worker-configuration.d.ts
 *.log
 *.map
 .DS_Store
+
+test-output/
