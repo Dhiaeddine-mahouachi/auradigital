@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Great+Vibes&display=swap');
+/* Use local Amiri and browser-serif/script fallbacks; external fonts blocked by production CSP. */
 /* REFERENCE-LOCKED Royal Champagne Signature.
    All selectors are scoped to the theme; other 75 invitation designs are unchanged. */
 .theme-royal-champagne-signature{
@@ -30,7 +30,7 @@
 .theme-royal-champagne-signature .rc-small-intro{font-size:13px;letter-spacing:.05em;margin:2px}
 .theme-royal-champagne-signature .rc-invited{font:10px/1.7 Georgia,serif;letter-spacing:.19em;margin:0 0 24px}
 .theme-royal-champagne-signature .rc-letter .letter-names{font:50px/1.04 'Cormorant Garamond',Georgia,serif;font-weight:400;max-width:100%;margin:0 0 10px;color:#663b2b}
-.theme-royal-champagne-signature .rc-letter .letter-names i{display:block;font:34px/1.2 'Great Vibes',cursive;color:#b48d5a}
+.theme-royal-champagne-signature .rc-letter .letter-names i{display:block;font:34px/1.2 'Snell Roundhand','Apple Chancery','Segoe Script','URW Chancery L',cursive;color:#b48d5a}
 .theme-royal-champagne-signature .rc-letter .rc-poem{font:17px/1.6 'Cormorant Garamond',serif;max-width:260px;margin:17px auto;color:#765546}
 .theme-royal-champagne-signature .rc-event-date{font:13px/1.8 Georgia,serif;letter-spacing:.06em}
 .theme-royal-champagne-signature .rc-venue-title{font:12px/1.6 Georgia,serif;letter-spacing:.13em;text-transform:uppercase}
@@ -40,7 +40,7 @@
 .theme-royal-champagne-signature .rc-hero-veil{position:absolute;inset:0;background:linear-gradient(#24191380,transparent 28%,#22131060 65%,#1b1311db)}
 .theme-royal-champagne-signature .rc-couple-hero .hero-copy{position:relative;z-index:4;color:#fff1d3;text-align:center;align-self:end;margin-bottom:78px;width:100%;padding:30px 25px}
 .theme-royal-champagne-signature .rc-couple-hero .hero-copy h1{font:clamp(52px,13vw,72px)/1.09 'Cormorant Garamond',serif;color:#fff2dc;text-shadow:0 4px 15px #190e0c;text-wrap:balance}
-.theme-royal-champagne-signature .rc-couple-hero .hero-copy h1 i{font-family:'Great Vibes',cursive;color:#e8c38c;font-weight:400}
+.theme-royal-champagne-signature .rc-couple-hero .hero-copy h1 i{font-family:'Snell Roundhand','Apple Chancery','Segoe Script','URW Chancery L',cursive;color:#e8c38c;font-weight:400}
 .theme-royal-champagne-signature .rc-couple-hero .hero-date{font:12px Georgia,serif;letter-spacing:.15em;display:block;margin:12px}
 .theme-royal-champagne-signature .rc-couple-hero .eyebrow,.theme-royal-champagne-signature .rc-hero-sub{font:11px Georgia,serif;letter-spacing:.2em;color:#f9e2b6}
 .theme-royal-champagne-signature .rc-couple-hero .sig-button{display:inline-block;background:#b88c56;color:#241a13;font:12px Georgia,serif;padding:12px 20px;margin-top:18px}
@@ -64,7 +64,7 @@
 .theme-royal-champagne-signature .countdown:before,.theme-royal-champagne-signature .countdown:after{content:"";position:absolute;width:230px;height:300px;background:url('/weddings/royal-champagne-floral.svg') center/contain no-repeat;opacity:.75;pointer-events:none}
 .theme-royal-champagne-signature .countdown:before{bottom:-88px;left:-68px}
 .theme-royal-champagne-signature .countdown:after{top:-95px;right:-65px;transform:rotate(180deg)}
-.theme-royal-champagne-signature .countdown .eyebrow{font:50px 'Great Vibes',cursive;letter-spacing:0;text-transform:none;color:#76503c}
+.theme-royal-champagne-signature .countdown .eyebrow{font:50px 'Snell Roundhand','Apple Chancery','Segoe Script','URW Chancery L',cursive;letter-spacing:0;text-transform:none;color:#76503c}
 .theme-royal-champagne-signature .count-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%;margin:42px 0}
 .theme-royal-champagne-signature .count-grid>div{border:1px solid #c9a677;border-radius:10px;padding:14px 1px;background:linear-gradient(#fff3e6,#f0dac4);box-shadow:0 6px 16px #a0795440}
 .theme-royal-champagne-signature .count-grid strong{font:31px/1.5 'Cormorant Garamond',serif;color:#613e2c}
@@ -79,7 +79,7 @@
 .theme-royal-champagne-signature .rc-story blockquote{font:24px/1.35 'Cormorant Garamond',serif;color:#f8e9d8}
 .theme-royal-champagne-signature .rc-story .rc-outline-action{color:#e5ba80}
 .theme-royal-champagne-signature #gallery{background:#e9d2bc;text-align:center;min-height:780px}
-.theme-royal-champagne-signature #gallery>.eyebrow{font:50px/1.25 'Great Vibes',cursive;letter-spacing:0;text-transform:none;color:#805238}
+.theme-royal-champagne-signature #gallery>.eyebrow{font:50px/1.25 'Snell Roundhand','Apple Chancery','Segoe Script','URW Chancery L',cursive;letter-spacing:0;text-transform:none;color:#805238}
 .theme-royal-champagne-signature #gallery>h2{display:none}
 .theme-royal-champagne-signature .sig-gallery{display:flex;justify-content:center;align-items:center;gap:9px;margin-top:85px;max-width:100%;overflow:hidden}
 .theme-royal-champagne-signature .sig-gallery button{flex:0 0 27%;aspect-ratio:2/3;max-height:440px;min-height:0;border:3px solid #fff0df;border-radius:14px;box-shadow:0 12px 25px #70492f66;cursor:pointer}
@@ -90,7 +90,7 @@
 .theme-royal-champagne-signature #rsvp:before{content:"";position:absolute;top:-30px;left:-40px;width:260px;height:300px;background:url('/weddings/royal-champagne-floral.svg') center/contain no-repeat;transform:rotate(-30deg);opacity:.75}
 .theme-royal-champagne-signature #rsvp:after{content:"";position:absolute;bottom:-90px;right:-65px;width:230px;height:300px;background:url('/weddings/royal-champagne-floral.svg') center/contain no-repeat;transform:rotate(145deg);opacity:.75}
 .theme-royal-champagne-signature #rsvp .rsvp-aside{position:relative;text-align:center}
-.theme-royal-champagne-signature #rsvp .rsvp-aside .eyebrow{font:62px 'Great Vibes',cursive;letter-spacing:0;color:#7d5037}
+.theme-royal-champagne-signature #rsvp .rsvp-aside .eyebrow{font:62px 'Snell Roundhand','Apple Chancery','Segoe Script','URW Chancery L',cursive;letter-spacing:0;color:#7d5037}
 .theme-royal-champagne-signature #rsvp .rsvp-aside h2{display:none}
 .theme-royal-champagne-signature #rsvp .rsvp-aside p{font:19px/1.3 'Cormorant Garamond',serif;max-width:270px;margin:14px auto 24px}
 .theme-royal-champagne-signature #rsvp .sig-form{position:relative;z-index:4}
@@ -131,7 +131,7 @@
 .theme-royal-champagne-signature .rc-gate .paper-card{inset:5% 8% 15%;border:1px solid #c19a66;z-index:2;transform:translateY(24%) scale(.94);background:radial-gradient(ellipse at center,#fff6ea,#e7ceb1);box-shadow:0 15px 25px #53392066;transition:transform 1.4s cubic-bezier(.16,.8,.14,1),opacity .8s}
 .theme-royal-champagne-signature .rc-card-inner{height:100%;width:100%;padding:25px 12px;border:1px solid #caa677;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .theme-royal-champagne-signature .rc-card-inner strong{font:clamp(31px,8vw,45px)/1.2 'Cormorant Garamond',serif;color:#76513b}
-.theme-royal-champagne-signature .rc-card-inner strong i{display:block;font-family:'Great Vibes',cursive}
+.theme-royal-champagne-signature .rc-card-inner strong i{display:block;font-family:'Snell Roundhand','Apple Chancery','Segoe Script','URW Chancery L',cursive}
 .theme-royal-champagne-signature .rc-card-inner small{color:#9d703d}
 .theme-royal-champagne-signature .rc-card-inner span{font:12px Georgia,serif;color:#805e45}
 .theme-royal-champagne-signature .rc-card-inner .rc-gold-arabic{font:22px/1.4 'Amiri',serif;margin:0 0 12px}
