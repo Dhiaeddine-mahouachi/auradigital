@@ -67,6 +67,14 @@ export function secureResponse(response, request, env, ctx) {
     (headers.get('Content-Type') || '').includes('text/html')
       ? "default-src 'self'; script-src 'self' 'sha256-UAGFOclbJeOTJt6ykzUdMkWrB/JUYHloVyIHrRTFOAQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
       : "default-src 'none'; frame-ancestors 'none'; base-uri 'none'");
+  // Only public invitation HTML can be embedded by our same-origin product page.
+  // Maps remain restricted to the invitation's existing Google Maps provider.
+  const path = new URL(request.url).pathname;
+  if (/^\/weddings\/[a-z0-9-]+\.html$/.test(path) && (headers.get('Content-Type') || '').includes('text/html') && response.ok) {
+    headers.set('X-Frame-Options', 'SAMEORIGIN');
+    const policy = headers.get('Content-Security-Policy').replace(/frame-ancestors\s+[^;]+/, "frame-ancestors 'self'");
+    headers.set('Content-Security-Policy', `${policy}; frame-src 'self' https://www.google.com`);
+  }
   if (new URL(request.url).pathname.startsWith('/api/admin/')) headers.set('Cache-Control', 'no-store');
   for (const name of ['Server', 'X-Powered-By']) headers.delete(name);
   if ([401, 403, 429].includes(response.status)) securityEvent(request, 'request_denied', response.status, env, ctx);
