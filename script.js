@@ -274,10 +274,9 @@ if (form) {
     if (service) service.value = "AuraWeddings";
     if (message && !message.value) {
       const chosenTheme = params.get("theme");
-      const weddingThemes = ["royal-ivory", "sidi-bou-said", "midnight-gold", "andalusian-palace", "rose-garden", "olive-estate", "bordeaux-velvet", "pearl-minimal", "desert-sunset", "celestial-blue"];
-      message.value = weddingThemes.includes(chosenTheme)
-        ? `AuraWeddings request — selected theme: ${chosenTheme.replaceAll("-", " ")}. Wedding date: ... Venue: ... Languages: ...`
-        : "AuraWeddings request: Please share your date, venue, languages and preferred theme.";
+      const details = ['one', 'two', 'date', 'time', 'venue', 'lang', 'message'].map(key => [key, (params.get(key) || '').slice(0, 400)]).filter(([, value]) => value);
+      message.value = `AuraWeddings request${chosenTheme && /^[a-z0-9-]{1,60}$/.test(chosenTheme) ? ` — selected theme: ${chosenTheme.replaceAll("-", " ")}` : ''}.\n${details.map(([key, value]) => `${key}: ${value}`).join('\n')}`;
+
     }
   } else if (requestedService === "auramenu-custom") {
     const service = form.querySelector('[name="service"]');
