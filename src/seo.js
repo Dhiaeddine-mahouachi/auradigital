@@ -52,8 +52,8 @@ const PAGE_SEO = {
   },
   "/aurapops": {
     "lang": "en",
-    "title": "AuraPops Smart QR Popups | AuraDigital",
-    "description": "Explore AuraPops smart QR popup designs for menus, social links, maps, contact actions and interactive mini games, then build yours on aurapops.online.",
+    "title": "AuraPops — One Scan. Every Connection. | AuraDigital",
+    "description": "Your all-in-one smart profile for links, menus, maps, reviews and mini games. Create your AuraPop and share it with one QR scan or NFC tap.",
     "type": "WebPage",
     "serviceType": [
       "Smart QR Popup",
