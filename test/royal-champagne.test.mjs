@@ -16,7 +16,7 @@ test('Royal Champagne is additive and keeps legacy themes',()=>{
 });
 test('envelope has independent real movable paper layers and accessible controls',()=>{
  const html=champagneGate(ctx);
- for(const part of ['class="paper-stage"','class="paper-card"','class="envelope-front"','class="envelope-flap"','class="seal"','class="open-invitation"','class="skip"']) assert.ok(html.includes(part),part);
+ for(const part of ['class="paper-stage"','class="paper-card"','class="envelope-front"','class="envelope-flap"','class="seal rc-seal-trigger"','class="open-invitation"','class="skip"']) assert.ok(html.includes(part),part);
  assert.match(html,/aria-modal="true"/);
  assert.match(html,/A·S/);
 });
@@ -39,5 +39,11 @@ test('dynamic guest-authored text is escaped in custom scenes',()=>{
 test('untrusted image URLs are not written to the royal hero',()=>{
  const html=champagneHero({...ctx,data:{...data,hero:'javascript:alert(1)'}});
  assert.ok(!html.includes('javascript:'));
- assert.match(html,/white-palace\.webp/);
+ assert.match(html,/royal-assets\/couple\.webp/);
+});
+
+test('venue photograph is independent, escaped and rejects executable/credential URLs',()=>{
+ const supplied=champagneVenue({...ctx,data:{...data,hero:'https://example.com/couple.webp',venuePhoto:'https://example.com/venue.webp'},demo:false});
+ assert.match(supplied,/example.com\/venue.webp/);assert.ok(!supplied.includes('example.com/couple.webp'));
+ for(const venuePhoto of ['javascript:alert(1)','https://user:pass@example.com/photo']){const html=champagneVenue({...ctx,data:{...data,venuePhoto},demo:false});assert.match(html,/royal-assets\/venue.webp/);assert.ok(!html.includes(venuePhoto))}
 });
