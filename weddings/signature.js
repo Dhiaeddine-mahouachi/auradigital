@@ -1,6 +1,7 @@
 import {optimizeImage} from './media.js';
 import {signatureThemes,signatureTheme,sampleInvitation,musicMoods} from './signature-themes.js';
 import {countdownParts} from './timezone.js';
+import {isRoyalChampagne,champagneGate,champagneHero,champagneLetter,champagneSchedule,champagneVenue,champagneStory,champagneExtras,enhanceChampagne} from './royal-champagne.js';
 const root=document.querySelector('#signature-root'),params=new URLSearchParams(location.search),slug=location.pathname.match(/^\/weddings\/i\/([a-f0-9-]+)$/)?.[1],guestToken=params.get('guest')||'',demo=!slug;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let data={...sampleInvitation},theme=signatureTheme(params.get('theme'))||signatureThemes[0],wishes=[],photos=[],guestName='',guestLimit=data.guestLimit,countTimer,timers=[],audioEngine;
@@ -9,7 +10,7 @@ const tr=()=>labels[data.lang]||labels.en;
 const names=()=>data.lang==='ar'?`${esc(data.arabicOne||data.partnerOne)} <i>&amp;</i> ${esc(data.arabicTwo||data.partnerTwo)}`:`${esc(data.partnerOne)} <i>&amp;</i> ${esc(data.partnerTwo)}`;
 const dateLabel=()=>new Intl.DateTimeFormat(data.lang==='ar'?'ar-TN':'en-GB',{dateStyle:'long',timeStyle:'short',timeZone:data.timezone}).format(new Date(data.eventAt));
 const apiSuffix=()=>guestToken?`?guest=${encodeURIComponent(guestToken)}`:'';
-function mediaUrl(value){if(typeof value!=='string')return '';if(/^\/api\/weddings\/(media|audio)\/[a-f0-9-]+$/.test(value))return value+apiSuffix();if(/^\/weddings\/signature-art\/[a-z0-9-]+\.(svg|webp)$/.test(value))return value;try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password?u.href:''}catch{return ''}}
+function mediaUrl(value){if(typeof value!=='string')return '';if(/^\/api\/weddings\/(media|audio)\/[a-f0-9-]+$/.test(value))return value+apiSuffix();if(/^\/weddings\/signature-art\/[a-z0-9-]+\.(svg|webp)$/.test(value)||value==='/weddings/royal-champagne-cover.svg')return value;try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password?u.href:''}catch{return ''}}
 const hero=()=>mediaUrl(data.hero)||theme.hero||theme.cover;
 function status(el,text,error=false){el.textContent=text;el.dataset.error=String(error)}
 async function request(url,body){const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const value=await r.json();if(!r.ok)throw new Error(value.error||'Unable to submit.');return value}
@@ -33,6 +34,21 @@ function render(keepOpen=false){
  document.title=`${data.partnerOne} & ${data.partnerTwo} — AuraWeddings`;
  const fns={letter:intro,countdown:count,schedule,venue,story,gallery,rsvp,guestbook,photos:photoWall};
  root.innerHTML=`${demo?`<div class="demo-banner">${esc(tr().demo)} <a href="/weddings/studio.html?theme=${theme.slug}">${esc(tr().choose)} ↗</a></div>`:''}<header class="sig-nav" inert><span>${esc(data.seal||'AW')} · ${demo?esc(theme.name):names()}</span><nav><a href="#story">${esc(tr().story)}</a><a href="#venue">${esc(tr().venue)}</a><a href="#rsvp">RSVP</a><button id="language">${data.lang==='ar'?'English':'العربية'}</button><button id="replay" aria-label="${esc(tr().replay)}">↻</button></nav></header><main class="sig-main" inert><section class="sig-hero with-photo" id="home" tabindex="-1"><img class="hero-photo" src="${esc(hero())}" ${!data.hero&&theme.mobile?`srcset="${theme.mobile} 640w, ${theme.hero} 1536w" sizes="100vw"`:""} alt="${demo?'Original illustrative wedding atmosphere':esc(data.partnerOne+' & '+data.partnerTwo)}" width="1536" height="1024" fetchpriority="high"><div class="hero-copy"><span class="eyebrow">${esc(guestName?tr().you+' · '+guestName:tr().together)}</span><h1>${names()}</h1><time class="hero-date">${esc(dateLabel())}</time><span class="ornament" aria-hidden="true">✧</span><a class="sig-button" href="#rsvp">${esc(tr().rsvp)} ↓</a></div></section>${data.sections.filter(x=>fns[x]).map(x=>fns[x]()).join('')}</main><footer class="sig-footer" inert><span class="eyebrow">${names()}</span><h3>${esc(data.thankYou||tr().thank)}</h3><p>${esc(dateLabel())}</p><small>With love · <a href="/aura-weddings">AuraWeddings</a></small></footer><div class="audio-player" inert><button id="audio-play" aria-pressed="false">▶ ${esc(data.musicUrl?tr().play:tr().sound)}</button><span class="audio-title">${esc(data.musicUrl?data.musicTitle||tr().music:tr().audioPending)}</span><progress id="audio-progress" max="100" value="0" aria-label="Playback progress"></progress><button id="audio-mute" aria-label="${esc(tr().mute)}">♫</button><label><span class="sr-only">${esc(tr().volume)}</span><input id="audio-volume" type="range" min="0" max="1" step=".05" value=".2" aria-label="${esc(tr().volume)}"></label></div><dialog class="lightbox"><div class="lightbox-controls"><button data-light-prev>${esc(tr().previous)}</button><button data-light-close>${esc(tr().close)}</button><button data-light-next>${esc(tr().next)}</button></div><img alt=""></dialog>${gate()}`;
+ if(isRoyalChampagne(theme)){
+  // Replace only presentation markup. Existing guarded RSVP, guestbook, gallery,
+  // published API, live studio preview and audio handlers remain the source of truth.
+  const replace=(id,html)=>{const target=root.querySelector('#'+id);if(target)target.outerHTML=html};
+  replace('home',champagneHero({data,theme,names:names(),date:dateLabel()}));
+  replace('letter',champagneLetter({data,names:names(),date:dateLabel()}));
+  replace('schedule',champagneSchedule({data,date:dateLabel()}));
+  replace('venue',champagneVenue({data,theme,demo,words:tr()}));
+  replace('story',champagneStory({data,theme,words:tr()}));
+  const extra=champagneExtras({data}),rsvpNode=root.querySelector('#rsvp');
+  if(rsvpNode)rsvpNode.insertAdjacentHTML('beforebegin',extra);
+  else root.querySelector('.sig-main')?.insertAdjacentHTML('beforeend',extra);
+  const sealGate=root.querySelector('.gate');
+  sealGate.outerHTML=champagneGate({data,theme,names:names(),date:dateLabel(),words:tr()});
+ }
  const parts=()=>{for(const[k,v]of Object.entries(countdownParts(data.eventAt))){document.querySelector(`[data-count="${k}"]`)?.replaceChildren(document.createTextNode(String(v).padStart(2,'0')))}const e=document.querySelector('.expired-note');if(e)e.hidden=!countdownParts(data.eventAt).expired};parts();countTimer=setInterval(parts,1000);
  const g=document.querySelector('.gate');function opened(){stopTimers();g.className+=' opened';g.dataset.state='opened';document.body.style.overflow='';for(const el of root.querySelectorAll('[inert]'))el.inert=false;document.querySelector('#home').focus({preventScroll:true});if(slug){try{sessionStorage.setItem('aw-open:'+slug,'1')}catch{}}}
  function skip(){opened()}
@@ -44,7 +60,7 @@ function render(keepOpen=false){
  const response=document.querySelector('#rsvp-form select');if(response)response.onchange=()=>{const count=document.querySelector('#rsvp-form [name=attendees]');count.disabled=response.value==='no'};
  document.querySelector('#wish-form')?.addEventListener('submit',async e=>{e.preventDefault();const form=e.currentTarget,b=Object.fromEntries(new FormData(form));b.consent=form.elements.consent.checked;await submitForm(form,'guestbook',b)});
  document.querySelector('#guest-photo')?.addEventListener('change',uploadGuestPhoto);
- bindLightbox();audioEngine=createAudio();
+ bindLightbox();audioEngine=createAudio();if(isRoyalChampagne(theme))enhanceChampagne(root,data);
 }
 async function submitForm(form,kind,b){const output=form.querySelector('.form-status'),button=form.querySelector('button');if(demo){status(output,tr().demoSuccess);return}button.disabled=true;try{await request(`/api/weddings/public/${slug}/${kind}${apiSuffix()}`,b);status(output,kind==='rsvp'?tr().saved:tr().pending);if(kind==='guestbook')form.reset()}catch(e){status(output,e.message,true)}finally{button.disabled=false}}
 
@@ -56,7 +72,7 @@ function createAudio(){const btn=document.querySelector('#audio-play'),mute=docu
  function stop(){playing=false;clearInterval(timer);recording?.pause();context?.suspend();btn.textContent='▶ '+(recording?tr().play:tr().sound);btn.setAttribute('aria-pressed','false')}
  btn.onclick=toggle;volume.oninput=()=>{if(recording)recording.volume=muted?0:Number(volume.value);if(gain)gain.gain.value=muted?0:Number(volume.value)};mute.onclick=()=>{muted=!muted;mute.setAttribute('aria-label',muted?tr().unmute:tr().mute);mute.setAttribute('aria-pressed',String(muted));volume.oninput()};return{stop};
 }
-async function start(){if(slug){try{const r=await fetch(`/api/weddings/public/${slug}${apiSuffix()}`),b=await r.json();if(!r.ok)throw new Error(b.error||'Invitation is unavailable.');theme=signatureTheme(b.theme);if(!theme)throw new Error('This design is unavailable.');data={...sampleInvitation,...b.data};wishes=b.wishes;photos=b.photos;guestName=b.guestName;guestLimit=b.guestLimit;render()}catch(e){root.innerHTML=`<div class="error-page"><span class="eyebrow">AURAWEDDINGS</span><h2>${esc(e.message)}</h2><p>Use the personal link provided by the couple.</p><a href="/aura-weddings">AuraWeddings</a></div>`}}else{data.lang=params.get('lang')==='ar'?'ar':'en';if(params.get('embed')==='1')document.body.dataset.embed='true';render()}}
+async function start(){if(slug){try{const r=await fetch(`/api/weddings/public/${slug}${apiSuffix()}`),b=await r.json();if(!r.ok)throw new Error(b.error||'Invitation is unavailable.');theme=signatureTheme(b.theme);if(!theme)throw new Error('This design is unavailable.');data={...sampleInvitation,...b.data};wishes=b.wishes;photos=b.photos;guestName=b.guestName;guestLimit=b.guestLimit;render()}catch(e){root.innerHTML=`<div class="error-page"><span class="eyebrow">AURAWEDDINGS</span><h2>${esc(e.message)}</h2><p>Use the personal link provided by the couple.</p><a href="/aura-weddings">AuraWeddings</a></div>`}}else{data.lang=params.get('lang')==='ar'?'ar':'en';if(isRoyalChampagne(theme)){data={...data,partnerOne:'Ayesha',partnerTwo:'Salman',arabicOne:'عائشة',arabicTwo:'سلمان',seal:'A·S',families:'Together with their families',venue:'Royal Wedding Palace',address:'Dubai, United Arab Emirates',timezone:'Asia/Dubai',eventAt:'2027-04-20T16:00:00.000Z',story:'A journey of two hearts becoming one. Join us as we begin our forever.'}}if(params.get('embed')==='1')document.body.dataset.embed='true';render()}}
 addEventListener('message',e=>{if(slug||e.origin!==location.origin||e.source!==parent||e.data?.type!=='aw-signature-preview')return;const t=signatureTheme(e.data.theme);if(!t)return;theme=t;data={...sampleInvitation,...e.data.data};guestLimit=data.guestLimit;render(e.data.opened===true)});
 addEventListener('pagehide',()=>{stopTimers();clearInterval(countTimer);audioEngine?.stop()});document.addEventListener('visibilitychange',()=>{if(document.hidden)audioEngine?.stop()});
 start();
