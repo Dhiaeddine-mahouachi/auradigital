@@ -2,7 +2,7 @@
 function floral(pos=''){return `<img class="rc-floral ${pos}" src="/weddings/royal-champagne-floral.svg" alt="" aria-hidden="true">`}
 function ornaments(){return '<span class="rc-divider" aria-hidden="true">❧ <i>✧</i> ❧</span>'}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function picture(d,t){return d.hero || t.hero}
+function picture(d,t){const h=String(d.hero||'');return /^\/api\/weddings\/media\/[a-f0-9-]+$/.test(h)||/^https:\/\/[^\s"'<>]+$/.test(h)?h:t.hero}
 function calendarEscape(s){return String(s??'').replace(/[\r\n]+/g,' ').replace(/\\/g,'\\\\').replace(/,/g,'\\,').replace(/;/g,'\\;')}
 export function isRoyalChampagne(t){return t?.slug==='royal-champagne-signature'}
 export function champagneGate({data,names,date,words}){
