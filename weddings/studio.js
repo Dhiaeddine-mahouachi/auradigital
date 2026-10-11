@@ -8,13 +8,24 @@ const say=(text,error=false)=>{output.textContent=text;output.dataset.error=Stri
 async function api(path,method='GET',body){const r=await fetch('/api/weddings/'+path,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined}),b=await r.json();if(!r.ok)throw new Error(b.error||'Service unavailable.');return b}
 form.elements.theme.innerHTML=signatureThemes.map(t=>`<option value="${t.slug}">${esc(t.name)}</option>`).join('');
 document.querySelector('#arabic-preset').insertAdjacentHTML('beforeend',arabicPresets.map((p,i)=>`<option value="${i}">${esc(p.label)}</option>`).join(''));
+const royalControls=document.querySelector('#royal-studio-controls');
+function royalSync(){
+ royalControls.hidden=theme!=='royal-champagne-signature';
+ royalControls.querySelectorAll('[data-royal-color]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.royalColor.toLowerCase()===String(data.accent||'#b48751').toLowerCase())));
+ royalControls.querySelectorAll('[data-royal-seal]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.royalSeal===data.seal)));
+}
+royalControls.addEventListener('click',e=>{
+ const b=e.target.closest('[data-royal-color],[data-royal-seal]');if(!b)return;
+ const input=form.elements.namedItem(b.dataset.royalColor?'accent':'seal');input.value=b.dataset.royalColor||b.dataset.royalSeal;
+ input.dispatchEvent(new Event('input',{bubbles:true}));
+});
 function populate(){
  for(const[key,value]of Object.entries(data)){const input=form.elements.namedItem(key);if(!input)continue;if(input.type==='checkbox')input.checked=value===true;else if(!['schedule','gallery','sections'].includes(key))input.value=value??''}
  form.elements.theme.value=theme;form.elements.wall.value=wallTime(data.eventAt,data.timezone);form.elements.deadlineWall.value=data.rsvpDeadline?wallTime(data.rsvpDeadline,data.timezone):'';
  form.elements.accent.value=data.accent||signatureTheme(theme).accent;
  form.elements.schedule.value=data.schedule.map(x=>[x.time,x.title,x.description,x.location||''].join(' | ')).join('\n');
  form.elements.gallery.value=data.gallery.map(x=>[x.url,x.alt,x.focal||'50% 50%'].join(' | ')).join('\n');
- sections();document.querySelector('#music-mood').textContent='Suggested mood: '+musicMoods[signatureTheme(theme).music];
+ sections();royalSync();document.querySelector('#music-mood').textContent='Suggested mood: '+musicMoods[signatureTheme(theme).music];
  document.querySelector('#delete-invitation').hidden=!id;
  document.querySelector('#export').hidden=!id;document.querySelector('#export').href=id?`/api/weddings/invitations/${id}/export`:'';
 }
@@ -29,7 +40,7 @@ function readForm(){const d={...data};for(const[key]of Object.entries(d)){const 
 }
 function preview(){frame.contentWindow?.postMessage({type:'aw-signature-preview',theme,data,opened:previewOpened},location.origin)}
 function snapshot(){history.push({theme,data:structuredClone(data)});if(history.length>50)history.shift();future=[]}
-let editTimer;form.addEventListener('input',e=>{clearTimeout(editTimer);editTimer=setTimeout(()=>{try{snapshot();data=readForm();theme=form.elements.theme.value;if(e.target.name==='theme'){data.accent=signatureTheme(theme).accent;form.elements.accent.value=data.accent;document.querySelector('#music-mood').textContent='Suggested mood: '+musicMoods[signatureTheme(theme).music]}preview();say('Preview updated. Save to keep your changes.')}catch(error){say(error.message,true)}},300)});
+let editTimer;form.addEventListener('input',e=>{clearTimeout(editTimer);editTimer=setTimeout(()=>{try{snapshot();data=readForm();theme=form.elements.theme.value;if(e.target.name==='theme'){data.accent=signatureTheme(theme).accent;form.elements.accent.value=data.accent;document.querySelector('#music-mood').textContent='Suggested mood: '+musicMoods[signatureTheme(theme).music]}royalSync();preview();say('Preview updated. Save to keep your changes.')}catch(error){say(error.message,true)}},300)});
 form.addEventListener('submit',e=>e.preventDefault());
 frame.addEventListener('load',preview);
 document.querySelector('#section-list').addEventListener('click',e=>{const move=e.target.closest('[data-move]');if(!move)return;const name=move.closest('[data-section]').dataset.section,index=order.indexOf(name),next=index+Number(move.dataset.move);snapshot();const checks=new Set([...document.querySelectorAll('#section-list input:checked')].map(x=>x.value));[order[index],order[next]]=[order[next],order[index]];data.sections=order.filter(x=>checks.has(x));sections();preview()});
