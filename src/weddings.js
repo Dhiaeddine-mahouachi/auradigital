@@ -43,7 +43,7 @@ export function validateWeddingData(input){
  out.rsvpDeadline=clean(input.rsvpDeadline,40);if(out.rsvpDeadline&&!validInstant(out.rsvpDeadline))throw new ApiError(400,'RSVP deadline must include a timezone.');
  for(const [key,min,max]of [['lat',-90,90],['lng',-180,180]]){out[key]=input[key]==null||input[key]===''?null:Number(input[key]);if(out[key]!==null&&(!Number.isFinite(out[key])||out[key]<min||out[key]>max))throw new ApiError(400,'Invalid venue coordinates.')}
  if((out.lat===null)!==(out.lng===null))throw new ApiError(400,'Enter both venue coordinates.');
- out.hero=safeMediaUrl(input.hero);out.musicUrl=safeMediaUrl(input.musicUrl);out.musicAuthorized=input.musicAuthorized===true;
+ out.hero=safeMediaUrl(input.hero);out.venuePhoto=safeMediaUrl(input.venuePhoto);out.musicUrl=safeMediaUrl(input.musicUrl);out.musicAuthorized=input.musicAuthorized===true;
  if(out.musicUrl&&!out.musicAuthorized)throw new ApiError(400,'Confirm your recording rights before adding music.');
  out.gallery=Array.isArray(input.gallery)?input.gallery.slice(0,30).map(x=>({url:safeMediaUrl(x.url),alt:clean(x.alt,240),focal:typeof x.focal==='string'&&/^\d{1,3}% \d{1,3}%$/.test(x.focal)?x.focal:'50% 50%'})).filter(x=>x.url):[];
  out.schedule=Array.isArray(input.schedule)?input.schedule.slice(0,12).map(x=>({title:clean(x.title,120),time:clean(x.time,20),description:clean(x.description,500),location:clean(x.location,240)})).filter(x=>x.title):[];

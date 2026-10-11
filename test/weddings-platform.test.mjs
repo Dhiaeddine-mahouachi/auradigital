@@ -23,3 +23,12 @@ test('authorized audio upload persists in chunks, requires owner access, and ser
 
 test('saved invitations survive closing and reopening the database',async()=>{const{mkdtempSync,rmSync}=await import('node:fs'),{tmpdir}=await import('node:os'),{join}=await import('node:path');const folder=mkdtempSync(join(tmpdir(),'weddings-persistence-')),file=join(folder,'storage.sqlite');const first={DB:database(file)},c=await call(first,'invitations','POST',{theme:'ivory-botanical',data:actual}),ownerCookie=cookie(c.response);first.DB.sql.close();const second={DB:database(file)};try{const saved=await call(second,'invitations/'+c.value.id,'GET',undefined,{Cookie:ownerCookie});assert.equal(saved.value.data.partnerOne,actual.partnerOne);assert.equal(saved.value.theme,'ivory-botanical')}finally{second.DB.sql.close();rmSync(folder,{recursive:true,force:true})}});
 test('impossible event dates and expired RSVP submissions are rejected',async()=>{assert.throws(()=>validateWeddingData({...actual,eventAt:'2027-02-30T18:00:00Z'}));const env={DB:database()},c=await call(env,'invitations','POST',{theme:'obsidian-royal',data:{...actual,rsvpDeadline:'2020-01-01T00:00:00Z'}}),ownerCookie=cookie(c.response);await call(env,`invitations/${c.value.id}/publish`,'POST',{}, {Cookie:ownerCookie});const view=await call(env,'public/'+c.value.slug,'GET');await assert.rejects(()=>call(env,`public/${c.value.slug}/rsvp`,'POST',{name:'Guest',consent:true,response:'yes',attendees:1},{Cookie:cookie(view.response)}),/deadline has passed/)});
+
+test('Royal venue photo survives draft, publication and reload; unsafe URLs are rejected',async()=>{
+ const env={DB:database()},data={...actual,venuePhoto:'https://example.com/venue.webp'};
+ const c=await call(env,'invitations','POST',{theme:'royal-champagne-signature',data}),headers={Cookie:cookie(c.response)};
+ assert.equal((await call(env,'invitations/'+c.value.id,'GET',undefined,headers)).value.data.venuePhoto,data.venuePhoto);
+ await call(env,`invitations/${c.value.id}/publish`,'POST',{},headers);
+ assert.equal((await call(env,'public/'+c.value.slug,'GET')).value.data.venuePhoto,data.venuePhoto);
+ assert.equal(validateWeddingData({...data,venuePhoto:'javascript:alert(1)'}).venuePhoto,'');
+});
