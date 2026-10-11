@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Great+Vibes&display=swap');
+/* REFERENCE-LOCKED Royal Champagne Signature.
+   All selectors are scoped to the theme; other 75 invitation designs are unchanged. */
+.theme-royal-champagne-signature{
+ --rc-paper:#f2e3d2;--rc-cream:#fff5e8;--rc-rose:#e8c8b8;--rc-gold:#b48751;--rc-copper:#70452e;--rc-deep:#4c3b35;--rc-vellum:#ead1b8;
+ background:#382b28;color:#643f2b;font-family:'Cormorant Garamond',Georgia,serif;
+}
+.theme-royal-champagne-signature .sig-main{width:min(100%,480px);max-width:480px;margin:0 auto;background:var(--rc-paper);box-shadow:0 0 100px #1d1313bb;overflow:hidden}
+.theme-royal-champagne-signature .sig-section{width:100%;max-width:none;margin:0;min-height:760px;padding:65px 24px;overflow:hidden}
+.theme-royal-champagne-signature .sig-section h2{font-weight:400;color:var(--rc-copper)}
+.theme-royal-champagne-signature .sig-nav{background:#3a2b29ee;color:#f5dfbf;border:0;box-shadow:0 10px 30px #22130e44;font-family:Georgia,serif;z-index:20}
+.theme-royal-champagne-signature .sig-nav button,.theme-royal-champagne-signature .sig-nav a{color:#f5dfbf}
+.theme-royal-champagne-signature .rc-script{font:clamp(48px,12vw,70px)/1.2 'Great Vibes','Cormorant Garamond',cursive;text-transform:none;text-align:center;letter-spacing:0}
+.theme-royal-champagne-signature .rc-top-ornament{text-align:center;color:#b7915d;letter-spacing:.28em;font:21px Georgia,serif;display:block}
+.theme-royal-champagne-signature .rc-divider{display:block;color:#ba925f;font:18px/2 Georgia,serif;white-space:nowrap;letter-spacing:.45em;text-align:center}
+.theme-royal-champagne-signature .rc-divider i{font-style:normal;font-size:12px}
+.theme-royal-champagne-signature .rc-floral{position:absolute;width:42%;max-width:200px;height:auto;pointer-events:none;z-index:3;filter:drop-shadow(0 4px 5px #9b72533d)}
+.theme-royal-champagne-signature .rc-flower-tl{top:-23px;left:-35px;transform:rotate(-14deg)}
+.theme-royal-champagne-signature .rc-flower-tr{top:-23px;right:-35px;transform:scaleX(-1) rotate(-14deg)}
+.theme-royal-champagne-signature .rc-flower-bl{bottom:-25px;left:-35px;transform:scaleY(-1) rotate(10deg)}
+.theme-royal-champagne-signature .rc-flower-br{bottom:-25px;right:-35px;transform:scale(-1) rotate(10deg)}
+.theme-royal-champagne-signature .rc-parchment-section{background:radial-gradient(ellipse at 51% 32%,#fff6e8 0,#f4e1ce 53%,#e6ccb2 100%);position:relative}
+.theme-royal-champagne-signature .rc-parchment-section:after,.theme-royal-champagne-signature .rc-language-scene:after{content:"";position:absolute;inset:0;pointer-events:none;background-image:url('/weddings/royal-champagne-floral.svg');background-size:160px auto;background-repeat:no-repeat;background-position:-110px bottom;opacity:.2;mix-blend-mode:multiply}
+.theme-royal-champagne-signature .rc-frame{position:relative;min-height:655px;padding:48px 26px 56px;max-width:440px;margin:auto;border:1px solid #c9a776;box-shadow:inset 0 0 0 8px #f8ebd9,inset 0 0 0 9px #ceaa7a,0 12px 35px #8f603829;background:linear-gradient(135deg,#fff5e6,#f5e0c9 65%,#ead3ba);text-align:center;isolation:isolate;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.theme-royal-champagne-signature .rc-frame:before{content:"";position:absolute;inset:13px;border:1px solid #d4b586;pointer-events:none;border-radius:inherit}
+.theme-royal-champagne-signature .rc-arch{border-radius:180px 180px 6px 6px;min-height:675px;overflow:hidden;padding-top:90px}
+.theme-royal-champagne-signature .rc-arch:before{border-radius:160px 160px 0 0}
+.theme-royal-champagne-signature .rc-letter .rc-frame{min-height:750px}
+.theme-royal-champagne-signature .rc-bismillah,.theme-royal-champagne-signature .rc-gold-arabic{font:clamp(24px,6.3vw,31px)/2 'Amiri',serif;color:#855927;direction:rtl;margin:16px 0 40px}
+.theme-royal-champagne-signature .rc-small-intro{font-size:13px;letter-spacing:.05em;margin:2px}
+.theme-royal-champagne-signature .rc-invited{font:10px/1.7 Georgia,serif;letter-spacing:.19em;margin:0 0 24px}
+.theme-royal-champagne-signature .rc-letter .letter-names{font:50px/1.04 'Cormorant Garamond',Georgia,serif;font-weight:400;max-width:100%;margin:0 0 10px;color:#663b2b}
+.theme-royal-champagne-signature .rc-letter .letter-names i{display:block;font:34px/1.2 'Great Vibes',cursive;color:#b48d5a}
+.theme-royal-champagne-signature .rc-letter .rc-poem{font:17px/1.6 'Cormorant Garamond',serif;max-width:260px;margin:17px auto;color:#765546}
+.theme-royal-champagne-signature .rc-event-date{font:13px/1.8 Georgia,serif;letter-spacing:.06em}
+.theme-royal-champagne-signature .rc-venue-title{font:12px/1.6 Georgia,serif;letter-spacing:.13em;text-transform:uppercase}
+.theme-royal-champagne-signature .rc-outline-action{display:inline-block;font:11px Georgia,serif;letter-spacing:.16em;color:#79522e;text-decoration:none;border-bottom:1px solid #a98a59;margin-top:25px;padding:9px 2px}
+.theme-royal-champagne-signature .rc-couple-hero{height:min(860px,100svh);min-height:690px;position:relative;background:#4b352b;display:flex;align-items:center;justify-content:center}
+.theme-royal-champagne-signature .rc-couple-hero .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.93}
+.theme-royal-champagne-signature .rc-hero-veil{position:absolute;inset:0;background:linear-gradient(#24191380,transparent 28%,#22131060 65%,#1b1311db)}
+.theme-royal-champagne-signature .rc-couple-hero .hero-copy{position:relative;z-index:4;color:#fff1d3;text-align:center;align-self:end;margin-bottom:78px;width:100%;padding:30px 25px}
+.theme-royal-champagne-signature .rc-couple-hero .hero-copy h1{font:clamp(52px,13vw,72px)/1.09 'Cormorant Garamond',serif;color:#fff2dc;text-shadow:0 4px 15px #190e0c;text-wrap:balance}
+.theme-royal-champagne-signature .rc-couple-hero .hero-copy h1 i{font-family:'Great Vibes',cursive;color:#e8c38c;font-weight:400}
+.theme-royal-champagne-signature .rc-couple-hero .hero-date{font:12px Georgia,serif;letter-spacing:.15em;display:block;margin:12px}
+.theme-royal-champagne-signature .rc-couple-hero .eyebrow,.theme-royal-champagne-signature .rc-hero-sub{font:11px Georgia,serif;letter-spacing:.2em;color:#f9e2b6}
+.theme-royal-champagne-signature .rc-couple-hero .sig-button{display:inline-block;background:#b88c56;color:#241a13;font:12px Georgia,serif;padding:12px 20px;margin-top:18px}
+.theme-royal-champagne-signature .rc-hero-flower{bottom:-60px;right:-42px;width:60%;transform:scale(-1);opacity:.8}
+.theme-royal-champagne-signature .rc-details .rc-frame{min-height:650px;justify-content:start;padding-top:53px}
+.theme-royal-champagne-signature .rc-details .rc-script{margin:15px 0 5px}
+.theme-royal-champagne-signature .rc-detail-line{display:flex;gap:17px;align-items:center;width:100%;text-align:start;border-bottom:1px solid #d6b994;padding:19px 3px;min-width:0}
+.theme-royal-champagne-signature .rc-detail-line div{min-width:0;flex:1}
+.theme-royal-champagne-signature .rc-detail-line small{font:10px Georgia,serif;letter-spacing:.18em;display:block;color:#8d6946}
+.theme-royal-champagne-signature .rc-detail-line strong{font:21px/1.4 'Cormorant Garamond',Georgia,serif;display:block}
+.theme-royal-champagne-signature .rc-detail-line p{font:14px/1.4 'Cormorant Garamond',serif;margin:3px 0}
+.theme-royal-champagne-signature .rc-detail-icon{flex:0 0 50px;width:50px;height:50px;border:1px solid #d3b38b;border-radius:12px;display:grid;place-items:center;font:27px Georgia,serif;color:#986d40;box-shadow:0 5px 9px #9d785431;background:#f9ecdc}
+.theme-royal-champagne-signature .rc-venue .rc-frame{gap:9px;padding-top:47px}
+.theme-royal-champagne-signature .rc-venue .rc-script{margin:0}
+.theme-royal-champagne-signature .rc-venue-picture{width:100%;height:310px;object-fit:cover;border-radius:16px;border:3px solid #fff3df;box-shadow:0 6px 25px #805b3766;margin:12px auto}
+.theme-royal-champagne-signature .rc-venue h3{font:27px/1.2 'Cormorant Garamond',serif;margin:8px 0 0}
+.theme-royal-champagne-signature .rc-venue address{font:16px/1.35 'Cormorant Garamond',serif;max-width:260px}
+.theme-royal-champagne-signature .rc-gold-button{display:block;padding:15px 22px;border-radius:13px;background:linear-gradient(125deg,#634127,#bb8b4d);color:#fff4dd;text-decoration:none;font:12px Georgia,serif;box-shadow:0 5px 13px #6d422840;margin:12px auto}
+.theme-royal-champagne-signature .rc-pending,.theme-royal-champagne-signature .rc-disclaimer{font:12px/1.5 system-ui;opacity:.65;display:block}
+.theme-royal-champagne-signature .countdown{position:relative;background:radial-gradient(ellipse at center,#fff1df,#e8ccb1 95%);min-height:660px;display:flex;align-items:center;flex-direction:column;justify-content:center;text-align:center;border:0}
+.theme-royal-champagne-signature .countdown:before,.theme-royal-champagne-signature .countdown:after{content:"";position:absolute;width:230px;height:300px;background:url('/weddings/royal-champagne-floral.svg') center/contain no-repeat;opacity:.75;pointer-events:none}
+.theme-royal-champagne-signature .countdown:before{bottom:-88px;left:-68px}
+.theme-royal-champagne-signature .countdown:after{top:-95px;right:-65px;transform:rotate(180deg)}
+.theme-royal-champagne-signature .countdown .eyebrow{font:50px 'Great Vibes',cursive;letter-spacing:0;text-transform:none;color:#76503c}
+.theme-royal-champagne-signature .count-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%;margin:42px 0}
+.theme-royal-champagne-signature .count-grid>div{border:1px solid #c9a677;border-radius:10px;padding:14px 1px;background:linear-gradient(#fff3e6,#f0dac4);box-shadow:0 6px 16px #a0795440}
+.theme-royal-champagne-signature .count-grid strong{font:31px/1.5 'Cormorant Garamond',serif;color:#613e2c}
+.theme-royal-champagne-signature .count-grid span{display:block;font:9px Georgia,serif;letter-spacing:.09em;color:#5d3e2b}
+.theme-royal-champagne-signature .countdown:has(.count-grid):after{z-index:0}
+.theme-royal-champagne-signature .rc-story{background:#403329;color:#f8e6c9;min-height:760px;padding:0;position:relative;display:flex;align-items:center;justify-content:end;flex-direction:column}
+.theme-royal-champagne-signature .rc-story-photo{position:absolute;inset:0}
+.theme-royal-champagne-signature .rc-story-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent,#1c110de8)}
+.theme-royal-champagne-signature .rc-story-photo img{width:100%;height:100%;object-fit:cover}
+.theme-royal-champagne-signature .rc-story-copy{position:relative;z-index:3;text-align:center;padding:40px 32px 70px;max-width:450px}
+.theme-royal-champagne-signature .rc-story .rc-script,.theme-royal-champagne-signature .rc-story .eyebrow{color:#ffeacc}
+.theme-royal-champagne-signature .rc-story blockquote{font:24px/1.35 'Cormorant Garamond',serif;color:#f8e9d8}
+.theme-royal-champagne-signature .rc-story .rc-outline-action{color:#e5ba80}
+.theme-royal-champagne-signature #gallery{background:#e9d2bc;text-align:center;min-height:780px}
+.theme-royal-champagne-signature #gallery>.eyebrow{font:50px/1.25 'Great Vibes',cursive;letter-spacing:0;text-transform:none;color:#805238}
+.theme-royal-champagne-signature #gallery>h2{display:none}
+.theme-royal-champagne-signature .sig-gallery{display:flex;justify-content:center;align-items:center;gap:9px;margin-top:85px;max-width:100%;overflow:hidden}
+.theme-royal-champagne-signature .sig-gallery button{flex:0 0 27%;aspect-ratio:2/3;max-height:440px;min-height:0;border:3px solid #fff0df;border-radius:14px;box-shadow:0 12px 25px #70492f66;cursor:pointer}
+.theme-royal-champagne-signature .sig-gallery button:first-child{flex-basis:45%;aspect-ratio:2/3;max-height:510px;min-height:0;grid-row:auto}
+.theme-royal-champagne-signature .sig-gallery img{width:100%;height:100%;object-fit:cover}
+.theme-royal-champagne-signature .rsvp-layout{display:block}
+.theme-royal-champagne-signature #rsvp{background:radial-gradient(ellipse at center,#fff0de,#e3c5a8);min-height:850px}
+.theme-royal-champagne-signature #rsvp:before{content:"";position:absolute;top:-30px;left:-40px;width:260px;height:300px;background:url('/weddings/royal-champagne-floral.svg') center/contain no-repeat;transform:rotate(-30deg);opacity:.75}
+.theme-royal-champagne-signature #rsvp:after{content:"";position:absolute;bottom:-90px;right:-65px;width:230px;height:300px;background:url('/weddings/royal-champagne-floral.svg') center/contain no-repeat;transform:rotate(145deg);opacity:.75}
+.theme-royal-champagne-signature #rsvp .rsvp-aside{position:relative;text-align:center}
+.theme-royal-champagne-signature #rsvp .rsvp-aside .eyebrow{font:62px 'Great Vibes',cursive;letter-spacing:0;color:#7d5037}
+.theme-royal-champagne-signature #rsvp .rsvp-aside h2{display:none}
+.theme-royal-champagne-signature #rsvp .rsvp-aside p{font:19px/1.3 'Cormorant Garamond',serif;max-width:270px;margin:14px auto 24px}
+.theme-royal-champagne-signature #rsvp .sig-form{position:relative;z-index:4}
+.theme-royal-champagne-signature #rsvp .form-grid{display:flex;flex-direction:column;gap:14px}
+.theme-royal-champagne-signature #rsvp .form-grid label{font:14px/1.3 'Cormorant Garamond',serif;color:#78523a;gap:5px}
+.theme-royal-champagne-signature #rsvp .form-grid input:not([type=checkbox]),.theme-royal-champagne-signature #rsvp select,.theme-royal-champagne-signature #rsvp textarea{width:100%;background:#f7e6d6;border:1px solid #c7a47f;border-radius:11px;padding:12px 13px;font:16px Georgia,serif;color:#633b2b}
+.theme-royal-champagne-signature #rsvp .form-grid input[type=checkbox]{width:18px;flex:none}
+.theme-royal-champagne-signature #rsvp .sig-form>button{background:linear-gradient(125deg,#78502a,#b48a54);color:#ffefd8;border-radius:12px;padding:15px 24px;width:100%;font:14px Georgia,serif;box-shadow:0 7px 18px #875e3d66}
+.theme-royal-champagne-signature .rc-music-scene{position:relative;background:radial-gradient(ellipse at 50% 35%,#826a59,#413229 85%);color:#f3d9b5;text-align:center;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:20px}
+.theme-royal-champagne-signature .rc-music-scene .rc-script{color:#ffe4c0}
+.theme-royal-champagne-signature .rc-music-scene p{font:18px 'Cormorant Garamond',serif}
+.theme-royal-champagne-signature .rc-music-scene .rc-floral{opacity:.55}
+.theme-royal-champagne-signature .rc-music-launch{width:125px;height:125px;border-radius:50%;display:grid;place-items:center;border:2px solid #deb57b;background:linear-gradient(130deg,#a27a4a,#4a3222);color:#fff0db;box-shadow:0 0 0 8px #d9b78925,0 14px 40px #24140d8c;font:29px Georgia,serif;cursor:pointer}
+.theme-royal-champagne-signature .rc-music-launch span{font-size:22px;display:block;margin-top:-25px}
+.theme-royal-champagne-signature .rc-music-scene small{max-width:210px;font:12px/1.8 Georgia,serif}
+.theme-royal-champagne-signature .rc-language-scene{background:radial-gradient(ellipse at 40% 50%,#fff0da,#dfc4a5);display:grid;place-items:center}
+.theme-royal-champagne-signature .rc-language-scene .rc-frame{width:100%}
+.theme-royal-champagne-signature .rc-language-scene .rc-bismillah{font:51px/1.5 'Amiri',serif;direction:rtl;color:#7c4a29;margin-bottom:10px}
+.theme-royal-champagne-signature .rc-language-scene h2{font:32px/1.3 'Cormorant Garamond',serif}
+.theme-royal-champagne-signature .rc-language-actions{display:flex;gap:15px;margin-top:42px}
+.theme-royal-champagne-signature .rc-language-actions button{padding:12px 26px;background:#f8e7d3;border:1px solid #c9a26b;color:#714629;border-radius:25px;cursor:pointer;font:14px Georgia,serif}
+.theme-royal-champagne-signature .rc-language-actions button[aria-pressed=true]{background:#8e5d32;color:#fff5e6}
+.theme-royal-champagne-signature .sig-footer{max-width:480px;margin:auto;background:#eee0c9;text-align:center}
+.theme-royal-champagne-signature .audio-player{background:#5a4032;color:#f9e8d3;border:1px solid #bd995d;bottom:10px}
+.theme-royal-champagne-signature .audio-player button{color:#f8e5cb}
+.theme-royal-champagne-signature .rc-reveal{opacity:0;transform:translateY(32px);transition:opacity .95s ease,transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.theme-royal-champagne-signature .rc-reveal.rc-visible{opacity:1;transform:none}
+/* Wax-sealed 3D envelope: actual independent back, card, front and rotating flap. */
+.theme-royal-champagne-signature .rc-gate{background:radial-gradient(ellipse at 50% 38%,#a18a77,#5e4b40 65%,#2d231f);color:#f2ddbc;padding:15px 15px 35px;overflow:hidden}
+.theme-royal-champagne-signature .rc-gate .gate-backdrop{background:radial-gradient(ellipse at 50% 40%,#dac2ac33,transparent 66%);opacity:1}
+.theme-royal-champagne-signature .rc-gate-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,#e7c9a82b,transparent 57%);opacity:.4;transition:opacity 2s}
+.theme-royal-champagne-signature .rc-gate.seal-release .rc-gate-glow{opacity:1}
+.theme-royal-champagne-signature .rc-gate .gate-content{position:relative;z-index:1;width:min(100%,470px);margin:auto}
+.theme-royal-champagne-signature .rc-gate .gate-title{font:12px Georgia,serif;letter-spacing:.3em;color:#f6dfba;margin:15px 0 0}
+.theme-royal-champagne-signature .rc-gate .paper-stage{width:min(87vw,375px);height:min(106vw,445px);margin:8px auto 42px;transform:none;perspective:1550px;filter:drop-shadow(0 20px 28px #251813a8)}
+.theme-royal-champagne-signature .rc-gate .stationery{inset:7% 0 5%;border:3px solid #c9a772;box-shadow:inset 0 0 0 9px #efdcc5,inset 0 0 0 11px #caa978;background:linear-gradient(115deg,#f8efdf,#ead3b6 65%,#d8b592);transform-style:preserve-3d}
+.theme-royal-champagne-signature .rc-envelope-back{position:absolute;inset:0;background:linear-gradient(130deg,#e9d2b6,#f9ead8);z-index:0}
+.theme-royal-champagne-signature .rc-gate .paper-card{inset:5% 8% 15%;border:1px solid #c19a66;z-index:2;transform:translateY(24%) scale(.94);background:radial-gradient(ellipse at center,#fff6ea,#e7ceb1);box-shadow:0 15px 25px #53392066;transition:transform 1.4s cubic-bezier(.16,.8,.14,1),opacity .8s}
+.theme-royal-champagne-signature .rc-card-inner{height:100%;width:100%;padding:25px 12px;border:1px solid #caa677;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.theme-royal-champagne-signature .rc-card-inner strong{font:clamp(31px,8vw,45px)/1.2 'Cormorant Garamond',serif;color:#76513b}
+.theme-royal-champagne-signature .rc-card-inner strong i{display:block;font-family:'Great Vibes',cursive}
+.theme-royal-champagne-signature .rc-card-inner small{color:#9d703d}
+.theme-royal-champagne-signature .rc-card-inner span{font:12px Georgia,serif;color:#805e45}
+.theme-royal-champagne-signature .rc-card-inner .rc-gold-arabic{font:22px/1.4 'Amiri',serif;margin:0 0 12px}
+.theme-royal-champagne-signature .rc-gate .envelope-front{inset:0;z-index:4;clip-path:polygon(0 0,50% 52%,100% 0,100% 100%,0 100%);background:linear-gradient(140deg,#fff5e5,#e7cbb1 53%,#f6e2c8);border:0;box-shadow:inset 0 0 0 10px #c9a777}
+.theme-royal-champagne-signature .rc-gate .envelope-front:after{content:"";position:absolute;inset:12px;border:1px solid #c9a672;clip-path:polygon(0 0,50% 50%,100% 0,100% 100%,0 100%);opacity:.9}
+.theme-royal-champagne-signature .rc-gate .envelope-flap{inset:0;z-index:5;clip-path:polygon(0 0,100% 0,50% 53%);background:linear-gradient(155deg,#f9edda,#e5ccb1 70%,#d9b58a);transform-origin:top center;backface-visibility:visible;transition:transform 1.25s cubic-bezier(.2,.1,.2,1);border-top:2px solid #d2ac79}
+.theme-royal-champagne-signature .rc-gate .envelope-flap:after{content:"";position:absolute;inset:0;background:repeating-radial-gradient(ellipse at 20% 30%,transparent 0 16px,#be987347 17px 18px);opacity:.18}
+.theme-royal-champagne-signature .rc-gate .rc-front-left,.theme-royal-champagne-signature .rc-gate .rc-front-right,.theme-royal-champagne-signature .rc-gate .rc-flap-left,.theme-royal-champagne-signature .rc-gate .rc-flap-right{width:48%;opacity:.77;filter:sepia(.4) drop-shadow(0 1px 2px #9d775677)}
+.theme-royal-champagne-signature .rc-gate .rc-front-left{bottom:-40px;left:-32px;transform:rotate(-28deg)}
+.theme-royal-champagne-signature .rc-gate .rc-front-right{bottom:-40px;right:-32px;transform:scaleX(-1) rotate(-28deg)}
+.theme-royal-champagne-signature .rc-gate .rc-flap-left{top:-40px;left:-23px;transform:rotate(-66deg)}
+.theme-royal-champagne-signature .rc-gate .rc-flap-right{top:-40px;right:-23px;transform:scaleX(-1) rotate(-66deg)}
+.theme-royal-champagne-signature .rc-front-mark{position:absolute;bottom:19px;left:0;right:0;display:block;text-align:center;color:#a27e52;font:8px Georgia,serif;letter-spacing:.3em}
+.theme-royal-champagne-signature .rc-gate .seal{z-index:8;left:50%;top:51%;width:86px;height:86px;border:4px solid #f5dfaa;border-radius:50%;background:radial-gradient(circle at 30% 25%,#f2d69c,#bc8f4d 47%,#7c532c 98%);color:#56341b;box-shadow:0 9px 13px #54331c88,inset 0 0 0 5px #b88b47,inset 0 0 0 6px #f6d79b;display:grid;place-items:center;transition:transform .45s,opacity .45s}
+.theme-royal-champagne-signature .rc-gate .seal>span{font:24px 'Cormorant Garamond',serif;font-style:italic;max-width:70px;overflow:hidden;white-space:nowrap}
+.theme-royal-champagne-signature .rc-gate .seal i{position:absolute;top:76px;left:34px;width:9px;height:35px;background:linear-gradient(90deg,#99682f,#d0aa5f,#956027);clip-path:polygon(0 0,100% 0,75% 100%,25% 100%)}
+.theme-royal-champagne-signature .rc-gate.seal-release .seal{transform:translate(-50%,-50%) rotate(24deg) scale(1.1);opacity:0}
+.theme-royal-champagne-signature .rc-gate.flap-open .envelope-flap{transform:rotateX(-177deg);z-index:1}
+.theme-royal-champagne-signature .rc-gate.card-reveal .paper-card{transform:translateY(-55%) scale(1.05);z-index:7}
+.theme-royal-champagne-signature .rc-gate .gate-controls{display:flex;align-items:center;flex-direction:column;gap:9px}
+.theme-royal-champagne-signature .rc-gate .open-invitation{background:linear-gradient(130deg,#e1c392,#aa7a42);color:#493121;border:1px solid #f6e5ca;letter-spacing:.14em;font:12px Georgia,serif;border-radius:50px;padding:14px 28px;box-shadow:0 8px 25px #25161088}
+.theme-royal-champagne-signature .rc-gate .skip{font:11px Georgia,serif;color:#e8d2b5}
+.theme-royal-champagne-signature .rc-gate .gate-note{font:10px Georgia,serif;letter-spacing:.28em;color:#f9e7ca}
+.theme-royal-champagne-signature .rc-falling-petals{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.theme-royal-champagne-signature .rc-falling-petals i{position:absolute;top:-10%;left:12%;width:13px;height:23px;background:radial-gradient(ellipse,#fff0e3,#dcb79e);border-radius:85% 15% 85% 15%;opacity:0;animation:rc-petal 10s linear infinite}
+.theme-royal-champagne-signature .rc-falling-petals i:nth-child(2){left:33%;animation-delay:3s;animation-duration:13s}
+.theme-royal-champagne-signature .rc-falling-petals i:nth-child(3){left:56%;animation-delay:1.2s;animation-duration:9s}
+.theme-royal-champagne-signature .rc-falling-petals i:nth-child(4){left:77%;animation-delay:5s;animation-duration:11s}
+.theme-royal-champagne-signature .rc-falling-petals i:nth-child(5){left:91%;animation-delay:7s;animation-duration:15s}
+@keyframes rc-petal{0%{transform:translate(0,-10vh) rotate(0);opacity:0}15%{opacity:.75}85%{opacity:.5}100%{transform:translate(-9vw,108vh) rotate(540deg);opacity:0}}
+@media(min-width:760px){.theme-royal-champagne-signature .sig-main{margin-top:0}.theme-royal-champagne-signature .rc-gate .paper-stage{width:390px;height:470px}}
+@media(max-width:420px){.theme-royal-champagne-signature .sig-section{min-height:690px;padding:45px 17px}.theme-royal-champagne-signature .rc-frame{padding:45px 21px;min-height:610px}.theme-royal-champagne-signature .rc-letter .rc-frame{min-height:690px}.theme-royal-champagne-signature .rc-arch{border-radius:160px 160px 6px 6px}.theme-royal-champagne-signature .rc-gate .paper-stage{height:105vw}.theme-royal-champagne-signature .rc-gate .gate-title{margin-top:8px}.theme-royal-champagne-signature .rc-letter .letter-names{font-size:43px}.theme-royal-champagne-signature .rc-floral{max-width:170px}}
+@media(prefers-reduced-motion:reduce){.theme-royal-champagne-signature .rc-reveal{opacity:1;transform:none;transition:none}.theme-royal-champagne-signature .rc-falling-petals{display:none}.theme-royal-champagne-signature .rc-gate .paper-card,.theme-royal-champagne-signature .rc-gate .envelope-flap{transition:none}}
