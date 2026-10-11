@@ -1,3 +1,4 @@
+import {weddingDate} from './date.js?v=20261011';
 // Extends the existing invitation engine, including every stable theme URL.
 const params=new URLSearchParams(location.search);
 const lang=['en','ar','tr','fr'].includes(params.get('lang'))?params.get('lang'):'en';
@@ -9,13 +10,13 @@ const text={
 };
 const t=text[lang];document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
 const set=(selector,value)=>{const node=document.querySelector(selector);if(node)node.textContent=value};
-const date=params.get('date')||'2027-06-29';const time=/^\d{2}:\d{2}$/.test(params.get('time')||'')?params.get('time'):'18:00';
-const dateObject=new Date(`${date}T${time}:00`);
+const normalized=weddingDate(params.get('date'),params.get('time'));
+const dateObject=normalized.instant;
 if(!Number.isNaN(dateObject.valueOf())){
- const longDate=new Intl.DateTimeFormat(lang,{dateStyle:'long',timeStyle:'short'}).format(dateObject);
- set('.opening-copy time',longDate);set('.hero-date',longDate);set('.ceremony-note',new Intl.DateTimeFormat(lang,{timeStyle:'short'}).format(dateObject));
- for(const selector of ['.ceremony-date','.date-hero']){const node=document.querySelector(selector);const spans=node?.querySelectorAll('span');if(spans?.length===2){spans[0].textContent=new Intl.DateTimeFormat(lang,{weekday:'long'}).format(dateObject);spans[1].textContent=new Intl.DateTimeFormat(lang,{month:'long',year:'numeric'}).format(dateObject)}if(node?.querySelector('b'))node.querySelector('b').textContent=new Intl.DateTimeFormat(lang,{day:'numeric'}).format(dateObject)}
- const target=dateObject.getTime();const count=()=>{const seconds=Math.max(0,Math.floor((target-Date.now())/1000));for(const[key,value]of Object.entries({days:Math.floor(seconds/86400),hours:Math.floor(seconds/3600)%24,minutes:Math.floor(seconds/60)%60,seconds:seconds%60}))set(`[data-unit="${key}"]`,String(value).padStart(2,'0'))};count();setInterval(count,1000);
+ const longDate=new Intl.DateTimeFormat(lang,{dateStyle:'long',timeStyle:'short',timeZone:'Europe/Istanbul'}).format(dateObject);
+ set('.opening-copy time',longDate);set('.hero-date',longDate);set('.ceremony-note',new Intl.DateTimeFormat(lang,{timeStyle:'short',timeZone:'Europe/Istanbul'}).format(dateObject));
+ for(const selector of ['.ceremony-date','.date-hero']){const node=document.querySelector(selector);const spans=node?.querySelectorAll('span');if(spans?.length===2){spans[0].textContent=new Intl.DateTimeFormat(lang,{weekday:'long',timeZone:'Europe/Istanbul'}).format(dateObject);spans[1].textContent=new Intl.DateTimeFormat(lang,{month:'long',year:'numeric',timeZone:'Europe/Istanbul'}).format(dateObject)}if(node?.querySelector('b'))node.querySelector('b').textContent=new Intl.DateTimeFormat(lang,{day:'numeric',timeZone:'Europe/Istanbul'}).format(dateObject)}
+ const target=dateObject.getTime();
  const calendar=document.querySelector('.venue-actions a:nth-child(2)');const stamp=value=>value.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z');
  if(calendar)calendar.href=`https://www.google.com/calendar/render?${new URLSearchParams({action:'TEMPLATE',text:`${params.get('one')||'Amelia'} & ${params.get('two')||'Adam'} Wedding`,dates:`${stamp(dateObject)}/${stamp(new Date(target+6*3600000))}`,location:params.get('venue')||'Four Seasons Hotel Bosphorus, Istanbul'})}`;
 }
