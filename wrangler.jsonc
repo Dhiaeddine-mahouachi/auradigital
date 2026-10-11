@@ -52,7 +52,8 @@
       "/iletisim",
       "/nfc-studio",
       "/nfc-durum",
-      "/nfc-status"
+      "/nfc-status",
+      "/aurapops/"
     ],
     "not_found_handling": "404-page"
   },
@@ -109,6 +110,22 @@
     {
       "pattern": "app.auradigital.ink",
       "custom_domain": true
+    },
+    {
+      "pattern": "auradigitalworks.com/aurapops",
+      "zone_name": "auradigitalworks.com"
+    },
+    {
+      "pattern": "auradigitalworks.com/aurapops/",
+      "zone_name": "auradigitalworks.com"
+    },
+    {
+      "pattern": "auradigitalworks.com/aurapops.html",
+      "zone_name": "auradigitalworks.com"
+    },
+    {
+      "pattern": "auradigitalworks.com/aurapops-showcase.html",
+      "zone_name": "auradigitalworks.com"
     }
   ]
 }
