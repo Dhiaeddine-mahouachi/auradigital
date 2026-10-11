@@ -75,6 +75,15 @@ export function secureResponse(response, request, env, ctx) {
     const policy = headers.get('Content-Security-Policy').replace(/frame-ancestors\s+[^;]+/, "frame-ancestors 'self'");
     headers.set('Content-Security-Policy', `${policy}; frame-src 'self' https://www.google.com`);
   }
+  if ((headers.get('Content-Type') || '').includes('text/html') && response.ok && ['/aura-weddings','/aura-weddings.html','/weddings/studio.html'].includes(path)) {
+    const policy = headers.get('Content-Security-Policy').replace(/;?\s*frame-src\s+[^;]+/, '');
+    headers.set('Content-Security-Policy', `${policy}; frame-src 'self'`);
+  }
+  if ((headers.get('Content-Type') || '').includes('text/html') && response.ok && (path === '/weddings/signature.html' || /^\/weddings\/i\/[a-f0-9-]+$/.test(path))) {
+    headers.set('Content-Security-Policy', headers.get('Content-Security-Policy').replace(/media-src\s+[^;]+/, "media-src 'self' https:"));
+    headers.set('Referrer-Policy','no-referrer');
+    headers.set('X-Robots-Tag','noindex, nofollow');
+  }
   if (new URL(request.url).pathname.startsWith('/api/admin/')) headers.set('Cache-Control', 'no-store');
   for (const name of ['Server', 'X-Powered-By']) headers.delete(name);
   if ([401, 403, 429].includes(response.status)) securityEvent(request, 'request_denied', response.status, env, ctx);
