@@ -127,6 +127,7 @@ export const SEO_REDIRECTS = new Map([
   ["/aura-weddings.html", "/aura-weddings"],
   ["/auraweddings", "/aura-weddings"],
   ["/aurapops.html", "/aurapops"],
+  ["/aurapops/", "/aurapops"],
   ["/nfc.html", "/nfc"],
   ["/nfc-builder.html", "/nfc-studio"],
   ["/nfc-durum", "/nfc-status"],
