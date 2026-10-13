@@ -343,6 +343,7 @@ form?.addEventListener("submit", async (e) => {
         service: fd.get("service"),
         message: fd.get("message"),
         language,
+        ...(window.AuraPricing?.selection ? { pricingSelection: window.AuraPricing.selection } : {}),
       }),
     });
     const data = await response.json().catch(() => ({}));
@@ -422,11 +423,10 @@ const chatCopy = {
   tr: {
     intro:
       "Merhaba 👋 Ben Aura Assistant. Web, NFC, AuraMenu, paketler veya fiyatlar hakkında kısa soruları yanıtlayabilirim.",
-    web: "Web sitesi projeleri tek sayfa için 5.000 TL'den, çok sayfalı siteler için 8.000 TL'den ve dinamik projeler için 12.000 TL'den başlıyor. Kesin fiyat kapsamdan sonra netleşir.",
-    menu: "AuraMenu restoran ve kafeler için mobil dijital menü sistemimizdir. Kendin oluştur paketi 1.599 TL, AuraDigital'in hazırladığı kurulum ise 2.500 TL'den başlar.",
-    nfc: "Standart NFC kartlar 700 TL'den başlar. Google yorumları, AuraMenu, sosyal medya, iletişim bilgileri veya özel bir sayfaya tek dokunuşla yönlendirebilir.",
-    package:
-      "Aylık paketler 3.590 TL'den başlıyor ve sosyal medya, reklam, içerik, web desteği ve optimizasyon seviyesine göre büyüyor. Paketler sayfasında 4 seviye var.",
+    web: "For the latest approved website packages, see /websites.",
+    menu: "AuraMenu is available as self-service or managed setup; view the menu product page.",
+    nfc: "Explore the NFC product page for the current card options and pricing.",
+    package: "For the current monthly care plans, see /packages.",
     portfolio:
       "Seçili çalışmalarımız arasında Mutlu Nakliyat, Erhan Oto, Fifty ve Decoration Gateaux var. Portfolio sayfasından proje sunumlarını görebilirsiniz.",
     language:
@@ -441,11 +441,10 @@ const chatCopy = {
   en: {
     intro:
       "Hi 👋 I'm Aura Assistant. I can answer quick questions about websites, NFC, AuraMenu, packages and pricing.",
-    web: "Website projects start at 5,000 TL for one-page sites, 8,000 TL for multi-page sites and 12,000 TL for dynamic projects. Final pricing depends on scope.",
-    menu: "AuraMenu is our mobile digital menu system for restaurants and cafés. The self-build package is 1,599 TL; AuraDigital-managed setup starts at 2,500 TL.",
-    nfc: "Standard NFC cards start at 700 TL. One tap can open Google Reviews, AuraMenu, social profiles, contact details or a custom page.",
-    package:
-      "Monthly packages start at 3,590 TL and scale with social media, ads, content, web support and optimization. There are 4 levels on the Packages page.",
+    web: "For the latest approved website packages, see /websites.",
+    menu: "AuraMenu is available as self-service or managed setup; view the menu product page.",
+    nfc: "Explore the NFC product page for the current card options and pricing.",
+    package: "For the current monthly care plans, see /packages.",
     portfolio:
       "Selected work includes Mutlu Nakliyat, Erhan Oto, Fifty and Decoration Gateaux. Visit Portfolio to see the project presentations.",
     language:
@@ -460,11 +459,10 @@ const chatCopy = {
   ar: {
     intro:
       "مرحباً 👋 أنا Aura Assistant. يمكنني الإجابة عن أسئلة سريعة حول المواقع وNFC وAuraMenu والباقات والأسعار.",
-    web: "تبدأ مشاريع المواقع من 5,000 TL للصفحة الواحدة، و8,000 TL للمواقع متعددة الصفحات، و12,000 TL للمشاريع الديناميكية. السعر النهائي يعتمد على النطاق.",
-    menu: "AuraMenu هو نظام القوائم الرقمية للمطاعم والمقاهي. باقة الإنشاء الذاتي بسعر 1,599 TL، ويبدأ الإعداد بواسطة AuraDigital من 2,500 TL.",
-    nfc: "تبدأ بطاقات NFC القياسية من 700 TL. بلمسة واحدة يمكن فتح تقييمات Google أو AuraMenu أو حسابات التواصل أو بيانات الاتصال أو صفحة مخصصة.",
-    package:
-      "تبدأ الباقات الشهرية من 3,590 TL وتتوسع حسب إدارة التواصل والإعلانات والمحتوى ودعم الموقع والتحسين. توجد 4 مستويات في صفحة الباقات.",
+    web: "For the latest approved website packages, see /websites.",
+    menu: "AuraMenu is available as self-service or managed setup; view the menu product page.",
+    nfc: "Explore the NFC product page for the current card options and pricing.",
+    package: "For the current monthly care plans, see /packages.",
     portfolio:
       "من أعمالنا المختارة Mutlu Nakliyat وErhan Oto وFifty وDecoration Gateaux. يمكنك مشاهدة المشاريع في صفحة أعمالنا.",
     language:
@@ -490,7 +488,7 @@ document.body.insertAdjacentHTML(
    <aside class="chat-panel" id="chatPanel" aria-label="Aura Assistant" aria-hidden="true">
     <div class="chat-head"><div class="chat-avatar">A</div><div><strong>Aura Assistant</strong><span><i></i> Online · Quick answers</span></div><button class="chat-close" type="button" aria-label="Close chat">×</button></div>
     <div class="chat-messages" id="chatMessages"></div>
-    <div class="chat-quick" id="chatQuick"><button data-question="web">Web</button><button data-question="menu">AuraMenu</button><button data-question="nfc">NFC</button><button data-question="package">Packages</button><button data-question="portfolio">Portfolio</button><button data-question="contact">Contact</button></div>
+    <div class="chat-quick" id="chatQuick"><button data-question="web">Web</button><button data-question="menu">AuraMenu</button><button data-question="nfc">NFC</button><button data-question="package">Packages</button><button data-question="erp">ERP</button><button data-question="portfolio">Portfolio</button><button data-question="contact">Contact</button></div>
     <form class="chat-form" id="chatForm"><input id="chatInput" autocomplete="off" maxlength="240" placeholder="Type your question…" aria-label="Type your question" /><button type="submit" aria-label="Send">↗</button></form>
    </aside>`,
 );
@@ -536,6 +534,11 @@ const classifyQuestion = (raw) => {
   if (/auramenu|qr|menü|menu|restaurant|restoran|مطعم|قائمة/.test(q))
     return "menu";
   if (/nfc|kart|card|بطاق/.test(q)) return "nfc";
+  if (/erp|spinflow|saas|iş sistemi|برامج إدارة/.test(q)) return "erp";
+  if (/hosting|domain|ssl|security|barındırma|güvenlik|استضافة|أمان/.test(q)) return "infrastructure";
+  if (/mailbox|business email|e-posta|posta kutusu|بريد إلكتروني/.test(q)) return "email";
+  if (/ad management|google ads|meta ads|reklam|advertising|إعلان/.test(q)) return "advertising";
+  if (/dashboard|panel|crm|gösterge|لوحة/.test(q)) return "dashboard";
   if (/paket|package|abonelik|monthly|aylık|باقة|اشتراك/.test(q))
     return "package";
   if (/portfolio|proje|project|mutlu|erhan|fifty|gateaux|أعمال|مشروع/.test(q))
@@ -552,7 +555,7 @@ const answerChat = (key, raw = "") => {
   if (raw) lastQuestion = raw;
   const copy = getChatCopy();
   addChatMessage(
-    copy[key] || copy.fallback,
+    window.AuraPricing?.chatAnswer(key, chatLang()) || copy[key] || copy.fallback,
     "bot",
     key === "contact" || key === "fallback",
   );

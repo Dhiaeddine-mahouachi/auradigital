@@ -1,0 +1,66 @@
+/* Scoped AuraDigital catalogue presentation; no global design overrides. */
+[data-pricing-view]{--aura-line:rgba(225,225,0,.18);--aura-accent:#e1e100;--aura-surface:#0c1b12;--aura-muted:#a8b5aa;color:inherit}
+.aura-price-mini-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:28px}
+.aura-price-mini{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:16px 18px;border-radius:12px;background:var(--aura-surface,#0c1b12);border:1px solid rgba(225,225,0,.17);color:inherit;text-decoration:none;transition:border-color .2s,transform .2s}
+.aura-price-mini:hover,.aura-price-mini:focus-visible{border-color:#e1e100;transform:translateY(-2px)}
+.aura-price-mini span:first-child{font-size:.78rem;line-height:1.4;max-width:50%}
+.aura-price-mini b{font-size:clamp(.8rem,1.3vw,1rem);white-space:nowrap;color:#e1e100}
+.aura-price-mini>span:last-child{color:#e1e100}
+.aura-price-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.pricing-grid[data-pricing-view="packages"]{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.aura-price-card{display:flex;flex-direction:column;gap:14px;padding:clamp(18px,2.3vw,30px);background:#0b1c13;border:1px solid rgba(225,225,0,.17);border-radius:18px;min-width:0;box-shadow:0 12px 36px rgba(0,0,0,.14)}
+.aura-price-card.is-featured{border-color:rgba(225,225,0,.55);background:#0e2114}
+.aura-price-card h3{font-size:clamp(1.25rem,1.8vw,1.75rem);margin:0;letter-spacing:-.025em;color:#f4f6ef}
+.aura-price-card p{margin:0}
+.aura-price-tag{align-self:flex-start;border:1px solid #e1e100;border-radius:30px;padding:4px 9px;color:#e1e100;font-size:.63rem;font-weight:800;letter-spacing:.1em}
+.aura-price-audience,.aura-price-card .aura-price-audience{color:#aebeb1;font-size:.82rem;line-height:1.5;min-height:2.4em}
+.aura-price-money{color:#e1e100;font-weight:800;font-size:clamp(1.45rem,2.1vw,2.25rem);line-height:1.2;letter-spacing:-.04em;overflow-wrap:anywhere}
+.aura-price-period,.aura-price-footnote{color:#b3c0b7;font-size:.76rem;line-height:1.6}
+.aura-price-card .btn{margin-top:auto;align-self:flex-start;text-align:center;max-width:100%}
+.aura-price-details{border-top:1px solid rgba(225,225,0,.12);padding-top:12px}
+.aura-price-details summary,.aura-price-expand summary{cursor:pointer;font-size:.81rem;font-weight:700;color:#e1e100}
+.aura-price-details summary:focus-visible,.aura-price-expand summary:focus-visible{outline:2px solid #e1e100;outline-offset:4px}
+.aura-price-features{margin:12px 0 0;padding-left:19px;color:#c6d0c7;font-size:.82rem;line-height:1.8}
+.aura-price-warning{color:#f3d79b;border-left:2px solid #e1e100;padding-left:10px;font-size:.78rem}
+.aura-price-total{margin:0;color:#e5efe5;font-size:.85rem}
+.aura-price-total b{color:#e1e100}
+.aura-price-service{margin-top:16px!important;color:#e1e100;font-weight:800}
+.aura-price-compact{display:grid;gap:12px}
+.aura-price-compact article{display:flex;align-items:center;justify-content:space-between;gap:24px;border:1px solid rgba(225,225,0,.16);background:#0d1d14;border-radius:14px;padding:20px}
+.aura-price-compact article>div:first-child{display:grid;gap:5px;min-width:0}
+.aura-price-compact strong{color:#f4f6ef}
+.aura-price-compact small{color:#aebeb1;line-height:1.5}
+.aura-price-compact article>div:last-child{display:grid;gap:7px;text-align:right;flex-shrink:0}
+.aura-price-compact b{color:#e1e100}
+.aura-price-compact a{color:#e1e100;font-size:.78rem;text-decoration:none}
+.aura-price-toggle{display:inline-flex;gap:7px;border:1px solid rgba(225,225,0,.17);padding:5px;border-radius:40px;background:#112018;margin:0 0 28px}
+.aura-price-toggle button{border:0;border-radius:30px;color:#e6ede6;background:transparent;padding:12px 18px;font:inherit;cursor:pointer}
+.aura-price-toggle button[aria-pressed="true"]{color:#101c10;background:#e1e100;font-weight:800}
+.aura-price-expand{border:1px solid rgba(225,225,0,.18);border-radius:13px;padding:16px 20px;margin-top:25px}
+.aura-price-expand .aura-price-compact{margin-top:16px}
+.aura-price-expand .aura-price-compact p{display:flex;justify-content:space-between;gap:16px;color:#d7dfd6}
+.aura-price-expand .aura-price-compact b{color:#e1e100}
+.aura-price-table{max-width:100%;overflow-x:auto;border:1px solid rgba(225,225,0,.2);border-radius:14px;margin-top:20px}
+.aura-price-table table{width:100%;min-width:680px;border-collapse:collapse;color:#e6efe6}
+.aura-price-table th,.aura-price-table td{text-align:left;padding:15px;border-bottom:1px solid rgba(225,225,0,.13);font-size:.82rem}
+.aura-price-table th{background:#102015}
+.aura-price-builder{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:22px;align-items:start;padding:23px;background:#0a1d13;border:1px solid rgba(225,225,0,.2);border-radius:18px}
+.aura-price-builder fieldset{border:0;margin:0;padding:0;min-width:0}
+.aura-price-builder legend,.aura-price-label{display:block;margin:0 0 12px;color:#f2f5ef;font-weight:750;font-size:.9rem}
+.aura-price-builder select{max-width:100%;width:100%;color:#f2f5ef;background:#10291b;border:1px solid rgba(225,225,0,.3);padding:12px;border-radius:10px}
+.aura-price-check{display:flex;gap:10px;align-items:flex-start;margin:9px 0;color:#d7e0d7;font-size:.8rem;line-height:1.5}
+.aura-price-check input{accent-color:#e1e100;width:17px;height:17px;margin-top:2px;flex-shrink:0}
+.aura-price-check:has(input:disabled){opacity:.57}
+.aura-price-estimate{border-left:1px solid rgba(225,225,0,.2);padding-left:20px;display:grid;gap:14px}
+.aura-price-estimate p{margin:0}
+.aura-price-estimate #auraEstimate{display:grid;gap:8px;font-size:.82rem}
+.aura-price-estimate #auraEstimate strong{color:#e1e100}
+.aura-price-estimate #auraRecommendation{color:#e1e100;font-size:.77rem;line-height:1.55}
+[data-pricing-view] .aura-price-footnote{margin-top:15px}
+.aura-price-page-section{padding-top:30px}
+@media(max-width:1080px){.pricing-grid[data-pricing-view="packages"]{grid-template-columns:repeat(2,minmax(0,1fr))}.aura-price-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.aura-price-builder{grid-template-columns:1fr 1fr}.aura-price-estimate{grid-column:1/-1;border-left:0;border-top:1px solid rgba(225,225,0,.2);padding-left:0;padding-top:18px}}
+@media(max-width:680px){.aura-price-mini-grid,.aura-price-card-grid,.pricing-grid[data-pricing-view="packages"],.aura-price-builder{grid-template-columns:1fr}.aura-price-mini{padding:15px}.aura-price-card{padding:20px}.aura-price-compact article{align-items:flex-start;flex-direction:column}.aura-price-compact article>div:last-child{text-align:left}.aura-price-toggle{display:flex;width:100%}.aura-price-toggle button{flex:1;font-size:.78rem;padding:10px 6px}.aura-price-estimate{grid-column:auto}}
+@media(prefers-reduced-motion:reduce){.aura-price-mini{transition:none}.aura-price-mini:hover{transform:none}}
+
+.aura-price-mini b:has(small){white-space:normal;line-height:1.35}
+.aura-price-mini b small{display:block;font-size:.68rem;letter-spacing:0;font-weight:600;margin-top:5px;color:#c7d5bc}

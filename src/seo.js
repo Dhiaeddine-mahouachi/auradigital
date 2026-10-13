@@ -12,7 +12,7 @@ const PAGE_SEO = {
   "/services": {
     "lang": "en",
     "title": "Web Design & Digital Marketing Istanbul | AuraDigital",
-    "description": "Manage websites, Google Ads, Meta Ads, SEO, Google Maps, social media, content and automation with AuraDigital.",
+    "description": "Website design and management, hosting, domains, security, email, ads, ERP, SEO and automation at AuraDigital.",
     "type": "CollectionPage",
     "serviceType": [
       "Web Design",
@@ -20,8 +20,22 @@ const PAGE_SEO = {
       "Google Ads",
       "Meta Ads",
       "SEO",
-      "Social Media Management"
+      "Website Management"
     ]
+  },
+  "/websites": {
+    "lang": "en",
+    "title": "Website Packages & Development Pricing Istanbul | AuraDigital",
+    "description": "Compare five one-time website development plans and optional hosting or add-ons from AuraDigital.",
+    "type": "CollectionPage",
+    "serviceType": ["Website Development", "Business Websites"]
+  },
+  "/spinflow": {
+    "lang": "en",
+    "title": "Spinflow ERP Cloud & Custom Business Systems | AuraDigital",
+    "description": "Compare planned monthly Spinflow Cloud SaaS and custom ERP development with clear infrastructure costs.",
+    "type": "CollectionPage",
+    "serviceType": ["ERP Development", "Business Management Software"]
   },
   "/portfolio": {
     "lang": "en",
@@ -93,8 +107,8 @@ const PAGE_SEO = {
   },
   "/packages": {
     "lang": "en",
-    "title": "Digital Marketing Plans Istanbul | AuraDigital",
-    "description": "Explore weekly and monthly digital marketing plans combining social media, advertising, content, website support and optimization.",
+    "title": "Monthly Website Care Plans Istanbul | AuraDigital",
+    "description": "Compare monthly website management plans with defined updates, technical upkeep and managed growth.",
     "type": "WebPage"
   },
   "/about": {
@@ -123,6 +137,8 @@ export const SEO_REDIRECTS = new Map([
   ["/services.html", "/services"],
   ["/hizmetler", "/services"],
   ["/portfolio.html", "/portfolio"],
+  ["/websites.html", "/websites"],
+  ["/spinflow.html", "/spinflow"],
   ["/aura-menu.html", "/aura-menu"],
   ["/aura-weddings.html", "/aura-weddings"],
   ["/auraweddings", "/aura-weddings"],
@@ -208,6 +224,8 @@ function canonicalPath(pathname) {
 const SEO_ASSETS = new Map([
   ["/", "/index.html"],
   ["/services", "/services.html"],
+  ["/websites", "/websites.html"],
+  ["/spinflow", "/spinflow.html"],
   ["/portfolio", "/portfolio.html"],
   ["/aura-menu", "/aura-menu.html"],
   ["/aura-weddings", "/aura-weddings.html"],
