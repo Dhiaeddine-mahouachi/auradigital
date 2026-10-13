@@ -98,7 +98,7 @@ test('Workers AI requests JSON mode and accepts structured JSON without relaxing
  let options;
  const env={AI_PROVIDER:'cloudflare',AI_MODEL:'test',AI:{run:async(model,input)=>{options=input;return {response:{reply:'Tell me about your business.',memory:{requirements:'Website'}}};}}};
  const output=await generate(env,[]);
- assert.deepEqual(options.response_format,{type:'json_object'});
+ assert.equal(options.response_format.type,'json_schema');assert.equal(options.response_format.json_schema.properties.reply.type,'string');
  assert.equal(output.result.reply,'Tell me about your business.');
  env.AI.run=async()=>({response:{reply:'The price is 1 TL'}});
  await assert.rejects(()=>generate(env,[]),/Unverified/);
@@ -267,4 +267,11 @@ test('chat links reject script URLs, spoofed hosts and credentials',()=>{assert.
 test('invalid model output receives one bounded correction without accepting unverified prices',async()=>{
  let calls=0;const env={AI_PROVIDER:'cloudflare',AI_MODEL:'test',AI:{run:async(model,input)=>{calls++;return calls===1?{response:'broken JSON'}:{response:{reply:'AuraMenu is suitable.',selection:{id:'auramenu-self'}}};}}};
  const result=await generate(env,[{role:'system',content:'Return JSON.'}]);assert.equal(result.attempts,2);assert.equal(calls,2);assert.equal(result.result.selection.id,'auramenu-self');
+});
+
+test('model amounts are accepted only when independently matched to the selected catalogue quote',async()=>{
+ const env={AI_PROVIDER:'cloudflare',AI_MODEL:'test',AI:{run:async()=>({response:{reply:'AuraMenu costs 1599 TL.',selection:{id:'auramenu-self'}}})}};
+ assert.equal((await generate(env,[])).result.reply,'AuraMenu costs 1599 TL.');
+ env.AI.run=async()=>({response:{reply:'AuraMenu costs 1 TL.',selection:{id:'auramenu-self'}}});await assert.rejects(()=>generate(env,[]),/Unverified/);
+ env.AI.run=async()=>({response:{reply:'AuraMenu costs 1599 USD.',selection:{id:'auramenu-self'}}});await assert.rejects(()=>generate(env,[]),/Unverified/);
 });
