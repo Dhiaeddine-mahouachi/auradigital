@@ -220,6 +220,7 @@ function contact(){
  const addons=(url.searchParams.get("addons")||"").split(",").filter(Boolean);
  const opts={id,addons,standardHosting:url.searchParams.get("infra")==="standard",enhancedHosting:url.searchParams.get("infra")==="enhanced",managedErpHosting:url.searchParams.get("erp-hosting")!=="customer",extraUsers:Number(url.searchParams.get("users")||0),extraBranches:Number(url.searchParams.get("branches")||0)};
  const q=quote(opts);
+ W.AuraPricing.selection=opts;
  const historical=["once","monthly","annual"].some(k=>url.searchParams.has(k)&&url.searchParams.get(k)!==String(q[k]));
  const list=addons.map(a=>getItem(a)?.name||a).join(", ")||"None";
  message.value="Pricing request (indicative, not an accepted quotation)\nCatalogue: "+catalogue.version+"\nPackage: "+item.name+" ("+id+")\nAdd-ons: "+list+"\nInfrastructure: "+q.hosting+"\nOne-time: "+money(q.once)+"\nMonthly: "+money(q.monthly)+"\nAnnual: "+money(q.annual)+"\nFirst-year indicative: "+money(q.firstYear)+
@@ -241,7 +242,7 @@ function chatAnswer(key,lang=locale()){
  if(key==="dashboard")return lines(a.websiteAddons)+". "+(tr?"Uyumlu paketler: Growth ve üstü.":"Eligibility: Growth or above, CRM from System.");
  return null;
 }
-W.AuraPricing={catalogue,getItem,quote,chatAnswer,linkFor};
+W.AuraPricing={catalogue,getItem,quote,chatAnswer,linkFor,selection:null};
 function refresh(){
  home();services();infra();ads();packages();websiteCards();websiteComparison();configurator();spinflow();
 }
