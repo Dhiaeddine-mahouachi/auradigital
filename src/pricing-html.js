@@ -38,7 +38,9 @@ const home = [
   ["Dashboards & Automation","basic-dashboard","/websites#web-addons"],
 ];
 const tr = (title,url,item) => '<a class="aura-price-mini" href="'+escape(url)+'">'+
-    '<span>'+escape(title)+'</span><b>'+price(item)+'</b><span aria-hidden="true">↗</span></a>';
+    '<span>'+escape(title)+'</span><b>'+price(item)+
+    (item.id==="spinflow-start"?'<small> Custom ERP: '+price(getItem("erp-essential"))+'</small>':'')+
+    '</b><span aria-hidden="true">↗</span></a>';
 const serviceCard = ([name,id,url,description]) => {
   const item=id?getItem(id):null;
   return '<article class="service-card"><div><h3>'+escape(name)+'</h3><p>'+escape(description)+'</p>'+
