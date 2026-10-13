@@ -166,7 +166,7 @@ Object.assign(tr, {
  "Website maintenance, uptime checks and defined monthly updates.":"Web bakımı, erişilebilirlik kontrolleri ve aylık güncellemeler.",
  "Domain, DNS, SSL, hosting and baseline protection.":"Alan adı, DNS, SSL, barındırma ve temel koruma.",
  "Business mailbox setup; provider subscriptions are separate.":"Kurumsal e-posta kurulumu; sağlayıcı aboneliği ayrı.",
- "Cloud SaaS from the approved monthly plans; custom ERP from 49,900 TL.":"Onaylı aylık SaaS planları ve özel ERP seçenekleri.",
+ "Cloud SaaS and scoped custom ERP for business operations.":"Onaylı aylık SaaS planları ve özel ERP seçenekleri.",
  "Local visibility, Google Business profile and on-page SEO.":"Yerel görünürlük, Google İşletme Profili ve site içi SEO.",
  "Lead routing, WhatsApp flows and scoped workflow automation.":"Müşteri yönlendirme, WhatsApp akışları ve iş akışı otomasyonları.",
  "Identity systems, creative direction and advertising assets.":"Kurumsal kimlik, kreatif yönlendirme ve reklam materyalleri.",
@@ -317,7 +317,7 @@ function services(){
  ];
  target.innerHTML=items.map(([name,id,url,icon,description])=>
  '<article class="service-card reveal in"><div><div class="service-icon">'+icon+'</div><h3>'+safe(t(name))+'</h3><p>'+safe(t(description))+'</p><p class="aura-price-service">'+(id?safe(price(getItem(id))):safe(t("Request Quote")))+
- '</p><a class="service-link" href="'+safe(url)+'">'+safe(t("Explore"))+' ↗</a></div></article>').join("");
+ '</p>'+(id==="spinflow-start"?'<p class="aura-price-footnote">'+safe(locale()==="tr"?"Özel ERP: ":"Custom ERP: ")+safe(price(getItem("erp-essential")))+'</p>':'')+'<a class="service-link" href="'+safe(url)+'">'+safe(t("Explore"))+' ↗</a></div></article>').join("");
 }
 function infra(){
  const target=$('[data-pricing-view="infrastructure"]');if(!target)return;
