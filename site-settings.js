@@ -34,7 +34,7 @@
 
   function renderPackages(items) {
     const grid = document.querySelector("body[data-page='packages'] .pricing-grid");
-    if (!grid || !items?.length) return;
+    if (!grid || grid.hasAttribute("data-pricing-view") || !items?.length) return;
     grid.innerHTML = items.map((item) => {
       const features = (item.features || []).map((feature) => `<li>${esc(t(feature))}</li>`).join("");
       const buttonLabels = { Start: "Start with this plan", Growth: "Choose Growth", Pro: "Choose Pro", Scale: "Choose Scale" };
@@ -53,7 +53,7 @@
 
   function renderServices(items, settings) {
     const grid = document.querySelector("body[data-page='services'] .services-grid");
-    if (!grid || !items?.length) return;
+    if (!grid || grid.hasAttribute("data-pricing-view") || !items?.length) return;
     grid.innerHTML = items.map((item) => {
       const tags = (item.tags || []).map((tag) => `<span>${esc(t(replaceTokens(tag, settings)))}</span>`).join("");
       return `<article class="service-card reveal in"><div>
@@ -67,7 +67,7 @@
 
   function renderPortfolio(items) {
     const grid = document.querySelector("body[data-page='portfolio'] .project-grid-full");
-    if (!grid || !items?.length) return;
+    if (!grid || grid.hasAttribute("data-pricing-view") || !items?.length) return;
     grid.innerHTML = items.map((item, index) => {
       const image = safeUrl(item.image);
       const url = safeUrl(item.url);
