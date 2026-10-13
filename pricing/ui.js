@@ -233,6 +233,8 @@ function chatAnswer(key,lang=locale()){
  const a=catalogue;
  const lines=(items)=>items.map(x=>x.name+" "+priceText(x,lang)).join("; ");
  const tr=lang==="tr";
+ if(key==="menu")return (tr?"AuraMenu fiyatları: ":"AuraMenu prices: ")+lines(a.other.filter(x=>x.id.startsWith("auramenu")))+". /aura-menu";
+ if(key==="nfc")return (tr?"NFC başlangıç fiyatları: ":"NFC prices: ")+lines(a.other.filter(x=>x.id==="nfc-card"))+". /nfc";
  if(key==="web")return (tr?"Web sitesi paketleri: ":"Website packages: ")+lines(a.website)+". /websites";
  if(key==="package")return (tr?"Aylık bakım planları: ":"Monthly care plans: ")+lines(a.care)+". /packages. "+(tr?"Barındırma ayrı.":"Hosting separate.");
  if(key==="erp")return (tr?"Spinflow SaaS (planlanan): ":"Spinflow SaaS (planned): ")+lines(a.saas)+". "+(tr?"Özel ERP: ":"Custom ERP: ")+lines(a.erp)+". /spinflow";
