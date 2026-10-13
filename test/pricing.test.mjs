@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { catalogue, getItem, quote, firstYearWebsite, firstYearERP } from "../pricing/catalogue.js";
+import { renderPricingFallback } from "../src/pricing-html.js";
 import app from "../src/worker-entry.js";
 import { d1 } from "./d1.mjs";
 
@@ -118,4 +119,28 @@ test("public pricing APIs expose only approved active prices and no weekly offer
     assert.equal(content.pricing.version,catalogue.version);
     assert.equal(content.pricing.infrastructure.find(x=>x.id==="standard-infra").price,2000);
   } finally {sqlite.close();}
+});
+
+test("server-rendered pricing mounts expose all approved prices to HTML-only crawlers", () => {
+  const homepage=renderPricingFallback("home");
+  assert.match(homepage,/6,750 TL/);
+  assert.match(homepage,/49,900 TL/);
+  assert.match(homepage,/1,950 TL/);
+  const packages=renderPricingFallback("packages");
+  for (const p of catalogue.care) {
+    assert.ok(packages.includes(p.name));
+    assert.ok(packages.includes(p.price.toLocaleString("en-US") + " TL"));
+  }
+  const websites=renderPricingFallback("websites");
+  assert.match(websites,/22,400 TL/);
+  assert.match(websites,/35,900 TL/);
+  const spinflow=renderPricingFallback("spinflow");
+  assert.match(spinflow,/1,490 TL/);
+  assert.match(spinflow,/153,000 TL/);
+  const ads=renderPricingFallback("advertising");
+  assert.match(ads,/3,000 TL\/month/);
+  assert.equal(renderPricingFallback("unknown"), "");
+  for (const html of [homepage, packages, websites, spinflow]) {
+    assert.doesNotMatch(html, /3[.,]590 TL|959 TL\/week|Social media automation/);
+  }
 });
