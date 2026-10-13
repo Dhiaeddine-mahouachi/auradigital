@@ -82,3 +82,26 @@ test("contact API stores server-verified pricing and rejects invented prices", a
     assert.equal((await db.prepare("SELECT COUNT(*) count FROM clients WHERE email=?").bind("second@example.com").first()).count,0);
   } finally { sqlite.close(); }
 });
+
+
+test("public pricing APIs expose only approved active prices and no weekly offers", async () => {
+  const sqlite=new DatabaseSync(":memory:");
+  const db=d1(sqlite);
+  const limiter={limit:async()=>({success:true})};
+  const env={DB:db,TRACK_RATE_LIMITER:limiter,LOGIN_RATE_LIMITER:limiter};
+  const ctx={waitUntil(){}};
+  try {
+    const pricingResponse=await app.fetch(new Request("https://auradigitalworks.com/api/pricing"),env,ctx);
+    assert.equal(pricingResponse.status,200);
+    const current=(await pricingResponse.json()).catalogue;
+    assert.equal(current.version,catalogue.version);
+    assert.deepEqual(current.care.map(x=>x.price),[1950,4900,7900,12900]);
+    const contentResponse=await app.fetch(new Request("https://auradigitalworks.com/api/public-content"),env,ctx);
+    assert.equal(contentResponse.status,200);
+    const content=await contentResponse.json();
+    assert.deepEqual(content.packages.map(x=>x.monthly_price),[1950,4900,7900,12900]);
+    assert.ok(content.packages.every(x=>x.weekly_price===0));
+    assert.equal(content.pricing.version,catalogue.version);
+    assert.equal(content.pricing.infrastructure.find(x=>x.id==="standard-infra").price,2000);
+  } finally {sqlite.close();}
+});
