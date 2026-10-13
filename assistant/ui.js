@@ -14,7 +14,7 @@ const t=()=>copy[lang];
 const node=(tag,text,className)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;};
 const button=(text,fn)=>{const e=node('button',text);e.type='button';e.addEventListener('click',fn);return e;};
 async function api(path,body,method='POST') {
- const res=await fetch('/api/ai/'+path,{method,headers:{'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(22000)});
+ const res=await fetch('/api/ai/'+path,{method,headers:{'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(35000)});
  const data=await res.json();if(!res.ok){const e=new Error(data.error||t().error);e.status=res.status;throw e;}return data;
 }
 function renderCopy() {

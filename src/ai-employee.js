@@ -5,7 +5,7 @@ import { clean, redact, hash, TEXT, language, pageContext, intent, category, val
 import { knowledge } from './ai-knowledge.js';
 import { pageKnowledge } from './ai-page-knowledge.js';
 import { schema } from './ai-schema.js';
-import { generate, SYSTEM, tariff } from './ai-provider.js';
+import { generate, SYSTEM, tariff, failureReason } from './ai-provider.js';
 
 const COOKIE='__Host-aura_ai';
 const initialized=new WeakMap();
@@ -63,16 +63,23 @@ function safeMemory(current,next) {
   for(const k of memoryKeys) if(typeof next?.[k]==='string') merged[k]=redact(next[k]).slice(0,500);
   return merged;
 }
-function fallback(docs,lang,detected) {
+function fallback(docs,lang,detected,cat) {
   if(detected==='handoff') return TEXT[lang].contact;
   if(detected==='restricted') return TEXT[lang].unknown+' '+TEXT[lang].contact;
-  return TEXT[lang].fallback+'\n'+(docs.length?docs.slice(0,2).map(k=>k.title+'\n'+k.content).join('\n\n'):TEXT[lang].unknown);
+  // Page extracts contain navigation, slogans and UI labels, not a chat answer.
+  // Prefer one reviewed fact; leave full source pages behind the Sources links.
+  const reviewed=docs.filter(k=>k.source_type!=='page'&&!k.id.startsWith('repo-page-'));
+  const fact=reviewed.find(k=>k.category===cat&&k.language===lang)||reviewed.find(k=>k.category===cat)||reviewed.find(k=>k.language===lang)||reviewed[0];
+  const sentences=clean(fact?.content,8000).match(/[^.!?]+[.!?](?:\s|$)|[^.!?]+$/g)||[];
+  let excerpt=sentences.slice(0,2).join('').trim();
+  if(excerpt.length>600) excerpt=excerpt.slice(0,597).replace(/\s+\S*$/,'')+'…';
+  return TEXT[lang].fallback+'\n\n'+(excerpt||TEXT[lang].unknown);
 }
 async function message(request,env,s) {
   const started=Date.now(), db=env.DB, b=await readJson(request,12000);
   const user=clean(b.message,2000);
   if(!user) throw new ApiError(400,'Message required.');
-  const lease=Date.now()+25000;
+  const lease=Date.now()+45000;
   const lock=await db.prepare('UPDATE ai_sessions SET busy_until=? WHERE id=? AND busy_until<? RETURNING id').bind(lease,s.id,Date.now()).first();
   if(!lock) throw new ApiError(409,'Please wait for the current response.');
   try {
@@ -88,16 +95,17 @@ async function message(request,env,s) {
       docs.splice(5);
     }
     const candidates=services().filter(i=>['website','care','infrastructure','advertising','saas','erp','other'].includes(i.group)).map(i=>({id:i.id,name:i.name,group:i.group,features:i.features,availability:i.availability,includes:i.includes}));
-    const data={language:lang,intentHint:detected,page,memory:previous,knowledge:docs.map(k=>({id:k.id,title:k.title,content:k.content,source:k.source_url,verified:k.verified_at})),portfolio:publicProjects,approvedPackages:candidates,approvedAddons:catalogue.websiteAddons.concat(catalogue.erpAddons).map(a=>({id:a.id,name:a.name})),message:redact(user)};
+    const data={language:lang,intentHint:detected,page,memory:previous,knowledge:docs.map(k=>({id:k.id,title:k.title,content:clean(k.content,900),source:k.source_url,verified:k.verified_at})),portfolio:publicProjects,approvedPackages:candidates,approvedAddons:catalogue.websiteAddons.concat(catalogue.erpAddons).map(a=>({id:a.id,name:a.name})),message:redact(user)};
     const messages=[{role:'system',content:SYSTEM},...history.map(h=>({role:h.role==='user'?'user':'assistant',content:h.content.slice(0,1000)})),{role:'user',content:JSON.stringify(data)}];
     const configured=!!env.AI_MODEL&&['cloudflare','compatible'].includes(env.AI_PROVIDER);
+    if(!configured&&detected!=='restricted'&&b.selection===undefined) await event(db,s.id,'provider_failure','provider_configuration',detected).run();
     if(b.selection!==undefined&&detected!=='restricted') {reply=TEXT[lang].quote;mode='deterministic';}
     if(configured&&detected!=='restricted'&&b.selection===undefined) {
       const day=new Date().toISOString().slice(0,10);
       // Reserve a conservative worst-case token count before the single model call.
       const reserve=new TextEncoder().encode(messages.map(m=>m.content).join('')).length+1000;
       let rates;
-      try{rates=tariff(env);}catch{rates=null;}
+      try{rates=tariff(env);}catch{rates=null;await event(db,s.id,'provider_failure','tariff_configuration',detected).run();}
       const dailyBudget=Math.max(0,Number(env.AI_DAILY_BUDGET_USD)||1);
       const limit=rates?Math.floor(Math.min(20000000,Number(env.AI_DAILY_TOKEN_LIMIT)||500000,dailyBudget*1000000/rates.max)):0;
       await db.prepare('INSERT INTO ai_usage(day) VALUES(?) ON CONFLICT(day) DO NOTHING').bind(day).run();
@@ -112,10 +120,13 @@ async function message(request,env,s) {
           // Provider-reported usage may be absent; retain worst-case reservation then.
           const actual=usage.input+usage.output;
           await db.prepare('UPDATE ai_usage SET input_tokens=input_tokens+?,output_tokens=output_tokens+?,reserved_tokens=reserved_tokens-? WHERE day=?').bind(usage.input,usage.output,actual>0&&actual<=reserve?reserve-actual:0,day).run();
-        }catch {await db.prepare('UPDATE ai_usage SET failures=failures+1 WHERE day=?').bind(day).run();}
+        }catch(error) {
+          await db.prepare('UPDATE ai_usage SET failures=failures+1 WHERE day=?').bind(day).run();
+          await event(db,s.id,'provider_failure',failureReason(error),detected,Date.now()-started).run();
+        }
       } else await event(db,s.id,'budget_limit').run();
     }
-    if(!reply) reply=fallback(docs,lang,detected);
+    if(!reply) reply=fallback(docs,lang,detected,cat);
     let calculated=null;
     if(selection) {
       try{calculated=estimate(selection);state.selection=selection;}catch{delete state.selection;reply+='\n'+TEXT[lang].unknown;}
@@ -161,15 +172,16 @@ async function admin(request,env,path) {
   const a=await getAuthenticatedAdmin(request,env.DB);
   if(!a||!['owner','manager'].includes(a.role)) throw new ApiError(a?403:401,'Administrator access required.');
   if(request.method==='GET'&&path==='/api/admin/ai') {
-    const [entries,requests,events,usage,sessions]=await Promise.all([
+    const [entries,requests,events,usage,sessions,failures]=await Promise.all([
       env.DB.prepare('SELECT * FROM ai_knowledge ORDER BY priority DESC,title LIMIT 200').all(),
       env.DB.prepare('SELECT id,kind,client_id,details,created_at FROM ai_requests ORDER BY created_at DESC LIMIT 50').all(),
       env.DB.prepare('SELECT event,intent,count(*) AS count,avg(latency_ms) AS latency FROM ai_events GROUP BY event,intent').all(),
       env.DB.prepare('SELECT * FROM ai_usage ORDER BY day DESC LIMIT 30').all(),
-      env.DB.prepare('SELECT count(*) AS count FROM ai_sessions').first()
+      env.DB.prepare('SELECT count(*) AS count FROM ai_sessions').first(),
+      env.DB.prepare("SELECT details AS reason,intent,latency_ms,created_at FROM ai_events WHERE event='provider_failure' ORDER BY id DESC LIMIT 20").all()
     ]);
     let rates;try{rates=tariff(env);}catch{rates=null;}
-    return json({entries:entries.results,requests:requests.results,events:events.results,usage:usage.results.map(u=>({...u,estimatedCostUSD:rates?(u.input_tokens*rates.input+u.output_tokens*rates.output)/1000000:null,reservationUpperBoundUSD:rates?u.reserved_tokens*rates.max/1000000:null})),sessions:sessions.count,provider:env.AI_PROVIDER||'disabled',model:env.AI_MODEL||null,pricing:catalogue,limits:{dailyTokens:Number(env.AI_DAILY_TOKEN_LIMIT)||500000,dailyBudgetUSD:Number(env.AI_DAILY_BUDGET_USD)||1},resolutionRate:null,answerQuality:null});
+    return json({entries:entries.results,requests:requests.results,events:events.results,failures:failures.results,usage:usage.results.map(u=>({...u,estimatedCostUSD:rates?(u.input_tokens*rates.input+u.output_tokens*rates.output)/1000000:null,reservationUpperBoundUSD:rates?u.reserved_tokens*rates.max/1000000:null})),sessions:sessions.count,provider:env.AI_PROVIDER||'disabled',model:env.AI_MODEL||null,pricing:catalogue,limits:{dailyTokens:Number(env.AI_DAILY_TOKEN_LIMIT)||500000,dailyBudgetUSD:Number(env.AI_DAILY_BUDGET_USD)||1},resolutionRate:null,answerQuality:null});
   }
   if(request.method==='POST'&&path==='/api/admin/ai/test') {
     const b=await readJson(request,8000),page=pageContext(b.page);

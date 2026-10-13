@@ -38,4 +38,14 @@ These are estimates, not billing guarantees. The initial `AI_DAILY_TOKEN_LIMIT=5
 - No browser runtime was available in this managed workspace, so visual/mobile QA and screen-reader testing are pending.
 - Aura Control has no confirmed deployed API or service credential. The website's own CRM is the working integration; cross-system sync is deferred.
 - No verified regional currency catalogue, AuraPops/AuraWeddings fixed price, customer authentication, outbound messaging service or approved exact mascot art in the repository. The assistant indicates these limits rather than inventing them.
-- The fallback answers use verified English source text with a localized preface. Four-language **live model quality** and long-running conversation quality need human evaluation after deployment.
+- The fallback answers use concise reviewed English facts with a localized preface; generated page extracts are never dumped into chat. Four-language **live model quality** and long-running conversation quality need human evaluation after deployment.
+
+## Chatbot reliability correction — October 13
+
+A live public API probe returned `mode=ai` for a service question, followed by `mode=verified-fallback` and full website extracts on a restaurant follow-up after 16.4 seconds. This is consistent with the old 15-second provider deadline; production failure logs were unavailable, so the exact provider error cannot be confirmed.
+
+The provider now requests Cloudflare JSON mode (documented at https://developers.cloudflare.com/workers-ai/models/llama-3.1-8b-instruct-fp8/) and accepts either serialized or parsed JSON while keeping price/action validation. Its deadline is 25 seconds, the widget deadline is 35 seconds, and the conversation lease is 45 seconds. Reviewed category facts outrank page marketing extracts, and each model knowledge chunk is capped at 900 characters. Model replies and memory fields are instructed to stay brief. No automatic retries or model changes increase spending.
+
+Fallback answers show at most two sentences of reviewed facts (600-character excerpt cap), with source pages accessible through the existing Sources disclosure. Provider failures now record only safe reason codes: timeout, invalid/unsafe response, missing binding, provider/tariff configuration, or generic provider failure. Administrators can inspect the latest 20 failures; public responses never include those diagnostics or provider error text. Budget failures remain visible as budget_limit events. No schema migration is added by this correction.
+
+Validation: all 182 tests pass, including JSON-mode requests, structured output validation, a simulated provider timeout, bounded fallback text, curated retrieval priority, prompt limits and diagnostic privacy. Syntax/build-index checks and Worker dry-run are also checked. Live deployment of this correction requires the existing Cloudflare account; this session has no Cloudflare credentials and the connected Windows device is offline. The public API probes verify only the pre-fix production behavior, not this patch.

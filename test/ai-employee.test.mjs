@@ -7,7 +7,8 @@ import app from '../src/worker-entry.js';
 import { estimate, pageContext, rankKnowledge, redact, language, hash } from '../src/ai-core.js';
 import { schema } from '../src/ai-schema.js';
 import { knowledge } from '../src/ai-knowledge.js';
-import { generate } from '../src/ai-provider.js';
+import { generate, failureReason } from '../src/ai-provider.js';
+import { ApiError } from '../src/http.js';
 
 function fixture() {
  const sqlite=new DatabaseSync(':memory:');sqlite.exec('PRAGMA foreign_keys=ON');
@@ -90,6 +91,53 @@ test('provider rejects unchecked price and fake save claims rather than presenti
  const env={AI_PROVIDER:'cloudflare',AI_MODEL:'test-model',AI:{run:async()=>({response:'{"reply":"The price is 1 TL"}'})}};
  await assert.rejects(()=>generate(env,[]),/Unverified/);
  env.AI.run=async()=>({response:'{"reply":"I have saved your request"}'});await assert.rejects(()=>generate(env,[]),/Unverified/);
+});
+
+test('Workers AI requests JSON mode and accepts structured JSON without relaxing validation',async()=>{
+ let options;
+ const env={AI_PROVIDER:'cloudflare',AI_MODEL:'test',AI:{run:async(model,input)=>{options=input;return {response:{reply:'Tell me about your business.',memory:{requirements:'Website'}}};}}};
+ const output=await generate(env,[]);
+ assert.deepEqual(options.response_format,{type:'json_object'});
+ assert.equal(output.result.reply,'Tell me about your business.');
+ env.AI.run=async()=>({response:{reply:'The price is 1 TL'}});
+ await assert.rejects(()=>generate(env,[]),/Unverified/);
+ env.AI.run=async()=>({response:'invalid JSON'});
+ await assert.rejects(()=>generate(env,[]),/Invalid AI response/);
+});
+test('provider allows slow inference past 15 seconds but remains bounded at 25 seconds',async(t)=>{
+ t.mock.timers.enable({apis:['setTimeout']});
+ const env={AI_PROVIDER:'cloudflare',AI_MODEL:'test',AI:{run:()=>new Promise(()=>{})}};
+ let settled=false;
+ const pending=generate(env,[]);pending.then(()=>{settled=true;},()=>{settled=true;});
+ t.mock.timers.tick(15001);await Promise.resolve();assert.equal(settled,false);
+ t.mock.timers.tick(10000);await assert.rejects(pending,/timed out/);
+});
+test('fallback uses concise reviewed category facts and records safe failure diagnostics',async()=>{
+ const f=fixture();try{
+ const a=f.client();await a('/api/ai/session',{});
+ f.env.AI_PROVIDER='cloudflare';f.env.AI_MODEL='test';
+ f.env.AI={run:async()=>{throw new ApiError(504,'Secret provider payload must never be stored');}};
+ const failed=await a('/api/ai/message',{message:'Tell me more about websites and what you can do for my restaurant',language:'en',page:{path:'/'}});
+ assert.equal(failed.data.mode,'verified-fallback');
+ assert.match(failed.data.reply,/Launch: up to 3 pages/);
+ assert.ok(failed.data.reply.length<750);
+ assert.doesNotMatch(failed.data.reply,/published page|Scroll down|Book a Call|Secret provider/);
+ assert.equal(failed.data.sources[0].title,'Website packages and limitations');
+ assert.equal(f.sqlite.prepare("SELECT details FROM ai_events WHERE event='provider_failure'").get().details,'provider_timeout');
+ assert.equal(f.sqlite.prepare('SELECT busy_until FROM ai_sessions').get().busy_until,0);
+ assert.equal(failureReason(new Error('API key secret')),'provider_unavailable');
+ }finally{f.sqlite.close();}
+});
+test('AI prompt bounds page extracts and administrator-only diagnostics do not reach visitors',async()=>{
+ const f=fixture();try{
+ const a=f.client();await a('/api/ai/session',{});let prompt;
+ f.env.AI_PROVIDER='cloudflare';f.env.AI_MODEL='test';
+ f.env.AI={run:async(model,input)=>{prompt=JSON.parse(input.messages.at(-1).content);throw Error('Bearer secret');}};
+ const failed=await a('/api/ai/message',{message:'What does AuraDigital do?',page:{path:'/'}});
+ assert.ok(prompt.knowledge.every(k=>k.content.length<=900));
+ assert.ok(!('failures' in failed.data));
+ assert.doesNotMatch(JSON.stringify(failed.data),/Bearer secret|provider_unavailable/);
+ }finally{f.sqlite.close();}
 });
 
 test('administrator approval, internal visibility, corrections and audited reviews',async()=>{
