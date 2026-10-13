@@ -343,6 +343,7 @@ form?.addEventListener("submit", async (e) => {
         service: fd.get("service"),
         message: fd.get("message"),
         language,
+        ...(window.AuraPricing?.selection ? { pricingSelection: window.AuraPricing.selection } : {}),
       }),
     });
     const data = await response.json().catch(() => ({}));
