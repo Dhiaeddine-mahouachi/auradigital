@@ -61,3 +61,6 @@
 @media(max-width:1080px){.pricing-grid[data-pricing-view="packages"]{grid-template-columns:repeat(2,minmax(0,1fr))}.aura-price-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.aura-price-builder{grid-template-columns:1fr 1fr}.aura-price-estimate{grid-column:1/-1;border-left:0;border-top:1px solid rgba(225,225,0,.2);padding-left:0;padding-top:18px}}
 @media(max-width:680px){.aura-price-mini-grid,.aura-price-card-grid,.pricing-grid[data-pricing-view="packages"],.aura-price-builder{grid-template-columns:1fr}.aura-price-mini{padding:15px}.aura-price-card{padding:20px}.aura-price-compact article{align-items:flex-start;flex-direction:column}.aura-price-compact article>div:last-child{text-align:left}.aura-price-toggle{display:flex;width:100%}.aura-price-toggle button{flex:1;font-size:.78rem;padding:10px 6px}.aura-price-estimate{grid-column:auto}}
 @media(prefers-reduced-motion:reduce){.aura-price-mini{transition:none}.aura-price-mini:hover{transform:none}}
+
+.aura-price-mini b:has(small){white-space:normal;line-height:1.35}
+.aura-price-mini b small{display:block;font-size:.68rem;letter-spacing:0;font-weight:600;margin-top:5px;color:#c7d5bc}
