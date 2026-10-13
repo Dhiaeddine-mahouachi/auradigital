@@ -6,13 +6,14 @@
     <title>Services — AuraDigital</title>
     <meta
       name="description"
-      content="AuraDigital services: websites, advertising, social media, SEO, Google Maps and automation."
+      content="AuraDigital services: website development and care, advertising, hosting, security, business email, ERP, SEO, NFC and automation."
     />
     <link rel="icon" href="auradigital-mark-20260928.png" type="image/png" />
     <link rel="manifest" href="site.webmanifest" />
     <link rel="stylesheet" href="style.css?v=direct-design-20261004" />
     <link rel="stylesheet" href="responsive.css?v=direct-design-20261004" />
     <link rel="stylesheet" href="cinematic.css?v=direct-design-20261004" />
+    <link rel="stylesheet" href="/pricing/pricing.css?v=20261013" />
   </head>
   <body data-page="services" class="cinematic-enabled">
     <header id="siteHeader"></header>
@@ -33,101 +34,20 @@
       </section>
       <section class="section">
         <div class="container">
-          <div class="services-grid">
-            <article class="service-card reveal">
-              <div>
-                <div class="service-icon">⌘</div>
-                <h3>Web Design &amp; Development</h3>
-                <p>
-                  Corporate websites, landing pages, portfolios and sales-focused pages. Responsive design, speed, SEO foundations and clear CTAs are standard.
-                </p>
-                <div class="mini-tags">
-                  <span>1 Sayfa · 5.000 TL+</span
-                  ><span>Multi-page · 8.000 TL+</span
-                  ><span>Dynamic · 12.000 TL+</span>
-                </div>
-              </div>
-            </article>
-            <article class="service-card reveal" id="growth">
-              <div>
-                <div class="service-icon">↗</div>
-                <h3>Google & Meta Ads</h3>
-                <p>
-                  Campaign setup, audiences, creative, conversion tracking, budget control and continuous optimization.
-                </p>
-                <div class="mini-tags">
-                  <span>Google Ads</span><span>Meta Ads</span
-                  ><span>Landing Pages</span>
-                </div>
-              </div>
-            </article>
-            <article class="service-card reveal" id="social">
-              <div>
-                <div class="service-icon">◎</div>
-                <h3>Social Media &amp; Content</h3>
-                <p>
-                  Content planning, visual language, short-video ideas, campaign creative and consistent account management.
-                </p>
-                <div class="mini-tags">
-                  <span>Instagram</span><span>Facebook</span
-                  ><span>Creative</span>
-                </div>
-              </div>
-            </article>
-            <article class="service-card reveal" id="seo">
-              <div>
-                <div class="service-icon">⌖</div>
-                <h3>SEO &amp; Google Maps</h3>
-                <p>
-                  Local visibility, Google Business optimization, on-page SEO and content opportunities.
-                </p>
-                <div class="mini-tags">
-                  <span>Local SEO</span><span>Google Maps</span
-                  ><span>On-page SEO</span>
-                </div>
-              </div>
-            </article>
-            <article class="service-card reveal" id="automation">
-              <div>
-                <div class="service-icon">✦</div>
-                <h3>AI & Automation</h3>
-                <p>
-                  Lead-capture flows, WhatsApp routing, simple CRM structures and automations that reduce repetitive work.
-                </p>
-                <div class="mini-tags">
-                  <span>Lead Flow</span><span>WhatsApp</span
-                  ><span>Workflow</span>
-                </div>
-              </div>
-            </article>
-            <article class="service-card reveal">
-              <div>
-                <div class="service-icon">◈</div>
-                <h3>Brand &amp; Creative Direction</h3>
-                <p>
-                  We align color, typography, social presence and campaign creative so the brand feels like one professional system.
-                </p>
-                <div class="mini-tags">
-                  <span>Visual System</span><span>Campaign</span
-                  ><span>Content</span>
-                </div>
-              </div>
-            </article>
-            <article class="service-card reveal">
-              <div>
-                <div class="service-icon">♡</div>
-                <h3>AuraWeddings · Dijital Davetiye</h3>
-                <p>
-                  Digital wedding invitations in English, Turkish and Arabic. Bring animated invitations, custom themes, a countdown, RSVP, music and guest messages into one shareable link.
-                </p>
-                <div class="mini-tags">
-                  <span>Digital Invitation</span><span>RSVP</span
-                  ><span>Arabic · TR · EN</span>
-                </div>
-                <a class="service-link" href="/aura-weddings">Explore AuraWeddings →</a>
-              </div>
-            </article>
+          <div class="services-grid" data-pricing-view="services" aria-label="Current service offerings">
           </div>
+        </div>
+      </section>
+      <section class="section alt" id="infrastructure">
+        <div class="container">
+          <div class="section-head reveal"><span class="eyebrow">Infrastructure & email</span><div><h2 class="display">Secure foundations. <em>Transparent charges.</em></h2><p>Hosting, domain eligibility, mailbox setup and optional hardening.</p></div></div>
+          <div data-pricing-view="infrastructure"></div>
+        </div>
+      </section>
+      <section class="section" id="advertising">
+        <div class="container">
+          <div class="section-head reveal"><span class="eyebrow">Google & Meta</span><div><h2 class="display">Advertising <em>management.</em></h2><p>Setup is a one-time service; management is monthly. Media spend is separate.</p></div></div>
+          <div data-pricing-view="advertising"></div>
         </div>
       </section>
       <section class="section alt">
@@ -193,5 +113,6 @@
     <script src="site-settings.js?v=english-first-20261004"></script>
     <script src="script.js?v=english-first-20261004"></script>
     <script src="cinematic.js?v=direct-design-20261004"></script>
+    <script type="module" src="/pricing/ui.js?v=20261013"></script>
   </body>
 </html>
