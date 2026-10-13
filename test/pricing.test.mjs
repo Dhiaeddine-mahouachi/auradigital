@@ -32,6 +32,8 @@ test("website add-on and hosting calculation avoids double billing", () => {
   assert.throws(() => quote({ id:"launch", addons:["crm"] }), /eligible/);
   assert.throws(() => quote({ id:"launch", standardHosting:true, enhancedHosting:true }), /one hosting/);
   assert.throws(() => quote({ id:"system", addons:["advanced-dashboard"] }), /scoped quote/);
+  assert.throws(() => quote({ id:"basic-dashboard" }), /parent package/);
+  assert.throws(() => quote({ id:"erp-pos" }), /parent package/);
 });
 test("ERP and SaaS purchasing models remain distinct", () => {
   assert.deepEqual(catalogue.saas.map(p=>p.price), [1490,3490,6990]);
