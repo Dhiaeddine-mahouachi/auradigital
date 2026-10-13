@@ -48,16 +48,17 @@ async function attempt(env,messages,timeout) {
 // Two attempts share one deadline. Never retry authentication, quota, output
 // validation or binding timeouts: an uncancellable binding call may still bill.
 export async function generate(env,messages,requestId=crypto.randomUUID()) {
-  const started=Date.now();
+  const started=Date.now();let currentMessages=messages;
   for(let index=0;index<2;index++) {
     try {
-      const output=await attempt(env,messages,Math.max(1,25000-(Date.now()-started)));
+      const output=await attempt(env,currentMessages,Math.max(1,25000-(Date.now()-started)));
       console.log(JSON.stringify({timestamp:new Date().toISOString(),requestId,endpoint:'/api/ai/message',provider:env.AI_PROVIDER,model:env.AI_MODEL,status:200,durationMs:Date.now()-started,attempt:index+1,usage:output.usage}));
       return {...output,attempts:index+1};
     } catch(error) {
       const reason=failureReason(error);
       console.warn(JSON.stringify({timestamp:new Date().toISOString(),requestId,endpoint:'/api/ai/message',provider:env.AI_PROVIDER||'disabled',model:env.AI_MODEL||null,status:error.providerStatus||error.status||503,errorCategory:reason,durationMs:Date.now()-started,attempt:index+1}));
-      if(index===1||reason!=='provider_transient'||Date.now()-started>22000) throw error;
+      if(index===1||!['provider_transient','invalid_response','unsafe_response'].includes(reason)||Date.now()-started>22000) throw error;
+      if(reason!=='provider_transient')currentMessages=messages.map((message,index)=>index===0?{...message,content:message.content+'\nYour previous output failed validation. Return a complete JSON object with a nonempty reply, strictly in the requested language. Never include numerical monetary amounts or claim a saved/sent action in reply. For a price, return a valid approved package selection and let the server calculate the quote.'}:message);
       await new Promise(resolve=>setTimeout(resolve,250+Math.floor(Math.random()*100)));
     }
   }
@@ -66,6 +67,7 @@ export async function generate(env,messages,requestId=crypto.randomUUID()) {
 // Fixed codes only; arbitrary provider error text never leaves this function.
 export function failureReason(error) {
   if(error?.status===504&&!error?.providerStatus||error?.name==='TimeoutError'||error?.name==='AbortError') return 'provider_timeout';
+  if(/JSON Mode (?:couldn't|could not) be met/i.test(error?.message||''))return 'invalid_response';
   const status=Number(error?.providerStatus||error?.status);
   if(status===401||status===403) return 'provider_authentication';
   if(status===429) return 'provider_rate_or_quota';

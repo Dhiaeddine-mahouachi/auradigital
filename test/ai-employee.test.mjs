@@ -263,3 +263,8 @@ test('compatible provider retries transient status once but never authentication
 });
 
 test('chat links reject script URLs, spoofed hosts and credentials',()=>{assert.equal(safeLink('javascript:alert(1)'),null);assert.equal(safeLink('https://auradigitalworks.com.evil.test'),null);assert.equal(safeLink('https://user:password@auradigitalworks.com'),null);assert.equal(safeLink('/contact'),'https://auradigitalworks.com/contact');});
+
+test('invalid model output receives one bounded correction without accepting unverified prices',async()=>{
+ let calls=0;const env={AI_PROVIDER:'cloudflare',AI_MODEL:'test',AI:{run:async(model,input)=>{calls++;return calls===1?{response:'broken JSON'}:{response:{reply:'AuraMenu is suitable.',selection:{id:'auramenu-self'}}};}}};
+ const result=await generate(env,[{role:'system',content:'Return JSON.'}]);assert.equal(result.attempts,2);assert.equal(calls,2);assert.equal(result.result.selection.id,'auramenu-self');
+});

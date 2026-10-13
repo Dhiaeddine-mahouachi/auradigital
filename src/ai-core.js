@@ -37,7 +37,7 @@ export function intent(message) {
 }
 export function category(message, page, previous) {
   if(/portfolio|previous projects|client work|réalisations|portföy|أعمالكم/i.test(message)) return 'portfolio';
-  for(const [name,re] of [['auramenu',/auramenu|qr menu|digital menu|\ba menu\b|menü|قائمة|menu numérique/i],['aurapops',/aurapops|nfc|business card|بطاقة/i],['auraweddings',/wedding|invitation|düğün|زفاف|mariage/i],['spinflow',/spinflow|erp|inventory|stock|مخزون/i],['care',/maintenance|website management|bakım|صيانة|gestion du site/i],['infrastructure',/hosting|domain|security|email|hébergement|domaine|sécurité|استضافة|نطاق|أمان|barındırma|güvenlik|alan adı/i],['advertising',/google ads|meta ads|advertising|reklam|إعلان|publicité|seo/i],['website',/website|web site|landing|موقع|site web|restaurant|restoran|مطعم|e-commerce|dashboard|réservation|لوحة|web sitesi/i]]) if(re.test(message)) return name;
+  for(const [name,re] of [['auramenu',/auramenu|qr menu|digital menu|\ba menu\b|menü|قائمة|menu numérique/i],['aurapops',/aurapops|nfc|business card|بطاقة/i],['auraweddings',/wedding|invitation|düğün|زفاف|mariage/i],['spinflow',/spinflow|erp|inventory|stock|management system|business management|مخزون/i],['care',/maintenance|website management|bakım|صيانة|gestion du site/i],['infrastructure',/hosting|domain|security|email|hébergement|domaine|sécurité|استضافة|نطاق|أمان|barındırma|güvenlik|alan adı/i],['advertising',/google ads|meta ads|advertising|reklam|إعلان|publicité|seo/i],['website',/website|web site|online store|landing|موقع|site web|restaurant|restoran|مطعم|e-commerce|dashboard|réservation|لوحة|web sitesi/i]]) if(re.test(message)) return name;
   return previous||page.category;
 }
 export function validateSelection(v) {
