@@ -109,7 +109,10 @@ async function message(request,env,s) {
       let rates;
       try{rates=tariff(env);}catch{rates=null;await event(db,s.id,'provider_failure','tariff_configuration',detected).run();}
       const dailyBudget=Math.max(0,Number(env.AI_DAILY_BUDGET_USD)||1);
-      const limit=rates?Math.floor(Math.min(20000000,Number(env.AI_DAILY_TOKEN_LIMIT)||500000,dailyBudget*1000000/rates.max)):0;
+      // One-day recovery headroom preserves the audit ledger and dollar ceiling.
+      // The date guard expires automatically; it never changes the normal limit.
+      const recovery=env.AI_RECOVERY_DAY===day?Math.max(0,Math.min(250000,Number(env.AI_RECOVERY_TOKEN_ALLOWANCE)||0)):0;
+      const limit=rates?Math.floor(Math.min(20000000,(Number(env.AI_DAILY_TOKEN_LIMIT)||500000)+recovery,dailyBudget*1000000/rates.max)):0;
       await db.prepare('INSERT INTO ai_usage(day) VALUES(?) ON CONFLICT(day) DO NOTHING').bind(day).run();
       const budget=await db.prepare('UPDATE ai_usage SET reserved_tokens=reserved_tokens+?,calls=calls+1 WHERE day=? AND reserved_tokens+?<=? RETURNING day').bind(reserve,day,reserve,limit).first();
       if(budget) {
@@ -192,7 +195,7 @@ async function admin(request,env,path) {
       env.DB.prepare("SELECT details AS reason,intent,latency_ms,created_at FROM ai_events WHERE event='provider_failure' ORDER BY id DESC LIMIT 20").all()
     ]);
     let rates;try{rates=tariff(env);}catch{rates=null;}
-    return json({entries:entries.results,requests:requests.results,events:events.results,failures:failures.results,usage:usage.results.map(u=>({...u,estimatedCostUSD:rates?(u.input_tokens*rates.input+u.output_tokens*rates.output)/1000000:null,reservationUpperBoundUSD:rates?u.reserved_tokens*rates.max/1000000:null})),sessions:sessions.count,provider:env.AI_PROVIDER||'disabled',model:env.AI_MODEL||null,pricing:catalogue,limits:{dailyTokens:Number(env.AI_DAILY_TOKEN_LIMIT)||500000,dailyBudgetUSD:Number(env.AI_DAILY_BUDGET_USD)||1},resolutionRate:null,answerQuality:null});
+    return json({entries:entries.results,requests:requests.results,events:events.results,failures:failures.results,usage:usage.results.map(u=>({...u,estimatedCostUSD:rates?(u.input_tokens*rates.input+u.output_tokens*rates.output)/1000000:null,reservationUpperBoundUSD:rates?u.reserved_tokens*rates.max/1000000:null})),sessions:sessions.count,provider:env.AI_PROVIDER||'disabled',model:env.AI_MODEL||null,pricing:catalogue,limits:{dailyTokens:Number(env.AI_DAILY_TOKEN_LIMIT)||500000,recoveryTokens:env.AI_RECOVERY_DAY===new Date().toISOString().slice(0,10)?Math.max(0,Math.min(250000,Number(env.AI_RECOVERY_TOKEN_ALLOWANCE)||0)):0,dailyBudgetUSD:Number(env.AI_DAILY_BUDGET_USD)||1},resolutionRate:null,answerQuality:null});
   }
   if(request.method==='POST'&&path==='/api/admin/ai/test') {
     const b=await readJson(request,8000),page=pageContext(b.page);

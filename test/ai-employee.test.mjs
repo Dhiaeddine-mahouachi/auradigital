@@ -304,3 +304,14 @@ test('actual plaintext FP8 restaurant answers are normalized and validated inste
  env.AI.run=async()=>({response:'Self-service costs 1 TRY.',usage:{prompt_tokens:1500,completion_tokens:10}});await assert.rejects(()=>generate(env,messages),/Unverified/);
  env.AI.run=async()=>({response:'',usage:{prompt_tokens:1500,completion_tokens:0}});await assert.rejects(()=>generate(env,messages),/Invalid/);
 });
+
+test('one-day recovery headroom expires and cannot exceed the existing dollar ceiling',async()=>{
+ const f=fixture();try{const a=f.client();await a('/api/ai/session',{});const day=new Date().toISOString().slice(0,10);
+ f.sqlite.prepare('INSERT INTO ai_usage(day,reserved_tokens) VALUES(?,490000)').run(day);
+ assert.match((await a('/api/ai/message',{message:'What does AuraDigital do?'})).data.reply,/usage limit/);
+ f.env.AI_RECOVERY_DAY=day;f.env.AI_RECOVERY_TOKEN_ALLOWANCE='250000';
+ assert.equal((await a('/api/ai/message',{message:'What does AuraDigital do?'})).data.mode,'ai');
+ f.env.AI_RECOVERY_DAY='2000-01-01';assert.match((await a('/api/ai/message',{message:'What does AuraDigital do?'})).data.reply,/usage limit/);
+ f.env.AI_RECOVERY_DAY=day;f.env.AI_DAILY_BUDGET_USD='0.001';assert.match((await a('/api/ai/message',{message:'What does AuraDigital do?'})).data.reply,/usage limit/);
+ }finally{f.sqlite.close();}
+});
