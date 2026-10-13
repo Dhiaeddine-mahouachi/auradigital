@@ -1,5 +1,6 @@
 import { MENU_PLANS, ensureMenuBilling, menuBilling, menuBillingInsert, activateMenuBilling, menuEntitlement } from "./menu-billing.js";
 import { ApiError, json, readJson } from "./http.js";
+import { catalogue as PUBLIC_PRICING, getItem as getPublicPrice, quote as calculatePublicQuote } from "../pricing/catalogue.js";
 import { queueRequestNotification } from "./notifications.js";
 import { sendCustomerConfirmation, checkResendHealth } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
@@ -110,6 +111,53 @@ async function createContactRequest(request, db, env, ctx) {
   const phone = qsClean(body.phone, 50);
   const service = qsClean(body.service, 120);
   const message = qsClean(body.message, 2000);
+  let verifiedPricingSnapshot = "";
+  // Recompute all public estimates server-side; never trust client-supplied totals.
+  if (body.pricingSelection != null) {
+    try {
+      const selected = body.pricingSelection;
+      if (!selected || typeof selected !== "object" || Array.isArray(selected)) throw Error("Invalid selection");
+      const id = String(selected.id || "");
+      if (!/^[a-z0-9-]{1,60}$/.test(id)) throw Error("Invalid plan");
+      const product = getPublicPrice(id);
+      if (!product) throw Error("Unknown plan");
+      const addons = selected.addons;
+      if (addons !== undefined && (!Array.isArray(addons) || addons.length > 10 ||
+        addons.some(v => typeof v !== "string" || !/^[a-z0-9-]{1,60}$/.test(v)))) throw Error("Invalid add-ons");
+      const quantity = v => {
+        if (!Number.isInteger(v) || v < 0 || v > 100) throw Error("Invalid quantity");
+        return v;
+      };
+      const options = {
+        id,
+        addons: addons || [],
+        standardHosting: selected.standardHosting === true,
+        enhancedHosting: selected.enhancedHosting === true,
+        managedErpHosting: selected.managedErpHosting !== false,
+        extraUsers: quantity(selected.extraUsers ?? 0),
+        extraBranches: quantity(selected.extraBranches ?? 0),
+      };
+      const estimate = calculatePublicQuote(options);
+      verifiedPricingSnapshot = JSON.stringify({
+        type: "indicative_catalogue_snapshot",
+        catalogueVersion: PUBLIC_PRICING.version,
+        name: product.name,
+        ...options,
+        totalsTRY: {
+          oneTime: estimate.once,
+          monthly: estimate.monthly,
+          annual: estimate.annual,
+          indicativeFirstYear: estimate.firstYear,
+        },
+        hosting: estimate.hosting,
+        availability: product.availability || "subject-to-contract",
+        taxNote: PUBLIC_PRICING.taxes,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch {
+      return json({ error: "Invalid pricing selection. Please return to the pricing page and try again." }, 400, { "Cache-Control": "no-store" });
+    }
+  }
   const language = ["tr", "en", "ar"].includes(String(body.language)) ? String(body.language) : "tr";
 
   if (!name || !email || !phone || !service || !message) {
@@ -131,6 +179,7 @@ async function createContactRequest(request, db, env, ctx) {
   const notes = [
     "[Website contact form]",
     message,
+    ...(verifiedPricingSnapshot ? ["[Verified catalogue quote snapshot]", verifiedPricingSnapshot] : []),
   ].join("\n\n").slice(0, 4000);
 
   const result = await db.prepare(
@@ -149,6 +198,7 @@ async function createContactRequest(request, db, env, ctx) {
     details: [
       ["Service", service],
       ["Message", message],
+      ...(verifiedPricingSnapshot ? [["Verified pricing", verifiedPricingSnapshot]] : []),
     ],
   });
 
