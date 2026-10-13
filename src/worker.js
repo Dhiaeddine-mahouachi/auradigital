@@ -1086,14 +1086,22 @@ export default {
         return json(await getPublicSettings(env.DB), 200, { "Cache-Control": "public, max-age=30" });
       }
 
+      if (url.pathname === "/api/pricing" && request.method === "GET") {
+        return json({ catalogue: PUBLIC_PRICING }, 200, { "Cache-Control": "public, max-age=60" });
+      }
+
       if (url.pathname === "/api/public-content" && request.method === "GET") {
-        const [settings, packages, services, portfolio] = await Promise.all([
+        // Keep historical D1 plans intact for invoices and admin, but do not publicly
+        // republish retired weekly/social offerings that conflict with the approved catalogue.
+        const [settings, portfolio] = await Promise.all([
           getPublicSettings(env.DB),
-          listPublic(env.DB, "packages"),
-          listPublic(env.DB, "services"),
           listPublic(env.DB, "portfolio"),
         ]);
-        return json({ settings, packages, services, portfolio }, 200, {
+        const packages = PUBLIC_PRICING.care.map(plan => ({
+          name: plan.name, description: plan.audience, monthly_price: plan.price,
+          weekly_price: 0, features: plan.features, featured: Number(Boolean(plan.featured)),
+        }));
+        return json({ settings, packages, services: [], portfolio, pricing: PUBLIC_PRICING }, 200, {
           "Cache-Control": "public, max-age=30",
         });
       }
