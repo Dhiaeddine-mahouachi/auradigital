@@ -88,6 +88,14 @@
         "limit": 120,
         "period": 60
       }
+    },
+    {
+      "name": "AI_RATE_LIMITER",
+      "namespace_id": "1843703",
+      "simple": {
+        "limit": 12,
+        "period": 60
+      }
     }
   ],
   "workers_dev": false,
@@ -129,5 +137,22 @@
       "pattern": "auradigitalworks.com/aurapops-showcase.html",
       "zone_name": "auradigitalworks.com"
     }
-  ]
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "vars": {
+    "AI_PROVIDER": "cloudflare",
+    "AI_MODEL": "@cf/meta/llama-3.1-8b-instruct-fp8",
+    "AI_DAILY_TOKEN_LIMIT": "500000",
+    "AI_DAILY_BUDGET_USD": "1"
+  },
+  "build": {
+    "command": "node scripts/build-ai-index.mjs"
+  },
+  "triggers": {
+    "crons": [
+      "0 3 * * *"
+    ]
+  }
 }

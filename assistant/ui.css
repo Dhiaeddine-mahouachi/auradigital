@@ -1,0 +1,20 @@
+.aura-bot{display:inline-flex;position:relative;width:42px;height:40px;align-items:center;justify-content:center;background:#e1e100;border-radius:15px 15px 12px 12px;box-shadow:inset 0 -3px 0 #a7b100}
+.aura-face{display:flex;gap:9px;align-items:center;justify-content:center;background:#07180f;width:34px;height:23px;border-radius:9px}
+.aura-face i{display:block;width:6px;height:9px;background:#e1e100;border-radius:5px;transform:translate(var(--eye-x,0),var(--eye-y,0));animation:aura-blink 6.5s infinite}
+.aura-bot img{position:absolute;width:10px;height:8px;bottom:1px;object-fit:contain}
+.chat-avatar .aura-bot{transform:scale(.8)}
+.chat-launcher{display:grid;place-items:center}.chat-launcher .aura-bot{animation:aura-idle 7s ease-in-out infinite}
+.chat-panel{height:min(690px,calc(100svh - 100px));width:min(430px,calc(100vw - 24px));display:flex;flex-direction:column}
+.chat-panel[aria-hidden=true]{visibility:hidden;pointer-events:none}.chat-panel.open{visibility:visible}
+.chat-head{flex-shrink:0}.chat-head span#aiStatus{font-size:10px;max-width:270px}.chat-head .aura-face{display:flex}
+.ai-toolbar{display:flex;gap:6px;padding:8px 12px;flex-wrap:wrap;background:#07180f;color:#f2f6ef}
+.ai-toolbar button,.ai-toolbar select,.ai-request button,.chat-actions button{border:1px solid #4b604b;background:#10281b;color:#f2f6ef;border-radius:7px;font:inherit;font-size:11px;padding:7px;cursor:pointer;min-height:32px}
+.chat-messages{flex:1;min-height:80px;overflow-y:auto}.chat-message p{white-space:pre-wrap;overflow-wrap:anywhere}
+.chat-message details{font-size:11px;margin:6px 10px}.chat-message details a{display:block;color:inherit;text-decoration:underline;padding:3px}
+#aiControls{max-height:50%;overflow:auto;background:#07180f;color:#f2f6ef}
+.ai-request{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;font-size:12px}.ai-request strong,.ai-request small,.ai-request label:has(textarea),.ai-request .ai-consent,.ai-request p{grid-column:1/-1}
+.ai-request label{display:grid;gap:4px}.ai-request input,.ai-request textarea,.ai-request select{width:100%;min-width:0;padding:7px;border:1px solid #4b604b;border-radius:6px;background:#10281b;color:#f2f6ef;font:inherit}.ai-request textarea{height:70px}.ai-request select{grid-column:1/-1}.ai-request .ai-consent{display:flex;align-items:flex-start;line-height:1.4}.ai-consent input{width:auto;flex-shrink:0}.ai-request p{margin:0}.chat-quick{flex-shrink:0}.chat-form{flex-shrink:0}.ai-thinking .aura-face i{animation:aura-think 1.2s infinite alternate}
+.chat-panel button:focus-visible,.chat-panel select:focus-visible,.chat-panel input:focus-visible,.chat-panel textarea:focus-visible{outline:2px solid #e1e100;outline-offset:2px}
+@keyframes aura-blink{0%,44%,48%,100%{scale:1}46%{scale:1 .12}}@keyframes aura-idle{0%,100%{translate:0 0}50%{translate:0 -2px}}@keyframes aura-think{to{opacity:.4;scale:1 .7}}
+@media(prefers-reduced-motion:reduce){.aura-bot,.aura-face i{animation:none!important;transform:none!important}.chat-panel{transition:none!important}}
+@media(max-width:600px){.chat-panel{bottom:76px;height:min(680px,calc(100svh - 88px))}.ai-toolbar button,.ai-toolbar select,.chat-actions button{min-height:36px}.chat-form input{font-size:16px}.ai-request input,.ai-request textarea{font-size:16px}}
