@@ -67,7 +67,17 @@ async function attempt(env,messages,timeout) {
   const content=raw?.response||raw?.choices?.[0]?.message?.content;
   let result;
   try {
-  try {result=typeof content==='object'&&content!==null?content:JSON.parse(clean(content,12000).replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,''));}catch{throw new ApiError(502,'Invalid AI response.');}
+  if(typeof content==='object'&&content!==null)result=content;
+  else {
+    const text=clean(content,12000).replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'');
+    try{result=JSON.parse(text);if(typeof result==='string')result={reply:result};}
+    catch{
+      // FP8 legitimately returns natural-language generations. Normalize these
+      // to our internal envelope; do not confuse them with malformed JSON.
+      if(!text||/^[{\[]/.test(text))throw new ApiError(502,'Invalid AI response.');
+      result={reply:text};
+    }
+  }
   if(!result||typeof result.reply!=='string'||!result.reply.trim()) throw new ApiError(502,'Invalid AI response.');
   // A model may correctly quote a named package but omit the optional selection.
   // Resolve only one exact public package name and price from server-built context.
@@ -80,7 +90,7 @@ async function attempt(env,messages,timeout) {
   // Prices and side effects must be server-generated, never unchecked model claims.
   if(!verifiedPrices(result.reply,result.selection,packages)||/(?:I have|I’ve|we have|successfully)\s+(?:saved|sent|created|emailed)/i.test(result.reply)) throw new ApiError(502,'Unverified AI action or price claim.');
   return {result,usage,model};
-  }catch(error){error.usage=usage;error.usageKnown=usage.input>0;error.responseSample=content;throw error;}
+  }catch(error){error.usage=usage;error.usageKnown=usage.input>0;throw error;}
 }
 
 // Two attempts share one deadline. Never retry authentication, quota, output

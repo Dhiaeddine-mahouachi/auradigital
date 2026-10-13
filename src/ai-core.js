@@ -11,6 +11,14 @@ export const TEXT = {
   fr:{unknown:"Je n’ai pas encore d’information vérifiée à ce sujet. L’équipe peut confirmer les détails.",fallback:"La connexion à l’assistant IA a échoué. Réessayez ou contactez l’équipe.",contact:"Contactez l’équipe via /contact ou WhatsApp +90 538 550 76 74. Aucun message n’a été envoyé.",quote:"Estimation indicative en TRY ; le périmètre et les taxes doivent être confirmés.",once:"Paiement unique",month:"Mensuel",year:"Annuel",total:"Total première année",renewal:"Renouvellement infrastructure standard",greeting:"Bonjour, je suis l’assistant IA d’AuraDigital. Décrivez votre projet et je vous aiderai à choisir une solution adaptée."},
   tr:{unknown:"Bu konuda henüz doğrulanmış bilgim yok. Ekip kapsamı netleştirebilir.",fallback:"Yapay zekâ asistanına bağlanılamadı. Tekrar deneyin veya ekiple iletişime geçin.",contact:"Ekibe /contact veya WhatsApp +90 538 550 76 74 üzerinden ulaşabilirsiniz. Mesaj gönderilmedi.",quote:"TRY cinsinden tahmini fiyat; kapsam ve vergiler ekip tarafından onaylanmalıdır.",once:"Tek seferlik",month:"Aylık",year:"Yıllık",total:"İlk yıl toplamı",renewal:"Standart altyapı yenilemesi",greeting:"Merhaba, ben AuraDigital’in yapay zekâ asistanıyım. Ne yapmak istediğinizi anlatın; uygun çözümü birlikte seçelim."}
 };
+const failureCopy={
+ en:{unverified:'I couldn’t verify that answer. Please retry, or ask our team for a quotation.',limit:'The assistant has reached its usage limit. Please try later or contact our team.'},
+ ar:{unverified:'تعذر التحقق من الإجابة. حاول مجدداً أو اطلب عرض سعر من الفريق.',limit:'وصل المساعد إلى حد الاستخدام. حاول لاحقاً أو تواصل مع الفريق.'},
+ fr:{unverified:'Je n’ai pas pu vérifier cette réponse. Réessayez ou demandez un devis à notre équipe.',limit:'L’assistant a atteint sa limite d’utilisation. Réessayez plus tard ou contactez notre équipe.'},
+ tr:{unverified:'Bu yanıtı doğrulayamadım. Tekrar deneyin veya ekibimizden teklif isteyin.',limit:'Asistan kullanım sınırına ulaştı. Daha sonra tekrar deneyin veya ekibimizle iletişime geçin.'}
+};
+for(const lang of LANGUAGES)Object.assign(TEXT[lang],failureCopy[lang]);
+
 export function language(message, selected, previous='en') {
   if(LANGUAGES.includes(selected)) return selected;
   if(/\p{Script=Arabic}/u.test(message)) return 'ar';

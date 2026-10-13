@@ -84,7 +84,7 @@ test('provider structured memory and quote use validation; failure, token cap an
  const follow=await a('/api/ai/session',{});assert.match(follow.data.memory.requirements,/reservations/);
  f.env.AI={run:async()=>{throw Error('Provider failure with API key secret');}};
  const fail=await a('/api/ai/message',{message:'Explain hosting'});assert.equal(fail.data.mode,'unavailable');assert.doesNotMatch(fail.data.reply,/secret/);
- f.env.AI_DAILY_TOKEN_LIMIT='1000';const capped=await a('/api/ai/message',{message:'Explain websites'});assert.equal(capped.data.mode,'unavailable');assert.equal(calls,1);
+ f.env.AI_DAILY_TOKEN_LIMIT='1000';const capped=await a('/api/ai/message',{message:'Explain websites'});assert.equal(capped.data.mode,'unavailable');assert.match(capped.data.reply,/usage limit/);assert.doesNotMatch(capped.data.reply,/connect/);assert.equal(calls,1);
  f.env.AI_RATE_LIMITER={limit:async()=>({success:false})};assert.equal((await a('/api/ai/message',{message:'hi'})).status,429);
  }finally{f.sqlite.close();}
 });
@@ -102,7 +102,7 @@ test('Workers AI requests JSON mode and accepts structured JSON without relaxing
  assert.equal(output.result.reply,'Tell me about your business.');
  env.AI.run=async()=>({response:{reply:'The price is 1 TL'}});
  await assert.rejects(()=>generate(env,[]),/Unverified/);
- env.AI.run=async()=>({response:'invalid JSON'});
+ env.AI.run=async()=>({response:'{"reply":'});
  await assert.rejects(()=>generate(env,[]),/Invalid AI response/);
 });
 test('provider allows slow inference past 15 seconds but remains bounded at 25 seconds',async(t)=>{
@@ -265,7 +265,7 @@ test('compatible provider retries transient status once but never authentication
 test('chat links reject script URLs, spoofed hosts and credentials',()=>{assert.equal(safeLink('javascript:alert(1)'),null);assert.equal(safeLink('https://auradigitalworks.com.evil.test'),null);assert.equal(safeLink('https://user:password@auradigitalworks.com'),null);assert.equal(safeLink('/contact'),'https://auradigitalworks.com/contact');});
 
 test('invalid model output receives one bounded correction without accepting unverified prices',async()=>{
- let calls=0;const env={AI_PROVIDER:'cloudflare',AI_MODEL:'test',AI:{run:async(model,input)=>{calls++;return calls===1?{response:'broken JSON'}:{response:{reply:'AuraMenu is suitable.',selection:{id:'auramenu-self'}}};}}};
+ let calls=0;const env={AI_PROVIDER:'cloudflare',AI_MODEL:'test',AI:{run:async(model,input)=>{calls++;return calls===1?{response:'{"reply":'}:{response:{reply:'AuraMenu is suitable.',selection:{id:'auramenu-self'}}};}}};
  const result=await generate(env,[{role:'system',content:'Return JSON.'}]);assert.equal(result.attempts,2);assert.equal(calls,2);assert.equal(result.result.selection.id,'auramenu-self');
 });
 
@@ -289,10 +289,18 @@ test('actual AuraMenu comparison without selection is accepted but swapped or in
 });
 test('failed metered responses settle actual usage instead of exhausting daily reservations',async()=>{
  const f=fixture();try{const a=f.client();await a('/api/ai/session',{});let calls=0;
- f.env.AI.run=async()=>{calls++;return {response:'broken JSON',usage:{prompt_tokens:100,completion_tokens:20}};};
+ f.env.AI.run=async()=>{calls++;return {response:'{"reply":',usage:{prompt_tokens:100,completion_tokens:20}};};
  const failed=await a('/api/ai/message',{message:'How much is AuraMenu?'});assert.equal(failed.data.retryable,true);assert.equal(calls,2);
  const usage=f.sqlite.prepare('SELECT * FROM ai_usage').get();assert.equal(usage.reserved_tokens,240);assert.equal(usage.input_tokens,200);assert.equal(usage.output_tokens,40);
  f.env.AI.run=async()=>({response:{reply:'AuraMenu is a QR menu.'},usage:{prompt_tokens:100,completion_tokens:20}});
  assert.equal((await a('/api/ai/message',{message:'What is AuraMenu?'})).data.mode,'ai');assert.equal(f.sqlite.prepare('SELECT reserved_tokens FROM ai_usage').get().reserved_tokens,360);
  }finally{f.sqlite.close();}
+});
+
+test('actual plaintext FP8 restaurant answers are normalized and validated instead of reported as disconnected',async()=>{
+ const messages=[{role:'user',content:JSON.stringify({approvedPackages:[{id:'auramenu-self',name:'AuraMenu self-service',price:1599},{id:'auramenu-managed',name:'AuraMenu done-for-you',price:2500}]})}];
+ const env={AI_PROVIDER:'cloudflare',AI_MODEL:'@cf/meta/llama-3.1-8b-instruct-fp8',AI:{run:async()=>({response:"You're looking for a QR menu for your restaurant. Would you like AuraMenu self-service (1,599 TRY one-time) or AuraMenu done-for-you (starting from 2,500 TRY one-time)?",usage:{prompt_tokens:1500,completion_tokens:60}})}};
+ assert.match((await generate(env,messages)).result.reply,/QR menu/);
+ env.AI.run=async()=>({response:'Self-service costs 1 TRY.',usage:{prompt_tokens:1500,completion_tokens:10}});await assert.rejects(()=>generate(env,messages),/Unverified/);
+ env.AI.run=async()=>({response:'',usage:{prompt_tokens:1500,completion_tokens:0}});await assert.rejects(()=>generate(env,messages),/Invalid/);
 });
