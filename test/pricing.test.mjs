@@ -86,6 +86,20 @@ test("contact API stores server-verified pricing and rejects invented prices", a
 
 test("public pricing APIs expose only approved active prices and no weekly offers", async () => {
   const sqlite=new DatabaseSync(":memory:");
+  // Worker schemaReady is module-level across tests; initialize this independent
+  // in-memory database's read-only public tables even when another test seeded first.
+  sqlite.exec(`CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY, value TEXT NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE TABLE IF NOT EXISTS portfolio (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT NOT NULL DEFAULT '',
+    title TEXT NOT NULL, type TEXT NOT NULL DEFAULT '',
+    description TEXT NOT NULL DEFAULT '', image TEXT NOT NULL DEFAULT '',
+    url TEXT NOT NULL DEFAULT '', tags TEXT NOT NULL DEFAULT '[]',
+    active INTEGER NOT NULL DEFAULT 1, sort_order INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );`);
   const db=d1(sqlite);
   const limiter={limit:async()=>({success:true})};
   const env={DB:db,TRACK_RATE_LIMITER:limiter,LOGIN_RATE_LIMITER:limiter};
