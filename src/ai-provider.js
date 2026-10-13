@@ -80,7 +80,7 @@ async function attempt(env,messages,timeout) {
   // Prices and side effects must be server-generated, never unchecked model claims.
   if(!verifiedPrices(result.reply,result.selection,packages)||/(?:I have|I’ve|we have|successfully)\s+(?:saved|sent|created|emailed)/i.test(result.reply)) throw new ApiError(502,'Unverified AI action or price claim.');
   return {result,usage,model};
-  }catch(error){error.usage=usage;error.usageKnown=usage.input>0;throw error;}
+  }catch(error){error.usage=usage;error.usageKnown=usage.input>0;error.responseSample=content;throw error;}
 }
 
 // Two attempts share one deadline. Never retry authentication, quota, output

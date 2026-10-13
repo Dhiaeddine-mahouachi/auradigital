@@ -89,7 +89,8 @@ async function message(request,env,s) {
     const docs=detected==='restricted'?[]:await retrieve(db,redact(user),cat,lang);
     const history=(await db.prepare('SELECT role,content FROM ai_messages WHERE session_id=? ORDER BY id DESC LIMIT 8').bind(s.id).all()).results.reverse();
     let selection=b.selection!==undefined?validateSelection(b.selection):previous.selection;
-    let state={...previous,category:cat}, reply='',mode='unavailable',usage={input:0,output:0};
+    let state={...previous,category:cat}, reply='',mode='unavailable',usage={input:0,output:0},diagnostic;
+    const inspect=!!env.AI_DIAGNOSTIC_TOKEN_SHA256&&await hash(request.headers.get('X-Aura-Diagnostic-Key')||'')===env.AI_DIAGNOSTIC_TOKEN_SHA256;
     const publicProjects=cat==='portfolio'?await portfolio(db):[];
     if(detected!=='restricted'&&cat==='portfolio') {
       docs.unshift(...publicProjects.slice(0,3).map((p,i)=>({id:'public-portfolio-'+i,title:clean(p.title,160),content:clean(p.type+' · '+p.description,1000),source_url:/^https:\/\//.test(p.url)?p.url:'https://auradigitalworks.com/portfolio',verified_at:new Date().toISOString()})));
@@ -123,6 +124,7 @@ async function message(request,env,s) {
           const actual=usage.input+usage.output+(output.unmeteredAttempts||0)*reserve/2;
           await db.prepare('UPDATE ai_usage SET input_tokens=input_tokens+?,output_tokens=output_tokens+?,reserved_tokens=reserved_tokens-? WHERE day=?').bind(usage.input,usage.output,actual>0&&actual<=reserve?reserve-actual:0,day).run();
         }catch(error) {
+          if(inspect)diagnostic={reason:failureReason(error),sample:error.responseSample??null,jsonModeRejected:/JSON Mode/i.test(error.message||''),usage:error.billedUsage};
           const billed=error.billedUsage||{input:0,output:0};
           const accounted=billed.input+billed.output+(error.unmeteredAttempts??2)*reserve/2;
           await db.prepare('UPDATE ai_usage SET failures=failures+1,input_tokens=input_tokens+?,output_tokens=output_tokens+?,reserved_tokens=reserved_tokens-? WHERE day=?').bind(billed.input,billed.output,Math.max(0,reserve-accounted),day).run();
@@ -133,7 +135,7 @@ async function message(request,env,s) {
     if(!reply) {
       reply=fallback(docs,lang,detected,cat);
       if(detected==='restricted') mode='verified-fallback';
-      else return json({reply,language:lang,mode:'unavailable',retryable:true,requestId,sources:[],memory:previous,estimate:null},200,{'X-Request-ID':requestId});
+      else return json({reply,language:lang,mode:'unavailable',retryable:true,requestId,sources:[],memory:previous,estimate:null,...(diagnostic?{diagnostic}:{})},200,{'X-Request-ID':requestId});
     }
     delete state.lastRequestId;
     if(mode==='ai')state.lastRequestId=requestId;
