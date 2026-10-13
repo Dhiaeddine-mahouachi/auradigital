@@ -219,7 +219,9 @@ function home(){
  ["Dashboards & Automation","basic-dashboard","/websites#web-addons"]
  ];
  target.innerHTML='<div class="aura-price-mini-grid">'+data.map(([name,id,href])=>
- '<a class="aura-price-mini" href="'+href+'"><span>'+safe(t(name))+'</span><b>'+safe(price(getItem(id)))+'</b><span aria-hidden="true">↗</span></a>').join("")+'</div>'+
+ '<a class="aura-price-mini" href="'+href+'"><span>'+safe(t(name))+'</span><b>'+safe(price(getItem(id)))+
+ (id==="spinflow-start"?" <small>"+safe(locale()==="tr"?"Özel ERP: ":"Custom ERP: ")+safe(price(getItem("erp-essential")))+"</small>":"")+
+ '</b><span aria-hidden="true">↗</span></a>').join("")+'</div>'+
  '<p class="aura-price-footnote">'+safe(t("Only choose services you need."))+'</p>';
 }
 function services(){
