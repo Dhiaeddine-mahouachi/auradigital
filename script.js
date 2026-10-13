@@ -421,7 +421,7 @@ if (footerBottom) {
 /* The existing Aura Assistant panel is mounted by the server-backed module. */
 const assistantScript = document.createElement("script");
 assistantScript.type = "module";
-assistantScript.src = "/assistant/ui.js?v=ai-employee-20261013";
+assistantScript.src = "/assistant/ui.js?v=ai-recovery-20261013";
 document.head.appendChild(assistantScript);
 const i18nScript = document.createElement("script");
 i18nScript.src = "i18n.js?v=english-complete-20261003";

@@ -8,13 +8,14 @@ import { estimate, pageContext, rankKnowledge, redact, language, hash } from '..
 import { schema } from '../src/ai-schema.js';
 import { knowledge } from '../src/ai-knowledge.js';
 import { generate, failureReason } from '../src/ai-provider.js';
+import { safeLink } from '../assistant/format.js';
 import { ApiError } from '../src/http.js';
 
 function fixture() {
  const sqlite=new DatabaseSync(':memory:');sqlite.exec('PRAGMA foreign_keys=ON');
  sqlite.exec("CREATE TABLE clients(id INTEGER PRIMARY KEY,name TEXT,company TEXT,email TEXT,phone TEXT,service TEXT,status TEXT,notes TEXT); CREATE TABLE portfolio(title TEXT,type TEXT,description TEXT,url TEXT,tags TEXT,active INTEGER,sort_order INTEGER); CREATE TABLE admin_users(id TEXT PRIMARY KEY,username TEXT,display_name TEXT,role TEXT,active INTEGER); CREATE TABLE admin_sessions(id TEXT PRIMARY KEY,user_id TEXT,token_hash TEXT,expires_at TEXT);");
  const allow={limit:async()=>({success:true})};
- const env={DB:d1(sqlite),LOGIN_RATE_LIMITER:allow,TRACK_RATE_LIMITER:allow,AI_RATE_LIMITER:allow,AI_INPUT_USD_PER_MILLION:'0.152',AI_OUTPUT_USD_PER_MILLION:'0.287'};
+ const env={DB:d1(sqlite),LOGIN_RATE_LIMITER:allow,TRACK_RATE_LIMITER:allow,AI_RATE_LIMITER:allow,AI_INPUT_USD_PER_MILLION:'0.152',AI_OUTPUT_USD_PER_MILLION:'0.287',AI_PROVIDER:'cloudflare',AI_MODEL:'test',AI:{run:async(model,input)=>{const data=JSON.parse(input.messages.at(-1).content);return {response:JSON.stringify({reply:data.knowledge.some(k=>k.id==='repo-spinflow')?'Spinflow subscriptions are planned.':'Tell me more about your project.'}),usage:{prompt_tokens:100,completion_tokens:20}};}}};
  const client=(initialCookie='')=>{let cookies=initialCookie;return async(path,body,method='POST',origin='https://auradigitalworks.com')=>{
   const response=await app.fetch(new Request('https://auradigitalworks.com'+path,{method,headers:{Cookie:cookies,Origin:origin,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})}),env,{waitUntil(){}});
   if(response.headers.get('Set-Cookie'))cookies=response.headers.get('Set-Cookie').split(';')[0];
@@ -82,8 +83,8 @@ test('provider structured memory and quote use validation; failure, token cap an
  const turn=await a('/api/ai/message',{message:'Prepare a quote'});assert.equal(turn.data.mode,'ai');assert.equal(turn.data.estimate.once,30300);
  const follow=await a('/api/ai/session',{});assert.match(follow.data.memory.requirements,/reservations/);
  f.env.AI={run:async()=>{throw Error('Provider failure with API key secret');}};
- const fail=await a('/api/ai/message',{message:'Explain hosting'});assert.equal(fail.data.mode,'verified-fallback');assert.doesNotMatch(fail.data.reply,/secret/);
- f.env.AI_DAILY_TOKEN_LIMIT='1000';const capped=await a('/api/ai/message',{message:'Explain websites'});assert.equal(capped.data.mode,'verified-fallback');assert.equal(calls,1);
+ const fail=await a('/api/ai/message',{message:'Explain hosting'});assert.equal(fail.data.mode,'unavailable');assert.doesNotMatch(fail.data.reply,/secret/);
+ f.env.AI_DAILY_TOKEN_LIMIT='1000';const capped=await a('/api/ai/message',{message:'Explain websites'});assert.equal(capped.data.mode,'unavailable');assert.equal(calls,1);
  f.env.AI_RATE_LIMITER={limit:async()=>({success:false})};assert.equal((await a('/api/ai/message',{message:'hi'})).status,429);
  }finally{f.sqlite.close();}
 });
@@ -118,11 +119,11 @@ test('fallback uses concise reviewed category facts and records safe failure dia
  f.env.AI_PROVIDER='cloudflare';f.env.AI_MODEL='test';
  f.env.AI={run:async()=>{throw new ApiError(504,'Secret provider payload must never be stored');}};
  const failed=await a('/api/ai/message',{message:'Tell me more about websites and what you can do for my restaurant',language:'en',page:{path:'/'}});
- assert.equal(failed.data.mode,'verified-fallback');
- assert.match(failed.data.reply,/Launch: up to 3 pages/);
+ assert.equal(failed.data.mode,'unavailable');
+ assert.match(failed.data.reply,/retry/);assert.equal(failed.data.retryable,true);assert.deepEqual(failed.data.sources,[]);
  assert.ok(failed.data.reply.length<750);
  assert.doesNotMatch(failed.data.reply,/published page|Scroll down|Book a Call|Secret provider/);
- assert.equal(failed.data.sources[0].title,'Website packages and limitations');
+ assert.equal(f.sqlite.prepare('SELECT count(*) n FROM ai_messages').get().n,0);
  assert.equal(f.sqlite.prepare("SELECT details FROM ai_events WHERE event='provider_failure'").get().details,'provider_timeout');
  assert.equal(f.sqlite.prepare('SELECT busy_until FROM ai_sessions').get().busy_until,0);
  assert.equal(failureReason(new Error('API key secret')),'provider_unavailable');
@@ -222,7 +223,7 @@ const cases=[
 for(const [cat,...prompts] of cases) for(const [index,lang] of ['en','ar','fr','tr'].entries()) test(`AI retrieval evaluation [${lang}] ${prompts[index]}`,async()=>{
  const f=fixture();try{const a=f.client();await a('/api/ai/session',{});
  const first=await a('/api/ai/message',{message:prompts[index],language:lang,page:{path:cat==='company'?'/':cat==='website'?'/websites':cat==='care'?'/packages':cat.startsWith('aura')?'/'+(cat==='auramenu'?'aura-menu':cat==='auraweddings'?'aura-weddings':cat):cat==='spinflow'?'/spinflow':'/services'}});
- assert.equal(first.status,200);assert.equal(first.data.language,lang);assert.ok(first.data.sources.length>0);assert.equal(first.data.mode,'verified-fallback');assert.equal(first.data.memory.category,cat);
+ assert.equal(first.status,200);assert.equal(first.data.language,lang);assert.ok(first.data.sources.length>0);assert.equal(first.data.mode,'ai');assert.equal(first.data.memory.category,cat);
  if(cat==='spinflow') assert.match(first.data.reply,/PLANNED|planned/);
  const next=await a('/api/ai/message',{message:['How much?','كم السعر؟','Combien ?','Fiyat nedir?'][index],language:lang,selection:{id:cat==='spinflow'?'spinflow-start':'launch'}});
  assert.equal(next.status,200);assert.equal(next.data.estimate.currency,'TRY');assert.equal(next.data.estimate.firstYear,cat==='spinflow'?17880:6750);
@@ -230,3 +231,35 @@ for(const [cat,...prompts] of cases) for(const [index,lang] of ['en','ar','fr','
  assert.ok(next.data.sources.every(s=>s.url.startsWith('https://auradigitalworks.com')));
  }finally{f.sqlite.close();}
 });
+
+
+test('missing provider is an honest recoverable error without website dumps or saved failure history',async()=>{
+ const f=fixture();try{delete f.env.AI_PROVIDER;const a=f.client();await a('/api/ai/session',{});
+ const failed=await a('/api/ai/message',{message:'What do you do?'});
+ assert.equal(failed.data.mode,'unavailable');assert.equal(failed.data.retryable,true);assert.deepEqual(failed.data.sources,[]);
+ assert.equal((await a('/api/ai/session',{})).data.messages.length,0);
+ }finally{f.sqlite.close();}
+});
+test('retry after failure preserves context and duplicate successful request does not invoke AI twice',async()=>{
+ const f=fixture();try{const a=f.client();await a('/api/ai/session',{});let calls=0;
+ f.env.AI.run=async()=>{calls++;if(calls===1)throw new ApiError(504,'AI timed out.');return {response:{reply:'AuraMenu fits your restaurant.',memory:{requirements:'QR menu'}}};};
+ const body={message:'I need a QR menu',requestId:'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'};
+ assert.equal((await a('/api/ai/message',body)).data.retryable,true);
+ const ok=await a('/api/ai/message',body);assert.equal(ok.data.mode,'ai');
+ const duplicate=await a('/api/ai/message',body);assert.equal(duplicate.data.duplicate,true);assert.equal(duplicate.data.reply,ok.data.reply);assert.equal(calls,2);
+ assert.equal((await a('/api/ai/session',{})).data.messages.length,2);
+ assert.equal((await a('/api/ai/message',{message:'x'.repeat(2001)})).status,400);
+ }finally{f.sqlite.close();}
+});
+test('compatible provider retries transient status once but never authentication or quota',async(t)=>{
+ const original=globalThis.fetch;const originalLog=console.log,originalWarn=console.warn;
+ console.log=()=>{};console.warn=()=>{};
+ try{
+ const env={AI_PROVIDER:'compatible',AI_MODEL:'test',AI_BASE_URL:'https://provider.example/chat',AI_API_KEY:'test-secret'};
+ for(const status of [401,403,429]){let calls=0;globalThis.fetch=async()=>{calls++;return new Response('{}',{status});};await assert.rejects(()=>generate(env,[]));assert.equal(calls,1);}
+ let calls=0;globalThis.fetch=async()=>{calls++;return calls===1?new Response('{}',{status:503}):Response.json({choices:[{message:{content:'{"reply":"Ready to help."}'}}]});};
+ assert.equal((await generate(env,[])).result.reply,'Ready to help.');assert.equal(calls,2);
+ }finally{globalThis.fetch=original;console.log=originalLog;console.warn=originalWarn;}
+});
+
+test('chat links reject script URLs, spoofed hosts and credentials',()=>{assert.equal(safeLink('javascript:alert(1)'),null);assert.equal(safeLink('https://auradigitalworks.com.evil.test'),null);assert.equal(safeLink('https://user:password@auradigitalworks.com'),null);assert.equal(safeLink('/contact'),'https://auradigitalworks.com/contact');});

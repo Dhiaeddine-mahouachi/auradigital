@@ -1,3 +1,4 @@
+import { safeLink, renderMessage } from './format.js';
 const copy={
  en:{intro:'Hi, I’m AuraDigital’s AI assistant. Tell me what you want to build.',placeholder:'Tell me about your project…',privacy:'Messages are processed by our AI provider and accessible for 24 hours, then purged daily. Avoid sensitive details. Contact details are only requested in the consent form.',thinking:'Thinking…',ready:'AI digital consultant',fallback:'Verified information · AI unavailable',error:'I couldn’t complete that request. Please try again or contact the team.',remember:'Remember for 30 days',forget:'Delete chat',memory:'Review memory',submit:'Submit request',consent:'I agree to save my contact details and submit this request to AuraDigital for follow-up.',name:'Your name',company:'Company (optional)',email:'Email',phone:'WhatsApp / phone',requirements:'Project requirements',quote:'Request quote',lead:'Talk about my project',handoff:'Human support',send:'Send',cancel:'Cancel',saved:'Request received. Reference:',notSent:'No email or WhatsApp message was sent.',package:'Estimate this package',choose:'Choose a package',source:'Sources',helpful:'Helpful',inaccurate:'Flag answer',memoryConsent:'Keep project context on this browser for 30 days? You can delete it at any time.',deleted:'Conversation deleted. Submitted requests remain with the team; contact us for deletion.',auto:'Auto language',details:'Verified estimate · TRY · scope and taxes require confirmation',save:'Save correction',close:'Close chat'},
  ar:{intro:'مرحباً، أنا مساعد AuraDigital بالذكاء الاصطناعي. أخبرني عن مشروعك.',placeholder:'أخبرني عن مشروعك…',privacy:'يعالج مزود الذكاء الاصطناعي رسائلك وتنتهي صلاحية الوصول بعد 24 ساعة وتُحذف السجلات المنتهية يومياً. تجنب المعلومات الحساسة. بيانات الاتصال تُطلب في نموذج الموافقة فقط.',thinking:'أفكر…',ready:'مستشار رقمي بالذكاء الاصطناعي',fallback:'معلومات موثقة · الذكاء الاصطناعي غير متاح',error:'تعذر إكمال الطلب. حاول مجدداً أو تواصل مع الفريق.',remember:'تذكر لمدة 30 يوماً',forget:'حذف المحادثة',memory:'مراجعة الذاكرة',submit:'إرسال الطلب',consent:'أوافق على حفظ بيانات الاتصال وإرسال طلبي إلى AuraDigital للمتابعة.',name:'الاسم',company:'الشركة (اختياري)',email:'البريد الإلكتروني',phone:'WhatsApp / الهاتف',requirements:'متطلبات المشروع',quote:'طلب عرض سعر',lead:'ناقش مشروعي',handoff:'دعم بشري',send:'إرسال',cancel:'إلغاء',saved:'تم استلام الطلب. المرجع:',notSent:'لم يتم إرسال بريد أو رسالة WhatsApp.',package:'حساب تقدير الباقة',choose:'اختر باقة',source:'المصادر',helpful:'مفيد',inaccurate:'الإبلاغ عن الإجابة',memoryConsent:'حفظ تفاصيل المشروع في هذا المتصفح لمدة 30 يوماً؟ يمكنك حذفها في أي وقت.',deleted:'تم حذف المحادثة. تواصل مع الفريق لحذف الطلبات المرسلة.',auto:'تحديد اللغة تلقائياً',details:'تقدير موثق · TRY · النطاق والضرائب يحتاجان إلى تأكيد',save:'حفظ التصحيح',close:'إغلاق المحادثة'},
@@ -10,6 +11,7 @@ document.body.insertAdjacentHTML('beforeend',`<button class="chat-launcher" id="
 const $=id=>document.getElementById(id), panel=$('chatPanel'),log=$('chatMessages'),input=$('chatInput'),controls=$('aiControls');
 let lang=['en','ar','fr','tr'].includes(document.documentElement.lang)?document.documentElement.lang:'en',started=false,busy=false,memory={},selected=null,serviceList=[],mode='ai',initializing=null;
 try{const preference=sessionStorage.getItem('aura-chat-language');if(copy[preference]){$('aiLanguage').value=preference;lang=preference;}}catch{}
+const retryLabel=()=>({en:'Retry',ar:'إعادة المحاولة',fr:'Réessayer',tr:'Tekrar dene'})[lang];
 const t=()=>copy[lang];
 const node=(tag,text,className)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;};
 const button=(text,fn)=>{const e=node('button',text);e.type='button';e.addEventListener('click',fn);return e;};
@@ -19,7 +21,7 @@ async function api(path,body,method='POST') {
 }
 function renderCopy() {
  panel.dir=lang==='ar'?'rtl':'ltr';panel.lang=lang;
- $('aiStatus').textContent=busy?t().thinking:mode==='verified-fallback'?t().fallback:t().ready;
+ $('aiStatus').textContent=busy?t().thinking:['verified-fallback','unavailable'].includes(mode)?t().fallback:t().ready;
  input.placeholder=t().placeholder;input.setAttribute('aria-label',t().placeholder);$('chatForm').querySelector('button').setAttribute('aria-label',t().send);
  panel.querySelector('.chat-close').setAttribute('aria-label',t().close);
  panel.querySelector('[data-ai="memory"]').textContent=t().memory;panel.querySelector('[data-ai="forget"]').textContent=t().forget;
@@ -28,8 +30,8 @@ function renderCopy() {
  panel.classList.toggle('ai-thinking',busy);input.disabled=busy;$('chatForm').querySelector('button').disabled=busy;
 }
 function append(text,role='assistant',sources=[]) {
- const bubble=node('div',undefined,'chat-message '+(role==='user'?'user':'bot'));bubble.append(node('p',text));
- if(sources.length){const details=node('details'),summary=node('summary',t().source);details.append(summary);for(const s of sources){try{const u=new URL(s.url);if(u.protocol!=='https:')continue;const a=node('a',s.title);a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';details.append(a);}catch{}}bubble.append(details);}
+ const bubble=node('div',undefined,'chat-message '+(role==='user'?'user':'bot'));bubble.dir='auto';bubble.append(renderMessage(text));
+ if(sources.length){const details=node('details'),summary=node('summary',t().source);details.append(summary);for(const s of sources){try{const href=safeLink(s.url);if(!href)continue;const u=new URL(href);const a=node('a',s.title);a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';details.append(a);}catch{}}bubble.append(details);}
  log.append(bubble);log.scrollTop=log.scrollHeight;return bubble;
 }
 async function initialize() {
@@ -40,15 +42,16 @@ async function initialize() {
  try{await initializing;}finally{initializing=null;}
 }
 function page() {return {path:location.pathname,language:document.documentElement.lang,currency:window.AuraPricing?.currency||'TRY',selectedCustomization:window.AuraPricing?.selection,visiblePackages:Array.from(document.querySelectorAll('[data-plan],[data-package]')).map(e=>e.dataset.plan||e.dataset.package).slice(0,10)};}
-async function send(message,selection) {
+async function send(message,selection,requestId=crypto.randomUUID(),retry=false) {
  if(busy)return;busy=true;renderCopy();controls.replaceChildren();
- try{await initialize();append(message,'user');input.value='';const data=await api('message',{message,page:page(),language:$('aiLanguage').value==='auto'?undefined:$('aiLanguage').value,...(selection?{selection}:{})});
- lang=data.language;mode=data.mode;memory=data.memory||{};selected=memory.selection||null;
+ try{await initialize();if(!retry)append(message,'user');input.value='';const data=await api('message',{requestId,message,page:page(),language:$('aiLanguage').value==='auto'?undefined:$('aiLanguage').value,...(selection?{selection}:{})});
+ lang=data.language;mode=data.mode;
+ if(data.retryable) {append(data.reply);input.value=message;const row=node('div',undefined,'chat-actions');row.append(button(retryLabel(),()=>{row.remove();send(message,selection,requestId,true);}));const link=node('a','WhatsApp');link.href='https://wa.me/905385507674';link.target='_blank';link.rel='noopener noreferrer';row.append(link);log.append(row);return;}memory=data.memory||{};selected=memory.selection||null;
  const bubble=append(data.reply,'assistant',data.sources),row=node('div',undefined,'chat-actions');
  for(const rating of ['helpful','inaccurate']) row.append(button(t()[rating],async()=>{try{await api('feedback',{rating});row.replaceChildren(node('span','✓'));}catch{append(t().error);}}));
  if(data.estimate)row.append(button(t().quote,()=>requestForm('quote')));else row.append(button(t().lead,()=>requestForm('lead')));
  bubble.append(row);
- }catch(e){append(e.message||t().error);if(e.status===401)started=false;const row=node('div',undefined,'chat-actions'),a=node('a','Contact AuraDigital');a.href='/contact';row.append(a);log.append(row);}finally{busy=false;renderCopy();input.focus();}
+ }catch(e){mode='unavailable';input.value=message;append(t().error);if(e.status===401)started=false;const row=node('div',undefined,'chat-actions'),a=node('a','Contact AuraDigital');a.href='/contact';row.append(button(retryLabel(),()=>{row.remove();send(message,selection,requestId,true);}),a);log.append(row);}finally{busy=false;renderCopy();input.focus();}
 }
 function field(form,label,name,type='text',value='',required=false){const wrap=node('label',label),e=node(type==='textarea'?'textarea':'input');e.name=name;if(type!=='textarea')e.type=type;e.value=value;e.required=required;e.maxLength=type==='textarea'?2000:160;wrap.append(e);form.append(wrap);return e;}
 function requestForm(kind) {

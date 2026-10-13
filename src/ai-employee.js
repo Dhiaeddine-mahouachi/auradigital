@@ -60,50 +60,52 @@ async function portfolio(db) {
 }
 function safeMemory(current,next) {
   const merged={...current};
-  for(const k of memoryKeys) if(typeof next?.[k]==='string') merged[k]=redact(next[k]).slice(0,500);
+  for(const k of memoryKeys) if(typeof next?.[k]==='string'&&next[k].trim()) merged[k]=redact(next[k]).slice(0,500);
   return merged;
 }
 function fallback(docs,lang,detected,cat) {
   if(detected==='handoff') return TEXT[lang].contact;
   if(detected==='restricted') return TEXT[lang].unknown+' '+TEXT[lang].contact;
-  // Page extracts contain navigation, slogans and UI labels, not a chat answer.
-  // Prefer one reviewed fact; leave full source pages behind the Sources links.
-  const reviewed=docs.filter(k=>k.source_type!=='page'&&!k.id.startsWith('repo-page-'));
-  const fact=reviewed.find(k=>k.category===cat&&k.language===lang)||reviewed.find(k=>k.category===cat)||reviewed.find(k=>k.language===lang)||reviewed[0];
-  const sentences=clean(fact?.content,8000).match(/[^.!?]+[.!?](?:\s|$)|[^.!?]+$/g)||[];
-  let excerpt=sentences.slice(0,2).join('').trim();
-  if(excerpt.length>600) excerpt=excerpt.slice(0,597).replace(/\s+\S*$/,'')+'…';
-  return TEXT[lang].fallback+'\n\n'+(excerpt||TEXT[lang].unknown);
+  return TEXT[lang].fallback;
 }
 async function message(request,env,s) {
   const started=Date.now(), db=env.DB, b=await readJson(request,12000);
+  if(typeof b.message!=='string'||b.message.length>2000) throw new ApiError(400,'Message must contain at most 2000 characters.');
   const user=clean(b.message,2000);
+  const requestId=/^[a-zA-Z0-9-]{16,64}$/.test(b.requestId||'')?b.requestId:crypto.randomUUID();
   if(!user) throw new ApiError(400,'Message required.');
   const lease=Date.now()+45000;
   const lock=await db.prepare('UPDATE ai_sessions SET busy_until=? WHERE id=? AND busy_until<? RETURNING id').bind(lease,s.id,Date.now()).first();
   if(!lock) throw new ApiError(409,'Please wait for the current response.');
   try {
-    const previous=parse(s.state), page=pageContext(b.page), lang=language(user,b.language,s.language), cat=category(user,page,previous.category);
+    const fresh=await db.prepare('SELECT state FROM ai_sessions WHERE id=?').bind(s.id).first();
+    const previous=parse(fresh?.state||s.state);
+    if(previous.lastRequestId===requestId) {
+      const saved=await db.prepare("SELECT content FROM ai_messages WHERE session_id=? AND role='assistant' ORDER BY id DESC LIMIT 1").bind(s.id).first();
+      return json({reply:saved?.content||TEXT[s.language].unknown,mode:'ai',language:s.language,memory:previous,estimate:previous.selection?estimate(previous.selection):null,sources:[],requestId,duplicate:true});
+    }
+    const page=pageContext(b.page), lang=language(user,b.language,s.language), cat=category(user,page,previous.category);
     let detected=intent(user);
     const docs=detected==='restricted'?[]:await retrieve(db,redact(user),cat,lang);
     const history=(await db.prepare('SELECT role,content FROM ai_messages WHERE session_id=? ORDER BY id DESC LIMIT 8').bind(s.id).all()).results.reverse();
     let selection=b.selection!==undefined?validateSelection(b.selection):previous.selection;
-    let state={...previous,category:cat}, reply='',mode='verified-fallback',usage={input:0,output:0};
+    let state={...previous,category:cat}, reply='',mode='unavailable',usage={input:0,output:0};
     const publicProjects=cat==='portfolio'?await portfolio(db):[];
     if(detected!=='restricted'&&cat==='portfolio') {
       docs.unshift(...publicProjects.slice(0,3).map((p,i)=>({id:'public-portfolio-'+i,title:clean(p.title,160),content:clean(p.type+' · '+p.description,1000),source_url:/^https:\/\//.test(p.url)?p.url:'https://auradigitalworks.com/portfolio',verified_at:new Date().toISOString()})));
       docs.splice(5);
     }
-    const candidates=services().filter(i=>['website','care','infrastructure','advertising','saas','erp','other'].includes(i.group)).map(i=>({id:i.id,name:i.name,group:i.group,features:i.features,availability:i.availability,includes:i.includes}));
-    const data={language:lang,intentHint:detected,page,memory:previous,knowledge:docs.map(k=>({id:k.id,title:k.title,content:clean(k.content,900),source:k.source_url,verified:k.verified_at})),portfolio:publicProjects,approvedPackages:candidates,approvedAddons:catalogue.websiteAddons.concat(catalogue.erpAddons).map(a=>({id:a.id,name:a.name})),message:redact(user)};
-    const messages=[{role:'system',content:SYSTEM},...history.map(h=>({role:h.role==='user'?'user':'assistant',content:h.content.slice(0,1000)})),{role:'user',content:JSON.stringify(data)}];
+    const relevantGroups={website:['website'],care:['care'],infrastructure:['infrastructure'],advertising:['advertising'],spinflow:['saas','erp'],auramenu:['other'],aurapops:['other']};
+    const candidates=services().filter(i=>(relevantGroups[cat]||['website','care','other']).includes(i.group)).filter(i=>cat!=='auramenu'||i.id.startsWith('auramenu-')).map(i=>({id:i.id,name:i.name,price:i.price,currency:'TRY',billing:i.billing||'once',group:i.group,features:i.features,availability:i.availability,includes:i.includes}));
+    const data={language:lang,intentHint:detected,page,memory:Object.fromEntries(Object.entries(previous).filter(([key])=>key!=='lastRequestId')),knowledge:docs.filter(k=>k.source_type!=='page').slice(0,4).map(k=>({id:k.id,title:k.title,content:clean(k.content,900),source:k.source_url,verified:k.verified_at})),portfolio:publicProjects,approvedPackages:candidates,approvedAddons:catalogue.websiteAddons.concat(catalogue.erpAddons).map(a=>({id:a.id,name:a.name})),message:redact(user)};
+    const messages=[{role:'system',content:SYSTEM+'\nFor this turn, write reply ONLY in '+({en:'English',ar:'Arabic (العربية)',tr:'Turkish (Türkçe)',fr:'French (français)'})[lang]+'. Prior messages may be in a different language. The latest requested language takes precedence. Do not repeat a company introduction. Use approvedPackages price and billing for comparisons, but numerical quotations are displayed by the server from your selection. For a pricing question about a known product, select the applicable approved package; ask one question if the package is ambiguous.'},...history.map(h=>({role:h.role==='user'?'user':'assistant',content:h.content.slice(0,1000)})),{role:'user',content:JSON.stringify(data)}];
     const configured=!!env.AI_MODEL&&['cloudflare','compatible'].includes(env.AI_PROVIDER);
     if(!configured&&detected!=='restricted'&&b.selection===undefined) await event(db,s.id,'provider_failure','provider_configuration',detected).run();
     if(b.selection!==undefined&&detected!=='restricted') {reply=TEXT[lang].quote;mode='deterministic';}
     if(configured&&detected!=='restricted'&&b.selection===undefined) {
       const day=new Date().toISOString().slice(0,10);
-      // Reserve a conservative worst-case token count before the single model call.
-      const reserve=new TextEncoder().encode(messages.map(m=>m.content).join('')).length+1000;
+      // Reserve a conservative worst-case token count before at most two model attempts.
+      const reserve=2*(new TextEncoder().encode(messages.map(m=>m.content).join('')).length+1000);
       let rates;
       try{rates=tariff(env);}catch{rates=null;await event(db,s.id,'provider_failure','tariff_configuration',detected).run();}
       const dailyBudget=Math.max(0,Number(env.AI_DAILY_BUDGET_USD)||1);
@@ -112,13 +114,13 @@ async function message(request,env,s) {
       const budget=await db.prepare('UPDATE ai_usage SET reserved_tokens=reserved_tokens+?,calls=calls+1 WHERE day=? AND reserved_tokens+?<=? RETURNING day').bind(reserve,day,reserve,limit).first();
       if(budget) {
         try {
-          const output=await generate(env,messages);
+          const output=await generate(env,messages,requestId);
           reply=clean(output.result.reply,4000);mode='ai';usage=output.usage;
           if(['discovery','pricing','comparison','quotation','support','handoff','restricted'].includes(output.result.intent)) detected=output.result.intent;
           state=safeMemory(state,output.result.memory);
           if(b.selection===undefined&&output.result.selection) {try{selection=validateSelection(output.result.selection);}catch{selection=null;reply=TEXT[lang].unknown;}}
           // Provider-reported usage may be absent; retain worst-case reservation then.
-          const actual=usage.input+usage.output;
+          const actual=usage.input+usage.output+(output.attempts===2?reserve/2:0);
           await db.prepare('UPDATE ai_usage SET input_tokens=input_tokens+?,output_tokens=output_tokens+?,reserved_tokens=reserved_tokens-? WHERE day=?').bind(usage.input,usage.output,actual>0&&actual<=reserve?reserve-actual:0,day).run();
         }catch(error) {
           await db.prepare('UPDATE ai_usage SET failures=failures+1 WHERE day=?').bind(day).run();
@@ -126,7 +128,13 @@ async function message(request,env,s) {
         }
       } else await event(db,s.id,'budget_limit').run();
     }
-    if(!reply) reply=fallback(docs,lang,detected,cat);
+    if(!reply) {
+      reply=fallback(docs,lang,detected,cat);
+      if(detected==='restricted') mode='verified-fallback';
+      else return json({reply,language:lang,mode:'unavailable',retryable:true,requestId,sources:[],memory:previous,estimate:null},200,{'X-Request-ID':requestId});
+    }
+    delete state.lastRequestId;
+    if(mode==='ai')state.lastRequestId=requestId;
     let calculated=null;
     if(selection) {
       try{calculated=estimate(selection);state.selection=selection;}catch{delete state.selection;reply+='\n'+TEXT[lang].unknown;}
@@ -140,7 +148,7 @@ async function message(request,env,s) {
       db.prepare('DELETE FROM ai_messages WHERE session_id=? AND id NOT IN (SELECT id FROM ai_messages WHERE session_id=? ORDER BY id DESC LIMIT 40)').bind(s.id,s.id),
       event(db,s.id,mode==='ai'?'response':mode==='deterministic'?'deterministic_quote':'fallback','',detected,Date.now()-started)
     ]);
-    return json({reply,language:lang,mode,intent:detected,estimate:calculated,memory:state,sources:docs.map(k=>({title:k.title,url:k.source_url,verifiedAt:k.verified_at})),actions:['quote','lead','handoff'],usage});
+    return json({requestId,reply,language:lang,mode,intent:detected,estimate:calculated,memory:state,sources:docs.map(k=>({title:k.title,url:k.source_url,verifiedAt:k.verified_at})),actions:['quote','lead','handoff'],usage});
   }finally{await db.prepare('UPDATE ai_sessions SET busy_until=0 WHERE id=? AND busy_until=?').bind(s.id,lease).run();}
 }
 
