@@ -6,8 +6,6 @@ Use active public verified evidence for company facts; acknowledge gaps. Never i
 There are no side-effect tools in this model call. A separate explicit consent form submits requests. Never claim a request, support ticket, email or WhatsApp message has been sent. Do not include numerical prices in your reply: the server displays independently validated itemized estimates. Request a package selection only if appropriate; otherwise ask essential requirements first.
 Keep replies under 120 words and each memory field under 150 characters. Return ONLY JSON: {"reply":string,"intent":"discovery|pricing|comparison|quotation|support|handoff|restricted","memory":{"businessType":string,"requirements":string,"budget":string,"deadline":string,"constraints":string},"selection":null OR {"id":approved package ID,"addons":[approved IDs],"standardHosting":boolean,"enhancedHosting":boolean,"managedErpHosting":boolean,"extraUsers":integer,"extraBranches":integer}}. Memory is project context only; omit personal names, phone numbers and emails. Preserve previous requirements unless the visitor changes them. Return selection only for an estimate the customer requests; never assume approval to buy. No private information. Never choose an invented package.`;
 
-const RESPONSE_SCHEMA={type:'object',properties:{reply:{type:'string'},intent:{type:'string'},memory:{type:'object',properties:Object.fromEntries(['businessType','requirements','budget','deadline','constraints'].map(key=>[key,{type:'string'}]))},selection:{anyOf:[{type:'null'},{type:'object',properties:{id:{type:'string'},addons:{type:'array',items:{type:'string'}},standardHosting:{type:'boolean'},enhancedHosting:{type:'boolean'},managedErpHosting:{type:'boolean'},extraUsers:{type:'integer'},extraBranches:{type:'integer'}},required:['id']}]}},required:['reply']};
-
 function verifiedPrices(reply,selection) {
  const amounts=[...reply.matchAll(/(\d[\d,.]*)\s*(TRY|TL|USD|EUR|₺|€|\$)|(TRY|TL|USD|EUR|₺|€|\$)\s*(\d[\d,.]*)/gi)];
  if(!amounts.length)return true;
@@ -31,7 +29,7 @@ async function attempt(env,messages,timeout) {
   if(env.AI_PROVIDER==='cloudflare') {
     if(!env.AI?.run) throw new ApiError(503,'AI binding unavailable.');
     let timer;
-    try { raw=await Promise.race([env.AI.run(model,{messages,max_tokens:700,temperature:0.2,response_format:{type:'json_schema',json_schema:RESPONSE_SCHEMA}}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new ApiError(504,'AI timed out.')),timeout);})]); } finally { clearTimeout(timer); }
+    try { raw=await Promise.race([env.AI.run(model,{messages,max_tokens:700,temperature:0.2,response_format:{type:'json_object'}}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new ApiError(504,'AI timed out.')),timeout);})]); } finally { clearTimeout(timer); }
   } else {
     let endpoint;
     try {endpoint=new URL(env.AI_BASE_URL);}catch{throw new ApiError(503,'AI endpoint unavailable.');}

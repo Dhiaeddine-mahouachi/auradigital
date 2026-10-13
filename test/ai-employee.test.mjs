@@ -98,7 +98,7 @@ test('Workers AI requests JSON mode and accepts structured JSON without relaxing
  let options;
  const env={AI_PROVIDER:'cloudflare',AI_MODEL:'test',AI:{run:async(model,input)=>{options=input;return {response:{reply:'Tell me about your business.',memory:{requirements:'Website'}}};}}};
  const output=await generate(env,[]);
- assert.equal(options.response_format.type,'json_schema');assert.equal(options.response_format.json_schema.properties.reply.type,'string');
+ assert.deepEqual(options.response_format,{type:'json_object'});
  assert.equal(output.result.reply,'Tell me about your business.');
  env.AI.run=async()=>({response:{reply:'The price is 1 TL'}});
  await assert.rejects(()=>generate(env,[]),/Unverified/);
