@@ -238,7 +238,10 @@ export async function handleAiEmployee(request,env,ctx) {
     const key=request.headers.get('Authorization')?.replace(/^Bearer /,'')||'';
     if(!env.AI_DIAGNOSTIC_TOKEN_SHA256||await hash(key)!==env.AI_DIAGNOSTIC_TOKEN_SHA256)return json({error:'Administrator access required.'},401);
     if(request.method==='POST') {
-      const raw=await env.AI.run(env.AI_MODEL,{messages:[{role:'system',content:SYSTEM},{role:'user',content:JSON.stringify({language:'en',message:'What is AuraMenu self-service pricing?',approvedPackages:[{id:'auramenu-self',price:1599,billing:'once'}],knowledge:[{content:'AuraMenu is a QR digital menu. Self service costs 1599 TRY once.'}]})}],max_tokens:700,temperature:0.2,response_format:{type:'json_object'}});
+      const docs=await retrieve(env.DB,'AuraMenu','auramenu','en');
+      const candidates=services().filter(i=>i.id.startsWith('auramenu-')).map(i=>({id:i.id,name:i.name,price:i.price,currency:'TRY',billing:i.billing||'once',group:i.group,features:i.features,availability:i.availability,includes:i.includes}));
+      const data={language:'en',intentHint:'pricing',page:pageContext({path:'/'}),memory:{category:'auramenu',businessType:'restaurant',requirements:'QR menu'},knowledge:docs.filter(k=>k.source_type!=='page').slice(0,4).map(k=>({id:k.id,title:k.title,content:clean(k.content,900),source:k.source_url,verified:k.verified_at})),portfolio:[],approvedPackages:candidates,approvedAddons:catalogue.websiteAddons.concat(catalogue.erpAddons).map(a=>({id:a.id,name:a.name})),message:'How much?'};
+      const raw=await env.AI.run(env.AI_MODEL,{messages:[{role:'system',content:SYSTEM},{role:'user',content:'I have a restaurant and want a QR menu.'},{role:'assistant',content:'Do you prefer AuraMenu self-service or done-for-you?'},{role:'user',content:JSON.stringify(data)}],max_tokens:700,temperature:0.2,response_format:{type:'json_object'}});
       return json({probe:true,raw});
     }
     const day=new Date().toISOString().slice(0,10);
