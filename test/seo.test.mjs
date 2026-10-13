@@ -33,3 +33,14 @@ test('admin shortcut redirects to the deployed dashboard entry point', async () 
   assert.match(redirects, /^\/admin \/admin\/index\.html 301$/m);
   assert.match(redirects, /^\/admin\/ \/admin\/index\.html 301$/m);
 });
+
+test('new pricing routes canonicalize via Worker without conflicting static redirects', async () => {
+  const redirects = await readFile(new URL('../_redirects', import.meta.url), 'utf8');
+  for (const name of ['websites', 'spinflow']) {
+    const response = permanentSeoRedirect(new Request('https://auradigitalworks.com/' + name + '.html'));
+    assert.equal(response?.status, 301);
+    assert.equal(response?.headers.get('location'), 'https://auradigitalworks.com/' + name);
+    assert.doesNotMatch(redirects, new RegExp('^/' + name + '\\.html\\s', 'm'),
+      'Do not redirect the internal .html asset; the Worker serves it via ASSETS.fetch');
+  }
+});
