@@ -6,6 +6,7 @@ import { handleAuraPopsAdmin } from './aurapops-admin.js';
 import { handleAdminWorkspace } from './admin-workspace.js';
 import { serveEmployeePortal } from './employee-portal.js';
 import { permanentSeoRedirect, serveSeoAsset } from './seo.js';
+import { handleAiEmployee, cleanupAiData } from './ai-employee.js';
 
 const router = {
   async fetch(request, env, ctx) {
@@ -19,6 +20,8 @@ const router = {
       return Response.redirect(url.toString(), 301);
     }
 
+    const aiResponse = await handleAiEmployee(request, env, ctx);
+    if (aiResponse) return aiResponse;
     const weddingResponse = await handleWeddings(request, env);
     if (weddingResponse) return weddingResponse;
     if (/^\/weddings\/i\/[a-f0-9-]+$/.test(url.pathname) && ['GET','HEAD'].includes(request.method)) {
@@ -59,6 +62,9 @@ const router = {
 };
 
 export default {
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(cleanupAiData(env));
+  },
   async fetch(request, env, ctx) {
     try {
       const rejection = await requestPolicy(request, env);
