@@ -98,7 +98,7 @@ async function message(request,env,s) {
     const relevantGroups={website:['website'],care:['care'],infrastructure:['infrastructure'],advertising:['advertising'],spinflow:['saas','erp'],auramenu:['other'],aurapops:['other']};
     const candidates=services().filter(i=>(relevantGroups[cat]||['website','care','other']).includes(i.group)).filter(i=>cat!=='auramenu'||i.id.startsWith('auramenu-')).map(i=>({id:i.id,name:i.name,price:i.price,currency:'TRY',billing:i.billing||'once',group:i.group,features:i.features,availability:i.availability,includes:i.includes}));
     const data={language:lang,intentHint:detected,page,memory:Object.fromEntries(Object.entries(previous).filter(([key])=>key!=='lastRequestId')),knowledge:docs.filter(k=>k.source_type!=='page').slice(0,4).map(k=>({id:k.id,title:k.title,content:clean(k.content,900),source:k.source_url,verified:k.verified_at})),portfolio:publicProjects,approvedPackages:candidates,approvedAddons:catalogue.websiteAddons.concat(catalogue.erpAddons).map(a=>({id:a.id,name:a.name})),message:redact(user)};
-    const messages=[{role:'system',content:SYSTEM+'\nFor this turn, write reply ONLY in '+({en:'English',ar:'Arabic (العربية)',tr:'Turkish (Türkçe)',fr:'French (français)'})[lang]+'. Prior messages may be in a different language. The latest requested language takes precedence. Do not repeat a company introduction. Use approvedPackages price and billing for comparisons, but numerical quotations are displayed by the server from your selection. For a pricing question about a known product, select the applicable approved package; ask one question if the package is ambiguous.'},...history.map(h=>({role:h.role==='user'?'user':'assistant',content:h.content.slice(0,1000)})),{role:'user',content:JSON.stringify(data)}];
+    const messages=[{role:'system',content:SYSTEM+'\nFor this turn, write reply ONLY in '+({en:'English',ar:'Arabic (العربية)',tr:'Turkish (Türkçe)',fr:'French (français)'})[lang]+'. Prior messages may be in a different language. The latest requested language takes precedence. Do not repeat a company introduction. Use only approvedPackages prices and billing for comparisons. The server also displays itemized quotations from your selection. For a pricing question about a known product, select the applicable approved package; ask one question if the package is ambiguous.'},...history.map(h=>({role:h.role==='user'?'user':'assistant',content:h.content.slice(0,1000)})),{role:'user',content:JSON.stringify(data)}];
     const configured=!!env.AI_MODEL&&['cloudflare','compatible'].includes(env.AI_PROVIDER);
     if(!configured&&detected!=='restricted'&&b.selection===undefined) await event(db,s.id,'provider_failure','provider_configuration',detected).run();
     if(b.selection!==undefined&&detected!=='restricted') {reply=TEXT[lang].quote;mode='deterministic';}
@@ -120,10 +120,12 @@ async function message(request,env,s) {
           state=safeMemory(state,output.result.memory);
           if(b.selection===undefined&&output.result.selection) {try{selection=validateSelection(output.result.selection);}catch{selection=null;reply=TEXT[lang].unknown;}}
           // Provider-reported usage may be absent; retain worst-case reservation then.
-          const actual=usage.input+usage.output+(output.attempts===2?reserve/2:0);
+          const actual=usage.input+usage.output+(output.unmeteredAttempts||0)*reserve/2;
           await db.prepare('UPDATE ai_usage SET input_tokens=input_tokens+?,output_tokens=output_tokens+?,reserved_tokens=reserved_tokens-? WHERE day=?').bind(usage.input,usage.output,actual>0&&actual<=reserve?reserve-actual:0,day).run();
         }catch(error) {
-          await db.prepare('UPDATE ai_usage SET failures=failures+1 WHERE day=?').bind(day).run();
+          const billed=error.billedUsage||{input:0,output:0};
+          const accounted=billed.input+billed.output+(error.unmeteredAttempts??2)*reserve/2;
+          await db.prepare('UPDATE ai_usage SET failures=failures+1,input_tokens=input_tokens+?,output_tokens=output_tokens+?,reserved_tokens=reserved_tokens-? WHERE day=?').bind(billed.input,billed.output,Math.max(0,reserve-accounted),day).run();
           await event(db,s.id,'provider_failure',failureReason(error),detected,Date.now()-started).run();
         }
       } else await event(db,s.id,'budget_limit').run();
@@ -234,22 +236,6 @@ export async function handleAiEmployee(request,env,ctx) {
   const path=new URL(request.url).pathname;
   if(!path.startsWith('/api/ai/')&&!path.startsWith('/api/admin/ai')) return null;
   if(!env.DB) return json({error:'AI storage unavailable.'},503);
-  if(path==='/api/ai/diagnostics'&&['GET','POST'].includes(request.method)) {
-    const key=request.headers.get('Authorization')?.replace(/^Bearer /,'')||'';
-    if(!env.AI_DIAGNOSTIC_TOKEN_SHA256||await hash(key)!==env.AI_DIAGNOSTIC_TOKEN_SHA256)return json({error:'Administrator access required.'},401);
-    if(request.method==='POST') {
-      const docs=await retrieve(env.DB,'AuraMenu','auramenu','en');
-      const candidates=services().filter(i=>i.id.startsWith('auramenu-')).map(i=>({id:i.id,name:i.name,price:i.price,currency:'TRY',billing:i.billing||'once',group:i.group,features:i.features,availability:i.availability,includes:i.includes}));
-      const data={language:'en',intentHint:'pricing',page:pageContext({path:'/'}),memory:{category:'auramenu',businessType:'restaurant',requirements:'QR menu'},knowledge:docs.filter(k=>k.source_type!=='page').slice(0,4).map(k=>({id:k.id,title:k.title,content:clean(k.content,900),source:k.source_url,verified:k.verified_at})),portfolio:[],approvedPackages:candidates,approvedAddons:catalogue.websiteAddons.concat(catalogue.erpAddons).map(a=>({id:a.id,name:a.name})),message:'How much?'};
-      const raw=await env.AI.run(env.AI_MODEL,{messages:[{role:'system',content:SYSTEM},{role:'user',content:'I have a restaurant and want a QR menu.'},{role:'assistant',content:'Do you prefer AuraMenu self-service or done-for-you?'},{role:'user',content:JSON.stringify(data)}],max_tokens:700,temperature:0.2,response_format:{type:'json_object'}});
-      return json({probe:true,raw});
-    }
-    const day=new Date().toISOString().slice(0,10);
-    const usage=await env.DB.prepare('SELECT * FROM ai_usage WHERE day=?').bind(day).first();
-    const failures=(await env.DB.prepare("SELECT event,details,count(*) AS count,max(created_at) AS last_seen FROM ai_events WHERE created_at>datetime('now','-1 day') AND event IN ('provider_failure','budget_limit') GROUP BY event,details").all()).results;
-    return json({usage,failures,provider:env.AI_PROVIDER,model:env.AI_MODEL});
-  }
-
   if(!['GET','POST','DELETE','PATCH'].includes(request.method)) return json({error:'Method not allowed.'},405);
   if(request.method!=='GET'&&!sameOrigin(request)) return json({error:'Invalid request origin.'},403);
   if(path.startsWith('/api/admin/ai')) {

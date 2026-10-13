@@ -275,3 +275,24 @@ test('model amounts are accepted only when independently matched to the selected
  env.AI.run=async()=>({response:{reply:'AuraMenu costs 1 TL.',selection:{id:'auramenu-self'}}});await assert.rejects(()=>generate(env,[]),/Unverified/);
  env.AI.run=async()=>({response:{reply:'AuraMenu costs 1599 USD.',selection:{id:'auramenu-self'}}});await assert.rejects(()=>generate(env,[]),/Unverified/);
 });
+
+test('FP8 uses prompt JSON and validates the response without unsupported JSON mode',async()=>{
+ let options;const env={AI_PROVIDER:'cloudflare',AI_MODEL:'@cf/meta/llama-3.1-8b-instruct-fp8',AI:{run:async(model,input)=>{options=input;return {response:'{"reply":"Tell me about your business."}',usage:{prompt_tokens:100,completion_tokens:10}};}}};
+ assert.equal((await generate(env,[])).result.reply,'Tell me about your business.');assert.equal(options.response_format,undefined);
+});
+test('actual AuraMenu comparison without selection is accepted but swapped or invented prices are rejected',async()=>{
+ const messages=[{role:'user',content:JSON.stringify({approvedPackages:[{id:'auramenu-self',name:'AuraMenu self-service',price:1599},{id:'auramenu-managed',name:'AuraMenu done-for-you',price:2500}]})}];
+ const env={AI_PROVIDER:'cloudflare',AI_MODEL:'test',AI:{run:async()=>({response:{reply:'AuraMenu offers two options. Self-service costs 1,599 TRY. Done-for-you starts at 2,500 TRY. Which option suits your needs?',selection:null}})}};
+ assert.match((await generate(env,messages)).result.reply,/1,599/);
+ env.AI.run=async()=>({response:{reply:'Self-service costs 2,500 TRY. Done-for-you costs 1,599 TRY.'}});await assert.rejects(()=>generate(env,messages),/Unverified/);
+ env.AI.run=async()=>({response:{reply:'Self-service costs 1 TRY.'}});await assert.rejects(()=>generate(env,messages),/Unverified/);
+});
+test('failed metered responses settle actual usage instead of exhausting daily reservations',async()=>{
+ const f=fixture();try{const a=f.client();await a('/api/ai/session',{});let calls=0;
+ f.env.AI.run=async()=>{calls++;return {response:'broken JSON',usage:{prompt_tokens:100,completion_tokens:20}};};
+ const failed=await a('/api/ai/message',{message:'How much is AuraMenu?'});assert.equal(failed.data.retryable,true);assert.equal(calls,2);
+ const usage=f.sqlite.prepare('SELECT * FROM ai_usage').get();assert.equal(usage.reserved_tokens,240);assert.equal(usage.input_tokens,200);assert.equal(usage.output_tokens,40);
+ f.env.AI.run=async()=>({response:{reply:'AuraMenu is a QR menu.'},usage:{prompt_tokens:100,completion_tokens:20}});
+ assert.equal((await a('/api/ai/message',{message:'What is AuraMenu?'})).data.mode,'ai');assert.equal(f.sqlite.prepare('SELECT reserved_tokens FROM ai_usage').get().reserved_tokens,360);
+ }finally{f.sqlite.close();}
+});
