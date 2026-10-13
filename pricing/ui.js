@@ -225,7 +225,7 @@ function contact(){
  const list=addons.map(a=>getItem(a)?.name||a).join(", ")||"None";
  message.value="Pricing request (indicative, not an accepted quotation)\nCatalogue: "+catalogue.version+"\nPackage: "+item.name+" ("+id+")\nAdd-ons: "+list+"\nInfrastructure: "+q.hosting+"\nOne-time: "+money(q.once)+"\nMonthly: "+money(q.monthly)+"\nAnnual: "+money(q.annual)+"\nFirst-year indicative: "+money(q.firstYear)+
  (historical?"\nLink contained an older/different price snapshot: revalidation required.":"")+
- "\nTaxes and scope to be confirmed.\nProject details: ";
+ "\nTaxes and scope to be confirmed.\nPreferred consultation dates/times (optional; no booking is confirmed): \\nProject details: ";
  }catch(e){message.value="Pricing enquiry for "+item.name+". Please verify package details and send a quotation. ";}
  }
 }
