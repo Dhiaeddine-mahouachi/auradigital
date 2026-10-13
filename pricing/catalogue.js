@@ -112,6 +112,8 @@ export function quote({id, addons=[], standardHosting=false, enhancedHosting=fal
     }
     if(managedErpHosting) annual+=item.annualHosting;
   } else if(group==="saas") {
+    if(selected.length) throw new Error("SaaS add-ons use user and branch quantities");
+    if(extraBranches>0 && item.id!=="spinflow-pro") throw new Error("Branch allowance requires a scoped proposal");
     monthly+=extraUsers*getItem("saas-user").price + extraBranches*getItem("saas-branch").price;
   } else if(group==="care") {
     // Bundled Managed Growth ads setup/basic ads must never be charged again.
