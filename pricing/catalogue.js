@@ -85,6 +85,9 @@ export function quote({id, addons=[], standardHosting=false, enhancedHosting=fal
   if(standardHosting && enhancedHosting) throw new Error("Choose one hosting option only");
   if(!Number.isInteger(extraUsers)||extraUsers<0||!Number.isInteger(extraBranches)||extraBranches<0) throw new Error("Invalid add-on quantity");
   const group=groups.find(g=>catalogue[g].includes(item));
+  if(["websiteAddons","erpAddons","saasAddons"].includes(group)) throw new Error("Add-ons require a compatible parent package");
+  if(group!=="website" && (standardHosting || enhancedHosting)) throw new Error("Website hosting selection is not applicable");
+  if(group!=="saas" && (extraUsers || extraBranches)) throw new Error("SaaS quantities require a cloud ERP plan");
   const accepted=[];
   let once=item.billing==="once"?item.price:0, monthly=item.billing==="month"?item.price:0, annual=item.billing==="year"?item.price:0;
   const selected=[...new Set(addons)];
