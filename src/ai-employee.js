@@ -234,6 +234,15 @@ export async function handleAiEmployee(request,env,ctx) {
   const path=new URL(request.url).pathname;
   if(!path.startsWith('/api/ai/')&&!path.startsWith('/api/admin/ai')) return null;
   if(!env.DB) return json({error:'AI storage unavailable.'},503);
+  if(path==='/api/ai/diagnostics'&&request.method==='GET') {
+    const key=request.headers.get('Authorization')?.replace(/^Bearer /,'')||'';
+    if(!env.AI_DIAGNOSTIC_TOKEN_SHA256||await hash(key)!==env.AI_DIAGNOSTIC_TOKEN_SHA256)return json({error:'Administrator access required.'},401);
+    const day=new Date().toISOString().slice(0,10);
+    const usage=await env.DB.prepare('SELECT * FROM ai_usage WHERE day=?').bind(day).first();
+    const failures=(await env.DB.prepare("SELECT event,details,count(*) AS count,max(created_at) AS last_seen FROM ai_events WHERE created_at>datetime('now','-1 day') AND event IN ('provider_failure','budget_limit') GROUP BY event,details").all()).results;
+    return json({usage,failures,provider:env.AI_PROVIDER,model:env.AI_MODEL});
+  }
+
   if(!['GET','POST','DELETE','PATCH'].includes(request.method)) return json({error:'Method not allowed.'},405);
   if(request.method!=='GET'&&!sameOrigin(request)) return json({error:'Invalid request origin.'},403);
   if(path.startsWith('/api/admin/ai')) {

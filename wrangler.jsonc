@@ -145,7 +145,8 @@
     "AI_PROVIDER": "cloudflare",
     "AI_MODEL": "@cf/meta/llama-3.1-8b-instruct-fp8",
     "AI_DAILY_TOKEN_LIMIT": "500000",
-    "AI_DAILY_BUDGET_USD": "1"
+    "AI_DAILY_BUDGET_USD": "1",
+    "AI_DIAGNOSTIC_TOKEN_SHA256": "9e4a85891bc4e7e616d32aef7f48ec3454af1f959b48beb9fe93f596bd5cc7b5"
   },
   "build": {
     "command": "node scripts/build-ai-index.mjs"
