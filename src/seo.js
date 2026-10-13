@@ -1,3 +1,5 @@
+import { renderPricingFallback } from "./pricing-html.js";
+
 const SITE_ORIGIN = "https://auradigitalworks.com";
 const ORGANIZATION_ID = `${SITE_ORIGIN}/#organization`;
 const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
@@ -205,6 +207,12 @@ export async function serveSeoAsset(request, env) {
     .on('meta[name="description"]', {
       element(element) {
         element.setAttribute("content", meta.description);
+      },
+    })
+    .on("[data-pricing-view]", {
+      element(element) {
+        const markup = renderPricingFallback(element.getAttribute("data-pricing-view"));
+        if (markup) element.setInnerContent(markup, { html: true });
       },
     })
     .on("head", {
