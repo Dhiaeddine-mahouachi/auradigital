@@ -1,8 +1,9 @@
+import { ensureRequestDelivery, requestFingerprint, outboxStatements, deliverRequestEmails } from "./request-delivery.js";
 import { MENU_PLANS, ensureMenuBilling, menuBilling, menuBillingInsert, activateMenuBilling, menuEntitlement } from "./menu-billing.js";
 import { ApiError, json, readJson } from "./http.js";
 import { catalogue as PUBLIC_PRICING, getItem as getPublicPrice, quote as calculatePublicQuote } from "../pricing/catalogue.js";
 import { queueRequestNotification } from "./notifications.js";
-import { sendCustomerConfirmation, checkResendHealth } from "./customer-confirmation.js";
+import { checkResendHealth } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
 import { securityEvent } from "./security-policy.js";
 import { handleEmployeePortalApi } from "./employee-portal.js";
@@ -167,14 +168,24 @@ async function createContactRequest(request, db, env, ctx) {
     return json({ error: "Geçerli bir e-posta adresi girin." }, 400, { "Cache-Control": "no-store" });
   }
 
-  const recent = await db.prepare(
-    "SELECT id FROM clients WHERE email = ? AND created_at >= datetime('now','-2 minutes') LIMIT 1"
-  ).bind(email).first();
-  if (recent) {
-    return json({ error: "Talebiniz zaten alındı. Lütfen tekrar göndermeden önce biraz bekleyin." }, 429, {
-      "Cache-Control": "no-store",
-    });
-  }
+  if (body.website) return json({ error: "Invalid request." }, 400);
+  await ensureRequestDelivery(db);
+  const fingerprint = await requestFingerprint([name,email,phone,service,message,body.pricingSelection || null]);
+  const suppliedKey = request.headers.get("Idempotency-Key");
+  if (suppliedKey && !/^[a-zA-Z0-9-]{16,80}$/.test(suppliedKey)) return json({error:"Invalid submission key."},400);
+  // Old clients also receive content-based deduplication for the current UTC day.
+  const key = await requestFingerprint([suppliedKey || `${fingerprint}/${new Date().toISOString().slice(0,10)}`,email]);
+  const respond = async (receipt, duplicate = false) => {
+    if (receipt.fingerprint !== fingerprint) return json({error:"Submission key was already used for different information."},409);
+    // Email outages never turn a committed request into a failed submission.
+    let delivery = { sent:false };
+    try { delivery = await deliverRequestEmails(env,receipt.request_id) || delivery; }
+    catch { console.error(JSON.stringify({event:"request_email_processing_failed",requestId:receipt.request_id})); }
+    return json({ok:true,requestId:receipt.request_id,status:"Received",submittedAt:receipt.created_at,
+      confirmationSent:delivery.sent,confirmationPending:!delivery.sent,duplicate},duplicate ? 200 : 201);
+  };
+  const existing = await db.prepare("SELECT * FROM request_receipts WHERE key=?").bind(key).first();
+  if (existing) return respond(existing,true);
 
   const notes = [
     "[Website contact form]",
@@ -182,43 +193,29 @@ async function createContactRequest(request, db, env, ctx) {
     ...(verifiedPricingSnapshot ? ["[Verified catalogue quote snapshot]", verifiedPricingSnapshot] : []),
   ].join("\n\n").slice(0, 4000);
 
-  const result = await db.prepare(
-    "INSERT INTO clients (name, company, email, phone, service, status, notes) VALUES (?, '', ?, ?, ?, 'lead', ?)"
-  ).bind(name, email, phone, service, notes).run();
-
-  const requestId = `WEB-${String(result?.meta?.last_row_id || crypto.randomUUID()).slice(0, 36)}`;
-  queueRequestNotification(ctx, env, {
-    requestType: "Website contact",
-    requestId,
-    businessName: name,
-    contactName: name,
-    customerEmail: email,
-    phone,
-    dashboardUrl: new URL("/admin/", request.url).toString(),
-    details: [
-      ["Service", service],
-      ["Message", message],
-      ...(verifiedPricingSnapshot ? [["Verified pricing", verifiedPricingSnapshot]] : []),
-    ],
-  });
-
-  const confirmation = await sendCustomerConfirmation(env, {
-    requestId,
-    name,
-    email,
-    service,
-    language,
-  });
-
-  return json({
-    ok: true,
-    requestId,
-    confirmationSent: Boolean(confirmation.sent),
-    confirmationReason: confirmation.reason || null,
-    confirmationDetail: confirmation.detail || null,
-    confirmationMessageId: confirmation.messageId || null,
-    contactEmailDebugVersion: "2026-09-25-2",
-  }, 201, { "Cache-Control": "no-store" });
+  const requestId = `WEB-${crypto.randomUUID()}`;
+  const submittedAt = new Date().toISOString();
+  const notification = {
+    requestType:"Website contact",requestId,businessName:name,contactName:name,
+    customerEmail:email,phone,service,submittedAt,
+    dashboardUrl:new URL("/admin/",request.url).toString(),
+    details:[["Service",service],["Message",message],...(verifiedPricingSnapshot ? [["Verified pricing",verifiedPricingSnapshot]] : [])],
+  };
+  try {
+    const saved = await db.batch([
+      db.prepare("INSERT INTO request_receipts(key,fingerprint,request_id,created_at) VALUES(?,?,?,?)").bind(key,fingerprint,requestId,submittedAt),
+      db.prepare("INSERT INTO clients (name, company, email, phone, service, status, notes) VALUES (?, '', ?, ?, ?, 'lead', ?)").bind(name,email,phone,service,notes),
+      db.prepare("UPDATE request_receipts SET client_id=last_insert_rowid() WHERE key=?").bind(key),
+      ...outboxStatements(db,notification),
+    ]);
+    if (saved.some(result => result.success === false)) throw new Error("request_save_failed");
+  } catch (error) {
+    // Concurrent retries resolve to the winner; D1 batch rolls back all losing writes.
+    const receipt = await db.prepare("SELECT * FROM request_receipts WHERE key=?").bind(key).first();
+    if (receipt) return respond(receipt,true);
+    throw error;
+  }
+  return respond({fingerprint,request_id:requestId,created_at:submittedAt});
 }
 
 function mapNfcRequest(row, publicStatus = false) {
@@ -307,7 +304,7 @@ async function createNfcRequest(request, db, env, ctx) {
   const id = crypto.randomUUID();
   const nfcMeta = { cardSize, fontStyle, layoutStyle, cornerStyle, deliveryMethod, deliveryFee, unitPrice, total };
   const storedNotes = (NFC_META_PREFIX + JSON.stringify(nfcMeta) + "\n" + qsClean(body.notes, 700)).slice(0, 1000);
-  await db.prepare("INSERT INTO nfc_requests (id, card_type, card_language, business_name, headline, instruction_text, destination_url, background_color, accent_color, text_color, show_qr, finish, quantity, contact_name, contact_phone, email, city, payment_reference, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+  const requestInsert = db.prepare("INSERT INTO nfc_requests (id, card_type, card_language, business_name, headline, instruction_text, destination_url, background_color, accent_color, text_color, show_qr, finish, quantity, contact_name, contact_phone, email, city, payment_reference, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
     .bind(
       id,
       cardType,
@@ -328,10 +325,11 @@ async function createNfcRequest(request, db, env, ctx) {
       qsClean(body.city, 100),
       qsClean(body.paymentReference, 200),
       storedNotes,
-    ).run();
+    );
   const token = newMenuToken();
-  await db.prepare("INSERT INTO nfc_status_tokens (request_id, token_hash) VALUES (?, ?)").bind(id, await tokenHash(token)).run();
-  queueRequestNotification(ctx, env, {
+  const tokenInsert = db.prepare("INSERT INTO nfc_status_tokens (request_id, token_hash) VALUES (?, ?)").bind(id, await tokenHash(token));
+  const notification = {
+    submittedAt:new Date().toISOString(),
     requestType: "NFC card",
     requestId: id,
     businessName,
@@ -344,7 +342,10 @@ async function createNfcRequest(request, db, env, ctx) {
       ["Quantity", String(quantity)],
       ["Total", `${total} TL`],
     ],
-  });
+  };
+  await ensureRequestDelivery(db);
+  await db.batch([requestInsert,tokenInsert,...outboxStatements(db,notification)]);
+  ctx.waitUntil(deliverRequestEmails(env,id).catch(()=>console.error(JSON.stringify({event:"request_email_processing_failed",requestId:id}))));
   return json({ token, request: { id, status: "pending", paymentStatus: "unpaid", total } }, 201, { "Cache-Control": "no-store" });
 }
 
@@ -797,10 +798,8 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   );
   await ensureMenuAccess(db);
   const token = newMenuToken();
-  await db.batch([requestInsert, menuBillingInsert(db, id, plan), ...imageInserts,
-    db.prepare("INSERT INTO auramenu_edit_access (menu_id, token_hash) VALUES (?, ?)").bind(id, await tokenHash(token))
-  ]);
-  queueRequestNotification(ctx, env, {
+  const notification = {
+    submittedAt:new Date().toISOString(),
     requestType: "AuraMenu",
     requestId: id,
     businessName,
@@ -813,7 +812,12 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
       ["Template", templateId],
       ["Requested address", requestedSlug],
     ],
-  });
+  };
+  await ensureRequestDelivery(db);
+  await db.batch([...outboxStatements(db,notification),requestInsert, menuBillingInsert(db, id, plan), ...imageInserts,
+    db.prepare("INSERT INTO auramenu_edit_access (menu_id, token_hash) VALUES (?, ?)").bind(id, await tokenHash(token))
+  ]);
+  ctx.waitUntil(deliverRequestEmails(env,id).catch(()=>console.error(JSON.stringify({event:"request_email_processing_failed",requestId:id}))));
   return json({ token, request: { id, slug: requestedSlug, status: "pending", paymentStatus: "unpaid", billing: await menuBilling(db, id) } }, 201, {
     "Cache-Control": "no-store",
     ...corsHeaders,
@@ -1073,13 +1077,13 @@ export default {
       if (quickPublic && request.method === "GET") return await getQuickSiteProject(env.DB, "slug", quickPublic[1], true);
 
       if (url.pathname === "/api/email-health" && request.method === "GET") {
+        const admin = await getAuthenticatedAdmin(request,env.DB);
+        if (!admin) return json({provider:"resend",configured:Boolean(env.RESEND_API_KEY),version:"2026-10-14-request-email-v5"});
         const health = await checkResendHealth(env);
-        return json({
-          ok: Boolean(health.configured && health.apiKeyValid && health.domainVerified),
-          provider: "resend",
-          version: "2026-09-25-email-v4",
-          ...health,
-        }, 200, { "Cache-Control": "no-store" });
+        await ensureRequestDelivery(env.DB);
+        const outbox = await env.DB.prepare("SELECT kind,state,COUNT(*) AS count FROM request_email_outbox GROUP BY kind,state").all();
+        return json({ok:Boolean(health.configured && health.apiKeyValid && health.domainVerified),
+          provider:"resend",version:"2026-10-14-request-email-v5",...health,outbox:outbox.results || []});
       }
 
       if (url.pathname === "/api/settings" && request.method === "GET") {
@@ -1108,7 +1112,7 @@ export default {
 
       if (url.pathname === "/api/contact" && request.method === "POST") {
         const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
-        const limit = await env.TRACK_RATE_LIMITER.limit({ key: `contact-request:${clientKey}` });
+        const limit = await (env.CONTACT_RATE_LIMITER || env.TRACK_RATE_LIMITER).limit({ key: `contact-request:${clientKey}` });
         if (!limit.success) {
           return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429, {
             "Cache-Control": "no-store",

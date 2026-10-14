@@ -1,44 +1,16 @@
+import { enqueueRequestEmails } from "./request-delivery.js";
 const NOTIFICATION_SENDER = {
   email: "notifications@auradigital.ink",
   name: "AuraDigital",
 };
 
 export function queueRequestNotification(ctx, env, notification) {
-  const recipient = cleanLine(env.NOTIFICATION_EMAIL, 254).toLowerCase();
-  const requestId = cleanLine(notification.requestId, 80);
-  const requestType = cleanLine(notification.requestType, 80);
-
-  if (!recipient || !env.REQUEST_NOTIFICATIONS) {
-    console.warn(JSON.stringify({
-      message: "Request email notification is not configured",
-      requestId,
-      requestType,
-    }));
-    return;
-  }
-
-  ctx.waitUntil(
-    sendRequestNotification(env.REQUEST_NOTIFICATIONS, recipient, notification)
-      .then((result) => {
-        console.log(JSON.stringify({
-          message: "Request email notification sent",
-          requestId,
-          requestType,
-          messageId: result.messageId,
-        }));
-      })
-      .catch((error) => {
-        console.error(JSON.stringify({
-          message: "Request email notification failed",
-          requestId,
-          requestType,
-          error: "notification_delivery_failed",
-        }));
-      }),
-  );
+  ctx.waitUntil(enqueueRequestEmails(env, notification).catch(() => {
+    console.error(JSON.stringify({ event: "request_email_enqueue_failed", requestId: notification.requestId }));
+  }));
 }
 
-async function sendRequestNotification(emailBinding, recipient, notification) {
+export async function sendRequestNotification(emailBinding, recipient, notification) {
   const requestType = cleanLine(notification.requestType, 80) || "Customer";
   const businessName = cleanLine(notification.businessName, 160) || "Not provided";
   const contactName = cleanLine(notification.contactName, 160) || "Not provided";

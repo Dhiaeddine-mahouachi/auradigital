@@ -1,3 +1,4 @@
+import { deliverRequestEmails } from "./request-delivery.js";
 import { handleWeddings } from './weddings.js';
 import { requestPolicy, secureResponse, errorResponse } from './security-policy.js';
 import app from './worker.js';
@@ -63,7 +64,8 @@ const router = {
 
 export default {
   async scheduled(controller, env, ctx) {
-    ctx.waitUntil(cleanupAiData(env));
+    if (controller.cron === "0 3 * * *") ctx.waitUntil(cleanupAiData(env));
+    ctx.waitUntil(deliverRequestEmails(env));
   },
   async fetch(request, env, ctx) {
     try {

@@ -295,25 +295,26 @@ const contactFormCopy = {
   tr: {
     idle: "Talebi gönder ↗",
     sending: "Gönderiliyor…",
-    success: "Teşekkürler. Talebinizi aldık ve işlemeye başladık. E-posta adresinize otomatik bir onay mesajı gönderiyoruz.",
+    success: "Teşekkürler. Talebiniz başarıyla kaydedildi. Ekibimiz bilgilerinizi inceleyecek. Onay e-postası gönderim için kabul edildi.",
     successNoEmail: "Talebinizi aldık, ancak otomatik onay e-postası gönderilemedi. Ekibimiz yine de talebinizi aldı ve sizinle iletişime geçecek.",
     error: "Talep gönderilemedi. Lütfen tekrar deneyin veya WhatsApp üzerinden bize ulaşın.",
   },
   en: {
     idle: "Send request ↗",
     sending: "Sending…",
-    success: "Thank you. We received your request and started processing it. We’re sending an automatic confirmation to your email.",
+    success: "Thank you. Your request has been received. Our team will review your information. Your confirmation email has been accepted for sending.",
     successNoEmail: "We received your request, but the automatic confirmation email could not be sent. Our team still has your request and will contact you.",
     error: "We couldn’t send your request. Please try again or contact us on WhatsApp.",
   },
   ar: {
     idle: "إرسال الطلب ←",
     sending: "جارٍ الإرسال…",
-    success: "شكراً لك. استلمنا طلبك وبدأنا معالجته. نرسل الآن رسالة تأكيد تلقائية إلى بريدك الإلكتروني.",
+    success: "شكراً لك. تم تسجيل طلبك بنجاح. سيراجع فريقنا معلوماتك. تم قبول رسالة التأكيد للإرسال.",
     successNoEmail: "استلمنا طلبك، لكن تعذر إرسال رسالة التأكيد التلقائية. طلبك وصل إلى فريقنا وسنتواصل معك.",
     error: "تعذر إرسال الطلب. يرجى المحاولة مرة أخرى أو التواصل معنا عبر WhatsApp.",
   },
 };
+let contactSubmitting = false;
 const contactLanguage = () =>
   document.documentElement.lang === "ar"
     ? "ar"
@@ -323,6 +324,8 @@ const contactLanguage = () =>
 
 form?.addEventListener("submit", async (e) => {
   e.preventDefault();
+  if (contactSubmitting) return;
+  contactSubmitting = true;
   const fd = new FormData(form);
   const submit = form.querySelector("[data-contact-submit]");
   const status = form.querySelector("[data-contact-status]");
@@ -333,30 +336,35 @@ form?.addEventListener("submit", async (e) => {
   status.textContent = "";
 
   try {
+    const payload = {
+      name:fd.get("name"),email:fd.get("email"),phone:fd.get("phone"),
+      service:fd.get("service"),message:fd.get("message"),language,website:fd.get("website"),
+      ...(window.AuraPricing?.selection ? {pricingSelection:window.AuraPricing.selection} : {}),
+    };
+    const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(JSON.stringify(payload))))].map(x=>x.toString(16).padStart(2,"0")).join("");
+    // Keep the key across network failures/reloads; store no customer data.
+    const storageKey = `aura-contact-${hash}`;
+    let submissionKey = form.dataset.submissionHash === hash ? form.dataset.submissionKey : null;
+    try { submissionKey ||= sessionStorage.getItem(storageKey); } catch {}
+    submissionKey ||= crypto.randomUUID();
+    form.dataset.submissionHash = hash;
+    form.dataset.submissionKey = submissionKey;
+    try { sessionStorage.setItem(storageKey,submissionKey); } catch {}
     const response = await fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: fd.get("name"),
-        email: fd.get("email"),
-        phone: fd.get("phone"),
-        service: fd.get("service"),
-        message: fd.get("message"),
-        language,
-        ...(window.AuraPricing?.selection ? { pricingSelection: window.AuraPricing.selection } : {}),
-      }),
+      method:"POST",headers:{"Content-Type":"application/json","Idempotency-Key":submissionKey},
+      body:JSON.stringify(payload),
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.error || copy.error);
+    if (!response.ok || !data.ok || !data.requestId) throw new Error(data.error || copy.error);
 
     if (data.confirmationSent) {
       status.textContent = copy.success;
       status.dataset.state = "success";
     } else {
-      const diagnostic = data.confirmationDetail || data.confirmationReason || (data.contactEmailDebugVersion ? "unknown_email_error" : "old_backend_or_cached_deployment");
-      status.textContent = `${copy.successNoEmail} — Email error: ${diagnostic}`;
-      status.dataset.state = "error";
+      status.textContent = copy.successNoEmail;
+      status.dataset.state = "success";
     }
+    status.textContent += ` (${data.requestId})`;
     form.reset();
     submit.textContent = copy.idle;
   } catch (error) {
@@ -364,6 +372,7 @@ form?.addEventListener("submit", async (e) => {
     status.dataset.state = "error";
     submit.textContent = copy.idle;
   } finally {
+    contactSubmitting = false;
     submit.disabled = false;
   }
 });

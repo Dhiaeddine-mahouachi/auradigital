@@ -73,6 +73,7 @@
     }
   ],
   "ratelimits": [
+    {"name":"CONTACT_RATE_LIMITER","namespace_id":"1843704","simple":{"limit":5,"period":60}},
     {
       "name": "LOGIN_RATE_LIMITER",
       "namespace_id": "1843701",
@@ -154,7 +155,8 @@
   },
   "triggers": {
     "crons": [
-      "0 3 * * *"
+      "0 3 * * *",
+      "*/5 * * * *"
     ]
   }
 }

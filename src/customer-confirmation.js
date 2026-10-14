@@ -1,39 +1,5 @@
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const FROM = "AuraDigital <noreply@auradigitalworks.com>";
-const REPLY_TO = "info@auradigitalworks.com";
-
-const COPY = {
-  tr: {
-    subject: "Talebinizi aldık — AuraDigital",
-    eyebrow: "TALEBİNİZ ALINDI",
-    title: "Teşekkürler. Talebinizi işleme aldık.",
-    body: "Mesajınız AuraDigital ekibine ulaştı. İhtiyacınızı inceliyoruz ve mümkün olan en kısa sürede sizinle iletişime geçeceğiz.",
-    service: "Talep",
-    reference: "Referans",
-    note: "Bu otomatik bir bilgilendirme e-postasıdır. Bu adrese yanıt vermeniz gerekmez.",
-    contact: "Bize ulaşın",
-  },
-  en: {
-    subject: "We received your request — AuraDigital",
-    eyebrow: "REQUEST RECEIVED",
-    title: "Thank you. We’re processing your request.",
-    body: "Your message has reached the AuraDigital team. We’re reviewing your request and will get back to you as soon as possible.",
-    service: "Request",
-    reference: "Reference",
-    note: "This is an automatic confirmation email. You do not need to reply to this address.",
-    contact: "Contact us",
-  },
-  ar: {
-    subject: "تم استلام طلبك — AuraDigital",
-    eyebrow: "تم استلام الطلب",
-    title: "شكراً لك. بدأنا معالجة طلبك.",
-    body: "وصلت رسالتك إلى فريق AuraDigital. نقوم الآن بمراجعة طلبك وسنتواصل معك في أقرب وقت ممكن.",
-    service: "الطلب",
-    reference: "المرجع",
-    note: "هذه رسالة تأكيد تلقائية. لا حاجة للرد على هذا العنوان.",
-    contact: "تواصل معنا",
-  },
-};
 
 export async function checkResendHealth(env) {
   const apiKey = clean(env.RESEND_API_KEY, 300);
@@ -121,79 +87,66 @@ export async function sendCustomerConfirmation(env, data) {
       requestId,
       error: clean(error?.message, 180) || "customer_confirmation_delivery_failed",
     }));
-    return { sent: false, reason: "provider_rejected", detail: clean(error?.message, 180) || "Resend rejected the request." };
+    return { sent: false, reason: "provider_rejected", definitive: Boolean(error?.definitive) };
   }
 }
 
-async function sendConfirmation(apiKey, data) {
-  const lang = ["tr", "en", "ar"].includes(data.language) ? data.language : "tr";
-  const copy = COPY[lang];
-  const name = clean(data.name, 120);
-  const service = clean(data.service, 120);
+export function renderCustomerConfirmation(data) {
+  const name = clean(data.name, 120) || "Customer";
+  const service = clean(data.service, 120) || "Project enquiry";
   const requestId = clean(data.requestId, 80);
-  const safeName = escapeHtml(name || "AuraDigital client");
-  const safeService = escapeHtml(service || "Project");
-  const safeRequestId = escapeHtml(requestId);
-  const dir = lang === "ar" ? "rtl" : "ltr";
+  const submitted = clean(data.submittedAt, 80);
+  const lines = [
+    `Hello ${name},`, "", "Thank you for contacting AuraDigital!", "",
+    "We’ve successfully received your request.", "",
+    "Our team will review the information you’ve provided and get back to you using your contact details.", "",
+    "Request details", `Reference: ${requestId}`, `Service: ${service}`,
+    `Submitted: ${submitted}`, "Status: Received", "",
+    "If you need to provide additional information, please contact us through our official website.", "",
+    "Thank you for choosing AuraDigital.", "", "AuraDigital Team", "Digital Growth Studio",
+    "Istanbul, Türkiye", "https://auradigitalworks.com", "",
+    "This is an automated confirmation. Please do not reply directly to this email.",
+  ];
+  const e = escapeHtml;
+  const html = `<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta charset="utf-8"><title>Request received</title></head>
+<body style="margin:0;background:#07180f;font-family:Arial,Helvetica,sans-serif;color:#10231b">
+<table role="presentation" style="width:100%;border-collapse:collapse"><tr><td style="padding:24px 12px">
+<table role="presentation" style="width:100%;max-width:620px;margin:auto;border-collapse:collapse;background:#ffffff">
+<tr><td style="padding:24px;background:#10231b;color:white;border-bottom:4px solid #E1E100">
+<img src="https://auradigitalworks.com/auradigital-logo-20260928.png" width="112" alt="AuraDigital logo" style="display:block;height:auto;border:0;margin-bottom:16px">
+<span style="font-size:24px;font-weight:bold">AuraDigital</span><br><span style="font-size:12px;color:#E1E100">REQUEST RECEIVED</span></td></tr>
+<tr><td style="padding:24px;font-size:16px;line-height:1.65">
+<p>Hello ${e(name)},</p><h1 style="font-size:26px;line-height:1.3">Thank you for contacting AuraDigital!</h1>
+<p>We’ve successfully received your request.</p><p>Our team will review the information you’ve provided and get back to you using your contact details.</p>
+<h2 style="font-size:18px">Request details</h2>
+<table style="width:100%;background:#f4f7f2;border-collapse:collapse;font-size:14px;table-layout:fixed">
+${[["Reference",requestId],["Service",service],["Submitted",submitted],["Status","Received"]].map(([label,value])=>`<tr><th scope="row" style="width:30%;text-align:left;padding:10px;vertical-align:top">${e(label)}</th><td style="padding:10px;overflow-wrap:anywhere">${e(value)}</td></tr>`).join("")}</table>
+<p>If you need to provide additional information, please contact us through our <a href="https://auradigitalworks.com/contact" style="color:#10231b">official website</a>.</p>
+<p>Thank you for choosing AuraDigital.</p><p><strong>AuraDigital Team</strong><br>Digital Growth Studio<br>Istanbul, Türkiye<br><a href="https://auradigitalworks.com" style="color:#10231b">https://auradigitalworks.com</a></p>
+<p style="font-size:12px;color:#53635c;border-top:1px solid #e5e8dd;padding-top:16px">This is an automated confirmation. Please do not reply directly to this email.</p>
+</td></tr></table></td></tr></table></body></html>`;
+  return { from: FROM, to: [data.email], subject: "We’ve Received Your Request — AuraDigital", html, text: lines.join("\n") };
+}
 
-  const html = [
-    `<div dir="${dir}" style="margin:0;background:#f4f5ef;padding:32px 16px;font-family:Arial,sans-serif;color:#10231b">`,
-    '<div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:22px;overflow:hidden;border:1px solid #e5e8dd">',
-    '<div style="padding:26px 30px;background:#10231b;color:#ffffff">',
-    '<div style="font-size:22px;font-weight:800;letter-spacing:-.02em">AuraDigital</div>',
-    `<div style="margin-top:10px;font-size:11px;letter-spacing:.16em;opacity:.68">${escapeHtml(copy.eyebrow)}</div>`,
-    '</div>',
-    '<div style="padding:32px 30px">',
-    `<p style="margin:0 0 8px;font-size:15px;color:#69766e">${safeName},</p>`,
-    `<h1 style="margin:0 0 16px;font-size:30px;line-height:1.12;letter-spacing:-.035em">${escapeHtml(copy.title)}</h1>`,
-    `<p style="margin:0 0 24px;font-size:16px;line-height:1.7;color:#53635c">${escapeHtml(copy.body)}</p>`,
-    '<div style="background:#f4f7f2;border-radius:16px;padding:18px 20px">',
-    `<div style="font-size:13px;color:#69766e;margin-bottom:7px"><strong style="color:#10231b">${escapeHtml(copy.service)}:</strong> ${safeService}</div>`,
-    `<div style="font-size:13px;color:#69766e"><strong style="color:#10231b">${escapeHtml(copy.reference)}:</strong> ${safeRequestId}</div>`,
-    '</div>',
-    `<p style="margin:24px 0 0;font-size:12px;line-height:1.6;color:#7a877f">${escapeHtml(copy.note)}</p>`,
-    `<p style="margin:18px 0 0"><a href="https://auradigitalworks.com/contact" style="color:#10231b;font-weight:700;text-decoration:none">${escapeHtml(copy.contact)} →</a></p>`,
-    '</div>',
-    '<div style="padding:18px 30px;border-top:1px solid #edf0e8;font-size:12px;color:#87928b">auradigitalworks.com · info@auradigitalworks.com</div>',
-    '</div></div>',
-  ].join("");
-
-  const text = [
-    name ? `${name},` : "",
-    copy.title,
-    "",
-    copy.body,
-    "",
-    `${copy.service}: ${service || "Project"}`,
-    `${copy.reference}: ${requestId}`,
-    "",
-    copy.note,
-    "https://auradigitalworks.com/contact",
-  ].filter(Boolean).join("\n");
-
+async function sendConfirmation(apiKey, data) {
   const response = await fetch(RESEND_ENDPOINT, {
     method: "POST",
+    signal: AbortSignal.timeout(15000),
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
-      "Idempotency-Key": `contact-confirmation/${requestId}`,
+      "Idempotency-Key": `contact-confirmation/${data.requestId}`,
     },
-    body: JSON.stringify({
-      from: FROM,
-      to: [data.email],
-      subject: copy.subject,
-      html,
-      text,
-      reply_to: REPLY_TO,
-    }),
+    body: JSON.stringify(data.message || renderCustomerConfirmation(data)),
   });
-
   const result = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const message = clean(result?.message || result?.error || "resend_send_failed", 180);
-    throw new Error(message);
+  if (!response.ok || !result.id) {
+    // Log a bounded code, never the provider body (which may contain PII).
+    const error = new Error(`resend_http_${response.status}`);
+    error.definitive = !response.ok && response.status !== 408 && response.status !== 409 && response.status < 500;
+    throw error;
   }
-  return clean(result?.id, 120);
+  return clean(result.id, 120);
 }
 
 function clean(value, max) {
