@@ -1905,3 +1905,18 @@ body[data-page="services"].cinematic-enabled .service-card p{
     animation:none!important;
   }
 }
+
+/* Keep request results readable against the contact page's dark brand surface. */
+.contact-form [data-contact-status] {
+  font-size: .9rem;
+  line-height: 1.6;
+  color: #dbe3dc;
+  overflow-wrap: anywhere;
+}
+.contact-form [data-contact-status][data-state="success"] {
+  color: #f3f7ef;
+  padding: 12px 14px;
+  border-left: 3px solid #E1E100;
+  background: #10231b;
+}
+.contact-form [data-contact-status][data-state="error"] { color: #ffb4a6; }
