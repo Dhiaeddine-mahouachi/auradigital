@@ -1,4 +1,9 @@
-import { catalogue, getItem, fmt, priceText, quote, firstYearWebsite, firstYearERP } from "./catalogue.js";
+import { createPricingEngine } from "./catalogue.js";
+// Load approved server prices before rendering; browser language never selects a region.
+let pricingResponse=await fetch('/api/pricing'+(new URL(location.href).searchParams.has('region')?'?region='+encodeURIComponent(new URL(location.href).searchParams.get('region')):''),{cache:'no-store'});
+if(!pricingResponse.ok) throw new Error('Regional pricing unavailable');
+let pricingData=await pricingResponse.json();
+let {catalogue,getItem,fmt,priceText,quote,firstYearWebsite,firstYearERP}=createPricingEngine(pricingData.catalogue);
 
 const W=window;
 const locale=()=>W.__auraLang || document.documentElement.lang || "en";
@@ -260,6 +265,7 @@ function linkFor(id, options={}) {
  u.searchParams.set("service","pricing");
  u.searchParams.set("plan",id);
  u.searchParams.set("v",catalogue.version);
+ u.searchParams.set("region",catalogue.region);
  if(options.addons?.length)u.searchParams.set("addons",options.addons.join(","));
  if(options.standardHosting)u.searchParams.set("infra","standard");
  if(options.enhancedHosting)u.searchParams.set("infra","enhanced");
@@ -308,7 +314,7 @@ function services(){
  ["Website Care","essential-care","/packages","◎","Website maintenance, uptime checks and defined monthly updates."],
  ["Hosting & Security","standard-infra","#infrastructure","◇","Domain, DNS, SSL, hosting and baseline protection."],
  ["Business Email","business-email","#infrastructure","✉","Business mailbox setup; provider subscriptions are separate."],
- ["ERP & systems","spinflow-start","/spinflow","▣","Cloud SaaS from the approved monthly plans; custom ERP from 49,900 TL."],
+ ["ERP & systems","spinflow-start","/spinflow","▣","Cloud SaaS and scoped custom ERP for business operations."],
  ["SEO & Google Maps",null,"/contact?service=SEO","⌖","Local visibility, Google Business profile and on-page SEO."],
  ["AI & Automation",null,"/contact?service=AI%20%26%20Automation","✦","Lead routing, WhatsApp flows and scoped workflow automation."],
  ["Brand & Creative Direction",null,"/contact?service=Brand%20Design","◈","Identity systems, creative direction and advertising assets."],
@@ -387,7 +393,7 @@ function configurator(){
  )&&p.price<q.firstYear);
  rec.textContent=better?'Tip: '+better.name+' ('+money(better.price)+') includes similar functionality and first-year infrastructure.':'';
  cta.href=linkFor(base.id,options);cta.removeAttribute("aria-disabled");
- }catch(err){out.textContent=err.message;cta.removeAttribute("href");cta.setAttribute("aria-disabled","true");}
+ }catch(err){out.textContent=err.message;cta.href=linkFor(base.id,{addons,standardHosting:host.checked&&!base.infraIncluded});cta.removeAttribute("aria-disabled");}
  };
  choices.onchange=update;host.onchange=update;update();
  };
@@ -429,7 +435,7 @@ function contact(){
  if(message && !message.value){
  try{
  const addons=(url.searchParams.get("addons")||"").split(",").filter(Boolean);
- const opts={id,addons,standardHosting:url.searchParams.get("infra")==="standard",enhancedHosting:url.searchParams.get("infra")==="enhanced",managedErpHosting:url.searchParams.get("erp-hosting")!=="customer",extraUsers:Number(url.searchParams.get("users")||0),extraBranches:Number(url.searchParams.get("branches")||0)};
+ const opts={id,addons,region:catalogue.region,currency:catalogue.currency,priceVersion:catalogue.version,standardHosting:url.searchParams.get("infra")==="standard",enhancedHosting:url.searchParams.get("infra")==="enhanced",managedErpHosting:url.searchParams.get("erp-hosting")!=="customer",extraUsers:Number(url.searchParams.get("users")||0),extraBranches:Number(url.searchParams.get("branches")||0)};
  const q=quote(opts);
  W.AuraPricing.selection=opts;
  const historical=["once","monthly","annual"].some(k=>url.searchParams.has(k)&&url.searchParams.get(k)!==String(q[k]));
@@ -455,9 +461,35 @@ function chatAnswer(key,lang=locale()){
  if(key==="dashboard")return lines(a.websiteAddons)+". "+(tr?"Uyumlu paketler: Growth ve üstü.":"Eligibility: Growth or above, CRM from System.");
  return null;
 }
-W.AuraPricing={catalogue,getItem,quote,chatAnswer,linkFor,selection:null};
+function publishContext(){W.AuraPricing={catalogue,currency:catalogue.currency,region:catalogue.region,version:catalogue.version,getItem,quote,chatAnswer,linkFor,selection:null};}
+publishContext();
+window.dispatchEvent(new CustomEvent('aura:pricingchange',{detail:{region:catalogue.region,currency:catalogue.currency}}));
+async function regionSelector(){
+ const target=document.querySelector('#siteHeader .nav')||document.querySelector('header nav')||document.querySelector('header');
+ if(!target||document.getElementById('auraPricingRegion'))return;
+ const select=document.createElement('select');select.id='auraPricingRegion';select.setAttribute('aria-label','Pricing country and currency');select.className='aura-region-selector';
+ for(const r of pricingData.regions){const o=document.createElement('option');o.value=r.id;o.textContent=r.name+' — '+r.currency;o.selected=r.id===catalogue.region;select.append(o);}
+ select.addEventListener('change',async()=>{
+  select.disabled=true;const previous=catalogue.region;
+  try{
+   const response=await fetch('/api/pricing?region='+encodeURIComponent(select.value),{cache:'no-store'});
+   if(!response.ok)throw new Error('Pricing unavailable');
+   pricingData=await response.json();
+   ({catalogue,getItem,fmt,priceText,quote,firstYearWebsite,firstYearERP}=createPricingEngine(pricingData.catalogue));
+   document.cookie='aura-pricing-region='+encodeURIComponent(catalogue.region)+'; Path=/; Max-Age=31536000; SameSite=Lax; Secure';
+   const current=new URL(location.href);current.searchParams.delete('region');history.replaceState(null,'',current);
+   publishContext();refresh();
+   const message=document.querySelector('[data-contact-form] [name="message"]');
+   if(message?.value.startsWith('Pricing request (indicative'))message.value='';
+   contact();window.dispatchEvent(new CustomEvent('aura:pricingchange',{detail:{region:catalogue.region,currency:catalogue.currency}}));
+  }catch{select.value=previous;select.setAttribute('aria-label','Pricing unavailable. Please retry.');}
+  finally{select.disabled=false;}
+ });
+ target.append(select);
+}
 function refresh(){
- home();services();infra();ads();packages();websiteCards();websiteComparison();configurator();spinflow();
+ home();services();infra();ads();packages();websiteCards();websiteComparison();configurator();spinflow();regionSelector();
+ document.querySelectorAll("[data-setting]").forEach(e=>{const id={nfc_price:"nfc-card",auramenu_self_price:"auramenu-self",qr_menu_price:"auramenu-managed",web_single_price:"launch",web_multi_price:"growth",web_dynamic_price:"system"}[e.dataset.setting];if(id)e.textContent=price(getItem(id));});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{refresh();contact();});
 else {refresh();contact();}

@@ -1,3 +1,4 @@
+import { handleGlobalPricing } from './global-pricing.js';
 import { deliverRequestEmails } from "./request-delivery.js";
 import { handleWeddings } from './weddings.js';
 import { requestPolicy, secureResponse, errorResponse } from './security-policy.js';
@@ -21,6 +22,8 @@ const router = {
       return Response.redirect(url.toString(), 301);
     }
 
+    const pricingResponse = await handleGlobalPricing(request,env);
+    if(pricingResponse) return pricingResponse;
     const aiResponse = await handleAiEmployee(request, env, ctx);
     if (aiResponse) return aiResponse;
     const weddingResponse = await handleWeddings(request, env);

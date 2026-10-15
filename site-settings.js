@@ -94,7 +94,7 @@
       // database text in the selected language before adding it to the page.
       if (!window.AuraI18n) await new Promise(resolve => window.addEventListener("aura:languagechange", resolve, { once: true }));
       const settings = data.settings || {};
-      applySettingTargets(settings);
+      if(!document.querySelector('script[src*="pricing/ui.js"]'))applySettingTargets(settings);
       renderPackages(data.packages || []);
       renderServices(data.services || [], settings);
       renderPortfolio(data.portfolio || []);

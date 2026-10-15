@@ -66,20 +66,28 @@ export const catalogue = {
 };
 
 export const groups = ["website","care","infrastructure","advertising","saas","saasAddons","erp","erpAddons","websiteAddons","other"];
-export const getItem = id => groups.flatMap(g => catalogue[g]).find(p => p.id === id) || null;
-export const fmt = (number, lang="en") => new Intl.NumberFormat(lang==="tr"?"tr-TR":"en-US",{maximumFractionDigits:0}).format(number)+" TL";
-export const priceText = (item, lang="en") => (item.from ? (lang==="tr"?"Başlangıç ":"From ") : "")+fmt(item.price,lang)+(item.billing==="month"? (lang==="tr"?"/ay":"/month") : item.billing==="year"?(lang==="tr"?"/yıl":"/year"):"");
-export const firstYearWebsite = (id, infra = true) => {
+export function createPricingEngine(catalogue) {
+  for(const g of groups) for(const p of catalogue[g]) {if(p.price===null)p.price=NaN;if(p.annualHosting===null)p.annualHosting=NaN;}
+const getItem = id => groups.flatMap(g => catalogue[g]).find(p => p.id === id) || null;
+const fmt = (number, lang="en") => {
+  if (!Number.isFinite(number)) return lang==="tr"?"Teklif iste":"Request Quote";
+  const currency=catalogue.currency;
+  const digits=currency==="TND"?3:2;
+  const value=new Intl.NumberFormat(lang==="tr"?"tr-TR":"en-US",{maximumFractionDigits:digits}).format(number);
+  return currency==="TRY"?value+" TL":currency==="TND"?value+" DT":({USD:"$",EUR:"€",GBP:"£"}[currency]||currency+" ")+value;
+};
+const priceText = (item, lang="en") => !Number.isFinite(item.price) ? (lang==="tr"?"Teklif iste":"Request Quote") : (item.from ? (lang==="tr"?"Başlangıç ":"From ") : "")+fmt(item.price,lang)+(item.billing==="month"? (lang==="tr"?"/ay":"/month") : item.billing==="year"?(lang==="tr"?"/yıl":"/year"):"");
+const firstYearWebsite = (id, infra = true) => {
   const plan = catalogue.website.find(p => p.id === id);
   if (!plan) throw new Error("Unknown website plan");
   return plan.price + (infra && !plan.infraIncluded ? getItem("standard-infra").price : 0);
 };
-export const firstYearERP = id => {
+const firstYearERP = id => {
   const plan=catalogue.erp.find(p=>p.id===id);
   if(!plan) throw new Error("Unknown ERP plan");
   return plan.price+plan.annualHosting;
 };
-export function quote({id, addons=[], standardHosting=false, enhancedHosting=false, managedErpHosting=true, extraUsers=0, extraBranches=0}={}) {
+function rawQuote({id, addons=[], standardHosting=false, enhancedHosting=false, managedErpHosting=true, extraUsers=0, extraBranches=0}={}) {
   const item=getItem(id);
   if(!item) throw new Error("Unknown catalogue entry");
   if(standardHosting && enhancedHosting) throw new Error("Choose one hosting option only");
@@ -91,6 +99,8 @@ export function quote({id, addons=[], standardHosting=false, enhancedHosting=fal
   const accepted=[];
   let once=item.billing==="once"?item.price:0, monthly=item.billing==="month"?item.price:0, annual=item.billing==="year"?item.price:0;
   const selected=[...new Set(addons)];
+  if(selected.includes('advanced-dashboard')&&selected.includes('basic-dashboard')) throw new Error('Choose one dashboard scope only');
+  if(id==='scale-commerce'&&selected.includes('ecommerce')&&selected.includes('booking')) throw new Error('Commerce plus booking requires a scoped quote');
   if(group==="website") {
     const rank=catalogue.website.indexOf(item);
     for(const aid of selected) {
@@ -127,3 +137,21 @@ export function quote({id, addons=[], standardHosting=false, enhancedHosting=fal
     indicative:true,taxNote:catalogue.taxes,
     hosting:(group==="website"?(item.infraIncluded?"included-first-year":enhancedHosting?"enhanced-managed":standardHosting?"standard-annual":"not-selected"):group==="erp"?(managedErpHosting?"managed-erp":"customer-managed"):group==="saas"?"included-saas":"not-included")};
 }
+
+function quote(options={}) {
+  // Null rates deliberately propagate to NaN: incomplete estimates are never published as totals.
+  const result=rawQuote(options);
+  if (![result.once,result.monthly,result.annual,result.firstYear].every(Number.isFinite)) throw new Error("Request Quote: regional rate for one or more selected services requires approval");
+  const exponent=catalogue.currency==="TND"?3:2, factor=10**exponent;
+  const minor={};
+  for(const key of ["once","monthly","annual","firstYear"]) {
+    minor[key]=Math.round(result[key]*factor);
+    if(!Number.isSafeInteger(minor[key])) throw new Error("Amount exceeds supported precision");
+    result[key]=minor[key]/factor;
+  }
+  return {...result,currency:catalogue.currency,region:catalogue.region||"TR",priceVersion:catalogue.version,minor,minorUnitExponent:exponent};
+}
+return {catalogue,getItem,fmt,priceText,quote,firstYearWebsite,firstYearERP};
+}
+const defaultEngine=createPricingEngine(catalogue);
+export const {getItem,fmt,priceText,quote,firstYearWebsite,firstYearERP}=defaultEngine;

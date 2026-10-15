@@ -57,7 +57,8 @@ export function validateSelection(v) {
   try { quote(selection); } catch(e) { throw new ApiError(400,e.message); }
   return selection;
 }
-export function estimate(v) {
+export function estimate(v,engine={catalogue,getItem,quote}) {
+  const {catalogue,getItem,quote}=engine;
   const selection=validateSelection(v), item=getItem(selection.id), totals=quote(selection);
   // The existing catalogue defines Scale Commerce as commerce OR booking, not both included.
   if(selection.id==='scale-commerce'&&selection.addons.includes('ecommerce')&&selection.addons.includes('booking')) throw new ApiError(400,'Commerce plus booking requires a scoped proposal.');
@@ -69,11 +70,11 @@ export function estimate(v) {
   if(selection.extraUsers) lines.push({id:'saas-user',name:`Additional users × ${selection.extraUsers}`,amount:selection.extraUsers*getItem('saas-user').price,billing:'month'});
   if(selection.extraBranches) lines.push({id:'saas-branch',name:`Additional branches × ${selection.extraBranches}`,amount:selection.extraBranches*getItem('saas-branch').price,billing:'month'});
   if(item.id==='managed-growth'&&selection.addons.includes('advanced-ads')) lines.push({id:'advanced-ads-upgrade',name:'Advanced Ads upgrade',amount:getItem('advanced-ads').price-getItem('basic-ads').price,billing:'month'});
-  return {...totals,currency:'TRY',selection,lines,features:item.features||[],availability:item.availability||'subject-to-scope',renewalAnnual:catalogue.website.includes(item)&&item.infraIncluded&&!selection.enhancedHosting?getItem('standard-infra').price:totals.annual,humanReview:true,exclusions:['Taxes pending confirmation','Advertising media spend','Third-party subscriptions','Unscoped integrations']};
+  return {...totals,currency:catalogue.currency,selection,lines,features:item.features||[],availability:item.availability||'subject-to-scope',renewalAnnual:catalogue.website.includes(item)&&item.infraIncluded&&!selection.enhancedHosting?getItem('standard-infra').price:totals.annual,humanReview:true,exclusions:['Taxes pending confirmation','Advertising media spend','Third-party subscriptions','Unscoped integrations']};
 }
 export function quoteText(q,lang) {
   const t=TEXT[lang]||TEXT.en;
-  return [t.quote,...q.lines.map(l=>`${l.name}: ${l.amount.toLocaleString(lang)} TRY (${l.billing==='month'?t.month:l.billing==='year'?t.year:t.once})`),`${t.once}: ${q.once} TRY · ${t.month}: ${q.monthly} TRY · ${t.year}: ${q.annual} TRY`,`${t.total}: ${q.firstYear} TRY`,`${t.renewal}: ${q.renewalAnnual} TRY/year`,...(q.availability==='planned'?['Spinflow: planned, availability must be confirmed.']:[])].join('\n');
+  return [(q.currency==='TRY'?t.quote:({en:'Indicative estimate',fr:'Estimation indicative',tr:'Tahmini teklif',ar:'تقدير مبدئي'}[lang]||'Indicative estimate')+' · '+q.currency),...q.lines.map(l=>`${l.name}: ${l.amount.toLocaleString(lang)} ${q.currency} (${l.billing==='month'?t.month:l.billing==='year'?t.year:t.once})`),`${t.once}: ${q.once} ${q.currency} · ${t.month}: ${q.monthly} ${q.currency} · ${t.year}: ${q.annual} ${q.currency}`,`${t.total}: ${q.firstYear} ${q.currency}`,`${t.renewal}: ${Number.isFinite(q.renewalAnnual)?q.renewalAnnual+' '+q.currency+'/year':'Request Quote'}`,...(q.availability==='planned'?['Spinflow: planned, availability must be confirmed.']:[])].join('\n');
 }
 export const services = () => groups.flatMap(group=>catalogue[group].map(item=>({...item,group})));
 export function rankKnowledge(rows,query,cat,lang) {

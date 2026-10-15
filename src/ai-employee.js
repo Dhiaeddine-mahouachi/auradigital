@@ -1,3 +1,4 @@
+import { pricingFor, checkQuoteVersion } from './global-pricing.js';
 import { ApiError, json, readJson } from './http.js';
 import { getAuthenticatedAdmin, sameOrigin } from './security.js';
 import { catalogue, getItem } from '../pricing/catalogue.js';
@@ -72,6 +73,11 @@ async function message(request,env,s) {
   const started=Date.now(), db=env.DB, b=await readJson(request,12000);
   if(typeof b.message!=='string'||b.message.length>2000) throw new ApiError(400,'Message must contain at most 2000 characters.');
   const user=clean(b.message,2000);
+  // Explicit country questions may use another published region for this answer only.
+  const countryMatch=[['TN',/tunisia|tunisie|تونس/i],['TR',/türkiye|turkey|turquie|تركيا/i],['US',/united states|\busa\b|états.unis/i],['GB',/united kingdom|\buk\b|britain/i],['EU',/eurozone|zone euro/i]].find(([,re])=>re.test(user));
+  const {engine}=await pricingFor(request,env,countryMatch?.[0]||b.region);
+  if(b.selection)checkQuoteVersion(b.selection,engine);
+  const regionalEstimate=v=>estimate(v,engine);
   const requestId=/^[a-zA-Z0-9-]{16,64}$/.test(b.requestId||'')?b.requestId:crypto.randomUUID();
   if(!user) throw new ApiError(400,'Message required.');
   const lease=Date.now()+45000;
@@ -82,7 +88,7 @@ async function message(request,env,s) {
     const previous=parse(fresh?.state||s.state);
     if(previous.lastRequestId===requestId) {
       const saved=await db.prepare("SELECT content FROM ai_messages WHERE session_id=? AND role='assistant' ORDER BY id DESC LIMIT 1").bind(s.id).first();
-      return json({reply:saved?.content||TEXT[s.language].unknown,mode:'ai',language:s.language,memory:previous,estimate:previous.selection?estimate(previous.selection):null,sources:[],requestId,duplicate:true});
+      return json({reply:saved?.content||TEXT[s.language].unknown,mode:'ai',language:s.language,memory:previous,estimate:previous.selection?regionalEstimate(previous.selection):null,sources:[],requestId,duplicate:true});
     }
     const page=pageContext(b.page), lang=language(user,b.language,s.language), cat=category(user,page,previous.category);
     let detected=intent(user);
@@ -96,13 +102,19 @@ async function message(request,env,s) {
       docs.splice(5);
     }
     const relevantGroups={website:['website'],care:['care'],infrastructure:['infrastructure'],advertising:['advertising'],spinflow:['saas','erp'],auramenu:['other'],aurapops:['other']};
-    const candidates=services().filter(i=>(relevantGroups[cat]||['website','care','other']).includes(i.group)).filter(i=>cat!=='auramenu'||i.id.startsWith('auramenu-')).map(i=>({id:i.id,name:i.name,price:i.price,currency:'TRY',billing:i.billing||'once',group:i.group,features:i.features,availability:i.availability,includes:i.includes}));
-    const data={language:lang,intentHint:detected,page,memory:Object.fromEntries(Object.entries(previous).filter(([key])=>key!=='lastRequestId')),knowledge:docs.filter(k=>k.source_type!=='page').slice(0,4).map(k=>({id:k.id,title:k.title,content:clean(k.content,900),source:k.source_url,verified:k.verified_at})),portfolio:publicProjects,approvedPackages:candidates,approvedAddons:catalogue.websiteAddons.concat(catalogue.erpAddons).map(a=>({id:a.id,name:a.name})),message:redact(user)};
+    const candidates=services().map(i=>({...i,...engine.getItem(i.id)})).filter(i=>(relevantGroups[cat]||['website','care','other']).includes(i.group)).filter(i=>cat!=='auramenu'||i.id.startsWith('auramenu-')).map(i=>({id:i.id,name:i.name,price:i.price,currency:engine.catalogue.currency,billing:i.billing||'once',group:i.group,features:i.features,availability:i.availability,includes:i.includes}));
+    const data={pricingRegion:engine.catalogue.region,currency:engine.catalogue.currency,priceVersion:engine.catalogue.version,language:lang,intentHint:detected,page,memory:Object.fromEntries(Object.entries(previous).filter(([key])=>key!=='lastRequestId')),knowledge:docs.filter(k=>k.source_type!=='page').slice(0,4).map(k=>({id:k.id,title:k.title,content:clean(k.content,900),source:k.source_url,verified:k.verified_at})),portfolio:publicProjects,approvedPackages:candidates,approvedAddons:catalogue.websiteAddons.concat(catalogue.erpAddons).map(a=>({id:a.id,name:a.name})),message:redact(user)};
     const messages=[{role:'system',content:SYSTEM+'\nFor this turn, write reply ONLY in '+({en:'English',ar:'Arabic (العربية)',tr:'Turkish (Türkçe)',fr:'French (français)'})[lang]+'. Prior messages may be in a different language. The latest requested language takes precedence. Do not repeat a company introduction. Use only approvedPackages prices and billing for comparisons. The server also displays itemized quotations from your selection. For a pricing question about a known product, select the applicable approved package; ask one question if the package is ambiguous.'},...history.map(h=>({role:h.role==='user'?'user':'assistant',content:h.content.slice(0,1000)})),{role:'user',content:JSON.stringify(data)}];
+    const regionalPrice=engine.catalogue.currency!=='TRY'&&['pricing','quotation'].includes(detected);
+    if(regionalPrice){
+      const approved=candidates.map(p=>{const item=engine.getItem(p.id);return item.name+': '+engine.priceText(item,lang);}).join('; ');
+      reply=engine.catalogue.region+' · '+engine.catalogue.currency+'\n'+approved+'\n'+({en:'Scope, taxes and external charges require confirmation.',fr:'Périmètre, taxes et frais externes à confirmer.',tr:'Kapsam, vergiler ve ek ücretler onaylanmalıdır.',ar:'يجب تأكيد نطاق العمل والضرائب والرسوم الخارجية.'}[lang]);
+      mode='deterministic';
+    }
     const configured=!!env.AI_MODEL&&['cloudflare','compatible'].includes(env.AI_PROVIDER);
     if(!configured&&detected!=='restricted'&&b.selection===undefined) await event(db,s.id,'provider_failure','provider_configuration',detected).run();
-    if(b.selection!==undefined&&detected!=='restricted') {reply=TEXT[lang].quote;mode='deterministic';}
-    if(configured&&detected!=='restricted'&&b.selection===undefined) {
+    if(b.selection!==undefined&&detected!=='restricted') {reply=TEXT[lang].quote.replace('TRY',engine.catalogue.currency);mode='deterministic';}
+    if(configured&&!regionalPrice&&detected!=='restricted'&&b.selection===undefined) {
       const day=new Date().toISOString().slice(0,10);
       // Reserve a conservative worst-case token count before at most two model attempts.
       const reserve=2*(new TextEncoder().encode(messages.map(m=>m.content).join('')).length+1000);
@@ -117,7 +129,7 @@ async function message(request,env,s) {
       const budget=await db.prepare('UPDATE ai_usage SET reserved_tokens=reserved_tokens+?,calls=calls+1 WHERE day=? AND reserved_tokens+?<=? RETURNING day').bind(reserve,day,reserve,limit).first();
       if(budget) {
         try {
-          const output=await generate(env,messages,requestId);
+          const output=await generate(env,messages,requestId,engine);
           reply=clean(output.result.reply,4000);mode='ai';usage=output.usage;
           if(['discovery','pricing','comparison','quotation','support','handoff','restricted'].includes(output.result.intent)) detected=output.result.intent;
           state=safeMemory(state,output.result.memory);
@@ -143,10 +155,10 @@ async function message(request,env,s) {
     if(mode==='ai')state.lastRequestId=requestId;
     let calculated=null;
     if(selection) {
-      try{calculated=estimate(selection);state.selection=selection;}catch{delete state.selection;reply+='\n'+TEXT[lang].unknown;}
+      try{calculated=regionalEstimate(selection);state.selection=selection;state.pricingRegion=engine.catalogue.region;state.pricingVersion=engine.catalogue.version;}catch{delete state.selection;reply+='\n'+TEXT[lang].unknown;}
     }
     if(calculated&&(detected==='pricing'||detected==='quotation'||b.selection!==undefined)) reply+='\n\n'+quoteText(calculated,lang);
-    if(page.requestedCurrency&&page.requestedCurrency!=='TRY') reply+='\n'+TEXT[lang].unknown;
+
     await db.batch([
       db.prepare('INSERT INTO ai_messages(session_id,role,content) VALUES(?,?,?)').bind(s.id,'user',redact(user)),
       db.prepare('INSERT INTO ai_messages(session_id,role,content) VALUES(?,?,?)').bind(s.id,'assistant',redact(reply)),
@@ -165,7 +177,10 @@ async function action(request,env,s) {
   if(!name||!requirements||(!email&&!phone)||(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))||(phone&&!/^\+?[\d\s().-]{7,40}$/.test(phone))) throw new ApiError(400,'Please supply a name, valid contact method and requirements.');
   const existing=await env.DB.prepare('SELECT id FROM ai_requests WHERE session_id=? AND kind=?').bind(s.id,kind).first();
   if(existing) return json({ok:true,reference:existing.id,duplicate:true,emailSent:false});
-  const state=parse(s.state),q=kind==='quote'&&state.selection?estimate(state.selection):null;
+  const state=parse(s.state);
+  const {engine}=await pricingFor(request,env,state.pricingRegion);
+  if(kind==='quote'&&state.pricingVersion)checkQuoteVersion({priceVersion:state.pricingVersion},engine);
+  const q=kind==='quote'&&state.selection?estimate(state.selection,engine):null;
   const id='AI-'+crypto.randomUUID();
   const details={requirements,category:state.category||'project',language:s.language,estimate:q,consentAt:new Date().toISOString(),humanReview:true};
   const notes=JSON.stringify({source:'AuraDigital AI assistant',reference:id,...details});
@@ -259,7 +274,7 @@ export async function handleAiEmployee(request,env,ctx) {
     env.DB.prepare("INSERT INTO ai_meta(key,value) VALUES('cleanup-day',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(day)
   ]);
   if(path.startsWith('/api/admin/ai')) return admin(request,env,path);
-  if(path==='/api/ai/services'&&request.method==='GET') return json({services:services(),currency:'TRY',version:catalogue.version});
+  if(path==='/api/ai/services'&&request.method==='GET') {const {engine}=await pricingFor(request,env);return json({services:services().map(i=>({...i,...engine.getItem(i.id)})),currency:engine.catalogue.currency,version:engine.catalogue.version});}
   if(path==='/api/ai/session'&&request.method==='POST') {
     try{const s=await session(request,env.DB);return json({language:s.language,memory:parse(s.state),persistent:!!s.persistent,messages:(await env.DB.prepare('SELECT role,content FROM ai_messages WHERE session_id=? ORDER BY id LIMIT 40').bind(s.id).all()).results});}catch(e){if(e.status!==401)throw e;}
     const token=[...crypto.getRandomValues(new Uint8Array(32))].map(x=>x.toString(16).padStart(2,'0')).join(''),id=crypto.randomUUID();
@@ -275,7 +290,7 @@ export async function handleAiEmployee(request,env,ctx) {
     return message(request,env,s);
   }
   if(path==='/api/ai/action'&&request.method==='POST') return action(request,env,s);
-  if(path==='/api/ai/quote'&&request.method==='POST') {const b=await readJson(request,8000);return json({estimate:estimate(b.selection)});}
+  if(path==='/api/ai/quote'&&request.method==='POST') {const b=await readJson(request,8000);const {engine}=await pricingFor(request,env,b.region);checkQuoteVersion(b.selection,engine);return json({estimate:estimate(b.selection,engine)});}
   if(path==='/api/ai/feedback'&&request.method==='POST') {const b=await readJson(request,1000);if(!['helpful','inaccurate'].includes(b.rating))throw new ApiError(400,'Invalid feedback.');await event(env.DB,s.id,'feedback_'+b.rating).run();return json({ok:true});}
   if(path==='/api/ai/memory'&&request.method==='PATCH') {
     const b=await readJson(request,5000),state=safeMemory(parse(s.state),b.memory);

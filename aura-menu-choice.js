@@ -22,7 +22,10 @@
       design: designName,
       lang: language,
     });
-    selfLink.href = `https://auramenu.space/builder.html?${selfParams}`;
+    if(window.AuraPricing?.currency && window.AuraPricing.currency!=='TRY') {
+      selfLink.href='/contact?plan=auramenu-self&region='+encodeURIComponent(window.AuraPricing.region);
+    }else selfLink.href = `https://auramenu.space/builder.html?${selfParams}`;
+    if(window.AuraPricing?.region)managedParams.set('region',window.AuraPricing.region);
     managedLink.href = `/contact?${managedParams}`;
   }
 
@@ -52,6 +55,7 @@
   modal.querySelectorAll("[data-menu-choice-close]").forEach((button) =>
     button.addEventListener("click", closeChoice),
   );
+  window.addEventListener("aura:pricingchange",updateLinks);
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !modal.hidden) closeChoice();
   });

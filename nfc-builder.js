@@ -93,7 +93,8 @@
     [document.getElementById("cardFront"),document.getElementById("cardBack")].forEach(card=>{card.classList.toggle("size-large",fields.cardSize.value==="large");card.classList.toggle("corners-square",fields.cornerStyle.value==="square");card.dataset.font=fields.fontStyle.value;card.dataset.layout=fields.layoutStyle.value});
     document.getElementById("physicalSize").textContent=fields.cardSize.value==="large"?"120 × 180 mm":"85.6 × 54 mm";
     const fee=fields.deliveryMethod.value==="delivery"?60:fields.deliveryMethod.value==="onsite"?100:0;
-    document.getElementById("orderTotal").textContent=new Intl.NumberFormat(language==="ar"?"ar":language==="en"?"en":"tr-TR").format((Number(fields.quantity.value)||1)*700+fee)+" TL";
+    const pricing=window.AuraPricing,unit=pricing?.getItem('nfc-card')?.price;
+    document.getElementById("orderTotal").textContent=pricing?.currency==='TRY'&&Number.isFinite(unit)?new Intl.NumberFormat(language==="ar"?'ar':language==='en'?'en':'tr-TR').format((Number(fields.quantity.value)||1)*unit+fee)+' TL':'Request Quote — delivery and availability to be confirmed';
     setCardColors();
     drawQr(fields.destinationUrl.value);
   }
@@ -111,13 +112,16 @@
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if(window.AuraPricing?.currency!=='TRY'){
+      location.href='/contact?plan=nfc-card&region='+encodeURIComponent(window.AuraPricing?.region||'TR')+'&service=NFC%20international%20quotation';return;
+    }
     const button = document.getElementById("submitButton");
     const notice = document.getElementById("formNotice");
     button.disabled = true;
     button.querySelector("span").textContent = copy[language].sending;
     notice.textContent = ""; notice.className = "form-notice";
     const payload = {
-      cardType: currentType(), cardLanguage: fields.cardLanguage.value, businessName: fields.businessName.value,
+      region:window.AuraPricing?.region,priceVersion:window.AuraPricing?.version,currency:window.AuraPricing?.currency,cardType: currentType(), cardLanguage: fields.cardLanguage.value, businessName: fields.businessName.value,
       headline: fields.headline.value, instructionText: fields.instructionText.value, destinationUrl: fields.destinationUrl.value,
       backgroundColor: fields.backgroundColor.value, accentColor: fields.accentColor.value, textColor: fields.textColor.value,
       finish: fields.finish.value, showQr: fields.showQr.checked, quantity: Number(fields.quantity.value),
@@ -143,6 +147,7 @@
     }
   });
   document.getElementById("closeSuccess").addEventListener("click", () => { document.getElementById("successPanel").hidden = true; });
+  window.addEventListener("aura:pricingchange",updatePreview);
   setLanguage(language);
   setType(currentType());
 })();

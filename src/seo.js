@@ -1,3 +1,4 @@
+import { pricingFor } from './global-pricing.js';
 import { renderPricingFallback } from "./pricing-html.js";
 
 const SITE_ORIGIN = "https://auradigitalworks.com";
@@ -193,6 +194,7 @@ export async function serveSeoAsset(request, env) {
 
   const canonical = `${SITE_ORIGIN}${pathname}`;
   const schema = buildSchema(pathname, meta, canonical);
+  const {engine:pricingEngine}=await pricingFor(request,env);
   const rewriter = new HTMLRewriter()
     .on("html", {
       element(element) {
@@ -209,9 +211,15 @@ export async function serveSeoAsset(request, env) {
         element.setAttribute("content", meta.description);
       },
     })
+    .on("[data-setting]", {
+      element(element) {
+        const id={nfc_price:"nfc-card",auramenu_self_price:"auramenu-self",qr_menu_price:"auramenu-managed",web_single_price:"launch",web_multi_price:"growth",web_dynamic_price:"system"}[element.getAttribute("data-setting")];
+        if(id)element.setInnerContent(pricingEngine.priceText(pricingEngine.getItem(id)));
+      }
+    })
     .on("[data-pricing-view]", {
       element(element) {
-        const markup = renderPricingFallback(element.getAttribute("data-pricing-view"));
+        const markup = renderPricingFallback(element.getAttribute("data-pricing-view"),pricingEngine);
         if (markup) element.setInnerContent(markup, { html: true });
       },
     })
@@ -221,7 +229,9 @@ export async function serveSeoAsset(request, env) {
       },
     });
 
-  return rewriter.transform(response);
+  const result=rewriter.transform(response);
+  const headers=new Headers(result.headers);headers.set('Cache-Control','private, no-store');headers.set('Vary','Cookie');
+  return new Response(result.body,{status:result.status,headers});
 }
 
 function canonicalPath(pathname) {

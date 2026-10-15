@@ -1,3 +1,4 @@
+import { pricingFor, checkQuoteVersion } from './global-pricing.js';
 import { ensureRequestDelivery, requestFingerprint, outboxStatements, deliverRequestEmails } from "./request-delivery.js";
 import { MENU_PLANS, ensureMenuBilling, menuBilling, menuBillingInsert, activateMenuBilling, menuEntitlement } from "./menu-billing.js";
 import { ApiError, json, readJson } from "./http.js";
@@ -120,7 +121,9 @@ async function createContactRequest(request, db, env, ctx) {
       if (!selected || typeof selected !== "object" || Array.isArray(selected)) throw Error("Invalid selection");
       const id = String(selected.id || "");
       if (!/^[a-z0-9-]{1,60}$/.test(id)) throw Error("Invalid plan");
-      const product = getPublicPrice(id);
+      const {engine}=await pricingFor(request,env,selected.region);
+      checkQuoteVersion(selected,engine);
+      const product = engine.getItem(id);
       if (!product) throw Error("Unknown plan");
       const addons = selected.addons;
       if (addons !== undefined && (!Array.isArray(addons) || addons.length > 10 ||
@@ -138,24 +141,27 @@ async function createContactRequest(request, db, env, ctx) {
         extraUsers: quantity(selected.extraUsers ?? 0),
         extraBranches: quantity(selected.extraBranches ?? 0),
       };
-      const estimate = calculatePublicQuote(options);
+      const estimate = engine.quote(options);
       verifiedPricingSnapshot = JSON.stringify({
         type: "indicative_catalogue_snapshot",
-        catalogueVersion: PUBLIC_PRICING.version,
+        catalogueVersion: engine.catalogue.version,
+        currency:engine.catalogue.currency,region:engine.catalogue.region,minor:estimate.minor,
         name: product.name,
         ...options,
-        totalsTRY: {
+        totals: {
           oneTime: estimate.once,
           monthly: estimate.monthly,
           annual: estimate.annual,
           indicativeFirstYear: estimate.firstYear,
         },
+        ...(engine.catalogue.currency==="TRY"?{totalsTRY:{oneTime:estimate.once,monthly:estimate.monthly,annual:estimate.annual,indicativeFirstYear:estimate.firstYear}}:{}),
         hosting: estimate.hosting,
         availability: product.availability || "subject-to-contract",
         taxNote: PUBLIC_PRICING.taxes,
         generatedAt: new Date().toISOString(),
       });
-    } catch {
+    } catch (error) {
+      if(error.status===409)return json({error:error.message},409,{"Cache-Control":"no-store"});
       return json({ error: "Invalid pricing selection. Please return to the pricing page and try again." }, 400, { "Cache-Control": "no-store" });
     }
   }
@@ -282,7 +288,11 @@ async function createNfcRequest(request, db, env, ctx) {
   const cornerStyle = ["rounded", "square"].includes(String(body.cornerStyle)) ? String(body.cornerStyle) : "rounded";
   const deliveryMethod = ["pickup", "delivery", "onsite"].includes(String(body.deliveryMethod)) ? String(body.deliveryMethod) : "pickup";
   const deliveryFee = deliveryMethod === "delivery" ? 60 : deliveryMethod === "onsite" ? 100 : 0;
-  const unitPrice = 700;
+  const {engine:nfcPricing}=await pricingFor(request,env,body.region);
+  checkQuoteVersion(body,nfcPricing);
+  if(nfcPricing.catalogue.currency!=='TRY')return json({error:'International NFC fulfilment requires a scoped quotation. Please use /contact.'},400);
+  const unitPrice=nfcPricing.getItem('nfc-card').price;
+  if(!Number.isFinite(unitPrice))return json({error:'NFC price requires a quotation. Please use /contact.'},400);
   const total = quantity * unitPrice + deliveryFee;
 
   if (!NFC_CARD_TYPES.has(cardType) || !businessName || !contactName || !contactPhone || !destinationUrl) {
@@ -302,7 +312,7 @@ async function createNfcRequest(request, db, env, ctx) {
   }
 
   const id = crypto.randomUUID();
-  const nfcMeta = { cardSize, fontStyle, layoutStyle, cornerStyle, deliveryMethod, deliveryFee, unitPrice, total };
+  const nfcMeta = { currency:nfcPricing.catalogue.currency,priceVersion:nfcPricing.catalogue.version,cardSize, fontStyle, layoutStyle, cornerStyle, deliveryMethod, deliveryFee, unitPrice, total };
   const storedNotes = (NFC_META_PREFIX + JSON.stringify(nfcMeta) + "\n" + qsClean(body.notes, 700)).slice(0, 1000);
   const requestInsert = db.prepare("INSERT INTO nfc_requests (id, card_type, card_language, business_name, headline, instruction_text, destination_url, background_color, accent_color, text_color, show_qr, finish, quantity, contact_name, contact_phone, email, city, payment_reference, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
     .bind(
@@ -1101,12 +1111,13 @@ export default {
           getPublicSettings(env.DB),
           listPublic(env.DB, "portfolio"),
         ]);
-        const packages = PUBLIC_PRICING.care.map(plan => ({
+        const {engine}=await pricingFor(request,env);
+        const packages = engine.catalogue.care.map(plan => ({
           name: plan.name, description: plan.audience, monthly_price: plan.price,
           weekly_price: 0, features: plan.features, featured: Number(Boolean(plan.featured)),
         }));
-        return json({ settings, packages, services: [], portfolio, pricing: PUBLIC_PRICING }, 200, {
-          "Cache-Control": "public, max-age=30",
+        return json({ settings, packages, services: [], portfolio, pricing: engine.catalogue }, 200, {
+          "Cache-Control": "private, no-store",
         });
       }
 

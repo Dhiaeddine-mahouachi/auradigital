@@ -8,15 +8,17 @@ Keep replies under 100 words. Return one valid JSON object, never Markdown fence
 The reply is a string. Intent is one of discovery, pricing, comparison, quotation, support, handoff or restricted. Memory is optional project context with businessType, requirements, budget, deadline and constraints; include only details the visitor supplied or changed, each under 80 characters, never personal contact details. Do not echo the input JSON or the package list.
 Selection is null unless a clear package estimate is requested. For an estimate use {"id":"an exact approvedPackages id","addons":[]}; optional hosting flags and quantities are allowed only when requested. For a price enquiry about AuraMenu self-service, select auramenu-self; for done-for-you, select auramenu-managed. Never invent a package or assume approval to buy.`;
 
-function verifiedPrices(reply,selection,packages=[]) {
- const amounts=[...reply.matchAll(/(\d[\d,.]*)\s*(TRY|TL|USD|EUR|₺|€|\$)|(TRY|TL|USD|EUR|₺|€|\$)\s*(\d[\d,.]*)/gi)];
+function verifiedPrices(reply,selection,packages=[],engine) {
+ const amounts=[...reply.matchAll(/(\d[\d,.]*)\s*(TRY|TL|USD|EUR|TND|DT|GBP|₺|€|£|\$)|(TRY|TL|USD|EUR|TND|DT|GBP|₺|€|£|\$)\s*(\d[\d,.]*)/gi)];
  if(!amounts.length)return true;
- let quote;try{quote=estimate(selection);}catch{}
+ let quote;try{quote=estimate(selection,engine);}catch{}
  const allowed=new Set(quote?[...quote.lines.map(line=>line.amount),quote.once,quote.monthly,quote.annual,quote.firstYear,quote.renewalAnnual]:[]);
  const normalize=text=>text.toLowerCase().replace(/[-–]/g,' ');
  return amounts.every(match=>{
-   const value=Number((match[1]||match[4]).replace(/[,.]/g,''));
-   if(!/^(TRY|TL|₺)$/i.test(match[2]||match[3]))return false;
+   const value=Number((match[1]||match[4]).replace(/,/g,''));
+   const currency=engine?.catalogue.currency||'TRY';
+   const symbols={TRY:['TRY','TL','₺'],TND:['TND','DT'],USD:['USD','$'],EUR:['EUR','€'],GBP:['GBP','£']};
+   if(!symbols[currency]?.includes((match[2]||match[3]).toUpperCase()))return false;
    if(allowed.has(value))return true;
    // Match each comparison amount to the nearest preceding named package.
    // Recompute its price from the catalogue, never trust model-supplied amounts.
@@ -26,7 +28,7 @@ function verifiedPrices(reply,selection,packages=[]) {
      return {item,index:Math.max(...names.map(name=>before.lastIndexOf(normalize(name))))};
    }).filter(item=>item.index>=0).sort((a,b)=>b.index-a.index);
    if(!named.length)return false;
-   try{return estimate({id:named[0].item.id}).lines[0].amount===value;}catch{return false;}
+   try{return estimate({id:named[0].item.id},engine).lines[0].amount===value;}catch{return false;}
  });
 }
 
@@ -38,7 +40,7 @@ export function tariff(env) {
   return {input,output,max:Math.max(input,output)};
 }
 
-async function attempt(env,messages,timeout) {
+async function attempt(env,messages,timeout,engine) {
   const model=env.AI_MODEL;
   if(!model||!['cloudflare','compatible'].includes(env.AI_PROVIDER)) throw new ApiError(503,'AI provider is not configured.');
   let raw;
@@ -85,22 +87,22 @@ async function attempt(env,messages,timeout) {
   if(!result.selection){
     const named=packages.filter(item=>typeof item.name==='string'&&result.reply.toLowerCase().replace(/[-–]/g,' ').includes(item.name.toLowerCase().replace(/[-–]/g,' ')));
     const matched=named.filter(item=>new RegExp('(?:'+item.price+'\\s*(?:TRY|TL|₺)|(?:TRY|TL|₺)\\s*'+item.price+')','i').test(result.reply));
-    if(matched.length===1&&verifiedPrices(result.reply,{id:matched[0].id}))result.selection={id:matched[0].id,addons:[]};
+    if(matched.length===1&&verifiedPrices(result.reply,{id:matched[0].id},packages,engine))result.selection={id:matched[0].id,addons:[]};
   }
   // Prices and side effects must be server-generated, never unchecked model claims.
-  if(!verifiedPrices(result.reply,result.selection,packages)||/(?:I have|I’ve|we have|successfully)\s+(?:saved|sent|created|emailed)/i.test(result.reply)) throw new ApiError(502,'Unverified AI action or price claim.');
+  if(!verifiedPrices(result.reply,result.selection,packages,engine)||/(?:I have|I’ve|we have|successfully)\s+(?:saved|sent|created|emailed)/i.test(result.reply)) throw new ApiError(502,'Unverified AI action or price claim.');
   return {result,usage,model};
   }catch(error){error.usage=usage;error.usageKnown=usage.input>0;throw error;}
 }
 
 // Two attempts share one deadline. Never retry authentication, quota, output
 // binding timeouts: an uncancellable binding call may still bill.
-export async function generate(env,messages,requestId=crypto.randomUUID()) {
+export async function generate(env,messages,requestId=crypto.randomUUID(),engine) {
   const started=Date.now();let currentMessages=messages;
   const billed={input:0,output:0};let unmeteredAttempts=0;
   for(let index=0;index<2;index++) {
     try {
-      const output=await attempt(env,currentMessages,Math.max(1,25000-(Date.now()-started)));
+      const output=await attempt(env,currentMessages,Math.max(1,25000-(Date.now()-started)),engine);
       billed.input+=output.usage.input;billed.output+=output.usage.output;
       if(!output.usage.input)unmeteredAttempts++;
       console.log(JSON.stringify({timestamp:new Date().toISOString(),requestId,endpoint:'/api/ai/message',provider:env.AI_PROVIDER,model:env.AI_MODEL,status:200,durationMs:Date.now()-started,attempt:index+1,usage:output.usage}));

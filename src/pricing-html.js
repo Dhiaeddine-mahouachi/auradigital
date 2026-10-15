@@ -1,4 +1,6 @@
-import { catalogue, getItem, fmt, priceText, firstYearWebsite, firstYearERP } from "../pricing/catalogue.js";
+import { catalogue as base, createPricingEngine } from "../pricing/catalogue.js";
+export function renderPricingFallback(view,engine=createPricingEngine(base)) {
+const {catalogue,getItem,fmt,priceText,firstYearWebsite,firstYearERP}=engine;
 
 // Initial HTML is generated from the same catalogue as interactive browser and API pricing.
 // The client-side pricing module progressively enhances these sections after module load.
@@ -64,7 +66,7 @@ const webAddons = () => '<div class="aura-price-compact">'+catalogue.websiteAddo
  '</div><p class="aura-price-footnote">Dashboard and commerce/booking modules require Growth or above; CRM requires System or above. Included functionality is never charged twice. Choose options with the interactive configurator, or request a scoped quote.</p>';
 const erpSection = () => '<div class="aura-price-card-grid">'+catalogue.erp.map(p=>card(p,
   'Managed ERP hosting: '+amount(p.annualHosting)+'/year; first-year combined: <b>'+amount(firstYearERP(p.id))+'</b>')).join("")+'</div>';
-export function renderPricingFallback(view) {
+
  switch(view) {
   case "home": return '<div class="aura-price-mini-grid">'+home.map(([name,id,url])=>
     tr(name,url,getItem(id))).join("")+'</div>';

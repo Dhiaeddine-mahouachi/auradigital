@@ -64,3 +64,5 @@
 
 .aura-price-mini b:has(small){white-space:normal;line-height:1.35}
 .aura-price-mini b small{display:block;font-size:.68rem;letter-spacing:0;font-weight:600;margin-top:5px;color:#c7d5bc}
+
+.aura-region-selector{font:inherit;font-size:.75rem;max-width:160px;border:1px solid currentColor;border-radius:8px;padding:6px;background:var(--bg,#07180f);color:inherit}.aura-region-selector option{background:#07180f;color:#fff}@media(max-width:600px){.aura-region-selector{max-width:115px;font-size:.65rem}}

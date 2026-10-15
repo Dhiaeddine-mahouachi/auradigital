@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { catalogue, getItem, quote, firstYearWebsite, firstYearERP } from "../pricing/catalogue.js";
+import { initialVersion } from "../pricing/regions.js";
 import { renderPricingFallback } from "../src/pricing-html.js";
 import app from "../src/worker-entry.js";
 import { d1 } from "./d1.mjs";
@@ -77,7 +78,7 @@ test("contact API stores server-verified pricing and rejects invented prices", a
     assert.match(row.notes, /Verified catalogue quote snapshot/);
     assert.match(row.notes, /"oneTime":25300/);
     assert.match(row.notes, /"annual":2000/);
-    assert.match(row.notes, /"catalogueVersion":"2026-10-13"/);
+    assert.match(row.notes, /"catalogueVersion":"2026-10-15-global-1"/);
     const invalid=await call({...base,email:"second@example.com",pricingSelection:{id:"growth",addons:["invented-addon"]}});
     assert.equal(invalid.status,400);
     assert.equal((await db.prepare("SELECT COUNT(*) count FROM clients WHERE email=?").bind("second@example.com").first()).count,0);
@@ -109,14 +110,14 @@ test("public pricing APIs expose only approved active prices and no weekly offer
     const pricingResponse=await app.fetch(new Request("https://auradigitalworks.com/api/pricing"),env,ctx);
     assert.equal(pricingResponse.status,200);
     const current=(await pricingResponse.json()).catalogue;
-    assert.equal(current.version,catalogue.version);
+    assert.equal(current.version,initialVersion);
     assert.deepEqual(current.care.map(x=>x.price),[1950,4900,7900,12900]);
     const contentResponse=await app.fetch(new Request("https://auradigitalworks.com/api/public-content"),env,ctx);
     assert.equal(contentResponse.status,200);
     const content=await contentResponse.json();
     assert.deepEqual(content.packages.map(x=>x.monthly_price),[1950,4900,7900,12900]);
     assert.ok(content.packages.every(x=>x.weekly_price===0));
-    assert.equal(content.pricing.version,catalogue.version);
+    assert.equal(content.pricing.version,initialVersion);
     assert.equal(content.pricing.infrastructure.find(x=>x.id==="standard-infra").price,2000);
   } finally {sqlite.close();}
 });

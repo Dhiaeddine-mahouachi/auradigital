@@ -44,7 +44,7 @@ async function initialize() {
 function page() {return {path:location.pathname,language:document.documentElement.lang,currency:window.AuraPricing?.currency||'TRY',selectedCustomization:window.AuraPricing?.selection,visiblePackages:Array.from(document.querySelectorAll('[data-plan],[data-package]')).map(e=>e.dataset.plan||e.dataset.package).slice(0,10)};}
 async function send(message,selection,requestId=crypto.randomUUID(),retry=false) {
  if(busy)return;busy=true;renderCopy();controls.replaceChildren();
- try{await initialize();if(!retry)append(message,'user');input.value='';const data=await api('message',{requestId,message,page:page(),language:$('aiLanguage').value==='auto'?undefined:$('aiLanguage').value,...(selection?{selection}:{})});
+ try{await initialize();if(!retry)append(message,'user');input.value='';const data=await api('message',{requestId,message,region:window.AuraPricing?.region,page:page(),language:$('aiLanguage').value==='auto'?undefined:$('aiLanguage').value,...(selection?{selection:{...selection,currency:window.AuraPricing?.currency,priceVersion:window.AuraPricing?.version}}:{})});
  lang=data.language;mode=data.mode;
  if(data.retryable) {append(data.reply);input.value=message;const row=node('div',undefined,'chat-actions');row.append(button(retryLabel(),()=>{row.remove();send(message,selection,requestId,true);}));const link=node('a','WhatsApp');link.href='https://wa.me/905385507674';link.target='_blank';link.rel='noopener noreferrer';row.append(link);log.append(row);return;}memory=data.memory||{};selected=memory.selection||null;
  const bubble=append(data.reply,'assistant',data.sources),row=node('div',undefined,'chat-actions');
@@ -65,7 +65,7 @@ async function quotePicker() {
  controls.replaceChildren();try{if(!serviceList.length)serviceList=(await api('services',undefined,'GET')).services;
  const form=node('form',undefined,'ai-request'),select=node('select'),heading=node('strong',t().choose);select.setAttribute('aria-label',t().choose);
  for(const item of serviceList.filter(s=>!['websiteAddons','erpAddons','saasAddons'].includes(s.group))){const option=node('option',item.name+(item.availability==='planned'?' · planned':''));option.value=item.id;option.selected=item.id===selected?.id;select.append(option);}
- form.append(heading,select,node('small',t().details));const submit=node('button',t().package);submit.type='submit';form.append(submit,button(t().cancel,()=>controls.replaceChildren()));
+ form.append(heading,select,node('small',t().details.replace('TRY',window.AuraPricing?.currency||'TRY')));const submit=node('button',t().package);submit.type='submit';form.append(submit,button(t().cancel,()=>controls.replaceChildren()));
  form.addEventListener('submit',e=>{e.preventDefault();send(t().package+': '+select.options[select.selectedIndex].text,{id:select.value,addons:[]});});controls.append(form);
  }catch(e){append(e.message);}
 }
@@ -88,3 +88,5 @@ function eyes(){frame=0;if(reduced.matches||document.hidden)return;document.quer
 document.addEventListener('pointermove',e=>{px=e.clientX;py=e.clientY;if(!frame&&!reduced.matches)frame=requestAnimationFrame(eyes);},{passive:true});
 document.addEventListener('scroll',()=>{py=innerHeight/2;if(!frame&&!reduced.matches)frame=requestAnimationFrame(eyes);},{passive:true});
 renderCopy();
+
+window.addEventListener('aura:pricingchange',()=>{serviceList=[];selected=null;controls.replaceChildren();});
