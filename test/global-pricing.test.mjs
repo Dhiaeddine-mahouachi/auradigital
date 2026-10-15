@@ -24,6 +24,7 @@ test('trusted CF only, exact eurozone mapping, deterministic fallback and manual
  assert.equal(selectRegion(defaults,geo('TR',{Cookie:'aura-pricing-region=TN'})),'TN');
  assert.equal(selectRegion(defaults,geo('US'),'GB'),'GB');
  assert.throws(()=>selectRegion(defaults,geo('TR'),'__proto__'));
+ assert.equal(selectRegion(defaults,geo('TR',{Cookie:'aura-pricing-region=UNKNOWN'})),'TR');
  const disabled=structuredClone(defaults);disabled.enabled=false;assert.equal(selectRegion(disabled,geo('TN')),'TR');
 });
 test('missing approvals never produce mixed-currency or zero-priced estimates',()=>{

@@ -16,10 +16,11 @@ export const initialVersion='2026-10-15-global-1';
 export function selectRegion(config,request,override) {
   const url=new URL(request.url);
   const cookie=(request.headers.get('Cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('aura-pricing-region='))?.split('=')[1];
-  const manual=override||url.searchParams.get('region')||cookie;
+  const manual=override||url.searchParams.get('region');
   if(manual && (!Object.hasOwn(config.regions,manual)||!config.regions[manual].enabled)) throw new Error('Unsupported pricing region');
   const detected=config.countries[request.cf?.country];
-  return config.enabled ? (manual || (config.regions[detected]?.enabled?detected:config.fallback)) : config.fallback;
+  const saved=Object.hasOwn(config.regions,cookie||'')&&config.regions[cookie].enabled?cookie:null;
+  return config.enabled ? (manual || saved || (config.regions[detected]?.enabled?detected:config.fallback)) : config.fallback;
 }
 export function regionalEngine(config=defaults,region='TR',version=initialVersion,now=Date.now()) {
   const meta=config.regions[region];

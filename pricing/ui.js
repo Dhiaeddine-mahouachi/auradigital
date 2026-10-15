@@ -486,6 +486,7 @@ async function regionSelector(){
   finally{select.disabled=false;}
  });
  target.append(select);
+ if(pricingData.selectionNotice){const note=document.createElement('small');note.setAttribute('role','status');note.textContent=pricingData.selectionNotice;target.append(note);}
 }
 function refresh(){
  home();services();infra();ads();packages();websiteCards();websiteComparison();configurator();spinflow();regionSelector();
