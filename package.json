@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20260811.1",
-    "playwright": "^1.62.1",
+    "playwright": "^1.64.0",
     "wrangler": "file:tools/wrangler-safe",
     "wrangler-cli": "npm:wrangler@4.120.1"
   },
