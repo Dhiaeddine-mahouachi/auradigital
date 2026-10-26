@@ -1,0 +1,274 @@
+[
+  {
+    "id": "oliva-bistro",
+    "slug": "oliva-bistro",
+    "name": "Oliva Bistro",
+    "category": "Restaurants",
+    "description": "A taste worth sharing. A luxury NFC and QR card concept for restaurants. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-oliva-bistro-front.svg",
+    "back": "/shop/artwork/demo-oliva-bistro-back.svg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Green"
+    ],
+    "palette": [
+      "#153e32",
+      "#e7d7ab"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": null,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": false,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New"
+  },
+  {
+    "id": "roast-and-bean",
+    "slug": "roast-and-bean",
+    "name": "Roast & Bean",
+    "category": "Coffee Shops & Cafés",
+    "description": "Your daily ritual. A modern NFC and QR card concept for coffee shops & cafés. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-roast-and-bean-front.svg",
+    "back": "/shop/artwork/demo-roast-and-bean-back.svg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Brown"
+    ],
+    "palette": [
+      "#4b3024",
+      "#f1cf9f"
+    ],
+    "purpose": "Loyalty",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": null,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": false,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New"
+  },
+  {
+    "id": "northbridge-consulting",
+    "slug": "northbridge-consulting",
+    "name": "Northbridge Consulting",
+    "category": "Corporate & Business",
+    "description": "Ideas. Direction. Progress. A corporate NFC and QR card concept for corporate & business. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-northbridge-consulting-front.svg",
+    "back": "/shop/artwork/demo-northbridge-consulting-back.svg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Blue"
+    ],
+    "palette": [
+      "#122f4b",
+      "#c2d8ee"
+    ],
+    "purpose": "Business Profile",
+    "style": "Corporate",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": null,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": false,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New"
+  },
+  {
+    "id": "luna-beauty-studio",
+    "slug": "luna-beauty-studio",
+    "name": "Luna Beauty Studio",
+    "category": "Beauty Salons & Spas",
+    "description": "A moment for yourself. A minimal NFC and QR card concept for beauty salons & spas. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-luna-beauty-studio-front.svg",
+    "back": "/shop/artwork/demo-luna-beauty-studio-back.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Pink"
+    ],
+    "palette": [
+      "#f4dce1",
+      "#482837"
+    ],
+    "purpose": "Booking",
+    "style": "Minimal",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": null,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": false,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New"
+  },
+  {
+    "id": "pulse-fitness-club",
+    "slug": "pulse-fitness-club",
+    "name": "Pulse Fitness Club",
+    "category": "Gyms & Fitness",
+    "description": "Find your next level. A futuristic NFC and QR card concept for gyms & fitness. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-pulse-fitness-club-front.svg",
+    "back": "/shop/artwork/demo-pulse-fitness-club-back.svg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Lime"
+    ],
+    "palette": [
+      "#15231b",
+      "#d8f46c"
+    ],
+    "purpose": "Social Media",
+    "style": "Futuristic",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": null,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": false,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New"
+  },
+  {
+    "id": "titan-auto-detail",
+    "slug": "titan-auto-detail",
+    "name": "Titan Auto Detail",
+    "category": "Automotive & Car Detailing",
+    "description": "Every detail matters. A modern NFC and QR card concept for automotive & car detailing. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-titan-auto-detail-front.svg",
+    "back": "/shop/artwork/demo-titan-auto-detail-back.svg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Black"
+    ],
+    "palette": [
+      "#20242a",
+      "#f4a46b"
+    ],
+    "purpose": "Google Reviews",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": null,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": false,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New"
+  },
+  {
+    "id": "brightcare-dental",
+    "slug": "brightcare-dental",
+    "name": "BrightCare Dental",
+    "category": "Dental & Medical Clinics",
+    "description": "A brighter connection. A minimal NFC and QR card concept for dental & medical clinics. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-brightcare-dental-front.svg",
+    "back": "/shop/artwork/demo-brightcare-dental-back.svg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Ivory"
+    ],
+    "palette": [
+      "#ecf4f2",
+      "#18574f"
+    ],
+    "purpose": "Booking",
+    "style": "Minimal",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": null,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": false,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New"
+  },
+  {
+    "id": "golden-key-realty",
+    "slug": "golden-key-realty",
+    "name": "Golden Key Realty",
+    "category": "Real Estate",
+    "description": "Your next chapter. A luxury NFC and QR card concept for real estate. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-golden-key-realty-front.svg",
+    "back": "/shop/artwork/demo-golden-key-realty-back.svg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Gold"
+    ],
+    "palette": [
+      "#292820",
+      "#dfc384"
+    ],
+    "purpose": "Business Profile",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": null,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": false,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New"
+  }
+]

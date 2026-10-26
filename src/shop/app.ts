@@ -1,0 +1,170 @@
+import { categories, purposes, styles, emptyFilters, emptyPersonalization, destinationTypes, filterThemes, validateItem, restoreCart, money, canPurchase, type Theme, type CartItem, type Filters } from './model.ts';
+
+const app = document.querySelector<HTMLElement>('#shop-app')!;
+const dialog = document.querySelector<HTMLDialogElement>('#shop-dialog')!;
+const drawer = document.querySelector<HTMLDialogElement>('#shop-cart')!;
+const storageKey = 'aura.shop.cart.v1';
+let themes: Theme[] = [], cart: CartItem[] = [], serial = 0;
+let toastTimer: ReturnType<typeof setTimeout>;
+const esc = (value: unknown) => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+const options = (values: readonly string[], selected = '') => values.map(value => `<option value="${esc(value)}"${value === selected ? ' selected' : ''}>${esc(value)}</option>`).join('');
+const getTheme = (id: string) => themes.find(t => t.id === id)!;
+function notify(message: string) {
+  document.querySelector('#shop-status')!.textContent = message;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { document.querySelector('#shop-status')!.textContent = ''; }, 6000);
+}
+function count() { document.querySelectorAll('[data-cart-count]').forEach(el => { el.textContent = String(cart.reduce((sum, i) => sum + i.quantity, 0)); }); }
+function persist() {
+  try { localStorage.setItem(storageKey, JSON.stringify({ version: 1, items: cart })); }
+  catch { notify('Your browser could not save this cart. Keep this page open to retain it.'); }
+  count();
+}
+function viewer(t: Theme, large = false) {
+  const id = `card-${++serial}`;
+  return `<div class="shop-viewer" data-theme="${esc(t.id)}"><div class="shop-card-space"><div class="shop-scene" data-orientation="${t.orientation}" data-flipped="false" id="${id}"><div class="shop-flipper"><div class="shop-face shop-face-front"><img src="${esc(t.front)}" alt="${esc(t.name)} front: QR and NFC together" loading="lazy" decoding="async" width="${t.orientation === 'Vertical' ? 540 : 856}" height="${t.orientation === 'Vertical' ? 856 : 540}"></div><div class="shop-face shop-face-back" aria-hidden="true"><img src="${esc(t.back)}" alt="${esc(t.name)} back" loading="lazy" decoding="async" width="${t.orientation === 'Vertical' ? 540 : 856}" height="${t.orientation === 'Vertical' ? 856 : 540}"></div></div></div></div><div class="shop-preview-controls"><button type="button" data-flip aria-controls="${id}" aria-pressed="false" aria-label="Flip ${esc(t.name)} card">Flip card ↻</button><span data-side>Front side</span>${large ? '' : `<button type="button" data-enlarge="${esc(t.id)}" aria-label="Enlarge ${esc(t.name)} preview">Enlarge ↗</button>`}</div></div>`;
+}
+function bindViewers(root: ParentNode) {
+  root.querySelectorAll<HTMLElement>('.shop-viewer').forEach(el => {
+    let pinned = false, hovering = false;
+    const scene = el.querySelector<HTMLElement>('.shop-scene')!, button = el.querySelector<HTMLButtonElement>('[data-flip]')!;
+    function update() {
+      const flipped = pinned || hovering;
+      scene.dataset.flipped = String(flipped);
+      button.setAttribute('aria-pressed', String(flipped));
+      el.querySelector('.shop-face-front')!.setAttribute('aria-hidden', String(flipped));
+      el.querySelector('.shop-face-back')!.setAttribute('aria-hidden', String(!flipped));
+      el.querySelector('[data-side]')!.textContent = flipped ? 'Back side' : 'Front side';
+    }
+    scene.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse' && matchMedia('(hover:hover)').matches) { hovering = true; update(); } });
+    scene.addEventListener('pointerleave', () => { hovering = false; update(); });
+    button.addEventListener('click', () => { pinned = !pinned; hovering = false; update(); });
+    el.querySelector<HTMLButtonElement>('[data-enlarge]')?.addEventListener('click', () => showPreview(getTheme(el.dataset.theme!)));
+  });
+}
+function dialogHead(title: string, id = 'shop-dialog-title') {
+  return `<div class="shop-dialog-header"><h2 id="${id}">${esc(title)}</h2><button type="button" class="shop-close" data-close aria-label="Close dialog">×</button></div>`;
+}
+function openDialog(markup: string) {
+  dialog.innerHTML = markup;
+  dialog.querySelector('[data-close]')!.addEventListener('click', () => dialog.close());
+  dialog.showModal();
+}
+function showPreview(t: Theme) {
+  openDialog(dialogHead(t.name) + viewer(t, true) + '<p>Sample artwork. Both sides are shown at the card’s original proportions. This is not a finalized print proof.</p>');
+  bindViewers(dialog);
+}
+function product(t: Theme) {
+  return `<article class="shop-product"><div class="shop-product-stage"><span class="shop-badge">${t.status === 'demo' ? 'DEMO THEME' : t.badge ? 'NEW THEME' : 'NFC + QR'}</span>${viewer(t)}</div><div class="shop-product-info"><a href="/shop/cards/${esc(t.slug)}">${esc(t.name)} <span aria-hidden="true">↗</span></a><p>${esc(t.category)} · ${esc(t.style)}</p><div class="shop-product-meta"><span>${esc(money(t.priceMinor, t.currency))}</span><span class="shop-palette" aria-label="${esc(t.colors.join(', '))}">${t.palette.map(c => `<i style="background:${esc(c)}"></i>`).join('')}</span></div></div></article>`;
+}
+function filterSelect(key: keyof Filters, label: string, values: readonly string[]) {
+  return `<label class="shop-field">${label}<select name="${key}"><option value="">All ${label.toLowerCase()}</option>${options(values)}</select></label>`;
+}
+function catalog() {
+  const filters: Filters = { ...emptyFilters };
+  const initial = new URLSearchParams(location.search);
+  for (const key of Object.keys(filters) as (keyof Filters)[]) if (initial.has(key)) filters[key] = initial.get(key)!;
+  app.innerHTML = `<div class="shop-shell"><section class="shop-hero"><div><div class="shop-kicker"><span class="shop-dot"></span> A small card. A world of possibilities.</div><h1>Smart Cards.<br><em>Real Connections.</em></h1><p>Discover premium NFC & QR cards designed for your business. One tap or scan connects your customers to everything they need.</p><a class="shop-primary" href="#collection">Explore Cards <span>↗</span></a><div class="shop-hero-note"><span>NFC + QR, TOGETHER</span><span>DESIGNED FOR YOUR BUSINESS</span></div></div><div class="shop-hero-art"><img src="/shop/artwork/demo-oliva-bistro-front.svg" alt="Oliva Bistro sample card with QR and NFC on the same front" width="856" height="540" fetchpriority="high"><div class="shop-floating-label"><span>↗</span> One tap. Every connection.</div></div></section><div class="shop-benefits"><div><b>◎</b><div><strong>Tap. Scan. Connect.</strong><small>NFC + QR on one card</small></div></div><div><b>↻</b><div><strong>Made for both sides</strong><small>Hover or tap to explore</small></div></div><div><b>✧</b><div><strong>Your business, your way</strong><small>Thoughtfully personalized</small></div></div></div><section id="collection" aria-labelledby="collection-title"><div class="shop-section-head"><div><h2 id="collection-title">Find your kind of connection.</h2><p>Choose a theme. Make it yours.</p></div><label class="shop-search"><span class="shop-sr-only">Search card designs</span><input id="shop-search" type="search" name="search" placeholder="Search designs, businesses…" maxlength="100"></label></div><div class="shop-catalog"><aside class="shop-filters"><h3>Refine your collection</h3><button class="shop-mobile-filters" type="button" aria-expanded="false" aria-controls="shop-filter-body">Filters <span>＋</span></button><form id="shop-filters"><div class="shop-filter-body" id="shop-filter-body">${filterSelect('category', 'Business category', categories)}${filterSelect('purpose', 'Purpose', purposes)}${filterSelect('style', 'Style', styles)}${filterSelect('color', 'Color', [...new Set(themes.flatMap(t => t.colors))].sort())}${filterSelect('orientation', 'Orientation', ['Horizontal', 'Vertical'])}<label class="shop-field">Maximum price (TRY)<input name="maxPrice" type="number" min="0" max="1000000" step="1" placeholder="No limit"><small>Demo themes have no confirmed price.</small></label><button class="shop-filter-reset" type="reset">Clear all filters</button></div></form></aside><div><div class="shop-results-head"><span id="shop-result-count" role="status" aria-live="polite"></span><label>Sort by <select id="shop-sort" name="sort"><option value="newest">Newest designs</option><option value="popular">Popularity</option><option value="price-low">Price: low to high</option></select></label></div><div class="shop-filter-chips" id="shop-filter-chips"></div><div class="shop-grid" id="shop-grid"></div></div></div></section><div class="shop-note"><strong>A preview of what’s possible.</strong> These eight themes are sample designs. You can explore, personalize and save them to your cart. Purchasing opens after artwork, prices and fulfillment are approved. <a href="/contact">Talk to us about your card ↗</a></div></div>`;
+  const form = document.querySelector<HTMLFormElement>('#shop-filters')!, search = document.querySelector<HTMLInputElement>('#shop-search')!, sort = document.querySelector<HTMLSelectElement>('#shop-sort')!;
+  function syncControls() {
+    search.value = filters.search; sort.value = filters.sort;
+    for (const key of ['category', 'purpose', 'style', 'color', 'orientation', 'maxPrice'] as const) (form.elements.namedItem(key) as HTMLInputElement).value = filters[key];
+  }
+  function update() {
+    const results = filterThemes(themes, filters);
+    document.querySelector('#shop-result-count')!.textContent = `${results.length} ${results.length === 1 ? 'design' : 'designs'}`;
+    document.querySelector('#shop-grid')!.innerHTML = results.length ? results.map(product).join('') : '<div class="shop-empty"><h2>No matching designs yet.</h2><p>Try another category or clear your filters.</p><button type="button" class="shop-secondary" data-clear>Clear filters</button></div>';
+    const labels: Partial<Record<keyof Filters, string>> = { search: 'Search', category: 'Category', purpose: 'Purpose', style: 'Style', color: 'Color', orientation: 'Orientation', maxPrice: 'Max TRY' };
+    document.querySelector('#shop-filter-chips')!.innerHTML = Object.entries(labels).filter(([key]) => filters[key as keyof Filters]).map(([key, label]) => `<button type="button" data-remove-filter="${key}" aria-label="Remove ${label} filter">${label}: ${esc(filters[key as keyof Filters])} ×</button>`).join('');
+    document.querySelectorAll<HTMLButtonElement>('[data-remove-filter]').forEach(b => b.addEventListener('click', () => { filters[b.dataset.removeFilter as keyof Filters] = ''; syncControls(); update(); }));
+    document.querySelector('[data-clear]')?.addEventListener('click', clear);
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) if (value && value !== emptyFilters[key as keyof Filters]) params.set(key, value);
+    history.replaceState(null, '', '/shop' + (params.size ? `?${params}` : '') + location.hash);
+    bindViewers(document.querySelector('#shop-grid')!);
+  }
+  function clear() { Object.assign(filters, emptyFilters); syncControls(); update(); }
+  search.addEventListener('input', () => { filters.search = search.value; update(); });
+  sort.addEventListener('change', () => { filters.sort = sort.value; update(); });
+  form.addEventListener('submit', e => e.preventDefault());
+  form.addEventListener('change', () => { for (const [key, value] of new FormData(form)) filters[key as keyof Filters] = String(value); update(); });
+  form.addEventListener('reset', e => { e.preventDefault(); clear(); });
+  document.querySelector<HTMLButtonElement>('.shop-mobile-filters')!.addEventListener('click', e => {
+    const button = e.currentTarget as HTMLButtonElement, open = button.getAttribute('aria-expanded') !== 'true';
+    button.setAttribute('aria-expanded', String(open)); document.querySelector<HTMLElement>('.shop-filters')!.dataset.open = String(open);
+  });
+  syncControls(); update();
+}
+function textField(key: string, label: string, value: string, attrs = '', wide = false) {
+  return `<label class="shop-field${wide ? ' wide' : ''}">${label}<input name="${key}" value="${esc(value)}" ${attrs}></label>`;
+}
+function detail(t: Theme) {
+  const editing = cart.find(i => i.id === new URLSearchParams(location.search).get('edit') && i.themeId === t.id);
+  const p = editing?.personalization || emptyPersonalization;
+  app.innerHTML = `<div class="shop-shell"><nav class="shop-breadcrumb" aria-label="Breadcrumb"><a href="/shop">Shop</a><span>/</span><span>${esc(t.name)}</span></nav><div class="shop-detail"><section class="shop-detail-art" aria-label="Card preview"><span class="shop-badge">${t.status === 'demo' ? 'DEMO · SAMPLE ARTWORK' : 'ARTWORK REQUIRES APPROVAL'}</span>${viewer(t)}<p>Hover the card or use Flip Card to explore both sides.<br>Original proportions · ${t.orientation} · NFC + QR on the front</p></section><section class="shop-detail-copy"><div class="shop-kicker">${esc(t.category)} / ${esc(t.style)}</div><h1>${esc(t.name)}</h1><p>${esc(t.description)}</p><div class="shop-price">${esc(money(t.priceMinor, t.currency))}</div><form id="shop-personalize"><div class="shop-fields">${filterDetailSelect('material', 'Material', t.materials, editing?.material)}${filterDetailSelect('finish', 'Finish', t.finishes, editing?.finish)}${textField('quantity', 'Quantity', String(editing?.quantity || 1), 'type="number" min="1" max="100" step="1" required', true)}</div><div class="shop-form-section"><h2>01 / Make it yours</h2><div class="shop-fields">${textField('business', 'Business name *', p.business, 'required maxlength="100" autocomplete="organization"', true)}${filterDetailSelect('destinationType', 'Destination type', destinationTypes, p.destinationType, true)}${textField('destination', 'NFC + QR destination *', p.destination, 'type="url" required maxlength="800" placeholder="https://your-business.com"', true)}<p class="shop-storage-note wide">NFC and QR will use the same link. Separate destinations require a supported production configuration.</p><label class="shop-field wide">Business logo<input type="file" disabled accept="image/png,image/jpeg,image/webp"><small>Secure logo uploads are not connected yet. No file is uploaded or stored. Final logo placement will require artwork approval.</small></label></div></div><div class="shop-form-section"><h2>02 / Optional details</h2><div class="shop-fields">${textField('contact', 'Contact name', p.contact, 'maxlength="100" autocomplete="name"')}${textField('phone', 'Phone', p.phone, 'type="tel" maxlength="100" autocomplete="tel"')}${textField('whatsapp', 'WhatsApp', p.whatsapp, 'type="tel" maxlength="100"')}${textField('social', 'Instagram / social URL', p.social, 'type="url" maxlength="800" placeholder="https://"')}<label class="shop-field wide">Custom instructions<textarea name="instructions" maxlength="1000">${esc(p.instructions)}</textarea></label></div></div><p class="shop-storage-note">The preview remains sample artwork. Your text does not generate a print proof. Personalization is saved in this browser; avoid entering sensitive information on a shared device.</p><p class="shop-error shop-form-error" role="alert"></p><button class="shop-primary" type="submit">${editing ? 'Review changes' : t.status === 'demo' ? 'Review & save demo to cart' : 'Review personalization'} <span>↗</span></button></form></section></div></div>`;
+  bindViewers(app);
+  const form = document.querySelector<HTMLFormElement>('#shop-personalize')!;
+  form.addEventListener('submit', event => {
+    event.preventDefault(); const data = Object.fromEntries(new FormData(form));
+    try {
+      const item = validateItem({ id: editing?.id || crypto.randomUUID(), themeId: t.id, quantity: Number(data.quantity), material: data.material, finish: data.finish, personalization: Object.fromEntries(Object.keys(emptyPersonalization).map(key => [key, data[key]])) }, themes);
+      openDialog(dialogHead('Your personalization') + `<p>${esc(t.name)} · ${item.quantity} × ${esc(money(t.priceMinor))}</p><dl class="shop-summary">${[['Business', item.personalization.business], ['Destination type', item.personalization.destinationType], ['NFC + QR link', item.personalization.destination], ['Material / finish', `${item.material} / ${item.finish}`], ['Contact', item.personalization.contact], ['Phone', item.personalization.phone], ['WhatsApp', item.personalization.whatsapp], ['Social URL', item.personalization.social], ['Instructions', item.personalization.instructions]].filter(([, v]) => v).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl><p>Sample artwork requires approval. ${t.status === 'demo' ? 'This demo cannot be purchased.' : 'Final pricing, tax and shipping require a server quote.'}</p><button type="button" class="shop-primary" id="shop-confirm">${editing ? 'Save changes' : 'Add to cart'}</button>`);
+      document.querySelector('#shop-confirm')!.addEventListener('click', () => {
+        if (!editing && cart.length >= 50) { notify('Your cart can contain up to 50 different designs.'); return; }
+        if (editing) cart = cart.map(i => i.id === editing.id ? item : i); else cart.push(item);
+        persist(); dialog.close(); notify(editing ? 'Personalization updated.' : 'Design saved to your cart.');
+        if (editing) location.assign('/shop/cart');
+      }, { once: true });
+    } catch (error) { form.querySelector('.shop-form-error')!.textContent = error instanceof Error ? error.message : 'Check your details.'; }
+  });
+}
+function filterDetailSelect(name: string, label: string, values: readonly string[], selected?: string, wide = false) {
+  return `<label class="shop-field${wide ? ' wide' : ''}">${label}<select name="${name}">${options(values, selected || values[0])}</select></label>`;
+}
+function cartMarkup() {
+  if (!cart.length) return '<div class="shop-empty"><h2>Your collection starts here.</h2><p>Find a card that feels like your business.</p><a class="shop-primary" href="/shop">Explore cards ↗</a></div>';
+  const allPriced = cart.every(i => canPurchase(getTheme(i.themeId)));
+  const subtotal = allPriced ? cart.reduce((sum, i) => sum + getTheme(i.themeId).priceMinor! * i.quantity, 0) : null;
+  return `${cart.map(i => { const t = getTheme(i.themeId); return `<article class="shop-cart-row"><img src="${esc(t.front)}" alt="${esc(t.name)} front" width="150" height="95"><div><h3>${esc(t.name)}</h3><p>${t.status === 'demo' ? 'DEMO · ' : ''}${esc(i.personalization.business)}<br>${esc(i.material)} / ${esc(i.finish)} · Unit: ${esc(money(t.priceMinor))}<br>Subtotal: ${esc(money(t.priceMinor === null ? null : t.priceMinor * i.quantity))}</p><div class="shop-cart-actions"><label><span class="shop-sr-only">Quantity for ${esc(t.name)}</span><input type="number" min="1" max="100" step="1" value="${i.quantity}" data-quantity="${i.id}"></label><a href="/shop/cards/${esc(t.slug)}?edit=${i.id}">Edit details</a><button type="button" data-remove="${i.id}" aria-label="Remove ${esc(t.name)}">Remove</button></div></div></article>`; }).join('')}<div class="shop-cart-total"><span>Estimated subtotal</span><strong>${esc(money(subtotal))}</strong></div><p class="shop-storage-note">Tax and shipping are not configured. No final payable total is available.${allPriced ? '' : ' Demo or unavailable designs cannot be purchased.'}</p><button class="shop-primary" type="button" disabled aria-describedby="checkout-unavailable">Checkout unavailable</button><p class="shop-storage-note" id="checkout-unavailable">Checkout will require sign-in. Customer accounts and secure card payments are not connected yet.</p><p class="shop-storage-note">Your cart is saved only in this browser. <button type="button" class="shop-filter-reset" data-clear-cart>Clear saved cart</button></p>`;
+}
+function bindCart(root: HTMLElement) {
+  root.querySelectorAll<HTMLButtonElement>('[data-remove]').forEach(b => b.addEventListener('click', () => { cart = cart.filter(i => i.id !== b.dataset.remove); persist(); refreshCart(root); notify('Design removed.'); }));
+  root.querySelectorAll<HTMLInputElement>('[data-quantity]').forEach(input => input.addEventListener('change', () => {
+    const item = cart.find(i => i.id === input.dataset.quantity)!;
+    try { const next = validateItem({ ...item, quantity: Number(input.value) }, themes); cart = cart.map(i => i.id === next.id ? next : i); persist(); refreshCart(root); }
+    catch (error) { input.value = String(item.quantity); notify(error instanceof Error ? error.message : 'Invalid quantity.'); }
+  }));
+  root.querySelector('[data-clear-cart]')?.addEventListener('click', () => { cart = []; persist(); refreshCart(root); notify('Saved cart cleared.'); });
+}
+function refreshCart(root: HTMLElement) {
+  root.innerHTML = root === drawer ? dialogHead('Your collection', 'shop-cart-title') + cartMarkup() + (cart.length ? '<a class="shop-secondary" href="/shop/cart">Open full cart ↗</a>' : '') : cartMarkup();
+  root.querySelector('[data-close]')?.addEventListener('click', () => drawer.close());
+  bindCart(root);
+}
+function cartPage() {
+  app.innerHTML = '<div class="shop-shell"><div class="shop-cart-page"><nav class="shop-breadcrumb" aria-label="Breadcrumb"><a href="/shop">Shop</a><span>/</span><span>Your collection</span></nav><h1>Your collection.</h1><div id="shop-cart-page"></div></div></div>';
+  refreshCart(document.querySelector('#shop-cart-page')!);
+}
+document.querySelectorAll<HTMLButtonElement>('.shop-cart-toggle').forEach(b => b.addEventListener('click', () => { refreshCart(drawer); drawer.showModal(); }));
+for (const modal of [dialog, drawer]) modal.addEventListener('click', event => {
+  if (event.target !== modal) return;
+  const box = modal.getBoundingClientRect();
+  if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) modal.close();
+});
+window.addEventListener('storage', event => { if (event.key === storageKey && themes.length) { cart = restoreCart(event.newValue, themes); count(); if (drawer.open) refreshCart(drawer); const root = document.querySelector<HTMLElement>('#shop-cart-page'); if (root) refreshCart(root); } });
+async function init() {
+  try {
+    const response = await fetch('/api/shop/catalog', { credentials: 'same-origin' });
+    if (!response.ok) throw new Error('The card catalog is temporarily unavailable. Please try again shortly.');
+    const data = await response.json(); themes = data.themes;
+    try { cart = restoreCart(localStorage.getItem(storageKey), themes); } catch { notify('Browser storage is unavailable. Your cart will last for this visit only.'); }
+    count();
+    const slug = /^\/shop\/cards\/([a-z0-9-]+)$/.exec(location.pathname)?.[1];
+    if (location.pathname === '/shop/cart') cartPage();
+    else if (slug) { const theme = themes.find(t => t.slug === slug); if (theme) detail(theme); else app.innerHTML = '<div class="shop-empty"><h1>Theme not found.</h1><a href="/shop">Back to the shop</a></div>'; }
+    else catalog();
+  } catch (error) {
+    app.innerHTML = `<div class="shop-shell"><div class="shop-empty"><h1>We couldn’t load the collection.</h1><p>${esc(error instanceof Error ? error.message : 'Please try again.')}</p><button type="button" class="shop-primary" id="shop-retry">Try again</button> <a class="shop-secondary" href="/contact">Contact us</a></div></div>`;
+    document.querySelector('#shop-retry')!.addEventListener('click', init, { once: true });
+  }
+}
+void init();

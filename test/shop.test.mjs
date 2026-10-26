@@ -1,0 +1,108 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { shopFixture } from './shop-fixture.mjs';
+import { handleShop, validateTheme } from '../src/shop.ts';
+import { filterThemes, emptyFilters, emptyPersonalization, quoteCart, restoreCart, validateItem } from '../src/shop/model.ts';
+import { createSession } from '../src/security.js';
+
+const seeds = JSON.parse(await readFile(new URL('../shop/catalog.seed.json', import.meta.url), 'utf8'));
+const item = overrides => ({ id: 'test-cart-item', themeId: seeds[0].id, material: 'PVC', finish: 'Matte', quantity: 2, personalization: { ...emptyPersonalization, business: 'Example Café', destination: 'https://example.com/menu' }, ...overrides });
+const request = (path, method = 'GET', data, cookie, origin = 'https://auradigitalworks.com') => new Request(`https://auradigitalworks.com${path}`, { method, headers: { Origin: origin, 'Content-Type': 'application/json', ...(cookie ? { Cookie: cookie } : {}) }, ...(data ? { body: JSON.stringify(data) } : {}) });
+
+test('catalog seeds are valid, demo-only, both sides exist, NFC and QR share the front', async () => {
+  assert.equal(seeds.length, 8);
+  for (const theme of seeds) {
+    assert.deepEqual(validateTheme(theme), theme);
+    assert.equal(theme.status, 'demo'); assert.equal(theme.priceMinor, null);
+    const front = await readFile(new URL('..' + theme.front, import.meta.url), 'utf8');
+    const back = await readFile(new URL('..' + theme.back, import.meta.url), 'utf8');
+    assert.match(front, /NFC \+ QR/); assert.match(front, /<svg x=/); assert.match(back, /SAMPLE, NOT A PRINT PROOF/);
+  }
+});
+test('search and every filter combine; null-priced demos never satisfy price limits', () => {
+  assert.equal(filterThemes(seeds, { ...emptyFilters, category: 'Restaurants' })[0].id, 'oliva-bistro');
+  assert.equal(filterThemes(seeds, { ...emptyFilters, search: 'BEAUTY', orientation: 'Vertical', style: 'Minimal', color: 'Pink', purpose: 'Booking' }).length, 1);
+  assert.equal(filterThemes(seeds, { ...emptyFilters, category: 'Barbershops' }).length, 0);
+  assert.equal(filterThemes(seeds, { ...emptyFilters, maxPrice: '100000' }).length, 0);
+  const priced = [{ ...seeds[0], priceMinor: 70000 }, { ...seeds[1], priceMinor: 50000 }];
+  assert.equal(filterThemes(priced, { ...emptyFilters, maxPrice: '600' }).length, 1);
+  assert.equal(filterThemes(priced, { ...emptyFilters, sort: 'price-low' })[0].priceMinor, 50000);
+  assert.equal(filterThemes([{ ...seeds[0], popularity: 2 }, { ...seeds[1], popularity: 5 }], { ...emptyFilters, sort: 'popular' })[0].popularity, 5);
+});
+test('cart validates quantities, links, field bounds and variant options', () => {
+  assert.equal(validateItem(item(), seeds).quantity, 2);
+  for (const quantity of [0, -1, 1.5, 101, '2', null, NaN]) assert.throws(() => validateItem(item({ quantity }), seeds));
+  assert.throws(() => validateItem(item({ material: 'Gold' }), seeds));
+  for (const destination of ['javascript:alert(1)', 'http://example.com', 'https://user:password@example.com', 'invalid']) assert.throws(() => validateItem(item({ personalization: { ...item().personalization, destination } }), seeds));
+  assert.throws(() => validateItem(item({ personalization: { ...item().personalization, business: 'x'.repeat(101) } }), seeds));
+});
+test('cart restoration tolerates corrupt/old storage, deduplicates IDs and drops invalid items', () => {
+  assert.deepEqual(restoreCart('not json', seeds), []);
+  assert.deepEqual(restoreCart(JSON.stringify({ version: 2, items: [item()] }), seeds), []);
+  assert.equal(restoreCart(JSON.stringify({ version: 1, items: [item(), item(), item({ quantity: -5 })] }), seeds).length, 1);
+  assert.deepEqual(restoreCart(JSON.stringify({ version: 1, items: [item({ themeId: 'removed' })] }), seeds), []);
+});
+test('quotes recompute price from catalog and fail closed for demos/unavailable items', () => {
+  assert.throws(() => quoteCart([item()], seeds), /demo or unavailable/);
+  const themes = [{ ...seeds[0], priceMinor: 70000, approved: true, available: true, status: 'published' }];
+  const result = quoteCart([item({ unitMinor: 1, subtotalMinor: 2, totalMinor: 2 })], themes);
+  assert.equal(result.subtotalMinor, 140000); assert.equal(result.totalMinor, null); assert.equal(result.payable, false);
+  assert.throws(() => quoteCart([item()], [{ ...themes[0], available: false }]));
+});
+test('public API has server-priced quotes, proper methods and disabled checkout', async () => {
+  const { env, sqlite } = await shopFixture();
+  try {
+    const response = await handleShop(request('/api/shop/catalog'), env), data = await response.json();
+    assert.equal(response.status, 200); assert.equal(data.themes.length, 8); assert.equal(data.checkout.enabled, false);
+    assert.equal((await handleShop(request('/api/shop/catalog', 'POST', {}), env)).status, 405);
+    assert.equal((await handleShop(request('/api/shop/quote', 'POST', { items: [item()] }), env)).status, 400);
+    assert.equal((await handleShop(request('/api/shop/checkout', 'POST', { paid: true }), env)).status, 503);
+    assert.equal((await handleShop(request('/api/shop/checkout', 'POST', {}, null, 'https://attacker.example'), env)).status, 403);
+  } finally { sqlite.close(); }
+});
+async function adminCookie(env, role) {
+  await env.DB.prepare('INSERT INTO admin_users (id, username, display_name, password_hash, role) VALUES (?, ?, ?, ?, ?)').bind(role, role, role, 'unused', role).run();
+  return `__Host-aura_admin=${await createSession(env.DB, role)}`;
+}
+test('catalog management reuses admin auth, denies viewers/CSRF and atomically records changes', async () => {
+  const { env, sqlite } = await shopFixture();
+  try {
+    assert.equal((await handleShop(request('/api/admin/shop/themes'), env)).status, 401);
+    const viewer = await adminCookie(env, 'viewer'), manager = await adminCookie(env, 'manager');
+    assert.equal((await handleShop(request('/api/admin/shop/themes'), env)).status, 401);
+    assert.equal((await handleShop(request('/api/admin/shop/themes', 'GET', null, viewer), env)).status, 200);
+    assert.equal((await handleShop(request('/api/admin/shop/themes/oliva-bistro', 'PUT', { theme: seeds[0] }, viewer), env)).status, 403);
+    assert.equal((await handleShop(request('/api/admin/shop/themes/oliva-bistro', 'PUT', { theme: seeds[0] }, manager, 'https://attacker.example'), env)).status, 403);
+    const next = { ...seeds[0], name: 'Changed restaurant', status: 'archived' };
+    assert.equal((await handleShop(request('/api/admin/shop/themes/oliva-bistro', 'PUT', { theme: next }, manager), env)).status, 200);
+    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, 7);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS count FROM admin_audit_log WHERE resource='shop_themes'").get().count, 1);
+    assert.equal((await handleShop(request('/api/admin/shop/themes', 'POST', { theme: { ...seeds[0], id: 'another-id' } }, manager), env)).status, 409);
+    sqlite.exec("CREATE TRIGGER reject_shop_audit BEFORE INSERT ON admin_audit_log BEGIN SELECT RAISE(ABORT, 'audit unavailable'); END");
+    await assert.rejects(handleShop(request('/api/admin/shop/themes/oliva-bistro', 'PUT', { theme: seeds[0] }, manager), env));
+    assert.equal(JSON.parse(sqlite.prepare("SELECT data_json FROM shop_card_themes WHERE id='oliva-bistro'").get().data_json).status, 'archived');
+  } finally { sqlite.close(); }
+});
+test('publishing rejects sample/missing artwork and invalid catalog properties', () => {
+  assert.throws(() => validateTheme({ ...seeds[0], status: 'published', approved: true, priceMinor: 70000 }), /Demo artwork/);
+  assert.throws(() => validateTheme({ ...seeds[0], front: 'https://attacker.example/pixel.svg' }));
+  assert.throws(() => validateTheme({ ...seeds[0], palette: ['red;display:none'] }));
+  assert.throws(() => validateTheme({ ...seeds[0], slug: '../other' }));
+  assert.throws(() => validateTheme({ ...seeds[0], priceMinor: -1 }));
+});
+test('shop routing serves unique metadata, proper HEAD, canonical redirect and real 404s', async () => {
+  const { env, sqlite } = await shopFixture();
+  try {
+    const page = await handleShop(request('/shop/cards/oliva-bistro'), env), html = await page.text();
+    assert.match(html, /Oliva Bistro NFC &amp; QR Card/);
+    assert.match(html, /rel="canonical" href="https:\/\/auradigitalworks.com\/shop\/cards\/oliva-bistro"/);
+    assert.equal((await handleShop(request('/shop/cards/not-a-theme'), env)).status, 404);
+    assert.equal((await handleShop(request('/shop/cart'), env)).headers.get('X-Robots-Tag'), 'noindex, nofollow');
+    assert.equal(await (await handleShop(request('/shop', 'HEAD'), env)).text(), '');
+    assert.equal((await handleShop(request('/shop/?category=Restaurants'), env)).headers.get('Location'), 'https://auradigitalworks.com/shop?category=Restaurants');
+    assert.equal(await handleShop(request('/nfc-studio'), env), null);
+    const config = JSON.parse(await readFile(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
+    for (const path of ['/shop', '/shop/', '/shop/cards/*', '/shop/cart']) assert.ok(config.assets.run_worker_first.includes(path));
+  } finally { sqlite.close(); }
+});

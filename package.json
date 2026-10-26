@@ -4,16 +4,22 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node scripts/build-ai-index.mjs && node --check pricing/catalogue.js && node --check pricing/ui.js && node --check src/pricing-html.js && node --check cinematic.js && node --check src/worker-entry.js && node --check src/aurapops-admin.js && node --check src/worker.js && node --check src/customer-confirmation.js && node --check src/employee-portal.js && node --check src/security.js && node --check src/http.js && node --check src/notifications.js && node --check admin/admin.js && node --check qusai/app.js && node --check src/weddings.js && node --check weddings/signature.js && node --check weddings/studio.js && node --check weddings/signature-catalog.js && node --check weddings/signature-themes.js && node --check weddings/timezone.js && node --check weddings/media.js && node --check src/ai-employee.js && node --check src/ai-core.js && node --check src/ai-provider.js && node --check assistant/ui.js && node --check admin/ai-panel.js",
+    "check": "node scripts/build-ai-index.mjs && node --check pricing/catalogue.js && node --check pricing/ui.js && node --check src/pricing-html.js && node --check cinematic.js && node --check src/worker-entry.js && node --check src/aurapops-admin.js && node --check src/worker.js && node --check src/customer-confirmation.js && node --check src/employee-portal.js && node --check src/security.js && node --check src/http.js && node --check src/notifications.js && node --check admin/admin.js && node --check qusai/app.js && node --check src/weddings.js && node --check weddings/signature.js && node --check weddings/studio.js && node --check weddings/signature-catalog.js && node --check weddings/signature-themes.js && node --check weddings/timezone.js && node --check weddings/media.js && node --check src/ai-employee.js && node --check src/ai-core.js && node --check src/ai-provider.js && node --check assistant/ui.js && node --check admin/ai-panel.js && npm run check:shop && npm run build:shop",
     "test": "node --test test/*.test.mjs",
     "deploy:check": "wrangler deploy --dry-run --outdir .wrangler/dry-run",
     "cf:types": "wrangler types worker-configuration.d.ts",
     "test:weddings:browser": "node scripts/test-weddings-browser.mjs",
-    "test:ai": "node --test test/ai*.test.mjs"
+    "test:ai": "node --test test/ai*.test.mjs",
+    "build:shop": "node scripts/build-shop.mjs",
+    "check:shop": "tsc -p tsconfig.shop.json",
+    "test:shop": "node --test test/shop.test.mjs",
+    "test:shop:browser": "node scripts/test-shop-browser.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20260811.1",
+    "esbuild": "0.28.1",
     "playwright": "^1.62.1",
+    "typescript": "^7.0.2",
     "wrangler": "file:tools/wrangler-safe",
     "wrangler-cli": "npm:wrangler@4.120.1"
   },
