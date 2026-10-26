@@ -2697,5 +2697,318 @@
       }
     },
     "madeToOrder": true
+  },
+  {
+    "id": "collection-coffee-cobalt",
+    "slug": "collection-coffee-cobalt",
+    "name": "Coffee Cobalt",
+    "category": "Coffee Shops & Cafés",
+    "description": "Coffee Cobalt NFC and QR card. Personalized artwork and a working destination QR code are prepared for approval before printing.",
+    "front": "/shop/artwork/demo-pop-collection.jpg",
+    "back": "/shop/artwork/demo-pop-collection.jpg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Blue",
+      "Ivory"
+    ],
+    "palette": [
+      "#0737b5",
+      "#f3e7d5"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1024,
+      "height": 1536,
+      "front": {
+        "x": 98,
+        "y": 46,
+        "width": 384,
+        "height": 224
+      },
+      "back": {
+        "x": 98,
+        "y": 290,
+        "width": 384,
+        "height": 202
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-restaurant-terracotta",
+    "slug": "collection-restaurant-terracotta",
+    "name": "Restaurant Terracotta",
+    "category": "Restaurants",
+    "description": "Restaurant Terracotta NFC and QR card. Personalized artwork and a working destination QR code are prepared for approval before printing.",
+    "front": "/shop/artwork/demo-pop-collection.jpg",
+    "back": "/shop/artwork/demo-pop-collection.jpg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Red",
+      "Ivory",
+      "Green"
+    ],
+    "palette": [
+      "#b34b2a",
+      "#f3e7d5"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1024,
+      "height": 1536,
+      "front": {
+        "x": 589,
+        "y": 46,
+        "width": 380,
+        "height": 224
+      },
+      "back": {
+        "x": 589,
+        "y": 290,
+        "width": 380,
+        "height": 203
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-barber-monochrome",
+    "slug": "collection-barber-monochrome",
+    "name": "Barber Monochrome",
+    "category": "Barbershops",
+    "description": "Barber Monochrome NFC and QR card. Personalized artwork and a working destination QR code are prepared for approval before printing.",
+    "front": "/shop/artwork/demo-pop-collection.jpg",
+    "back": "/shop/artwork/demo-pop-collection.jpg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Black",
+      "White"
+    ],
+    "palette": [
+      "#141414",
+      "#eeeeee"
+    ],
+    "purpose": "Booking",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1024,
+      "height": 1536,
+      "front": {
+        "x": 98,
+        "y": 547,
+        "width": 386,
+        "height": 225
+      },
+      "back": {
+        "x": 98,
+        "y": 791,
+        "width": 386,
+        "height": 202
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-beauty-lilac",
+    "slug": "collection-beauty-lilac",
+    "name": "Beauty Lilac",
+    "category": "Beauty Salons & Spas",
+    "description": "Beauty Lilac NFC and QR card. Personalized artwork and a working destination QR code are prepared for approval before printing.",
+    "front": "/shop/artwork/demo-pop-collection.jpg",
+    "back": "/shop/artwork/demo-pop-collection.jpg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Purple",
+      "Pink"
+    ],
+    "palette": [
+      "#c3a0ce",
+      "#ffc5b7"
+    ],
+    "purpose": "Booking",
+    "style": "Colorful",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1024,
+      "height": 1536,
+      "front": {
+        "x": 589,
+        "y": 548,
+        "width": 380,
+        "height": 224
+      },
+      "back": {
+        "x": 589,
+        "y": 791,
+        "width": 380,
+        "height": 205
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-boutique-checker",
+    "slug": "collection-boutique-checker",
+    "name": "Boutique Checker",
+    "category": "Retail & Fashion",
+    "description": "Boutique Checker NFC and QR card. Personalized artwork and a working destination QR code are prepared for approval before printing.",
+    "front": "/shop/artwork/demo-pop-collection.jpg",
+    "back": "/shop/artwork/demo-pop-collection.jpg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Green",
+      "Pink"
+    ],
+    "palette": [
+      "#064c3c",
+      "#ffa9ca"
+    ],
+    "purpose": "Business Profile",
+    "style": "Colorful",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1024,
+      "height": 1536,
+      "front": {
+        "x": 98,
+        "y": 1043,
+        "width": 386,
+        "height": 215
+      },
+      "back": {
+        "x": 98,
+        "y": 1276,
+        "width": 386,
+        "height": 207
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-digital-profile-lime",
+    "slug": "collection-digital-profile-lime",
+    "name": "Digital Profile Lime",
+    "category": "General Business",
+    "description": "Digital Profile Lime NFC and QR card. Personalized artwork and a working destination QR code are prepared for approval before printing.",
+    "front": "/shop/artwork/demo-pop-collection.jpg",
+    "back": "/shop/artwork/demo-pop-collection.jpg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Lime",
+      "Black"
+    ],
+    "palette": [
+      "#ccff1a",
+      "#222222"
+    ],
+    "purpose": "Business Profile",
+    "style": "Futuristic",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1024,
+      "height": 1536,
+      "front": {
+        "x": 589,
+        "y": 1043,
+        "width": 380,
+        "height": 215
+      },
+      "back": {
+        "x": 589,
+        "y": 1278,
+        "width": 380,
+        "height": 205
+      }
+    },
+    "madeToOrder": true
   }
 ]

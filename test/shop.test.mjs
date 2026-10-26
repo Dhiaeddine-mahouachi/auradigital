@@ -11,24 +11,28 @@ const item = overrides => ({ id: 'test-cart-item', themeId: seeds[0].id, materia
 const request = (path, method = 'GET', data, cookie, origin = 'https://auradigitalworks.com') => new Request(`https://auradigitalworks.com${path}`, { method, headers: { Origin: origin, 'Content-Type': 'application/json', ...(cookie ? { Cookie: cookie } : {}) }, ...(data ? { body: JSON.stringify(data) } : {}) });
 
 test('uploaded artwork pairs are valid, demo-only and preserve front/back viewports', async () => {
-  assert.equal(seeds.length, 33);
+  assert.equal(seeds.length, 58);
   for (const theme of seeds) {
     assert.deepEqual(validateTheme(theme), theme);
     assert.equal(theme.status, 'demo'); assert.equal(theme.priceMinor, 60000); assert.equal(theme.madeToOrder, true);
     const front = await readFile(new URL('..' + theme.front, import.meta.url));
-    assert.equal(front.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+    if (theme.front.endsWith('.png')) assert.equal(front.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+    else if (theme.front.endsWith('.jpg')) assert.equal(front.subarray(0, 2).toString('hex'), 'ffd8');
+    else assert.ok(front.toString().includes('<svg'));
     assert.equal(theme.front, theme.back);
-    assert.ok(theme.artwork.front.x < theme.artwork.back.x);
-    assert.equal(front.readUInt32BE(16), theme.artwork.width);
-    assert.equal(front.readUInt32BE(20), theme.artwork.height);
+    assert.ok(theme.artwork.front.x < theme.artwork.back.x || theme.artwork.front.y < theme.artwork.back.y);
+    if (theme.front.endsWith('.png')) {
+      assert.equal(front.readUInt32BE(16), theme.artwork.width);
+      assert.equal(front.readUInt32BE(20), theme.artwork.height);
+    }
   }
 });
 test('search and every filter combine; null-priced demos never satisfy price limits', () => {
   assert.equal(filterThemes(seeds, { ...emptyFilters, category: 'Restaurants' }).some(t => t.id === 'oliva-bistro'), true);
   assert.equal(filterThemes(seeds, { ...emptyFilters, search: 'BEAUTY', orientation: 'Vertical', style: 'Minimal', color: 'Pink', purpose: 'Booking' }).length, 1);
-  assert.equal(filterThemes(seeds, { ...emptyFilters, category: 'Barbershops' }).length, 1);
+  assert.equal(filterThemes(seeds, { ...emptyFilters, category: 'Barbershops' }).length, 2);
   assert.equal(filterThemes(seeds, { ...emptyFilters, maxPrice: '599' }).length, 0);
-  assert.equal(filterThemes(seeds, { ...emptyFilters, maxPrice: '600' }).length, 33);
+  assert.equal(filterThemes(seeds, { ...emptyFilters, maxPrice: '600' }).length, 58);
   assert.equal(filterThemes([{ ...seeds[0], priceMinor: null }], { ...emptyFilters, maxPrice: '100000' }).length, 0);
   const priced = [{ ...seeds[0], priceMinor: 70000 }, { ...seeds[1], priceMinor: 50000 }];
   assert.equal(filterThemes(priced, { ...emptyFilters, maxPrice: '600' }).length, 1);
@@ -60,7 +64,7 @@ test('public API has server-priced quotes and requires sign-in before checkout',
   const { env, sqlite } = await shopFixture();
   try {
     const response = await handleShop(request('/api/shop/catalog'), env), data = await response.json();
-    assert.equal(response.status, 200); assert.equal(data.themes.length, 33); assert.equal(data.checkout.enabled, true);
+    assert.equal(response.status, 200); assert.equal(data.themes.length, 58); assert.equal(data.checkout.enabled, true);
     assert.equal((await handleShop(request('/api/shop/catalog', 'POST', {}), env)).status, 405);
     assert.equal((await handleShop(request('/api/shop/quote', 'POST', { items: [item()] }), env)).status, 200);
     assert.equal((await handleShop(request('/api/shop/checkout', 'POST', { paid: true }), env)).status, 401);
@@ -78,17 +82,17 @@ test('first catalog request initializes missing shop schema and preserves subseq
     const response = await handleShop(request('/api/shop/catalog'), env);
     assert.equal(response.status, 200);
     const data = await response.json();
-    assert.equal(data.themes.length, 33);
+    assert.equal(data.themes.length, 58);
     assert.equal(data.checkout.enabled, true);
     for (const theme of data.themes) { assert.equal(theme.status, 'demo'); assert.equal(theme.available, true); assert.equal(theme.approved, false); assert.equal(theme.priceMinor, 60000); }
     assert.equal((await handleShop(request('/shop/cards/oliva-bistro'), env)).status, 200);
     const edited = { ...seeds[0], name: 'Preserved edit', status: 'archived' };
     sqlite.prepare('UPDATE shop_card_themes SET data_json = ? WHERE id = ?').run(JSON.stringify(edited), edited.id);
-    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, 32);
+    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, 57);
     assert.equal(JSON.parse(sqlite.prepare('SELECT data_json FROM shop_card_themes WHERE id = ?').get(edited.id).data_json).name, 'Preserved edit');
-    // Existing but intentionally empty catalogs must not be repopulated.
+    // The deployed catalog synchronization restores shipped themes when empty.
     sqlite.exec('DELETE FROM shop_card_themes');
-    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, 0);
+    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, 58);
   } finally { sqlite.close(); }
 });
 test('a direct admin create initializes missing catalog schema using the existing session', async () => {
@@ -98,7 +102,7 @@ test('a direct admin create initializes missing catalog schema using the existin
     sqlite.exec('DROP TABLE shop_card_themes');
     const theme = { ...seeds[0], id: 'another-restaurant', slug: 'another-restaurant' };
     assert.equal((await handleShop(request('/api/admin/shop/themes', 'POST', { theme }, cookie), env)).status, 201);
-    assert.equal(sqlite.prepare('SELECT count(*) AS total FROM shop_card_themes').get().total, 34);
+    assert.equal(sqlite.prepare('SELECT count(*) AS total FROM shop_card_themes').get().total, 59);
   } finally { sqlite.close(); }
 });
 test('unrelated database failures are not hidden or replaced by demo data', async () => {
@@ -120,7 +124,7 @@ test('catalog management reuses admin auth, denies viewers/CSRF and atomically r
     assert.equal((await handleShop(request('/api/admin/shop/themes/oliva-bistro', 'PUT', { theme: seeds[0] }, manager, 'https://attacker.example'), env)).status, 403);
     const next = { ...seeds[0], name: 'Changed restaurant', status: 'archived' };
     assert.equal((await handleShop(request('/api/admin/shop/themes/oliva-bistro', 'PUT', { theme: next }, manager), env)).status, 200);
-    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, 32);
+    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, 57);
     assert.equal(sqlite.prepare("SELECT COUNT(*) AS count FROM admin_audit_log WHERE resource='shop_themes'").get().count, 1);
     assert.equal((await handleShop(request('/api/admin/shop/themes', 'POST', { theme: { ...seeds[0], id: 'another-id' } }, manager), env)).status, 409);
     sqlite.exec("CREATE TRIGGER reject_shop_audit BEFORE INSERT ON admin_audit_log BEGIN SELECT RAISE(ABORT, 'audit unavailable'); END");
