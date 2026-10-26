@@ -1,5 +1,5 @@
 // src/shop/model.ts
-var categories = ["Restaurants", "Coffee Shops & Caf\xE9s", "Corporate & Business", "Beauty Salons & Spas", "Barbershops", "Gyms & Fitness", "Automotive & Car Detailing", "Real Estate", "Dental & Medical Clinics", "Hotels & Hospitality", "Retail & Fashion", "Events & Weddings", "Freelancers & Creators", "General Business"];
+var categories = ["Restaurants", "Coffee Shops & Caf\xE9s", "Corporate & Business", "Beauty Salons & Spas", "Barbershops", "Gyms & Fitness", "Automotive & Car Detailing", "Real Estate", "Dental & Medical Clinics", "Hotels & Hospitality", "Retail & Fashion", "Events & Weddings", "Freelancers & Creators", "General Business", "Travel & Tourism", "Education", "Legal Services", "Technology & IT", "Pet Services"];
 var purposes = ["Business Profile", "Digital Menu", "Google Reviews", "Booking", "Loyalty", "Social Media"];
 var styles = ["Minimal", "Luxury", "Modern", "Corporate", "Colorful", "Futuristic"];
 var emptyFilters = { search: "", category: "", purpose: "", style: "", color: "", orientation: "", maxPrice: "", sort: "newest" };

@@ -1,4 +1,4 @@
-export const categories = ['Restaurants', 'Coffee Shops & Cafés', 'Corporate & Business', 'Beauty Salons & Spas', 'Barbershops', 'Gyms & Fitness', 'Automotive & Car Detailing', 'Real Estate', 'Dental & Medical Clinics', 'Hotels & Hospitality', 'Retail & Fashion', 'Events & Weddings', 'Freelancers & Creators', 'General Business'] as const;
+export const categories = ['Restaurants', 'Coffee Shops & Cafés', 'Corporate & Business', 'Beauty Salons & Spas', 'Barbershops', 'Gyms & Fitness', 'Automotive & Car Detailing', 'Real Estate', 'Dental & Medical Clinics', 'Hotels & Hospitality', 'Retail & Fashion', 'Events & Weddings', 'Freelancers & Creators', 'General Business', 'Travel & Tourism', 'Education', 'Legal Services', 'Technology & IT', 'Pet Services'] as const;
 export const purposes = ['Business Profile', 'Digital Menu', 'Google Reviews', 'Booking', 'Loyalty', 'Social Media'] as const;
 export const styles = ['Minimal', 'Luxury', 'Modern', 'Corporate', 'Colorful', 'Futuristic'] as const;
 export type ArtworkCrop = { x: number; y: number; width: number; height: number };

@@ -64,6 +64,16 @@ async function catalog(env: Env, includeArchived = false): Promise<Theme[]> {
     ]);
     rows = await read();
   }
+  // Add the new collection to existing deployments without requiring a D1
+  // console migration. Existing rows (including edits and archives) win.
+  if (rows.results.length) {
+    const ids = new Set(rows.results.map(row => JSON.parse(row.data_json).id));
+    const additions = seedThemes.filter(theme => theme.id.startsWith('collection-') && !ids.has(theme.id)).map(validateTheme);
+    if (additions.length) {
+      await env.DB.batch(additions.map(theme => env.DB.prepare('INSERT OR IGNORE INTO shop_card_themes (id, slug, data_json) VALUES (?, ?, ?)').bind(theme.id, theme.slug, JSON.stringify(theme))));
+      rows = await read();
+    }
+  }
   const { results } = rows;
   return results.map(row => {
     let theme = validateTheme(JSON.parse(row.data_json));
