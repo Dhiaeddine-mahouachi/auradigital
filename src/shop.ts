@@ -74,6 +74,11 @@ async function catalog(env: Env, includeArchived = false): Promise<Theme[]> {
       rows = await read();
     }
   }
+  // Add only newly shipped product IDs to existing catalog tables. INSERT OR IGNORE
+  // preserves admin-customized cards, prices, artwork, and archived products.
+  const seeds = seedThemes.map(validateTheme);
+  await env.DB.batch(seeds.map(theme => env.DB.prepare('INSERT OR IGNORE INTO shop_card_themes (id, slug, data_json) VALUES (?, ?, ?)').bind(theme.id, theme.slug, JSON.stringify(theme))));
+  rows = await read();
   const { results } = rows;
   return results.map(row => {
     let theme = validateTheme(JSON.parse(row.data_json));
