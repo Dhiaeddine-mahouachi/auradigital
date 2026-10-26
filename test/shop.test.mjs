@@ -65,6 +65,44 @@ async function adminCookie(env, role) {
   await env.DB.prepare('INSERT INTO admin_users (id, username, display_name, password_hash, role) VALUES (?, ?, ?, ?, ?)').bind(role, role, role, 'unused', role).run();
   return `__Host-aura_admin=${await createSession(env.DB, role)}`;
 }
+test('first catalog request initializes missing shop schema and preserves subsequent catalog edits', async () => {
+  const { env, sqlite } = await shopFixture();
+  try {
+    sqlite.exec('DROP TABLE shop_card_themes');
+    const response = await handleShop(request('/api/shop/catalog'), env);
+    assert.equal(response.status, 200);
+    const data = await response.json();
+    assert.equal(data.themes.length, 8);
+    assert.equal(data.checkout.enabled, false);
+    for (const theme of data.themes) { assert.equal(theme.status, 'demo'); assert.equal(theme.available, false); assert.equal(theme.approved, false); assert.equal(theme.priceMinor, null); }
+    assert.equal((await handleShop(request('/shop/cards/oliva-bistro'), env)).status, 200);
+    const edited = { ...seeds[0], name: 'Preserved edit', status: 'archived' };
+    sqlite.prepare('UPDATE shop_card_themes SET data_json = ? WHERE id = ?').run(JSON.stringify(edited), edited.id);
+    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, 7);
+    assert.equal(JSON.parse(sqlite.prepare('SELECT data_json FROM shop_card_themes WHERE id = ?').get(edited.id).data_json).name, 'Preserved edit');
+    // Existing but intentionally empty catalogs must not be repopulated.
+    sqlite.exec('DELETE FROM shop_card_themes');
+    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, 0);
+  } finally { sqlite.close(); }
+});
+test('a direct admin create initializes missing catalog schema using the existing session', async () => {
+  const { env, sqlite } = await shopFixture();
+  try {
+    const cookie = await adminCookie(env, 'manager');
+    sqlite.exec('DROP TABLE shop_card_themes');
+    const theme = { ...seeds[0], id: 'another-restaurant', slug: 'another-restaurant' };
+    assert.equal((await handleShop(request('/api/admin/shop/themes', 'POST', { theme }, cookie), env)).status, 201);
+    assert.equal(sqlite.prepare('SELECT count(*) AS total FROM shop_card_themes').get().total, 9);
+  } finally { sqlite.close(); }
+});
+test('unrelated database failures are not hidden or replaced by demo data', async () => {
+  const { env, sqlite } = await shopFixture();
+  try {
+    const error = new Error('D1 unavailable');
+    const broken = { ...env, DB: { prepare() { throw error; }, batch() { assert.fail('Must not initialize on unrelated errors'); } } };
+    await assert.rejects(handleShop(request('/api/shop/catalog'), broken), /D1 unavailable/);
+  } finally { sqlite.close(); }
+});
 test('catalog management reuses admin auth, denies viewers/CSRF and atomically records changes', async () => {
   const { env, sqlite } = await shopFixture();
   try {

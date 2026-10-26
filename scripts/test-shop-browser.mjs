@@ -5,6 +5,8 @@ import { mkdir } from 'node:fs/promises';
 import { shopServer } from '../test/shop-fixture.mjs';
 
 const fixture = await shopServer(), folder = 'test-output/shop';
+// Exercise first deployment without a separately applied shop migration.
+fixture.sqlite.exec('DROP TABLE shop_card_themes');
 await mkdir(folder, { recursive: true });
 const browser = await chromium.launch({ headless: true, executablePath: process.env.SHOP_CHROMIUM_PATH || undefined, args: ['--no-sandbox', '--disable-dev-shm-usage'] });
 const errors = [];

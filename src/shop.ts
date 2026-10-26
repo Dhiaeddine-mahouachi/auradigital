@@ -2,6 +2,7 @@ import { ApiError, json, readJson } from './http.js';
 import { getAuthenticatedAdmin, sameOrigin } from './security.js';
 import { categories, purposes, styles, quoteCart, type Theme } from './shop/model.ts';
 import type { D1Database } from '@cloudflare/workers-types';
+import seedThemes from '../shop/catalog.seed.json' with { type: 'json' };
 
 type Env = { DB: D1Database; ASSETS: { fetch(request: Request): Promise<Response> } };
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -30,7 +31,24 @@ export function validateTheme(input: unknown): Theme {
 }
 async function catalog(env: Env, includeArchived = false): Promise<Theme[]> {
   if (!env.DB) throw new ApiError(503, 'Shop catalog is not configured.');
-  const { results } = await env.DB.prepare('SELECT data_json FROM shop_card_themes ORDER BY id').all<{ data_json: string }>();
+  const read = () => env.DB.prepare('SELECT data_json FROM shop_card_themes ORDER BY id').all<{ data_json: string }>();
+  let rows;
+  try { rows = await read(); }
+  catch (error) {
+    const messages = error instanceof Error ? `${error.message} ${error.cause instanceof Error ? error.cause.message : ''}` : '';
+    // Deploying Worker code does not apply D1 migrations. Bootstrap only this
+    // additive schema when it is absent; never conceal other database failures.
+    if (!/no such table:\s*(?:main\.)?shop_card_themes\b/i.test(messages)) throw error;
+    const seeds = seedThemes.map(validateTheme);
+    if (seeds.some(t => t.status !== 'demo' || t.approved || t.available || t.priceMinor !== null)) throw new ApiError(503, 'Invalid demo catalog seed.');
+    await env.DB.batch([
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS shop_card_themes (id TEXT PRIMARY KEY NOT NULL, slug TEXT NOT NULL UNIQUE, data_json TEXT NOT NULL CHECK(json_valid(data_json)), created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')))"),
+      env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_shop_themes_updated ON shop_card_themes(updated_at)'),
+      ...seeds.map(theme => env.DB.prepare('INSERT OR IGNORE INTO shop_card_themes (id, slug, data_json) VALUES (?, ?, ?)').bind(theme.id, theme.slug, JSON.stringify(theme))),
+    ]);
+    rows = await read();
+  }
+  const { results } = rows;
   return results.map(row => validateTheme(JSON.parse(row.data_json))).filter(t => includeArchived || t.status !== 'archived');
 }
 export async function handleShop(request: Request, env: Env): Promise<Response | null> {
@@ -46,6 +64,7 @@ export async function handleShop(request: Request, env: Env): Promise<Response |
       if (!['POST', 'PUT'].includes(method)) return json({ error: 'Method not allowed.' }, 405);
       if (!['owner', 'manager'].includes(admin.role)) return json({ error: 'Read-only access.' }, 403);
       const body = await readJson(request, 20000), theme = validateTheme(body.theme);
+      await catalog(env, true);
       const current = await env.DB.prepare('SELECT id FROM shop_card_themes WHERE id = ?').bind(theme.id).first();
       if ((method === 'POST' && path !== '/api/admin/shop/themes') || (method === 'PUT' && path !== `/api/admin/shop/themes/${theme.id}`)) return json({ error: 'Theme ID does not match route.' }, 400);
       if (method === 'POST' && current) return json({ error: 'Theme ID already exists.' }, 409);

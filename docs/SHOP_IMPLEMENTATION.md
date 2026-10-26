@@ -33,7 +33,11 @@ branch, so this work must stay on its feature branch until staging approval.
 
 ## Release gates
 
-- Apply `0022_shop_catalog.sql` to staging D1 first. No runtime DDL.
+- Apply `0022_shop_catalog.sql` to staging D1 when using explicit migrations.
+  If the shop table is absent, the first catalog request creates only the
+  additive shop schema and inserts the eight demo themes atomically, following
+  the repository's existing first-use schema pattern. Other database errors
+  propagate normally. Existing, empty or edited catalogs are never reseeded.
 - Approve artwork, materials, inventory, prices, shipping and tax rules before
   publishing sellable products. Seed designs are explicitly demos, with no price.
 - Select a payment provider against AuraDigital's actual merchant registration,
@@ -74,9 +78,11 @@ fails closed and never accepts a payment or creates a paid order.
 
 Run `npm ci --ignore-scripts`, `npm run check:shop`, `npm run build:shop`,
 `npm run test:shop`, `npm test`, and `npm run deploy:check`.
-The nine shop tests cover catalog/filtering, tampered cart prices/quantities,
+The shop tests cover catalog/filtering, tampered cart prices/quantities,
 corrupt storage, admin/CSRF permissions, transaction rollback, demo publishing,
-real 404s, metadata and the checkout gate.
+real 404s, metadata and the checkout gate. Cold-deployment regressions cover
+missing shop schema, first-use admin creation, preservation of edits/archives
+and deliberately empty catalogs, and unrelated database failures.
 
 Run `npm run test:shop:browser` with a Playwright Chromium installation, or set
 `SHOP_CHROMIUM_PATH` to an available Chromium binary. The browser suite starts
@@ -87,5 +93,5 @@ reduced motion and catalog failure. Screenshots are written to ignored
 `test-output/shop/`. This local fixture does not replace Worker staging checks.
 
 The existing 213 tests passed before the shop tests were added. Strict shop
-TypeScript checks, the nine additional tests, browser checks and a Cloudflare
+TypeScript checks, the additional shop tests, browser checks and a Cloudflare
 deployment dry-run passed. No staging or production deployment was performed.
