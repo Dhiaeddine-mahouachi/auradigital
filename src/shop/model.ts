@@ -1,9 +1,12 @@
 export const categories = ['Restaurants', 'Coffee Shops & Cafés', 'Corporate & Business', 'Beauty Salons & Spas', 'Barbershops', 'Gyms & Fitness', 'Automotive & Car Detailing', 'Real Estate', 'Dental & Medical Clinics', 'Hotels & Hospitality', 'Retail & Fashion', 'Events & Weddings', 'Freelancers & Creators', 'General Business'] as const;
 export const purposes = ['Business Profile', 'Digital Menu', 'Google Reviews', 'Booking', 'Loyalty', 'Social Media'] as const;
 export const styles = ['Minimal', 'Luxury', 'Modern', 'Corporate', 'Colorful', 'Futuristic'] as const;
+export type ArtworkCrop = { x: number; y: number; width: number; height: number };
+export type PairedArtwork = { width: number; height: number; front: ArtworkCrop; back: ArtworkCrop };
 export type Theme = {
   id: string; slug: string; name: string; category: string; description: string;
   front: string; back: string; orientation: 'Horizontal' | 'Vertical';
+  artwork?: PairedArtwork;
   colors: string[]; palette: string[]; purpose: string; style: string;
   materials: string[]; finishes: string[]; priceMinor: number | null;
   currency: 'TRY'; status: 'demo' | 'published' | 'archived';

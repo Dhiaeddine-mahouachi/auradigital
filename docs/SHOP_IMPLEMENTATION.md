@@ -13,7 +13,8 @@ requests currently use manual payment approval, not a payment gateway.
 No merchant credentials or production-ready front/back card artwork were
 provided. There is no R2 binding; the deployment wrapper explicitly disables
 automatic resource provisioning. Main automatically syncs to the production
-branch, so this work must stay on its feature branch until staging approval.
+branch. Feature-branch pushes also trigger Cloudflare Workers builds; verify
+the active site rather than assuming feature branches are deployment-isolated.
 
 ## Implementation plan
 
@@ -56,11 +57,13 @@ fails closed and never accepts a payment or creates a paid order.
 ## Delivered in this branch
 
 - Phase 1: shared Shop navigation/footer link, eight explicitly labeled sample
-  themes with paired vector assets, all fourteen category options, combined
+  themes using the user's uploaded transparent PNG artwork, all fourteen category options, combined
   search/filter/sort controls, removable filter chips, real empty/error states,
   hover/button/keyboard/touch flips and native dialog enlargement. Card shape
-  and orientation are preserved, including the vertical Luna concept. Sample
-  QR codes resolve to the public NFC information page, not a customer destination.
+  and orientation are preserved. Each original two-sided sheet is displayed
+  through separate browser viewports; source image bytes remain unchanged.
+  Codes and contact information in the uploaded sample designs are illustrative
+  and require replacement and testing during production artwork approval.
 - Personalization/cart: quantities, material/finish, business and optional
   contact fields, HTTPS destination validation, honest unchanged sample artwork,
   review summary, versioned browser cart, cross-tab updates, drawer and full cart,
@@ -94,4 +97,15 @@ reduced motion and catalog failure. Screenshots are written to ignored
 
 The existing 213 tests passed before the shop tests were added. Strict shop
 TypeScript checks, the additional shop tests, browser checks and a Cloudflare
-deployment dry-run passed. No staging or production deployment was performed.
+deployment dry-run passed. Production checkout remains disabled.
+
+## Uploaded artwork
+
+`shop/artwork/uploaded-manifest.json` maps the eight originals to the matching
+themes and records each side's source-pixel bounds. `scripts/import-shop-artwork.mjs`
+updates the fresh-install seed and generates `0023_shop_uploaded_artwork.sql`.
+The catalog reader also upgrades the original vector sample paths in existing
+databases without overwriting names, custom copy, availability or archives.
+Administrator-selected custom assets are preserved. The explicit migration
+persists those same guarded changes if desired. Theme IDs/slugs remain stable,
+so existing saved carts keep working. Uploaded artwork remains demo-only.

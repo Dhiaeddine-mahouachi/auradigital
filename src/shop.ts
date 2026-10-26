@@ -19,6 +19,13 @@ export function validateTheme(input: unknown): Theme {
   if (!(categories as readonly string[]).includes(t.category) || !(purposes as readonly string[]).includes(t.purpose) || !(styles as readonly string[]).includes(t.style)) throw new ApiError(400, 'Invalid category, purpose or style.');
   if (!['Horizontal', 'Vertical'].includes(t.orientation) || !['demo', 'published', 'archived'].includes(t.status) || t.currency !== 'TRY') throw new ApiError(400, 'Invalid orientation, status or currency.');
   if (!assetPattern.test(t.front) || !assetPattern.test(t.back)) throw new ApiError(400, 'Use local /shop/artwork/ image paths.');
+  if (t.artwork !== undefined) {
+    const a = t.artwork;
+    if (!a || !Number.isSafeInteger(a.width) || !Number.isSafeInteger(a.height) || a.width < 1 || a.height < 1 || a.width > 10000 || a.height > 10000) throw new ApiError(400, 'Invalid artwork dimensions.');
+    for (const crop of [a.front, a.back]) {
+      if (!crop || ![crop.x, crop.y, crop.width, crop.height].every(Number.isSafeInteger) || crop.x < 0 || crop.y < 0 || crop.width < 1 || crop.height < 1 || crop.x + crop.width > a.width || crop.y + crop.height > a.height) throw new ApiError(400, 'Artwork viewports must fit inside the source image.');
+    }
+  }
   for (const key of ['materials', 'finishes', 'colors', 'palette'] as const) {
     if (!Array.isArray(t[key]) || !t[key].length || t[key].length > 10 || t[key].some(v => typeof v !== 'string' || !v.trim() || v.length > 60)) throw new ApiError(400, `Invalid ${key}.`);
   }
@@ -27,7 +34,12 @@ export function validateTheme(input: unknown): Theme {
   if (typeof t.approved !== 'boolean' || typeof t.available !== 'boolean' || !Number.isInteger(t.popularity) || t.popularity < 0 || !['', 'New'].includes(t.badge) || !/^\d{4}-\d{2}-\d{2}$/.test(t.createdAt)) throw new ApiError(400, 'Invalid theme metadata.');
   if (t.status === 'published' && (!t.approved || t.priceMinor === null || [t.front, t.back].some(path => path.includes('demo-')))) throw new ApiError(409, 'Approve production artwork and a price before publishing. Demo artwork cannot be published.');
   // Explicit allowlist: ignore unknown properties such as client-supplied permissions.
-  return Object.fromEntries(['id', 'slug', 'name', 'category', 'description', 'front', 'back', 'orientation', 'colors', 'palette', 'purpose', 'style', 'materials', 'finishes', 'priceMinor', 'currency', 'status', 'approved', 'available', 'popularity', 'createdAt', 'badge'].map(key => [key, t[key as keyof Theme]])) as Theme;
+  const result = Object.fromEntries(['id', 'slug', 'name', 'category', 'description', 'front', 'back', 'orientation', 'colors', 'palette', 'purpose', 'style', 'materials', 'finishes', 'priceMinor', 'currency', 'status', 'approved', 'available', 'popularity', 'createdAt', 'badge'].map(key => [key, t[key as keyof Theme]])) as Theme;
+  if (t.artwork) {
+    const { width, height, front, back } = t.artwork;
+    result.artwork = { width, height, front: { x: front.x, y: front.y, width: front.width, height: front.height }, back: { x: back.x, y: back.y, width: back.width, height: back.height } };
+  }
+  return result;
 }
 async function catalog(env: Env, includeArchived = false): Promise<Theme[]> {
   if (!env.DB) throw new ApiError(503, 'Shop catalog is not configured.');
@@ -49,7 +61,16 @@ async function catalog(env: Env, includeArchived = false): Promise<Theme[]> {
     rows = await read();
   }
   const { results } = rows;
-  return results.map(row => validateTheme(JSON.parse(row.data_json))).filter(t => includeArchived || t.status !== 'archived');
+  return results.map(row => {
+    const theme = validateTheme(JSON.parse(row.data_json));
+    // Existing deployments retain their catalog rows. Upgrade only the original
+    // sample asset paths without overwriting administrator edits or archives.
+    const uploaded = seedThemes.find(seed => seed.id === theme.id);
+    if (uploaded && theme.front === `/shop/artwork/demo-${theme.id}-front.svg` && theme.back === `/shop/artwork/demo-${theme.id}-back.svg`) {
+      return validateTheme({ ...theme, front: uploaded.front, back: uploaded.back, artwork: uploaded.artwork, orientation: uploaded.orientation, colors: uploaded.colors, palette: uploaded.palette });
+    }
+    return theme;
+  }).filter(t => includeArchived || t.status !== 'archived');
 }
 export async function handleShop(request: Request, env: Env): Promise<Response | null> {
   const url = new URL(request.url), path = url.pathname, method = request.method;

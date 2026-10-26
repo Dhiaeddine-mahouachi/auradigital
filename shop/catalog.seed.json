@@ -5,15 +5,16 @@
     "name": "Oliva Bistro",
     "category": "Restaurants",
     "description": "A taste worth sharing. A luxury NFC and QR card concept for restaurants. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
-    "front": "/shop/artwork/demo-oliva-bistro-front.svg",
-    "back": "/shop/artwork/demo-oliva-bistro-back.svg",
-    "orientation": "Horizontal",
+    "front": "/shop/artwork/demo-oliva-bistro-pair.png",
+    "back": "/shop/artwork/demo-oliva-bistro-pair.png",
+    "orientation": "Vertical",
     "colors": [
-      "Green"
+      "Green",
+      "Ivory"
     ],
     "palette": [
-      "#153e32",
-      "#e7d7ab"
+      "#394520",
+      "#efe7d2"
     ],
     "purpose": "Digital Menu",
     "style": "Luxury",
@@ -31,7 +32,23 @@
     "available": false,
     "popularity": 0,
     "createdAt": "2026-10-27",
-    "badge": "New"
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 58,
+        "y": 75,
+        "width": 648,
+        "height": 946
+      },
+      "back": {
+        "x": 747,
+        "y": 75,
+        "width": 647,
+        "height": 946
+      }
+    }
   },
   {
     "id": "roast-and-bean",
@@ -39,15 +56,16 @@
     "name": "Roast & Bean",
     "category": "Coffee Shops & Cafés",
     "description": "Your daily ritual. A modern NFC and QR card concept for coffee shops & cafés. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
-    "front": "/shop/artwork/demo-roast-and-bean-front.svg",
-    "back": "/shop/artwork/demo-roast-and-bean-back.svg",
-    "orientation": "Horizontal",
+    "front": "/shop/artwork/demo-roast-and-bean-pair.png",
+    "back": "/shop/artwork/demo-roast-and-bean-pair.png",
+    "orientation": "Vertical",
     "colors": [
-      "Brown"
+      "Brown",
+      "Ivory"
     ],
     "palette": [
       "#4b3024",
-      "#f1cf9f"
+      "#f1dfc2"
     ],
     "purpose": "Loyalty",
     "style": "Modern",
@@ -65,7 +83,23 @@
     "available": false,
     "popularity": 0,
     "createdAt": "2026-10-27",
-    "badge": "New"
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 100,
+        "y": 80,
+        "width": 610,
+        "height": 928
+      },
+      "back": {
+        "x": 741,
+        "y": 80,
+        "width": 609,
+        "height": 928
+      }
+    }
   },
   {
     "id": "northbridge-consulting",
@@ -73,15 +107,15 @@
     "name": "Northbridge Consulting",
     "category": "Corporate & Business",
     "description": "Ideas. Direction. Progress. A corporate NFC and QR card concept for corporate & business. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
-    "front": "/shop/artwork/demo-northbridge-consulting-front.svg",
-    "back": "/shop/artwork/demo-northbridge-consulting-back.svg",
+    "front": "/shop/artwork/demo-northbridge-consulting-pair.png",
+    "back": "/shop/artwork/demo-northbridge-consulting-pair.png",
     "orientation": "Horizontal",
     "colors": [
-      "Blue"
+      "Black"
     ],
     "palette": [
-      "#122f4b",
-      "#c2d8ee"
+      "#202020",
+      "#d7d7d7"
     ],
     "purpose": "Business Profile",
     "style": "Corporate",
@@ -99,7 +133,23 @@
     "available": false,
     "popularity": 0,
     "createdAt": "2026-10-27",
-    "badge": "New"
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 23,
+        "y": 325,
+        "width": 694,
+        "height": 437
+      },
+      "back": {
+        "x": 735,
+        "y": 325,
+        "width": 691,
+        "height": 437
+      }
+    }
   },
   {
     "id": "luna-beauty-studio",
@@ -107,15 +157,16 @@
     "name": "Luna Beauty Studio",
     "category": "Beauty Salons & Spas",
     "description": "A moment for yourself. A minimal NFC and QR card concept for beauty salons & spas. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
-    "front": "/shop/artwork/demo-luna-beauty-studio-front.svg",
-    "back": "/shop/artwork/demo-luna-beauty-studio-back.svg",
+    "front": "/shop/artwork/demo-luna-beauty-studio-pair.png",
+    "back": "/shop/artwork/demo-luna-beauty-studio-pair.png",
     "orientation": "Vertical",
     "colors": [
-      "Pink"
+      "Pink",
+      "Green"
     ],
     "palette": [
-      "#f4dce1",
-      "#482837"
+      "#ead1c0",
+      "#12372b"
     ],
     "purpose": "Booking",
     "style": "Minimal",
@@ -133,7 +184,23 @@
     "available": false,
     "popularity": 0,
     "createdAt": "2026-10-27",
-    "badge": "New"
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 94,
+        "y": 82,
+        "width": 604,
+        "height": 930
+      },
+      "back": {
+        "x": 752,
+        "y": 82,
+        "width": 605,
+        "height": 930
+      }
+    }
   },
   {
     "id": "pulse-fitness-club",
@@ -141,15 +208,16 @@
     "name": "Pulse Fitness Club",
     "category": "Gyms & Fitness",
     "description": "Find your next level. A futuristic NFC and QR card concept for gyms & fitness. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
-    "front": "/shop/artwork/demo-pulse-fitness-club-front.svg",
-    "back": "/shop/artwork/demo-pulse-fitness-club-back.svg",
-    "orientation": "Horizontal",
+    "front": "/shop/artwork/demo-pulse-fitness-club-pair.png",
+    "back": "/shop/artwork/demo-pulse-fitness-club-pair.png",
+    "orientation": "Vertical",
     "colors": [
-      "Lime"
+      "Lime",
+      "Black"
     ],
     "palette": [
-      "#15231b",
-      "#d8f46c"
+      "#bcf500",
+      "#111411"
     ],
     "purpose": "Social Media",
     "style": "Futuristic",
@@ -167,7 +235,23 @@
     "available": false,
     "popularity": 0,
     "createdAt": "2026-10-27",
-    "badge": "New"
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 122,
+        "y": 108,
+        "width": 589,
+        "height": 872
+      },
+      "back": {
+        "x": 743,
+        "y": 108,
+        "width": 587,
+        "height": 872
+      }
+    }
   },
   {
     "id": "titan-auto-detail",
@@ -175,15 +259,16 @@
     "name": "Titan Auto Detail",
     "category": "Automotive & Car Detailing",
     "description": "Every detail matters. A modern NFC and QR card concept for automotive & car detailing. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
-    "front": "/shop/artwork/demo-titan-auto-detail-front.svg",
-    "back": "/shop/artwork/demo-titan-auto-detail-back.svg",
+    "front": "/shop/artwork/demo-titan-auto-detail-pair.png",
+    "back": "/shop/artwork/demo-titan-auto-detail-pair.png",
     "orientation": "Horizontal",
     "colors": [
+      "Green",
       "Black"
     ],
     "palette": [
-      "#20242a",
-      "#f4a46b"
+      "#61c632",
+      "#151918"
     ],
     "purpose": "Google Reviews",
     "style": "Modern",
@@ -201,7 +286,23 @@
     "available": false,
     "popularity": 0,
     "createdAt": "2026-10-27",
-    "badge": "New"
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 25,
+        "y": 333,
+        "width": 690,
+        "height": 432
+      },
+      "back": {
+        "x": 735,
+        "y": 333,
+        "width": 692,
+        "height": 432
+      }
+    }
   },
   {
     "id": "brightcare-dental",
@@ -209,15 +310,16 @@
     "name": "BrightCare Dental",
     "category": "Dental & Medical Clinics",
     "description": "A brighter connection. A minimal NFC and QR card concept for dental & medical clinics. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
-    "front": "/shop/artwork/demo-brightcare-dental-front.svg",
-    "back": "/shop/artwork/demo-brightcare-dental-back.svg",
-    "orientation": "Horizontal",
+    "front": "/shop/artwork/demo-brightcare-dental-pair.png",
+    "back": "/shop/artwork/demo-brightcare-dental-pair.png",
+    "orientation": "Vertical",
     "colors": [
+      "Blue",
       "Ivory"
     ],
     "palette": [
-      "#ecf4f2",
-      "#18574f"
+      "#167cc1",
+      "#f3f7fa"
     ],
     "purpose": "Booking",
     "style": "Minimal",
@@ -235,7 +337,23 @@
     "available": false,
     "popularity": 0,
     "createdAt": "2026-10-27",
-    "badge": "New"
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 41,
+        "y": 178,
+        "width": 674,
+        "height": 808
+      },
+      "back": {
+        "x": 736,
+        "y": 176,
+        "width": 675,
+        "height": 810
+      }
+    }
   },
   {
     "id": "golden-key-realty",
@@ -243,15 +361,17 @@
     "name": "Golden Key Realty",
     "category": "Real Estate",
     "description": "Your next chapter. A luxury NFC and QR card concept for real estate. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
-    "front": "/shop/artwork/demo-golden-key-realty-front.svg",
-    "back": "/shop/artwork/demo-golden-key-realty-back.svg",
-    "orientation": "Horizontal",
+    "front": "/shop/artwork/demo-golden-key-realty-pair.png",
+    "back": "/shop/artwork/demo-golden-key-realty-pair.png",
+    "orientation": "Vertical",
     "colors": [
-      "Gold"
+      "Gold",
+      "Black",
+      "Ivory"
     ],
     "palette": [
-      "#292820",
-      "#dfc384"
+      "#dcc080",
+      "#171717"
     ],
     "purpose": "Business Profile",
     "style": "Luxury",
@@ -269,6 +389,22 @@
     "available": false,
     "popularity": 0,
     "createdAt": "2026-10-27",
-    "badge": "New"
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 96,
+        "y": 95,
+        "width": 609,
+        "height": 897
+      },
+      "back": {
+        "x": 743,
+        "y": 95,
+        "width": 610,
+        "height": 897
+      }
+    }
   }
 ]

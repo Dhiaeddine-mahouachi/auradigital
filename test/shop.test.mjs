@@ -10,14 +10,17 @@ const seeds = JSON.parse(await readFile(new URL('../shop/catalog.seed.json', imp
 const item = overrides => ({ id: 'test-cart-item', themeId: seeds[0].id, material: 'PVC', finish: 'Matte', quantity: 2, personalization: { ...emptyPersonalization, business: 'Example Café', destination: 'https://example.com/menu' }, ...overrides });
 const request = (path, method = 'GET', data, cookie, origin = 'https://auradigitalworks.com') => new Request(`https://auradigitalworks.com${path}`, { method, headers: { Origin: origin, 'Content-Type': 'application/json', ...(cookie ? { Cookie: cookie } : {}) }, ...(data ? { body: JSON.stringify(data) } : {}) });
 
-test('catalog seeds are valid, demo-only, both sides exist, NFC and QR share the front', async () => {
+test('uploaded artwork pairs are valid, demo-only and preserve front/back viewports', async () => {
   assert.equal(seeds.length, 8);
   for (const theme of seeds) {
     assert.deepEqual(validateTheme(theme), theme);
     assert.equal(theme.status, 'demo'); assert.equal(theme.priceMinor, null);
-    const front = await readFile(new URL('..' + theme.front, import.meta.url), 'utf8');
-    const back = await readFile(new URL('..' + theme.back, import.meta.url), 'utf8');
-    assert.match(front, /NFC \+ QR/); assert.match(front, /<svg x=/); assert.match(back, /SAMPLE, NOT A PRINT PROOF/);
+    const front = await readFile(new URL('..' + theme.front, import.meta.url));
+    assert.equal(front.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+    assert.equal(theme.front, theme.back);
+    assert.ok(theme.artwork.front.x < theme.artwork.back.x);
+    assert.equal(front.readUInt32BE(16), theme.artwork.width);
+    assert.equal(front.readUInt32BE(20), theme.artwork.height);
   }
 });
 test('search and every filter combine; null-priced demos never satisfy price limits', () => {
@@ -128,6 +131,30 @@ test('publishing rejects sample/missing artwork and invalid catalog properties',
   assert.throws(() => validateTheme({ ...seeds[0], palette: ['red;display:none'] }));
   assert.throws(() => validateTheme({ ...seeds[0], slug: '../other' }));
   assert.throws(() => validateTheme({ ...seeds[0], priceMinor: -1 }));
+  assert.throws(() => validateTheme({ ...seeds[0], artwork: { ...seeds[0].artwork, front: { x: -1, y: 0, width: 600, height: 900 } } }));
+  assert.throws(() => validateTheme({ ...seeds[0], artwork: { ...seeds[0].artwork, back: { x: 1000, y: 0, width: 600, height: 900 } } }));
+});
+test('uploaded artwork upgrades legacy catalog rows without changing order identity or administrator fields', async () => {
+  const { env, sqlite } = await shopFixture();
+  try {
+    const raw = JSON.parse(sqlite.prepare("SELECT data_json FROM shop_card_themes WHERE id='oliva-bistro'").get().data_json);
+    assert.match(raw.front, /-front\.svg$/);
+    raw.name = 'Preserved restaurant name'; raw.description = 'Preserved custom copy';
+    sqlite.prepare("UPDATE shop_card_themes SET data_json = ? WHERE id='oliva-bistro'").run(JSON.stringify(raw));
+    const catalog = await (await handleShop(request('/api/shop/catalog'), env)).json();
+    const theme = catalog.themes.find(t => t.id === raw.id);
+    assert.match(theme.front, /demo-oliva-bistro-pair\.png$/);
+    assert.equal(theme.name, raw.name); assert.equal(theme.description, raw.description);
+    assert.equal(theme.id, raw.id); assert.equal(theme.orientation, 'Vertical');
+    sqlite.exec(await readFile(new URL('../migrations/0023_shop_uploaded_artwork.sql', import.meta.url), 'utf8'));
+    const migrated = JSON.parse(sqlite.prepare("SELECT data_json FROM shop_card_themes WHERE id='oliva-bistro'").get().data_json);
+    assert.equal(migrated.front, theme.front); assert.deepEqual(migrated.artwork, theme.artwork); assert.equal(migrated.name, raw.name);
+    // A different administrator-selected asset must not be replaced.
+    migrated.front = '/shop/artwork/custom-front.png';
+    sqlite.prepare("UPDATE shop_card_themes SET data_json = ? WHERE id='oliva-bistro'").run(JSON.stringify(migrated));
+    const next = await (await handleShop(request('/api/shop/catalog'), env)).json();
+    assert.equal(next.themes.find(t => t.id === raw.id).front, migrated.front);
+  } finally { sqlite.close(); }
 });
 test('shop routing serves unique metadata, proper HEAD, canonical redirect and real 404s', async () => {
   const { env, sqlite } = await shopFixture();

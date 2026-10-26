@@ -23,7 +23,7 @@ try {
   await page.locator('.shop-product').last().waitFor();
   assert.equal(await page.locator('.shop-product').count(), 8);
   const heroRatio = await page.locator('.shop-hero-art img').evaluate(el => el.clientWidth / el.clientHeight);
-  assert.ok(Math.abs(heroRatio - 856 / 540) < 0.02, 'Hero artwork must preserve aspect ratio');
+  assert.ok(Math.abs(heroRatio - 1448 / 1086) < 0.02, 'Hero artwork must preserve aspect ratio');
   assert.equal(await page.locator('#siteHeader a[href="/shop"]').count(), 1);
   const first = page.locator('.shop-scene').first();
   await first.hover(); assert.equal(await first.getAttribute('data-flipped'), 'true');
@@ -35,7 +35,12 @@ try {
   await page.locator('[data-remove-filter="category"]').click(); assert.equal(await page.locator('.shop-product').count(), 8);
   await page.locator('#shop-search').fill('nothing matching this search'); assert.equal(await page.locator('.shop-product').count(), 0);
   await page.getByRole('button', { name: 'Clear filters', exact: true }).click(); assert.equal(await page.locator('.shop-product').count(), 8);
+  await page.locator('.shop-product img').evaluateAll(async images => { await Promise.all(images.map(image => { image.loading = 'eager'; return image.decode(); })); });
+  assert.equal(await page.locator('.shop-product img').evaluateAll(images => images.every(image => image.naturalWidth === 1448)), true);
   await page.screenshot({ path: `${folder}/desktop-storefront.png`, fullPage: true });
+  await page.locator('.shop-product [data-flip]').evaluateAll(buttons => buttons.forEach(button => button.click()));
+  await page.waitForFunction(() => [...document.querySelectorAll('.shop-product .shop-flipper')].every(el => getComputedStyle(el).transform.startsWith('matrix3d(-1,')));
+  await page.screenshot({ path: `${folder}/desktop-card-backs.png`, fullPage: true });
   await page.goto(fixture.base + '/shop/cards/oliva-bistro');
   await page.locator('[name="business"]').fill('Example Café');
   await page.locator('[name="destination"]').fill('https://example.com/menu');

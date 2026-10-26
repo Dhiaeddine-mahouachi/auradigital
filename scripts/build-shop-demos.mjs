@@ -34,3 +34,5 @@ await writeFile('shop/catalog.seed.json', JSON.stringify(themes, null, 2) + '\n'
 const values = themes.map(t => `('${t.id}', '${t.slug}', '${JSON.stringify(t).replaceAll("'", "''")}')`).join(',\n');
 await writeFile('migrations/0022_shop_catalog.sql', `-- Additive shop catalog. All seed artwork is demo-only and cannot be purchased.\nCREATE TABLE IF NOT EXISTS shop_card_themes (\n  id TEXT PRIMARY KEY NOT NULL,\n  slug TEXT NOT NULL UNIQUE,\n  data_json TEXT NOT NULL CHECK(json_valid(data_json)),\n  created_at TEXT NOT NULL DEFAULT (datetime('now')),\n  updated_at TEXT NOT NULL DEFAULT (datetime('now'))\n);\nCREATE INDEX IF NOT EXISTS idx_shop_themes_updated ON shop_card_themes(updated_at);\nINSERT OR IGNORE INTO shop_card_themes (id, slug, data_json) VALUES\n${values};\n`);
 console.log('Generated eight demo themes and 16 vector previews.');
+// Keep uploaded artwork authoritative when rebuilding legacy sample assets.
+await import('./import-shop-artwork.mjs');
