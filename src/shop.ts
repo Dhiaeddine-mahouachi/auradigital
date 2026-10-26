@@ -3,8 +3,10 @@ import { getAuthenticatedAdmin, sameOrigin } from './security.js';
 import { categories, purposes, styles, quoteCart, type Theme } from './shop/model.ts';
 import type { D1Database } from '@cloudflare/workers-types';
 import seedThemes from '../shop/catalog.seed.json' with { type: 'json' };
+import { handleCustomerApi, type CustomerEnv } from './customer-accounts.ts';
+import { handleBankOrders } from './shop/bank-orders.ts';
 
-type Env = { DB: D1Database; ASSETS: { fetch(request: Request): Promise<Response> } };
+type Env = CustomerEnv & { DB: D1Database; ASSETS: { fetch(request: Request): Promise<Response> }; CONTACT_RATE_LIMITER?: { limit(input: { key: string }): Promise<{ success: boolean }> } };
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const assetPattern = /^\/shop\/artwork\/[a-z0-9-]+\.(?:svg|webp|png|jpg)$/;
 const escape = (value: string) => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
@@ -33,12 +35,14 @@ export function validateTheme(input: unknown): Theme {
   if (t.priceMinor !== null && (!Number.isSafeInteger(t.priceMinor) || t.priceMinor < 1 || t.priceMinor > 100000000)) throw new ApiError(400, 'Invalid price in minor currency units.');
   if (typeof t.approved !== 'boolean' || typeof t.available !== 'boolean' || !Number.isInteger(t.popularity) || t.popularity < 0 || !['', 'New'].includes(t.badge) || !/^\d{4}-\d{2}-\d{2}$/.test(t.createdAt)) throw new ApiError(400, 'Invalid theme metadata.');
   if (t.status === 'published' && (!t.approved || t.priceMinor === null || [t.front, t.back].some(path => path.includes('demo-')))) throw new ApiError(409, 'Approve production artwork and a price before publishing. Demo artwork cannot be published.');
+  if (t.madeToOrder !== undefined && (typeof t.madeToOrder !== 'boolean' || (t.madeToOrder && t.priceMinor === null))) throw new ApiError(400, 'Made-to-order themes require a price.');
   // Explicit allowlist: ignore unknown properties such as client-supplied permissions.
   const result = Object.fromEntries(['id', 'slug', 'name', 'category', 'description', 'front', 'back', 'orientation', 'colors', 'palette', 'purpose', 'style', 'materials', 'finishes', 'priceMinor', 'currency', 'status', 'approved', 'available', 'popularity', 'createdAt', 'badge'].map(key => [key, t[key as keyof Theme]])) as Theme;
   if (t.artwork) {
     const { width, height, front, back } = t.artwork;
     result.artwork = { width, height, front: { x: front.x, y: front.y, width: front.width, height: front.height }, back: { x: back.x, y: back.y, width: back.width, height: back.height } };
   }
+  if (t.madeToOrder !== undefined) result.madeToOrder = t.madeToOrder;
   return result;
 }
 async function catalog(env: Env, includeArchived = false): Promise<Theme[]> {
@@ -52,7 +56,7 @@ async function catalog(env: Env, includeArchived = false): Promise<Theme[]> {
     // additive schema when it is absent; never conceal other database failures.
     if (!/no such table:\s*(?:main\.)?shop_card_themes\b/i.test(messages)) throw error;
     const seeds = seedThemes.map(validateTheme);
-    if (seeds.some(t => t.status !== 'demo' || t.approved || t.available || t.priceMinor !== null)) throw new ApiError(503, 'Invalid demo catalog seed.');
+    if (seeds.some(t => t.status !== 'demo' || t.approved || t.priceMinor !== 60000 || !t.madeToOrder)) throw new ApiError(503, 'Invalid made-to-order catalog seed.');
     await env.DB.batch([
       env.DB.prepare("CREATE TABLE IF NOT EXISTS shop_card_themes (id TEXT PRIMARY KEY NOT NULL, slug TEXT NOT NULL UNIQUE, data_json TEXT NOT NULL CHECK(json_valid(data_json)), created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')))"),
       env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_shop_themes_updated ON shop_card_themes(updated_at)'),
@@ -62,17 +66,22 @@ async function catalog(env: Env, includeArchived = false): Promise<Theme[]> {
   }
   const { results } = rows;
   return results.map(row => {
-    const theme = validateTheme(JSON.parse(row.data_json));
+    let theme = validateTheme(JSON.parse(row.data_json));
     // Existing deployments retain their catalog rows. Upgrade only the original
     // sample asset paths without overwriting administrator edits or archives.
     const uploaded = seedThemes.find(seed => seed.id === theme.id);
     if (uploaded && theme.front === `/shop/artwork/demo-${theme.id}-front.svg` && theme.back === `/shop/artwork/demo-${theme.id}-back.svg`) {
-      return validateTheme({ ...theme, front: uploaded.front, back: uploaded.back, artwork: uploaded.artwork, orientation: uploaded.orientation, colors: uploaded.colors, palette: uploaded.palette });
+      theme = validateTheme({ ...theme, front: uploaded.front, back: uploaded.back, artwork: uploaded.artwork, orientation: uploaded.orientation, colors: uploaded.colors, palette: uploaded.palette });
     }
+    if (uploaded && theme.status === 'demo' && theme.front === uploaded.front && theme.back === uploaded.back && theme.priceMinor === null) theme = validateTheme({ ...theme, priceMinor: 60000, available: true, madeToOrder: true });
     return theme;
   }).filter(t => includeArchived || t.status !== 'archived');
 }
 export async function handleShop(request: Request, env: Env): Promise<Response | null> {
+  const customerResponse = await handleCustomerApi(request, env);
+  if (customerResponse) return customerResponse;
+  const bankResponse = await handleBankOrders(request, env, () => catalog(env));
+  if (bankResponse) return bankResponse;
   const url = new URL(request.url), path = url.pathname, method = request.method;
   const isPublic = path === '/api/shop/catalog' || path === '/api/shop/quote' || path === '/api/shop/checkout';
   const isAdmin = path === '/api/admin/shop/themes' || /^\/api\/admin\/shop\/themes\/[a-z0-9-]+$/.test(path);
@@ -107,17 +116,18 @@ export async function handleShop(request: Request, env: Env): Promise<Response |
       ]);
       return json({ theme }, method === 'POST' ? 201 : 200);
     }
-    if (path === '/api/shop/catalog' && method === 'GET') return json({ themes: await catalog(env), checkout: { enabled: false, reason: 'Customer accounts, shipping, tax and a verified payment provider are not connected.' } });
+    if (path === '/api/shop/catalog' && method === 'GET') return json({ themes: await catalog(env), checkout: { enabled: true, method: 'bank_transfer', authenticationRequired: true } });
     if (path === '/api/shop/quote' && method === 'POST') {
       const body = await readJson(request, 200000);
       try { return json(quoteCart(body.items, await catalog(env))); } catch (error) { if (error instanceof ApiError) throw error; return json({ error: error instanceof Error ? error.message : 'Invalid cart.' }, 400); }
     }
-    if (path === '/api/shop/checkout' && method === 'POST') return json({ error: 'Checkout is not enabled. Customer accounts, approved products, shipping, tax and a verified payment provider must be connected first.', code: 'CHECKOUT_NOT_CONFIGURED' }, 503);
     return json({ error: 'Method not allowed.' }, 405);
   }
   if (path === '/shop/' && ['GET', 'HEAD'].includes(method)) { url.pathname = '/shop'; return Response.redirect(url.toString(), 301); }
   const detail = /^\/shop\/cards\/([a-z0-9-]+)$/.exec(path);
-  if (path !== '/shop' && path !== '/shop/cart' && !detail) return null;
+  const accountPage = ['/account', '/account/login', '/account/signup'].includes(path);
+  const orderPage = /^\/shop\/orders\/[a-f0-9-]{36}$/.test(path);
+  if (path !== '/shop' && path !== '/shop/cart' && path !== '/shop/checkout' && !accountPage && !orderPage && !detail) return null;
   if (!['GET', 'HEAD'].includes(method)) return json({ error: 'Method not allowed.' }, 405);
   let theme: Theme | undefined;
   if (detail) {
@@ -126,13 +136,13 @@ export async function handleShop(request: Request, env: Env): Promise<Response |
   }
   const asset = await env.ASSETS.fetch(new Request(new URL('/shop/index.html', url)));
   if (!asset.ok) return asset;
-  const title = theme ? `${theme.name} NFC & QR Card — AuraDigital` : path === '/shop/cart' ? 'Your Card Collection — AuraDigital' : 'NFC & QR Smart Card Shop — AuraDigital';
+  const title = theme ? `${theme.name} NFC & QR Card — AuraDigital` : accountPage ? 'Your AuraDigital Account' : path === '/shop/checkout' ? 'Bank Transfer Checkout — AuraDigital' : orderPage ? 'Your Order — AuraDigital' : path === '/shop/cart' ? 'Your Cart — AuraDigital' : 'NFC & QR Smart Card Shop — AuraDigital';
   const description = theme?.description || 'Explore NFC and QR card designs for your business. Preview both sides, personalize your theme and save your collection.';
   const meta = `<meta name="description" content="${escape(description)}"><link rel="canonical" href="https://auradigitalworks.com${path}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}">${theme ? `<meta property="og:image" content="https://auradigitalworks.com${theme.front}">` : ''}`;
   const html = (await asset.text()).replace('<title>Shop — AuraDigital</title>', `<title>${escape(title)}</title>`).replace('<!--SHOP_META-->', meta);
   const headers = new Headers(asset.headers);
   headers.delete('content-length'); headers.delete('etag');
   headers.set('Content-Type', 'text/html; charset=utf-8'); headers.set('Cache-Control', 'no-store');
-  if (path === '/shop/cart') headers.set('X-Robots-Tag', 'noindex, nofollow');
+  if (path === '/shop/cart' || path === '/shop/checkout' || accountPage || orderPage) headers.set('X-Robots-Tag', 'noindex, nofollow');
   return new Response(method === 'HEAD' ? null : html, { headers });
 }

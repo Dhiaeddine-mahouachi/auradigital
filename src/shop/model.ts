@@ -7,6 +7,7 @@ export type Theme = {
   id: string; slug: string; name: string; category: string; description: string;
   front: string; back: string; orientation: 'Horizontal' | 'Vertical';
   artwork?: PairedArtwork;
+  madeToOrder?: boolean;
   colors: string[]; palette: string[]; purpose: string; style: string;
   materials: string[]; finishes: string[]; priceMinor: number | null;
   currency: 'TRY'; status: 'demo' | 'published' | 'archived';
@@ -20,10 +21,10 @@ export const emptyFilters: Filters = { search: '', category: '', purpose: '', st
 export const destinationTypes = ['Website', 'AuraPops digital profile', 'AuraMenu digital menu', 'Booking page', 'Google review page', 'Link hub'];
 export const emptyPersonalization: Personalization = { business: '', destination: '', destinationType: 'Website', contact: '', phone: '', whatsapp: '', social: '', instructions: '' };
 export function money(amount: number | null, currency = 'TRY'): string {
-  return amount === null ? 'Price on approval' : new Intl.NumberFormat('en', { style: 'currency', currency }).format(amount / 100);
+  return amount === null ? 'Price on approval' : currency === 'TRY' ? new Intl.NumberFormat('en', { maximumFractionDigits: 2 }).format(amount / 100) + ' TL' : new Intl.NumberFormat('en', { style: 'currency', currency }).format(amount / 100);
 }
 export function canPurchase(theme: Theme): boolean {
-  return theme.status === 'published' && theme.approved && theme.available && Number.isSafeInteger(theme.priceMinor) && Number(theme.priceMinor) > 0;
+  return theme.status !== 'archived' && (theme.madeToOrder === true || (theme.status === 'published' && theme.approved)) && theme.available && Number.isSafeInteger(theme.priceMinor) && Number(theme.priceMinor) > 0;
 }
 export function filterThemes(themes: Theme[], filters: Filters): Theme[] {
   const search = filters.search.trim().toLocaleLowerCase();
@@ -41,7 +42,7 @@ export function safeUrl(value: unknown, optional = false): string {
   if (url.protocol !== 'https:' || url.username || url.password) throw new Error('Use an HTTPS link without embedded credentials.');
   return url.href;
 }
-export function validateItem(input: unknown, themes: Theme[]): CartItem {
+export function validateItem(input: unknown, themes: Theme[], requirePersonalization = true): CartItem {
   if (!input || typeof input !== 'object') throw new Error('Invalid cart item.');
   const item = input as CartItem;
   const theme = themes.find(t => t.id === item.themeId && t.status !== 'archived');
@@ -49,14 +50,14 @@ export function validateItem(input: unknown, themes: Theme[]): CartItem {
   if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 100) throw new Error('Quantity must be a whole number from 1 to 100.');
   if (!theme.materials.includes(item.material) || !theme.finishes.includes(item.finish)) throw new Error('Select a valid material and finish.');
   const raw = item.personalization;
-  if (!raw || typeof raw !== 'object' || typeof raw.business !== 'string' || !raw.business.trim()) throw new Error('Enter your business name.');
+  if (!raw || typeof raw !== 'object' || typeof raw.business !== 'string' || (requirePersonalization && !raw.business.trim())) throw new Error('Enter your business name.');
   const personalization = { ...emptyPersonalization };
   for (const key of Object.keys(personalization) as (keyof Personalization)[]) {
     if (typeof raw[key] !== 'string' || raw[key].length > (key === 'instructions' ? 1000 : key === 'destination' || key === 'social' ? 800 : 100)) throw new Error('A personalization field is invalid or too long.');
     personalization[key] = raw[key].trim();
   }
   if (!destinationTypes.includes(personalization.destinationType)) throw new Error('Select a valid destination type.');
-  personalization.destination = safeUrl(personalization.destination);
+  personalization.destination = safeUrl(personalization.destination, !requirePersonalization);
   personalization.social = safeUrl(personalization.social, true);
   return { id: typeof item.id === 'string' && /^[a-zA-Z0-9-]{1,60}$/.test(item.id) ? item.id : crypto.randomUUID(), themeId: theme.id, quantity: item.quantity, material: item.material, finish: item.finish, personalization };
 }
@@ -66,15 +67,15 @@ export function restoreCart(raw: string | null, themes: Theme[]): CartItem[] {
     if (data?.version !== 1 || !Array.isArray(data.items) || data.items.length > 50) return [];
     const ids = new Set<string>();
     return data.items.flatMap((item: unknown) => {
-      try { const valid = validateItem(item, themes); if (ids.has(valid.id)) return []; ids.add(valid.id); return [valid]; } catch { return []; }
+      try { const valid = validateItem(item, themes, false); if (ids.has(valid.id)) return []; ids.add(valid.id); return [valid]; } catch { return []; }
     });
   } catch { return []; }
 }
 export function quoteCart(items: unknown, themes: Theme[]) {
   if (!Array.isArray(items) || !items.length || items.length > 50) throw new Error('Your cart must contain 1 to 50 designs.');
   const lines = items.map(input => {
-    const item = validateItem(input, themes), theme = themes.find(t => t.id === item.themeId)!;
-    if (!canPurchase(theme)) throw new Error(`${theme.name} is a demo or unavailable. It cannot be purchased.`);
+    const item = validateItem(input, themes, false), theme = themes.find(t => t.id === item.themeId)!;
+    if (!canPurchase(theme)) throw new Error(`${theme.name} is unavailable. It cannot be ordered.`);
     return { ...item, name: theme.name, currency: theme.currency, unitMinor: theme.priceMinor!, subtotalMinor: theme.priceMinor! * item.quantity };
   });
   const subtotalMinor = lines.reduce((sum, line) => sum + line.subtotalMinor, 0);

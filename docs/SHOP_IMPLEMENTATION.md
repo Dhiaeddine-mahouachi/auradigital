@@ -1,111 +1,100 @@
-# NFC & QR shop
+# AuraDigital shop, customer accounts and bank-transfer orders
 
-## Repository audit
+The shop reuses the site's static HTML/ES modules, Cloudflare Worker routing,
+D1 database, cinematic forest-green/lime design system, admin sessions,
+password hashing and security controls. The customer identity module is shared
+at `/account`; shoppers never use administrator or employee identities.
 
-Audited main at `420f81a2e0cd3fca306e3f31243c138aace09f8a`.
-The frontend is static HTML/CSS/ES modules. `script.js` owns shared navigation
-and footer. `src/worker-entry.js` composes Worker routers; `wrangler.jsonc`
-serves assets with explicit Worker-first paths. D1 is the existing database.
-Admin/employee authentication uses separate secure, HttpOnly sessions in
-`src/security.js` and `src/employee-portal.js`. CRM clients are records, not
-customer identities. No customer registration/session API was found. NFC
-requests currently use manual payment approval, not a payment gateway.
-No merchant credentials or production-ready front/back card artwork were
-provided. There is no R2 binding; the deployment wrapper explicitly disables
-automatic resource provisioning. Main automatically syncs to the production
-branch. Feature-branch pushes also trigger Cloudflare Workers builds; verify
-the active site rather than assuming feature branches are deployment-isolated.
+## Customer flow
 
-## Implementation plan
+1. Browse eight uploaded card themes, filter designs and preview both sides.
+2. Use the `+` button below a card to add it immediately to the panier below
+   the collection. Guest selection, quantities and personalization persist in
+   versioned browser storage across signup and login.
+3. Checkout requires an AuraDigital customer account. Register or sign in,
+   then return to `/shop/checkout` with the same cart.
+4. Enter full name, business name, phone, country, city, street address, postal
+   code, optional billing details and each card's NFC/QR link.
+5. Review the server-priced total and accept the order conditions. The server
+   records an unpaid order owned by that customer and saves the delivery profile.
+6. Transfer the exact card total using the displayed IBAN and unique order
+   reference. Payment reporting does not mark the order paid.
+7. The account lists orders and their statuses. An owner or manager checks the
+   actual bank receipt and confirms payment in Admin → Shop Catalog → Bank-transfer
+   orders. Confirmation is audited atomically and moves production to awaiting artwork.
 
-1. Reuse shared navigation/footer, Worker routing/security and D1. Add `/shop`
-   and `/shop/cards/:slug`, a JSON-backed seed catalog, responsive filtering,
-   front/back controls, larger dialog preview and reduced-motion support.
-2. Add guest personalization and versioned cart storage, editable items and
-   `/shop/cart`. Resolve prices against catalog data server-side. Never allow
-   demo artwork to enter a payable checkout.
-3. Extend the existing admin interface/session with catalog management and an
-   additive D1 migration. Allow catalog changes without frontend code changes.
-4. Integrate customer identity once the authoritative customer account system
-   is identified or a new shared customer identity is agreed. Add durable guest
-   cart merge, private logo object storage, orders, shipping, tax rules and
-   provider-specific verified payments. These dependencies block checkout.
-5. Add fulfillment/customer order views, sandbox E2E validation and staging.
+## Offer and artwork
 
-## Release gates
+The eight shipped card templates cost **600 TL per card**, authorized on
+2026-10-27. They are made-to-order offers; displayed artwork remains an example,
+and personalized artwork must be approved before printing. Stock and finalized
+print proofs are not implied. Delivery is arranged separately and any delivery
+fee must be confirmed before shipping. No delivery charge or tax invoice is fabricated.
 
-- Apply `0022_shop_catalog.sql` to staging D1 when using explicit migrations.
-  If the shop table is absent, the first catalog request creates only the
-  additive shop schema and inserts the eight demo themes atomically, following
-  the repository's existing first-use schema pattern. Other database errors
-  propagate normally. Existing, empty or edited catalogs are never reseeded.
-- Approve artwork, materials, inventory, prices, shipping and tax rules before
-  publishing sellable products. Seed designs are explicitly demos, with no price.
-- Select a payment provider against AuraDigital's actual merchant registration,
-  complete onboarding and supply sandbox credentials. No provider is assumed.
-- Provision private object storage explicitly before enabling logo uploads.
-- Identify/connect customer authentication. Never reuse employee/admin identities
-  for shoppers or treat CRM records as login accounts.
-- Implement hosted checkout, signed callbacks, event deduplication, transactional
-  order snapshots and guarded fulfillment; pass success/failure/cancel/retry E2E.
-- Verify existing pages on staging; do not merge into main to obtain a preview.
-- Live payments and real orders require the user's explicit approval.
+The user's supplied payment details are:
 
-This branch does not certify production commerce readiness. The checkout endpoint
-fails closed and never accepts a payment or creates a paid order.
+- IBAN: `TR940001009010394706205001`
+- Account holder: `Dhiaeddine Mahouachi`
+- Currency: TRY
 
-## Delivered in this branch
+The IBAN checksum was checked locally; no bank ownership or receipt verification
+is claimed. There is no bank API or card gateway integration. Only an authorized
+administrator can mark a bank transfer received.
 
-- Phase 1: shared Shop navigation/footer link, eight explicitly labeled sample
-  themes using the user's uploaded transparent PNG artwork, all fourteen category options, combined
-  search/filter/sort controls, removable filter chips, real empty/error states,
-  hover/button/keyboard/touch flips and native dialog enlargement. Card shape
-  and orientation are preserved. Each original two-sided sheet is displayed
-  through separate browser viewports; source image bytes remain unchanged.
-  Codes and contact information in the uploaded sample designs are illustrative
-  and require replacement and testing during production artwork approval.
-- Personalization/cart: quantities, material/finish, business and optional
-  contact fields, HTTPS destination validation, honest unchanged sample artwork,
-  review summary, versioned browser cart, cross-tab updates, drawer and full cart,
-  quantity editing, personalization editing, removal and clearing. No registration
-  is requested while browsing or saving demos. Logo upload is visibly unavailable.
-- Backend: additive catalog migration and seed; authenticated admin catalog CRUD
-  via existing owner/manager/viewer roles; atomic audit logging; archive support;
-  production asset/publishing guards; server-derived quote endpoint. Price totals
-  remain estimates until shipping/tax rules exist. Checkout always returns 503.
-- Production dependencies remain open: customer identity and durable cart merge,
-  logo upload/storage, shipping/taxes/terms, orders, payment adapter and verified
-  sandbox payments, customer dashboard, fulfillment and commerce analytics.
+`shop/artwork/uploaded-manifest.json` maps unchanged original PNGs to separate
+front/back browser viewports. Theme IDs and slugs stay stable. The reader upgrades
+original sample references and their previously unset prices while preserving
+archived themes and administrator-selected assets or prices. `scripts/import-shop-artwork.mjs`
+keeps the seed consistent when rebuilding legacy demo files.
 
-## Local verification
+## Routes and records
 
-Run `npm ci --ignore-scripts`, `npm run check:shop`, `npm run build:shop`,
-`npm run test:shop`, `npm test`, and `npm run deploy:check`.
-The shop tests cover catalog/filtering, tampered cart prices/quantities,
-corrupt storage, admin/CSRF permissions, transaction rollback, demo publishing,
-real 404s, metadata and the checkout gate. Cold-deployment regressions cover
-missing shop schema, first-use admin creation, preservation of edits/archives
-and deliberately empty catalogs, and unrelated database failures.
+- `/shop`, `/shop/cards/:slug`, `/shop/cart`, `/shop/checkout`, `/shop/orders/:id`
+- `/account`, `/account/login`, `/account/signup`
+- `/api/customer/register`, `/api/customer/login`, `/api/customer/session`, `/api/customer/logout`
+- `/api/shop/catalog`, `/api/shop/quote`, `/api/shop/checkout`, `/api/shop/orders`, `/api/shop/orders/:id`, `/api/shop/orders/:id/report-transfer`
+- Existing admin catalog endpoints plus `/api/admin/shop/orders` and `/api/admin/shop/orders/:id`
 
-Run `npm run test:shop:browser` with a Playwright Chromium installation, or set
-`SHOP_CHROMIUM_PATH` to an available Chromium binary. The browser suite starts
-the real shop router against an in-memory SQLite/D1 adapter and local assets;
-it never contacts Cloudflare D1 or creates external orders. It checks desktop,
-390px mobile and 768px tablet, hover/keyboard/touch, dialogs, all cart operations,
-reduced motion and catalog failure. Screenshots are written to ignored
-`test-output/shop/`. This local fixture does not replace Worker staging checks.
+`customer_users` and `customer_sessions` provide shared customer identities.
+Passwords use the existing bcrypt cost-12 helper. Session tokens are random,
+hashed in D1 and delivered only in Secure/HttpOnly/SameSite=Strict host cookies.
+Account writes enforce same-origin checks, bounded bodies and login rate limits.
+Registration does not verify email ownership, and self-service password recovery
+is not part of this iteration.
 
-The existing 213 tests passed before the shop tests were added. Strict shop
-TypeScript checks, the additional shop tests, browser checks and a Cloudflare
-deployment dry-run passed. Production checkout remains disabled.
+`shop_bank_orders` stores the customer owner, immutable line/price/address/bank
+snapshots, card total, payment/production states and report/verification timestamps.
+Customer APIs enforce ownership; admin mutations require owner/manager roles.
+Server-derived totals ignore client price, user-ID, email and paid-status fields.
+Customer-scoped idempotency keys prevent replayed order creation; reuse with
+changed details is rejected. No raw card information is collected.
 
-## Uploaded artwork
+## Deployment and validation
 
-`shop/artwork/uploaded-manifest.json` maps the eight originals to the matching
-themes and records each side's source-pixel bounds. `scripts/import-shop-artwork.mjs`
-updates the fresh-install seed and generates `0023_shop_uploaded_artwork.sql`.
-The catalog reader also upgrades the original vector sample paths in existing
-databases without overwriting names, custom copy, availability or archives.
-Administrator-selected custom assets are preserved. The explicit migration
-persists those same guarded changes if desired. Theme IDs/slugs remain stable,
-so existing saved carts keep working. Uploaded artwork remains demo-only.
+All new tables initialize additively on first use, matching the repository's
+existing schema pattern. Explicit migrations are also supplied:
+
+- `0022_shop_catalog.sql`: original catalog.
+- `0023_shop_uploaded_artwork.sql`: guarded artwork updates.
+- `0024_customer_accounts_bank_orders.sql`: customer accounts and bank orders.
+- `0025_shop_made_to_order_pricing.sql`: guarded 600 TL offer updates.
+
+Feature-branch pushes trigger the connected Cloudflare Workers build. Main also
+syncs to the existing production branch; do not assume branch isolation.
+
+Use `npm run check`, `npm test`, `npm run deploy:check` and
+`npm run test:shop:browser`. The browser test uses the real shop router against
+in-memory SQLite/D1 and local assets. Set `SHOP_CHROMIUM_PATH` when using an
+existing Chromium installation. It does not create live customer accounts or
+orders, send messages, transfer money, or confirm real bank receipts.
+
+Checks cover cold database initialization, all uploaded front/back views,
+search/filtering, desktop/mobile layouts, cart operations, signup/login and
+return-to-checkout, address validation, price tampering, account isolation,
+idempotent order creation and manually verified bank payments. Screenshots go
+to ignored `test-output/shop/`.
+
+Logos are collected by email with the order reference. Object uploads, automated
+email notifications, delivery pricing/tracking, artwork approval tooling and tax
+invoice generation remain separate work. The existing admin product editor and
+all unrelated AuraDigital services are preserved.

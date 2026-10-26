@@ -14,7 +14,7 @@ test('uploaded artwork pairs are valid, demo-only and preserve front/back viewpo
   assert.equal(seeds.length, 8);
   for (const theme of seeds) {
     assert.deepEqual(validateTheme(theme), theme);
-    assert.equal(theme.status, 'demo'); assert.equal(theme.priceMinor, null);
+    assert.equal(theme.status, 'demo'); assert.equal(theme.priceMinor, 60000); assert.equal(theme.madeToOrder, true);
     const front = await readFile(new URL('..' + theme.front, import.meta.url));
     assert.equal(front.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
     assert.equal(theme.front, theme.back);
@@ -27,7 +27,9 @@ test('search and every filter combine; null-priced demos never satisfy price lim
   assert.equal(filterThemes(seeds, { ...emptyFilters, category: 'Restaurants' })[0].id, 'oliva-bistro');
   assert.equal(filterThemes(seeds, { ...emptyFilters, search: 'BEAUTY', orientation: 'Vertical', style: 'Minimal', color: 'Pink', purpose: 'Booking' }).length, 1);
   assert.equal(filterThemes(seeds, { ...emptyFilters, category: 'Barbershops' }).length, 0);
-  assert.equal(filterThemes(seeds, { ...emptyFilters, maxPrice: '100000' }).length, 0);
+  assert.equal(filterThemes(seeds, { ...emptyFilters, maxPrice: '599' }).length, 0);
+  assert.equal(filterThemes(seeds, { ...emptyFilters, maxPrice: '600' }).length, 8);
+  assert.equal(filterThemes([{ ...seeds[0], priceMinor: null }], { ...emptyFilters, maxPrice: '100000' }).length, 0);
   const priced = [{ ...seeds[0], priceMinor: 70000 }, { ...seeds[1], priceMinor: 50000 }];
   assert.equal(filterThemes(priced, { ...emptyFilters, maxPrice: '600' }).length, 1);
   assert.equal(filterThemes(priced, { ...emptyFilters, sort: 'price-low' })[0].priceMinor, 50000);
@@ -47,20 +49,21 @@ test('cart restoration tolerates corrupt/old storage, deduplicates IDs and drops
   assert.deepEqual(restoreCart(JSON.stringify({ version: 1, items: [item({ themeId: 'removed' })] }), seeds), []);
 });
 test('quotes recompute price from catalog and fail closed for demos/unavailable items', () => {
-  assert.throws(() => quoteCart([item()], seeds), /demo or unavailable/);
+  assert.throws(() => quoteCart([item()], seeds.map(t => ({ ...t, madeToOrder: false }))), /unavailable/);
+  assert.equal(quoteCart([item()], seeds).subtotalMinor, 120000);
   const themes = [{ ...seeds[0], priceMinor: 70000, approved: true, available: true, status: 'published' }];
   const result = quoteCart([item({ unitMinor: 1, subtotalMinor: 2, totalMinor: 2 })], themes);
   assert.equal(result.subtotalMinor, 140000); assert.equal(result.totalMinor, null); assert.equal(result.payable, false);
   assert.throws(() => quoteCart([item()], [{ ...themes[0], available: false }]));
 });
-test('public API has server-priced quotes, proper methods and disabled checkout', async () => {
+test('public API has server-priced quotes and requires sign-in before checkout', async () => {
   const { env, sqlite } = await shopFixture();
   try {
     const response = await handleShop(request('/api/shop/catalog'), env), data = await response.json();
-    assert.equal(response.status, 200); assert.equal(data.themes.length, 8); assert.equal(data.checkout.enabled, false);
+    assert.equal(response.status, 200); assert.equal(data.themes.length, 8); assert.equal(data.checkout.enabled, true);
     assert.equal((await handleShop(request('/api/shop/catalog', 'POST', {}), env)).status, 405);
-    assert.equal((await handleShop(request('/api/shop/quote', 'POST', { items: [item()] }), env)).status, 400);
-    assert.equal((await handleShop(request('/api/shop/checkout', 'POST', { paid: true }), env)).status, 503);
+    assert.equal((await handleShop(request('/api/shop/quote', 'POST', { items: [item()] }), env)).status, 200);
+    assert.equal((await handleShop(request('/api/shop/checkout', 'POST', { paid: true }), env)).status, 401);
     assert.equal((await handleShop(request('/api/shop/checkout', 'POST', {}, null, 'https://attacker.example'), env)).status, 403);
   } finally { sqlite.close(); }
 });
@@ -76,8 +79,8 @@ test('first catalog request initializes missing shop schema and preserves subseq
     assert.equal(response.status, 200);
     const data = await response.json();
     assert.equal(data.themes.length, 8);
-    assert.equal(data.checkout.enabled, false);
-    for (const theme of data.themes) { assert.equal(theme.status, 'demo'); assert.equal(theme.available, false); assert.equal(theme.approved, false); assert.equal(theme.priceMinor, null); }
+    assert.equal(data.checkout.enabled, true);
+    for (const theme of data.themes) { assert.equal(theme.status, 'demo'); assert.equal(theme.available, true); assert.equal(theme.approved, false); assert.equal(theme.priceMinor, 60000); }
     assert.equal((await handleShop(request('/shop/cards/oliva-bistro'), env)).status, 200);
     const edited = { ...seeds[0], name: 'Preserved edit', status: 'archived' };
     sqlite.prepare('UPDATE shop_card_themes SET data_json = ? WHERE id = ?').run(JSON.stringify(edited), edited.id);

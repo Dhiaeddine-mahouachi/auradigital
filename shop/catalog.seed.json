@@ -25,11 +25,11 @@
       "Matte",
       "Glossy"
     ],
-    "priceMinor": null,
+    "priceMinor": 60000,
     "currency": "TRY",
     "status": "demo",
     "approved": false,
-    "available": false,
+    "available": true,
     "popularity": 0,
     "createdAt": "2026-10-27",
     "badge": "New",
@@ -48,14 +48,15 @@
         "width": 647,
         "height": 946
       }
-    }
+    },
+    "madeToOrder": true
   },
   {
     "id": "roast-and-bean",
     "slug": "roast-and-bean",
     "name": "Roast & Bean",
-    "category": "Coffee Shops & Cafés",
-    "description": "Your daily ritual. A modern NFC and QR card concept for coffee shops & cafés. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "category": "Coffee Shops & Caf\u00e9s",
+    "description": "Your daily ritual. A modern NFC and QR card concept for coffee shops & caf\u00e9s. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
     "front": "/shop/artwork/demo-roast-and-bean-pair.png",
     "back": "/shop/artwork/demo-roast-and-bean-pair.png",
     "orientation": "Vertical",
@@ -76,11 +77,11 @@
       "Matte",
       "Glossy"
     ],
-    "priceMinor": null,
+    "priceMinor": 60000,
     "currency": "TRY",
     "status": "demo",
     "approved": false,
-    "available": false,
+    "available": true,
     "popularity": 0,
     "createdAt": "2026-10-27",
     "badge": "New",
@@ -99,7 +100,8 @@
         "width": 609,
         "height": 928
       }
-    }
+    },
+    "madeToOrder": true
   },
   {
     "id": "northbridge-consulting",
@@ -126,11 +128,11 @@
       "Matte",
       "Glossy"
     ],
-    "priceMinor": null,
+    "priceMinor": 60000,
     "currency": "TRY",
     "status": "demo",
     "approved": false,
-    "available": false,
+    "available": true,
     "popularity": 0,
     "createdAt": "2026-10-27",
     "badge": "New",
@@ -149,7 +151,8 @@
         "width": 691,
         "height": 437
       }
-    }
+    },
+    "madeToOrder": true
   },
   {
     "id": "luna-beauty-studio",
@@ -177,11 +180,11 @@
       "Matte",
       "Glossy"
     ],
-    "priceMinor": null,
+    "priceMinor": 60000,
     "currency": "TRY",
     "status": "demo",
     "approved": false,
-    "available": false,
+    "available": true,
     "popularity": 0,
     "createdAt": "2026-10-27",
     "badge": "New",
@@ -200,7 +203,8 @@
         "width": 605,
         "height": 930
       }
-    }
+    },
+    "madeToOrder": true
   },
   {
     "id": "pulse-fitness-club",
@@ -228,11 +232,11 @@
       "Matte",
       "Glossy"
     ],
-    "priceMinor": null,
+    "priceMinor": 60000,
     "currency": "TRY",
     "status": "demo",
     "approved": false,
-    "available": false,
+    "available": true,
     "popularity": 0,
     "createdAt": "2026-10-27",
     "badge": "New",
@@ -251,7 +255,8 @@
         "width": 587,
         "height": 872
       }
-    }
+    },
+    "madeToOrder": true
   },
   {
     "id": "titan-auto-detail",
@@ -279,11 +284,11 @@
       "Matte",
       "Glossy"
     ],
-    "priceMinor": null,
+    "priceMinor": 60000,
     "currency": "TRY",
     "status": "demo",
     "approved": false,
-    "available": false,
+    "available": true,
     "popularity": 0,
     "createdAt": "2026-10-27",
     "badge": "New",
@@ -302,7 +307,8 @@
         "width": 692,
         "height": 432
       }
-    }
+    },
+    "madeToOrder": true
   },
   {
     "id": "brightcare-dental",
@@ -330,11 +336,11 @@
       "Matte",
       "Glossy"
     ],
-    "priceMinor": null,
+    "priceMinor": 60000,
     "currency": "TRY",
     "status": "demo",
     "approved": false,
-    "available": false,
+    "available": true,
     "popularity": 0,
     "createdAt": "2026-10-27",
     "badge": "New",
@@ -353,7 +359,8 @@
         "width": 675,
         "height": 810
       }
-    }
+    },
+    "madeToOrder": true
   },
   {
     "id": "golden-key-realty",
@@ -382,11 +389,11 @@
       "Matte",
       "Glossy"
     ],
-    "priceMinor": null,
+    "priceMinor": 60000,
     "currency": "TRY",
     "status": "demo",
     "approved": false,
-    "available": false,
+    "available": true,
     "popularity": 0,
     "createdAt": "2026-10-27",
     "badge": "New",
@@ -405,6 +412,7 @@
         "width": 610,
         "height": 897
       }
-    }
+    },
+    "madeToOrder": true
   }
 ]

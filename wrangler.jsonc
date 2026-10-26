@@ -59,7 +59,11 @@
       "/shop",
       "/shop/",
       "/shop/cards/*",
-      "/shop/cart"
+      "/shop/cart",
+      "/shop/checkout",
+      "/shop/orders/*",
+      "/account",
+      "/account/*"
     ],
     "not_found_handling": "404-page"
   },

@@ -47,7 +47,7 @@ try {
   await page.locator('[name="quantity"]').fill('2');
   await page.locator('[name="instructions"]').fill('Please use our green logo.');
   assert.equal(await page.locator('input[type="file"]').isDisabled(), true);
-  await page.getByRole('button', { name: 'Review & save demo to cart' }).click();
+  await page.getByRole('button', { name: 'Review personalization' }).click();
   assert.match(await page.locator('#shop-dialog').textContent(), /Example Café/);
   await page.getByRole('button', { name: 'Add to cart', exact: true }).click();
   assert.equal(await page.locator('[data-cart-count]').textContent(), '2');
@@ -55,21 +55,67 @@ try {
   await page.screenshot({ path: `${folder}/desktop-detail.png`, fullPage: true });
   const toggle = page.getByRole('button', { name: 'Open shopping cart' });
   await toggle.click(); await page.locator('#shop-cart').waitFor({ state: 'visible' });
-  assert.equal(await page.getByRole('button', { name: 'Checkout unavailable' }).isDisabled(), true);
+  assert.equal(await page.getByRole('link', { name: 'Proceed to checkout' }).getAttribute('href'), '/shop/checkout');
   await page.keyboard.press('Escape');
   assert.equal(await toggle.evaluate(el => el === document.activeElement), true);
   await page.goto(fixture.base + '/shop/cart'); await page.locator('[data-quantity]').waitFor();
   assert.equal(await page.locator('[data-quantity]').inputValue(), '2');
   await page.locator('[data-quantity]').fill('3'); await page.locator('[data-quantity]').press('Tab');
   await page.reload(); await page.locator('[data-quantity]').waitFor(); assert.equal(await page.locator('[data-quantity]').inputValue(), '3');
-  await page.getByRole('link', { name: 'Edit details' }).click(); await page.locator('[name="business"]').waitFor();
+  await page.getByRole('link', { name: 'Personalize' }).click(); await page.locator('[name="business"]').waitFor();
   assert.equal(await page.locator('[name="business"]').inputValue(), 'Example Café');
   await page.locator('[name="business"]').fill('Updated Café');
   await page.getByRole('button', { name: 'Review changes' }).click(); await page.getByRole('button', { name: 'Save changes' }).click();
   await page.waitForURL('**/shop/cart'); await page.getByText('Updated Café', { exact: false }).waitFor();
   assert.equal(await page.locator('.shop-cart-row').count(), 1);
-  await page.getByRole('button', { name: 'Remove Oliva Bistro' }).click(); await page.getByRole('heading', { name: 'Your collection starts here.' }).waitFor();
+  await page.getByRole('button', { name: 'Remove Oliva Bistro' }).click(); await page.getByRole('heading', { name: 'Your panier is ready for its first card.' }).waitFor();
   await context.close();
+
+  const checkout = await pageFor({ viewport: { width: 1440, height: 1000 } });
+  const cp = checkout.page;
+  await cp.goto(fixture.base + '/shop'); await cp.locator('[data-add]').last().waitFor();
+  assert.equal(await cp.locator('[data-add]').count(), 8);
+  await cp.locator('[data-add="oliva-bistro"]').click(); await cp.locator('[data-add="oliva-bistro"]').click();
+  assert.equal(await cp.locator('[data-cart-count]').textContent(), '2');
+  assert.equal(await cp.locator('#shop-inline-cart-body .shop-cart-row').count(), 1);
+  assert.match(await cp.locator('#shop-inline-cart-body .shop-cart-total').textContent(), /1,200 TL/);
+  await cp.goto(fixture.base + '/shop/checkout'); await cp.waitForURL('**/account/login?next=*');
+  await cp.getByRole('link', { name: /Create an account/ }).click();
+  await cp.locator('[name="name"]').fill('Browser Test Buyer');
+  await cp.locator('[name="email"]').fill('browser-checkout@example.com');
+  await cp.locator('[name="password"]').fill('Browser-checkout-password-42');
+  await cp.locator('[name="acceptTerms"]').check();
+  await cp.getByRole('button', { name: 'Create account & continue' }).click();
+  await cp.waitForURL('**/shop/checkout'); await cp.locator('#shop-checkout-form').waitFor();
+  await cp.locator('[name="phone"]').fill('+90 555 555 55 55');
+  await cp.locator('[name="business"]').fill('Browser Bistro');
+  await cp.locator('[name="city"]').fill('Istanbul');
+  await cp.locator('[name="address"]').fill('Example Test Street 10');
+  await cp.locator('[name="postalCode"]').fill('34000');
+  await cp.locator('[name^="destination-"]').fill('https://example.com/menu');
+  await cp.locator('[name="acceptConditions"]').check();
+  await cp.screenshot({ path: `${folder}/desktop-checkout.png`, fullPage: true });
+  await cp.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await cp.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Mobile checkout overflow');
+  await cp.screenshot({ path: `${folder}/mobile-checkout.png`, fullPage: true });
+  await cp.setViewportSize({ width: 1440, height: 1000 });
+  await cp.getByRole('button', { name: 'Create order & show bank details' }).click();
+  await cp.waitForURL('**/shop/orders/*'); await cp.locator('.shop-bank-card').waitFor();
+  assert.equal(await cp.locator('.shop-bank-card h2').textContent(), '1,200 TL');
+  assert.equal(await cp.locator('.shop-iban').inputValue(), 'TR94 0001 0090 1039 4706 2050 01');
+  assert.equal(await cp.getByLabel('Recipient', { exact: true }).inputValue(), 'Dhiaeddine Mahouachi');
+  await cp.screenshot({ path: `${folder}/bank-instructions.png`, fullPage: true });
+  await cp.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await cp.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Mobile bank instructions overflow');
+  await cp.screenshot({ path: `${folder}/mobile-bank-instructions.png`, fullPage: true });
+  await cp.setViewportSize({ width: 1440, height: 1000 });
+  await cp.getByRole('button', { name: 'I have sent the transfer', exact: true }).click();
+  await cp.getByRole('button', { name: 'Transfer reported · Awaiting verification' }).waitFor();
+  assert.equal(fixture.sqlite.prepare('SELECT payment_status FROM shop_bank_orders').get().payment_status, 'awaiting_transfer');
+  await cp.getByRole('link', { name: 'My account & orders' }).click(); await cp.locator('.shop-order-link').waitFor();
+  assert.equal(await cp.locator('.shop-order-link').count(), 1);
+  await cp.getByRole('button', { name: 'Sign out', exact: true }).click(); await cp.waitForURL('**/shop');
+  await checkout.context.close();
 
   for (const width of [390, 768]) {
     const mobile = await pageFor({ viewport: { width, height: 844 }, isMobile: true, hasTouch: true });
@@ -89,6 +135,11 @@ try {
     await mobile.page.goto(fixture.base + '/shop/cards/luna-beauty-studio'); await mobile.page.locator('#shop-personalize').waitFor();
     assert.equal(await mobile.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Detail overflow at ${width}px`);
     await mobile.page.screenshot({ path: `${folder}/detail-${width}.png`, fullPage: true });
+    await mobile.page.goto(fixture.base + '/shop'); await mobile.page.locator('[data-add="luna-beauty-studio"]').tap();
+    await mobile.page.goto(fixture.base + '/shop/checkout'); await mobile.page.waitForURL('**/account/login?next=*');
+    await mobile.page.locator('[name="email"]').waitFor();
+    assert.equal(await mobile.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Account login overflow at ${width}px`);
+    await mobile.page.screenshot({ path: `${folder}/account-login-${width}.png`, fullPage: true });
     await mobile.context.close();
   }
   const reduced = await pageFor({ reducedMotion: 'reduce', viewport: { width: 390, height: 844 } });
@@ -100,5 +151,5 @@ try {
   await failure.page.goto(fixture.base + '/shop'); await failure.page.getByRole('button', { name: 'Try again' }).waitFor();
   await failure.context.close();
   assert.deepEqual(errors, [], 'Browser runtime errors');
-  console.log('Desktop/mobile/tablet layout, mouse/keyboard/touch flips, dialogs, filters, cart persistence/edit/remove, demo checkout gate, reduced motion and load failure passed.');
+  console.log('Desktop/mobile/tablet layout, mouse/keyboard/touch flips, dialogs, filters, cart persistence/edit/remove, signup/address/bank-transfer checkout and manual verification, reduced motion and load failure passed.');
 } finally { await browser.close(); await fixture.close(); }
