@@ -6388,3 +6388,6 @@ body[data-page="home"] .reference-hero .hero-note {
   .aura-scene-tab,
   .aura-persona-copy { transition: none !important; }
 }
+
+/* Shared product navigation: hover, keyboard, and touch. */
+.nav-products{position:relative}.nav-products-toggle{border:0;background:none;color:inherit;font:inherit;cursor:pointer;min-height:44px;display:flex;align-items:center;gap:6px}.nav-products-menu{display:none;position:absolute;top:100%;left:-18px;min-width:235px;padding:10px;background:#fafaf7;color:#003d2b;border:1px solid #dce3dd;border-radius:16px;box-shadow:0 18px 45px #002b2020;z-index:200}.nav-products-menu a{display:block!important;padding:12px!important;border-radius:9px}.nav-products-menu a:hover{background:#edf1e9}.nav-products-menu small{display:block;font-size:11px;font-weight:400;opacity:.7;margin-top:4px}.nav-products:focus-within .nav-products-menu,.nav-products-toggle[aria-expanded="true"]+.nav-products-menu{display:block}@media(hover:hover){.nav-products:hover .nav-products-menu{display:block}}@media(max-width:1000px){.nav-links.open .nav-products{width:100%}.nav-links.open .nav-products-menu{position:static;box-shadow:none;min-width:0}.nav-links.open .nav-products-toggle{width:100%;justify-content:space-between}}

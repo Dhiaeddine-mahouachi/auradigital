@@ -37,6 +37,8 @@ test('search and every filter combine; null-priced demos never satisfy price lim
   const priced = [{ ...seeds[0], priceMinor: 70000 }, { ...seeds[1], priceMinor: 50000 }];
   assert.equal(filterThemes(priced, { ...emptyFilters, maxPrice: '600' }).length, 1);
   assert.equal(filterThemes(priced, { ...emptyFilters, sort: 'price-low' })[0].priceMinor, 50000);
+  assert.equal(filterThemes(priced, { ...emptyFilters, sort: 'price-high' })[0].priceMinor, 70000);
+  assert.deepEqual(filterThemes(seeds, { ...emptyFilters, sort: 'alphabetical' }).map(t=>t.name), seeds.map(t=>t.name).sort((a,b)=>a.localeCompare(b)));
   assert.equal(filterThemes([{ ...seeds[0], popularity: 2 }, { ...seeds[1], popularity: 5 }], { ...emptyFilters, sort: 'popular' })[0].popularity, 5);
 });
 test('cart validates quantities, links, field bounds and variant options', () => {

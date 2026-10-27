@@ -32,7 +32,7 @@ export function filterThemes(themes: Theme[], filters: Filters): Theme[] {
     (!filters.category || t.category === filters.category) && (!filters.purpose || t.purpose === filters.purpose) && (!filters.style || t.style === filters.style) &&
     (!filters.color || t.colors.includes(filters.color)) && (!filters.orientation || t.orientation === filters.orientation) &&
     (!filters.maxPrice || (t.priceMinor !== null && t.priceMinor <= Number(filters.maxPrice) * 100)));
-  return found.sort((a, b) => filters.sort === 'price-low' ? (a.priceMinor ?? Infinity) - (b.priceMinor ?? Infinity) : filters.sort === 'popular' ? b.popularity - a.popularity || a.name.localeCompare(b.name) : b.createdAt.localeCompare(a.createdAt) || a.name.localeCompare(b.name));
+  return found.sort((a, b) => filters.sort === 'price-low' ? (a.priceMinor ?? Infinity) - (b.priceMinor ?? Infinity) : filters.sort === 'alphabetical' ? a.name.localeCompare(b.name) : filters.sort === 'price-high' ? (b.priceMinor ?? 0) - (a.priceMinor ?? 0) : filters.sort === 'popular' ? b.popularity - a.popularity || a.name.localeCompare(b.name) : b.createdAt.localeCompare(a.createdAt) || a.name.localeCompare(b.name));
 }
 export function safeUrl(value: unknown, optional = false): string {
   if (optional && value === '') return '';

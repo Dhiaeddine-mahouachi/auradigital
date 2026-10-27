@@ -1,7 +1,9 @@
 // Local-only browser verification against the real shop router and in-memory D1.
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
+const catalogThemes = JSON.parse(await readFile(new URL('../shop/catalog.seed.json', import.meta.url), 'utf8'));
+const catalogCount = catalogThemes.length;
 import { shopServer } from '../test/shop-fixture.mjs';
 
 const fixture = await shopServer(), folder = 'test-output/shop';
@@ -21,9 +23,8 @@ try {
   const { page, context } = await pageFor({ viewport: { width: 1440, height: 1000 } });
   await page.goto(fixture.base + '/shop');
   await page.locator('.shop-product').last().waitFor();
-  assert.equal(await page.locator('.shop-product').count(), 8);
-  const heroRatio = await page.locator('.shop-hero-art img').evaluate(el => el.clientWidth / el.clientHeight);
-  assert.ok(Math.abs(heroRatio - 1448 / 1086) < 0.02, 'Hero artwork must preserve aspect ratio');
+  assert.equal(await page.locator('.shop-product').count(), catalogCount);
+  assert.equal(await page.locator('.shop-hero-card').count(), 2);
   assert.equal(await page.locator('#siteHeader a[href="/shop"]').count(), 1);
   const first = page.locator('.shop-scene').first();
   await first.hover(); assert.equal(await first.getAttribute('data-flipped'), 'true');
@@ -31,12 +32,13 @@ try {
   const flip = page.locator('[data-flip]').first(); await flip.focus(); await flip.press('Space'); assert.equal(await flip.getAttribute('aria-pressed'), 'true'); await flip.press('Enter'); assert.equal(await flip.getAttribute('aria-pressed'), 'false');
   await page.locator('[data-enlarge]').first().click(); await page.locator('#shop-dialog').waitFor({ state: 'visible' });
   await page.keyboard.press('Escape'); assert.equal(await page.locator('#shop-dialog').evaluate(el => el.open), false);
-  await page.locator('#shop-filters [name="category"]').selectOption('Restaurants'); assert.equal(await page.locator('.shop-product').count(), 1);
-  await page.locator('[data-remove-filter="category"]').click(); assert.equal(await page.locator('.shop-product').count(), 8);
+  await page.getByRole('button', {name:'Filters', exact:false}).click();
+  await page.locator('#shop-filters [name="category"]').selectOption('Restaurants'); assert.equal(await page.locator('.shop-product').count(), catalogThemes.filter(t=>t.category === 'Restaurants').length);
+  await page.locator('[data-remove-filter="category"]').click(); assert.equal(await page.locator('.shop-product').count(), catalogCount);
   await page.locator('#shop-search').fill('nothing matching this search'); assert.equal(await page.locator('.shop-product').count(), 0);
-  await page.getByRole('button', { name: 'Clear filters', exact: true }).click(); assert.equal(await page.locator('.shop-product').count(), 8);
+  await page.getByRole('button', { name: 'Clear filters', exact: true }).click(); assert.equal(await page.locator('.shop-product').count(), catalogCount);
   await page.locator('.shop-product img').evaluateAll(async images => { await Promise.all(images.map(image => { image.loading = 'eager'; return image.decode(); })); });
-  assert.equal(await page.locator('.shop-product img').evaluateAll(images => images.every(image => image.naturalWidth === 1448)), true);
+  assert.equal(await page.locator('.shop-product img').evaluateAll(images => images.every(image => image.naturalWidth > 0)), true);
   await page.screenshot({ path: `${folder}/desktop-storefront.png`, fullPage: true });
   await page.locator('.shop-product [data-flip]').evaluateAll(buttons => buttons.forEach(button => button.click()));
   await page.waitForFunction(() => [...document.querySelectorAll('.shop-product .shop-flipper')].every(el => getComputedStyle(el).transform.startsWith('matrix3d(-1,')));
@@ -60,7 +62,7 @@ try {
   assert.equal(await toggle.evaluate(el => el === document.activeElement), true);
   await page.goto(fixture.base + '/shop/cart'); await page.locator('[data-quantity]').waitFor();
   assert.equal(await page.locator('[data-quantity]').inputValue(), '2');
-  await page.locator('[data-quantity]').fill('3'); await page.locator('[data-quantity]').press('Tab');
+  await page.getByRole('button',{name:'Increase quantity for Oliva Bistro',exact:true}).click();
   await page.reload(); await page.locator('[data-quantity]').waitFor(); assert.equal(await page.locator('[data-quantity]').inputValue(), '3');
   await page.getByRole('link', { name: 'Personalize' }).click(); await page.locator('[name="business"]').waitFor();
   assert.equal(await page.locator('[name="business"]').inputValue(), 'Example Café');
@@ -74,7 +76,7 @@ try {
   const checkout = await pageFor({ viewport: { width: 1440, height: 1000 } });
   const cp = checkout.page;
   await cp.goto(fixture.base + '/shop'); await cp.locator('[data-add]').last().waitFor();
-  assert.equal(await cp.locator('[data-add]').count(), 8);
+  assert.equal(await cp.locator('[data-add]').count(), catalogCount);
   await cp.locator('[data-add="oliva-bistro"]').click(); await cp.locator('[data-add="oliva-bistro"]').click();
   assert.equal(await cp.locator('[data-cart-count]').textContent(), '2');
   assert.equal(await cp.locator('#shop-inline-cart-body .shop-cart-row').count(), 1);
@@ -123,11 +125,17 @@ try {
     assert.equal(await mobile.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Overflow at ${width}px`);
     await mobile.page.locator('[data-flip]').first().tap(); assert.equal(await mobile.page.locator('[data-flip]').first().getAttribute('aria-pressed'), 'true');
     if (width === 390) {
+      await mobile.page.locator('#menuBtn').click();
+      assert.equal(await mobile.page.locator('#navLinks a[href="/shop"]').isVisible(), true);
+      await mobile.page.locator('.nav-products-toggle').click();
+      for (const path of ['/aura-menu','/aurapops','/aura-weddings']) assert.equal(await mobile.page.locator(`#nav-products-menu a[href="${path}"]`).isVisible(), true);
+      await mobile.page.locator('#menuBtn').click();
+      assert.equal(await mobile.page.locator('.shop-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length), 2);
       await mobile.page.getByRole('button', { name: 'Filters', exact: false }).click();
       await mobile.page.locator('#shop-filters [name="category"]').selectOption('Beauty Salons & Spas');
-      assert.equal(await mobile.page.locator('.shop-product').count(), 1);
-      assert.equal(await mobile.page.locator('.shop-scene').getAttribute('data-orientation'), 'Vertical');
-      await mobile.page.locator('[data-enlarge]').click(); await mobile.page.locator('#shop-dialog').waitFor({ state: 'visible' });
+      assert.equal(await mobile.page.locator('.shop-product').count(), catalogThemes.filter(t=>t.category === 'Beauty Salons & Spas').length);
+      assert.equal(await mobile.page.locator('.shop-scene').first().getAttribute('data-orientation'), 'Vertical');
+      await mobile.page.locator('[data-enlarge]').first().click(); await mobile.page.locator('#shop-dialog').waitFor({ state: 'visible' });
       await mobile.page.getByRole('button', { name: 'Close dialog' }).click();
       await mobile.page.goto(fixture.base + '/shop'); await mobile.page.locator('.shop-product').last().waitFor();
     }

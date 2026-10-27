@@ -16,9 +16,7 @@ const pages = [
   ["services", "/services", "Services"],
   ["shop", "/shop", "Shop"],
   ["portfolio", "/portfolio", "Portfolio"],
-  ["auramenu", "/aura-menu", "AuraMenu"],
-  ["aurapops", "/aurapops", "AuraPops"],
-  ["auraweddings", "/aura-weddings", "AuraWeddings"],
+  ["products", "#products", "Products"],
   ["packages", "/packages", "Packages"],
   ["about", "/about", "About"],
 ];
@@ -28,16 +26,42 @@ if (header) {
   header.innerHTML = `<div class="container nav"><a class="brand brand-wordmark" href="/" aria-label="AuraDigital home"><img class="brand-logo" src="auradigital-logo-20260928.png" alt=""><span class="brand-name"><strong>Aura</strong>Digital</span></a><div class="nav-links" id="navLinks">${pages
     .map(
       ([id, href, label]) =>
-        `<a class="${page === id ? "active" : ""}" href="${href}">${label}</a>`,
+        id === "products" ? `<div class="nav-products"><button type="button" class="nav-products-toggle" aria-expanded="false" aria-controls="nav-products-menu">Products <span aria-hidden="true">⌄</span></button><div class="nav-products-menu" id="nav-products-menu"><a href="/aura-menu">AuraMenu <small>Digital restaurant menus</small></a><a href="/aurapops">AuraPops <small>Your digital identity</small></a><a href="/aura-weddings">AuraWeddings <small>Wedding invitations</small></a></div></div>` : `<a class="${page === id ? "active" : ""}" href="${href}">${label}</a>`,
     )
     .join(
       "",
     )}</div><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Language" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">EN</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Let's Talk <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button></div>`;
 }
+const productsToggle = document.querySelector(".nav-products-toggle");
+productsToggle?.addEventListener("click", () => productsToggle.setAttribute("aria-expanded", String(productsToggle.getAttribute("aria-expanded") !== "true")));
+document.addEventListener("click", event => { if (!event.target.closest(".nav-products")) productsToggle?.setAttribute("aria-expanded", "false"); });
+document.addEventListener("keydown", event => { if (event.key === "Escape") productsToggle?.setAttribute("aria-expanded", "false"); });
+if (page === "shop" && header) {
+  const nav = header.querySelector(".nav");
+  const links = header.querySelector(".nav-links");
+  links.innerHTML = `<a href="/">Home</a><a class="active" href="/shop">Shop</a>${links.querySelector(".nav-products").outerHTML}<a href="/about">About</a><a href="/shop#how-it-works">How It Works</a><a href="/contact">Contact</a>`;
+  const toggle = links.querySelector(".nav-products-toggle");
+  toggle.addEventListener("click", () => toggle.setAttribute("aria-expanded", String(toggle.getAttribute("aria-expanded") !== "true")));
+  document.addEventListener("click", e => { if (!e.target.closest(".nav-products")) toggle.setAttribute("aria-expanded", "false"); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") toggle.setAttribute("aria-expanded", "false"); });
+  header.querySelector(".lang-switcher").remove(); header.querySelector(".nav-cta").remove();
+  nav.insertAdjacentHTML("beforeend", `<form class="shop-header-search" action="/shop"><label><span class="shop-sr-only">Search NFC cards</span><input type="search" name="search" placeholder="Search NFC cards…"></label><button aria-label="Search cards">⌕</button></form><a class="shop-header-account" href="/account" aria-label="My account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3Z"/></svg></a>`);
+  const searchForm = header.querySelector('.shop-header-search');
+  searchForm.querySelector('button').addEventListener('click', event => {
+    const input = searchForm.querySelector('input');
+    if (matchMedia('(max-width:760px)').matches && document.activeElement !== input) { event.preventDefault(); input.focus(); }
+  });
+  const cartToggle = document.querySelector(".shop-cart-toggle");
+  if (cartToggle) nav.append(cartToggle);
+}
 const footer = document.getElementById("siteFooter");
 if (footer) {
   footer.className = "site-footer";
   footer.innerHTML = `<div class="container"><div class="footer-top"><div><a class="brand brand-wordmark footer-wordmark" href="/" aria-label="AuraDigital home"><img class="brand-logo" src="auradigital-logo-20260928.png" alt="AuraDigital"></a><p class="footer-blurb">From websites and advertising to NFC experiences, AuraMenu and AuraWeddings, we build your brand’s digital system as one professional team.</p></div><div class="footer-col"><h4>Services</h4><a href="/services">Web & Growth</a><a href="/shop">Card Shop</a><a href="/nfc">NFC Cards</a><a href="/aura-menu">AuraMenu</a><a href="/aurapops">AuraPops</a><a href="/aura-weddings">AuraWeddings</a><a href="/packages">Subscriptions</a></div><div class="footer-col"><h4>Company</h4><a href="/portfolio">Portfolio</a><a href="/about">About</a><a href="/account">My account</a><a href="/contact">Contact</a><a href="/packages#faq">FAQ</a></div><div class="footer-col"><h4>Let's start</h4><a href="https://wa.me/${AURA.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp · +90 538 550 76 74</a><a href="mailto:${AURA.email}">Email · ${AURA.email}</a><a href="https://${AURA.domain}" target="_blank" rel="noopener noreferrer">${AURA.domain}</a></div></div><div class="footer-bottom"><span>© 2026 AuraDigital. All rights reserved.</span><span>Istanbul · Turkey</span></div></div>`;
+}
+if (page === 'shop' && footer) {
+  footer.querySelector('a[href="/packages#faq"]').href = '/shop#faq';
+  footer.querySelector('.footer-col:last-child').insertAdjacentHTML('beforeend', '<a href="/shop#faq">Ordering, payment & delivery</a><a href="/account">Track your order</a>');
 }
 document.body.insertAdjacentHTML(
   "afterbegin",

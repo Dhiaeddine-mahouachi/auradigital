@@ -14,7 +14,7 @@ function canPurchase(theme) {
 function filterThemes(themes2, filters) {
   const search = filters.search.trim().toLocaleLowerCase();
   const found = themes2.filter((t) => t.status !== "archived" && (!search || [t.name, t.category, t.description, t.purpose].join(" ").toLocaleLowerCase().includes(search)) && (!filters.category || t.category === filters.category) && (!filters.purpose || t.purpose === filters.purpose) && (!filters.style || t.style === filters.style) && (!filters.color || t.colors.includes(filters.color)) && (!filters.orientation || t.orientation === filters.orientation) && (!filters.maxPrice || t.priceMinor !== null && t.priceMinor <= Number(filters.maxPrice) * 100));
-  return found.sort((a, b) => filters.sort === "price-low" ? (a.priceMinor ?? Infinity) - (b.priceMinor ?? Infinity) : filters.sort === "popular" ? b.popularity - a.popularity || a.name.localeCompare(b.name) : b.createdAt.localeCompare(a.createdAt) || a.name.localeCompare(b.name));
+  return found.sort((a, b) => filters.sort === "price-low" ? (a.priceMinor ?? Infinity) - (b.priceMinor ?? Infinity) : filters.sort === "alphabetical" ? a.name.localeCompare(b.name) : filters.sort === "price-high" ? (b.priceMinor ?? 0) - (a.priceMinor ?? 0) : filters.sort === "popular" ? b.popularity - a.popularity || a.name.localeCompare(b.name) : b.createdAt.localeCompare(a.createdAt) || a.name.localeCompare(b.name));
 }
 function safeUrl(value, optional = false) {
   if (optional && value === "") return "";
@@ -72,6 +72,14 @@ var app = document.querySelector("#shop-app");
 var dialog = document.querySelector("#shop-dialog");
 var drawer = document.querySelector("#shop-cart");
 var storageKey = "aura.shop.cart.v1";
+function cartId() {
+  if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = bytes[6] & 15 | 64;
+  bytes[8] = bytes[8] & 63 | 128;
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
 var themes = [];
 var cart = [];
 var serial = 0;
@@ -140,10 +148,21 @@ function bindViewers(root) {
       hovering = false;
       update();
     });
-    button.addEventListener("click", () => {
+    const flipCard = () => {
       pinned = !pinned;
       hovering = false;
       update();
+    };
+    button.addEventListener("click", flipCard);
+    scene.tabIndex = 0;
+    scene.setAttribute("role", "button");
+    scene.setAttribute("aria-label", `Flip ${getTheme(el.dataset.theme).name} card preview`);
+    scene.addEventListener("click", flipCard);
+    scene.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        flipCard();
+      }
     });
     el.querySelector("[data-enlarge]")?.addEventListener("click", () => showPreview(getTheme(el.dataset.theme)));
   });
@@ -161,7 +180,7 @@ function showPreview(t) {
   bindViewers(dialog);
 }
 function product(t) {
-  return `<article class="shop-product"><div class="shop-product-stage"><span class="shop-badge">${t.madeToOrder ? "MADE TO ORDER \xB7 NFC + QR" : t.status === "demo" ? "DEMO THEME" : "NFC + QR"}</span>${viewer(t)}</div><div class="shop-product-info"><a href="/shop/cards/${esc(t.slug)}">${esc(t.name)} <span aria-hidden="true">\u2197</span></a><p>${esc(t.category)} \xB7 ${esc(t.style)}</p><div class="shop-product-meta"><strong>${esc(money(t.priceMinor, t.currency))}</strong><span class="shop-palette" aria-label="${esc(t.colors.join(", "))}">${t.palette.map((c) => `<i style="background:${esc(c)}"></i>`).join("")}</span></div><button class="shop-add" type="button" data-add="${esc(t.id)}" aria-label="Add ${esc(t.name)} to cart" ${canPurchase(t) ? "" : "disabled"}>Add to panier <span aria-hidden="true">+</span></button></div></article>`;
+  return `<article class="shop-product"><div class="shop-product-stage"><span class="shop-badge">${t.madeToOrder ? "MADE TO ORDER \xB7 NFC + QR" : t.status === "demo" ? "DEMO THEME" : "NFC + QR"}</span>${viewer(t)}</div><div class="shop-product-info"><a href="/shop/cards/${esc(t.slug)}">${esc(t.name)} <span aria-hidden="true">\u2197</span></a><p>${esc(t.category)} \xB7 ${esc(t.style)}</p><div class="shop-product-meta"><strong>${esc(money(t.priceMinor, t.currency))}</strong><span class="shop-palette" aria-label="${esc(t.colors.join(", "))}">${t.palette.map((c) => `<i style="background:${esc(c)}"></i>`).join("")}</span></div><button class="shop-add" type="button" data-add="${esc(t.id)}" aria-label="Add ${esc(t.name)} to cart" ${canPurchase(t) ? "" : "disabled"}>Add to Cart <span aria-hidden="true">+</span></button></div></article>`;
 }
 function quickAdd(id) {
   const theme = getTheme(id);
@@ -178,7 +197,7 @@ function quickAdd(id) {
       notify("Your cart can contain up to 50 designs.");
       return;
     }
-    cart.push(validateItem({ id: crypto.randomUUID(), themeId: id, quantity: 1, material: theme.materials[0], finish: theme.finishes[0], personalization: { ...emptyPersonalization } }, themes, false));
+    cart.push(validateItem({ id: cartId(), themeId: id, quantity: 1, material: theme.materials[0], finish: theme.finishes[0], personalization: { ...emptyPersonalization } }, themes, false));
   }
   persist();
   notify(`${theme.name} added \xB7 ${money(theme.priceMinor)}`);
@@ -186,11 +205,22 @@ function quickAdd(id) {
 function filterSelect(key, label, values) {
   return `<label class="shop-field">${label}<select name="${key}"><option value="">All ${label.toLowerCase()}</option>${options(values)}</select></label>`;
 }
+function benefitIcon(name) {
+  const paths = { tap: '<path d="M8 8a6 6 0 0 0 0 8m8-8a6 6 0 0 1 0 8M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"/><circle cx="12" cy="12" r="2"/>', quality: '<path d="m3 8 4-5h10l4 5-9 13L3 8Zm0 0h18M7 3l5 18 5-18"/>', design: '<path d="m4 15 11-11 5 5L9 20l-6 1 1-6Zm9-9 5 5"/>', delivery: '<path d="M2 5h12v12H2Zm12 5h4l4 5v2h-8"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/>' };
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[name]}</svg>`;
+}
 function catalog() {
   const filters = { ...emptyFilters };
   const initial = new URLSearchParams(location.search);
   for (const key of Object.keys(filters)) if (initial.has(key)) filters[key] = initial.get(key);
-  app.innerHTML = `<div class="shop-shell"><section class="shop-hero"><div><div class="shop-kicker"><span class="shop-dot"></span> A small card. A world of possibilities.</div><h1>Smart Cards.<br><em>Real Connections.</em></h1><p>Discover premium NFC & QR cards designed for your business. One tap or scan connects your customers to everything they need.</p><a class="shop-primary" href="#collection">Explore Cards <span>\u2197</span></a><div class="shop-hero-note"><span>NFC + QR, TOGETHER</span><span>DESIGNED FOR YOUR BUSINESS</span></div></div><div class="shop-hero-art"><img src="/shop/artwork/demo-oliva-bistro-pair.png" alt="Oliva Bistro uploaded front and back card designs" width="1448" height="1086" fetchpriority="high"><div class="shop-floating-label"><span>\u2197</span> One tap. Every connection.</div></div></section><div class="shop-benefits"><div><b>\u25CE</b><div><strong>Tap. Scan. Connect.</strong><small>NFC + QR on one card</small></div></div><div><b>\u21BB</b><div><strong>Made for both sides</strong><small>Hover or tap to explore</small></div></div><div><b>\u2727</b><div><strong>Your business, your way</strong><small>Thoughtfully personalized</small></div></div></div><section id="collection" aria-labelledby="collection-title"><div class="shop-section-head"><div><h2 id="collection-title">Find your kind of connection.</h2><p>Choose a theme. Make it yours.</p></div><label class="shop-search"><span class="shop-sr-only">Search card designs</span><input id="shop-search" type="search" name="search" placeholder="Search designs, businesses\u2026" maxlength="100"></label></div><div class="shop-catalog"><aside class="shop-filters"><h3>Refine your collection</h3><button class="shop-mobile-filters" type="button" aria-expanded="false" aria-controls="shop-filter-body">Filters <span>+</span></button><form id="shop-filters"><div class="shop-filter-body" id="shop-filter-body">${filterSelect("category", "Business category", categories)}${filterSelect("purpose", "Purpose", purposes)}${filterSelect("style", "Style", styles)}${filterSelect("color", "Color", [...new Set(themes.flatMap((t) => t.colors))].sort())}${filterSelect("orientation", "Orientation", ["Horizontal", "Vertical"])}<label class="shop-field">Maximum price (TRY)<input name="maxPrice" type="number" min="0" max="1000000" step="1" placeholder="No limit"><small>Every card is 600 TL.</small></label><button class="shop-filter-reset" type="reset">Clear all filters</button></div></form></aside><div><div class="shop-results-head"><span id="shop-result-count" role="status" aria-live="polite"></span><label>Sort by <select id="shop-sort" name="sort"><option value="newest">Newest designs</option><option value="popular">Popularity</option><option value="price-low">Price: low to high</option></select></label></div><div class="shop-filter-chips" id="shop-filter-chips"></div><div class="shop-grid" id="shop-grid"></div></div></div></section><section class="shop-inline-cart" id="panier" aria-labelledby="panier-title"><div class="shop-section-head"><div><div class="shop-kicker">Your next connection</div><h2 id="panier-title">Your panier.</h2><p>Add cards above, then complete your details at checkout.</p></div><span class="shop-unit-price">600 TL / card</span></div><div id="shop-inline-cart-body"></div></section><div class="shop-note"><strong>Made for your business.</strong> Each card costs 600 TL. Your final business details, QR link and artwork are approved before printing. Delivery is arranged separately; any delivery fee is confirmed before shipping. <a href="/contact">Talk to us \u2197</a></div></div>`;
+  const collections = [{ label: "Business", category: "Corporate & Business" }, { label: "Restaurants", category: "Restaurants" }, { label: "Caf\xE9s", category: "Coffee Shops & Caf\xE9s" }, { label: "Personal", category: "Freelancers & Creators" }, { label: "Luxury", style: "Luxury" }, { label: "Other Industries", other: true }];
+  let collection = initial.get("collection") || "";
+  const heroThemes = [...themes.filter((t) => t.id === "northbridge-consulting"), ...themes.filter((t) => t.orientation === "Horizontal" && (!t.artwork || t.artwork.front.width / t.artwork.front.height > 1.3))].filter((t, i, a) => a.findIndex((x) => x.id === t.id) === i).slice(0, 2);
+  const collectionTiles = collections.slice(0, 5).map((c) => {
+    const t = themes.find((t2) => c.style ? t2.style === c.style : t2.category === c.category);
+    return t ? `<a class="shop-collection-tile" href="/shop?collection=${encodeURIComponent(c.label)}#collection"><div class="shop-collection-art">${artworkImage(t, "front", t.name)}</div><span>${c.label} <b>\u2197</b></span></a>` : "";
+  }).join("");
+  app.innerHTML = `<div class="shop-shell"><section class="shop-hero"><div class="shop-hero-copy"><div class="shop-kicker">NFC Business Cards</div><h1>Your Identity.<br><em>One Tap Away.</em></h1><p>Modern NFC cards designed for professionals, businesses, and creative minds. Share your world instantly.</p><a class="shop-primary" href="/shop#collection">Shop Now <span>\u2192</span></a><div class="shop-hero-note">DESIGNED TO MAKE AN IMPRESSION</div></div><div class="shop-hero-art">${heroThemes.map((t, i) => `<div class="shop-hero-card hero-card-${i}" style="aspect-ratio:${t.artwork ? t.artwork.front.width / t.artwork.front.height : 856 / 540}">${artworkImage(t, "front", t.name).replace('loading="lazy"', 'loading="eager" fetchpriority="high"')}</div>`).join("")}<span class="shop-art-caption">A small card.<br>A world of possibilities.</span></div></section><div class="shop-benefits">${[["tap", "Tap & Share", "Share your information instantly."], ["quality", "Premium Quality", "Professional PVC NFC cards."], ["design", "Custom Designs", "Styles for every industry."], ["delivery", "Delivery", "Order your physical NFC cards."]].map(([icon, title, copy]) => `<div>${benefitIcon(icon)}<div><strong>${title}</strong><small>${copy}</small></div></div>`).join("")}</div><section id="collection" aria-labelledby="collection-title"><div class="shop-section-head"><div><div class="shop-kicker">THE CARD COLLECTION</div><h2 id="collection-title">Shop NFC Cards</h2></div><label class="shop-search"><span class="shop-sr-only">Search card designs</span><input id="shop-search" type="search" name="search" placeholder="Search designs, businesses\u2026" maxlength="100"></label></div><div class="shop-category-tabs" aria-label="Card collections">${["All Cards", ...collections.map((c) => c.label)].map((label) => `<button type="button" data-collection="${label === "All Cards" ? "" : label}">${label}</button>`).join("")}</div><div class="shop-catalog"><aside class="shop-filters"><button class="shop-mobile-filters" type="button" aria-expanded="false" aria-controls="shop-filter-body">Filters <span>+</span></button><form id="shop-filters"><div class="shop-filter-body" id="shop-filter-body">${filterSelect("category", "Business category", categories)}${filterSelect("purpose", "Purpose", purposes)}${filterSelect("style", "Style", styles)}${filterSelect("color", "Color", [...new Set(themes.flatMap((t) => t.colors))].sort())}${filterSelect("orientation", "Orientation", ["Horizontal", "Vertical"])}<label class="shop-field">Maximum price (TRY)<input name="maxPrice" type="number" min="0" max="1000000" step="1" placeholder="No limit"><small>Every card is 600 TL.</small></label><button class="shop-filter-reset" type="reset">Clear all filters</button></div></form></aside><div><div class="shop-results-head"><span id="shop-result-count" role="status" aria-live="polite"></span><div class="shop-orientation" aria-label="Card orientation">${["", "Horizontal", "Vertical"].map((o) => `<button type="button" data-orientation-filter="${o}">${o || "All formats"}</button>`).join("")}</div><label><span class="shop-sr-only">Sort by</span><select id="shop-sort" name="sort"><option value="newest">Newest designs</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="alphabetical">Name: A\u2013Z</option><option value="popular">Popularity</option></select></label></div><div class="shop-filter-chips" id="shop-filter-chips"></div><div class="shop-grid" id="shop-grid"></div></div></div></section><section class="shop-collections"><div class="shop-section-head"><div><div class="shop-kicker">FIND YOUR SIGNATURE</div><h2>Designed for <em>Every Profession.</em></h2><p>From your first introduction to your next opportunity.</p></div></div><div class="shop-collection-grid">${collectionTiles}</div></section><section id="how-it-works" class="shop-how"><div class="shop-kicker">SIMPLE BY DESIGN</div><h2>Three steps. Endless connections.</h2><div>${[["01", "Choose Your Card.", "Find a design that feels like you."], ["02", "Place Your Order.", "Add your details and pay by bank transfer."], ["03", "Receive, Tap & Share.", "Approve your artwork, then start connecting."]].map(([n, t, d]) => `<article><span>${n}</span><h3>${t}</h3><p>${d}</p></article>`).join("")}</div></section><section class="shop-faq" id="faq"><div><div class="shop-kicker">GOOD TO KNOW</div><h2>A few helpful answers.</h2><a href="/contact">Need a hand? Contact us \u2197</a></div><div>${[["Will my phone work with NFC?", "NFC works with compatible NFC-enabled smartphones. NFC may need to be enabled in phone settings. The printed QR code offers an alternative: scan it with your camera to open the same link."], ["Can I customize my card?", "Yes. Add your business details and destination link at checkout, and send us your logo with your order reference. Final artwork is approved before printing."], ["How does delivery work?", "Delivery is arranged separately. We confirm timing and any delivery fee before shipping. Contact us for details for your address."], ["How do I order and pay?", "Browse and add cards freely. Sign in or register at checkout, add your shipping details, and create your order. Transfer the total using the displayed IBAN and order reference. Payment remains pending until verified."]].map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div></section><section class="shop-inline-cart" id="panier" aria-labelledby="panier-title"><div class="shop-section-head"><div><h2 id="panier-title">Your shopping cart.</h2><p>Your next connection starts here.</p></div><span class="shop-unit-price">600 TL / card</span></div><div id="shop-inline-cart-body"></div></section><div class="shop-note"><strong>Made for your business.</strong> Final business details and artwork are approved before printing. Delivery fees are confirmed separately. <a href="/contact">Talk to us \u2197</a></div></div>`;
   const form = document.querySelector("#shop-filters"), search = document.querySelector("#shop-search"), sort = document.querySelector("#shop-sort");
   function syncControls() {
     search.value = filters.search;
@@ -198,7 +228,10 @@ function catalog() {
     for (const key of ["category", "purpose", "style", "color", "orientation", "maxPrice"]) form.elements.namedItem(key).value = filters[key];
   }
   function update() {
-    const results = filterThemes(themes, filters);
+    const selected = collections.find((c) => c.label === collection);
+    const results = filterThemes(themes, filters).filter((t) => !selected || (selected.other ? !collections.slice(0, 4).some((c) => c.category === t.category) && t.style !== "Luxury" : selected.style ? t.style === selected.style : t.category === selected.category));
+    document.querySelectorAll("[data-collection]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.collection === collection)));
+    document.querySelectorAll("[data-orientation-filter]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.orientationFilter === filters.orientation)));
     document.querySelector("#shop-result-count").textContent = `${results.length} ${results.length === 1 ? "design" : "designs"}`;
     document.querySelector("#shop-grid").innerHTML = results.length ? results.map(product).join("") : '<div class="shop-empty"><h2>No matching designs yet.</h2><p>Try another category or clear your filters.</p><button type="button" class="shop-secondary" data-clear>Clear filters</button></div>';
     const labels = { search: "Search", category: "Category", purpose: "Purpose", style: "Style", color: "Color", orientation: "Orientation", maxPrice: "Max TRY" };
@@ -210,12 +243,26 @@ function catalog() {
     }));
     document.querySelector("[data-clear]")?.addEventListener("click", clear);
     const params = new URLSearchParams();
+    if (collection) params.set("collection", collection);
     for (const [key, value] of Object.entries(filters)) if (value && value !== emptyFilters[key]) params.set(key, value);
     history.replaceState(null, "", "/shop" + (params.size ? `?${params}` : "") + location.hash);
     bindViewers(document.querySelector("#shop-grid"));
     document.querySelectorAll("[data-add]").forEach((button) => button.addEventListener("click", () => quickAdd(button.dataset.add)));
   }
+  document.querySelectorAll("[data-collection]").forEach((b) => b.addEventListener("click", () => {
+    collection = b.dataset.collection;
+    filters.category = "";
+    filters.style = "";
+    syncControls();
+    update();
+  }));
+  document.querySelectorAll("[data-orientation-filter]").forEach((b) => b.addEventListener("click", () => {
+    filters.orientation = b.dataset.orientationFilter;
+    syncControls();
+    update();
+  }));
   function clear() {
+    collection = "";
     Object.assign(filters, emptyFilters);
     syncControls();
     update();
@@ -252,14 +299,29 @@ function textField(key, label, value, attrs = "", wide = false) {
 function detail(t) {
   const editing = cart.find((i) => i.id === new URLSearchParams(location.search).get("edit") && i.themeId === t.id);
   const p = editing?.personalization || emptyPersonalization;
-  app.innerHTML = `<div class="shop-shell"><nav class="shop-breadcrumb" aria-label="Breadcrumb"><a href="/shop">Shop</a><span>/</span><span>${esc(t.name)}</span></nav><div class="shop-detail"><section class="shop-detail-art" aria-label="Card preview"><span class="shop-badge">${t.madeToOrder ? "MADE TO ORDER \xB7 NFC + QR" : "ARTWORK PREVIEW"}</span>${viewer(t)}<p>Hover the card or use Flip Card to explore both sides.<br>Original proportions \xB7 ${t.orientation} \xB7 NFC + QR on the front</p></section><section class="shop-detail-copy"><div class="shop-kicker">${esc(t.category)} / ${esc(t.style)}</div><h1>${esc(t.name)}</h1><p>${esc(t.description)}</p><div class="shop-price">${esc(money(t.priceMinor, t.currency))}</div><form id="shop-personalize"><div class="shop-fields">${filterDetailSelect("material", "Material", t.materials, editing?.material)}${filterDetailSelect("finish", "Finish", t.finishes, editing?.finish)}${textField("quantity", "Quantity", String(editing?.quantity || 1), 'type="number" min="1" max="100" step="1" required', true)}</div><div class="shop-form-section"><h2>01 / Make it yours</h2><div class="shop-fields">${textField("business", "Business name *", p.business, 'required maxlength="100" autocomplete="organization"', true)}${filterDetailSelect("destinationType", "Destination type", destinationTypes, p.destinationType, true)}${textField("destination", "NFC + QR destination *", p.destination, 'type="url" required maxlength="800" placeholder="https://your-business.com"', true)}<p class="shop-storage-note wide">NFC and QR will use the same link. Separate destinations require a supported production configuration.</p><label class="shop-field wide">Business logo<input type="file" disabled accept="image/png,image/jpeg,image/webp"><small>After ordering, email your logo to info@auradigitalworks.com with your order reference. We confirm placement during artwork approval.</small></label></div></div><div class="shop-form-section"><h2>02 / Optional details</h2><div class="shop-fields">${textField("contact", "Contact name", p.contact, 'maxlength="100" autocomplete="name"')}${textField("phone", "Phone", p.phone, 'type="tel" maxlength="100" autocomplete="tel"')}${textField("whatsapp", "WhatsApp", p.whatsapp, 'type="tel" maxlength="100"')}${textField("social", "Instagram / social URL", p.social, 'type="url" maxlength="800" placeholder="https://"')}<label class="shop-field wide">Custom instructions<textarea name="instructions" maxlength="1000">${esc(p.instructions)}</textarea></label></div></div><p class="shop-storage-note">The preview remains sample artwork. Your text does not generate a print proof. Personalization is saved in this browser; avoid entering sensitive information on a shared device.</p><p class="shop-error shop-form-error" role="alert"></p><button class="shop-primary" type="submit">${editing ? "Review changes" : "Review personalization"} <span>\u2197</span></button></form></section></div></div>`;
+  app.innerHTML = `<div class="shop-shell"><nav class="shop-breadcrumb" aria-label="Breadcrumb"><a href="/shop">Shop</a><span>/</span><span>${esc(t.name)}</span></nav><div class="shop-detail"><section class="shop-detail-art" aria-label="Card preview"><span class="shop-badge">${t.madeToOrder ? "MADE TO ORDER \xB7 NFC + QR" : "ARTWORK PREVIEW"}</span>${viewer(t)}<p>Hover the card or use Flip Card to explore both sides.<br>Original proportions \xB7 ${t.orientation} \xB7 NFC + QR on the front</p></section><section class="shop-detail-copy"><div class="shop-kicker">${esc(t.category)} / ${esc(t.style)}</div><h1>${esc(t.name)}</h1><p>${esc(t.description)}</p><div class="shop-price">${esc(money(t.priceMinor, t.currency))}</div><p class="shop-variant-label">Available orientation: <strong>${esc(t.orientation)}</strong></p><p class="shop-storage-note">Tap with a compatible NFC-enabled smartphone, or scan the printed QR code using your camera. Both open your chosen link.</p><form id="shop-personalize"><div class="shop-fields">${filterDetailSelect("material", "Material", t.materials, editing?.material)}${filterDetailSelect("finish", "Finish", t.finishes, editing?.finish)}${textField("quantity", "Quantity", String(editing?.quantity || 1), 'type="number" min="1" max="100" step="1" required', true)}</div><div class="shop-form-section"><h2>01 / Make it yours</h2><div class="shop-fields">${textField("business", "Business name *", p.business, 'required maxlength="100" autocomplete="organization"', true)}${filterDetailSelect("destinationType", "Destination type", destinationTypes, p.destinationType, true)}${textField("destination", "NFC + QR destination *", p.destination, 'type="url" required maxlength="800" placeholder="https://your-business.com"', true)}<p class="shop-storage-note wide">NFC and QR will use the same link. Separate destinations require a supported production configuration.</p><label class="shop-field wide">Business logo<input type="file" disabled accept="image/png,image/jpeg,image/webp"><small>After ordering, email your logo to info@auradigitalworks.com with your order reference. We confirm placement during artwork approval.</small></label></div></div><div class="shop-form-section"><h2>02 / Optional details</h2><div class="shop-fields">${textField("contact", "Contact name", p.contact, 'maxlength="100" autocomplete="name"')}${textField("phone", "Phone", p.phone, 'type="tel" maxlength="100" autocomplete="tel"')}${textField("whatsapp", "WhatsApp", p.whatsapp, 'type="tel" maxlength="100"')}${textField("social", "Instagram / social URL", p.social, 'type="url" maxlength="800" placeholder="https://"')}<label class="shop-field wide">Custom instructions<textarea name="instructions" maxlength="1000">${esc(p.instructions)}</textarea></label></div></div><p class="shop-storage-note">The preview remains sample artwork. Your text does not generate a print proof. Personalization is saved in this browser; avoid entering sensitive information on a shared device.</p><p class="shop-error shop-form-error" role="alert"></p><button class="shop-primary" type="button" id="shop-detail-add" ${canPurchase(t) ? "" : "disabled"}>Add to Cart</button><button class="shop-primary" type="submit">${editing ? "Review changes" : "Review personalization"} <span>\u2197</span></button></form></section></div></div>`;
   bindViewers(app);
+  app.querySelector(".shop-shell").insertAdjacentHTML("beforeend", `<section class="shop-related"><h2>You may also like</h2><div class="shop-grid">${themes.filter((x) => x.id !== t.id && x.category === t.category).slice(0, 4).map(product).join("")}</div></section>`);
+  bindViewers(app.querySelector(".shop-related"));
+  app.querySelectorAll(".shop-related [data-add]").forEach((b) => b.addEventListener("click", () => quickAdd(b.dataset.add)));
   const form = document.querySelector("#shop-personalize");
+  document.querySelector("#shop-detail-add").addEventListener("click", () => {
+    try {
+      const data = Object.fromEntries(new FormData(form));
+      if (cart.length >= 50) throw new Error("Your cart can contain up to 50 designs.");
+      const item = validateItem({ id: cartId(), themeId: t.id, quantity: Number(data.quantity), material: data.material, finish: data.finish, personalization: Object.fromEntries(Object.keys(emptyPersonalization).map((key) => [key, data[key]])) }, themes, false);
+      cart.push(item);
+      persist();
+      notify(`${t.name} added to cart.`);
+    } catch (error) {
+      form.querySelector(".shop-form-error").textContent = error instanceof Error ? error.message : "Check your details.";
+    }
+  });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(form));
     try {
-      const item = validateItem({ id: editing?.id || crypto.randomUUID(), themeId: t.id, quantity: Number(data.quantity), material: data.material, finish: data.finish, personalization: Object.fromEntries(Object.keys(emptyPersonalization).map((key) => [key, data[key]])) }, themes);
+      const item = validateItem({ id: editing?.id || cartId(), themeId: t.id, quantity: Number(data.quantity), material: data.material, finish: data.finish, personalization: Object.fromEntries(Object.keys(emptyPersonalization).map((key) => [key, data[key]])) }, themes);
       openDialog(dialogHead("Your personalization") + `<p>${esc(t.name)} \xB7 ${item.quantity} \xD7 ${esc(money(t.priceMinor))}</p><dl class="shop-summary">${[["Business", item.personalization.business], ["Destination type", item.personalization.destinationType], ["NFC + QR link", item.personalization.destination], ["Material / finish", `${item.material} / ${item.finish}`], ["Contact", item.personalization.contact], ["Phone", item.personalization.phone], ["WhatsApp", item.personalization.whatsapp], ["Social URL", item.personalization.social], ["Instructions", item.personalization.instructions]].filter(([, v]) => v).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl><p>Sample artwork requires approval. Your order is paid by bank transfer. Final artwork is approved before printing.</p><button type="button" class="shop-primary" id="shop-confirm">${editing ? "Save changes" : "Add to cart"}</button>`);
       document.querySelector("#shop-confirm").addEventListener("click", () => {
         if (!editing && cart.length >= 50) {
@@ -287,10 +349,21 @@ function cartMarkup() {
   const subtotal = allPriced ? cart.reduce((sum, i) => sum + getTheme(i.themeId).priceMinor * i.quantity, 0) : null;
   return `<div class="shop-cart-layout"><div>${cart.map((i) => {
     const t = getTheme(i.themeId);
-    return `<article class="shop-cart-row"><div class="shop-cart-art" style="aspect-ratio:${t.artwork ? t.artwork.front.width / t.artwork.front.height : t.orientation === "Vertical" ? 540 / 856 : 856 / 540}">${artworkImage(t, "front", `${t.name} front`)}</div><div><h3>${esc(t.name)}</h3><p>${esc(i.personalization.business || "Personalize at checkout")}<br>${esc(i.material)} / ${esc(i.finish)} \xB7 ${esc(money(t.priceMinor))} each<br><strong>${esc(money(t.priceMinor === null ? null : t.priceMinor * i.quantity))}</strong></p><div class="shop-cart-actions"><label><span class="shop-sr-only">Quantity for ${esc(t.name)}</span><input type="number" min="1" max="100" step="1" value="${i.quantity}" data-quantity="${i.id}"></label><a href="/shop/cards/${esc(t.slug)}?edit=${i.id}">Personalize</a><button type="button" data-remove="${i.id}" aria-label="Remove ${esc(t.name)}">Remove</button></div></div></article>`;
-  }).join("")}</div><aside class="shop-cart-summary"><div class="shop-kicker">Order summary</div><div class="shop-cart-total"><span>Cards total</span><strong>${esc(money(subtotal))}</strong></div><p class="shop-storage-note">Bank transfer \xB7 Payment verified by AuraDigital.<br>Delivery is arranged separately; any delivery fee is confirmed before shipping.</p>${allPriced ? '<a class="shop-primary" href="/shop/checkout">Proceed to checkout <span>\u2197</span></a>' : '<button class="shop-primary" disabled>One or more designs are unavailable</button>'}<p class="shop-storage-note">${customer ? `Continue as ${esc(customer.name)}.` : "Sign in or create your AuraDigital account to continue. Your panier will stay saved."}</p><button type="button" class="shop-filter-reset" data-clear-cart>Clear panier</button></aside></div>`;
+    return `<article class="shop-cart-row"><div class="shop-cart-art" style="aspect-ratio:${t.artwork ? t.artwork.front.width / t.artwork.front.height : t.orientation === "Vertical" ? 540 / 856 : 856 / 540}">${artworkImage(t, "front", `${t.name} front`)}</div><div><h3>${esc(t.name)}</h3><p>${esc(i.personalization.business || "Personalize at checkout")}<br>${esc(t.orientation)} \xB7 ${esc(i.material)} / ${esc(i.finish)} \xB7 ${esc(money(t.priceMinor))} each<br><strong>${esc(money(t.priceMinor === null ? null : t.priceMinor * i.quantity))}</strong></p><div class="shop-cart-actions"><button type="button" class="shop-quantity-step" data-adjust="${i.id}" data-delta="-1" aria-label="Decrease quantity for ${esc(t.name)}" ${i.quantity === 1 ? "disabled" : ""}>\u2212</button><label><span class="shop-sr-only">Quantity for ${esc(t.name)}</span><input type="number" min="1" max="100" step="1" value="${i.quantity}" data-quantity="${i.id}"></label><button type="button" class="shop-quantity-step" data-adjust="${i.id}" data-delta="1" aria-label="Increase quantity for ${esc(t.name)}" ${i.quantity === 100 ? "disabled" : ""}>+</button><a href="/shop/cards/${esc(t.slug)}?edit=${i.id}">Personalize</a><button type="button" data-remove="${i.id}" aria-label="Remove ${esc(t.name)}">Remove</button></div></div></article>`;
+  }).join("")}</div><aside class="shop-cart-summary"><div class="shop-kicker">Order summary</div><div class="shop-cart-total"><span>Cards total</span><strong>${esc(money(subtotal))}</strong></div><p class="shop-storage-note">Bank transfer \xB7 Payment verified by AuraDigital.<br>Delivery is arranged separately; any delivery fee is confirmed before shipping.</p>${allPriced ? '<a class="shop-primary" href="/shop/checkout">Proceed to checkout <span>\u2197</span></a>' : '<button class="shop-primary" disabled>One or more designs are unavailable</button>'}<p class="shop-storage-note">${customer ? `Continue as ${esc(customer.name)}.` : "Sign in or create your AuraDigital account to continue. Your panier will stay saved."}</p><a class="shop-secondary" href="/shop#collection">Continue Shopping</a><button type="button" class="shop-filter-reset" data-clear-cart>Clear panier</button></aside></div>`;
 }
 function bindCart(root) {
+  root.querySelectorAll("[data-adjust]").forEach((button) => button.addEventListener("click", () => {
+    const item = cart.find((i) => i.id === button.dataset.adjust);
+    try {
+      const next = validateItem({ ...item, quantity: item.quantity + Number(button.dataset.delta) }, themes, false);
+      cart = cart.map((i) => i.id === next.id ? next : i);
+      persist();
+      refreshCart(root);
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "Invalid quantity.");
+    }
+  }));
   root.querySelectorAll("[data-remove]").forEach((b) => b.addEventListener("click", () => {
     cart = cart.filter((i) => i.id !== b.dataset.remove);
     persist();
@@ -376,15 +449,15 @@ async function checkoutPage() {
   }
   const quote = await api("/api/shop/quote", "POST", { items: cart });
   const profile = customer.profile;
-  app.innerHTML = `<div class="shop-shell"><nav class="shop-breadcrumb" aria-label="Breadcrumb"><a href="/shop">Shop</a><span>/</span><a href="/shop/cart">Panier</a><span>/</span><span>Checkout</span></nav><div class="shop-checkout"><div><div class="shop-kicker">01 Account \u2713 \xB7 02 Details \xB7 03 Bank transfer</div><h1>Make it yours.</h1><p>Signed in as ${esc(customer.email)}. Complete your details to create the order and receive payment instructions.</p><form id="shop-checkout-form"><div class="shop-form-section"><h2>Contact & delivery</h2><div class="shop-fields">${textField("name", "Full name *", profile.name || customer.name, 'required maxlength="100" autocomplete="name"')}${textField("phone", "Phone / WhatsApp *", profile.phone || "", 'type="tel" required maxlength="40" autocomplete="tel"')}${textField("business", "Business / company name *", profile.business || "", 'required maxlength="100" autocomplete="organization"', true)}${textField("country", "Country *", profile.country || "T\xFCrkiye", 'required maxlength="80" autocomplete="country-name"')}${textField("city", "City *", profile.city || "", 'required maxlength="100" autocomplete="address-level2"')}${textField("address", "Full delivery address *", profile.address || "", 'required maxlength="500" autocomplete="street-address"', true)}${textField("postalCode", "Postal code *", profile.postalCode || "", 'required maxlength="20" autocomplete="postal-code"')}<label class="shop-field wide">Billing details (optional)<textarea name="billingDetails" maxlength="600">${esc(profile.billingDetails || "")}</textarea></label></div></div><div class="shop-form-section"><h2>Your card links</h2><p class="shop-storage-note">NFC and QR use the same link. We prepare your business artwork for approval before printing.</p>${cart.map((item) => `<label class="shop-field">${esc(getTheme(item.themeId).name)} \xB7 ${item.quantity} card${item.quantity > 1 ? "s" : ""}<input type="url" name="destination-${item.id}" required maxlength="800" placeholder="https://your-business.com" value="${esc(item.personalization.destination)}"></label>`).join("")}</div><label class="shop-check"><input type="checkbox" name="acceptConditions" required><span>I confirm my order details and understand payment is verified manually after my bank transfer. Final artwork requires approval before printing. Delivery is arranged separately and any delivery fee is confirmed before shipping. My account details are used to fulfill this order.</span></label><p class="shop-error" role="alert"></p><button type="submit" class="shop-primary">Create order & show bank details <span>\u2197</span></button></form></div><aside class="shop-cart-summary"><div class="shop-kicker">Order summary</div>${quote.lines.map((line) => `<div class="shop-cart-total"><span>${esc(line.name)} \xD7 ${line.quantity}</span><strong>${money(line.subtotalMinor)}</strong></div>`).join("")}<div class="shop-checkout-total"><span>Total for cards</span><strong>${money(quote.subtotalMinor)}</strong></div><p>600 TL per card \xB7 Payment by bank transfer.<br>Delivery fees, if needed, are confirmed separately before shipping.</p><p class="shop-storage-note">Your order is saved to your AuraDigital account. Creating it does not mark it paid.</p></aside></div></div>`;
-  const form = document.querySelector("#shop-checkout-form"), key = crypto.randomUUID();
+  app.innerHTML = `<div class="shop-shell"><nav class="shop-breadcrumb" aria-label="Breadcrumb"><a href="/shop">Shop</a><span>/</span><a href="/shop/cart">Panier</a><span>/</span><span>Checkout</span></nav><div class="shop-checkout"><div><div class="shop-kicker">01 Account \u2713 \xB7 02 Details \xB7 03 Bank transfer</div><h1>Make it yours.</h1><p>Signed in as ${esc(customer.email)}. Complete your details to create the order and receive payment instructions.</p><form id="shop-checkout-form"><div class="shop-form-section"><h2>Contact & delivery</h2><div class="shop-fields">${textField("name", "Full name *", profile.name || customer.name, 'required maxlength="100" autocomplete="name"')}${textField("phone", "Phone / WhatsApp *", profile.phone || "", 'type="tel" required maxlength="40" autocomplete="tel"')}${textField("business", "Business / company name *", profile.business || "", 'required maxlength="100" autocomplete="organization"', true)}${textField("country", "Country *", profile.country || "T\xFCrkiye", 'required maxlength="80" autocomplete="country-name"')}${textField("city", "City *", profile.city || "", 'required maxlength="100" autocomplete="address-level2"')}${textField("address", "Full delivery address *", profile.address || "", 'required maxlength="500" autocomplete="street-address"', true)}${textField("postalCode", "Postal code *", profile.postalCode || "", 'required maxlength="20" autocomplete="postal-code"')}<label class="shop-field wide">Billing details (optional)<textarea name="billingDetails" maxlength="600">${esc(profile.billingDetails || "")}</textarea></label></div></div><div class="shop-form-section"><h2>Your card links</h2><label class="shop-field">Order notes (optional)<textarea name="orderNotes" maxlength="1000"></textarea></label><p class="shop-storage-note">NFC and QR use the same link. We prepare your business artwork for approval before printing.</p>${cart.map((item) => `<label class="shop-field">${esc(getTheme(item.themeId).name)} \xB7 ${item.quantity} card${item.quantity > 1 ? "s" : ""}<input type="url" name="destination-${item.id}" required maxlength="800" placeholder="https://your-business.com" value="${esc(item.personalization.destination)}"></label>`).join("")}</div><label class="shop-check"><input type="checkbox" name="acceptConditions" required><span>I confirm my order details and understand payment is verified manually after my bank transfer. Final artwork requires approval before printing. Delivery is arranged separately and any delivery fee is confirmed before shipping. My account details are used to fulfill this order.</span></label><p class="shop-error" role="alert"></p><button type="submit" class="shop-primary">Create order & show bank details <span>\u2197</span></button></form></div><aside class="shop-cart-summary"><div class="shop-kicker">Order summary</div>${quote.lines.map((line) => `<div class="shop-cart-total"><span>${esc(line.name)} \xD7 ${line.quantity}</span><strong>${money(line.subtotalMinor)}</strong></div>`).join("")}<div class="shop-checkout-total"><span>Total for cards</span><strong>${money(quote.subtotalMinor)}</strong></div><p>600 TL per card \xB7 Payment by bank transfer.<br>Delivery fees, if needed, are confirmed separately before shipping.</p><p class="shop-storage-note">Your order is saved to your AuraDigital account. Creating it does not mark it paid.</p></aside></div></div>`;
+  const form = document.querySelector("#shop-checkout-form"), key = cartId();
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = new FormData(form), button = form.querySelector('button[type="submit"]');
     button.disabled = true;
     try {
       const shipping = Object.fromEntries(["name", "phone", "business", "country", "city", "address", "postalCode", "billingDetails"].map((name) => [name, String(data.get(name) || "")]));
-      const items = cart.map((item) => ({ ...item, personalization: { ...item.personalization, business: item.personalization.business || shipping.business, destination: String(data.get("destination-" + item.id)) } }));
+      const items = cart.map((item) => ({ ...item, personalization: { ...item.personalization, business: item.personalization.business || shipping.business, destination: String(data.get("destination-" + item.id)), instructions: [item.personalization.instructions, String(data.get("orderNotes") || "")].filter(Boolean).join("\n").slice(0, 1e3) } }));
       const result = await api("/api/shop/checkout", "POST", { items, shipping, idempotencyKey: key, acceptConditions: data.has("acceptConditions") });
       cart = [];
       persist();
@@ -396,7 +469,7 @@ async function checkoutPage() {
   });
 }
 function statusLabel(order) {
-  return order.paymentStatus === "paid" ? "Payment verified \xB7 Awaiting artwork approval" : order.paymentStatus === "cancelled" ? "Cancelled" : order.transferReportedAt ? "Transfer reported \xB7 Awaiting verification" : "Awaiting bank transfer";
+  return order.paymentStatus === "paid" ? "Payment verified \xB7 Awaiting artwork approval" : order.paymentStatus === "cancelled" ? "Cancelled" : order.transferReportedAt ? "Transfer reported \xB7 Awaiting verification" : "Pending Payment \xB7 Awaiting bank transfer";
 }
 async function orderPage(id) {
   if (!customer) {
@@ -440,6 +513,8 @@ window.addEventListener("storage", (event) => {
     cart = restoreCart(event.newValue, themes);
     count();
     if (drawer.open) refreshCart(drawer);
+    const inline = document.querySelector("#shop-inline-cart-body");
+    if (inline) refreshCart(inline);
     const root = document.querySelector("#shop-cart-page");
     if (root) refreshCart(root);
   }
