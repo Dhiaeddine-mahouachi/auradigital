@@ -1,4 +1,5 @@
 import { handleGlobalPricing } from './global-pricing.js';
+import { handleShop } from './shop.ts';
 import { deliverRequestEmails } from "./request-delivery.js";
 import { handleWeddings } from './weddings.js';
 import { requestPolicy, secureResponse, errorResponse } from './security-policy.js';
@@ -22,6 +23,8 @@ const router = {
       return Response.redirect(url.toString(), 301);
     }
 
+    const shopResponse = await handleShop(request, env);
+    if (shopResponse) return shopResponse;
     const pricingResponse = await handleGlobalPricing(request,env);
     if(pricingResponse) return pricingResponse;
     const aiResponse = await handleAiEmployee(request, env, ctx);

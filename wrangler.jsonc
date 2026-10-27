@@ -55,7 +55,15 @@
       "/nfc-studio",
       "/nfc-durum",
       "/nfc-status",
-      "/aurapops/"
+      "/aurapops/",
+      "/shop",
+      "/shop/",
+      "/shop/cards/*",
+      "/shop/cart",
+      "/shop/checkout",
+      "/shop/orders/*",
+      "/account",
+      "/account/*"
     ],
     "not_found_handling": "404-page"
   },
@@ -73,7 +81,14 @@
     }
   ],
   "ratelimits": [
-    {"name":"CONTACT_RATE_LIMITER","namespace_id":"1843704","simple":{"limit":5,"period":60}},
+    {
+      "name": "CONTACT_RATE_LIMITER",
+      "namespace_id": "1843704",
+      "simple": {
+        "limit": 5,
+        "period": 60
+      }
+    },
     {
       "name": "LOGIN_RATE_LIMITER",
       "namespace_id": "1843701",
@@ -151,7 +166,7 @@
     "AI_RECOVERY_TOKEN_ALLOWANCE": "250000"
   },
   "build": {
-    "command": "node scripts/build-ai-index.mjs"
+    "command": "node scripts/build-ai-index.mjs && node scripts/build-shop.mjs"
   },
   "triggers": {
     "crons": [

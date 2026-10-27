@@ -1,0 +1,3014 @@
+[
+  {
+    "id": "oliva-bistro",
+    "slug": "oliva-bistro",
+    "name": "Oliva Bistro",
+    "category": "Restaurants",
+    "description": "A taste worth sharing. A luxury NFC and QR card concept for restaurants. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-oliva-bistro-pair.png",
+    "back": "/shop/artwork/demo-oliva-bistro-pair.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Green",
+      "Ivory"
+    ],
+    "palette": [
+      "#394520",
+      "#efe7d2"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 58,
+        "y": 75,
+        "width": 648,
+        "height": 946
+      },
+      "back": {
+        "x": 747,
+        "y": 75,
+        "width": 647,
+        "height": 946
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "roast-and-bean",
+    "slug": "roast-and-bean",
+    "name": "Roast & Bean",
+    "category": "Coffee Shops & Cafés",
+    "description": "Your daily ritual. A modern NFC and QR card concept for coffee shops & cafés. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-roast-and-bean-pair.png",
+    "back": "/shop/artwork/demo-roast-and-bean-pair.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Brown",
+      "Ivory"
+    ],
+    "palette": [
+      "#4b3024",
+      "#f1dfc2"
+    ],
+    "purpose": "Loyalty",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 100,
+        "y": 80,
+        "width": 610,
+        "height": 928
+      },
+      "back": {
+        "x": 741,
+        "y": 80,
+        "width": 609,
+        "height": 928
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "northbridge-consulting",
+    "slug": "northbridge-consulting",
+    "name": "Northbridge Consulting",
+    "category": "Corporate & Business",
+    "description": "Ideas. Direction. Progress. A corporate NFC and QR card concept for corporate & business. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-northbridge-consulting-pair.png",
+    "back": "/shop/artwork/demo-northbridge-consulting-pair.png",
+    "orientation": "Horizontal",
+    "colors": [
+      "Black"
+    ],
+    "palette": [
+      "#202020",
+      "#d7d7d7"
+    ],
+    "purpose": "Business Profile",
+    "style": "Corporate",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 23,
+        "y": 325,
+        "width": 694,
+        "height": 437
+      },
+      "back": {
+        "x": 735,
+        "y": 325,
+        "width": 691,
+        "height": 437
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "luna-beauty-studio",
+    "slug": "luna-beauty-studio",
+    "name": "Luna Beauty Studio",
+    "category": "Beauty Salons & Spas",
+    "description": "A moment for yourself. A minimal NFC and QR card concept for beauty salons & spas. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-luna-beauty-studio-pair.png",
+    "back": "/shop/artwork/demo-luna-beauty-studio-pair.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Pink",
+      "Green"
+    ],
+    "palette": [
+      "#ead1c0",
+      "#12372b"
+    ],
+    "purpose": "Booking",
+    "style": "Minimal",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 94,
+        "y": 82,
+        "width": 604,
+        "height": 930
+      },
+      "back": {
+        "x": 752,
+        "y": 82,
+        "width": 605,
+        "height": 930
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "pulse-fitness-club",
+    "slug": "pulse-fitness-club",
+    "name": "Pulse Fitness Club",
+    "category": "Gyms & Fitness",
+    "description": "Find your next level. A futuristic NFC and QR card concept for gyms & fitness. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-pulse-fitness-club-pair.png",
+    "back": "/shop/artwork/demo-pulse-fitness-club-pair.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Lime",
+      "Black"
+    ],
+    "palette": [
+      "#bcf500",
+      "#111411"
+    ],
+    "purpose": "Social Media",
+    "style": "Futuristic",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 122,
+        "y": 108,
+        "width": 589,
+        "height": 872
+      },
+      "back": {
+        "x": 743,
+        "y": 108,
+        "width": 587,
+        "height": 872
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "titan-auto-detail",
+    "slug": "titan-auto-detail",
+    "name": "Titan Auto Detail",
+    "category": "Automotive & Car Detailing",
+    "description": "Every detail matters. A modern NFC and QR card concept for automotive & car detailing. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-titan-auto-detail-pair.png",
+    "back": "/shop/artwork/demo-titan-auto-detail-pair.png",
+    "orientation": "Horizontal",
+    "colors": [
+      "Green",
+      "Black"
+    ],
+    "palette": [
+      "#61c632",
+      "#151918"
+    ],
+    "purpose": "Google Reviews",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 25,
+        "y": 333,
+        "width": 690,
+        "height": 432
+      },
+      "back": {
+        "x": 735,
+        "y": 333,
+        "width": 692,
+        "height": 432
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "brightcare-dental",
+    "slug": "brightcare-dental",
+    "name": "BrightCare Dental",
+    "category": "Dental & Medical Clinics",
+    "description": "A brighter connection. A minimal NFC and QR card concept for dental & medical clinics. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-brightcare-dental-pair.png",
+    "back": "/shop/artwork/demo-brightcare-dental-pair.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Blue",
+      "Ivory"
+    ],
+    "palette": [
+      "#167cc1",
+      "#f3f7fa"
+    ],
+    "purpose": "Booking",
+    "style": "Minimal",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 41,
+        "y": 178,
+        "width": 674,
+        "height": 808
+      },
+      "back": {
+        "x": 736,
+        "y": 176,
+        "width": 675,
+        "height": 810
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "golden-key-realty",
+    "slug": "golden-key-realty",
+    "name": "Golden Key Realty",
+    "category": "Real Estate",
+    "description": "Your next chapter. A luxury NFC and QR card concept for real estate. The QR and NFC symbol share the front. Sample artwork requires production and fulfillment approval.",
+    "front": "/shop/artwork/demo-golden-key-realty-pair.png",
+    "back": "/shop/artwork/demo-golden-key-realty-pair.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Gold",
+      "Black",
+      "Ivory"
+    ],
+    "palette": [
+      "#dcc080",
+      "#171717"
+    ],
+    "purpose": "Business Profile",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1448,
+      "height": 1086,
+      "front": {
+        "x": 96,
+        "y": 95,
+        "width": 609,
+        "height": 897
+      },
+      "back": {
+        "x": 743,
+        "y": 95,
+        "width": 610,
+        "height": 897
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-restaurant-premium",
+    "slug": "collection-restaurant-premium",
+    "name": "Restaurant Premium",
+    "category": "Restaurants",
+    "description": "Restaurant Premium NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Green",
+      "Gold"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 25,
+        "y": 14,
+        "width": 120,
+        "height": 166
+      },
+      "back": {
+        "x": 151,
+        "y": 14,
+        "width": 119,
+        "height": 166
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-cafe-modern",
+    "slug": "collection-cafe-modern",
+    "name": "Café Modern",
+    "category": "Coffee Shops & Cafés",
+    "description": "Café Modern NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Ivory",
+      "Brown"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 320,
+        "y": 14,
+        "width": 122,
+        "height": 166
+      },
+      "back": {
+        "x": 452,
+        "y": 14,
+        "width": 118,
+        "height": 166
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-hotel-luxury",
+    "slug": "collection-hotel-luxury",
+    "name": "Hotel Luxury",
+    "category": "Hotels & Hospitality",
+    "description": "Hotel Luxury NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Booking",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 622,
+        "y": 14,
+        "width": 129,
+        "height": 166
+      },
+      "back": {
+        "x": 758,
+        "y": 14,
+        "width": 126,
+        "height": 166
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-business-minimal",
+    "slug": "collection-business-minimal",
+    "name": "Business Minimal",
+    "category": "Corporate & Business",
+    "description": "Business Minimal NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Black"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Business Profile",
+    "style": "Minimal",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 930,
+        "y": 14,
+        "width": 134,
+        "height": 166
+      },
+      "back": {
+        "x": 1070,
+        "y": 14,
+        "width": 125,
+        "height": 166
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-real-estate-premium",
+    "slug": "collection-real-estate-premium",
+    "name": "Real Estate Premium",
+    "category": "Real Estate",
+    "description": "Real Estate Premium NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Ivory",
+      "Gold"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Business Profile",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 1250,
+        "y": 14,
+        "width": 133,
+        "height": 166
+      },
+      "back": {
+        "x": 1388,
+        "y": 14,
+        "width": 122,
+        "height": 166
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-beauty-salon-elegant",
+    "slug": "collection-beauty-salon-elegant",
+    "name": "Beauty Salon Elegant",
+    "category": "Beauty Salons & Spas",
+    "description": "Beauty Salon Elegant NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Pink"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Booking",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 25,
+        "y": 223,
+        "width": 120,
+        "height": 169
+      },
+      "back": {
+        "x": 151,
+        "y": 223,
+        "width": 119,
+        "height": 169
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-gym-bold",
+    "slug": "collection-gym-bold",
+    "name": "Gym Bold",
+    "category": "Gyms & Fitness",
+    "description": "Gym Bold NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Lime"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Social Media",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 320,
+        "y": 223,
+        "width": 122,
+        "height": 169
+      },
+      "back": {
+        "x": 452,
+        "y": 223,
+        "width": 118,
+        "height": 169
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-automotive-sport",
+    "slug": "collection-automotive-sport",
+    "name": "Automotive Sport",
+    "category": "Automotive & Car Detailing",
+    "description": "Automotive Sport NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Red"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Business Profile",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 622,
+        "y": 223,
+        "width": 129,
+        "height": 169
+      },
+      "back": {
+        "x": 758,
+        "y": 223,
+        "width": 126,
+        "height": 169
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-clinic-clean",
+    "slug": "collection-clinic-clean",
+    "name": "Clinic Clean",
+    "category": "Dental & Medical Clinics",
+    "description": "Clinic Clean NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Ivory",
+      "Blue"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Booking",
+    "style": "Minimal",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 930,
+        "y": 223,
+        "width": 134,
+        "height": 169
+      },
+      "back": {
+        "x": 1070,
+        "y": 223,
+        "width": 125,
+        "height": 169
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-boutique-fashion",
+    "slug": "collection-boutique-fashion",
+    "name": "Boutique Fashion",
+    "category": "Retail & Fashion",
+    "description": "Boutique Fashion NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Business Profile",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 1250,
+        "y": 223,
+        "width": 133,
+        "height": 169
+      },
+      "back": {
+        "x": 1388,
+        "y": 223,
+        "width": 122,
+        "height": 169
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-barber-classic",
+    "slug": "collection-barber-classic",
+    "name": "Barber Classic",
+    "category": "Barbershops",
+    "description": "Barber Classic NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Brown"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Booking",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 25,
+        "y": 437,
+        "width": 120,
+        "height": 166
+      },
+      "back": {
+        "x": 151,
+        "y": 437,
+        "width": 119,
+        "height": 166
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-travel-agency",
+    "slug": "collection-travel-agency",
+    "name": "Travel Agency",
+    "category": "Travel & Tourism",
+    "description": "Travel Agency NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Blue"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Booking",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 320,
+        "y": 437,
+        "width": 122,
+        "height": 166
+      },
+      "back": {
+        "x": 452,
+        "y": 437,
+        "width": 118,
+        "height": 166
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-event-wedding",
+    "slug": "collection-event-wedding",
+    "name": "Event Wedding",
+    "category": "Events & Weddings",
+    "description": "Event Wedding NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Ivory",
+      "Gold"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Business Profile",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 622,
+        "y": 437,
+        "width": 129,
+        "height": 166
+      },
+      "back": {
+        "x": 758,
+        "y": 437,
+        "width": 126,
+        "height": 166
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-education-modern",
+    "slug": "collection-education-modern",
+    "name": "Education Modern",
+    "category": "Education",
+    "description": "Education Modern NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Blue",
+      "Gold"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Business Profile",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 930,
+        "y": 437,
+        "width": 134,
+        "height": 166
+      },
+      "back": {
+        "x": 1070,
+        "y": 437,
+        "width": 125,
+        "height": 166
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-lawyer-professional",
+    "slug": "collection-lawyer-professional",
+    "name": "Lawyer Professional",
+    "category": "Legal Services",
+    "description": "Lawyer Professional NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Business Profile",
+    "style": "Corporate",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 1250,
+        "y": 437,
+        "width": 133,
+        "height": 166
+      },
+      "back": {
+        "x": 1388,
+        "y": 437,
+        "width": 122,
+        "height": 166
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-tech-it-futuristic",
+    "slug": "collection-tech-it-futuristic",
+    "name": "Tech IT Futuristic",
+    "category": "Technology & IT",
+    "description": "Tech IT Futuristic NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Green"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Business Profile",
+    "style": "Futuristic",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 25,
+        "y": 643,
+        "width": 120,
+        "height": 162
+      },
+      "back": {
+        "x": 151,
+        "y": 643,
+        "width": 119,
+        "height": 162
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-coffee-truck-food-truck",
+    "slug": "collection-coffee-truck-food-truck",
+    "name": "Coffee Truck Food Truck",
+    "category": "Coffee Shops & Cafés",
+    "description": "Coffee Truck Food Truck NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Red",
+      "Ivory"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 320,
+        "y": 643,
+        "width": 122,
+        "height": 162
+      },
+      "back": {
+        "x": 452,
+        "y": 643,
+        "width": 118,
+        "height": 162
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-art-creative",
+    "slug": "collection-art-creative",
+    "name": "Art Creative",
+    "category": "Freelancers & Creators",
+    "description": "Art Creative NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Blue",
+      "Red"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Social Media",
+    "style": "Colorful",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 622,
+        "y": 643,
+        "width": 129,
+        "height": 162
+      },
+      "back": {
+        "x": 758,
+        "y": 643,
+        "width": 126,
+        "height": 162
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-music-dj",
+    "slug": "collection-music-dj",
+    "name": "Music DJ",
+    "category": "Freelancers & Creators",
+    "description": "Music DJ NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Blue"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Social Media",
+    "style": "Futuristic",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 930,
+        "y": 643,
+        "width": 134,
+        "height": 162
+      },
+      "back": {
+        "x": 1070,
+        "y": 643,
+        "width": 125,
+        "height": 162
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-photographer",
+    "slug": "collection-photographer",
+    "name": "Photographer",
+    "category": "Freelancers & Creators",
+    "description": "Photographer NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Business Profile",
+    "style": "Minimal",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 1250,
+        "y": 643,
+        "width": 133,
+        "height": 162
+      },
+      "back": {
+        "x": 1388,
+        "y": 643,
+        "width": 122,
+        "height": 162
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-restaurant-casual",
+    "slug": "collection-restaurant-casual",
+    "name": "Restaurant Casual",
+    "category": "Restaurants",
+    "description": "Restaurant Casual NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Green",
+      "Ivory"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 25,
+        "y": 843,
+        "width": 120,
+        "height": 148
+      },
+      "back": {
+        "x": 151,
+        "y": 843,
+        "width": 119,
+        "height": 148
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-spa-relax",
+    "slug": "collection-spa-relax",
+    "name": "Spa Relax",
+    "category": "Beauty Salons & Spas",
+    "description": "Spa Relax NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Green"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Booking",
+    "style": "Minimal",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 320,
+        "y": 843,
+        "width": 122,
+        "height": 148
+      },
+      "back": {
+        "x": 452,
+        "y": 843,
+        "width": 118,
+        "height": 148
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-pet-shop",
+    "slug": "collection-pet-shop",
+    "name": "Pet Shop",
+    "category": "Pet Services",
+    "description": "Pet Shop NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Ivory",
+      "Brown"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Business Profile",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 622,
+        "y": 843,
+        "width": 129,
+        "height": 148
+      },
+      "back": {
+        "x": 758,
+        "y": 843,
+        "width": 126,
+        "height": 148
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-corporate-luxury",
+    "slug": "collection-corporate-luxury",
+    "name": "Corporate Luxury",
+    "category": "Corporate & Business",
+    "description": "Corporate Luxury NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Business Profile",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 930,
+        "y": 843,
+        "width": 134,
+        "height": 148
+      },
+      "back": {
+        "x": 1070,
+        "y": 843,
+        "width": 125,
+        "height": 148
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-personal-unique",
+    "slug": "collection-personal-unique",
+    "name": "Personal Unique",
+    "category": "General Business",
+    "description": "Personal Unique NFC and QR card. Personalized artwork is prepared for approval before printing; preview QR codes are illustrative.",
+    "front": "/shop/artwork/demo-business-collection.png",
+    "back": "/shop/artwork/demo-business-collection.png",
+    "orientation": "Vertical",
+    "colors": [
+      "Green"
+    ],
+    "palette": [
+      "#12372b",
+      "#d8bb7b"
+    ],
+    "purpose": "Business Profile",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1536,
+      "height": 1024,
+      "front": {
+        "x": 1250,
+        "y": 843,
+        "width": 133,
+        "height": 148
+      },
+      "back": {
+        "x": 1388,
+        "y": 843,
+        "width": 122,
+        "height": 148
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-midnight-marble",
+    "slug": "collection-midnight-marble",
+    "name": "Midnight Marble",
+    "category": "Restaurants",
+    "description": "Midnight Marble — luxury NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-midnight-marble.svg",
+    "back": "/shop/artwork/collection-midnight-marble.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#101316",
+      "#D5AD5B"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-emerald-dining",
+    "slug": "collection-emerald-dining",
+    "name": "Emerald Dining",
+    "category": "Restaurants",
+    "description": "Emerald Dining — luxury NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-emerald-dining.svg",
+    "back": "/shop/artwork/collection-emerald-dining.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#092A20",
+      "#D9C177"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-coffee-origins",
+    "slug": "collection-coffee-origins",
+    "name": "Coffee Origins",
+    "category": "Coffee Shops & Cafés",
+    "description": "Coffee Origins — modern NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-coffee-origins.svg",
+    "back": "/shop/artwork/collection-coffee-origins.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#F4E8D5",
+      "#75452B"
+    ],
+    "purpose": "Loyalty",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-botanical-caf",
+    "slug": "collection-botanical-caf",
+    "name": "Botanical Café",
+    "category": "Coffee Shops & Cafés",
+    "description": "Botanical Café — minimal NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-botanical-caf.svg",
+    "back": "/shop/artwork/collection-botanical-caf.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#153F2B",
+      "#D6E6BD"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Minimal",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-royal-hotel",
+    "slug": "collection-royal-hotel",
+    "name": "Royal Hotel",
+    "category": "Hotels & Hospitality",
+    "description": "Royal Hotel — luxury NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-royal-hotel.svg",
+    "back": "/shop/artwork/collection-royal-hotel.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#0A0A13",
+      "#D6B66F"
+    ],
+    "purpose": "Booking",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-marble-suite",
+    "slug": "collection-marble-suite",
+    "name": "Marble Suite",
+    "category": "Hotels & Hospitality",
+    "description": "Marble Suite — luxury NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-marble-suite.svg",
+    "back": "/shop/artwork/collection-marble-suite.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#F0EDE7",
+      "#BC9A63"
+    ],
+    "purpose": "Booking",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-titanium-executive",
+    "slug": "collection-titanium-executive",
+    "name": "Titanium Executive",
+    "category": "Corporate & Business",
+    "description": "Titanium Executive — corporate NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-titanium-executive.svg",
+    "back": "/shop/artwork/collection-titanium-executive.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#101114",
+      "#C4CAD1"
+    ],
+    "purpose": "Business Profile",
+    "style": "Corporate",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-pearl-executive",
+    "slug": "collection-pearl-executive",
+    "name": "Pearl Executive",
+    "category": "Corporate & Business",
+    "description": "Pearl Executive — minimal NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-pearl-executive.svg",
+    "back": "/shop/artwork/collection-pearl-executive.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#F8F6F2",
+      "#151515"
+    ],
+    "purpose": "Business Profile",
+    "style": "Minimal",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-golden-property",
+    "slug": "collection-golden-property",
+    "name": "Golden Property",
+    "category": "Real Estate",
+    "description": "Golden Property — luxury NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-golden-property.svg",
+    "back": "/shop/artwork/collection-golden-property.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#16181B",
+      "#D2A864"
+    ],
+    "purpose": "Business Profile",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-architecture-lines",
+    "slug": "collection-architecture-lines",
+    "name": "Architecture Lines",
+    "category": "Real Estate",
+    "description": "Architecture Lines — modern NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-architecture-lines.svg",
+    "back": "/shop/artwork/collection-architecture-lines.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#F1E1C6",
+      "#AE7838"
+    ],
+    "purpose": "Business Profile",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-redline-motor",
+    "slug": "collection-redline-motor",
+    "name": "Redline Motor",
+    "category": "Automotive & Car Detailing",
+    "description": "Redline Motor — futuristic NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-redline-motor.svg",
+    "back": "/shop/artwork/collection-redline-motor.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#111216",
+      "#F44336"
+    ],
+    "purpose": "Google Reviews",
+    "style": "Futuristic",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-carbon-gt",
+    "slug": "collection-carbon-gt",
+    "name": "Carbon GT",
+    "category": "Automotive & Car Detailing",
+    "description": "Carbon GT — futuristic NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-carbon-gt.svg",
+    "back": "/shop/artwork/collection-carbon-gt.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#191B1E",
+      "#E9EDF1"
+    ],
+    "purpose": "Business Profile",
+    "style": "Futuristic",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-acid-energy",
+    "slug": "collection-acid-energy",
+    "name": "Acid Energy",
+    "category": "Gyms & Fitness",
+    "description": "Acid Energy — colorful NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-acid-energy.svg",
+    "back": "/shop/artwork/collection-acid-energy.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#D9FF19",
+      "#11150D"
+    ],
+    "purpose": "Social Media",
+    "style": "Colorful",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-black-iron",
+    "slug": "collection-black-iron",
+    "name": "Black Iron",
+    "category": "Gyms & Fitness",
+    "description": "Black Iron — modern NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-black-iron.svg",
+    "back": "/shop/artwork/collection-black-iron.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#0A1116",
+      "#F6C94A"
+    ],
+    "purpose": "Social Media",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-rose-atelier",
+    "slug": "collection-rose-atelier",
+    "name": "Rose Atelier",
+    "category": "Beauty Salons & Spas",
+    "description": "Rose Atelier — luxury NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-rose-atelier.svg",
+    "back": "/shop/artwork/collection-rose-atelier.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#F0D7D1",
+      "#895857"
+    ],
+    "purpose": "Booking",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-silk-blush",
+    "slug": "collection-silk-blush",
+    "name": "Silk Blush",
+    "category": "Beauty Salons & Spas",
+    "description": "Silk Blush — minimal NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-silk-blush.svg",
+    "back": "/shop/artwork/collection-silk-blush.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#F7E2DF",
+      "#B98070"
+    ],
+    "purpose": "Booking",
+    "style": "Minimal",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-aqua-dental",
+    "slug": "collection-aqua-dental",
+    "name": "Aqua Dental",
+    "category": "Dental & Medical Clinics",
+    "description": "Aqua Dental — modern NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-aqua-dental.svg",
+    "back": "/shop/artwork/collection-aqua-dental.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#E8F7F6",
+      "#009A9D"
+    ],
+    "purpose": "Booking",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-pulse-health",
+    "slug": "collection-pulse-health",
+    "name": "Pulse Health",
+    "category": "Dental & Medical Clinics",
+    "description": "Pulse Health — modern NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-pulse-health.svg",
+    "back": "/shop/artwork/collection-pulse-health.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#073147",
+      "#8CE8EF"
+    ],
+    "purpose": "Booking",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-legal-legacy",
+    "slug": "collection-legal-legacy",
+    "name": "Legal Legacy",
+    "category": "Corporate & Business",
+    "description": "Legal Legacy — luxury NFC + QR card concept. Custom identity and final working QR / NFC destination are finalized after customer approval.",
+    "front": "/shop/artwork/collection-legal-legacy.svg",
+    "back": "/shop/artwork/collection-legal-legacy.svg",
+    "orientation": "Vertical",
+    "colors": [
+      "Black",
+      "Gold"
+    ],
+    "palette": [
+      "#181719",
+      "#D1AC65"
+    ],
+    "purpose": "Business Profile",
+    "style": "Luxury",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1280,
+      "height": 720,
+      "front": {
+        "x": 170,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      },
+      "back": {
+        "x": 720,
+        "y": 80,
+        "width": 390,
+        "height": 560
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-coffee-cobalt",
+    "slug": "collection-coffee-cobalt",
+    "name": "Coffee Cobalt",
+    "category": "Coffee Shops & Cafés",
+    "description": "Coffee Cobalt NFC and QR card. Personalized artwork and a working destination QR code are prepared for approval before printing.",
+    "front": "/shop/artwork/demo-pop-collection.jpg",
+    "back": "/shop/artwork/demo-pop-collection.jpg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Blue",
+      "Ivory"
+    ],
+    "palette": [
+      "#0737b5",
+      "#f3e7d5"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1024,
+      "height": 1536,
+      "front": {
+        "x": 98,
+        "y": 46,
+        "width": 384,
+        "height": 224
+      },
+      "back": {
+        "x": 98,
+        "y": 290,
+        "width": 384,
+        "height": 202
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-restaurant-terracotta",
+    "slug": "collection-restaurant-terracotta",
+    "name": "Restaurant Terracotta",
+    "category": "Restaurants",
+    "description": "Restaurant Terracotta NFC and QR card. Personalized artwork and a working destination QR code are prepared for approval before printing.",
+    "front": "/shop/artwork/demo-pop-collection.jpg",
+    "back": "/shop/artwork/demo-pop-collection.jpg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Red",
+      "Ivory",
+      "Green"
+    ],
+    "palette": [
+      "#b34b2a",
+      "#f3e7d5"
+    ],
+    "purpose": "Digital Menu",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1024,
+      "height": 1536,
+      "front": {
+        "x": 589,
+        "y": 46,
+        "width": 380,
+        "height": 224
+      },
+      "back": {
+        "x": 589,
+        "y": 290,
+        "width": 380,
+        "height": 203
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-barber-monochrome",
+    "slug": "collection-barber-monochrome",
+    "name": "Barber Monochrome",
+    "category": "Barbershops",
+    "description": "Barber Monochrome NFC and QR card. Personalized artwork and a working destination QR code are prepared for approval before printing.",
+    "front": "/shop/artwork/demo-pop-collection.jpg",
+    "back": "/shop/artwork/demo-pop-collection.jpg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Black",
+      "White"
+    ],
+    "palette": [
+      "#141414",
+      "#eeeeee"
+    ],
+    "purpose": "Booking",
+    "style": "Modern",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1024,
+      "height": 1536,
+      "front": {
+        "x": 98,
+        "y": 547,
+        "width": 386,
+        "height": 225
+      },
+      "back": {
+        "x": 98,
+        "y": 791,
+        "width": 386,
+        "height": 202
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-beauty-lilac",
+    "slug": "collection-beauty-lilac",
+    "name": "Beauty Lilac",
+    "category": "Beauty Salons & Spas",
+    "description": "Beauty Lilac NFC and QR card. Personalized artwork and a working destination QR code are prepared for approval before printing.",
+    "front": "/shop/artwork/demo-pop-collection.jpg",
+    "back": "/shop/artwork/demo-pop-collection.jpg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Purple",
+      "Pink"
+    ],
+    "palette": [
+      "#c3a0ce",
+      "#ffc5b7"
+    ],
+    "purpose": "Booking",
+    "style": "Colorful",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1024,
+      "height": 1536,
+      "front": {
+        "x": 589,
+        "y": 548,
+        "width": 380,
+        "height": 224
+      },
+      "back": {
+        "x": 589,
+        "y": 791,
+        "width": 380,
+        "height": 205
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-boutique-checker",
+    "slug": "collection-boutique-checker",
+    "name": "Boutique Checker",
+    "category": "Retail & Fashion",
+    "description": "Boutique Checker NFC and QR card. Personalized artwork and a working destination QR code are prepared for approval before printing.",
+    "front": "/shop/artwork/demo-pop-collection.jpg",
+    "back": "/shop/artwork/demo-pop-collection.jpg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Green",
+      "Pink"
+    ],
+    "palette": [
+      "#064c3c",
+      "#ffa9ca"
+    ],
+    "purpose": "Business Profile",
+    "style": "Colorful",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1024,
+      "height": 1536,
+      "front": {
+        "x": 98,
+        "y": 1043,
+        "width": 386,
+        "height": 215
+      },
+      "back": {
+        "x": 98,
+        "y": 1276,
+        "width": 386,
+        "height": 207
+      }
+    },
+    "madeToOrder": true
+  },
+  {
+    "id": "collection-digital-profile-lime",
+    "slug": "collection-digital-profile-lime",
+    "name": "Digital Profile Lime",
+    "category": "General Business",
+    "description": "Digital Profile Lime NFC and QR card. Personalized artwork and a working destination QR code are prepared for approval before printing.",
+    "front": "/shop/artwork/demo-pop-collection.jpg",
+    "back": "/shop/artwork/demo-pop-collection.jpg",
+    "orientation": "Horizontal",
+    "colors": [
+      "Lime",
+      "Black"
+    ],
+    "palette": [
+      "#ccff1a",
+      "#222222"
+    ],
+    "purpose": "Business Profile",
+    "style": "Futuristic",
+    "materials": [
+      "PVC"
+    ],
+    "finishes": [
+      "Matte",
+      "Glossy"
+    ],
+    "priceMinor": 60000,
+    "currency": "TRY",
+    "status": "demo",
+    "approved": false,
+    "available": true,
+    "popularity": 0,
+    "createdAt": "2026-10-27",
+    "badge": "New",
+    "artwork": {
+      "width": 1024,
+      "height": 1536,
+      "front": {
+        "x": 589,
+        "y": 1043,
+        "width": 380,
+        "height": 215
+      },
+      "back": {
+        "x": 589,
+        "y": 1278,
+        "width": 380,
+        "height": 205
+      }
+    },
+    "madeToOrder": true
+  }
+]

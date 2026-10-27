@@ -50,7 +50,7 @@ export async function requestPolicy(request, env) {
     return json({ error: 'Service temporarily unavailable.' }, 503);
   }
   const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
-  const isLogin = /\/api\/(admin|employee)\/(login|bootstrap)$/.test(url.pathname);
+  const isLogin = /\/api\/(?:(?:admin|employee)\/(?:login|bootstrap)|customer\/(?:login|register))$/.test(url.pathname);
   const limiter = isLogin ? env.LOGIN_RATE_LIMITER : env.TRACK_RATE_LIMITER;
   const result = await limiter.limit({ key: `${isLogin ? 'auth' : 'api'}-ip:${ip}` });
   if (!result.success) return json({ error: 'Too many requests.' }, 429, { 'Retry-After': '60' });
