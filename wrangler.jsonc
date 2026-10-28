@@ -25,6 +25,8 @@
     "html_handling": "none",
     "run_worker_first": [
       "/api/*",
+      "/hub",
+      "/hub/*",
       "/qusai",
       "/qusai/",
       "/restaurants/dashboard",
@@ -106,6 +108,14 @@
       }
     },
     {
+      "name": "HUB_WRITE_RATE_LIMITER",
+      "namespace_id": "1843705",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    },
+    {
       "name": "AI_RATE_LIMITER",
       "namespace_id": "1843703",
       "simple": {
@@ -158,6 +168,8 @@
     "binding": "AI"
   },
   "vars": {
+    "GROWTH_OS_ENABLED": "false",
+    "CUSTOMER_IDENTITY_ENABLED": "false",
     "AI_PROVIDER": "cloudflare",
     "AI_MODEL": "@cf/meta/llama-3.1-8b-instruct-fp8",
     "AI_DAILY_TOKEN_LIMIT": "500000",
@@ -166,7 +178,7 @@
     "AI_RECOVERY_TOKEN_ALLOWANCE": "250000"
   },
   "build": {
-    "command": "node scripts/build-ai-index.mjs && node scripts/build-shop.mjs"
+    "command": "node scripts/build-ai-index.mjs && node scripts/build-shop.mjs && node scripts/build-hub.mjs"
   },
   "triggers": {
     "crons": [

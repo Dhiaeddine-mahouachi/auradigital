@@ -215,13 +215,25 @@ function cartPage() {
 }
 function nextPage() {
   const next = new URLSearchParams(location.search).get('next') || '/account';
-  return next === '/shop/checkout' || /^\/shop\/orders\/[a-f0-9-]{36}$/.test(next) ? next : '/account';
+  return next === '/hub' || next === '/shop/checkout' || /^\/shop\/orders\/[a-f0-9-]{36}$/.test(next) ? next : '/account';
 }
 function signInRequired(next: string) { location.replace('/account/login?next=' + encodeURIComponent(next)); }
 function accountAuth() {
   if (customer) { location.replace(nextPage()); return; }
   const signup = location.pathname === '/account/signup', next = encodeURIComponent(nextPage());
   app.innerHTML = `<div class="shop-shell"><section class="shop-auth"><div class="shop-kicker">AuraDigital account</div><h1>${signup ? 'Your business.<br>Your account.' : 'Welcome back.'}</h1><p>${signup ? 'Create your account to complete your order, save delivery details and track your cards.' : 'Sign in to continue. Your saved panier is waiting for you.'}</p><form id="shop-auth-form">${signup ? textField('name', 'Full name', '', 'required maxlength="100" autocomplete="name"') : ''}${textField('email', 'Email', '', 'type="email" required maxlength="254" autocomplete="email"')}${textField('password', 'Password', '', `type="password" required minlength="12" maxlength="72" autocomplete="${signup ? 'new-password' : 'current-password'}"`)}${signup ? '<p class="shop-storage-note">Use at least 12 characters, up to 72 UTF-8 bytes.</p><label class="shop-check"><input type="checkbox" name="acceptTerms" required><span>I agree to create an AuraDigital account and allow my contact and delivery details to be used to manage my orders.</span></label>' : ''}<p class="shop-error" role="alert"></p><button type="submit" class="shop-primary">${signup ? 'Create account & continue' : 'Sign in & continue'} <span>↗</span></button></form><p>${signup ? 'Already have an account?' : 'New to AuraDigital?'} <a href="/account/${signup ? 'login' : 'signup'}?next=${next}">${signup ? 'Sign in' : 'Create an account'} ↗</a></p><a class="shop-storage-note" href="/shop">← Continue shopping</a></section></div>`;
+  api('/api/customer/capabilities').then(capabilities => {
+    const authPanel = document.querySelector('.shop-auth');
+    if (capabilities.email) authPanel?.insertAdjacentHTML('beforeend', '<p><a href="/hub/forgot">Forgot password?</a></p>');
+    if (capabilities.google) {
+      authPanel?.insertAdjacentHTML('beforeend', '<label class="shop-check"><input type="checkbox" id="shop-google-terms"><span>I accept the AuraDigital account conditions.</span></label><button class="shop-secondary" id="shop-google-signin" type="button">Continue with Google</button>');
+      document.querySelector('#shop-google-signin')?.addEventListener('click', () => {
+        const consent = document.querySelector<HTMLInputElement>('#shop-google-terms')!;
+        if (!consent.checked) { consent.reportValidity(); consent.required = true; consent.reportValidity(); return; }
+        location.assign('/api/customer/google/start?acceptTerms=true&next=' + encodeURIComponent(nextPage()));
+      });
+    }
+  }).catch(() => {});
   const form = document.querySelector<HTMLFormElement>('#shop-auth-form')!;
   form.addEventListener('submit', async event => {
     event.preventDefault(); const data = new FormData(form), button = form.querySelector<HTMLButtonElement>('button')!;
@@ -234,6 +246,8 @@ async function accountPage() {
   if (!customer) { signInRequired('/account'); return; }
   const data = await api('/api/shop/orders');
   app.innerHTML = `<div class="shop-shell"><section class="shop-account"><div class="shop-section-head"><div><div class="shop-kicker">AuraDigital Business Account</div><h1>Hello, ${esc(customer.name)}.</h1><p>${esc(customer.email)}</p></div><button type="button" class="shop-secondary" id="shop-signout">Sign out</button></div><div class="shop-benefits"><div><b>◎</b><div><strong>Your cards</strong><small>Orders and bank transfers</small></div></div><div><b>↗</b><div><strong>Your business</strong><small>Personalization saved with every order</small></div></div><div><b>⌂</b><div><strong>Your delivery details</strong><small>Autofilled at your next checkout</small></div></div></div><h2>My orders</h2>${data.orders.length ? data.orders.map((order: BankOrder) => `<a class="shop-order-link" href="/shop/orders/${order.id}"><div><strong>${esc(order.reference)}</strong><small>${esc(statusLabel(order))}</small></div><strong>${money(order.totalMinor)} ↗</strong></a>`).join('') : '<div class="shop-empty"><p>You have no orders yet.</p><a class="shop-primary" href="/shop">Explore cards ↗</a></div>'}${customer.profile.address ? `<div class="shop-note"><strong>Saved delivery details</strong><p>${esc(customer.profile.name)} · ${esc(customer.profile.phone)}<br>${esc(customer.profile.address)}<br>${esc(customer.profile.city)} ${esc(customer.profile.postalCode)}, ${esc(customer.profile.country)}</p></div>` : ''}</section></div>`;
+  const hubCapabilities = await api('/api/customer/capabilities').catch(() => null);
+  if (hubCapabilities?.growth) document.querySelector('.shop-account h2')?.insertAdjacentHTML('beforebegin', '<p><a class="shop-primary" href="/hub">Open Business Hub ↗</a></p>');
   document.querySelector('#shop-signout')!.addEventListener('click', async () => { await api('/api/customer/logout', 'POST', {}); location.assign('/shop'); });
 }
 async function checkoutPage() {
