@@ -1,3 +1,4 @@
+import { requireVerified } from '../customer-identity.js';
 import { ApiError, json, readJson } from '../http.js';
 import { getAuthenticatedAdmin, sameOrigin } from '../security.js';
 import { authenticatedCustomer, tokenHash, type CustomerEnv } from '../customer-accounts.ts';
@@ -66,11 +67,13 @@ export async function handleBankOrders(request: Request, env: Env, themes: () =>
     if (!row) return json({ error: 'Order not found.' }, 404);
     if (!match[2] && method === 'GET') return json({ order: publicOrder(row) });
     if (match[2] && method === 'POST') {
+      if ((env.GROWTH_OS_ENABLED === 'true' || env.CUSTOMER_IDENTITY_ENABLED === 'true')) await requireVerified(env.DB, user);
       if (row.payment_status === 'awaiting_transfer') await env.DB.prepare("UPDATE shop_bank_orders SET transfer_reported_at = COALESCE(transfer_reported_at, datetime('now')), updated_at = datetime('now') WHERE id = ? AND customer_id = ? AND payment_status = 'awaiting_transfer'").bind(row.id, user.id).run();
       return json({ order: publicOrder((await env.DB.prepare('SELECT * FROM shop_bank_orders WHERE id = ?').bind(row.id).first<Row>())!) });
     }
     return json({ error: 'Method not allowed.' }, 405);
   }
+  if ((env.GROWTH_OS_ENABLED === 'true' || env.CUSTOMER_IDENTITY_ENABLED === 'true')) await requireVerified(env.DB, user);
   if (path !== '/api/shop/checkout' || method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
   if (!env.CONTACT_RATE_LIMITER) return json({ error: 'Checkout is temporarily unavailable.' }, 503);
   const limit = await env.CONTACT_RATE_LIMITER.limit({ key: 'shop-orders:' + user.id });

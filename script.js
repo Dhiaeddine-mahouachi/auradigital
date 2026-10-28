@@ -63,6 +63,13 @@ if (page === 'shop' && footer) {
   footer.querySelector('a[href="/packages#faq"]').href = '/shop#faq';
   footer.querySelector('.footer-col:last-child').insertAdjacentHTML('beforeend', '<a href="/shop#faq">Ordering, payment & delivery</a><a href="/account">Track your order</a>');
 }
+// Expose the new workspace only when the server has explicitly enabled it.
+fetch('/api/customer/capabilities', { credentials: 'same-origin' }).then(response => response.ok ? response.json() : null).then(capabilities => {
+  if (!capabilities?.growth || !footer) return;
+  const label = ({ en: 'Business Hub', ar: 'مركز الأعمال', fr: 'Espace entreprise', tr: 'İşletme Merkezi' })[document.documentElement.lang] || 'Business Hub';
+  const link = document.createElement('a'); link.href = '/hub'; link.textContent = label;
+  footer.querySelector('a[href="/account"]')?.after(link);
+}).catch(() => {});
 document.body.insertAdjacentHTML(
   "afterbegin",
   '<div class="scroll-progress" aria-hidden="true"><i></i></div><div class="page-wipe" aria-hidden="true"></div><div class="motion-orb" aria-hidden="true"></div>',

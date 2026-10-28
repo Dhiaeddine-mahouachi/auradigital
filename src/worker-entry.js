@@ -1,3 +1,5 @@
+import { handleBusinessHub } from './business-hub.js';
+import { handleCustomerIdentity } from './customer-identity.js';
 import { handleGlobalPricing } from './global-pricing.js';
 import { handleShop } from './shop.ts';
 import { deliverRequestEmails } from "./request-delivery.js";
@@ -21,6 +23,17 @@ const router = {
     if (url.hostname === 'www.auradigitalworks.com') {
       url.hostname = 'auradigitalworks.com';
       return Response.redirect(url.toString(), 301);
+    }
+
+    if (env.GROWTH_OS_ENABLED === 'true' || env.CUSTOMER_IDENTITY_ENABLED === 'true') {
+      const identityResponse = await handleCustomerIdentity(request, env);
+      if (identityResponse) return identityResponse;
+    }
+    if (env.GROWTH_OS_ENABLED === 'true' || (env.CUSTOMER_IDENTITY_ENABLED === 'true' && ['/hub/reset','/hub/verify','/hub/forgot','/hub/app.js','/hub/hub.css'].includes(url.pathname))) {
+      const hubResponse = await handleBusinessHub(request, env);
+      if (hubResponse) return hubResponse;
+    } else if (url.pathname === '/hub' || url.pathname.startsWith('/hub/') || url.pathname.startsWith('/api/hub/')) {
+      return new Response('Business Hub is not enabled in this environment.', { status: 503, headers: { 'Cache-Control': 'no-store' } });
     }
 
     const shopResponse = await handleShop(request, env);
