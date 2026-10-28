@@ -30,7 +30,7 @@ if (header) {
     )
     .join(
       "",
-    )}</div><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Language" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">EN</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Let's Talk <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button></div>`;
+    )}<a class="mobile-account-link" href="/account">My account</a></div><a class="nav-account" href="/account/login">Sign in</a><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Language" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">EN</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Let's Talk <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button></div>`;
 }
 const productsToggle = document.querySelector(".nav-products-toggle");
 productsToggle?.addEventListener("click", () => productsToggle.setAttribute("aria-expanded", String(productsToggle.getAttribute("aria-expanded") !== "true")));
@@ -39,13 +39,14 @@ document.addEventListener("keydown", event => { if (event.key === "Escape") prod
 if (page === "shop" && header) {
   const nav = header.querySelector(".nav");
   const links = header.querySelector(".nav-links");
-  links.innerHTML = `<a href="/">Home</a><a class="active" href="/shop">Shop</a>${links.querySelector(".nav-products").outerHTML}<a href="/about">About</a><a href="/shop#how-it-works">How It Works</a><a href="/contact">Contact</a>`;
+  links.innerHTML = `<a href="/">Home</a><a class="active" href="/shop">Shop</a>${links.querySelector(".nav-products").outerHTML}<a href="/about">About</a><a href="/shop#how-it-works">How It Works</a><a href="/contact">Contact</a><a href="/account">My account</a>`;
   const toggle = links.querySelector(".nav-products-toggle");
   toggle.addEventListener("click", () => toggle.setAttribute("aria-expanded", String(toggle.getAttribute("aria-expanded") !== "true")));
   document.addEventListener("click", e => { if (!e.target.closest(".nav-products")) toggle.setAttribute("aria-expanded", "false"); });
   document.addEventListener("keydown", e => { if (e.key === "Escape") toggle.setAttribute("aria-expanded", "false"); });
   header.querySelector(".lang-switcher").remove(); header.querySelector(".nav-cta").remove();
-  nav.insertAdjacentHTML("beforeend", `<form class="shop-header-search" action="/shop"><label><span class="shop-sr-only">Search NFC cards</span><input type="search" name="search" placeholder="Search NFC cards…"></label><button aria-label="Search cards">⌕</button></form><a class="shop-header-account" href="/account" aria-label="My account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3Z"/></svg></a>`);
+  nav.insertAdjacentHTML("beforeend", `<form class="shop-header-search" action="/shop"><label><span class="shop-sr-only">Search NFC cards</span><input type="search" name="search" placeholder="Search NFC cards…"></label><button aria-label="Search cards">⌕</button></form>`);
+  header.insertAdjacentHTML("afterend", '<nav class="customer-access-bar" aria-label="Customer account"><a href="/account/login">Sign in</a><a href="/account/signup">Create account ↗</a></nav>');
   const searchForm = header.querySelector('.shop-header-search');
   searchForm.querySelector('button').addEventListener('click', event => {
     const input = searchForm.querySelector('input');

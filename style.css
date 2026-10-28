@@ -6391,3 +6391,11 @@ body[data-page="home"] .reference-hero .hero-note {
 
 /* Shared product navigation: hover, keyboard, and touch. */
 .nav-products{position:relative}.nav-products-toggle{border:0;background:none;color:inherit;font:inherit;cursor:pointer;min-height:44px;display:flex;align-items:center;gap:6px}.nav-products-menu{display:none;position:absolute;top:100%;left:-18px;min-width:235px;padding:10px;background:#fafaf7;color:#003d2b;border:1px solid #dce3dd;border-radius:16px;box-shadow:0 18px 45px #002b2020;z-index:200}.nav-products-menu a{display:block!important;padding:12px!important;border-radius:9px}.nav-products-menu a:hover{background:#edf1e9}.nav-products-menu small{display:block;font-size:11px;font-weight:400;opacity:.7;margin-top:4px}.nav-products:focus-within .nav-products-menu,.nav-products-toggle[aria-expanded="true"]+.nav-products-menu{display:block}@media(hover:hover){.nav-products:hover .nav-products-menu{display:block}}@media(max-width:1000px){.nav-links.open .nav-products{width:100%}.nav-links.open .nav-products-menu{position:static;box-shadow:none;min-width:0}.nav-links.open .nav-products-toggle{width:100%;justify-content:space-between}}
+
+/* Customer access stays visible independently of the mobile navigation. */
+.site-header .nav>a.nav-account{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:44px;padding:10px 15px;border:1px solid #e1e100;border-radius:9px;background:#e1e100;color:#003d2b;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap}
+.site-header .nav>a.nav-account:hover{background:#f0f04b}
+.site-header .nav>a.nav-account:focus-visible{outline:3px solid #82982a;outline-offset:3px}
+.nav-links>.mobile-account-link{display:none}
+.customer-access-bar{display:none}
+@media(max-width:820px){.nav-links>.mobile-account-link{display:flex}.site-header .nav>a.nav-account{padding-inline:12px;font-size:11px}}

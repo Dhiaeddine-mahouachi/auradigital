@@ -1377,6 +1377,7 @@
     ["Kapsam", "Scope", "النطاق"],
     ["Fiyat", "Price", "السعر"]
   );
+  rows.push(["Giriş yap", "Sign in", "تسجيل الدخول"], ["Hesabım", "My account", "حسابي"]);
   const maps = { tr: new Map(), en: new Map(), ar: new Map() };
   rows.forEach(([tr, en, ar]) => {
     for (const source of [tr, en, ar]) {
