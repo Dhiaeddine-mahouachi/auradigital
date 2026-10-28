@@ -26,6 +26,6 @@
     "wrangler-cli": "npm:wrangler@4.154.0"
   },
   "dependencies": {
-    "bcryptjs": "3.0.2"
+    "bcryptjs": "3.0.3"
   }
 }
