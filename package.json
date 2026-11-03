@@ -20,7 +20,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261028.1",
     "esbuild": "0.28.1",
-    "playwright": "^1.62.1",
+    "playwright": "^1.64.1",
     "typescript": "^7.0.2",
     "wrangler": "file:tools/wrangler-safe",
     "wrangler-cli": "npm:wrangler@4.154.0"
