@@ -1,3 +1,115 @@
+// src/hub/menu-drafts.js
+var esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+async function renderMenuDrafts({ host, api: api2, endpoint: endpoint2, profile, canWrite }) {
+  let selected = null, working = null;
+  const base = endpoint2("menu-drafts");
+  function message(text) {
+    host.querySelector("#menu-save-status").textContent = text;
+  }
+  function newDraft() {
+    return { fields: { businessName: profile.name || "", currency: ["TRY", "EUR", "USD", "TND"].includes(profile.currency) ? profile.currency : "TRY", menuLanguage: "en", templateId: "modern" }, categories: [] };
+  }
+  function download2() {
+    const blob = new Blob([JSON.stringify({ schemaVersion: 1, draft: read() }, null, 2)], { type: "application/json" }), url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url;
+    a.download = "auramenu-draft.json";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1e3);
+  }
+  function read() {
+    const next = structuredClone(working);
+    next.fields.businessName = host.querySelector("#private-menu-name").value;
+    next.fields.currency = host.querySelector("#private-menu-currency").value;
+    next.fields.menuLanguage = host.querySelector("#private-menu-language").value;
+    next.categories = [...host.querySelectorAll("[data-draft-category]")].map((element, i) => ({ ...next.categories[i], name: element.querySelector("[data-category-name]").value, items: [...element.querySelectorAll("[data-draft-item]")].map((row, j) => ({ ...next.categories[i].items[j], name: row.querySelector("[data-product-name]").value, price: row.querySelector("[data-product-price]").value, description: row.querySelector("[data-product-description]").value })) }));
+    return next;
+  }
+  function preview() {
+    const value = read(), container = host.querySelector("#private-menu-preview");
+    container.replaceChildren();
+    const heading = document.createElement("h3");
+    heading.textContent = value.fields.businessName || "Your restaurant";
+    container.append(heading);
+    for (const category of value.categories) {
+      const h = document.createElement("h4");
+      h.textContent = category.name || "Unnamed category";
+      container.append(h);
+      for (const item of category.items) {
+        const p = document.createElement("p");
+        p.textContent = [item.name || "Unnamed product", item.price || "Price missing", value.fields.currency].join(" \xB7 ");
+        container.append(p);
+      }
+    }
+  }
+  async function refresh() {
+    const response = await api2(base), select2 = host.querySelector("#private-menu-list");
+    select2.innerHTML = '<option value="">Choose a saved draft</option>' + response.drafts.map((menu) => `<option value="${esc(menu.id)}" ${menu.id === selected?.id ? "selected" : ""}>${esc(menu.draft.fields.businessName || "Untitled menu")} \xB7 ${esc(menu.state)} \xB7 v${menu.version}</option>`).join("");
+  }
+  function editor() {
+    const value = working;
+    host.querySelector("#private-menu-editor").innerHTML = `<p>Private ${esc(selected?.state || "draft")} \xB7 ${selected ? "Version " + selected.version : "Not saved"}. Saving never purchases or publishes a menu.</p><fieldset ${canWrite ? "" : "disabled"}><div class="form-grid"><label class="field">Restaurant name<input id="private-menu-name" maxlength="100" value="${esc(value.fields.businessName)}"></label><label class="field">Currency<select id="private-menu-currency">${["TRY", "EUR", "USD", "TND"].map((c) => `<option ${c === value.fields.currency ? "selected" : ""}>${c}</option>`).join("")}</select></label><label class="field">Menu language<select id="private-menu-language">${[["en", "English"], ["tr", "Turkish"], ["ar", "Arabic"]].map(([code, label]) => `<option value="${code}" ${code === value.fields.menuLanguage ? "selected" : ""}>${label}</option>`).join("")}</select></label></div><div id="private-menu-categories">${value.categories.map((category, i) => `<section class="panel" data-draft-category="${i}"><label class="field">Category name<input data-category-name maxlength="80" value="${esc(category.name)}"></label>${category.items.map((item, j) => `<div data-draft-item="${j}" class="form-grid"><label class="field">Product<input data-product-name maxlength="100" value="${esc(item.name)}"></label><label class="field">Price<input data-product-price maxlength="40" value="${esc(item.price)}" inputmode="decimal"></label><label class="field">Description<input data-product-description maxlength="300" value="${esc(item.description)}"></label><button class="secondary" type="button" data-remove-product="${i}:${j}">Remove product</button></div>`).join("")}<button class="secondary" type="button" data-add-draft-product="${i}" ${category.items.length >= 20 ? "disabled" : ""}>Add product</button></section>`).join("")}</div><div class="actions"><button id="private-menu-category" type="button" class="secondary" ${value.categories.length >= 12 ? "disabled" : ""}>Add category</button><button id="private-menu-save" type="button" class="primary">Save private draft</button>${selected ? '<button id="private-menu-archive" type="button" class="secondary">Archive draft</button>' : ""}</div></fieldset><p id="menu-save-status" role="status" aria-live="polite"></p><button id="private-menu-export" type="button" class="secondary">Download draft JSON</button><aside class="panel" id="private-menu-preview" aria-label="Private content preview"></aside>`;
+    host.querySelector("#private-menu-editor").oninput = preview;
+    host.querySelector("#private-menu-export").onclick = download2;
+    host.querySelector("#private-menu-category").onclick = () => {
+      working = read();
+      working.categories.push({ name: "", emoji: "", items: [] });
+      editor();
+    };
+    host.querySelectorAll("[data-add-draft-product]").forEach((button2) => button2.onclick = () => {
+      working = read();
+      working.categories[Number(button2.dataset.addDraftProduct)].items.push({ name: "", price: "", description: "", imageUrl: "", featured: false });
+      editor();
+    });
+    host.querySelectorAll("[data-remove-product]").forEach((button2) => button2.onclick = () => {
+      const [i, j] = button2.dataset.removeProduct.split(":").map(Number);
+      working = read();
+      working.categories[i].items.splice(j, 1);
+      editor();
+    });
+    async function save(state = "draft") {
+      const controls = [...host.querySelectorAll("#private-menu-editor button")];
+      controls.forEach((b) => b.disabled = true);
+      message("Saving\u2026");
+      try {
+        const value2 = read(), body = { draft: value2, state, ...selected ? { version: selected.version } : {} };
+        const response = await api2(base + (selected ? "/" + selected.id : ""), selected ? "PUT" : "POST", body);
+        selected = response.menu;
+        working = structuredClone(selected.draft);
+        editor();
+        message("Saved privately. No payment or publication occurred.");
+        await refresh();
+      } catch (error) {
+        message(error.status === 409 ? "Draft changed in another session. Download your current draft before reloading the saved copy." : error.message);
+      } finally {
+        controls.forEach((b) => b.disabled = false);
+      }
+    }
+    host.querySelector("#private-menu-save").onclick = () => save("draft");
+    host.querySelector("#private-menu-archive")?.addEventListener("click", () => save("archived"));
+    preview();
+  }
+  host.innerHTML = `<section class="panel"><h2>AuraMenu private drafts</h2><p>Create or continue a menu using your saved business profile. Drafts are visible only to authorized members of this business. Prices and descriptions must come from your business; no payment or publishing happens here.</p><label class="field">Saved menus<select id="private-menu-list"><option>Loading\u2026</option></select></label>${canWrite ? '<button id="private-menu-new" class="secondary" type="button">New private draft</button>' : ""}<div id="private-menu-editor"></div></section>`;
+  working = newDraft();
+  editor();
+  await refresh();
+  host.querySelector("#private-menu-new")?.addEventListener("click", () => {
+    selected = null;
+    working = newDraft();
+    editor();
+  });
+  host.querySelector("#private-menu-list").onchange = async (event) => {
+    if (!event.target.value) return;
+    try {
+      const response = await api2(base + "/" + encodeURIComponent(event.target.value));
+      selected = response.menu;
+      working = structuredClone(selected.draft);
+      editor();
+    } catch (error) {
+      message(error.message);
+    }
+  };
+}
+
 // src/hub/i18n.js
 var copy = {
   en: { brand: "Business Hub", tag: "Understand. Build. Collaborate. Grow.", welcome: "Welcome to AuraDigital.", choose: "How would you like to build your business journey?", myself: "Build Myself", myselfText: "Set your goals, explore services and shape your own roadmap.", auri: "Build With AURI", auriText: "Take a guided journey, one short question at a time.", home: "Overview", profile: "Business Profile", journey: "Business Journey", simulator: "Growth Simulator", assistant: "AURI Assistant", reports: "Reports & Analytics", projects: "Projects", websites: "My Websites", services: "My Services", hosting: "Domains & Hosting", files: "Files & Documents", orders: "Shop & Orders", invoices: "Invoices & Payments", rewards: "Rewards", team: "Team Members", support: "Support", settings: "Settings", grow: "GROW", manage: "MANAGE", account: "ACCOUNT", menu: "Menu", close: "Close", save: "Save", saved: "Saved", saving: "Saving\u2026", continue: "Continue", back: "Back", skip: "Skip", signIn: "Sign In", signup: "Create Account", email: "Email", password: "Password", name: "Full name", terms: "I accept the account conditions and use of my details to manage my account.", google: "Continue with Google", forgot: "Forgot password?", logout: "Log Out", verify: "Verify email", verifyLater: "You can draft your profile and roadmap now. Verify your email before billing, team invitations or shared private access.", sendVerification: "Send verification link", reset: "Reset password", resetSent: "If an eligible account exists, a reset link will be sent.", newPassword: "New password", confirm: "Confirm", cancel: "Cancel", error: "Something went wrong. Please try again.", noData: "No measured data is connected yet.", next: "Your next step", readiness: "Capability readiness", progress: "Roadmap progress", level: "Level", foundation: "Foundation", visibility: "Visibility", conversion: "Conversion", automation: "Automation", scale: "Scale", createJourney: "Generate my roadmap", noPurchase: "Complete missions using any provider or your own work. AuraDigital purchases are optional.", quote: "Scope & quote required", planned: "Planned", in_progress: "In progress", done: "Done", postponed: "Postponed", up: "Move earlier", down: "Move later", edit: "Edit", objective: "Objective", description: "Description", nextAction: "Next action", why: "Recommended because this capability has not been reported in your profile.", benefit: "Potential improvement; compare results against your own baseline.", assumptions: "Assumptions, not guarantees", calculate: "Calculate scenarios", scenarioName: "Scenario name", saveScenario: "Save scenario", export: "Export JSON", history: "Saved scenarios", conservative: "Conservative", base: "Base", ambitious: "Ambitious", visits: "Monthly website visits", leads: "Monthly website leads", closeRate: "Lead-to-customer conversion (%)", customerValue: "Revenue per customer in this period", margin: "Contribution margin (%)", monthlyCost: "Monthly service cost", setupCost: "One-time setup cost", trafficLift: "Traffic increase (%)", leadRateLift: "Lead-rate increase (%)", closeRateLift: "Closing-rate increase (%)", customers: "Additional customers", revenue: "Additional monthly revenue", profit: "Additional contribution profit", net: "Net monthly contribution after service cost", roi: "First-year ROI", payback: "Setup payback (months)", na: "Not applicable", simNotice: "Illustrative estimates. Enter combined changes once per funnel stage to avoid counting the same benefit twice. Rates are capped at 100%. Costs and revenue must use the same currency and period. Taxes, fixed overhead and financing are excluded.", formula: "Customers = visits \xD7 lead rate \xD7 closing rate. Contribution = additional revenue \xD7 margin. First-year ROI = (12 \xD7 additional contribution \u2212 setup \u2212 12 \xD7 monthly costs) \xF7 (setup + 12 \xD7 monthly costs). Payback = setup \xF7 net monthly contribution, where positive.", teamTitle: "Grow together with your team.", teamText: "Invite trusted people to help manage your business. Each additional member gets their own secure access for $5 USD/month, paid by that member.", blocked: "Live recurring checkout is BLOCKED until billing, taxes, signed webhooks and cancellation terms are configured and verified. Invitations do not grant access or charge anyone.", invite: "Invite Member", role: "Role", message: "Optional invitation message", status: "Status", subscription: "Subscription", paymentDate: "Next payment", remove: "Remove access", removeConfirm: "Immediately revoke this member\u2019s business access? Their personal account and shared business data will be preserved.", cancelInvite: "Cancel invitation", resend: "Replace & resend", inviteAccept: "Accept invitation", recurringConsent: "I accept this invitation and the $5 USD monthly recurring subscription for my own access. Checkout is currently blocked; I will not be charged and access will remain pending.", awaiting: "Awaiting payment", permissions: "Permissions", activity: "Access activity", unavailable: "This integration is not connected to your verified workspace yet.", legacy: "Your existing accounts, products and orders remain available through their existing authorized workflows.", openAccount: "Open my account & orders", contact: "Contact support", aiRules: "AURI guided tools", aiNotice: "Rules-based guidance is available. Generative business advice and private invoice/project tools are not integrated yet.", diagnosis: "Business diagnosis", recommend: "Recommend my next action", strengths: "Reported strengths", missing: "Missing capabilities", source: "Source: customer-entered profile", businessName: "Business name", industry: "Industry", country: "Country", city: "City", stage: "Business stage", website: "Website (HTTPS)", tools: "Existing digital tools", acquisition: "How do customers find you?", difficulties: "Main difficulties", goals: "Business goals", budget: "Approximate budget (optional)", currency: "Currency", timeline: "Desired timeline", industryDetails: "Industry details", capabilities: "Capabilities you already have", restaurant: "Restaurant", ecommerce: "E-commerce", real_estate: "Real estate", other: "Other", servicesIndustry: "Service business", restaurantQuestion: "How do guests discover you, view your menu and make reservations?", ecommerceQuestion: "How do you manage your catalog, checkout and repeat purchases?", realEstateQuestion: "How do you list properties, capture inquiries and follow up?", servicesQuestion: "How do customers book, receive quotes and pay?", otherQuestion: "Describe how you serve customers.", newWorkspace: "New business", switchMode: "Switch onboarding mode", verified: "Email verified", owner: "Owner", admin: "Admin", member: "Member", viewer: "Viewer", readOnly: "Read-only access", supportText: "Send a support request through the existing contact form.", verifiedRequired: "Verify your email to manage team access.", empty: "Nothing here yet.", billingPrivate: "Each member\u2019s payment details stay private. This page shows access status only.", security: "Security settings", linkGoogle: "Link my verified Google identity", rename: "Save changes", refresh: "Reload", serviceNote: "Explore current services and request a scope-specific quote.", openServices: "Explore services", reportNote: "Traffic, revenue, actual-versus-projected reports and rewards cannot be displayed until trustworthy sources and a valid loyalty ledger are connected." },
@@ -69,7 +181,7 @@ function simulate(raw) {
 // src/hub/app.js
 var app = document.querySelector("#app");
 var notice = document.querySelector("#notice");
-var esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+var esc2 = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 var lang = localStorage.getItem("aura-hub-language") || "en";
 if (!copy[lang]) lang = "en";
 var me = null;
@@ -87,7 +199,7 @@ var saveTimer;
 var route = location.pathname.split("/")[2] || "";
 var flowToken = new URLSearchParams(location.hash.slice(1)).get("token") || "";
 if (flowToken) history.replaceState(null, "", location.pathname + location.search);
-var t = (k) => copy[lang][k] || copy.en[k] || k;
+var t = (k) => k === "menuDrafts" ? { en: "Menu drafts", ar: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", tr: "Men\xFC taslaklar\u0131", fr: "Brouillons de menus" }[lang] : copy[lang][k] || copy.en[k] || k;
 var cap = (k) => capabilityNames[lang][k] || k;
 var toast = (message) => {
   notice.textContent = message;
@@ -106,11 +218,11 @@ async function api(path, method = "GET", body) {
   return data;
 }
 var endpoint = (s) => "/api/hub/workspaces/" + workspace.organization.id + (s ? "/" + s : "");
-var button = (label, action, secondary = false, disabled = false) => `<button type="button" data-action="${action}" class="${secondary ? "secondary" : "primary"}" ${disabled ? "disabled" : ""}>${esc(t(label))}</button>`;
+var button = (label, action, secondary = false, disabled = false) => `<button type="button" data-action="${action}" class="${secondary ? "secondary" : "primary"}" ${disabled ? "disabled" : ""}>${esc2(t(label))}</button>`;
 function field(key, label, value = "", type = "text", extra = "") {
-  return `<label class="field">${esc(t(label))}<input name="${key}" type="${type}" value="${esc(value)}" ${extra}></label>`;
+  return `<label class="field">${esc2(t(label))}<input name="${key}" type="${type}" value="${esc2(value)}" ${extra}></label>`;
 }
-var select = (key, label, options, value) => `<label class="field">${esc(t(label))}<select name="${key}">${options.map(([v, l]) => `<option value="${esc(v)}" ${v === value ? "selected" : ""}>${esc(l)}</option>`).join("")}</select></label>`;
+var select = (key, label, options, value) => `<label class="field">${esc2(t(label))}<select name="${key}">${options.map(([v, l]) => `<option value="${esc2(v)}" ${v === value ? "selected" : ""}>${esc2(l)}</option>`).join("")}</select></label>`;
 function languageControl() {
   return `<label class="language"><span class="sr-only">Language</span><select id="language" aria-label="Language">${[["en", "EN \xB7 English"], ["ar", "AR \xB7 \u0627\u0644\u0639\u0631\u0628\u064A\u0629"], ["fr", "FR \xB7 Fran\xE7ais"], ["tr", "TR \xB7 T\xFCrk\xE7e"]].map(([v, l]) => `<option value="${v}" ${lang === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>`;
 }
@@ -146,7 +258,7 @@ async function renderGate() {
     gateFrame(`<section class="panel">${robot()}<h1>${t("inviteAccept")}</h1><div id="invitation-content" role="status">\u2026</div></section>`);
     try {
       const data = await api("/api/hub/invitations/preview", "POST", { token: flowToken }), i = data.invitation;
-      document.querySelector("#invitation-content").innerHTML = `<h2>${esc(i.business)}</h2><p>${esc(i.email)} \xB7 ${esc(t(i.role))}</p><p>${esc(i.message)}</p><p>${t("permissions")}: ${esc(i.permissions.join(", "))}</p><p>${esc(new Date(i.expiresAt * 1e3).toLocaleString(lang))}</p><p class="warning">${t("blocked")}</p><form id="accept-invitation"><label class="check"><input type="checkbox" name="consent" required>${t("recurringConsent")}</label><button class="primary">${t("inviteAccept")}</button></form>`;
+      document.querySelector("#invitation-content").innerHTML = `<h2>${esc2(i.business)}</h2><p>${esc2(i.email)} \xB7 ${esc2(t(i.role))}</p><p>${esc2(i.message)}</p><p>${t("permissions")}: ${esc2(i.permissions.join(", "))}</p><p>${esc2(new Date(i.expiresAt * 1e3).toLocaleString(lang))}</p><p class="warning">${t("blocked")}</p><form id="accept-invitation"><label class="check"><input type="checkbox" name="consent" required>${t("recurringConsent")}</label><button class="primary">${t("inviteAccept")}</button></form>`;
       document.querySelector("#accept-invitation").onsubmit = async (e) => {
         e.preventDefault();
         try {
@@ -218,10 +330,10 @@ function profileField(k) {
   const value = draft[k] ?? "";
   if (k === "industry") return select(k, k, [["restaurant", t("restaurant")], ["services", t("servicesIndustry")], ["ecommerce", t("ecommerce")], ["real_estate", t("real_estate")], ["other", t("other")]], value);
   if (k === "currency") return select(k, k, ["USD", "EUR", "TRY", "TND"].map((x) => [x, x]), value);
-  if (k === "capabilities") return `<fieldset><legend>${t(k)}</legend><div class="checks">${capabilities.map((c) => `<label class="check"><input type="checkbox" name="capabilities" value="${c.id}" ${(draft.capabilities || []).includes(c.id) ? "checked" : ""}>${esc(cap(c.id))}</label>`).join("")}</div></fieldset>`;
+  if (k === "capabilities") return `<fieldset><legend>${t(k)}</legend><div class="checks">${capabilities.map((c) => `<label class="check"><input type="checkbox" name="capabilities" value="${c.id}" ${(draft.capabilities || []).includes(c.id) ? "checked" : ""}>${esc2(cap(c.id))}</label>`).join("")}</div></fieldset>`;
   if (["tools", "acquisition", "difficulties", "goals", "industryDetails"].includes(k)) {
     const question = k === "industryDetails" ? { restaurant: "restaurantQuestion", ecommerce: "ecommerceQuestion", real_estate: "realEstateQuestion", services: "servicesQuestion" }[draft.industry] || "otherQuestion" : k;
-    return `<label class="field">${t(question)}<textarea name="${k}" rows="4" maxlength="${k === "tools" || k === "acquisition" ? 1200 : 1600}">${esc(value)}</textarea></label>`;
+    return `<label class="field">${t(question)}<textarea name="${k}" rows="4" maxlength="${k === "tools" || k === "acquisition" ? 1200 : 1600}">${esc2(value)}</textarea></label>`;
   }
   return field(k, k === "name" ? "businessName" : k, value, k === "budget" ? "number" : k === "website" ? "url" : "text", k === "name" ? 'required maxlength="120"' : k === "budget" ? 'min="0" max="100000000" step="any"' : `maxlength="${{ country: 80, city: 100, stage: 80, website: 500, timeline: 200 }[k] || 200}"`);
 }
@@ -232,7 +344,7 @@ function renderSetup() {
     mode = workspace?.organization.mode || "myself";
   }
   const choosing = !editing;
-  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${profileKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div><form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [profileKeys[step]] : profileKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < profileKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${profileKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div><form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [profileKeys[step]] : profileKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < profileKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
   bindCommon();
   document.querySelectorAll("[data-mode]").forEach((b) => b.onclick = () => {
     mode = b.dataset.mode;
@@ -342,10 +454,10 @@ function persistProfile() {
   saveQueue = job;
   return job;
 }
-var navigation = [["HOME", ["home", "profile"]], ["grow", ["journey", "simulator", "assistant", "reports"]], ["manage", ["projects", "websites", "services", "hosting", "files"]], ["account", ["orders", "invoices", "rewards", "team", "support", "settings"]]];
+var navigation = [["HOME", ["home", "profile"]], ["grow", ["journey", "simulator", "assistant", "reports"]], ["manage", ["menuDrafts", "projects", "websites", "services", "hosting", "files"]], ["account", ["orders", "invoices", "rewards", "team", "support", "settings"]]];
 function renderShell() {
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  app.innerHTML = `<div class="shell"><aside class="sidebar" id="sidebar"><a href="/" class="wordmark">aura<span>digital</span></a><p class="sidebar-caption">${t("brand")}</p><label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span><select id="workspace-select">${workspaces.map((o) => `<option value="${o.id}" ${o.id === workspace.organization.id ? "selected" : ""}>${esc(o.name)}</option>`).join("")}</select></label><nav aria-label="${t("brand")}">${navigation.map(([group, items]) => `<div class="nav-group"><p>${group === "HOME" ? t("home") : t(group)}</p>${items.map((p, i) => `<button class="nav-item ${page === p ? "active" : ""}" data-page="${p}" ${page === p ? 'aria-current="page"' : ""}><span aria-hidden="true">${{ home: "\u2302", profile: "\u25C9", journey: "\u2197", simulator: "\u25C7", assistant: "\u2727", team: "\u25CE", settings: "\u2699" }[p] || "\xB7"}</span>${t(p)}</button>`).join("")}</div>`).join("")}</nav><div class="sidebar-bottom"><span class="avatar">${esc(me.name.slice(0, 1))}</span><div><strong>${esc(me.name)}</strong><small>${me.verified ? t("verified") : t("verify")}</small></div></div></aside><div class="workspace"><header class="topbar"><button class="menu-button secondary" id="toggle-menu" aria-controls="sidebar" aria-expanded="false">${t("menu")}</button><span class="breadcrumb">${esc(workspace.organization.name)} <span>/</span> ${t(page)}</span>${languageControl()}${button("logout", "logout", true)}</header><main id="main" tabindex="-1"><div class="page-heading"><p class="eyebrow">AURADIGITAL / ${t("brand")}</p><h1>${t(page)}</h1></div>${!me.verified ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}<div id="page-content" aria-live="polite"></div></main><footer>${t("tag")}</footer></div></div>`;
+  app.innerHTML = `<div class="shell"><aside class="sidebar" id="sidebar"><a href="/" class="wordmark">aura<span>digital</span></a><p class="sidebar-caption">${t("brand")}</p><label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span><select id="workspace-select">${workspaces.map((o) => `<option value="${o.id}" ${o.id === workspace.organization.id ? "selected" : ""}>${esc2(o.name)}</option>`).join("")}</select></label><nav aria-label="${t("brand")}">${navigation.map(([group, items]) => `<div class="nav-group"><p>${group === "HOME" ? t("home") : t(group)}</p>${items.map((p, i) => `<button class="nav-item ${page === p ? "active" : ""}" data-page="${p}" ${page === p ? 'aria-current="page"' : ""}><span aria-hidden="true">${{ home: "\u2302", profile: "\u25C9", journey: "\u2197", simulator: "\u25C7", assistant: "\u2727", team: "\u25CE", settings: "\u2699" }[p] || "\xB7"}</span>${t(p)}</button>`).join("")}</div>`).join("")}</nav><div class="sidebar-bottom"><span class="avatar">${esc2(me.name.slice(0, 1))}</span><div><strong>${esc2(me.name)}</strong><small>${me.verified ? t("verified") : t("verify")}</small></div></div></aside><div class="workspace"><header class="topbar"><button class="menu-button secondary" id="toggle-menu" aria-controls="sidebar" aria-expanded="false">${t("menu")}</button><span class="breadcrumb">${esc2(workspace.organization.name)} <span>/</span> ${t(page)}</span>${languageControl()}${button("logout", "logout", true)}</header><main id="main" tabindex="-1"><div class="page-heading"><p class="eyebrow">AURADIGITAL / ${t("brand")}</p><h1>${t(page)}</h1></div>${!me.verified ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}<div id="page-content" aria-live="polite"></div></main><footer>${t("tag")}</footer></div></div>`;
   bindCommon();
   document.querySelectorAll("[data-page]").forEach((b) => b.onclick = () => {
     page = b.dataset.page;
@@ -382,7 +494,7 @@ function renderShell() {
   });
   syncSidebar();
   renderPage().catch((e) => {
-    document.querySelector("#page-content").innerHTML = `<section class="panel"><p role="alert">${esc(e.message)}</p>${button("refresh", "refresh", true)}</section>`;
+    document.querySelector("#page-content").innerHTML = `<section class="panel"><p role="alert">${esc2(e.message)}</p>${button("refresh", "refresh", true)}</section>`;
     document.querySelector('[data-action="refresh"]').onclick = () => loadWorkspace().catch((e2) => toast(e2.message));
   });
 }
@@ -407,7 +519,7 @@ document.addEventListener("keydown", (e) => {
 });
 async function renderPage() {
   if (page === "profile" && !workspace.permissions.includes("profile:write")) {
-    content(`<section class="panel"><h2>${esc(workspace.profile.name)}</h2><p>${t("readOnly")}</p><p>${esc(workspace.profile.goals)}</p></section>`);
+    content(`<section class="panel"><h2>${esc2(workspace.profile.name)}</h2><p>${t("readOnly")}</p><p>${esc2(workspace.profile.goals)}</p></section>`);
     return;
   }
   if (page === "profile") {
@@ -417,13 +529,14 @@ async function renderPage() {
     renderSetup();
     return;
   }
+  if (page === "menuDrafts") return renderMenuDrafts({ host: document.querySelector("#page-content"), api, endpoint, profile: workspace.profile, canWrite: workspace.permissions.includes("roadmap:write") });
   if (page === "home") return overview();
   if (page === "journey") return journey();
   if (page === "simulator") return simulator();
   if (page === "team") return team();
   if (page === "assistant") return assistant();
   if (page === "settings") {
-    content(`<section class="panel"><h2>${t("security")}</h2><p>${esc(me.email)} \xB7 ${me.verified ? t("verified") : t("verify")}</p><a class="secondary" href="/hub/forgot">${t("reset")}</a>${me.verified ? `<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t("linkGoogle")}</a></p>` : ""}<hr>${button("team", "open-team", true)}${button("newWorkspace", "new-workspace", true)}</section>`);
+    content(`<section class="panel"><h2>${t("security")}</h2><p>${esc2(me.email)} \xB7 ${me.verified ? t("verified") : t("verify")}</p><a class="secondary" href="/hub/forgot">${t("reset")}</a>${me.verified ? `<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t("linkGoogle")}</a></p>` : ""}<hr>${button("team", "open-team", true)}${button("newWorkspace", "new-workspace", true)}</section>`);
     document.querySelector('[data-action="open-team"]').onclick = () => {
       page = "team";
       render();
@@ -442,7 +555,7 @@ function overview() {
   const missions = workspace.missions, complete = missions.filter((m) => m.status === "done").length, progress = missions.length ? Math.round(complete / missions.length * 100) : 0;
   const next = missions.find((m) => !["done", "postponed"].includes(m.status));
   const currentLevel = [1, 2, 3, 4, 5].find((l) => missions.some((m) => m.level === l && m.status !== "done")) || 1;
-  content(`<section class="overview-hero"><div><p class="eyebrow">${esc(workspace.organization.name)}</p><h2>${t("welcome")}<br><span>${t("tag")}</span></h2><p>${t("next")}</p><h3>${next ? esc(cap(next.capability) || next.objective) : t("createJourney")}</h3><button class="lime" data-action="journey">${t("journey")} \u2197</button></div><div class="hero-robot">${robot()}<span>AURI</span></div></section><div class="metric-grid"><article class="panel metric"><span>${t("level")}</span><strong>${currentLevel} <small>/ 5</small></strong><p>${t(["foundation", "visibility", "conversion", "automation", "scale"][currentLevel - 1])}</p></article><article class="panel metric"><span>${t("progress")}</span><strong>${progress}<small>%</small></strong><progress max="100" value="${progress}" aria-label="${t("progress")}"></progress></article><article class="panel metric"><span>${t("readiness")}</span><strong>${workspace.analysis.readiness}<small>%</small></strong><p>${t("source")}</p></article></div><div class="two-columns"><section class="panel"><div class="panel-bar"><h2>${t("diagnosis")}</h2><span class="pill">${t("source")}</span></div><h3>${t("strengths")}</h3><div class="chips">${workspace.analysis.strengths.length ? capabilities.filter((c) => !workspace.analysis.missing.includes(c.id)).map((c) => `<span>${esc(cap(c.id))}</span>`).join("") : `<p>${t("empty")}</p>`}</div><h3>${t("missing")}</h3><div class="chips muted">${workspace.analysis.missing.map((c) => `<span>${esc(cap(c))}</span>`).join("")}</div></section><section class="panel simulator-tease"><span class="eyebrow">${t("assumptions")}</span><h2>${t("simulator")}</h2><p>${t("simNotice")}</p>${button("simulator", "simulator", true)}</section></div>`);
+  content(`<section class="overview-hero"><div><p class="eyebrow">${esc2(workspace.organization.name)}</p><h2>${t("welcome")}<br><span>${t("tag")}</span></h2><p>${t("next")}</p><h3>${next ? esc2(cap(next.capability) || next.objective) : t("createJourney")}</h3><button class="lime" data-action="journey">${t("journey")} \u2197</button></div><div class="hero-robot">${robot()}<span>AURI</span></div></section><div class="metric-grid"><article class="panel metric"><span>${t("level")}</span><strong>${currentLevel} <small>/ 5</small></strong><p>${t(["foundation", "visibility", "conversion", "automation", "scale"][currentLevel - 1])}</p></article><article class="panel metric"><span>${t("progress")}</span><strong>${progress}<small>%</small></strong><progress max="100" value="${progress}" aria-label="${t("progress")}"></progress></article><article class="panel metric"><span>${t("readiness")}</span><strong>${workspace.analysis.readiness}<small>%</small></strong><p>${t("source")}</p></article></div><div class="two-columns"><section class="panel"><div class="panel-bar"><h2>${t("diagnosis")}</h2><span class="pill">${t("source")}</span></div><h3>${t("strengths")}</h3><div class="chips">${workspace.analysis.strengths.length ? capabilities.filter((c) => !workspace.analysis.missing.includes(c.id)).map((c) => `<span>${esc2(cap(c.id))}</span>`).join("") : `<p>${t("empty")}</p>`}</div><h3>${t("missing")}</h3><div class="chips muted">${workspace.analysis.missing.map((c) => `<span>${esc2(cap(c))}</span>`).join("")}</div></section><section class="panel simulator-tease"><span class="eyebrow">${t("assumptions")}</span><h2>${t("simulator")}</h2><p>${t("simNotice")}</p>${button("simulator", "simulator", true)}</section></div>`);
   document.querySelector('[data-action="journey"]').onclick = () => {
     page = "journey";
     render();
@@ -454,7 +567,7 @@ function overview() {
 }
 function journey() {
   const write = workspace.permissions.includes("roadmap:write");
-  content(`<div class="panel-bar"><p>${t("noPurchase")}</p>${button("createJourney", "generate", false, !write)}</div><div class="journey-levels">${[1, 2, 3, 4, 5].map((l) => `<section class="journey-level"><div class="level-heading"><span class="level-number">0${l}</span><div><span class="eyebrow">${t("level")} ${l}</span><h2>${t(["foundation", "visibility", "conversion", "automation", "scale"][l - 1])}</h2></div></div>${workspace.missions.filter((m) => m.level === l).map((m) => `<article class="panel mission" data-mission="${m.id}"><div class="panel-bar"><h3>${esc(m.objective === m.service ? cap(m.capability) : m.objective)}</h3><span class="pill">${t(m.status)}</span></div><p>${m.description.startsWith("Establish ") ? t("why") : esc(m.description)}</p><p>${t("benefit")}</p><div class="mission-meta"><span>${t("quote")}</span><span>${t("priority")}: ${t(m.priority === 1 ? "high" : m.priority === 2 ? "medium" : "low")}</span>${m.dependencies?.length ? `<span>\u21B3 ${esc(m.dependencies.map(cap).join(", "))}</span>` : ""}</div><div class="actions">${select("status", "status", ["planned", "in_progress", "done", "postponed"].map((v) => [v, t(v)]), m.status)}${button("up", "up", true, !write)}${button("down", "down", true, !write)}${button("edit", "edit", true, !write)}</div><p>${m.nextAction === "Define scope or record your existing solution." ? t("nextAction") + ": " + t("quote") : esc(m.nextAction)}</p></article>`).join("") || `<p class="empty-level">${t("empty")}</p>`}</section>`).join("")}</div>`);
+  content(`<div class="panel-bar"><p>${t("noPurchase")}</p>${button("createJourney", "generate", false, !write)}</div><div class="journey-levels">${[1, 2, 3, 4, 5].map((l) => `<section class="journey-level"><div class="level-heading"><span class="level-number">0${l}</span><div><span class="eyebrow">${t("level")} ${l}</span><h2>${t(["foundation", "visibility", "conversion", "automation", "scale"][l - 1])}</h2></div></div>${workspace.missions.filter((m) => m.level === l).map((m) => `<article class="panel mission" data-mission="${m.id}"><div class="panel-bar"><h3>${esc2(m.objective === m.service ? cap(m.capability) : m.objective)}</h3><span class="pill">${t(m.status)}</span></div><p>${m.description.startsWith("Establish ") ? t("why") : esc2(m.description)}</p><p>${t("benefit")}</p><div class="mission-meta"><span>${t("quote")}</span><span>${t("priority")}: ${t(m.priority === 1 ? "high" : m.priority === 2 ? "medium" : "low")}</span>${m.dependencies?.length ? `<span>\u21B3 ${esc2(m.dependencies.map(cap).join(", "))}</span>` : ""}</div><div class="actions">${select("status", "status", ["planned", "in_progress", "done", "postponed"].map((v) => [v, t(v)]), m.status)}${button("up", "up", true, !write)}${button("down", "down", true, !write)}${button("edit", "edit", true, !write)}</div><p>${m.nextAction === "Define scope or record your existing solution." ? t("nextAction") + ": " + t("quote") : esc2(m.nextAction)}</p></article>`).join("") || `<p class="empty-level">${t("empty")}</p>`}</section>`).join("")}</div>`);
   document.querySelector('[data-action="generate"]').onclick = async (e) => {
     e.target.disabled = true;
     try {
@@ -492,12 +605,12 @@ function format(value, currency) {
   return value === null ? t("na") : new Intl.NumberFormat(lang, { maximumFractionDigits: 2, ...currency ? { style: "currency", currency } : {} }).format(value);
 }
 function resultsHTML(data) {
-  return `<div class="table-scroll"><table><caption>${t("assumptions")} \xB7 ${esc(data.inputs.currency)}</caption><thead><tr><th scope="col"></th>${data.scenarios.map((s) => `<th scope="col">${t(s.name)}</th>`).join("")}</tr></thead><tbody>${[["additionalCustomers", "customers"], ["additionalRevenue", "revenue", true], ["contributionProfit", "profit", true], ["netMonthly", "net", true], ["firstYearROI", "roi"], ["paybackMonths", "payback"]].map(([key, label, money]) => `<tr><th scope="row">${t(label)}</th>${data.scenarios.map((s) => `<td>${esc(format(s[key], money ? data.inputs.currency : null))}${key === "firstYearROI" && s[key] !== null ? "%" : ""}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  return `<div class="table-scroll"><table><caption>${t("assumptions")} \xB7 ${esc2(data.inputs.currency)}</caption><thead><tr><th scope="col"></th>${data.scenarios.map((s) => `<th scope="col">${t(s.name)}</th>`).join("")}</tr></thead><tbody>${[["additionalCustomers", "customers"], ["additionalRevenue", "revenue", true], ["contributionProfit", "profit", true], ["netMonthly", "net", true], ["firstYearROI", "roi"], ["paybackMonths", "payback"]].map(([key, label, money]) => `<tr><th scope="row">${t(label)}</th>${data.scenarios.map((s) => `<td>${esc2(format(s[key], money ? data.inputs.currency : null))}${key === "firstYearROI" && s[key] !== null ? "%" : ""}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
 }
 async function simulator() {
   scenarioInputs = scenarioInputs || initialInputs();
   const s = scenarioInputs, write = workspace.permissions.includes("simulation:write");
-  content(`<div class="panel"><span class="eyebrow">${t("assumptions")}</span><p>${t("simNotice")}</p><p class="warning">${t("sample")}</p><details><summary>${t("formulaTitle")}</summary><p>${t("formula")}</p></details><form id="simulator-form"><div class="form-grid">${["visits", "leads", "closeRate", "customerValue", "margin", "monthlyCost", "setupCost"].map((k) => field(k, k, s[k], "number", `required min="0" max="${["margin", "closeRate"].includes(k) ? 100 : 1e9}" step="any"`)).join("")}${select("currency", "currency", ["USD", "EUR", "TRY", "TND"].map((c) => [c, c]), s.currency)}</div><fieldset class="solution-choices"><legend>${t("solutions")}</legend><div class="checks">${capabilities.map((c) => `<label class="check"><input type="checkbox" name="solutions" value="${c.id}" ${(s.solutions || []).includes(c.id) ? "checked" : ""}>${esc(cap(c.id))}</label>`).join("")}</div></fieldset><div class="scenario-inputs">${s.assumptions.map((a, i) => `<fieldset><legend>${t(["conservative", "base", "ambitious"][i])}</legend>${["trafficLift", "leadRateLift", "closeRateLift"].map((k) => field(k + "-" + i, k, a[k], "number", 'required min="0" max="300" step="any"')).join("")}</fieldset>`).join("")}</div><button class="primary">${t("calculate")}</button><p class="form-error" role="alert"></p></form><div id="sim-results">${result ? resultsHTML(result) : ""}</div><form id="save-scenario" ${result ? "" : "hidden"} class="save-scenario">${field("name", "scenarioName", "", "text", 'required maxlength="120"')}<button class="primary" ${write ? "" : "disabled"}>${t("saveScenario")}</button>${button("export", "export", true)}${button("addSolutions", "add-solutions", true, !workspace.permissions.includes("roadmap:write"))}</form></div><section class="panel"><h2>${t("history")}</h2><div id="scenario-history">\u2026</div></section>`);
+  content(`<div class="panel"><span class="eyebrow">${t("assumptions")}</span><p>${t("simNotice")}</p><p class="warning">${t("sample")}</p><details><summary>${t("formulaTitle")}</summary><p>${t("formula")}</p></details><form id="simulator-form"><div class="form-grid">${["visits", "leads", "closeRate", "customerValue", "margin", "monthlyCost", "setupCost"].map((k) => field(k, k, s[k], "number", `required min="0" max="${["margin", "closeRate"].includes(k) ? 100 : 1e9}" step="any"`)).join("")}${select("currency", "currency", ["USD", "EUR", "TRY", "TND"].map((c) => [c, c]), s.currency)}</div><fieldset class="solution-choices"><legend>${t("solutions")}</legend><div class="checks">${capabilities.map((c) => `<label class="check"><input type="checkbox" name="solutions" value="${c.id}" ${(s.solutions || []).includes(c.id) ? "checked" : ""}>${esc2(cap(c.id))}</label>`).join("")}</div></fieldset><div class="scenario-inputs">${s.assumptions.map((a, i) => `<fieldset><legend>${t(["conservative", "base", "ambitious"][i])}</legend>${["trafficLift", "leadRateLift", "closeRateLift"].map((k) => field(k + "-" + i, k, a[k], "number", 'required min="0" max="300" step="any"')).join("")}</fieldset>`).join("")}</div><button class="primary">${t("calculate")}</button><p class="form-error" role="alert"></p></form><div id="sim-results">${result ? resultsHTML(result) : ""}</div><form id="save-scenario" ${result ? "" : "hidden"} class="save-scenario">${field("name", "scenarioName", "", "text", 'required maxlength="120"')}<button class="primary" ${write ? "" : "disabled"}>${t("saveScenario")}</button>${button("export", "export", true)}${button("addSolutions", "add-solutions", true, !workspace.permissions.includes("roadmap:write"))}</form></div><section class="panel"><h2>${t("history")}</h2><div id="scenario-history">\u2026</div></section>`);
   document.querySelector("#simulator-form").onsubmit = (e) => {
     e.preventDefault();
     const form = e.target, data2 = new FormData(form), inputs = { currency: data2.get("currency"), solutions: data2.getAll("solutions"), assumptions: [0, 1, 2].map((i) => Object.fromEntries(["trafficLift", "leadRateLift", "closeRateLift"].map((k) => [k, Number(data2.get(k + "-" + i))]))) };
@@ -545,7 +658,7 @@ async function simulator() {
   };
   document.querySelector('[data-action="export"]').onclick = () => download(result, "aura-growth-scenario.json");
   const data = await api(endpoint("scenarios"));
-  document.querySelector("#scenario-history").innerHTML = data.scenarios.map((s2) => `<button class="history-item secondary" data-scenario="${s2.id}"><span>${esc(s2.name)}</span><small>${esc(s2.createdAt)}</small> \u2197</button>`).join("") || `<p>${t("empty")}</p>`;
+  document.querySelector("#scenario-history").innerHTML = data.scenarios.map((s2) => `<button class="history-item secondary" data-scenario="${s2.id}"><span>${esc2(s2.name)}</span><small>${esc2(s2.createdAt)}</small> \u2197</button>`).join("") || `<p>${t("empty")}</p>`;
   document.querySelectorAll("[data-scenario]").forEach((b) => b.onclick = () => {
     const saved = data.scenarios.find((s2) => s2.id === b.dataset.scenario);
     result = saved.result;
@@ -566,7 +679,7 @@ async function team() {
     return;
   }
   const data = await api(endpoint("team"));
-  content(`<section class="team-intro"><div><span class="eyebrow">AURA TEAM ACCESS</span><h2>${t("teamTitle")}</h2><p>${t("teamText")}</p></div><div class="price">$5<small>USD / month / member</small></div></section><p class="warning">${t("blocked")}</p><section class="panel"><h2>${t("invite")}</h2><form id="invite-form" class="form-grid">${field("email", "email", "", "email", 'required maxlength="254"')}${select("role", "role", ["viewer", "member", "admin"].map((v) => [v, t(v)]), "viewer")}${field("message", "message", "", "text", 'maxlength="800"')}<div class="field"><span>${t("permissions")}</span><p id="role-explanation"></p></div><button class="primary">${t("invite")}</button><p class="form-error" role="alert"></p></form></section><section class="panel"><div class="panel-bar"><h2>${t("team")}</h2><span class="pill">${data.members.filter((m) => m.status !== "removed").length} ${t("seats")}</span></div><p>${t("billingPrivate")}</p><div class="table-scroll"><table><thead><tr>${["name", "email", "role", "status", "subscription", "paymentDate"].map((k) => `<th scope="col">${t(k)}</th>`).join("")}<th scope="col">${t("edit")}</th></tr></thead><tbody>${data.members.map((m) => `<tr data-member="${m.id}"><td>${esc(m.name)}</td><td>${esc(m.email)}</td><td>${esc(t(m.role))}</td><td>${esc(t(m.status))}</td><td>${esc(m.subscriptionStatus ? t(m.subscriptionStatus) : t("awaiting"))}</td><td>${m.nextPaymentAt ? esc(new Date(m.nextPaymentAt * 1e3).toLocaleDateString(lang)) : "\u2014"}</td><td>${m.status === "removed" ? "" : button("edit", "edit-member", true) + button("remove", "remove-member", true)}</td></tr>`).join("") || `<tr><td colspan="7">${t("empty")}</td></tr>`}</tbody></table></div><h3>${t("invite")}</h3>${data.invitations.map((i) => `<div class="invitation-row"><div><strong>${esc(i.email)}</strong><small>${esc(t(i.role))} \xB7 ${esc(t(i.status))} \xB7 ${esc(t(i.deliveryStatus))}</small></div>${i.status === "pending" ? `<div class="actions"><button class="secondary" data-cancel="${i.id}">${t("cancelInvite")}</button><button class="secondary" data-resend="${i.id}">${t("resend")}</button></div>` : ""}</div>`).join("") || `<p>${t("empty")}</p>`}<details><summary>${t("activity")}</summary><div id="activity"></div></details></section>`);
+  content(`<section class="team-intro"><div><span class="eyebrow">AURA TEAM ACCESS</span><h2>${t("teamTitle")}</h2><p>${t("teamText")}</p></div><div class="price">$5<small>USD / month / member</small></div></section><p class="warning">${t("blocked")}</p><section class="panel"><h2>${t("invite")}</h2><form id="invite-form" class="form-grid">${field("email", "email", "", "email", 'required maxlength="254"')}${select("role", "role", ["viewer", "member", "admin"].map((v) => [v, t(v)]), "viewer")}${field("message", "message", "", "text", 'maxlength="800"')}<div class="field"><span>${t("permissions")}</span><p id="role-explanation"></p></div><button class="primary">${t("invite")}</button><p class="form-error" role="alert"></p></form></section><section class="panel"><div class="panel-bar"><h2>${t("team")}</h2><span class="pill">${data.members.filter((m) => m.status !== "removed").length} ${t("seats")}</span></div><p>${t("billingPrivate")}</p><div class="table-scroll"><table><thead><tr>${["name", "email", "role", "status", "subscription", "paymentDate"].map((k) => `<th scope="col">${t(k)}</th>`).join("")}<th scope="col">${t("edit")}</th></tr></thead><tbody>${data.members.map((m) => `<tr data-member="${m.id}"><td>${esc2(m.name)}</td><td>${esc2(m.email)}</td><td>${esc2(t(m.role))}</td><td>${esc2(t(m.status))}</td><td>${esc2(m.subscriptionStatus ? t(m.subscriptionStatus) : t("awaiting"))}</td><td>${m.nextPaymentAt ? esc2(new Date(m.nextPaymentAt * 1e3).toLocaleDateString(lang)) : "\u2014"}</td><td>${m.status === "removed" ? "" : button("edit", "edit-member", true) + button("remove", "remove-member", true)}</td></tr>`).join("") || `<tr><td colspan="7">${t("empty")}</td></tr>`}</tbody></table></div><h3>${t("invite")}</h3>${data.invitations.map((i) => `<div class="invitation-row"><div><strong>${esc2(i.email)}</strong><small>${esc2(t(i.role))} \xB7 ${esc2(t(i.status))} \xB7 ${esc2(t(i.deliveryStatus))}</small></div>${i.status === "pending" ? `<div class="actions"><button class="secondary" data-cancel="${i.id}">${t("cancelInvite")}</button><button class="secondary" data-resend="${i.id}">${t("resend")}</button></div>` : ""}</div>`).join("") || `<p>${t("empty")}</p>`}<details><summary>${t("activity")}</summary><div id="activity"></div></details></section>`);
   const explain = () => {
     const role = document.querySelector('[name="role"]').value;
     document.querySelector("#role-explanation").textContent = role === "admin" ? ["profile", "journey", "simulator", "assistant"].map(t).join(" \xB7 ") : role === "member" ? [t("readOnly"), t("assistant")].join(" \xB7 ") : t("readOnly");
@@ -621,7 +734,7 @@ async function team() {
     });
     row.querySelector('[data-action="edit-member"]')?.addEventListener("click", () => {
       const cell = row.lastElementChild;
-      cell.innerHTML = `<form>${select("role", "role", rolesForUI(), m.role)}<fieldset><legend>${t("restrict")}</legend>${["profile:write", "roadmap:write", "simulation:write", "workspace:read", "auri:use"].map((p) => `<label class="check"><input type="checkbox" name="denied" value="${p}" ${m.deniedPermissions.includes(p) ? "checked" : ""}>${esc(t({ "profile:write": "profile", "roadmap:write": "journey", "simulation:write": "simulator", "workspace:read": "home", "auri:use": "assistant" }[p]))}</label>`).join("")}</fieldset><button class="primary">${t("save")}</button></form>`;
+      cell.innerHTML = `<form>${select("role", "role", rolesForUI(), m.role)}<fieldset><legend>${t("restrict")}</legend>${["profile:write", "roadmap:write", "simulation:write", "workspace:read", "auri:use"].map((p) => `<label class="check"><input type="checkbox" name="denied" value="${p}" ${m.deniedPermissions.includes(p) ? "checked" : ""}>${esc2(t({ "profile:write": "profile", "roadmap:write": "journey", "simulation:write": "simulator", "workspace:read": "home", "auri:use": "assistant" }[p]))}</label>`).join("")}</fieldset><button class="primary">${t("save")}</button></form>`;
       cell.querySelector("form").onsubmit = async (e) => {
         e.preventDefault();
         const f = new FormData(e.target);
@@ -635,7 +748,7 @@ async function team() {
     });
   });
   const a = await api(endpoint("activity"));
-  document.querySelector("#activity").innerHTML = a.events.map((e) => `<p>${esc(e.created_at)} \xB7 ${esc(e.action)}</p>`).join("") || t("empty");
+  document.querySelector("#activity").innerHTML = a.events.map((e) => `<p>${esc2(e.created_at)} \xB7 ${esc2(e.action)}</p>`).join("") || t("empty");
 }
 var rolesForUI = () => ["viewer", "member", "admin"].map((v) => [v, t(v)]);
 function assistant() {
@@ -644,7 +757,7 @@ function assistant() {
     e.target.disabled = true;
     try {
       const r = await api(endpoint("auri"), "POST", { tool });
-      document.querySelector("#auri-response").innerHTML = tool === "diagnosis" ? `<h3>${t("missing")}</h3><ul>${r.data.missing.map((k) => `<li>${esc(cap(k))}</li>`).join("")}</ul>` : `<h3>${esc(r.data.nextAction ? cap(r.data.nextAction.id) : t("empty"))}</h3><p>${t("why")}</p>`;
+      document.querySelector("#auri-response").innerHTML = tool === "diagnosis" ? `<h3>${t("missing")}</h3><ul>${r.data.missing.map((k) => `<li>${esc2(cap(k))}</li>`).join("")}</ul>` : `<h3>${esc2(r.data.nextAction ? cap(r.data.nextAction.id) : t("empty"))}</h3><p>${t("why")}</p>`;
     } catch (e2) {
       toast(e2.message);
     } finally {
@@ -678,7 +791,7 @@ async function load() {
       me = null;
       render();
     } else {
-      gateFrame(`<section class="panel"><h1>${t("brand")}</h1><p role="alert">${esc(e.message)}</p><a href="/account">${t("openAccount")}</a></section>`);
+      gateFrame(`<section class="panel"><h1>${t("brand")}</h1><p role="alert">${esc2(e.message)}</p><a href="/account">${t("openAccount")}</a></section>`);
     }
   }
 }

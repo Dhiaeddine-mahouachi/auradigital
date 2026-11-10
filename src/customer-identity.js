@@ -125,6 +125,11 @@ async function google(request,env) {
 export async function handleCustomerIdentity(request,env) {
  const path=new URL(request.url).pathname;
  if(!path.startsWith('/api/customer/'))return null;
+ if(path==='/api/customer/verification-status'&&request.method==='GET') {
+  const user=await authenticatedCustomer(request,env);
+  if(!user)throw new ApiError(401,'Sign in to your AuraDigital account.');
+  return json({verified:await isEmailVerified(env.DB,user)});
+ }
  if(path==='/api/customer/capabilities'&&request.method==='GET')return json({growth:env.GROWTH_OS_ENABLED==='true',google:env.GOOGLE_LOGIN_ENABLED==='true'&&!!env.GOOGLE_CLIENT_ID&&!!env.GOOGLE_CLIENT_SECRET,email:env.CUSTOMER_EMAIL_ENABLED==='true'&&!!env.RESEND_API_KEY});
  if(['/api/customer/google/start','/api/customer/google/callback'].includes(path)) {
   if(request.method!=='GET')throw new ApiError(405,'Method not allowed.');return google(request,env);
