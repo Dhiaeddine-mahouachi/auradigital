@@ -27,7 +27,7 @@ Up to 10 retained drafts per organization, 256 KiB JSON per request, 12 categori
 2. Verify shared sign-in, email delivery/recovery and organization creation with isolated test identities.
 3. Save a draft, reload it in a second authenticated session, edit and observe 409 for a stale first session.
 4. Confirm another tenant, a pending member, an expired member and a read-only member cannot mutate it.
-5. Test the new hub UI and standalone builder on mobile/desktop in a browser-capable environment. Local browser launch is blocked in this execution environment; CI smoke scripts are prepared.
+5. Test the new hub UI and standalone builder on mobile/desktop in a browser-capable environment. Local browser launch is blocked in this execution environment. Both private-editor and standalone-builder Chromium CI scripts subsequently passed, and synthetic mobile/desktop screenshots were reviewed. Actual devices and live routing remain separate checks.
 6. Review account/API routing before connecting auramenu.space. Standard centralized auth redirects are needed; do not share cookies across top-level domains.
 7. Connect drafts to authenticated request ownership, the existing manual activation flow, and public QR verification in staging before claiming customer acceptance.
 
