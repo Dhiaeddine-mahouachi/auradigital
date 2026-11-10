@@ -1,5 +1,6 @@
 // Local QA only. In-memory fixture; no Cloudflare API, remote D1 or real customer data.
 import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
 import { hubFixture } from '../test/hub-fixture.mjs';
 import { handleBusinessHub } from '../src/business-hub.js';
 import { handleCustomerIdentity } from '../src/customer-identity.js';
@@ -7,6 +8,8 @@ import { handleShop } from '../src/shop.ts';
 import { ApiError } from '../src/http.js';
 import { secureResponse } from '../src/security-policy.js';
 const f=await hubFixture();
+f.sqlite.exec(await readFile(new URL('../migrations/0029_menu_drafts.sql',import.meta.url),'utf8'));
+f.env.MENU_DRAFTS_ENABLED='true'; // Synthetic in-memory QA only.
 const qaUser=await f.user('qa-owner@example.test',true);
 const qaOrg=await (await f.call('/api/hub/workspaces',qaUser,'POST',{profile:{name:'Lumen Studio QA',industry:'restaurant',country:'Türkiye',city:'Istanbul',capabilities:['domain'],currency:'USD',goals:'Increase direct reservations'},mode:'myself'})).json();
 await f.call('/api/hub/workspaces/'+qaOrg.id+'/missions',qaUser,'POST',{});

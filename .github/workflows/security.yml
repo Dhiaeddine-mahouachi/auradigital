@@ -26,3 +26,17 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run deploy:check
+      - name: Install Chromium for private draft UI checks
+        run: npx playwright install --with-deps chromium
+      - name: Test private draft customer interactions
+        run: |
+          PORT=5173 node scripts/dev-hub.mjs > /tmp/hub-menu-qa.log 2>&1 &
+          sleep 2
+          node scripts/test-menu-drafts-browser.mjs
+      - name: Preserve private draft UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: private-menu-draft-screenshots
+          path: test-output/menu-drafts-*.png
+          if-no-files-found: ignore
