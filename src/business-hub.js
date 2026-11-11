@@ -1,3 +1,4 @@
+import { handleMenuDrafts } from './menu-drafts.js';
 import { ApiError, json, readJson } from './http.js';
 import { authenticatedCustomer, tokenHash } from './customer-accounts.ts';
 import { sameOrigin } from './security.js';
@@ -90,6 +91,8 @@ export async function handleBusinessHub(request,env) {
  const user=await authenticatedCustomer(request,env);if(!user)throw new ApiError(401,'Sign in to your AuraDigital account.');
  const write=!['GET','HEAD'].includes(request.method);
  if(write){if(!sameOrigin(request))throw new ApiError(403,'Forbidden origin.');await limit(request,env,user);}
+ const menuDraftResponse=await handleMenuDrafts(request,env,user,authorize);
+ if(menuDraftResponse)return menuDraftResponse;
  if(path==='/api/hub/workspaces'&&request.method==='GET') {
   // Only entitled memberships are included; pending invites are not shared workspaces.
   const owned=(await env.DB.prepare('SELECT id,name,mode FROM organizations WHERE owner_id=? ORDER BY created_at,id').bind(user.id).all()).results;

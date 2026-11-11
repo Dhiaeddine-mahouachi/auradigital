@@ -27,3 +27,12 @@ test('complete mocked Google exchange consumes state once, preserves stable iden
 
 test('Google third-party emails require independent mailbox verification while Gmail/Workspace may verify directly',async()=>{const f=await jwtFixture();let identity=await validateGoogleToken(await f.sign({...f.claims,hd:undefined}),'aura-client','test-nonce',[f.jwk]);assert.equal(identity.authoritativeEmail,false);identity=await validateGoogleToken(await f.sign({...f.claims,email:'a@gmail.com',hd:undefined}),'aura-client','test-nonce',[f.jwk]);assert.equal(identity.authoritativeEmail,true);});
 test('Hub rollback can retain identity and recovery routes without exposing organization APIs',async()=>{const f=await hubFixture();const worker=(await import('../src/worker-entry.js')).default;Object.assign(f.env,{GROWTH_OS_ENABLED:'false',CUSTOMER_IDENTITY_ENABLED:'true'});const ctx={waitUntil(){}};const r=await worker.fetch(new Request('https://aura.test/api/customer/capabilities'),f.env,ctx);assert.equal(r.status,200);assert.equal((await r.json()).growth,false);for(const path of ['/hub/reset','/hub/verify','/hub/forgot','/hub/app.js'])assert.equal((await worker.fetch(new Request('https://aura.test'+path),f.env,ctx)).status,200,path);assert.equal((await worker.fetch(new Request('https://aura.test/hub'),f.env,ctx)).status,503);assert.equal((await worker.fetch(new Request('https://aura.test/api/hub/workspaces'),f.env,ctx)).status,503);});
+
+test('menu builder verification status uses the authenticated current email, never client profile',async()=>{
+ const f=await hubFixture(),unverified=await f.user('unverified@test.test'),verified=await f.user('verified@test.test',true);
+ assert.equal((await f.call('/api/customer/verification-status',null)).status,401);
+ assert.equal((await(await f.call('/api/customer/verification-status',unverified)).json()).verified,false);
+ const response=await f.call('/api/customer/verification-status',verified);assert.equal((await response.json()).verified,true);assert.equal(response.headers.get('Cache-Control'),'no-store');
+ await f.DB.prepare("UPDATE customer_users SET email='changed@test.test' WHERE id=?").bind(verified.id).run();
+ assert.equal((await(await f.call('/api/customer/verification-status',verified)).json()).verified,false);
+});

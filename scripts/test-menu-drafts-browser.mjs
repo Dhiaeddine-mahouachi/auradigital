@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import { chromium } from 'playwright';
+const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),args:['--no-sandbox']});
+try{
+ const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.goto('http://127.0.0.1:5173/__qa/start',{waitUntil:'domcontentloaded'});
+ await page.getByRole('button',{name:'Menu drafts',exact:true}).click();
+ await page.locator('#private-menu-name').waitFor();
+ assert.equal(await page.locator('#private-menu-name').inputValue(),'Lumen Studio QA');
+ await page.locator('#private-menu-category').click();
+ await page.locator('[data-category-name]').fill('Burgers');
+ await page.locator('[data-add-draft-product]').click();
+ await page.locator('[data-product-name]').fill('Cheeseburger');await page.locator('[data-product-price]').fill('250');
+ await page.locator('#private-menu-save').click();
+ await page.getByText('Saved privately. No payment or publication occurred.',{exact:true}).waitFor();
+ await page.waitForFunction(()=>document.querySelector('#private-menu-list')?.value);
+ const id=await page.locator('#private-menu-list').inputValue();assert(id);
+ await page.reload({waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'Menu drafts',exact:true}).click();
+ await page.locator('#private-menu-list option[value="'+id+'"]').waitFor({state:'attached'});
+ await page.locator('#private-menu-list').selectOption(id);
+ await page.locator('[data-product-name]').waitFor();
+ assert.equal(await page.locator('[data-product-price]').inputValue(),'250');
+ await page.locator('[data-product-name]').fill('<img src=x onerror=alert(1)>');
+ assert.equal(await page.locator('#private-menu-preview img').count(),0);
+ await page.locator('#private-menu-save').click();await page.getByText('Saved privately. No payment or publication occurred.',{exact:true}).waitFor();
+ await page.locator('#private-menu-archive').click();await page.getByText('Saved privately. No payment or publication occurred.',{exact:true}).waitFor();
+ assert.match(await page.locator('#private-menu-editor').innerText(),/Private archived/);
+ await page.screenshot({path:'test-output/menu-drafts-desktop.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'Private editor fits mobile viewport');
+ await page.screenshot({path:'test-output/menu-drafts-mobile.png',fullPage:true});
+ assert.deepEqual(errors,[]);
+ console.log('PASS: shared profile, private create/save/reopen/edit/archive, escaped preview, mobile overflow and no browser runtime errors.');
+}finally{await browser.close();}
