@@ -11,7 +11,9 @@ try {
  const desktop=await desktopContext.newPage();
  const exceptions=[];
  desktop.on('pageerror',error=>exceptions.push(error.message));
- await desktop.goto(base+'/hub/signup');
+ await desktop.goto(base+'/account/signup');
+ await desktop.waitForURL('**/hub/signup');
+ assert.equal(await desktop.locator('[data-action=google]').count(),0);
  await desktop.locator('[name=name]').fill('Samir QA');
  await desktop.locator('[name=email]').fill('samir-'+crypto.randomUUID()+'@example.test');
  const email=await desktop.locator('[name=email]').inputValue();
@@ -50,11 +52,35 @@ try {
  await desktop.locator('.growth-account summary').click();
  await desktop.locator('[data-action=logout]').click();
  await desktop.locator('#auth-form').waitFor();
+ await desktop.goto(base+'/account/login?next=%2Fshop%2Fcheckout');
+ await desktop.waitForURL('**/hub/login?next=*');
+ await desktop.locator('a[href^="/hub/signup"]').click();
+ await desktop.waitForURL('**/hub/signup?next=*');
+ await desktop.locator('a[href^="/hub/login"]').click();
  await desktop.locator('[name=email]').fill(email);
  await desktop.locator('[name=password]').fill('Saffron-lake-0142!');
  await desktop.locator('#auth-form button').click();
+ await desktop.waitForURL('**/shop/checkout');
+ await desktop.goto(base+'/account/login');
+ await desktop.waitForURL('**/hub/login');
  await desktop.locator('.growth-ring').filter({hasNotText:'0%'}).waitFor();
  await desktop.locator('[data-status=done]').waitFor();
+ // Exercise the real reset endpoint with a token seeded only in the in-memory QA database.
+ const recovery=await desktopContext.newPage();
+ const resetLink=await (await recovery.request.post(base+'/__qa/password-reset',{data:{email}})).json();
+ await recovery.goto(base+resetLink.path);
+ await recovery.waitForFunction(()=>!location.hash);
+ await recovery.locator('[name=password]').fill('Saffron-lake-0143!');
+ await recovery.locator('#auth-form button').click();
+ await recovery.waitForURL('**/hub/login');
+ await recovery.locator('[name=email]').fill(email);
+ await recovery.locator('[name=password]').fill('Saffron-lake-0142!');
+ await recovery.locator('#auth-form button').click();
+ await recovery.locator('.form-error').filter({hasText:/incorrect/i}).waitFor();
+ await recovery.locator('[name=password]').fill('Saffron-lake-0143!');
+ await recovery.locator('#auth-form button').click();
+ await recovery.locator('[data-status=done]').waitFor();
+ await recovery.close();
  assert.deepEqual(exceptions,[]);
 
  // Use only the synthetic fixture in the screenshots.

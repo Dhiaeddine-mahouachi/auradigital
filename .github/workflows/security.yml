@@ -26,13 +26,21 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run deploy:check
-      - name: Install Chromium for private draft UI checks
+      - name: Install Chromium for customer browser checks
         run: npx playwright install --with-deps chromium
       - name: Test private draft customer interactions
         run: |
           PORT=5173 node scripts/dev-hub.mjs > /tmp/hub-menu-qa.log 2>&1 &
           sleep 2
           node scripts/test-menu-drafts-browser.mjs
+      - name: Test roadmap and shop customer journeys
+        run: |
+          PORT=4173 node scripts/dev-hub.mjs > /tmp/hub-roadmap-qa.log 2>&1 &
+          hub_server_pid=$!
+          trap 'kill "$hub_server_pid" 2>/dev/null || true' EXIT
+          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4173/hub > /dev/null
+          node scripts/test-hub-browser.mjs
+          npm run test:shop:browser
       - name: Preserve private draft UI screenshots
         if: always()
         uses: actions/upload-artifact@v4

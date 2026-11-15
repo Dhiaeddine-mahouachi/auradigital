@@ -1,3 +1,8 @@
+// src/customer-return.js
+function customerReturnPath(value, fallback) {
+  return ["/hub", "/account", "/shop/checkout"].includes(value) || typeof value === "string" && /^\/shop\/orders\/[a-f0-9-]{36}$/.test(value) ? value : fallback;
+}
+
 // src/roadmap.js
 var roadmapStages = [
   { key: "foundation", icon: "\u25C7" },
@@ -396,6 +401,14 @@ var saveQueue = Promise.resolve();
 var saveTimer;
 var route = location.pathname.split("/")[2] || "";
 var flowToken = new URLSearchParams(location.hash.slice(1)).get("token") || "";
+var returnPath = ["login", "signup", "forgot"].includes(route) ? customerReturnPath(new URLSearchParams(location.search).get("next"), "") : "";
+var authQuery = returnPath ? "?" + new URLSearchParams({ next: returnPath }) : "";
+var authCapabilities = {};
+function resumeShop() {
+  if (!returnPath || returnPath === "/hub") return false;
+  location.replace(returnPath);
+  return true;
+}
 if (flowToken) history.replaceState(null, "", location.pathname + location.search);
 var t = (k) => k === "menuDrafts" ? { en: "Menu drafts", ar: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", tr: "Men\xFC taslaklar\u0131", fr: "Brouillons de menus" }[lang] : copy[lang][k] || copy.en[k] || k;
 var cap = (k) => capabilityNames[lang][k] || capabilities.find((c) => c.id === k)?.service || k;
@@ -477,19 +490,21 @@ async function renderGate() {
   if (route === "verify") {
     gateFrame(`<section class="panel">${robot()}<h1>${t("verify")}</h1><p id="verification-result" role="status"></p>${button("confirm", "verify")}<a href="/hub">${t("brand")}</a></section>`);
     document.querySelector('[data-action="verify"]').onclick = async (e) => {
-      e.target.disabled = true;
+      const confirmButton = e.target;
+      confirmButton.disabled = true;
       try {
         await api("/api/customer/verify", "POST", { token: flowToken });
         flowToken = "";
         document.querySelector("#verification-result").textContent = t("verified");
       } catch (error) {
         document.querySelector("#verification-result").textContent = error.message;
+        confirmButton.disabled = false;
       }
     };
     return;
   }
   const signup = route === "signup", forgot = route === "forgot", reset = route === "reset";
-  gateFrame(`<section class="auth-intro"><p class="eyebrow">AURADIGITAL / ${t("brand")}</p><h1>${t("welcome")}</h1><p>${t("tag")}</p>${robot()}</section><section class="panel auth-panel"><h2>${t(reset ? "reset" : forgot ? "forgot" : signup ? "signup" : "signIn")}</h2><form id="auth-form">${signup ? field("name", "name", "", "text", 'required minlength="2" maxlength="100" autocomplete="name"') : ""}${reset ? "" : field("email", "email", "", "email", 'required maxlength="254" autocomplete="email"')}${forgot ? "" : field("password", reset ? "newPassword" : "password", "", "password", 'required minlength="12" maxlength="72" autocomplete="' + (signup || reset ? "new-password" : "current-password") + '"')}${signup ? `<label class="check"><input type="checkbox" name="terms" required>${t("terms")}</label>` : ""}<p class="form-error" role="alert"></p><button class="primary">${t(reset ? "reset" : forgot ? "continue" : signup ? "signup" : "signIn")}</button></form>${!forgot && !reset ? `<hr><label class="check"><input id="google-terms" type="checkbox">${t("terms")}</label>${button("google", "google", true)}<div class="auth-links"><a href="/hub/${signup ? "login" : "signup"}">${t(signup ? "signIn" : "signup")}</a><a href="/hub/forgot">${t("forgot")}</a></div>` : `<a href="/hub/login">${t("signIn")}</a>`}</section>`);
+  gateFrame(`<section class="auth-intro"><p class="eyebrow">AURADIGITAL / ${t("brand")}</p><h1>${t("welcome")}</h1><p>${t("tag")}</p>${robot()}</section><section class="panel auth-panel"><h2>${t(reset ? "reset" : forgot ? "forgot" : signup ? "signup" : "signIn")}</h2><form id="auth-form">${signup ? field("name", "name", "", "text", 'required minlength="2" maxlength="100" autocomplete="name"') : ""}${reset ? "" : field("email", "email", "", "email", 'required maxlength="254" autocomplete="email"')}${forgot ? "" : field("password", reset ? "newPassword" : "password", "", "password", "required " + (signup || reset ? 'minlength="12" ' : "") + 'maxlength="72" autocomplete="' + (signup || reset ? "new-password" : "current-password") + '"')}${signup ? `<label class="check"><input type="checkbox" name="terms" required>${t("terms")}</label>` : ""}<p class="form-error" role="alert"></p><button class="primary">${t(reset ? "reset" : forgot ? "continue" : signup ? "signup" : "signIn")}</button></form>${!forgot && !reset ? `${authCapabilities.google ? `<hr><label class="check"><input id="google-terms" type="checkbox">${t("terms")}</label>${button("google", "google", true)}` : ""}<div class="auth-links"><a href="/hub/${signup ? "login" : "signup"}${authQuery}">${t(signup ? "signIn" : "signup")}</a>${authCapabilities.email ? `<a href="/hub/forgot${authQuery}">${t("forgot")}</a>` : ""}</div>` : `<a href="/hub/login${authQuery}">${t("signIn")}</a>`}</section>`);
   document.querySelector("#auth-form").onsubmit = async (e) => {
     e.preventDefault();
     const form = e.target, b = form.querySelector("button"), data = new FormData(form);
@@ -500,9 +515,10 @@ async function renderGate() {
         toast(t("resetSent"));
       } else if (reset) {
         await api("/api/customer/reset-password", "POST", { token: flowToken, password: data.get("password") });
-        location.assign("/hub/login");
+        location.assign("/hub/login" + authQuery);
       } else {
         await api("/api/customer/" + (signup ? "register" : "login"), "POST", { name: data.get("name"), email: data.get("email"), password: data.get("password"), acceptTerms: data.has("terms") });
+        if (route !== "invitation" && resumeShop()) return;
         route = route === "invitation" ? "invitation" : "";
         await load();
       }
@@ -520,7 +536,7 @@ async function renderGate() {
     if (route === "invitation") {
       toast(t("googleInvite"));
     }
-    location.assign("/api/customer/google/start?acceptTerms=true");
+    location.assign("/api/customer/google/start?" + new URLSearchParams({ acceptTerms: "true", ...returnPath ? { next: returnPath } : {} }));
   });
 }
 var emptyProfile = () => ({ name: "", industry: "other", country: "", city: "", stage: "", website: "", tools: "", acquisition: "", difficulties: "", goals: "", timeline: "", industryDetails: "", budget: null, currency: "USD", capabilities: [] });
@@ -663,6 +679,7 @@ function persistProfile() {
 }
 var roadmapView = "tree";
 var selectedMission = null;
+var workspaceSwitch = null;
 var requestLink = (service = "", task = "") => "/contact#" + new URLSearchParams({
   hub: "1",
   service,
@@ -672,7 +689,7 @@ var requestLink = (service = "", task = "") => "/contact#" + new URLSearchParams
   email: me.email
 });
 var navigation = ["home", "journey", "tasks", "assistant", "services", "resources", "settings"];
-var moreNavigation = ["profile", "simulator", "menuDrafts", "projects", "websites", "hosting", "files", "reports", "orders", "invoices", "rewards", "team", "support"];
+var moreNavigation = ["profile", "simulator", "menuDrafts", "projects", "websites", "hosting", "files", "reports", "invoices", "rewards", "team", "support"];
 function renderShell() {
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   const l = roadmapLabels(lang), growth = ["home", "journey"].includes(page);
@@ -694,7 +711,7 @@ function renderShell() {
  <details class="growth-account"><summary><span class="avatar">${esc2(me.name.slice(0, 1))}</span><span>${esc2(me.name)}</span></summary>
  <div class="growth-account-menu">${navItem("profile")}${navItem("settings")}${button("logout", "logout", true)}</div></details></header>
  <main id="main" tabindex="-1">${growth ? `<h1 class="sr-only">${l[page]}</h1>` : `<div class="page-heading"><h1>${esc2(l[page] || t(page))}</h1></div>`}
- ${!me.verified ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}
+ ${!me.verified && authCapabilities.email ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}
  <div id="page-content"></div></main></div></div>`;
   bindCommon();
   document.querySelectorAll("[data-page]").forEach((b) => b.onclick = () => {
@@ -709,8 +726,18 @@ function renderShell() {
     syncSidebar();
   };
   document.querySelector("#workspace-select").onchange = async (e) => {
-    selectedMission = null;
-    await loadWorkspace(e.target.value);
+    const select2 = e.target, id = select2.value;
+    select2.disabled = true;
+    workspaceSwitch = id;
+    try {
+      await loadWorkspace(id);
+    } catch (error) {
+      select2.value = workspace.organization.id;
+      toast(error.message);
+    } finally {
+      workspaceSwitch = null;
+      select2.disabled = false;
+    }
   };
   document.querySelector('[data-action="logout"]').onclick = async () => {
     try {
@@ -772,7 +799,7 @@ async function renderPage() {
   if (page === "home" || page === "journey") return growthDashboard();
   if (page === "tasks") return journey();
   if (page === "resources") {
-    content(`<section class="panel"><div class="resource-links">${moreNavigation.map((p) => `<button type="button" class="secondary" data-resource="${p}">${esc2(t(p))}</button>`).join("")}</div></section>`);
+    content(`<section class="panel"><div class="resource-links"><a class="secondary" href="/shop">AuraShop</a><a class="secondary" href="/account">${esc2(t("orders"))}</a>${moreNavigation.map((p) => `<button type="button" class="secondary" data-resource="${p}">${esc2(t(p))}</button>`).join("")}</div></section>`);
     document.querySelectorAll("[data-resource]").forEach((b) => b.onclick = () => {
       page = b.dataset.resource;
       render();
@@ -783,7 +810,7 @@ async function renderPage() {
   if (page === "team") return team();
   if (page === "assistant") return assistant();
   if (page === "settings") {
-    content(`<section class="panel"><h2>${t("security")}</h2><p>${esc2(me.email)} \xB7 ${me.verified ? t("verified") : t("verify")}</p><a class="secondary" href="/hub/forgot">${t("reset")}</a>${me.verified ? `<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t("linkGoogle")}</a></p>` : ""}<hr>${button("team", "open-team", true)}${button("newWorkspace", "new-workspace", true)}</section>`);
+    content(`<section class="panel"><h2>${t("security")}</h2><p>${esc2(me.email)} \xB7 ${me.verified ? t("verified") : t("verify")}</p>${authCapabilities.email ? `<a class="secondary" href="/hub/forgot">${t("reset")}</a>` : ""}${me.verified && authCapabilities.google ? `<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t("linkGoogle")}</a></p>` : ""}<hr>${button("team", "open-team", true)}${button("newWorkspace", "new-workspace", true)}</section>`);
     document.querySelector('[data-action="open-team"]').onclick = () => {
       page = "team";
       render();
@@ -795,8 +822,8 @@ async function renderPage() {
     };
     return;
   }
-  const account = ["orders", "invoices"].includes(page), service = page === "services", support = page === "support", reports = ["reports", "rewards"].includes(page);
-  content(`<section class="panel quiet-panel"><span class="eyebrow">${reports ? "NOT CONNECTED" : account ? "EXISTING ACCOUNT" : service ? "SERVICE CATALOGUE" : "INTEGRATION PENDING"}</span><h2>${t(page)}</h2><p>${t(account ? "legacy" : service ? "serviceNote" : support ? "supportText" : reports ? "reportNote" : "unavailable")}</p><a class="primary" href="${account ? "/account" : service ? "/services" : "/contact"}">${t(account ? "openAccount" : service ? "openServices" : "contact")} \u2197</a></section>`);
+  const service = page === "services", support = page === "support", reports = ["reports", "rewards"].includes(page);
+  content(`<section class="panel quiet-panel"><span class="eyebrow">${reports ? "NOT CONNECTED" : service ? "SERVICE CATALOGUE" : "INTEGRATION PENDING"}</span><h2>${t(page)}</h2><p>${t(service ? "serviceNote" : support ? "supportText" : reports ? "reportNote" : "unavailable")}</p><a class="primary" href="${service ? "/services" : "/contact"}">${t(service ? "openServices" : "contact")} \u2197</a></section>`);
 }
 async function askAuri(question, missionId) {
   const { data } = await api(endpoint("auri"), "POST", missionId ? { tool: "task", missionId } : { tool: "guidance", question, lang });
@@ -861,8 +888,9 @@ function growthDashboard() {
     async onGenerate(event) {
       event.target.disabled = true;
       try {
+        const id = workspace.organization.id;
         await api(endpoint("missions"), "POST", {});
-        await loadWorkspace();
+        await loadWorkspace(id);
       } catch (error) {
         event.target.disabled = false;
         toast(error.message);
@@ -877,8 +905,9 @@ function journey() {
   document.querySelector('[data-action="generate"]').onclick = async (e) => {
     e.target.disabled = true;
     try {
+      const id = workspace.organization.id;
       await api(endpoint("missions"), "POST", {});
-      await loadWorkspace();
+      await loadWorkspace(id);
     } catch (e2) {
       toast(e2.message);
     }
@@ -886,8 +915,9 @@ function journey() {
   document.querySelectorAll("[data-mission]").forEach((card) => {
     const m = workspace.missions.find((m2) => m2.id === card.dataset.mission), save = async (patch) => {
       try {
+        const id = workspace.organization.id;
         await api(endpoint("missions/" + m.id), "PATCH", { version: m.version, status: m.status, position: m.position, ...patch });
-        await loadWorkspace();
+        await loadWorkspace(id);
       } catch (e) {
         toast(e.message);
       }
@@ -1071,16 +1101,21 @@ function assistant() {
     }
   };
 }
-async function loadWorkspace(id) {
+async function loadWorkspace(id = workspace.organization.id) {
+  if (workspaceSwitch && id !== workspaceSwitch) return;
+  const next = await api("/api/hub/workspaces/" + id);
+  if ((workspaceSwitch || workspace.organization.id) !== id) return;
+  if (workspace.organization.id !== id) selectedMission = null;
   result = null;
   scenarioInputs = null;
-  workspace = await api("/api/hub/workspaces/" + (id || workspace.organization.id));
+  workspace = next;
   render();
 }
 async function load() {
   try {
     const data = await api("/api/hub/workspaces");
     me = data.user;
+    if (["login", "signup"].includes(route) && resumeShop()) return;
     workspaces = data.workspaces;
     if (workspaces.length) {
       const selected = workspace && workspaces.find((w) => w.id === workspace.organization.id);
@@ -1101,5 +1136,12 @@ async function load() {
     }
   }
 }
-if (["verify", "reset", "forgot"].includes(route)) render();
-else load();
+async function start() {
+  if (["verify", "reset", "forgot"].includes(route)) {
+    render();
+    return;
+  }
+  authCapabilities = await api("/api/customer/capabilities").catch(() => ({}));
+  await load();
+}
+start();

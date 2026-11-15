@@ -70,7 +70,7 @@ try {
   await page.getByRole('button', { name: 'Review changes' }).click(); await page.getByRole('button', { name: 'Save changes' }).click();
   await page.waitForURL('**/shop/cart'); await page.getByText('Updated Café', { exact: false }).waitFor();
   assert.equal(await page.locator('.shop-cart-row').count(), 1);
-  await page.getByRole('button', { name: 'Remove Oliva Bistro' }).click(); await page.getByRole('heading', { name: 'Your panier is ready for its first card.' }).waitFor();
+  await page.getByRole('button', { name: 'Remove Oliva Bistro' }).click(); await page.getByRole('heading', { name: 'Your cart is ready for its first card.' }).waitFor();
   await context.close();
 
   const checkout = await pageFor({ viewport: { width: 1440, height: 1000 } });
@@ -133,7 +133,10 @@ try {
       assert.equal(await mobile.page.locator('.shop-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length), 2);
       await mobile.page.getByRole('button', { name: 'Filters', exact: false }).click();
       await mobile.page.locator('#shop-filters [name="category"]').selectOption('Beauty Salons & Spas');
-      assert.equal(await mobile.page.locator('.shop-product').count(), catalogThemes.filter(t=>t.category === 'Beauty Salons & Spas').length);
+      const categoryThemes = catalogThemes.filter(theme => theme.category === 'Beauty Salons & Spas');
+      assert.equal(await mobile.page.locator('.shop-product').count(), categoryThemes.length);
+      await mobile.page.locator('#shop-filters [name="orientation"]').selectOption('Vertical');
+      assert.equal(await mobile.page.locator('.shop-product').count(), categoryThemes.filter(theme => theme.orientation === 'Vertical').length);
       assert.equal(await mobile.page.locator('.shop-scene').first().getAttribute('data-orientation'), 'Vertical');
       await mobile.page.locator('[data-enlarge]').first().click(); await mobile.page.locator('#shop-dialog').waitFor({ state: 'visible' });
       await mobile.page.getByRole('button', { name: 'Close dialog' }).click();
