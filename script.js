@@ -23,14 +23,14 @@ const pages = [
 const header = document.getElementById("siteHeader");
 if (header) {
   header.className = "site-header";
-  header.innerHTML = `<div class="container nav"><a class="brand brand-wordmark" href="/" aria-label="AuraDigital home"><img class="brand-logo" src="auradigital-logo-20260928.png" alt=""><span class="brand-name"><strong>Aura</strong>Digital</span></a><div class="nav-links" id="navLinks">${pages
+  header.innerHTML = `<div class="container nav"><a class="brand brand-wordmark" href="/" aria-label="AuraDigital home"><img class="brand-logo" src="auradigital-logo-20260928.png" alt=""><span class="brand-name"><strong>Aura</strong>Digital</span></a><a class="nav-account" href="/account/login">Sign in</a><div class="nav-links" id="navLinks">${pages
     .map(
       ([id, href, label]) =>
         id === "products" ? `<div class="nav-products"><button type="button" class="nav-products-toggle" aria-expanded="false" aria-controls="nav-products-menu">Products <span aria-hidden="true">⌄</span></button><div class="nav-products-menu" id="nav-products-menu"><a href="/aura-menu">AuraMenu <small>Digital restaurant menus</small></a><a href="/aurapops">AuraPops <small>Your digital identity</small></a><a href="/aura-weddings">AuraWeddings <small>Wedding invitations</small></a></div></div>` : `<a class="${page === id ? "active" : ""}" href="${href}">${label}</a>`,
     )
     .join(
       "",
-    )}<a class="mobile-account-link" href="/account/login">My account</a></div><a class="nav-account" href="/account/login">Sign in</a><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Language" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">EN</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Let's Talk <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button></div>`;
+    )}<a class="mobile-account-link" href="/account/login">My account</a></div><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Language" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">EN</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Let's Talk <span>↗</span></a><button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button></div>`;
 }
 const productsToggle = document.querySelector(".nav-products-toggle");
 productsToggle?.addEventListener("click", () => productsToggle.setAttribute("aria-expanded", String(productsToggle.getAttribute("aria-expanded") !== "true")));
