@@ -1,3 +1,5 @@
+import { explainRoadmap } from './hub-auri.js';
+import { eligibleMissions } from './roadmap.js';
 import { handleMenuDrafts } from './menu-drafts.js';
 import { ApiError, json, readJson } from './http.js';
 import { authenticatedCustomer, tokenHash } from './customer-accounts.ts';
@@ -28,6 +30,22 @@ async function authorize(db,org,user,permission='workspace:read') {
  return guard;
 }
 function audit(db,org,user,action,target=null) {return db.prepare('INSERT INTO member_access_audit_logs(id,organization_id,actor_id,action,target_id) VALUES(?,?,?,?,?)').bind(crypto.randomUUID(),org,user.id,action,target);}
+async function getMissions(db,org) {
+ const {results}=await db.prepare('SELECT id,capability,data_json,status,position,version FROM business_missions WHERE organization_id=? ORDER BY position,id').bind(org).all();
+ return results.map(({data_json,...m})=>({...JSON.parse(data_json),...m}));
+}
+function currentRecommendations(missions,analysis) {
+ const suggestions=new Map(analysis.missions.map(m=>[m.id,m]));
+ return missions.map(m=>{
+  const current=suggestions.get(m.capability);
+  return current?{...m,priority:current.priority,optional:current.optional}:m;
+ });
+}
+function missionInserts(db,org,missions,condition,args) {
+ return missions.map(mission=>db.prepare(`INSERT INTO business_missions(id,organization_id,capability,data_json,position)
+  SELECT ?,?,?,?,COALESCE((SELECT MAX(position)+1 FROM business_missions WHERE organization_id=?),0) WHERE ${condition}
+  ON CONFLICT(organization_id,capability) DO NOTHING`).bind(crypto.randomUUID(),org,mission.id,JSON.stringify(mission),org,...args));
+}
 async function owner(db,org,user) {
  await requireVerified(db,user);
  if(!await db.prepare('SELECT id FROM organizations WHERE id=? AND owner_id=?').bind(org,user.id).first())throw new ApiError(403,'Only the verified business owner can manage the team.');
@@ -103,8 +121,12 @@ export async function handleBusinessHub(request,env) {
  if(path==='/api/hub/workspaces'&&request.method==='POST') {
   const body=await readJson(request,16000),profile=validateProfile(body.profile),id=crypto.randomUUID();
   if(!['myself','auri'].includes(body.mode))throw new ApiError(400,'Choose an onboarding mode.');
-  const result=await env.DB.prepare('INSERT INTO organizations(id,owner_id,name,profile_json,mode) SELECT ?,?,?,?,? WHERE (SELECT count(*) FROM organizations WHERE owner_id=?)<10').bind(id,user.id,profile.name,JSON.stringify(profile),body.mode,user.id).run();
-  if(!result.meta.changes)throw new ApiError(409,'Workspace limit reached.');return json({id},201);
+  const [result]=await env.DB.batch([
+   env.DB.prepare('INSERT INTO organizations(id,owner_id,name,profile_json,mode) SELECT ?,?,?,?,? WHERE (SELECT count(*) FROM organizations WHERE owner_id=?)<10').bind(id,user.id,profile.name,JSON.stringify(profile),body.mode,user.id),
+   ...missionInserts(env.DB,id,diagnose(profile).missions,'EXISTS(SELECT 1 FROM organizations WHERE id=? AND owner_id=?)',[id,user.id]),
+  ]);
+  if(!result.meta.changes)throw new ApiError(409,'Workspace limit reached.');
+  return json({id},201);
  }
  if(['/api/hub/invitations/preview','/api/hub/invitations/accept'].includes(path)&&request.method==='POST')return invitation(request,env,user,await readJson(request,4096),path.endsWith('/accept'));
  const match=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})(?:\/(profile|diagnosis|missions|scenarios|team|invitations|activity|auri)(?:\/([a-f0-9-]{36}))?)?$/.exec(path);
@@ -116,14 +138,18 @@ export async function handleBusinessHub(request,env) {
   if(!o)throw new ApiError(404,'Workspace unavailable.');
   await env.DB.prepare("INSERT INTO member_access_audit_logs(id,organization_id,actor_id,action) SELECT ?,?,?,'workspace_opened' WHERE NOT EXISTS(SELECT 1 FROM member_access_audit_logs WHERE organization_id=? AND actor_id=? AND action='workspace_opened' AND created_at>=date('now'))").bind(crypto.randomUUID(),org,user.id,org,user.id).run();
   const profile=JSON.parse(o.profile_json),analysis=diagnose(profile);
-  const missions=(await env.DB.prepare('SELECT id,data_json,status,position,version FROM business_missions WHERE organization_id=? ORDER BY position,id').bind(org).all()).results.map(m=>({...JSON.parse(m.data_json),capability:JSON.parse(m.data_json).id,id:m.id,status:m.status,position:m.position,version:m.version}));
+  const missions=currentRecommendations(await getMissions(env.DB,org),analysis);
   const perms=o.owner_id===user.id?['profile:write','roadmap:write','simulation:write','team:manage','workspace:read','auri:use']:(await env.DB.prepare(`SELECT p.permission FROM organization_permissions p JOIN organization_members m ON p.role_id=m.role_id WHERE m.organization_id=? AND m.customer_id=? AND NOT EXISTS(SELECT 1 FROM json_each(m.permissions_json) WHERE value=p.permission)`).bind(org,user.id).all()).results.map(p=>p.permission);
   return json({organization:{id:o.id,name:o.name,mode:o.mode,version:o.version,owner:o.owner_id===user.id},profile,analysis,missions,permissions:perms,billing});
  }
  if(section==='profile'&&request.method==='PUT') {
   const guard=await authorize(env.DB,org,user,'profile:write'),b=await readJson(request,16000),profile=validateProfile(b.profile);
   if(!['myself','auri'].includes(b.mode)||!Number.isInteger(b.version))throw new ApiError(400,'Invalid profile revision.');
-  const result=await env.DB.prepare(`UPDATE organizations SET name=?,profile_json=?,mode=?,version=version+1,updated_at=datetime('now') WHERE id=? AND version=? AND ${guard.sql}`).bind(profile.name,JSON.stringify(profile),b.mode,org,b.version,...guard.args).run();
+  const profileJson=JSON.stringify(profile);
+  const [result]=await env.DB.batch([
+   env.DB.prepare(`UPDATE organizations SET name=?,profile_json=?,mode=?,version=version+1,updated_at=datetime('now') WHERE id=? AND version=? AND ${guard.sql}`).bind(profile.name,profileJson,b.mode,org,b.version,...guard.args),
+   ...missionInserts(env.DB,org,diagnose(profile).missions,`EXISTS(SELECT 1 FROM organizations WHERE id=? AND version=? AND profile_json=?) AND ${guard.sql}`,[org,b.version+1,profileJson,...guard.args]),
+  ]);
   if(!result.meta.changes)throw new ApiError(409,'The profile changed or access was revoked. Reload before saving.');return json({saved:true});
  }
  if(section==='diagnosis'&&request.method==='GET')return json(diagnose(JSON.parse((await env.DB.prepare('SELECT profile_json FROM organizations WHERE id=?').bind(org).first()).profile_json)));
@@ -131,13 +157,14 @@ export async function handleBusinessHub(request,env) {
   const guard=await authorize(env.DB,org,user,'roadmap:write');const body=await readJson(request,2048);
   if(body.services!==undefined&&(!Array.isArray(body.services)||body.services.length>capabilities.length||body.services.some(id=>!capabilities.some(c=>c.id===id))))throw new ApiError(400,'Invalid selected services.');
   const profile=JSON.parse((await env.DB.prepare('SELECT profile_json FROM organizations WHERE id=?').bind(org).first()).profile_json),analysis=diagnose(profile);
-  await env.DB.batch(analysis.missions.filter(m=>body.services===undefined||body.services.includes(m.id)).map((m,i)=>env.DB.prepare(`INSERT OR IGNORE INTO business_missions(id,organization_id,capability,data_json,position) SELECT ?,?,?,?,? WHERE ${guard.sql}`).bind(crypto.randomUUID(),org,m.id,JSON.stringify(m),i,...guard.args)));
+  const inserts=missionInserts(env.DB,org,analysis.missions.filter(m=>body.services===undefined||body.services.includes(m.id)),guard.sql,guard.args);
+  if(inserts.length)await env.DB.batch(inserts);
   return json({saved:true});
  }
  if(section==='missions'&&item&&request.method==='PATCH') {
   const guard=await authorize(env.DB,org,user,'roadmap:write'),b=await readJson(request,6000);
-  if(!['planned','in_progress','done','postponed'].includes(b.status)||!Number.isInteger(b.position)||b.position<0||b.position>1000||!Number.isInteger(b.version))throw new ApiError(400,'Invalid mission changes.');
-  const current=await env.DB.prepare('SELECT data_json FROM business_missions WHERE id=? AND organization_id=?').bind(item,org).first();if(!current)throw new ApiError(404,'Mission not found.');
+  if(!['planned','in_progress','done','postponed'].includes(b.status)||!Number.isInteger(b.position)||b.position<0||b.position>10000||!Number.isInteger(b.version))throw new ApiError(400,'Invalid mission changes.');
+  const current=await env.DB.prepare('SELECT data_json,status FROM business_missions WHERE id=? AND organization_id=?').bind(item,org).first();if(!current)throw new ApiError(404,'Mission not found.');
   const data=JSON.parse(current.data_json);
   if(b.direction!==undefined) {
    if(!['up','down'].includes(b.direction))throw new ApiError(400,'Invalid order direction.');
@@ -149,7 +176,13 @@ export async function handleBusinessHub(request,env) {
    if(r.meta.changes!==2)throw new ApiError(409,'Mission order changed. Reload before moving.');return json({saved:true});
   }
   for(const [key,max] of Object.entries({objective:160,description:1600,nextAction:500}))if(b[key]!==undefined){if(typeof b[key]!=='string'||!b[key].trim()||b[key].length>max)throw new ApiError(400,'Invalid mission text.');data[key]=b[key].trim();}
-  const result=await env.DB.prepare(`UPDATE business_missions SET data_json=?,status=?,position=?,version=version+1 WHERE id=? AND organization_id=? AND version=? AND ${guard.sql}`).bind(JSON.stringify(data),b.status,b.position,item,org,b.version,...guard.args).run();
+  if(b.status==='done'&&current.status!=='done')data.completedAt=new Date().toISOString();
+  if(b.status!=='done')delete data.completedAt;
+  const [result]=await env.DB.batch([
+   env.DB.prepare(`UPDATE business_missions SET data_json=?,status=?,position=?,version=version+1 WHERE id=? AND organization_id=? AND version=? AND ${guard.sql}`).bind(JSON.stringify(data),b.status,b.position,item,org,b.version,...guard.args),
+   env.DB.prepare(`INSERT INTO member_access_audit_logs(id,organization_id,actor_id,action,target_id)
+    SELECT ?,?,?,?,? WHERE changes()=1`).bind(crypto.randomUUID(),org,user.id,current.status===b.status?'mission_edited':'mission_'+b.status,item),
+  ]);
   if(!result.meta.changes)throw new ApiError(409,'Mission changed or access revoked.');return json({saved:true});
  }
  if(section==='scenarios'&&request.method==='GET')return json({scenarios:(await env.DB.prepare('SELECT id,name,inputs_json,results_json,formula_version,created_at FROM growth_scenarios WHERE organization_id=? ORDER BY created_at DESC,id LIMIT 100').bind(org).all()).results.map(s=>({id:s.id,name:s.name,inputs:JSON.parse(s.inputs_json),result:JSON.parse(s.results_json),createdAt:s.created_at}))});
@@ -187,11 +220,23 @@ export async function handleBusinessHub(request,env) {
   if(section==='activity'&&request.method==='GET')return json({events:(await env.DB.prepare('SELECT action,target_id,created_at FROM member_access_audit_logs WHERE organization_id=? ORDER BY created_at DESC,id LIMIT 100').bind(org).all()).results});
  }
  if(section==='auri'&&request.method==='POST') {
-  await authorize(env.DB,org,user,'auri:use');const b=await readJson(request,4000);
-  if(!['diagnosis','next_action','simulation'].includes(b.tool))throw new ApiError(400,'Choose an authorized AURI tool.');
+  const guard=await authorize(env.DB,org,user,'auri:use');const b=await readJson(request,4000);
+  if(!['diagnosis','next_action','simulation','task','guidance'].includes(b.tool))throw new ApiError(400,'Choose an authorized AURI tool.');
   // Deterministic, narrowly scoped tools; no SQL, arbitrary tool names or provider output executes.
   const profile=JSON.parse((await env.DB.prepare('SELECT profile_json FROM organizations WHERE id=?').bind(org).first()).profile_json),analysis=diagnose(profile);
-  const data=b.tool==='diagnosis'?analysis:b.tool==='simulation'?simulate(b.inputs):{nextAction:analysis.missions[0]||null};
+  const missions=currentRecommendations(await getMissions(env.DB,org),analysis),eligible=eligibleMissions(missions,profile);
+  if(b.tool==='guidance') {
+   if(typeof b.question!=='string'||!b.question.trim()||b.question.length>500||!['en','tr','fr','ar'].includes(b.lang))throw new ApiError(400,'Enter a short roadmap question.');
+   const issue=b.question.trim();
+   const reply=await explainRoadmap(env,{org,user,guard,issue,lang:b.lang,profile,missions:[...eligible,...missions.filter(m=>!eligible.includes(m))]});
+   return json({mode:reply?'ai':'rules',data:{reply,nextAction:eligible[0]||null,priorities:eligible.slice(0,3)}});
+  }
+  if(b.tool==='task') {
+   const mission=missions.find(m=>m.id===b.missionId);
+   if(!mission)throw new ApiError(404,'Mission not found.');
+   return json({mode:'rules',data:{mission}});
+  }
+  const data=b.tool==='diagnosis'?analysis:b.tool==='simulation'?simulate(b.inputs):{nextAction:eligible[0]||null};
   return json({mode:'rules',providerStatus:'NOT_INTEGRATED',tool:b.tool,data,notice:'AURI rules-based guidance. Generative business advice is not configured for this workspace.'});
  }
  throw new ApiError(405,'Method not allowed.');

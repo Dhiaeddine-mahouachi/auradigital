@@ -301,7 +301,18 @@ if (form) {
   const params = new URLSearchParams(location.search);
   const design = params.get("design");
   const requestedService = params.get("service");
-  if (requestedService === "auraweddings") {
+  const hubRequest = new URLSearchParams(location.hash.slice(1));
+  if (hubRequest.get("hub") === "1") {
+    history.replaceState(null, "", location.pathname + location.search);
+    const service = form.elements.service;
+    const selected = hubRequest.get("service");
+    service.value = Array.from(service.options).some(option => option.value === selected) ? selected : "Other";
+    form.elements.name.value = (hubRequest.get("name") || "").slice(0, 100);
+    form.elements.email.value = (hubRequest.get("email") || "").slice(0, 254);
+    const business = (hubRequest.get("business") || "").slice(0, 120);
+    const task = (hubRequest.get("task") || "").slice(0, 160);
+    form.elements.message.value = [business && `Business: ${business}`, task && `Growth roadmap task: ${task}`].filter(Boolean).join("\n");
+  } else if (requestedService === "auraweddings") {
     const service = form.querySelector('[name="service"]');
     const message = form.querySelector('[name="message"]');
     if (service) service.value = "AuraWeddings";

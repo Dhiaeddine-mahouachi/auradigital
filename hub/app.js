@@ -1,3 +1,183 @@
+// src/roadmap.js
+var roadmapStages = [
+  { key: "foundation", icon: "\u25C7" },
+  { key: "visibility", icon: "\u25CE" },
+  { key: "conversion", icon: "\u2197" },
+  { key: "automation", icon: "\u2699" }
+];
+var missionGuide = {
+  website: ["Web Design", "Give customers a place to understand your offer and contact you.", "Choose your main offer and audience. Publish a mobile-friendly page with a clear contact or booking action."],
+  domain: ["Hosting / Security", "Give your business a consistent address that you control.", "Choose a domain, register it in your business account, and document renewal and DNS access."],
+  email: ["Business Email", "Make customer messages recognizable and improve deliverability.", "Create a branded mailbox and configure SPF, DKIM and DMARC with your email provider."],
+  branding: [null, "Help customers recognize your business across listings, messages and your site.", "Prepare your logo, colors and core message in a short brand guide."],
+  hosting: ["Hosting / Security", "Keep your website reachable and protect access to its administration.", "Enable HTTPS, automatic backups and MFA. Test restoring a backup."],
+  seo: ["SEO / Google Maps", "Make your pages easier to find for the searches your customers use.", "Pick relevant search terms, update page titles and copy, and verify indexing in Search Console."],
+  discovery: ["SEO / Google Maps", "Help nearby customers find your hours, location and contact details.", "Claim your Google Business Profile if eligible. Verify it, add accurate details and publish recent photos."],
+  ads: ["Ad Management", "Test whether paid search can reach people already looking for your offer.", "Choose one offer and landing page. Set conversion tracking and a test budget before launching."],
+  reviews: ["SEO / Google Maps", "Help customers judge what to expect from your business.", "Request honest reviews after service and respond to feedback. Avoid incentives tied to positive ratings."],
+  leads: ["Web Design", "Give visitors a direct way to take the next step.", "Add a short contact or booking form. Test submission, confirmation and follow-up on a phone."],
+  whatsapp: ["AI & Automation", "Make it easy for customers to start a conversation on their phone.", "Set up a business number, add click-to-chat to your site or listing, and check who handles replies."],
+  crm: ["Pricing / Quote", "Keep customer enquiries and follow-up commitments in one place.", "Define your pipeline stages, assign owners, and import current leads with permission."],
+  conversion: [null, "Find and remove friction between a visit and an enquiry or sale.", "Review your offer and call to action. Change one element and measure whether more visitors take the next step."],
+  automation: ["AI & Automation", "Answer routine questions and route complex requests to a person.", "Write approved answers, identify handoff cases, and test responses with common customer questions."],
+  followups: ["AI & Automation", "Reduce missed enquiries and follow up consistently.", "Define when reminders should fire, record consent, and test opt-outs and human overrides."],
+  analytics: [null, "See which acquisition channels and pages lead to useful customer actions.", "Choose the actions that matter, configure privacy-aware tracking, and verify sample events."],
+  retention: [null, "Make it easier for existing customers to return.", "Choose a reason to return, test it with existing customers, and measure repeat purchases or bookings."],
+  menu: ["AuraMenu", "Give diners an easy way to view current items and prices on their phones.", "Gather your categories, item names, prices and photos. Publish and test a QR link on a phone."]
+};
+function missionState(mission, missions, profile) {
+  const existing = new Set(profile.capabilities || []);
+  if (profile.website) existing.add("website");
+  const requirements = (mission.dependencies || []).filter((id) => !existing.has(id) && !missions.some((candidate) => candidate.capability === id && candidate.status === "done"));
+  return { requirements, blocked: mission.status !== "done" && requirements.length > 0 };
+}
+function eligibleMissions(missions, profile) {
+  return missions.filter((mission) => !["done", "postponed"].includes(mission.status) && !missionState(mission, missions, profile).blocked).sort((a, b) => Number(a.optional || false) - Number(b.optional || false) || a.priority - b.priority || a.position - b.position);
+}
+
+// src/hub/roadmap-view.js
+var labels = {
+  en: ["Dashboard", "Roadmap", "Tasks", "Resources", "Welcome back", "Roadmap progress", "Growth stage", "Priority actions", "Estimated timeline", "Your business growth", "Your Business Growth Roadmap", "Tree view", "Timeline", "Current focus", "Why it matters", "How to do it", "Requirements", "Do it myself", "Get this done with AuraDigital", "Ask AURI\u2026", "Optional", "Blocked", "Update my roadmap", "Request a service", "Start", "Mark complete", "AURI Assistant", "Can AuraDigital help?", "Upcoming", "Completed", "Ask about this task"],
+  tr: ["Panel", "Yol haritas\u0131", "G\xF6revler", "Kaynaklar", "Tekrar ho\u015F geldiniz", "Yol haritas\u0131 ilerlemesi", "B\xFCy\xFCme a\u015Famas\u0131", "\xD6ncelikli ad\u0131mlar", "Tahmini s\xFCre", "\u0130\u015Fletmenizin b\xFCy\xFCmesi", "\u0130\u015Fletmenizin b\xFCy\xFCme yol haritas\u0131", "A\u011Fa\xE7 g\xF6r\xFCn\xFCm\xFC", "Zaman \xE7izelgesi", "\u015Eu anki odak", "Neden \xF6nemli", "Nas\u0131l yap\u0131l\u0131r", "Gereksinimler", "Kendim yapaca\u011F\u0131m", "AuraDigital ile yap", "AURI\u2019ye sorun\u2026", "\u0130ste\u011Fe ba\u011Fl\u0131", "Engellendi", "Yol haritas\u0131n\u0131 g\xFCncelle", "Hizmet iste", "Ba\u015Fla", "Tamamland\u0131 olarak i\u015Faretle", "AURI Asistan\u0131", "AuraDigital yard\u0131mc\u0131 olabilir mi?", "Yakla\u015Fan", "Tamamlanan", "Bu g\xF6revi sor"],
+  fr: ["Tableau de bord", "Feuille de route", "T\xE2ches", "Ressources", "Bon retour", "Progression", "\xC9tape de croissance", "Actions prioritaires", "D\xE9lai estim\xE9", "La croissance de votre entreprise", "Votre feuille de route de croissance", "Vue en arbre", "Chronologie", "Priorit\xE9 actuelle", "Pourquoi cette t\xE2che compte", "Comment faire", "Pr\xE9requis", "Le faire moi-m\xEAme", "Confier \xE0 AuraDigital", "Demander \xE0 AURI\u2026", "Facultatif", "Bloqu\xE9", "Actualiser la feuille de route", "Demander un service", "D\xE9marrer", "Marquer comme termin\xE9", "Assistant AURI", "AuraDigital peut-il aider ?", "\xC0 venir", "Termin\xE9", "Poser une question sur cette t\xE2che"],
+  ar: ["\u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645", "\u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u0627\u0644\u0645\u0647\u0627\u0645", "\u0627\u0644\u0645\u0648\u0627\u0631\u062F", "\u0623\u0647\u0644\u064B\u0627 \u0628\u0639\u0648\u062F\u062A\u0643", "\u062A\u0642\u062F\u0645 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u0645\u0631\u062D\u0644\u0629 \u0627\u0644\u0646\u0645\u0648", "\u0627\u0644\u0625\u062C\u0631\u0627\u0621\u0627\u062A \u0630\u0627\u062A \u0627\u0644\u0623\u0648\u0644\u0648\u064A\u0629", "\u0627\u0644\u0645\u062F\u0629 \u0627\u0644\u0645\u0642\u062F\u0631\u0629", "\u0646\u0645\u0648 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A", "\u062E\u0627\u0631\u0637\u0629 \u0646\u0645\u0648 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A", "\u0639\u0631\u0636 \u0627\u0644\u0634\u062C\u0631\u0629", "\u0627\u0644\u062C\u062F\u0648\u0644 \u0627\u0644\u0632\u0645\u0646\u064A", "\u0627\u0644\u062A\u0631\u0643\u064A\u0632 \u0627\u0644\u062D\u0627\u0644\u064A", "\u0644\u0645\u0627\u0630\u0627 \u064A\u0647\u0645", "\u0637\u0631\u064A\u0642\u0629 \u0627\u0644\u062A\u0646\u0641\u064A\u0630", "\u0627\u0644\u0645\u062A\u0637\u0644\u0628\u0627\u062A", "\u0633\u0623\u0646\u0641\u0630\u0647\u0627 \u0628\u0646\u0641\u0633\u064A", "\u0646\u0641\u0651\u0630 \u0645\u0639 AuraDigital", "\u0627\u0633\u0623\u0644 AURI\u2026", "\u0627\u062E\u062A\u064A\u0627\u0631\u064A", "\u0645\u062A\u0648\u0642\u0641", "\u062D\u062F\u0651\u062B \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u0627\u0637\u0644\u0628 \u062E\u062F\u0645\u0629", "\u0627\u0628\u062F\u0623", "\u0639\u0644\u0651\u0645 \u0643\u0645\u0643\u062A\u0645\u0644", "\u0645\u0633\u0627\u0639\u062F AURI", "\u0647\u0644 \u064A\u0645\u0643\u0646 \u0644\u0640 AuraDigital \u0627\u0644\u0645\u0633\u0627\u0639\u062F\u0629\u061F", "\u0627\u0644\u0642\u0627\u062F\u0645", "\u0627\u0644\u0645\u0643\u062A\u0645\u0644", "\u0627\u0633\u0623\u0644 \u0639\u0646 \u0647\u0630\u0647 \u0627\u0644\u0645\u0647\u0645\u0629"]
+};
+var roadmapLabels = (lang2) => Object.fromEntries([
+  "home",
+  "journey",
+  "tasks",
+  "resources",
+  "welcome",
+  "progress",
+  "stage",
+  "priority",
+  "estimate",
+  "root",
+  "heading",
+  "tree",
+  "timeline",
+  "focus",
+  "why",
+  "how",
+  "requirements",
+  "myself",
+  "hire",
+  "ask",
+  "optional",
+  "blocked",
+  "refresh",
+  "request",
+  "start",
+  "complete",
+  "assistant",
+  "help",
+  "upcoming",
+  "completed",
+  "askTask"
+].map((key, i) => [key, labels[lang2][i]]));
+function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap2, lang: lang2, view, selectedId, onSelect, onView, onSave, onEdit, onGenerate, onAsk, robot: robot2, requestLink: requestLink2 }) {
+  const l = roadmapLabels(lang2);
+  const { missions, profile, analysis, permissions } = workspace2;
+  const canWrite = permissions.includes("roadmap:write");
+  const canAsk = permissions.includes("auri:use");
+  const eligible = eligibleMissions(missions, profile);
+  const selected = missions.find((m) => m.id === selectedId) || eligible[0] || missions[0];
+  const completion = (items) => items.length ? Math.round(items.filter((m) => m.status === "done").length / items.length * 100) : 0;
+  const progress = completion(missions);
+  const stageOf = (m) => Math.min(m.level, 4);
+  const title = (m) => m.objective === m.service ? cap2(m.capability) : m.objective;
+  const stages = roadmapStages.map((stage, i) => ({ ...stage, missions: missions.filter((m) => stageOf(m) === i + 1) }));
+  const stageName = (stage, i) => lang2 === "en" ? ["Build Foundation", "Increase Visibility", "Convert More Visitors", "Automate & Scale"][i] : t2(stage.key);
+  const currentStage = stages.findIndex((stage) => stage.missions.some((m) => !m.optional && !["done", "postponed"].includes(m.status)));
+  const isBlocked = (m) => missionState(m, missions, profile).blocked;
+  const status = (m) => isBlocked(m) ? l.blocked : t2(m.status);
+  const node = (m) => `<button type="button" class="growth-node" data-node="${esc3(m.id)}" data-status="${isBlocked(m) ? "blocked" : m.status}" aria-pressed="${m.id === selected?.id}">
+  <span class="growth-dot" aria-hidden="true">${m.status === "done" ? "\u2713" : isBlocked(m) ? "\xB7" : ""}</span>
+  <span>${esc3(title(m))}<small>${esc3(status(m))}${m.optional ? " \xB7 " + l.optional : ""}</small></span>
+ </button>`;
+  const tree = `<div class="growth-tree">
+  <div class="growth-root"><span aria-hidden="true">\u2726</span>${l.root}</div>
+  <svg class="growth-lines" viewBox="0 0 800 90" preserveAspectRatio="none" aria-hidden="true">
+   <path pathLength="1" d="M400 0 C390 65 100 6 100 90" /><path pathLength="1" d="M400 0 C395 60 300 10 300 90" />
+   <path pathLength="1" d="M400 0 C405 60 500 10 500 90" /><path pathLength="1" d="M400 0 C410 65 700 6 700 90" />
+  </svg>
+  <div class="growth-branches">${stages.map((stage, i) => `<section class="growth-branch" data-stage="${i}">
+    <h3><span aria-hidden="true">${stage.icon}</span>${i + 1}. ${esc3(stageName(stage, i))}<small>${stage.missions.length ? completion(stage.missions) + "%" : "\u2014"}</small></h3>
+    <div class="growth-nodes">${stage.missions.map(node).join("") || `<p>${esc3(t2("empty"))}</p>`}</div></section>`).join("")}</div>
+ </div>`;
+  const groups = [
+    [l.priority, eligible],
+    [l.upcoming, missions.filter((m) => m.status !== "done" && !eligible.includes(m))],
+    [l.completed, missions.filter((m) => m.status === "done").sort((a, b) => (b.completedAt || "").localeCompare(a.completedAt || ""))]
+  ];
+  const timeline = `<div class="growth-timeline">${groups.map(([label, items]) => `<section><h3>${label}</h3>${items.map((m) => `<div>${node(m)}
+  ${m.completedAt ? `<time datetime="${esc3(m.completedAt)}">${esc3(new Date(m.completedAt).toLocaleDateString(lang2))}</time>` : ""}
+  ${m.dependencies?.length ? `<small>${l.requirements} \xB7 ${esc3(m.dependencies.map(cap2).join(", "))}</small>` : ""}</div>`).join("") || `<p>${esc3(t2("empty"))}</p>`}</section>`).join("")}</div>`;
+  const metric = (icon, value, label) => `<article class="growth-card growth-metric"><span class="growth-metric-icon" aria-hidden="true">${icon}</span><div><strong>${esc3(value)}</strong><span>${label}</span></div></article>`;
+  const detail = selected ? taskDetails(selected) : `<p>${esc3(t2("empty"))}</p>`;
+  host.innerHTML = `<section class="growth-metrics" aria-label="${l.progress}">
+ <article class="growth-card growth-metric"><span class="growth-ring" style="--progress:${progress}%">${missions.length ? progress + "%" : "\u2014"}</span><div><strong>${l.progress}</strong><span>${missions.filter((m) => m.status === "done").length} / ${missions.length} \xB7 ${l.completed}</span></div></article>
+ ${metric("\u25A5", currentStage < 0 ? "\u2014" : stageName(stages[currentStage], currentStage), l.stage)}
+ ${metric("\u25CE", eligible.filter((m) => m.priority === 1 && !m.optional).length, l.priority)}
+ ${metric("\u25A6", "\u2014", l.estimate)}</section>
+ <div class="growth-layout"><section class="growth-card growth-map"><header class="growth-panel-head"><h2>${l.heading}</h2><div class="growth-tabs">
+ <button type="button" data-view="tree" aria-pressed="${view === "tree"}">${l.tree}</button><button type="button" data-view="timeline" aria-pressed="${view === "timeline"}">${l.timeline}</button>
+ </div></header>${view === "tree" ? tree : timeline}
+ ${analysis.missions.some((m) => !missions.some((item) => item.capability === m.id)) && canWrite ? `<button type="button" class="growth-secondary" data-refresh>${l.refresh}</button>` : ""}</section>
+ <aside class="growth-side"><section class="growth-card growth-focus" id="growth-focus" tabindex="-1">${detail}</section>
+ <section class="growth-card growth-auri"><header>${robot2()}<h2>${l.assistant}</h2></header>
+ <div class="growth-answer" role="status"></div>${canAsk ? `<form><input name="question" aria-label="${l.ask}" placeholder="${l.ask}" maxlength="500" required><button class="growth-primary" aria-label="${l.ask}">\u27A4</button></form>` : ""}</section></aside></div>`;
+  function taskDetails(m) {
+    const guide = missionGuide[m.capability];
+    const reason = m.reason?.startsWith("This capability has not been reported") ? guide?.[1] : m.reason;
+    const action = m.nextAction === "Define scope or record your existing solution." ? guide?.[2] : m.nextAction;
+    const { requirements, blocked } = missionState(m, missions, profile);
+    const row = (label, body) => `<div class="growth-detail-row"><h3>${label}</h3><p>${esc3(body)}</p></div>`;
+    return `<div class="growth-focus-top"><span>${l.focus}</span><small>${esc3(status(m))}${m.optional ? " \xB7 " + l.optional : ""}</small></div>
+   <h2>${esc3(title(m))}</h2>
+   ${m.description !== reason && !m.description.startsWith("Establish ") ? `<p>${esc3(m.description)}</p>` : ""}
+   ${row(l.why, reason || m.description)}
+   ${row(l.requirements, m.dependencies?.length ? m.dependencies.map(cap2).join(", ") : "\u2014")}
+   ${guide?.[0] ? row(l.help, guide[0] + " \xB7 " + t2("quote")) : ""}
+   <details class="growth-diy" open><summary>${l.myself}</summary>${row(l.how, action)}
+   ${blocked ? `<p>${l.blocked} \xB7 ${esc3(requirements.map(cap2).join(", "))}</p>` : ""}</details>
+   <div class="growth-actions">
+   ${guide?.[0] ? `<a class="growth-primary" href="${esc3(requestLink2(guide[0], title(m)))}">${l.hire} \u2192</a>` : ""}
+   ${canWrite ? `<button class="growth-secondary" data-quick-status="${m.status === "done" ? "planned" : blocked ? "in_progress" : "done"}">${m.status === "done" ? esc3(t2("planned")) : blocked ? l.start : l.complete}</button><label><span class="sr-only">${esc3(t2("status"))}</span><select data-status-change>${["planned", "in_progress", "done", "postponed"].map((value) => `<option value="${value}" ${m.status === value ? "selected" : ""}>${esc3(t2(value))}</option>`).join("")}</select></label><button class="growth-secondary" data-edit>${esc3(t2("edit"))}</button>` : ""}
+   ${canAsk ? `<button class="growth-secondary" data-ask-task>${l.askTask}</button>` : ""}</div>`;
+  }
+  async function ask(question, missionId) {
+    const response = host.querySelector(".growth-answer");
+    response.textContent = "\u2026";
+    try {
+      response.textContent = await onAsk(question, missionId);
+    } catch (error) {
+      response.textContent = error.message;
+    }
+  }
+  host.querySelectorAll("[data-node]").forEach((button2) => button2.onclick = () => onSelect(button2.dataset.node));
+  host.querySelectorAll("[data-view]").forEach((button2) => button2.onclick = () => onView(button2.dataset.view));
+  host.querySelector("[data-refresh]")?.addEventListener("click", onGenerate);
+  host.querySelector("[data-edit]")?.addEventListener("click", () => onEdit(selected));
+  host.querySelector("[data-quick-status]")?.addEventListener("click", (event) => {
+    const input = host.querySelector("[data-status-change]");
+    input.value = event.currentTarget.dataset.quickStatus;
+    onSave(selected, input);
+  });
+  host.querySelector("[data-status-change]")?.addEventListener("change", (event) => onSave(selected, event.target));
+  host.querySelector("[data-ask-task]")?.addEventListener("click", () => ask("", selected.id));
+  host.querySelector(".growth-auri form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget, submit = form.querySelector("button");
+    submit.disabled = true;
+    try {
+      await ask(new FormData(form).get("question"));
+    } finally {
+      submit.disabled = false;
+    }
+  });
+}
+
 // src/hub/menu-drafts.js
 var esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 async function renderMenuDrafts({ host, api: api2, endpoint: endpoint2, profile, canWrite }) {
@@ -122,6 +302,16 @@ Object.assign(copy.en, { sample: "The starting numbers are illustrative. Replace
 Object.assign(copy.fr, { sample: "Les valeurs initiales sont illustratives. Remplacez-les par vos donn\xE9es avant de prendre une d\xE9cision.", solutions: "Solutions num\xE9riques choisies", addSolutions: "Ajouter les solutions au parcours", formulaTitle: "M\xE9thode de calcul", priority: "Priorit\xE9", high: "Haute", medium: "Moyenne", low: "Basse", pending: "En attente", active: "Actif", removed: "Acc\xE8s r\xE9voqu\xE9", accepted: "Accept\xE9e", canceled: "Annul\xE9e", expired: "Expir\xE9e", sent: "Envoy\xE9e", failed: "\xC9chec", pending_payment: "Paiement en attente", past_due: "En retard", restrict: "Restreindre l\u2019acc\xE8s", months: "mois", seats: "places suppl\xE9mentaires", googleInvite: "Apr\xE8s la connexion Google, rouvrez le lien d\u2019invitation.", resetSent: "Si un compte admissible existe, un lien sera envoy\xE9.", noData: "Aucune donn\xE9e mesur\xE9e n\u2019est connect\xE9e.", supportText: "Envoyez votre demande via le formulaire de contact existant.", simNotice: "Estimations illustratives. Saisissez une seule am\xE9lioration combin\xE9e par \xE9tape pour \xE9viter les doubles comptes. Les taux sont plafonn\xE9s \xE0 100 %. Utilisez la m\xEAme devise et p\xE9riode. Taxes, frais fixes et financement exclus.", formula: "Clients = visites \xD7 taux de prospects \xD7 taux de conversion. Contribution = revenu suppl\xE9mentaire \xD7 marge. ROI annuel = (12 \xD7 contribution suppl\xE9mentaire \u2212 co\xFBt initial \u2212 12 \xD7 co\xFBt mensuel) \xF7 (co\xFBt initial + 12 \xD7 co\xFBt mensuel). Retour = co\xFBt initial \xF7 contribution mensuelle nette positive." });
 Object.assign(copy.tr, { sample: "Ba\u015Flang\u0131\xE7 de\u011Ferleri \xF6rnektir. Karar vermeden \xF6nce kendi i\u015Fletme verilerinizi girin.", solutions: "Se\xE7ilen dijital \xE7\xF6z\xFCmler", addSolutions: "Se\xE7ilen \xE7\xF6z\xFCmleri yol haritas\u0131na ekle", formulaTitle: "Hesaplama y\xF6ntemi", priority: "\xD6ncelik", high: "Y\xFCksek", medium: "Orta", low: "D\xFC\u015F\xFCk", pending: "Beklemede", active: "Etkin", removed: "Eri\u015Fim kald\u0131r\u0131ld\u0131", accepted: "Kabul edildi", canceled: "\u0130ptal edildi", expired: "S\xFCresi doldu", sent: "G\xF6nderildi", failed: "Ba\u015Far\u0131s\u0131z", pending_payment: "\xD6deme bekliyor", past_due: "\xD6deme gecikti", restrict: "Eri\u015Fimi k\u0131s\u0131tla", months: "ay", seats: "ek koltuk", googleInvite: "Google giri\u015Finden sonra devam etmek i\xE7in davet ba\u011Flant\u0131s\u0131n\u0131 yeniden a\xE7\u0131n.", resetSent: "Uygun bir hesap varsa s\u0131f\u0131rlama ba\u011Flant\u0131s\u0131 g\xF6nderilecektir.", noData: "Hen\xFCz \xF6l\xE7\xFClen veri kayna\u011F\u0131 ba\u011Fl\u0131 de\u011Fil.", supportText: "Mevcut ileti\u015Fim formundan destek talebi g\xF6nderin.", simNotice: "\xD6rnek tahminlerdir. Ayn\u0131 fayday\u0131 iki kez saymamak i\xE7in her a\u015Famada tek bir birle\u015Fik art\u0131\u015F girin. Oranlar %100 ile s\u0131n\u0131rl\u0131d\u0131r. Maliyet ve gelir ayn\u0131 para birimi ve d\xF6nemde olmal\u0131d\u0131r. Vergi, sabit gider ve finansman hari\xE7tir.", formula: "M\xFC\u015Fteri = ziyaret \xD7 potansiyel m\xFC\u015Fteri oran\u0131 \xD7 sat\u0131\u015F oran\u0131. Katk\u0131 = ek gelir \xD7 marj. \u0130lk y\u0131l getirisi = (12 \xD7 ek katk\u0131 \u2212 ba\u015Flang\u0131\xE7 \u2212 12 \xD7 ayl\u0131k maliyet) \xF7 (ba\u015Flang\u0131\xE7 + 12 \xD7 ayl\u0131k maliyet). Geri \xF6deme = ba\u015Flang\u0131\xE7 \xF7 pozitif net ayl\u0131k katk\u0131." });
 Object.assign(copy.ar, { sample: "\u0627\u0644\u0623\u0631\u0642\u0627\u0645 \u0627\u0644\u0623\u0648\u0644\u064A\u0629 \u0623\u0645\u062B\u0644\u0629 \u062A\u0648\u0636\u064A\u062D\u064A\u0629. \u0627\u0633\u062A\u0628\u062F\u0644\u0647\u0627 \u0628\u0628\u064A\u0627\u0646\u0627\u062A \u0646\u0634\u0627\u0637\u0643 \u0642\u0628\u0644 \u0627\u062A\u062E\u0627\u0630 \u0623\u064A \u0642\u0631\u0627\u0631.", solutions: "\u0627\u0644\u062D\u0644\u0648\u0644 \u0627\u0644\u0631\u0642\u0645\u064A\u0629 \u0627\u0644\u0645\u062E\u062A\u0627\u0631\u0629", addSolutions: "\u0625\u0636\u0627\u0641\u0629 \u0627\u0644\u062D\u0644\u0648\u0644 \u0627\u0644\u0645\u062E\u062A\u0627\u0631\u0629 \u0625\u0644\u0649 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", formulaTitle: "\u0643\u064A\u0641 \u064A\u0639\u0645\u0644 \u0627\u0644\u062D\u0633\u0627\u0628", priority: "\u0627\u0644\u0623\u0648\u0644\u0648\u064A\u0629", high: "\u0645\u0631\u062A\u0641\u0639\u0629", medium: "\u0645\u062A\u0648\u0633\u0637\u0629", low: "\u0645\u0646\u062E\u0641\u0636\u0629", pending: "\u0645\u0639\u0644\u0642", active: "\u0646\u0634\u0637", removed: "\u062A\u0645 \u0625\u0644\u063A\u0627\u0621 \u0627\u0644\u0648\u0635\u0648\u0644", accepted: "\u0645\u0642\u0628\u0648\u0644\u0629", canceled: "\u0645\u0644\u063A\u0627\u0629", expired: "\u0645\u0646\u062A\u0647\u064A\u0629", sent: "\u0623\u064F\u0631\u0633\u0644\u062A", failed: "\u0641\u0634\u0644\u062A", pending_payment: "\u0628\u0627\u0646\u062A\u0638\u0627\u0631 \u0627\u0644\u062F\u0641\u0639", past_due: "\u0645\u062A\u0623\u062E\u0631 \u0639\u0646 \u0627\u0644\u062F\u0641\u0639", restrict: "\u062A\u0642\u064A\u064A\u062F \u0627\u0644\u0648\u0635\u0648\u0644", months: "\u0623\u0634\u0647\u0631", seats: "\u0645\u0642\u0627\u0639\u062F \u0625\u0636\u0627\u0641\u064A\u0629", googleInvite: "\u0628\u0639\u062F \u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062F\u062E\u0648\u0644 \u0628\u0627\u0633\u062A\u062E\u062F\u0627\u0645 Google\u060C \u0623\u0639\u062F \u0641\u062A\u062D \u0631\u0627\u0628\u0637 \u0627\u0644\u062F\u0639\u0648\u0629 \u0644\u0644\u0645\u062A\u0627\u0628\u0639\u0629.", resetSent: "\u0625\u0630\u0627 \u0648\u064F\u062C\u062F \u062D\u0633\u0627\u0628 \u0645\u0624\u0647\u0644\u060C \u0641\u0633\u064A\u064F\u0631\u0633\u0644 \u0631\u0627\u0628\u0637 \u0625\u0639\u0627\u062F\u0629 \u0627\u0644\u062A\u0639\u064A\u064A\u0646.", noData: "\u0644\u0645 \u062A\u064F\u0631\u0628\u0637 \u0628\u064A\u0627\u0646\u0627\u062A \u0645\u0642\u0627\u0633\u0629 \u0628\u0639\u062F.", supportText: "\u0623\u0631\u0633\u0644 \u0637\u0644\u0628 \u0627\u0644\u062F\u0639\u0645 \u0639\u0628\u0631 \u0646\u0645\u0648\u0630\u062C \u0627\u0644\u062A\u0648\u0627\u0635\u0644 \u0627\u0644\u062D\u0627\u0644\u064A.", simNotice: "\u062A\u0642\u062F\u064A\u0631\u0627\u062A \u062A\u0648\u0636\u064A\u062D\u064A\u0629. \u0623\u062F\u062E\u0644 \u062A\u062D\u0633\u064A\u0646\u064B\u0627 \u0645\u062C\u0645\u0639\u064B\u0627 \u0648\u0627\u062D\u062F\u064B\u0627 \u0644\u0643\u0644 \u0645\u0631\u062D\u0644\u0629 \u0644\u062A\u062C\u0646\u0628 \u0627\u062D\u062A\u0633\u0627\u0628 \u0627\u0644\u0641\u0627\u0626\u062F\u0629 \u0645\u0631\u062A\u064A\u0646. \u0627\u0644\u0646\u0633\u0628 \u0645\u062D\u062F\u0648\u062F\u0629 \u0628\u0640100\u066A. \u0627\u0633\u062A\u062E\u062F\u0645 \u0627\u0644\u0639\u0645\u0644\u0629 \u0648\u0627\u0644\u0641\u062A\u0631\u0629 \u0646\u0641\u0633\u064A\u0647\u0645\u0627 \u0644\u0644\u062A\u0643\u0627\u0644\u064A\u0641 \u0648\u0627\u0644\u0625\u064A\u0631\u0627\u062F\u0627\u062A. \u0627\u0644\u0636\u0631\u0627\u0626\u0628 \u0648\u0627\u0644\u0645\u0635\u0627\u0631\u064A\u0641 \u0627\u0644\u062B\u0627\u0628\u062A\u0629 \u0648\u0627\u0644\u062A\u0645\u0648\u064A\u0644 \u0645\u0633\u062A\u062B\u0646\u0627\u0629.", formula: "\u0627\u0644\u0639\u0645\u0644\u0627\u0621 = \u0627\u0644\u0632\u064A\u0627\u0631\u0627\u062A \xD7 \u0645\u0639\u062F\u0644 \u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0627\u0644\u0645\u062D\u062A\u0645\u0644\u064A\u0646 \xD7 \u0645\u0639\u062F\u0644 \u0625\u062A\u0645\u0627\u0645 \u0627\u0644\u0628\u064A\u0639. \u0627\u0644\u0645\u0633\u0627\u0647\u0645\u0629 = \u0627\u0644\u0625\u064A\u0631\u0627\u062F \u0627\u0644\u0625\u0636\u0627\u0641\u064A \xD7 \u0627\u0644\u0647\u0627\u0645\u0634. \u0639\u0627\u0626\u062F \u0627\u0644\u0633\u0646\u0629 \u0627\u0644\u0623\u0648\u0644\u0649 = (12 \xD7 \u0627\u0644\u0645\u0633\u0627\u0647\u0645\u0629 \u0627\u0644\u0625\u0636\u0627\u0641\u064A\u0629 \u2212 \u0627\u0644\u0625\u0639\u062F\u0627\u062F \u2212 12 \xD7 \u0627\u0644\u062A\u0643\u0644\u0641\u0629 \u0627\u0644\u0634\u0647\u0631\u064A\u0629) \xF7 (\u0627\u0644\u0625\u0639\u062F\u0627\u062F + 12 \xD7 \u0627\u0644\u062A\u0643\u0644\u0641\u0629 \u0627\u0644\u0634\u0647\u0631\u064A\u0629). \u0627\u0644\u0627\u0633\u062A\u0631\u062F\u0627\u062F = \u0627\u0644\u0625\u0639\u062F\u0627\u062F \xF7 \u0635\u0627\u0641\u064A \u0627\u0644\u0645\u0633\u0627\u0647\u0645\u0629 \u0627\u0644\u0634\u0647\u0631\u064A\u0629 \u0627\u0644\u0645\u0648\u062C\u0628." });
+var addedCapabilityNames = {
+  en: ["Brand identity", "Hosting & security", "Search advertising", "Online reviews", "WhatsApp integration", "Conversion optimization", "Automated follow-ups", "Digital menu"],
+  tr: ["Marka kimli\u011Fi", "Bar\u0131nd\u0131rma ve g\xFCvenlik", "Arama reklamlar\u0131", "\xC7evrimi\xE7i yorumlar", "WhatsApp entegrasyonu", "D\xF6n\xFC\u015F\xFCm optimizasyonu", "Otomatik takip", "Dijital men\xFC"],
+  fr: ["Identit\xE9 de marque", "H\xE9bergement et s\xE9curit\xE9", "Publicit\xE9 sur les moteurs de recherche", "Avis en ligne", "Int\xE9gration WhatsApp", "Optimisation des conversions", "Relances automatiques", "Menu num\xE9rique"],
+  ar: ["\u0647\u0648\u064A\u0629 \u0627\u0644\u0639\u0644\u0627\u0645\u0629 \u0627\u0644\u062A\u062C\u0627\u0631\u064A\u0629", "\u0627\u0644\u0627\u0633\u062A\u0636\u0627\u0641\u0629 \u0648\u0627\u0644\u0623\u0645\u0627\u0646", "\u0625\u0639\u0644\u0627\u0646\u0627\u062A \u0627\u0644\u0628\u062D\u062B", "\u0627\u0644\u062A\u0642\u064A\u064A\u0645\u0627\u062A \u0639\u0628\u0631 \u0627\u0644\u0625\u0646\u062A\u0631\u0646\u062A", "\u062F\u0645\u062C \u0648\u0627\u062A\u0633\u0627\u0628", "\u062A\u062D\u0633\u064A\u0646 \u0627\u0644\u062A\u062D\u0648\u064A\u0644", "\u0627\u0644\u0645\u062A\u0627\u0628\u0639\u0629 \u0627\u0644\u0622\u0644\u064A\u0629", "\u0642\u0627\u0626\u0645\u0629 \u0631\u0642\u0645\u064A\u0629"]
+};
+var addedCapabilities = ["branding", "hosting", "ads", "reviews", "whatsapp", "conversion", "followups", "menu"];
+for (const [locale, names] of Object.entries(addedCapabilityNames)) {
+  for (const [index, key] of addedCapabilities.entries()) capabilityNames[locale][key] = names[index];
+}
 
 // src/http.js
 var ApiError = class extends Error {
@@ -145,7 +335,15 @@ var capabilities = [
   { id: "crm", level: 3, service: "CRM", dependencies: ["leads"], priority: 3 },
   { id: "automation", level: 4, service: "AI Automation", dependencies: ["crm"], priority: 3 },
   { id: "analytics", level: 5, service: "Analytics", dependencies: ["website"], priority: 2 },
-  { id: "retention", level: 5, service: "Customer Retention", dependencies: ["crm"], priority: 3 }
+  { id: "retention", level: 5, service: "Customer Retention", dependencies: ["crm"], priority: 3 },
+  { id: "branding", level: 1, service: "Brand identity", dependencies: [], priority: 3 },
+  { id: "hosting", level: 1, service: "Hosting and security", dependencies: ["website"], priority: 3 },
+  { id: "ads", level: 2, service: "Search advertising", dependencies: ["leads"], priority: 3, optional: true },
+  { id: "reviews", level: 2, service: "Online reviews", dependencies: ["discovery"], priority: 3 },
+  { id: "whatsapp", level: 3, service: "WhatsApp integration", dependencies: [], priority: 3 },
+  { id: "conversion", level: 3, service: "Conversion optimization", dependencies: ["leads"], priority: 3 },
+  { id: "followups", level: 4, service: "Automated follow-ups", dependencies: ["crm"], priority: 3, optional: true },
+  { id: "menu", level: 1, service: "Digital menu", dependencies: [], priority: 2, industry: "restaurant" }
 ];
 function number(value, key, min, max) {
   if (typeof value !== "number" || !Number.isFinite(value) || value < min || value > max) throw new ApiError(400, `Invalid ${key}.`);
@@ -200,7 +398,7 @@ var route = location.pathname.split("/")[2] || "";
 var flowToken = new URLSearchParams(location.hash.slice(1)).get("token") || "";
 if (flowToken) history.replaceState(null, "", location.pathname + location.search);
 var t = (k) => k === "menuDrafts" ? { en: "Menu drafts", ar: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", tr: "Men\xFC taslaklar\u0131", fr: "Brouillons de menus" }[lang] : copy[lang][k] || copy.en[k] || k;
-var cap = (k) => capabilityNames[lang][k] || k;
+var cap = (k) => capabilityNames[lang][k] || capabilities.find((c) => c.id === k)?.service || k;
 var toast = (message) => {
   notice.textContent = message;
   notice.classList.add("visible");
@@ -229,7 +427,7 @@ function languageControl() {
 function bindCommon() {
   document.querySelector("#language")?.addEventListener("change", async (e) => {
     clearTimeout(saveTimer);
-    if (editing) await persistProfile();
+    if (editing && workspace) await persistProfile();
     lang = e.target.value;
     localStorage.setItem("aura-hub-language", lang);
     render();
@@ -344,7 +542,8 @@ function renderSetup() {
     mode = workspace?.organization.mode || "myself";
   }
   const choosing = !editing;
-  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${profileKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div><form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [profileKeys[step]] : profileKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < profileKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+  const setupKeys = workspace ? profileKeys : ["name", "industry", "goals", "budget", "currency", "website", "capabilities"];
+  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div><form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
   bindCommon();
   document.querySelectorAll("[data-mode]").forEach((b) => b.onclick = () => {
     mode = b.dataset.mode;
@@ -364,6 +563,7 @@ function renderSetup() {
   };
   form.addEventListener("input", () => {
     collect();
+    if (!workspace) return;
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       persistProfile().catch((e) => toast(e.message));
@@ -373,7 +573,7 @@ function renderSetup() {
     collect();
     if (e.target.name === "industry" && mode === "myself") {
       clearTimeout(saveTimer);
-      persistProfile().then(render).catch((e2) => toast(e2.message));
+      (workspace ? persistProfile() : Promise.resolve()).then(render).catch((e2) => toast(e2.message));
     }
   });
   form.onsubmit = async (e) => {
@@ -383,11 +583,11 @@ function renderSetup() {
     const b = form.querySelector('[type="submit"]');
     b.disabled = true;
     try {
-      await persistProfile();
-      if (mode === "auri" && step < profileKeys.length - 1) {
+      if (mode === "auri" && step < setupKeys.length - 1) {
         step++;
         render();
       } else {
+        await persistProfile();
         editing = false;
         page = "home";
         await loadWorkspace();
@@ -402,7 +602,7 @@ function renderSetup() {
     clearTimeout(saveTimer);
     mode = mode === "auri" ? "myself" : "auri";
     try {
-      if (draft.name.trim()) await persistProfile();
+      if (workspace && draft.name.trim()) await persistProfile();
       render();
     } catch (e) {
       toast(e.message);
@@ -412,8 +612,15 @@ function renderSetup() {
     collect();
     clearTimeout(saveTimer);
     try {
-      if (draft.name.trim()) await persistProfile();
-      step = Math.max(0, Math.min(profileKeys.length - 1, step + delta));
+      if (workspace && draft.name.trim()) await persistProfile();
+      if (delta > 0 && step === setupKeys.length - 1) {
+        await persistProfile();
+        editing = false;
+        page = "home";
+        await loadWorkspace();
+        return;
+      }
+      step = Math.max(0, step + delta);
       render();
     } catch (e) {
       toast(e.message);
@@ -454,10 +661,41 @@ function persistProfile() {
   saveQueue = job;
   return job;
 }
-var navigation = [["HOME", ["home", "profile"]], ["grow", ["journey", "simulator", "assistant", "reports"]], ["manage", ["menuDrafts", "projects", "websites", "services", "hosting", "files"]], ["account", ["orders", "invoices", "rewards", "team", "support", "settings"]]];
+var roadmapView = "tree";
+var selectedMission = null;
+var requestLink = (service = "", task = "") => "/contact#" + new URLSearchParams({
+  hub: "1",
+  service,
+  business: workspace.organization.name,
+  task,
+  name: me.name,
+  email: me.email
+});
+var navigation = ["home", "journey", "tasks", "assistant", "services", "resources", "settings"];
+var moreNavigation = ["profile", "simulator", "menuDrafts", "projects", "websites", "hosting", "files", "reports", "orders", "invoices", "rewards", "team", "support"];
 function renderShell() {
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  app.innerHTML = `<div class="shell"><aside class="sidebar" id="sidebar"><a href="/" class="wordmark">aura<span>digital</span></a><p class="sidebar-caption">${t("brand")}</p><label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span><select id="workspace-select">${workspaces.map((o) => `<option value="${o.id}" ${o.id === workspace.organization.id ? "selected" : ""}>${esc2(o.name)}</option>`).join("")}</select></label><nav aria-label="${t("brand")}">${navigation.map(([group, items]) => `<div class="nav-group"><p>${group === "HOME" ? t("home") : t(group)}</p>${items.map((p, i) => `<button class="nav-item ${page === p ? "active" : ""}" data-page="${p}" ${page === p ? 'aria-current="page"' : ""}><span aria-hidden="true">${{ home: "\u2302", profile: "\u25C9", journey: "\u2197", simulator: "\u25C7", assistant: "\u2727", team: "\u25CE", settings: "\u2699" }[p] || "\xB7"}</span>${t(p)}</button>`).join("")}</div>`).join("")}</nav><div class="sidebar-bottom"><span class="avatar">${esc2(me.name.slice(0, 1))}</span><div><strong>${esc2(me.name)}</strong><small>${me.verified ? t("verified") : t("verify")}</small></div></div></aside><div class="workspace"><header class="topbar"><button class="menu-button secondary" id="toggle-menu" aria-controls="sidebar" aria-expanded="false">${t("menu")}</button><span class="breadcrumb">${esc2(workspace.organization.name)} <span>/</span> ${t(page)}</span>${languageControl()}${button("logout", "logout", true)}</header><main id="main" tabindex="-1"><div class="page-heading"><p class="eyebrow">AURADIGITAL / ${t("brand")}</p><h1>${t(page)}</h1></div>${!me.verified ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}<div id="page-content" aria-live="polite"></div></main><footer>${t("tag")}</footer></div></div>`;
+  const l = roadmapLabels(lang), growth = ["home", "journey"].includes(page);
+  const alerts = workspace.missions.filter((m) => m.priority === 1 && !m.optional && !["done", "postponed"].includes(m.status) && !missionState(m, workspace.missions, workspace.profile).blocked);
+  const navItem = (p) => `<button class="nav-item ${page === p ? "active" : ""}" data-page="${p}" ${page === p ? 'aria-current="page"' : ""}>
+ <span aria-hidden="true">${{ home: "\u2302", journey: "\u2667", tasks: "\u2611", assistant: "\u2727", services: "\u25C7", resources: "\u25A4", settings: "\u2699" }[p] || "\xB7"}</span>${esc2(l[p] || t(p))}</button>`;
+  app.innerHTML = `<div class="shell growth-shell ${growth ? "growth-active" : ""}"><aside class="sidebar" id="sidebar">
+ <a href="/" class="wordmark">aura<span>digital.</span></a><label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span>
+ <select id="workspace-select" aria-label="${t("businessName")}">${workspaces.map((o) => `<option value="${o.id}" ${o.id === workspace.organization.id ? "selected" : ""}>${esc2(o.id === workspace.organization.id ? workspace.organization.name : o.name)}</option>`).join("")}</select></label>
+ <nav aria-label="${t("brand")}">${navigation.map(navItem).join("")}</nav><div class="growth-request"><a class="growth-primary" href="${esc2(requestLink())}">${l.request} \u2192</a></div></aside>
+ <div class="workspace"><header class="topbar growth-topbar"><button class="menu-button secondary" id="toggle-menu" aria-controls="sidebar" aria-expanded="false">${t("menu")}</button>
+ <div class="growth-greeting"><strong>${esc2(l.welcome)}, ${esc2(me.name.split(" ")[0])}</strong><span>${esc2(workspace.organization.name)}</span></div>
+ ${languageControl()}
+ <details class="growth-notifications"><summary class="growth-secondary" aria-label="${esc2(t("activity"))}">
+ <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0"/></svg></summary>
+ <div class="growth-account-menu"><strong>${l.priority}</strong>
+ ${alerts.length ? `<ul>${alerts.map((m) => `<li>${esc2(m.objective === m.service ? cap(m.capability) : m.objective)}</li>`).join("")}</ul>` : `<p>${esc2(t("empty"))}</p>`}
+ ${navItem("journey")}</div></details>
+ <details class="growth-account"><summary><span class="avatar">${esc2(me.name.slice(0, 1))}</span><span>${esc2(me.name)}</span></summary>
+ <div class="growth-account-menu">${navItem("profile")}${navItem("settings")}${button("logout", "logout", true)}</div></details></header>
+ <main id="main" tabindex="-1">${growth ? `<h1 class="sr-only">${l[page]}</h1>` : `<div class="page-heading"><h1>${esc2(l[page] || t(page))}</h1></div>`}
+ ${!me.verified ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}
+ <div id="page-content"></div></main></div></div>`;
   bindCommon();
   document.querySelectorAll("[data-page]").forEach((b) => b.onclick = () => {
     page = b.dataset.page;
@@ -471,6 +709,7 @@ function renderShell() {
     syncSidebar();
   };
   document.querySelector("#workspace-select").onchange = async (e) => {
+    selectedMission = null;
     await loadWorkspace(e.target.value);
   };
   document.querySelector('[data-action="logout"]').onclick = async () => {
@@ -530,8 +769,16 @@ async function renderPage() {
     return;
   }
   if (page === "menuDrafts") return renderMenuDrafts({ host: document.querySelector("#page-content"), api, endpoint, profile: workspace.profile, canWrite: workspace.permissions.includes("roadmap:write") });
-  if (page === "home") return overview();
-  if (page === "journey") return journey();
+  if (page === "home" || page === "journey") return growthDashboard();
+  if (page === "tasks") return journey();
+  if (page === "resources") {
+    content(`<section class="panel"><div class="resource-links">${moreNavigation.map((p) => `<button type="button" class="secondary" data-resource="${p}">${esc2(t(p))}</button>`).join("")}</div></section>`);
+    document.querySelectorAll("[data-resource]").forEach((b) => b.onclick = () => {
+      page = b.dataset.resource;
+      render();
+    });
+    return;
+  }
   if (page === "simulator") return simulator();
   if (page === "team") return team();
   if (page === "assistant") return assistant();
@@ -551,19 +798,78 @@ async function renderPage() {
   const account = ["orders", "invoices"].includes(page), service = page === "services", support = page === "support", reports = ["reports", "rewards"].includes(page);
   content(`<section class="panel quiet-panel"><span class="eyebrow">${reports ? "NOT CONNECTED" : account ? "EXISTING ACCOUNT" : service ? "SERVICE CATALOGUE" : "INTEGRATION PENDING"}</span><h2>${t(page)}</h2><p>${t(account ? "legacy" : service ? "serviceNote" : support ? "supportText" : reports ? "reportNote" : "unavailable")}</p><a class="primary" href="${account ? "/account" : service ? "/services" : "/contact"}">${t(account ? "openAccount" : service ? "openServices" : "contact")} \u2197</a></section>`);
 }
-function overview() {
-  const missions = workspace.missions, complete = missions.filter((m) => m.status === "done").length, progress = missions.length ? Math.round(complete / missions.length * 100) : 0;
-  const next = missions.find((m) => !["done", "postponed"].includes(m.status));
-  const currentLevel = [1, 2, 3, 4, 5].find((l) => missions.some((m) => m.level === l && m.status !== "done")) || 1;
-  content(`<section class="overview-hero"><div><p class="eyebrow">${esc2(workspace.organization.name)}</p><h2>${t("welcome")}<br><span>${t("tag")}</span></h2><p>${t("next")}</p><h3>${next ? esc2(cap(next.capability) || next.objective) : t("createJourney")}</h3><button class="lime" data-action="journey">${t("journey")} \u2197</button></div><div class="hero-robot">${robot()}<span>AURI</span></div></section><div class="metric-grid"><article class="panel metric"><span>${t("level")}</span><strong>${currentLevel} <small>/ 5</small></strong><p>${t(["foundation", "visibility", "conversion", "automation", "scale"][currentLevel - 1])}</p></article><article class="panel metric"><span>${t("progress")}</span><strong>${progress}<small>%</small></strong><progress max="100" value="${progress}" aria-label="${t("progress")}"></progress></article><article class="panel metric"><span>${t("readiness")}</span><strong>${workspace.analysis.readiness}<small>%</small></strong><p>${t("source")}</p></article></div><div class="two-columns"><section class="panel"><div class="panel-bar"><h2>${t("diagnosis")}</h2><span class="pill">${t("source")}</span></div><h3>${t("strengths")}</h3><div class="chips">${workspace.analysis.strengths.length ? capabilities.filter((c) => !workspace.analysis.missing.includes(c.id)).map((c) => `<span>${esc2(cap(c.id))}</span>`).join("") : `<p>${t("empty")}</p>`}</div><h3>${t("missing")}</h3><div class="chips muted">${workspace.analysis.missing.map((c) => `<span>${esc2(cap(c))}</span>`).join("")}</div></section><section class="panel simulator-tease"><span class="eyebrow">${t("assumptions")}</span><h2>${t("simulator")}</h2><p>${t("simNotice")}</p>${button("simulator", "simulator", true)}</section></div>`);
-  document.querySelector('[data-action="journey"]').onclick = () => {
-    page = "journey";
-    render();
-  };
-  document.querySelector('[data-action="simulator"]').onclick = () => {
-    page = "simulator";
-    render();
-  };
+async function askAuri(question, missionId) {
+  const { data } = await api(endpoint("auri"), "POST", missionId ? { tool: "task", missionId } : { tool: "guidance", question, lang });
+  if (data.reply) return data.reply;
+  if (/customers|visibility|sales|müşteri|clients|عملاء/i.test(question) && data.priorities?.length) return data.priorities.map((m) => cap(m.capability)).join(" \xB7 ");
+  const task = data.mission || data.nextAction;
+  if (!task) return t("empty");
+  const guide = missionGuide[task.capability], requirements = missionState(task, workspace.missions, workspace.profile).requirements;
+  if (!missionId && /website|web site|site web|موقع/i.test(question)) {
+    const website = workspace.missions.find((m) => m.capability === "website");
+    if (website) {
+      selectedMission = website.id;
+      return [cap("website"), missionGuide.website[2], t("quote")].join(" \xB7 ");
+    }
+  }
+  const action = task.nextAction === "Define scope or record your existing solution." ? guide?.[2] : task.nextAction;
+  return [cap(task.capability), action, requirements.length ? requirements.map(cap).join(", ") : ""].filter(Boolean).join(" \xB7 ");
+}
+function growthDashboard() {
+  renderRoadmap({
+    host: document.querySelector("#page-content"),
+    workspace,
+    t,
+    esc: esc2,
+    cap,
+    lang,
+    view: roadmapView,
+    selectedId: selectedMission,
+    robot,
+    requestLink,
+    onSelect(id) {
+      selectedMission = id;
+      growthDashboard();
+      const detail = document.getElementById("growth-focus");
+      detail.focus({ preventScroll: !matchMedia("(max-width: 800px)").matches });
+    },
+    onView(view) {
+      roadmapView = view;
+      growthDashboard();
+      document.querySelector(`[data-view="${view}"]`)?.focus();
+    },
+    onEdit(mission) {
+      page = "tasks";
+      render();
+      const card = document.querySelector(`[data-mission="${mission.id}"]`);
+      card?.querySelector("[data-action=edit]").click();
+      card?.querySelector("input")?.focus();
+    },
+    async onSave(mission, input) {
+      input.disabled = true;
+      const workspaceId = workspace.organization.id;
+      try {
+        const { version, position } = mission;
+        await api(endpoint("missions/" + mission.id), "PATCH", { version, position, status: input.value });
+        if (workspace.organization.id === workspaceId) await loadWorkspace();
+      } catch (error) {
+        input.value = mission.status;
+        input.disabled = false;
+        toast(error.message);
+      }
+    },
+    async onGenerate(event) {
+      event.target.disabled = true;
+      try {
+        await api(endpoint("missions"), "POST", {});
+        await loadWorkspace();
+      } catch (error) {
+        event.target.disabled = false;
+        toast(error.message);
+      }
+    },
+    onAsk: askAuri
+  });
 }
 function journey() {
   const write = workspace.permissions.includes("roadmap:write");
@@ -757,7 +1063,7 @@ function assistant() {
     e.target.disabled = true;
     try {
       const r = await api(endpoint("auri"), "POST", { tool });
-      document.querySelector("#auri-response").innerHTML = tool === "diagnosis" ? `<h3>${t("missing")}</h3><ul>${r.data.missing.map((k) => `<li>${esc2(cap(k))}</li>`).join("")}</ul>` : `<h3>${esc2(r.data.nextAction ? cap(r.data.nextAction.id) : t("empty"))}</h3><p>${t("why")}</p>`;
+      document.querySelector("#auri-response").innerHTML = tool === "diagnosis" ? `<h3>${t("missing")}</h3><ul>${r.data.missing.map((k) => `<li>${esc2(cap(k))}</li>`).join("")}</ul>` : `<h3>${esc2(r.data.nextAction ? cap(r.data.nextAction.capability) : t("empty"))}</h3><p>${t("why")}</p>`;
     } catch (e2) {
       toast(e2.message);
     } finally {

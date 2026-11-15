@@ -1,3 +1,5 @@
+import { renderRoadmap, roadmapLabels } from './roadmap-view.js';
+import { missionGuide, missionState } from '../roadmap.js';
 import { renderMenuDrafts } from './menu-drafts.js';
 import { copy, capabilityNames } from './i18n.js';
 import { simulate, capabilities } from '../growth-engine.js';
@@ -7,7 +9,7 @@ let lang=localStorage.getItem('aura-hub-language')||'en';if(!copy[lang])lang='en
 let me=null,workspaces=[],workspace=null,page='home',editing=false,mode='myself',step=0,draft={},result=null,scenarioInputs=null,saveQueue=Promise.resolve(),saveTimer;
 let route=location.pathname.split('/')[2]||'',flowToken=new URLSearchParams(location.hash.slice(1)).get('token')||'';
 if(flowToken)history.replaceState(null,'',location.pathname+location.search);
-const t=k=>k==='menuDrafts'?({en:'Menu drafts',ar:'مسودات القوائم',tr:'Menü taslakları',fr:'Brouillons de menus'})[lang]:copy[lang][k]||copy.en[k]||k,cap=k=>capabilityNames[lang][k]||k;
+const t=k=>k==='menuDrafts'?({en:'Menu drafts',ar:'مسودات القوائم',tr:'Menü taslakları',fr:'Brouillons de menus'})[lang]:copy[lang][k]||copy.en[k]||k,cap=k=>capabilityNames[lang][k]||capabilities.find(c=>c.id===k)?.service||k;
 const toast=message=>{notice.textContent=message;notice.classList.add('visible');setTimeout(()=>notice.classList.remove('visible'),7000);};
 const robot=()=>`<svg class="auri" viewBox="0 0 160 170" role="img" aria-label="AURI"><defs><linearGradient id="metal" x2="1" y2="1"><stop stop-color="#fffef9"/><stop offset="1" stop-color="#bfc7bf"/></linearGradient></defs><ellipse cx="80" cy="157" rx="43" ry="6" fill="#003d2b" opacity=".12"/><path d="M47 125Q42 91 80 91T113 125L108 145H52Z" fill="url(#metal)"/><rect x="23" y="29" width="114" height="78" rx="33" fill="url(#metal)"/><rect x="32" y="38" width="96" height="60" rx="26" fill="#0f241c"/><g fill="#e1e100" class="eyes"><rect x="49" y="58" width="18" height="19" rx="8"/><rect x="93" y="58" width="18" height="19" rx="8"/></g><path d="M72 85Q80 90 88 85" fill="none" stroke="#e1e100" stroke-width="2" stroke-linecap="round"/><path d="M80 29V18" stroke="#a7b7ad" stroke-width="5"/><circle cx="80" cy="13" r="5" fill="#e1e100"/><path d="M36 113L25 134M124 113L135 134" stroke="#d4dbd1" stroke-width="15" stroke-linecap="round"/><circle cx="80" cy="124" r="7" fill="#003d2b"/></svg>`;
 async function api(path,method='GET',body) {const response=await fetch(path,{method,credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});const data=await response.json().catch(()=>({error:t('error')}));if(!response.ok){const error=new Error(data.error||t('error'));error.status=response.status;throw error;}return data;}
@@ -16,7 +18,7 @@ const button=(label,action,secondary=false,disabled=false)=>`<button type="butto
 function field(key,label,value='',type='text',extra='') {return `<label class="field">${esc(t(label))}<input name="${key}" type="${type}" value="${esc(value)}" ${extra}></label>`;}
 const select=(key,label,options,value)=>`<label class="field">${esc(t(label))}<select name="${key}">${options.map(([v,l])=>`<option value="${esc(v)}" ${v===value?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
 function languageControl(){return `<label class="language"><span class="sr-only">Language</span><select id="language" aria-label="Language">${[['en','EN · English'],['ar','AR · العربية'],['fr','FR · Français'],['tr','TR · Türkçe']].map(([v,l])=>`<option value="${v}" ${lang===v?'selected':''}>${l}</option>`).join('')}</select></label>`;}
-function bindCommon(){document.querySelector('#language')?.addEventListener('change',async e=>{clearTimeout(saveTimer);if(editing)await persistProfile();lang=e.target.value;localStorage.setItem('aura-hub-language',lang);render();});}
+function bindCommon(){document.querySelector('#language')?.addEventListener('change',async e=>{clearTimeout(saveTimer);if(editing&&workspace)await persistProfile();lang=e.target.value;localStorage.setItem('aura-hub-language',lang);render();});}
 function render(){document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';app.setAttribute('aria-busy','false');if(!me||['verify','reset','forgot','invitation'].includes(route)){renderGate();return;}if(!workspace||editing){renderSetup();return;}renderShell();}
 function gateFrame(content){app.innerHTML=`<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main id="main" class="gate">${content}</main>`;bindCommon();}
 async function renderGate(){
@@ -40,16 +42,17 @@ const profileKeys=['name','industry','industryDetails','country','city','stage',
 function renderSetup(){
  if(!editing){draft=workspace?structuredClone(workspace.profile):emptyProfile();mode=workspace?.organization.mode||'myself';}
  const choosing=!editing;
- app.innerHTML=`<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t('brand')}</p><h1>${choosing?t('welcome'):esc(draft.name||t('profile'))}</h1><p>${choosing?t('choose'):t(mode==='auri'?'auriText':'myselfText')}</p></div>${choosing?`<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">↗</span><h2>${t('myself')}</h2><p>${t('myselfText')}</p><span>${t('continue')} →</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t('auri')}</h2><p>${t('auriText')}</p><span>${t('continue')} →</span></button></div>`:`<section class="panel profile-panel"><div class="panel-bar"><span>${mode==='auri'?`AURI · ${step+1}/${profileKeys.length}`:t('profile')}</span><span id="save-state" role="status"></span>${button('switchMode','switch-mode',true)}</div><form id="profile-form" class="${mode==='auri'?'guided':'form-grid'}">${(mode==='auri'?[profileKeys[step]]:profileKeys).map(profileField).join('')}<div class="actions full">${mode==='auri'?button('back','back-step',true,step===0)+button('skip','skip-step',true,step===0):''}<button class="primary" type="submit">${t(mode==='auri'&&step<profileKeys.length-1?'continue':'save')}</button>${workspace?button('home','leave-setup',true):''}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+ const setupKeys=workspace?profileKeys:['name','industry','goals','budget','currency','website','capabilities'];
+ app.innerHTML=`<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t('brand')}</p><h1>${choosing?t('welcome'):esc(draft.name||t('profile'))}</h1><p>${choosing?t('choose'):t(mode==='auri'?'auriText':'myselfText')}</p></div>${choosing?`<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">↗</span><h2>${t('myself')}</h2><p>${t('myselfText')}</p><span>${t('continue')} →</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t('auri')}</h2><p>${t('auriText')}</p><span>${t('continue')} →</span></button></div>`:`<section class="panel profile-panel"><div class="panel-bar"><span>${mode==='auri'?`AURI · ${step+1}/${setupKeys.length}`:t('profile')}</span><span id="save-state" role="status"></span>${button('switchMode','switch-mode',true)}</div><form id="profile-form" class="${mode==='auri'?'guided':'form-grid'}">${(mode==='auri'?[setupKeys[step]]:setupKeys).map(profileField).join('')}<div class="actions full">${mode==='auri'?button('back','back-step',true,step===0)+button('skip','skip-step',true,step===0):''}<button class="primary" type="submit">${t(mode==='auri'&&step<setupKeys.length-1?'continue':'save')}</button>${workspace?button('home','leave-setup',true):''}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
  bindCommon();document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;editing=true;step=0;render();});
  if(choosing)return;
  const form=document.querySelector('#profile-form');
  const collect=()=>{const data=new FormData(form);for(const k of profileKeys){if(k==='capabilities'){if(form.querySelector('[name="capabilities"]'))draft.capabilities=data.getAll(k);}else if(data.has(k))draft[k]=k==='budget'?(data.get(k)===''?null:Number(data.get(k))):data.get(k);}};
- form.addEventListener('input',()=>{collect();clearTimeout(saveTimer);saveTimer=setTimeout(()=>{persistProfile().catch(e=>toast(e.message));},1000);});
- form.addEventListener('change',e=>{collect();if(e.target.name==='industry'&&mode==='myself'){clearTimeout(saveTimer);persistProfile().then(render).catch(e=>toast(e.message));}});
- form.onsubmit=async e=>{e.preventDefault();collect();clearTimeout(saveTimer);const b=form.querySelector('[type="submit"]');b.disabled=true;try{await persistProfile();if(mode==='auri'&&step<profileKeys.length-1){step++;render();}else{editing=false;page='home';await loadWorkspace();}}catch(error){form.querySelector('[role="alert"]').textContent=error.message;b.disabled=false;}};
- document.querySelector('[data-action="switch-mode"]').onclick=async()=>{collect();clearTimeout(saveTimer);mode=mode==='auri'?'myself':'auri';try{if(draft.name.trim())await persistProfile();render();}catch(e){toast(e.message);}};
- for(const [action,delta]of [['back-step',-1],['skip-step',1]])document.querySelector(`[data-action="${action}"]`)?.addEventListener('click',async()=>{collect();clearTimeout(saveTimer);try{if(draft.name.trim())await persistProfile();step=Math.max(0,Math.min(profileKeys.length-1,step+delta));render();}catch(e){toast(e.message);}});
+ form.addEventListener('input',()=>{collect();if(!workspace)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{persistProfile().catch(e=>toast(e.message));},1000);});
+ form.addEventListener('change',e=>{collect();if(e.target.name==='industry'&&mode==='myself'){clearTimeout(saveTimer);(workspace?persistProfile():Promise.resolve()).then(render).catch(e=>toast(e.message));}});
+ form.onsubmit=async e=>{e.preventDefault();collect();clearTimeout(saveTimer);const b=form.querySelector('[type="submit"]');b.disabled=true;try{if(mode==='auri'&&step<setupKeys.length-1){step++;render();}else{await persistProfile();editing=false;page='home';await loadWorkspace();}}catch(error){form.querySelector('[role="alert"]').textContent=error.message;b.disabled=false;}};
+ document.querySelector('[data-action="switch-mode"]').onclick=async()=>{collect();clearTimeout(saveTimer);mode=mode==='auri'?'myself':'auri';try{if(workspace&&draft.name.trim())await persistProfile();render();}catch(e){toast(e.message);}};
+ for(const [action,delta]of [['back-step',-1],['skip-step',1]])document.querySelector(`[data-action="${action}"]`)?.addEventListener('click',async()=>{collect();clearTimeout(saveTimer);try{if(workspace&&draft.name.trim())await persistProfile();if(delta>0&&step===setupKeys.length-1){await persistProfile();editing=false;page='home';await loadWorkspace();return;}step=Math.max(0,step+delta);render();}catch(e){toast(e.message);}});
  document.querySelector('[data-action="leave-setup"]')?.addEventListener('click',async()=>{collect();clearTimeout(saveTimer);try{await persistProfile();editing=false;await loadWorkspace();}catch(e){toast(e.message);}});
 }
 function persistProfile(){
@@ -62,13 +65,38 @@ function persistProfile(){
   if(status)status.textContent=t('saved');
  });saveQueue=job;return job;
 }
-const navigation=[['HOME',['home','profile']],['grow',['journey','simulator','assistant','reports']],['manage',['menuDrafts','projects','websites','services','hosting','files']],['account',['orders','invoices','rewards','team','support','settings']]];
+let roadmapView='tree',selectedMission=null;
+const requestLink=(service='',task='')=>'/contact#'+new URLSearchParams({
+ hub:'1',service,business:workspace.organization.name,task,name:me.name,email:me.email,
+});
+const navigation=['home','journey','tasks','assistant','services','resources','settings'];
+const moreNavigation=['profile','simulator','menuDrafts','projects','websites','hosting','files','reports','orders','invoices','rewards','team','support'];
 function renderShell(){
  window.scrollTo({top:0,left:0,behavior:'instant'});
- app.innerHTML=`<div class="shell"><aside class="sidebar" id="sidebar"><a href="/" class="wordmark">aura<span>digital</span></a><p class="sidebar-caption">${t('brand')}</p><label class="field workspace-picker"><span class="sr-only">${t('businessName')}</span><select id="workspace-select">${workspaces.map(o=>`<option value="${o.id}" ${o.id===workspace.organization.id?'selected':''}>${esc(o.name)}</option>`).join('')}</select></label><nav aria-label="${t('brand')}">${navigation.map(([group,items])=>`<div class="nav-group"><p>${group==='HOME'?t('home'):t(group)}</p>${items.map((p,i)=>`<button class="nav-item ${page===p?'active':''}" data-page="${p}" ${page===p?'aria-current="page"':''}><span aria-hidden="true">${({home:'⌂',profile:'◉',journey:'↗',simulator:'◇',assistant:'✧',team:'◎',settings:'⚙'})[p]||'·'}</span>${t(p)}</button>`).join('')}</div>`).join('')}</nav><div class="sidebar-bottom"><span class="avatar">${esc(me.name.slice(0,1))}</span><div><strong>${esc(me.name)}</strong><small>${me.verified?t('verified'):t('verify')}</small></div></div></aside><div class="workspace"><header class="topbar"><button class="menu-button secondary" id="toggle-menu" aria-controls="sidebar" aria-expanded="false">${t('menu')}</button><span class="breadcrumb">${esc(workspace.organization.name)} <span>/</span> ${t(page)}</span>${languageControl()}${button('logout','logout',true)}</header><main id="main" tabindex="-1"><div class="page-heading"><p class="eyebrow">AURADIGITAL / ${t('brand')}</p><h1>${t(page)}</h1></div>${!me.verified?`<aside class="verification"><p>${t('verifyLater')}</p>${button('sendVerification','send-verification',true)}</aside>`:''}<div id="page-content" aria-live="polite"></div></main><footer>${t('tag')}</footer></div></div>`;
+ const l=roadmapLabels(lang),growth=['home','journey'].includes(page);
+ const alerts=workspace.missions.filter(m=>m.priority===1&&!m.optional&&!['done','postponed'].includes(m.status)&&!missionState(m,workspace.missions,workspace.profile).blocked);
+ const navItem=p=>`<button class="nav-item ${page===p?'active':''}" data-page="${p}" ${page===p?'aria-current="page"':''}>
+ <span aria-hidden="true">${({home:'⌂',journey:'♧',tasks:'☑',assistant:'✧',services:'◇',resources:'▤',settings:'⚙'})[p]||'·'}</span>${esc(l[p]||t(p))}</button>`;
+ app.innerHTML=`<div class="shell growth-shell ${growth?'growth-active':''}"><aside class="sidebar" id="sidebar">
+ <a href="/" class="wordmark">aura<span>digital.</span></a><label class="field workspace-picker"><span class="sr-only">${t('businessName')}</span>
+ <select id="workspace-select" aria-label="${t('businessName')}">${workspaces.map(o=>`<option value="${o.id}" ${o.id===workspace.organization.id?'selected':''}>${esc(o.id===workspace.organization.id?workspace.organization.name:o.name)}</option>`).join('')}</select></label>
+ <nav aria-label="${t('brand')}">${navigation.map(navItem).join('')}</nav><div class="growth-request"><a class="growth-primary" href="${esc(requestLink())}">${l.request} →</a></div></aside>
+ <div class="workspace"><header class="topbar growth-topbar"><button class="menu-button secondary" id="toggle-menu" aria-controls="sidebar" aria-expanded="false">${t('menu')}</button>
+ <div class="growth-greeting"><strong>${esc(l.welcome)}, ${esc(me.name.split(' ')[0])}</strong><span>${esc(workspace.organization.name)}</span></div>
+ ${languageControl()}
+ <details class="growth-notifications"><summary class="growth-secondary" aria-label="${esc(t('activity'))}">
+ <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0"/></svg></summary>
+ <div class="growth-account-menu"><strong>${l.priority}</strong>
+ ${alerts.length?`<ul>${alerts.map(m=>`<li>${esc(m.objective===m.service?cap(m.capability):m.objective)}</li>`).join('')}</ul>`:`<p>${esc(t('empty'))}</p>`}
+ ${navItem('journey')}</div></details>
+ <details class="growth-account"><summary><span class="avatar">${esc(me.name.slice(0,1))}</span><span>${esc(me.name)}</span></summary>
+ <div class="growth-account-menu">${navItem('profile')}${navItem('settings')}${button('logout','logout',true)}</div></details></header>
+ <main id="main" tabindex="-1">${growth?`<h1 class="sr-only">${l[page]}</h1>`:`<div class="page-heading"><h1>${esc(l[page]||t(page))}</h1></div>`}
+ ${!me.verified?`<aside class="verification"><p>${t('verifyLater')}</p>${button('sendVerification','send-verification',true)}</aside>`:''}
+ <div id="page-content"></div></main></div></div>`;
  bindCommon();document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{page=b.dataset.page;document.body.classList.remove('menu-open');render();document.querySelector('#main').focus();});
  document.querySelector('#toggle-menu').onclick=e=>{const open=document.body.classList.toggle('menu-open');e.target.setAttribute('aria-expanded',String(open));syncSidebar();};
- document.querySelector('#workspace-select').onchange=async e=>{await loadWorkspace(e.target.value);};
+ document.querySelector('#workspace-select').onchange=async e=>{selectedMission=null;await loadWorkspace(e.target.value);};
  document.querySelector('[data-action="logout"]').onclick=async()=>{try{await api('/api/customer/logout','POST',{});location.assign('/hub/login');}catch(e){toast(e.message);}};
  document.querySelector('[data-action="send-verification"]')?.addEventListener('click',async e=>{e.target.disabled=true;try{await api('/api/customer/send-verification','POST',{});toast(t('saved'));}catch(e){toast(e.message);}finally{e.target.disabled=false;}});
  syncSidebar();
@@ -82,17 +110,50 @@ async function renderPage(){
  if(page==='profile'&&!workspace.permissions.includes('profile:write')){content(`<section class="panel"><h2>${esc(workspace.profile.name)}</h2><p>${t('readOnly')}</p><p>${esc(workspace.profile.goals)}</p></section>`);return;}
  if(page==='profile'){draft=structuredClone(workspace.profile);mode=workspace.organization.mode;editing=true;renderSetup();return;}
  if(page==='menuDrafts')return renderMenuDrafts({host:document.querySelector('#page-content'),api,endpoint,profile:workspace.profile,canWrite:workspace.permissions.includes('roadmap:write')});
- if(page==='home')return overview();if(page==='journey')return journey();if(page==='simulator')return simulator();if(page==='team')return team();if(page==='assistant')return assistant();
+ if(page==='home'||page==='journey')return growthDashboard();
+ if(page==='tasks')return journey();
+ if(page==='resources'){
+  content(`<section class="panel"><div class="resource-links">${moreNavigation.map(p=>`<button type="button" class="secondary" data-resource="${p}">${esc(t(p))}</button>`).join('')}</div></section>`);
+  document.querySelectorAll('[data-resource]').forEach(b=>b.onclick=()=>{page=b.dataset.resource;render();});
+  return;
+ }
+ if(page==='simulator')return simulator();if(page==='team')return team();if(page==='assistant')return assistant();
  if(page==='settings'){content(`<section class="panel"><h2>${t('security')}</h2><p>${esc(me.email)} · ${me.verified?t('verified'):t('verify')}</p><a class="secondary" href="/hub/forgot">${t('reset')}</a>${me.verified?`<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t('linkGoogle')}</a></p>`:''}<hr>${button('team','open-team',true)}${button('newWorkspace','new-workspace',true)}</section>`);document.querySelector('[data-action="open-team"]').onclick=()=>{page='team';render();};document.querySelector('[data-action="new-workspace"]').onclick=()=>{workspace=null;editing=false;render();};return;}
  const account=['orders','invoices'].includes(page),service=page==='services',support=page==='support',reports=['reports','rewards'].includes(page);
  content(`<section class="panel quiet-panel"><span class="eyebrow">${reports?'NOT CONNECTED':account?'EXISTING ACCOUNT':service?'SERVICE CATALOGUE':'INTEGRATION PENDING'}</span><h2>${t(page)}</h2><p>${t(account?'legacy':service?'serviceNote':support?'supportText':reports?'reportNote':'unavailable')}</p><a class="primary" href="${account?'/account':service?'/services':'/contact'}">${t(account?'openAccount':service?'openServices':'contact')} ↗</a></section>`);
 }
-function overview(){
- const missions=workspace.missions,complete=missions.filter(m=>m.status==='done').length,progress=missions.length?Math.round(complete/missions.length*100):0;
- const next=missions.find(m=>!['done','postponed'].includes(m.status));
- const currentLevel=[1,2,3,4,5].find(l=>missions.some(m=>m.level===l&&m.status!=='done'))||1;
- content(`<section class="overview-hero"><div><p class="eyebrow">${esc(workspace.organization.name)}</p><h2>${t('welcome')}<br><span>${t('tag')}</span></h2><p>${t('next')}</p><h3>${next?esc(cap(next.capability)||next.objective):t('createJourney')}</h3><button class="lime" data-action="journey">${t('journey')} ↗</button></div><div class="hero-robot">${robot()}<span>AURI</span></div></section><div class="metric-grid"><article class="panel metric"><span>${t('level')}</span><strong>${currentLevel} <small>/ 5</small></strong><p>${t(['foundation','visibility','conversion','automation','scale'][currentLevel-1])}</p></article><article class="panel metric"><span>${t('progress')}</span><strong>${progress}<small>%</small></strong><progress max="100" value="${progress}" aria-label="${t('progress')}"></progress></article><article class="panel metric"><span>${t('readiness')}</span><strong>${workspace.analysis.readiness}<small>%</small></strong><p>${t('source')}</p></article></div><div class="two-columns"><section class="panel"><div class="panel-bar"><h2>${t('diagnosis')}</h2><span class="pill">${t('source')}</span></div><h3>${t('strengths')}</h3><div class="chips">${workspace.analysis.strengths.length?capabilities.filter(c=>!workspace.analysis.missing.includes(c.id)).map(c=>`<span>${esc(cap(c.id))}</span>`).join(''):`<p>${t('empty')}</p>`}</div><h3>${t('missing')}</h3><div class="chips muted">${workspace.analysis.missing.map(c=>`<span>${esc(cap(c))}</span>`).join('')}</div></section><section class="panel simulator-tease"><span class="eyebrow">${t('assumptions')}</span><h2>${t('simulator')}</h2><p>${t('simNotice')}</p>${button('simulator','simulator',true)}</section></div>`);
- document.querySelector('[data-action="journey"]').onclick=()=>{page='journey';render();};document.querySelector('[data-action="simulator"]').onclick=()=>{page='simulator';render();};
+async function askAuri(question,missionId) {
+ const {data}=await api(endpoint('auri'),'POST',missionId?{tool:'task',missionId}:{tool:'guidance',question,lang});
+ if(data.reply)return data.reply;
+ if(/customers|visibility|sales|müşteri|clients|عملاء/i.test(question)&&data.priorities?.length)return data.priorities.map(m=>cap(m.capability)).join(' · ');
+ const task=data.mission||data.nextAction;
+ if(!task)return t('empty');
+ const guide=missionGuide[task.capability],requirements=missionState(task,workspace.missions,workspace.profile).requirements;
+ if(!missionId&&/website|web site|site web|موقع/i.test(question)) {
+  const website=workspace.missions.find(m=>m.capability==='website');
+  if(website){selectedMission=website.id;return [cap('website'),missionGuide.website[2],t('quote')].join(' · ');}
+ }
+ const action=task.nextAction==='Define scope or record your existing solution.'?guide?.[2]:task.nextAction;
+ return [cap(task.capability),action,requirements.length?requirements.map(cap).join(', '):''].filter(Boolean).join(' · ');
+}
+function growthDashboard(){
+ renderRoadmap({host:document.querySelector('#page-content'),workspace,t,esc,cap,lang,view:roadmapView,selectedId:selectedMission,robot,requestLink,
+  onSelect(id){selectedMission=id;growthDashboard();const detail=document.getElementById('growth-focus');detail.focus({preventScroll:!matchMedia('(max-width: 800px)').matches});},
+  onView(view){roadmapView=view;growthDashboard();document.querySelector(`[data-view="${view}"]`)?.focus();},
+  onEdit(mission){page='tasks';render();const card=document.querySelector(`[data-mission="${mission.id}"]`);card?.querySelector('[data-action=edit]').click();card?.querySelector('input')?.focus();},
+  async onSave(mission,input){
+   input.disabled=true;
+   const workspaceId=workspace.organization.id;
+   try{const {version,position}=mission;await api(endpoint('missions/'+mission.id),'PATCH',{version,position,status:input.value});if(workspace.organization.id===workspaceId)await loadWorkspace();}
+   catch(error){input.value=mission.status;input.disabled=false;toast(error.message);}
+  },
+  async onGenerate(event){
+   event.target.disabled=true;
+   try{await api(endpoint('missions'),'POST',{});await loadWorkspace();}
+   catch(error){event.target.disabled=false;toast(error.message);}
+  },
+  onAsk:askAuri,
+ });
 }
 function journey(){
  const write=workspace.permissions.includes('roadmap:write');
@@ -133,7 +194,7 @@ async function team(){
  const a=await api(endpoint('activity'));document.querySelector('#activity').innerHTML=a.events.map(e=>`<p>${esc(e.created_at)} · ${esc(e.action)}</p>`).join('')||t('empty');
 }
 const rolesForUI=()=>['viewer','member','admin'].map(v=>[v,t(v)]);
-function assistant(){content(`<section class="panel assistant-panel">${robot()}<div><span class="eyebrow">AURI</span><h2>${t('aiRules')}</h2><p>${t('aiNotice')}</p><div class="actions">${button('diagnosis','diagnosis',true)}${button('recommend','next-action',true)}</div><div id="auri-response" role="status"></div></div></section>`);for(const [action,tool]of [['diagnosis','diagnosis'],['next-action','next_action']])document.querySelector(`[data-action="${action}"]`).onclick=async e=>{e.target.disabled=true;try{const r=await api(endpoint('auri'),'POST',{tool});document.querySelector('#auri-response').innerHTML=tool==='diagnosis'?`<h3>${t('missing')}</h3><ul>${r.data.missing.map(k=>`<li>${esc(cap(k))}</li>`).join('')}</ul>`:`<h3>${esc(r.data.nextAction?cap(r.data.nextAction.id):t('empty'))}</h3><p>${t('why')}</p>`;}catch(e){toast(e.message);}finally{e.target.disabled=false;}};}
+function assistant(){content(`<section class="panel assistant-panel">${robot()}<div><span class="eyebrow">AURI</span><h2>${t('aiRules')}</h2><p>${t('aiNotice')}</p><div class="actions">${button('diagnosis','diagnosis',true)}${button('recommend','next-action',true)}</div><div id="auri-response" role="status"></div></div></section>`);for(const [action,tool]of [['diagnosis','diagnosis'],['next-action','next_action']])document.querySelector(`[data-action="${action}"]`).onclick=async e=>{e.target.disabled=true;try{const r=await api(endpoint('auri'),'POST',{tool});document.querySelector('#auri-response').innerHTML=tool==='diagnosis'?`<h3>${t('missing')}</h3><ul>${r.data.missing.map(k=>`<li>${esc(cap(k))}</li>`).join('')}</ul>`:`<h3>${esc(r.data.nextAction?cap(r.data.nextAction.capability):t('empty'))}</h3><p>${t('why')}</p>`;}catch(e){toast(e.message);}finally{e.target.disabled=false;}};}
 async function loadWorkspace(id){result=null;scenarioInputs=null;workspace=await api('/api/hub/workspaces/'+(id||workspace.organization.id));render();}
 async function load(){try{const data=await api('/api/hub/workspaces');me=data.user;workspaces=data.workspaces;if(workspaces.length){const selected=workspace&&workspaces.find(w=>w.id===workspace.organization.id);workspace=await api('/api/hub/workspaces/'+(selected?.id||workspaces[0].id));}if(route==='settings'){page='settings';route='';}if(route==='signup'||route==='login')route='';render();}catch(e){if(e.status===401){me=null;render();}else{gateFrame(`<section class="panel"><h1>${t('brand')}</h1><p role="alert">${esc(e.message)}</p><a href="/account">${t('openAccount')}</a></section>`);}}}
 if(['verify','reset','forgot'].includes(route))render();else load();

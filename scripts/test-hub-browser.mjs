@@ -1,0 +1,88 @@
+import assert from 'node:assert/strict';
+import { mkdir } from 'node:fs/promises';
+import { chromium } from 'playwright';
+
+const base=process.env.HUB_TEST_ORIGIN||'http://127.0.0.1:4173';
+const output=process.env.HUB_SCREENSHOT_DIR||'test-output';
+await mkdir(output,{recursive:true});
+const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||undefined});
+try {
+ const desktopContext=await browser.newContext({viewport:{width:1600,height:1000}});
+ const desktop=await desktopContext.newPage();
+ const exceptions=[];
+ desktop.on('pageerror',error=>exceptions.push(error.message));
+ await desktop.goto(base+'/hub/signup');
+ await desktop.locator('[name=name]').fill('Samir QA');
+ await desktop.locator('[name=email]').fill('samir-'+crypto.randomUUID()+'@example.test');
+ const email=await desktop.locator('[name=email]').inputValue();
+ await desktop.locator('[name=password]').fill('Saffron-lake-0142!');
+ await desktop.locator('[name=terms]').check();
+ await desktop.locator('#auth-form button').click();
+ await desktop.locator('[data-mode=myself]').click();
+ await desktop.locator('[name=name]').fill('TechStyle Store');
+ await desktop.locator('[name=industry]').selectOption('ecommerce');
+ await desktop.locator('[name=goals]').fill('Increase sales');
+ await desktop.locator('#profile-form button[type=submit]').click();
+ await desktop.locator('.growth-root').waitFor();
+ assert.equal(await desktop.locator('[data-stage]').count(),4);
+ const website=desktop.locator('[data-node]').filter({hasText:/website/i}).first();
+ await website.click();
+ await desktop.locator('#growth-focus h2').filter({hasText:/website/i}).waitFor();
+ await desktop.locator('[data-status-change]').selectOption('done');
+ await desktop.locator('.growth-ring').filter({hasNotText:'0%'}).waitFor();
+ await desktop.locator('[data-view=timeline]').click();
+ await desktop.locator('.growth-timeline time').waitFor();
+ await desktop.locator('.growth-auri input').fill('What should I do next?');
+ await desktop.locator('.growth-auri form button').click();
+ await desktop.waitForFunction(()=>document.querySelector('.growth-answer')?.textContent.length>5);
+ const link=new URL(await desktop.locator('#growth-focus a.growth-primary').getAttribute('href'),base);
+ const handoff=new URLSearchParams(link.hash.slice(1));
+ assert.equal(link.pathname,'/contact');
+ assert.equal(handoff.get('service'),'Web Design');
+ assert.equal(handoff.get('business'),'TechStyle Store');
+ assert.equal(handoff.get('email'),email);
+ const contact=await desktop.context().newPage();
+ await contact.goto(link.href);
+ await contact.waitForFunction(()=>document.querySelector('[name=service]')?.value==='Web Design'&&!location.hash);
+ assert.equal(await contact.locator('[name=email]').inputValue(),email);
+ assert.match(await contact.locator('[name=message]').inputValue(),/Business: TechStyle Store/);
+ await contact.close();
+ await desktop.locator('.growth-account summary').click();
+ await desktop.locator('[data-action=logout]').click();
+ await desktop.locator('#auth-form').waitFor();
+ await desktop.locator('[name=email]').fill(email);
+ await desktop.locator('[name=password]').fill('Saffron-lake-0142!');
+ await desktop.locator('#auth-form button').click();
+ await desktop.locator('.growth-ring').filter({hasNotText:'0%'}).waitFor();
+ await desktop.locator('[data-status=done]').waitFor();
+ assert.deepEqual(exceptions,[]);
+
+ // Use only the synthetic fixture in the screenshots.
+ await desktop.goto(base+'/__qa/start');
+ await desktop.locator('.growth-root').waitFor();
+ const active=desktop.locator('[data-node]').filter({hasText:/website/i}).first();
+ await active.click();
+ await desktop.locator('[data-status-change]').selectOption('done');
+ await desktop.locator('.growth-ring').filter({hasNotText:'0%'}).waitFor();
+ const seo=desktop.locator('[data-node]').filter({hasText:/SEO/i}).first();
+ await seo.click();
+ await desktop.locator('[data-status-change]').selectOption('in_progress');
+ await desktop.locator('[data-node][data-status=in_progress]').waitFor();
+ await desktop.screenshot({path:output+'/AuraDigital-Desktop.png',fullPage:true,animations:'disabled'});
+
+ const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
+ await mobile.goto(base+'/__qa/start');
+ await mobile.locator('.growth-root').waitFor();
+ assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ await mobile.locator('#toggle-menu').click();
+ await mobile.locator('.sidebar [data-page=journey]').click();
+ await mobile.locator('[data-node]').first().click();
+ await mobile.locator('#growth-focus h2').waitFor();
+ await mobile.locator('[data-ask-task]').click();
+ await mobile.waitForFunction(()=>document.querySelector('.growth-answer')?.textContent.length>5);
+ await mobile.evaluate(()=>window.scrollTo(0,0));
+ await mobile.screenshot({path:output+'/AuraDigital-Mobile.png',fullPage:true,animations:'disabled'});
+ console.log('Hub browser QA passed: signup, login, generated roadmap, tree, timeline, persisted progress, AURI, service handoff and mobile.');
+} finally {
+ await browser.close();
+}
