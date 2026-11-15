@@ -104,7 +104,16 @@ export async function handleBusinessHub(request,env) {
   const body=await readJson(request,16000),profile=validateProfile(body.profile),id=crypto.randomUUID();
   if(!['myself','auri'].includes(body.mode))throw new ApiError(400,'Choose an onboarding mode.');
   const result=await env.DB.prepare('INSERT INTO organizations(id,owner_id,name,profile_json,mode) SELECT ?,?,?,?,? WHERE (SELECT count(*) FROM organizations WHERE owner_id=?)<10').bind(id,user.id,profile.name,JSON.stringify(profile),body.mode,user.id).run();
-  if(!result.meta.changes)throw new ApiError(409,'Workspace limit reached.');return json({id},201);
+  if(!result.meta.changes)throw new ApiError(409,'Workspace limit reached.');
+  // A new customer should see a usable roadmap immediately after onboarding.
+  // Regenerating from the submitted, validated profile is deterministic and does
+  // not initiate any paid service or claim business results.
+  const roadmap=diagnose(profile).missions;
+  await env.DB.batch(roadmap.map((mission,index)=>
+    env.DB.prepare('INSERT OR IGNORE INTO business_missions(id,organization_id,capability,data_json,position) VALUES(?,?,?,?,?)')
+      .bind(crypto.randomUUID(),id,mission.id,JSON.stringify(mission),index)
+  ));
+  return json({id},201);
  }
  if(['/api/hub/invitations/preview','/api/hub/invitations/accept'].includes(path)&&request.method==='POST')return invitation(request,env,user,await readJson(request,4096),path.endsWith('/accept'));
  const match=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})(?:\/(profile|diagnosis|missions|scenarios|team|invitations|activity|auri)(?:\/([a-f0-9-]{36}))?)?$/.exec(path);
