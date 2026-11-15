@@ -2,7 +2,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
-const catalogThemes = JSON.parse(await readFile(new URL('../shop/catalog.seed.json', import.meta.url), 'utf8'));
+const catalogThemes = JSON.parse(await readFile(new URL('../shop/catalog.seed.json', import.meta.url), 'utf8')).filter(theme => theme.orientation === 'Horizontal');
 const catalogCount = catalogThemes.length;
 import { shopServer } from '../test/shop-fixture.mjs';
 
@@ -24,6 +24,8 @@ try {
   await page.goto(fixture.base + '/shop');
   await page.locator('.shop-product').last().waitFor();
   assert.equal(await page.locator('.shop-product').count(), catalogCount);
+  assert.equal(await page.locator('[data-orientation="Vertical"]').count(), 0);
+  assert.equal(await page.locator('[name="orientation"]').count(), 0);
   assert.equal(await page.locator('.shop-hero-card').count(), 2);
   assert.equal(await page.locator('#siteHeader a[href="/shop"]').count(), 1);
   const first = page.locator('.shop-scene').first();
@@ -43,7 +45,7 @@ try {
   await page.locator('.shop-product [data-flip]').evaluateAll(buttons => buttons.forEach(button => button.click()));
   await page.waitForFunction(() => [...document.querySelectorAll('.shop-product .shop-flipper')].every(el => getComputedStyle(el).transform.startsWith('matrix3d(-1,')));
   await page.screenshot({ path: `${folder}/desktop-card-backs.png`, fullPage: true });
-  await page.goto(fixture.base + '/shop/cards/oliva-bistro');
+  await page.goto(fixture.base + '/shop/cards/collection-restaurant-terracotta');
   await page.locator('[name="business"]').fill('Example Café');
   await page.locator('[name="destination"]').fill('https://example.com/menu');
   await page.locator('[name="quantity"]').fill('2');
@@ -62,7 +64,7 @@ try {
   assert.equal(await toggle.evaluate(el => el === document.activeElement), true);
   await page.goto(fixture.base + '/shop/cart'); await page.locator('[data-quantity]').waitFor();
   assert.equal(await page.locator('[data-quantity]').inputValue(), '2');
-  await page.getByRole('button',{name:'Increase quantity for Oliva Bistro',exact:true}).click();
+  await page.getByRole('button',{name:'Increase quantity for Restaurant Terracotta',exact:true}).click();
   await page.reload(); await page.locator('[data-quantity]').waitFor(); assert.equal(await page.locator('[data-quantity]').inputValue(), '3');
   await page.getByRole('link', { name: 'Personalize' }).click(); await page.locator('[name="business"]').waitFor();
   assert.equal(await page.locator('[name="business"]').inputValue(), 'Example Café');
@@ -70,14 +72,14 @@ try {
   await page.getByRole('button', { name: 'Review changes' }).click(); await page.getByRole('button', { name: 'Save changes' }).click();
   await page.waitForURL('**/shop/cart'); await page.getByText('Updated Café', { exact: false }).waitFor();
   assert.equal(await page.locator('.shop-cart-row').count(), 1);
-  await page.getByRole('button', { name: 'Remove Oliva Bistro' }).click(); await page.getByRole('heading', { name: 'Your cart is ready for its first card.' }).waitFor();
+  await page.getByRole('button', { name: 'Remove Restaurant Terracotta' }).click(); await page.getByRole('heading', { name: 'Your cart is ready for its first card.' }).waitFor();
   await context.close();
 
   const checkout = await pageFor({ viewport: { width: 1440, height: 1000 } });
   const cp = checkout.page;
   await cp.goto(fixture.base + '/shop'); await cp.locator('[data-add]').last().waitFor();
   assert.equal(await cp.locator('[data-add]').count(), catalogCount);
-  await cp.locator('[data-add="oliva-bistro"]').click(); await cp.locator('[data-add="oliva-bistro"]').click();
+  await cp.locator('[data-add="collection-restaurant-terracotta"]').click(); await cp.locator('[data-add="collection-restaurant-terracotta"]').click();
   assert.equal(await cp.locator('[data-cart-count]').textContent(), '2');
   assert.equal(await cp.locator('#shop-inline-cart-body .shop-cart-row').count(), 1);
   assert.match(await cp.locator('#shop-inline-cart-body .shop-cart-total').textContent(), /1,200 TL/);
@@ -135,18 +137,16 @@ try {
       await mobile.page.locator('#shop-filters [name="category"]').selectOption('Beauty Salons & Spas');
       const categoryThemes = catalogThemes.filter(theme => theme.category === 'Beauty Salons & Spas');
       assert.equal(await mobile.page.locator('.shop-product').count(), categoryThemes.length);
-      await mobile.page.locator('#shop-filters [name="orientation"]').selectOption('Vertical');
-      assert.equal(await mobile.page.locator('.shop-product').count(), categoryThemes.filter(theme => theme.orientation === 'Vertical').length);
-      assert.equal(await mobile.page.locator('.shop-scene').first().getAttribute('data-orientation'), 'Vertical');
+      assert.equal(await mobile.page.locator('.shop-scene').first().getAttribute('data-orientation'), 'Horizontal');
       await mobile.page.locator('[data-enlarge]').first().click(); await mobile.page.locator('#shop-dialog').waitFor({ state: 'visible' });
       await mobile.page.getByRole('button', { name: 'Close dialog' }).click();
       await mobile.page.goto(fixture.base + '/shop'); await mobile.page.locator('.shop-product').last().waitFor();
     }
     await mobile.page.screenshot({ path: `${folder}/storefront-${width}.png`, fullPage: true });
-    await mobile.page.goto(fixture.base + '/shop/cards/luna-beauty-studio'); await mobile.page.locator('#shop-personalize').waitFor();
+    await mobile.page.goto(fixture.base + '/shop/cards/collection-beauty-lilac'); await mobile.page.locator('#shop-personalize').waitFor();
     assert.equal(await mobile.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Detail overflow at ${width}px`);
     await mobile.page.screenshot({ path: `${folder}/detail-${width}.png`, fullPage: true });
-    await mobile.page.goto(fixture.base + '/shop'); await mobile.page.locator('[data-add="luna-beauty-studio"]').tap();
+    await mobile.page.goto(fixture.base + '/shop'); await mobile.page.locator('[data-add="collection-beauty-lilac"]').tap();
     await mobile.page.goto(fixture.base + '/shop/checkout'); await mobile.page.waitForURL('**/account/login?next=*');
     await mobile.page.locator('[name="email"]').waitFor();
     assert.equal(await mobile.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Account login overflow at ${width}px`);

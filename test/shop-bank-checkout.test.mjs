@@ -16,7 +16,7 @@ async function signup(env, email = 'buyer@example.com') {
   assert.equal(response.status, 200);
   return response.headers.get('set-cookie').split(';')[0];
 }
-function payload() { return { items: [{ id: crypto.randomUUID(), themeId: 'oliva-bistro', quantity: 2, material: 'PVC', finish: 'Matte', unitMinor: 1, paymentStatus: 'paid', personalization: { ...emptyPersonalization, business: 'Buyer Bistro', destination: 'https://example.com/menu' } }], shipping: { name: 'Test Buyer', phone: '+90 555 555 55 55', business: 'Buyer Bistro', country: 'Türkiye', address: 'Example Street 10', city: 'Istanbul', postalCode: '34000', billingDetails: '' }, idempotencyKey: crypto.randomUUID(), acceptConditions: true, totalMinor: 1, paid: true, email: 'attacker@example.com', customerId: 'attacker' }; }
+function payload() { return { items: [{ id: crypto.randomUUID(), themeId: 'collection-restaurant-terracotta', quantity: 2, material: 'PVC', finish: 'Matte', unitMinor: 1, paymentStatus: 'paid', personalization: { ...emptyPersonalization, business: 'Buyer Bistro', destination: 'https://example.com/menu' } }], shipping: { name: 'Test Buyer', phone: '+90 555 555 55 55', business: 'Buyer Bistro', country: 'Türkiye', address: 'Example Street 10', city: 'Istanbul', postalCode: '34000', billingDetails: '' }, idempotencyKey: crypto.randomUUID(), acceptConditions: true, totalMinor: 1, paid: true, email: 'attacker@example.com', customerId: 'attacker' }; }
 
 test('AuraDigital signup/login/logout uses hashed passwords and revocable secure customer sessions', async () => {
   const { env, sqlite } = await shopFixture();
@@ -58,6 +58,8 @@ test('checkout requires a customer account, valid address and complete card pers
     const body = payload();
     assert.equal((await call(env, '/api/shop/checkout', 'POST', body)).status, 401);
     const cookie = await signup(env);
+    const vertical = { ...body, items: body.items.map(item => ({ ...item, themeId: 'oliva-bistro' })) };
+    assert.equal((await call(env, '/api/shop/checkout', 'POST', vertical, cookie)).status, 400);
     assert.equal((await call(env, '/api/shop/checkout', 'POST', { ...body, shipping: { ...body.shipping, address: '' } }, cookie)).status, 400);
     assert.equal((await call(env, '/api/shop/checkout', 'POST', { ...body, acceptConditions: false }, cookie)).status, 400);
     assert.equal((await call(env, '/api/shop/checkout', 'POST', { ...body, items: [{ ...body.items[0], personalization: emptyPersonalization }] }, cookie)).status, 400);
@@ -86,6 +88,11 @@ test('bank orders use catalog totals and account ownership, retain address, and 
     assert.equal((await (await call(env, '/api/shop/orders', 'GET', undefined, other)).json()).orders.length, 0);
     assert.equal((await call(env, '/api/shop/orders/' + order.id, 'GET')).status, 401);
     assert.equal((await call(env, '/api/shop/checkout', 'POST', { ...payload(), items: [{ ...body.items[0], quantity: 1.5 }] }, cookie)).status, 400);
+    const historicalItems = order.items.map(item => ({ ...item, themeId: 'oliva-bistro', name: 'Oliva Bistro' }));
+    sqlite.prepare('UPDATE shop_bank_orders SET items_json = ? WHERE id = ?').run(JSON.stringify(historicalItems), order.id);
+    const historical = await call(env, '/api/shop/orders/' + order.id, 'GET', undefined, cookie);
+    assert.equal(historical.status, 200);
+    assert.deepEqual((await historical.json()).order.items, historicalItems);
   } finally { sqlite.close(); }
 });
 test('reporting a transfer never pays an order; only authorized manual confirmation does, with one audit event', async () => {
