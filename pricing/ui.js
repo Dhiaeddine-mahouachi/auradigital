@@ -291,20 +291,17 @@ function card(p,{featured=false,extra="",label="Choose Package",options={}}={}) 
 }
 const $=s=>document.querySelector(s);
 function home(){
- const target=$('[data-pricing-view="home"]');if(!target)return;
+ const target=$('[data-pricing-view="home-services"]');if(!target)return;
  const data=[
- ["Websites & Development","launch","/websites"],
- ["Website Management","essential-care","/packages"],
- ["Hosting & Security","standard-infra","/services#infrastructure"],
- ["Advertising & Growth","basic-ads","/services#advertising"],
- ["Business Systems & ERP","spinflow-start","/spinflow"],
- ["Dashboards & Automation","basic-dashboard","/websites#web-addons"]
+ ["Websites & Development","/websites"],
+ ["Website Management","/packages"],
+ ["Hosting & Security","/services#infrastructure"],
+ ["Advertising & Growth","/services#advertising"],
+ ["Business Systems & ERP","/spinflow"],
+ ["Dashboards & Automation","/websites#web-addons"]
  ];
- target.innerHTML='<div class="aura-price-mini-grid">'+data.map(([name,id,href])=>
- '<a class="aura-price-mini" href="'+href+'"><span>'+safe(t(name))+'</span><b>'+safe(price(getItem(id)))+
- (id==="spinflow-start"?" <small>"+safe(locale()==="tr"?"Özel ERP: ":"Custom ERP: ")+safe(price(getItem("erp-essential")))+"</small>":"")+
- '</b><span aria-hidden="true">↗</span></a>').join("")+'</div>'+
- '<p class="aura-price-footnote">'+safe(t("Only choose services you need."))+'</p>';
+ target.innerHTML='<div class="aura-price-mini-grid">'+data.map(([name,href])=>
+ '<a class="aura-price-mini" href="'+href+'"><span>'+safe(t(name))+'</span><span aria-hidden="true">↗</span></a>').join("")+'</div>';
 }
 function services(){
  const target=$('[data-pricing-view="services"]');if(!target)return;

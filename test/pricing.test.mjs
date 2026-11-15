@@ -123,10 +123,10 @@ test("public pricing APIs expose only approved active prices and no weekly offer
 });
 
 test("server-rendered pricing mounts expose all approved prices to HTML-only crawlers", () => {
-  const homepage=renderPricingFallback("home");
-  assert.match(homepage,/6,750 TL/);
-  assert.match(homepage,/49,900 TL/);
-  assert.match(homepage,/1,950 TL/);
+  const homepage=renderPricingFallback("home-services");
+  assert.equal((homepage.match(/<a /g) || []).length,6);
+  assert.match(homepage,/href="\/spinflow"/);
+  assert.doesNotMatch(homepage, /\d|Custom ERP/);
   const packages=renderPricingFallback("packages");
   for (const p of catalogue.care) {
     assert.ok(packages.includes(p.name));
