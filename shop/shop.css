@@ -87,3 +87,14 @@ body.shop-page #siteHeader,body.shop-page #siteHeader.scrolled{background:#fafaf
  .shop-page .customer-access-bar a{display:inline-flex;align-items:center;min-height:44px;color:#003d2b;font-size:13px;font-weight:700;text-decoration:none}
  .shop-page .customer-access-bar a:focus-visible{outline:3px solid #5a7200;outline-offset:2px}
 }
+
+/* Shared AuraDigital navigation palette: align the shop with the main brand. */
+.shop-page{--aura-nav-green:#003d2b;--aura-nav-lime:#cfe538;--aura-nav-ivory:#fafaf7}
+.shop-page .site-header .nav{border-radius:inherit}
+.shop-page.cinematic-enabled .site-header .nav{background:var(--aura-nav-green);border-color:rgba(184,216,197,.25)}
+.shop-page.cinematic-enabled .nav-cta{background:var(--aura-nav-lime);color:var(--aura-nav-green)}
+.shop-page .nav-links a,.shop-page .nav-products-toggle{font-weight:600}
+.shop-page .nav-links a:focus-visible,.shop-page .nav-products-toggle:focus-visible,.shop-page .menu-btn:focus-visible{outline:2px solid var(--aura-nav-lime);outline-offset:3px}
+.shop-page .shop-header-search{background:#eff2ec}
+.shop-page .shop-header-search:focus-within{outline:2px solid var(--aura-nav-green);outline-offset:2px}
+@media(max-width:1000px){.shop-page .nav-links.open{background:var(--aura-nav-ivory);border-bottom-color:rgba(0,61,43,.18)}}
