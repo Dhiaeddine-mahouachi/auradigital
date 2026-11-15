@@ -1,3 +1,201 @@
+// src/hub/onboarding.js
+var messages = {
+  en: ["Let\u2019s build your business roadmap.", "Tell us about your business. Aura will take care of the plan.", "Build with Aura AI", "Build myself", "Does your business have a website?", "Do you have a Google Business Profile?", "Do you already use a CRM?", "Yes", "No", "Aura is preparing your business headquarters.", "Business profile validated", "Personalized roadmap saved", "Open Aura Command", "Use microphone", "Review the transcribed answer before continuing."],
+  tr: ["\u0130\u015Fletmenizin yol haritas\u0131n\u0131 olu\u015Ftural\u0131m.", "\u0130\u015Fletmenizi anlat\u0131n. Aura plan\u0131n\u0131z\u0131 haz\u0131rlas\u0131n.", "Aura AI ile olu\u015Ftur", "Kendim olu\u015Fturay\u0131m", "\u0130\u015Fletmenizin web sitesi var m\u0131?", "Google \u0130\u015Fletme Profiliniz var m\u0131?", "CRM kullan\u0131yor musunuz?", "Evet", "Hay\u0131r", "Aura i\u015Fletme merkezinizi haz\u0131rl\u0131yor.", "\u0130\u015Fletme profili do\u011Fruland\u0131", "Ki\u015Fisel yol haritas\u0131 kaydedildi", "Aura Command\u2019u a\xE7", "Mikrofonu kullan", "Devam etmeden \xF6nce yaz\u0131ya d\xF6k\xFClen yan\u0131t\u0131 kontrol edin."],
+  fr: ["Cr\xE9ons la feuille de route de votre entreprise.", "Parlez-nous de votre entreprise. Aura pr\xE9pare votre plan.", "Cr\xE9er avec Aura IA", "Cr\xE9er moi-m\xEAme", "Votre entreprise a-t-elle un site web ?", "Avez-vous une fiche Google Business ?", "Utilisez-vous d\xE9j\xE0 un CRM ?", "Oui", "Non", "Aura pr\xE9pare votre espace de travail.", "Profil d\u2019entreprise valid\xE9", "Feuille de route personnalis\xE9e enregistr\xE9e", "Ouvrir Aura Command", "Utiliser le microphone", "V\xE9rifiez la transcription avant de continuer."],
+  ar: ["\u0644\u0646\u0646\u0634\u0626 \u062E\u0627\u0631\u0637\u0629 \u0637\u0631\u064A\u0642 \u0644\u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A.", "\u0623\u062E\u0628\u0631\u0646\u0627 \u0639\u0646 \u0646\u0634\u0627\u0637\u0643. \u0633\u062A\u0639\u062F\u0651 \u0623\u0648\u0631\u0627 \u0627\u0644\u062E\u0637\u0629.", "\u0625\u0646\u0634\u0627\u0621 \u0628\u0627\u0633\u062A\u062E\u062F\u0627\u0645 \u0630\u0643\u0627\u0621 \u0623\u0648\u0631\u0627", "\u0625\u0646\u0634\u0627\u0621 \u0628\u0646\u0641\u0633\u064A", "\u0647\u0644 \u0644\u062F\u064A\u0643 \u0645\u0648\u0642\u0639 \u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A \u0644\u0646\u0634\u0627\u0637\u0643\u061F", "\u0647\u0644 \u0644\u062F\u064A\u0643 \u0645\u0644\u0641 \u0646\u0634\u0627\u0637 \u062A\u062C\u0627\u0631\u064A \u0639\u0644\u0649 Google\u061F", "\u0647\u0644 \u062A\u0633\u062A\u062E\u062F\u0645 \u0646\u0638\u0627\u0645\u064B\u0627 \u0644\u0625\u062F\u0627\u0631\u0629 \u0627\u0644\u0639\u0645\u0644\u0627\u0621\u061F", "\u0646\u0639\u0645", "\u0644\u0627", "\u062A\u062C\u0647\u0651\u0632 \u0623\u0648\u0631\u0627 \u0645\u0642\u0631\u0651 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A.", "\u062A\u0645 \u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646 \u0645\u0644\u0641 \u0627\u0644\u0646\u0634\u0627\u0637", "\u062A\u0645 \u062D\u0641\u0638 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642 \u0627\u0644\u0645\u062E\u0635\u0635\u0629", "\u0641\u062A\u062D Aura Command", "\u0627\u0633\u062A\u062E\u062F\u0627\u0645 \u0627\u0644\u0645\u064A\u0643\u0631\u0648\u0641\u0648\u0646", "\u0631\u0627\u062C\u0639 \u0627\u0644\u0646\u0635 \u0642\u0628\u0644 \u0627\u0644\u0645\u062A\u0627\u0628\u0639\u0629."]
+};
+var binary = { website: 4, discovery: 5, crm: 6 };
+var locales = { en: "en-US", tr: "tr-TR", fr: "fr-FR", ar: "ar" };
+function mountOnboarding({ app: app2, api: api2, lang: lang2, t: t2, esc: esc3, header, bindCommon: bindCommon2, field: field2, profileField: profileField2, initialProfile, saved, onComplete }) {
+  const m = messages[lang2];
+  let draft2 = saved || { profile: initialProfile, mode: null, step: 0 };
+  let pending = false, timer, request = Promise.resolve(), recognition, finishedId;
+  const save = () => {
+    clearTimeout(timer);
+    const snapshot = structuredClone(draft2);
+    request = request.catch(() => {
+    }).then(() => api2("/api/hub/onboarding", "PUT", snapshot));
+    return request;
+  };
+  const questions = () => ["name", "industry", ...draft2.profile.industry === "other" ? [] : ["industryDetails"], "city", "website", "discovery", "crm", "goals", "currency", "budget"];
+  const choice = (key) => `<fieldset><legend id="question">${m[binary[key]]}</legend><div class="actions">${[true, false].map((yes) => `<button type="button" class="secondary" data-answer="${yes}" aria-pressed="${draft2.profile.capabilities.includes(key) === yes}">${m[yes ? 7 : 8]}</button>`).join("")}</div>${key === "website" && draft2.profile.capabilities.includes(key) ? field2("website", "website", draft2.profile.website, "url", 'maxlength="500"') : ""}</fieldset>`;
+  function draw(focus = false) {
+    app2.classList.add("aura-os");
+    const keys = questions();
+    draft2.step = Math.min(draft2.step, keys.length - 1);
+    const key = keys[draft2.step], final = draft2.step === keys.length - 1;
+    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const voice = Speech && draft2.mode === "auri" && ["name", "industryDetails", "city", "goals"].includes(key);
+    app2.innerHTML = `${header}<main class="setup onboarding" id="main">${draft2.mode ? `<section class="panel profile-panel" aria-labelledby="setup-title"><div class="panel-bar"><span>${draft2.step + 1} / ${keys.length}</span><span id="save-state" role="status"></span><button type="button" class="secondary" data-switch>${m[draft2.mode === "auri" ? 3 : 2]}</button></div><progress aria-label="${m[0]}" max="${keys.length}" value="${draft2.step + 1}"></progress><h1 id="setup-title" tabindex="-1">${m[0]}</h1><form id="profile-form" class="guided">${key in binary ? choice(key) : profileField2(key, draft2.profile)}${voice ? `<button type="button" class="secondary" data-voice>${m[13]}</button>` : ""}<div class="actions"><button type="button" class="secondary" data-back>${t2("back")}</button><button type="submit" class="primary">${t2(final ? "save" : "continue")}</button></div><p role="alert" class="form-error"></p></form></section>` : `<div class="setup-heading"><h1>${m[0]}</h1><p>${m[1]}</p></div><div class="mode-grid"><button class="mode-card" data-mode="auri"><h2>${m[2]}</h2><span>${t2("continue")} \u2192</span></button><button class="mode-card" data-mode="myself"><h2>${m[3]}</h2><span>${t2("continue")} \u2192</span></button></div>`}</main>`;
+    bindCommon2();
+    app2.querySelectorAll("[data-mode]").forEach((button2) => button2.onclick = () => {
+      draft2.mode = button2.dataset.mode;
+      draw(true);
+      save().catch(showError);
+    });
+    if (!draft2.mode) return;
+    const form = app2.querySelector("form"), input = form.elements.namedItem(key);
+    const status = app2.querySelector("#save-state");
+    if (focus) app2.querySelector("#setup-title").focus();
+    const collect = () => {
+      if (input) draft2.profile[key] = key === "budget" ? input.value === "" ? null : input.valueAsNumber : input.value;
+    };
+    form.oninput = () => {
+      if (pending) return;
+      collect();
+      clearTimeout(timer);
+      if (!form.matches(":valid") || key === "website" && input?.value && !input.value.startsWith("https://")) return;
+      status.textContent = t2("saving");
+      timer = setTimeout(() => save().then(() => {
+        status.textContent = t2("saved");
+      }).catch(showError), 500);
+    };
+    form.querySelectorAll("[data-answer]").forEach((button2) => button2.onclick = () => {
+      if (pending) return;
+      collect();
+      const capabilities2 = new Set(draft2.profile.capabilities);
+      if (button2.dataset.answer === "true") capabilities2.add(key);
+      else {
+        capabilities2.delete(key);
+        if (key === "website") draft2.profile.website = "";
+      }
+      draft2.profile.capabilities = [...capabilities2];
+      draw();
+      app2.querySelector(`[data-answer="${button2.dataset.answer}"]`)?.focus();
+      save().then(() => {
+        app2.querySelector("#save-state").textContent = t2("saved");
+      }).catch(showError);
+    });
+    const transition = async (change) => {
+      if (pending) return;
+      pending = true;
+      recognition?.abort();
+      collect();
+      const previous = { ...draft2 };
+      change();
+      try {
+        await save();
+        draw(true);
+      } catch (error) {
+        draft2 = previous;
+        showError(error);
+      } finally {
+        pending = false;
+      }
+    };
+    app2.querySelector("[data-switch]").onclick = () => transition(() => {
+      draft2.mode = draft2.mode === "auri" ? "myself" : "auri";
+    });
+    form.querySelector("[data-back]").onclick = () => {
+      if (pending) return;
+      if (draft2.step === 0) {
+        clearTimeout(timer);
+        draft2.mode = null;
+        draw();
+        return;
+      }
+      transition(() => {
+        draft2.step--;
+      });
+    };
+    const mic = form.querySelector("[data-voice]");
+    if (mic) mic.onclick = () => {
+      recognition = new Speech();
+      recognition.lang = locales[lang2];
+      recognition.onresult = (event) => {
+        input.value = event.results[0][0].transcript.slice(0, input.maxLength > 0 ? input.maxLength : 1600);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        status.textContent = m[14];
+      };
+      recognition.onend = () => {
+        mic.disabled = false;
+      };
+      recognition.onerror = () => {
+        mic.disabled = false;
+        showError(new Error(t2("error")));
+      };
+      try {
+        mic.disabled = true;
+        recognition.start();
+      } catch (error) {
+        mic.disabled = false;
+        showError(error);
+      }
+    };
+    form.onsubmit = async (event) => {
+      event.preventDefault();
+      if (!final) {
+        await transition(() => {
+          draft2.step++;
+        });
+        return;
+      }
+      if (pending) return;
+      pending = true;
+      collect();
+      const submit = form.querySelector("[type=submit]");
+      submit.disabled = true;
+      try {
+        if (!finishedId) await save();
+        form.hidden = true;
+        const panel = form.closest("section");
+        panel.querySelector("h1").textContent = m[9];
+        const progress = document.createElement("ol");
+        progress.className = "setup-stages";
+        progress.setAttribute("aria-live", "polite");
+        panel.append(progress);
+        const addStage = (label) => {
+          const item = document.createElement("li");
+          item.textContent = label;
+          progress.append(item);
+        };
+        addStage(m[10]);
+        if (!finishedId) finishedId = (await api2("/api/hub/workspaces", "POST", { profile: draft2.profile, mode: draft2.mode, finishOnboarding: true })).id;
+        addStage(m[11]);
+        const workspace2 = await api2("/api/hub/workspaces/" + finishedId);
+        if (draft2.mode === "auri") {
+          const guidance = await api2("/api/hub/workspaces/" + finishedId + "/auri", "POST", {
+            tool: "guidance",
+            question: draft2.profile.goals.slice(0, 500) || "What should I do first?",
+            lang: lang2
+          }).catch(() => null);
+          if (guidance?.data?.reply) {
+            const recommendation = document.createElement("p");
+            recommendation.textContent = guidance.data.reply;
+            panel.append(recommendation);
+          }
+        }
+        const open = document.createElement("button");
+        open.type = "button";
+        open.className = "primary";
+        open.textContent = m[12];
+        open.onclick = () => onComplete(workspace2);
+        panel.append(open);
+        open.focus();
+      } catch (error) {
+        form.hidden = false;
+        form.closest("section").querySelector(".setup-stages")?.remove();
+        form.closest("section").querySelector("h1").textContent = m[0];
+        submit.disabled = false;
+        showError(error);
+      } finally {
+        pending = false;
+      }
+    };
+  }
+  function showError(error) {
+    const target = app2.querySelector(".form-error");
+    if (target) target.textContent = error.message;
+  }
+  draw();
+  return () => {
+    clearTimeout(timer);
+    recognition?.abort();
+    return draft2;
+  };
+}
+
 // src/customer-return.js
 function customerReturnPath(value, fallback) {
   return ["/hub", "/account", "/shop/checkout"].includes(value) || typeof value === "string" && /^\/shop\/orders\/[a-f0-9-]{36}$/.test(value) ? value : fallback;
@@ -42,7 +240,7 @@ function eligibleMissions(missions, profile) {
 
 // src/hub/roadmap-view.js
 var labels = {
-  en: ["Dashboard", "Roadmap", "Tasks", "Resources", "Welcome back", "Roadmap progress", "Growth stage", "Priority actions", "Estimated timeline", "Your business growth", "Your Business Growth Roadmap", "Tree view", "Timeline", "Current focus", "Why it matters", "How to do it", "Requirements", "Do it myself", "Get this done with AuraDigital", "Ask AURI\u2026", "Optional", "Blocked", "Update my roadmap", "Request a service", "Start", "Mark complete", "AURI Assistant", "Can AuraDigital help?", "Upcoming", "Completed", "Ask about this task"],
+  en: ["Aura Command", "Roadmap", "Tasks", "Resources", "Welcome back", "Roadmap progress", "Growth stage", "Priority actions", "Estimated timeline", "Your business growth", "Your Business Growth Roadmap", "Tree view", "Timeline", "Current focus", "Why it matters", "How to do it", "Requirements", "Do it myself", "Get this done with AuraDigital", "Ask AURI\u2026", "Optional", "Blocked", "Update my roadmap", "Request a service", "Start", "Mark complete", "AURI Assistant", "Can AuraDigital help?", "Upcoming", "Completed", "Ask about this task"],
   tr: ["Panel", "Yol haritas\u0131", "G\xF6revler", "Kaynaklar", "Tekrar ho\u015F geldiniz", "Yol haritas\u0131 ilerlemesi", "B\xFCy\xFCme a\u015Famas\u0131", "\xD6ncelikli ad\u0131mlar", "Tahmini s\xFCre", "\u0130\u015Fletmenizin b\xFCy\xFCmesi", "\u0130\u015Fletmenizin b\xFCy\xFCme yol haritas\u0131", "A\u011Fa\xE7 g\xF6r\xFCn\xFCm\xFC", "Zaman \xE7izelgesi", "\u015Eu anki odak", "Neden \xF6nemli", "Nas\u0131l yap\u0131l\u0131r", "Gereksinimler", "Kendim yapaca\u011F\u0131m", "AuraDigital ile yap", "AURI\u2019ye sorun\u2026", "\u0130ste\u011Fe ba\u011Fl\u0131", "Engellendi", "Yol haritas\u0131n\u0131 g\xFCncelle", "Hizmet iste", "Ba\u015Fla", "Tamamland\u0131 olarak i\u015Faretle", "AURI Asistan\u0131", "AuraDigital yard\u0131mc\u0131 olabilir mi?", "Yakla\u015Fan", "Tamamlanan", "Bu g\xF6revi sor"],
   fr: ["Tableau de bord", "Feuille de route", "T\xE2ches", "Ressources", "Bon retour", "Progression", "\xC9tape de croissance", "Actions prioritaires", "D\xE9lai estim\xE9", "La croissance de votre entreprise", "Votre feuille de route de croissance", "Vue en arbre", "Chronologie", "Priorit\xE9 actuelle", "Pourquoi cette t\xE2che compte", "Comment faire", "Pr\xE9requis", "Le faire moi-m\xEAme", "Confier \xE0 AuraDigital", "Demander \xE0 AURI\u2026", "Facultatif", "Bloqu\xE9", "Actualiser la feuille de route", "Demander un service", "D\xE9marrer", "Marquer comme termin\xE9", "Assistant AURI", "AuraDigital peut-il aider ?", "\xC0 venir", "Termin\xE9", "Poser une question sur cette t\xE2che"],
   ar: ["\u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645", "\u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u0627\u0644\u0645\u0647\u0627\u0645", "\u0627\u0644\u0645\u0648\u0627\u0631\u062F", "\u0623\u0647\u0644\u064B\u0627 \u0628\u0639\u0648\u062F\u062A\u0643", "\u062A\u0642\u062F\u0645 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u0645\u0631\u062D\u0644\u0629 \u0627\u0644\u0646\u0645\u0648", "\u0627\u0644\u0625\u062C\u0631\u0627\u0621\u0627\u062A \u0630\u0627\u062A \u0627\u0644\u0623\u0648\u0644\u0648\u064A\u0629", "\u0627\u0644\u0645\u062F\u0629 \u0627\u0644\u0645\u0642\u062F\u0631\u0629", "\u0646\u0645\u0648 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A", "\u062E\u0627\u0631\u0637\u0629 \u0646\u0645\u0648 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A", "\u0639\u0631\u0636 \u0627\u0644\u0634\u062C\u0631\u0629", "\u0627\u0644\u062C\u062F\u0648\u0644 \u0627\u0644\u0632\u0645\u0646\u064A", "\u0627\u0644\u062A\u0631\u0643\u064A\u0632 \u0627\u0644\u062D\u0627\u0644\u064A", "\u0644\u0645\u0627\u0630\u0627 \u064A\u0647\u0645", "\u0637\u0631\u064A\u0642\u0629 \u0627\u0644\u062A\u0646\u0641\u064A\u0630", "\u0627\u0644\u0645\u062A\u0637\u0644\u0628\u0627\u062A", "\u0633\u0623\u0646\u0641\u0630\u0647\u0627 \u0628\u0646\u0641\u0633\u064A", "\u0646\u0641\u0651\u0630 \u0645\u0639 AuraDigital", "\u0627\u0633\u0623\u0644 AURI\u2026", "\u0627\u062E\u062A\u064A\u0627\u0631\u064A", "\u0645\u062A\u0648\u0642\u0641", "\u062D\u062F\u0651\u062B \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u0627\u0637\u0644\u0628 \u062E\u062F\u0645\u0629", "\u0627\u0628\u062F\u0623", "\u0639\u0644\u0651\u0645 \u0643\u0645\u0643\u062A\u0645\u0644", "\u0645\u0633\u0627\u0639\u062F AURI", "\u0647\u0644 \u064A\u0645\u0643\u0646 \u0644\u0640 AuraDigital \u0627\u0644\u0645\u0633\u0627\u0639\u062F\u0629\u061F", "\u0627\u0644\u0642\u0627\u062F\u0645", "\u0627\u0644\u0645\u0643\u062A\u0645\u0644", "\u0627\u0633\u0623\u0644 \u0639\u0646 \u0647\u0630\u0647 \u0627\u0644\u0645\u0647\u0645\u0629"]
@@ -115,7 +313,7 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
     [l.upcoming, missions.filter((m) => m.status !== "done" && !eligible.includes(m))],
     [l.completed, missions.filter((m) => m.status === "done").sort((a, b) => (b.completedAt || "").localeCompare(a.completedAt || ""))]
   ];
-  const timeline = `<div class="growth-timeline">${groups.map(([label, items]) => `<section><h3>${label}</h3>${items.map((m) => `<div>${node(m)}
+  const timeline = `<div class="growth-timeline">${groups.map(([label, items]) => `<section><h3>${label}</h3>${items.map((m, index) => `<div class="growth-timeline-step"><span class="growth-step-number">${String(index + 1).padStart(2, "0")}</span>${node(m)}
   ${m.completedAt ? `<time datetime="${esc3(m.completedAt)}">${esc3(new Date(m.completedAt).toLocaleDateString(lang2))}</time>` : ""}
   ${m.dependencies?.length ? `<small>${l.requirements} \xB7 ${esc3(m.dependencies.map(cap2).join(", "))}</small>` : ""}</div>`).join("") || `<p>${esc3(t2("empty"))}</p>`}</section>`).join("")}</div>`;
   const metric = (icon, value, label) => `<article class="growth-card growth-metric"><span class="growth-metric-icon" aria-hidden="true">${icon}</span><div><strong>${esc3(value)}</strong><span>${label}</span></div></article>`;
@@ -124,7 +322,7 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
  <article class="growth-card growth-metric"><span class="growth-ring" style="--progress:${progress}%">${missions.length ? progress + "%" : "\u2014"}</span><div><strong>${l.progress}</strong><span>${missions.filter((m) => m.status === "done").length} / ${missions.length} \xB7 ${l.completed}</span></div></article>
  ${metric("\u25A5", currentStage < 0 ? "\u2014" : stageName(stages[currentStage], currentStage), l.stage)}
  ${metric("\u25CE", eligible.filter((m) => m.priority === 1 && !m.optional).length, l.priority)}
- ${metric("\u25A6", "\u2014", l.estimate)}</section>
+ </section>
  <div class="growth-layout"><section class="growth-card growth-map"><header class="growth-panel-head"><h2>${l.heading}</h2><div class="growth-tabs">
  <button type="button" data-view="tree" aria-pressed="${view === "tree"}">${l.tree}</button><button type="button" data-view="timeline" aria-pressed="${view === "timeline"}">${l.timeline}</button>
  </div></header>${view === "tree" ? tree : timeline}
@@ -404,6 +602,8 @@ var flowToken = new URLSearchParams(location.hash.slice(1)).get("token") || "";
 var returnPath = ["login", "signup", "forgot"].includes(route) ? customerReturnPath(new URLSearchParams(location.search).get("next"), "") : "";
 var authQuery = returnPath ? "?" + new URLSearchParams({ next: returnPath }) : "";
 var authCapabilities = {};
+var onboardingDraft = null;
+var unmountOnboarding = null;
 function resumeShop() {
   if (!returnPath || returnPath === "/hub") return false;
   location.replace(returnPath);
@@ -452,6 +652,30 @@ function render() {
   app.setAttribute("aria-busy", "false");
   if (!me || ["verify", "reset", "forgot", "invitation"].includes(route)) {
     renderGate();
+    return;
+  }
+  if (!workspace && !workspaces.length) {
+    if (unmountOnboarding) onboardingDraft = unmountOnboarding();
+    unmountOnboarding = mountOnboarding({
+      app,
+      api,
+      lang,
+      t,
+      esc: esc2,
+      bindCommon,
+      field,
+      profileField,
+      initialProfile: emptyProfile(),
+      saved: onboardingDraft,
+      header: `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header>`,
+      onComplete(next) {
+        workspace = next;
+        workspaces = [next.organization];
+        onboardingDraft = null;
+        unmountOnboarding = null;
+        render();
+      }
+    });
     return;
   }
   if (!workspace || editing) {
@@ -540,13 +764,13 @@ async function renderGate() {
   });
 }
 var emptyProfile = () => ({ name: "", industry: "other", country: "", city: "", stage: "", website: "", tools: "", acquisition: "", difficulties: "", goals: "", timeline: "", industryDetails: "", budget: null, currency: "USD", capabilities: [] });
-function profileField(k) {
-  const value = draft[k] ?? "";
+function profileField(k, profile = draft) {
+  const value = profile[k] ?? "";
   if (k === "industry") return select(k, k, [["restaurant", t("restaurant")], ["services", t("servicesIndustry")], ["ecommerce", t("ecommerce")], ["real_estate", t("real_estate")], ["other", t("other")]], value);
   if (k === "currency") return select(k, k, ["USD", "EUR", "TRY", "TND"].map((x) => [x, x]), value);
-  if (k === "capabilities") return `<fieldset><legend>${t(k)}</legend><div class="checks">${capabilities.map((c) => `<label class="check"><input type="checkbox" name="capabilities" value="${c.id}" ${(draft.capabilities || []).includes(c.id) ? "checked" : ""}>${esc2(cap(c.id))}</label>`).join("")}</div></fieldset>`;
+  if (k === "capabilities") return `<fieldset><legend>${t(k)}</legend><div class="checks">${capabilities.map((c) => `<label class="check"><input type="checkbox" name="capabilities" value="${c.id}" ${(profile.capabilities || []).includes(c.id) ? "checked" : ""}>${esc2(cap(c.id))}</label>`).join("")}</div></fieldset>`;
   if (["tools", "acquisition", "difficulties", "goals", "industryDetails"].includes(k)) {
-    const question = k === "industryDetails" ? { restaurant: "restaurantQuestion", ecommerce: "ecommerceQuestion", real_estate: "realEstateQuestion", services: "servicesQuestion" }[draft.industry] || "otherQuestion" : k;
+    const question = k === "industryDetails" ? { restaurant: "restaurantQuestion", ecommerce: "ecommerceQuestion", real_estate: "realEstateQuestion", services: "servicesQuestion" }[profile.industry] || "otherQuestion" : k;
     return `<label class="field">${t(question)}<textarea name="${k}" rows="4" maxlength="${k === "tools" || k === "acquisition" ? 1200 : 1600}">${esc2(value)}</textarea></label>`;
   }
   return field(k, k === "name" ? "businessName" : k, value, k === "budget" ? "number" : k === "website" ? "url" : "text", k === "name" ? 'required maxlength="120"' : k === "budget" ? 'min="0" max="100000000" step="any"' : `maxlength="${{ country: 80, city: 100, stage: 80, website: 500, timeline: 200 }[k] || 200}"`);
@@ -559,7 +783,7 @@ function renderSetup() {
   }
   const choosing = !editing;
   const setupKeys = workspace ? profileKeys : ["name", "industry", "goals", "budget", "currency", "website", "capabilities"];
-  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div><form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div><form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map((key) => profileField(key)).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
   bindCommon();
   document.querySelectorAll("[data-mode]").forEach((b) => b.onclick = () => {
     mode = b.dataset.mode;
@@ -1121,6 +1345,7 @@ async function load() {
       const selected = workspace && workspaces.find((w) => w.id === workspace.organization.id);
       workspace = await api("/api/hub/workspaces/" + (selected?.id || workspaces[0].id));
     }
+    if (!workspaces.length) onboardingDraft = (await api("/api/hub/onboarding")).draft;
     if (route === "settings") {
       page = "settings";
       route = "";

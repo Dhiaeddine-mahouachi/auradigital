@@ -22,9 +22,28 @@ try {
  await desktop.locator('#auth-form button').click();
  await desktop.locator('[data-mode=myself]').click();
  await desktop.locator('[name=name]').fill('TechStyle Store');
+ const advance=()=>desktop.locator('#profile-form button[type=submit]').click();
+ await advance();
  await desktop.locator('[name=industry]').selectOption('ecommerce');
+ await advance();
+ await desktop.locator('[name=industryDetails]').fill('Online retail');
+ await advance();
+ await desktop.locator('[name=city]').fill('Istanbul');
+ await advance();
+ await desktop.reload();
+ await desktop.locator('[data-answer=false]').waitFor();
+ for(const capability of ['website','discovery','crm']){
+  await desktop.locator('#question').filter({hasText:capability==='discovery'?'Google':new RegExp(capability,'i')}).waitFor();
+  await desktop.locator('[data-answer=false]').click();
+  await advance();
+ }
  await desktop.locator('[name=goals]').fill('Increase sales');
- await desktop.locator('#profile-form button[type=submit]').click();
+ await advance();
+ await desktop.locator('[name=currency]').selectOption('TRY');
+ await advance();
+ await desktop.locator('[name=budget]').fill('5000');
+ await advance();
+ await desktop.getByRole('button',{name:'Open Aura Command'}).click();
  await desktop.locator('.growth-root').waitFor();
  assert.equal(await desktop.locator('[data-stage]').count(),4);
  const website=desktop.locator('[data-node]').filter({hasText:/website/i}).first();
