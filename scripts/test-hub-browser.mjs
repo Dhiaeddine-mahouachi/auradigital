@@ -43,10 +43,12 @@ try {
  assert.equal(handoff.get('service'),'Web Design');
  assert.equal(handoff.get('business'),'TechStyle Store');
  assert.equal(handoff.get('email'),email);
+ assert.match(handoff.get('workspace'),/^[a-f0-9-]{36}$/);
  const contact=await desktop.context().newPage();
  await contact.goto(link.href);
  await contact.waitForFunction(()=>document.querySelector('[name=service]')?.value==='Web Design'&&!location.hash);
  assert.equal(await contact.locator('[name=email]').inputValue(),email);
+ assert.equal(await contact.locator('[name=email]').evaluate(input=>input.readOnly),true);
  assert.match(await contact.locator('[name=message]').inputValue(),/Business: TechStyle Store/);
  await contact.close();
  await desktop.locator('.growth-account summary').click();
@@ -65,6 +67,18 @@ try {
  await desktop.waitForURL('**/hub/login');
  await desktop.locator('.growth-ring').filter({hasNotText:'0%'}).waitFor();
  await desktop.locator('[data-status=done]').waitFor();
+ await desktop.locator('.sidebar [data-page=services]').click();
+ await desktop.getByRole('heading',{name:'AuraMenu',exact:true}).waitFor();
+ assert.equal(await desktop.locator('.hub-marketplace article').count(),5);
+ await desktop.locator('.sidebar [data-page=orders]').click();
+ await desktop.getByText('You have no orders yet.',{exact:true}).waitFor();
+ await desktop.locator('.sidebar [data-page=resources]').click();
+ await desktop.locator('[data-resource=projects]').click();
+ await desktop.getByRole('heading',{name:'Service requests'}).waitFor();
+ await desktop.getByText('No requests have been submitted from this workspace.').waitFor();
+ await desktop.locator('.sidebar [data-page=assistant]').click();
+ await desktop.locator('[data-action=order-status]').click();
+ await desktop.locator('#auri-response').getByText('You have no orders yet.',{exact:true}).waitFor();
  assert.deepEqual(exceptions,[]);
 
  // Use only the synthetic fixture in the screenshots.

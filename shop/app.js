@@ -513,7 +513,17 @@ async function checkoutPage() {
   });
 }
 function statusLabel(order) {
-  return order.paymentStatus === "paid" ? "Payment verified \xB7 Awaiting artwork approval" : order.paymentStatus === "cancelled" ? "Cancelled" : order.transferReportedAt ? "Transfer reported \xB7 Awaiting verification" : "Pending Payment \xB7 Awaiting bank transfer";
+  if (order.paymentStatus === "paid") {
+    const phases = {
+      awaiting_artwork: "Awaiting artwork approval",
+      in_production: "In production",
+      shipped: "Shipped",
+      delivered: "Delivered"
+    };
+    return ["Payment verified", phases[order.productionStatus]].filter(Boolean).join(" \xB7 ");
+  }
+  if (order.paymentStatus === "cancelled") return "Cancelled";
+  return order.transferReportedAt ? "Transfer reported \xB7 Awaiting verification" : "Pending Payment \xB7 Awaiting bank transfer";
 }
 async function orderPage(id) {
   if (!customer) {

@@ -13,6 +13,19 @@ export const bankOrderSchema = [
 type Env = CustomerEnv & { CONTACT_RATE_LIMITER?: { limit(input: { key: string }): Promise<{ success: boolean }> } };
 type Row = { id: string; reference: string; customer_id: string; request_hash: string; items_json: string; shipping_json: string; bank_json: string; total_minor: number; payment_status: string; production_status: string; transfer_reported_at: string | null; paid_at: string | null; created_at: string };
 const ready = new WeakSet<object>();
+const productionNext = new Map([
+  ['awaiting_artwork', 'in_production'],
+  ['in_production', 'shipped'],
+  ['shipped', 'delivered'],
+]);
+
+export async function customerOrderSummary(env: Env, customerId: string) {
+  await ensureOrders(env);
+  const { results } = await env.DB.prepare(`SELECT id, reference, total_minor AS totalMinor, currency,
+    payment_status AS paymentStatus, production_status AS productionStatus, created_at AS createdAt
+    FROM shop_bank_orders WHERE customer_id = ? ORDER BY created_at DESC, id DESC LIMIT 50`).bind(customerId).all();
+  return results;
+}
 async function ensureOrders(env: Env) { if (!ready.has(env.DB)) { await env.DB.batch(bankOrderSchema.map(sql => env.DB.prepare(sql))); ready.add(env.DB); } }
 function publicOrder(row: Row) {
   return { id: row.id, reference: row.reference, items: JSON.parse(row.items_json), shipping: JSON.parse(row.shipping_json), bank: JSON.parse(row.bank_json), totalMinor: row.total_minor, currency: 'TRY', paymentStatus: row.payment_status, productionStatus: row.production_status, transferReportedAt: row.transfer_reported_at, paidAt: row.paid_at, createdAt: row.created_at };
@@ -38,13 +51,36 @@ export async function handleBankOrders(request: Request, env: Env, themes: () =>
     await ensureOrders(env);
     if (method === 'GET' && path === '/api/admin/shop/orders') {
       const { results } = await env.DB.prepare('SELECT * FROM shop_bank_orders ORDER BY created_at DESC LIMIT 100').all<Row>();
-      return json({ orders: results.map(publicOrder), role: user.role });
+      return json({ orders: results.map(row => ({
+        ...publicOrder(row),
+        nextProductionStatus: row.payment_status === 'paid' ? productionNext.get(row.production_status) || null : null,
+      })), role: user.role });
     }
     if (method !== 'PATCH') return json({ error: 'Method not allowed.' }, 405);
     if (!['owner', 'manager'].includes(user.role)) return json({ error: 'Read-only access.' }, 403);
     const id = path.split('/').at(-1)!, row = await env.DB.prepare('SELECT * FROM shop_bank_orders WHERE id = ?').bind(id).first<Row>();
     if (!row) return json({ error: 'Order not found.' }, 404);
     const body = await readJson(request, 2048);
+    if (body.action === 'advance_production') {
+      if (typeof body.from !== 'string' || typeof body.to !== 'string' || productionNext.get(body.from) !== body.to) {
+        return json({ error: 'Invalid production transition.' }, 400);
+      }
+      if (row.payment_status !== 'paid') return json({ error: 'Verify payment before updating production.' }, 409);
+      if (row.production_status === body.to) return json({ order: publicOrder(row) });
+      if (row.production_status !== body.from) return json({ error: 'Production status changed. Reload the order.' }, 409);
+      const [result] = await env.DB.batch([
+        env.DB.prepare(`UPDATE shop_bank_orders SET production_status = ?, updated_at = datetime('now')
+          WHERE id = ? AND payment_status = 'paid' AND production_status = ?`).bind(body.to, id, body.from),
+        env.DB.prepare(`INSERT INTO admin_audit_log (id, admin_user_id, username_snapshot, action, resource, target_id, request_id)
+          SELECT ?, ?, ?, ?, 'shop_orders', ?, ? WHERE changes() > 0`)
+          .bind(crypto.randomUUID(), user.id, user.username, 'shop_production_' + body.to, id, (request.headers.get('CF-Ray') || '').slice(0, 80)),
+      ]);
+      const updated = (await env.DB.prepare('SELECT * FROM shop_bank_orders WHERE id = ?').bind(id).first<Row>())!;
+      if (!result.meta.changes && (updated.payment_status !== 'paid' || updated.production_status !== body.to)) {
+        return json({ error: 'Production status changed. Reload the order.' }, 409);
+      }
+      return json({ order: publicOrder(updated) });
+    }
     if (body.action !== 'confirm_transfer') return json({ error: 'Invalid action.' }, 400);
     if (row.payment_status === 'cancelled') return json({ error: 'A cancelled order cannot be paid.' }, 409);
     if (row.payment_status === 'awaiting_transfer') {
@@ -59,6 +95,9 @@ export async function handleBankOrders(request: Request, env: Env, themes: () =>
   if (!user) return json({ error: 'Sign in or create your AuraDigital account before checkout.', code: 'SIGN_IN_REQUIRED' }, 401);
   await ensureOrders(env);
   if (path === '/api/shop/orders' && method === 'GET') {
+    if (new URL(request.url).searchParams.get('view') === 'summary') {
+      return json({ orders: await customerOrderSummary(env, user.id) });
+    }
     const { results } = await env.DB.prepare('SELECT * FROM shop_bank_orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT 50').bind(user.id).all<Row>();
     return json({ orders: results.map(publicOrder) });
   }

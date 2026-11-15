@@ -304,6 +304,11 @@ if (form) {
   const hubRequest = new URLSearchParams(location.hash.slice(1));
   if (hubRequest.get("hub") === "1") {
     history.replaceState(null, "", location.pathname + location.search);
+    const workspace = hubRequest.get("workspace");
+    if (workspace && /^[a-f0-9-]{36}$/.test(workspace)) {
+      form.dataset.workspace = workspace;
+      form.elements.email.readOnly = true;
+    }
     const service = form.elements.service;
     const selected = hubRequest.get("service");
     service.value = Array.from(service.options).some(option => option.value === selected) ? selected : "Other";
@@ -383,6 +388,7 @@ form?.addEventListener("submit", async (e) => {
     const payload = {
       name:fd.get("name"),email:fd.get("email"),phone:fd.get("phone"),
       service:fd.get("service"),message:fd.get("message"),language,website:fd.get("website"),
+      ...(form.dataset.workspace ? {workspaceId: form.dataset.workspace} : {}),
       ...(window.AuraPricing?.selection ? {pricingSelection:window.AuraPricing.selection} : {}),
     };
     const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(JSON.stringify(payload))))].map(x=>x.toString(16).padStart(2,"0")).join("");
@@ -410,6 +416,7 @@ form?.addEventListener("submit", async (e) => {
     }
     status.textContent += ` (${data.requestId})`;
     form.reset();
+    if (form.dataset.workspace) form.elements.email.value = payload.email;
     submit.textContent = copy.idle;
   } catch (error) {
     status.textContent = error?.message || copy.error;

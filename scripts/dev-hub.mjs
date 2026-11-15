@@ -9,6 +9,7 @@ import { ApiError } from '../src/http.js';
 import { secureResponse } from '../src/security-policy.js';
 const f=await hubFixture();
 f.sqlite.exec(await readFile(new URL('../migrations/0029_menu_drafts.sql',import.meta.url),'utf8'));
+f.sqlite.exec(await readFile(new URL('../migrations/0030_hub_contact_requests.sql',import.meta.url),'utf8'));
 f.env.MENU_DRAFTS_ENABLED='true'; // Synthetic in-memory QA only.
 const qaUser=await f.user('qa-owner@example.test',true);
 const qaOrg=await (await f.call('/api/hub/workspaces',qaUser,'POST',{profile:{name:'Lumen Studio QA',industry:'restaurant',country:'Türkiye',city:'Istanbul',capabilities:['domain'],currency:'USD',goals:'Increase direct reservations'},mode:'myself'})).json();
