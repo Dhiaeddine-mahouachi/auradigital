@@ -1,7 +1,7 @@
 import { eligibleMissions, missionGuide, missionState, roadmapStages } from '../roadmap.js';
 
 const labels = {
- en:['Dashboard','Roadmap','Tasks','Resources','Welcome back','Roadmap progress','Growth stage','Priority actions','Estimated timeline','Your business growth','Your Business Growth Roadmap','Tree view','Timeline','Current focus','Why it matters','How to do it','Requirements','Do it myself','Get this done with AuraDigital','Ask AURI…','Optional','Blocked','Update my roadmap','Request a service','Start','Mark complete','AURI Assistant','Can AuraDigital help?','Upcoming','Completed','Ask about this task'],
+ en:['Aura Command','Roadmap','Tasks','Resources','Welcome back','Roadmap progress','Growth stage','Priority actions','Estimated timeline','Your business growth','Your Business Growth Roadmap','Tree view','Timeline','Current focus','Why it matters','How to do it','Requirements','Do it myself','Get this done with AuraDigital','Ask AURI…','Optional','Blocked','Update my roadmap','Request a service','Start','Mark complete','AURI Assistant','Can AuraDigital help?','Upcoming','Completed','Ask about this task'],
  tr:['Panel','Yol haritası','Görevler','Kaynaklar','Tekrar hoş geldiniz','Yol haritası ilerlemesi','Büyüme aşaması','Öncelikli adımlar','Tahmini süre','İşletmenizin büyümesi','İşletmenizin büyüme yol haritası','Ağaç görünümü','Zaman çizelgesi','Şu anki odak','Neden önemli','Nasıl yapılır','Gereksinimler','Kendim yapacağım','AuraDigital ile yap','AURI’ye sorun…','İsteğe bağlı','Engellendi','Yol haritasını güncelle','Hizmet iste','Başla','Tamamlandı olarak işaretle','AURI Asistanı','AuraDigital yardımcı olabilir mi?','Yaklaşan','Tamamlanan','Bu görevi sor'],
  fr:['Tableau de bord','Feuille de route','Tâches','Ressources','Bon retour','Progression','Étape de croissance','Actions prioritaires','Délai estimé','La croissance de votre entreprise','Votre feuille de route de croissance','Vue en arbre','Chronologie','Priorité actuelle','Pourquoi cette tâche compte','Comment faire','Prérequis','Le faire moi-même','Confier à AuraDigital','Demander à AURI…','Facultatif','Bloqué','Actualiser la feuille de route','Demander un service','Démarrer','Marquer comme terminé','Assistant AURI','AuraDigital peut-il aider ?','À venir','Terminé','Poser une question sur cette tâche'],
  ar:['لوحة التحكم','خارطة الطريق','المهام','الموارد','أهلًا بعودتك','تقدم خارطة الطريق','مرحلة النمو','الإجراءات ذات الأولوية','المدة المقدرة','نمو نشاطك التجاري','خارطة نمو نشاطك التجاري','عرض الشجرة','الجدول الزمني','التركيز الحالي','لماذا يهم','طريقة التنفيذ','المتطلبات','سأنفذها بنفسي','نفّذ مع AuraDigital','اسأل AURI…','اختياري','متوقف','حدّث خارطة الطريق','اطلب خدمة','ابدأ','علّم كمكتمل','مساعد AURI','هل يمكن لـ AuraDigital المساعدة؟','القادم','المكتمل','اسأل عن هذه المهمة'],
@@ -42,7 +42,7 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
  </div>`;
  const groups=[[l.priority,eligible],[l.upcoming,missions.filter(m=>m.status!=='done'&&!eligible.includes(m))],
   [l.completed,missions.filter(m=>m.status==='done').sort((a,b)=>(b.completedAt||'').localeCompare(a.completedAt||''))]];
- const timeline=`<div class="growth-timeline">${groups.map(([label,items])=>`<section><h3>${label}</h3>${items.map(m=>`<div>${node(m)}
+ const timeline=`<div class="growth-timeline">${groups.map(([label,items])=>`<section><h3>${label}</h3>${items.map((m,index)=>`<div class="growth-timeline-step"><span class="growth-step-number">${String(index+1).padStart(2,'0')}</span>${node(m)}
   ${m.completedAt?`<time datetime="${esc(m.completedAt)}">${esc(new Date(m.completedAt).toLocaleDateString(lang))}</time>`:''}
   ${m.dependencies?.length?`<small>${l.requirements} · ${esc(m.dependencies.map(cap).join(', '))}</small>`:''}</div>`).join('')||`<p>${esc(t('empty'))}</p>`}</section>`).join('')}</div>`;
  const metric=(icon,value,label)=>`<article class="growth-card growth-metric"><span class="growth-metric-icon" aria-hidden="true">${icon}</span><div><strong>${esc(value)}</strong><span>${label}</span></div></article>`;
@@ -51,7 +51,7 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
  <article class="growth-card growth-metric"><span class="growth-ring" style="--progress:${progress}%">${missions.length?progress+'%':'—'}</span><div><strong>${l.progress}</strong><span>${missions.filter(m=>m.status==='done').length} / ${missions.length} · ${l.completed}</span></div></article>
  ${metric('▥',currentStage<0?'—':stageName(stages[currentStage],currentStage),l.stage)}
  ${metric('◎',eligible.filter(m=>m.priority===1&&!m.optional).length,l.priority)}
- ${metric('▦','—',l.estimate)}</section>
+ </section>
  <div class="growth-layout"><section class="growth-card growth-map"><header class="growth-panel-head"><h2>${l.heading}</h2><div class="growth-tabs">
  <button type="button" data-view="tree" aria-pressed="${view==='tree'}">${l.tree}</button><button type="button" data-view="timeline" aria-pressed="${view==='timeline'}">${l.timeline}</button>
  </div></header>${view==='tree'?tree:timeline}

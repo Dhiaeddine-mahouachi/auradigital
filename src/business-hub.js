@@ -103,6 +103,7 @@ export async function handleBusinessHub(request,env) {
   if(!['GET','HEAD'].includes(request.method))throw new ApiError(405,'Method not allowed.');
   const asset=await env.ASSETS.fetch(new Request(new URL('/hub/index.html',url)));
   const headers=new Headers(asset.headers);headers.set('Cache-Control','private, no-store');headers.set('X-Robots-Tag','noindex, nofollow');
+  if(['/hub','/hub/','/hub/login','/hub/signup'].includes(path))headers.set('Permissions-Policy','camera=(), microphone=(self), geolocation=(), payment=(), usb=()');
   return new Response(request.method==='HEAD'?null:asset.body,{status:asset.status,headers});
  }
  if(!path.startsWith('/api/hub/'))return null;
@@ -111,6 +112,22 @@ export async function handleBusinessHub(request,env) {
  if(write){if(!sameOrigin(request))throw new ApiError(403,'Forbidden origin.');await limit(request,env,user);}
  const menuDraftResponse=await handleMenuDrafts(request,env,user,authorize);
  if(menuDraftResponse)return menuDraftResponse;
+ if(path==='/api/hub/onboarding'&&request.method==='GET') {
+  const row=await env.DB.prepare('SELECT mode,step,profile_json,workspace_id FROM hub_onboarding WHERE customer_id=?').bind(user.id).first();
+  return json({draft:row&&!row.workspace_id?{mode:row.mode,step:row.step,profile:JSON.parse(row.profile_json)}:null});
+ }
+ if(path==='/api/hub/onboarding'&&request.method==='PUT') {
+  const {mode,step,profile}=await readJson(request,16000);
+  if(!['myself','auri'].includes(mode)||!Number.isInteger(step)||step<0||step>20)throw new ApiError(400,'Invalid onboarding step.');
+  if(!profile || typeof profile.name!=='string')throw new ApiError(400,'Invalid business name.');
+  const normalized=validateProfile({...profile,name:profile.name||'Draft'});
+  normalized.name=profile.name.trim();
+  const saved=await env.DB.prepare(`INSERT INTO hub_onboarding(customer_id,mode,step,profile_json)
+   VALUES(?,?,?,?) ON CONFLICT(customer_id) DO UPDATE SET mode=excluded.mode,step=excluded.step,profile_json=excluded.profile_json
+   WHERE hub_onboarding.workspace_id IS NULL`).bind(user.id,mode,step,JSON.stringify(normalized)).run();
+  if(!saved.meta.changes)throw new ApiError(409,'This setup has already been completed.');
+  return json({saved:true});
+ }
  if(path==='/api/hub/workspaces'&&request.method==='GET') {
   // Only entitled memberships are included; pending invites are not shared workspaces.
   const owned=(await env.DB.prepare('SELECT id,name,mode FROM organizations WHERE owner_id=? ORDER BY created_at,id').bind(user.id).all()).results;
@@ -121,11 +138,26 @@ export async function handleBusinessHub(request,env) {
  if(path==='/api/hub/workspaces'&&request.method==='POST') {
   const body=await readJson(request,16000),profile=validateProfile(body.profile),id=crypto.randomUUID();
   if(!['myself','auri'].includes(body.mode))throw new ApiError(400,'Choose an onboarding mode.');
+  if(body.finishOnboarding===true){
+   const previous=await env.DB.prepare('SELECT workspace_id FROM hub_onboarding WHERE customer_id=?').bind(user.id).first();
+   if(previous?.workspace_id)return json({id:previous.workspace_id});
+  }
+  const unfinished=body.finishOnboarding===true
+   ?' AND EXISTS(SELECT 1 FROM hub_onboarding WHERE customer_id=? AND workspace_id IS NULL)'
+   :'';
   const [result]=await env.DB.batch([
-   env.DB.prepare('INSERT INTO organizations(id,owner_id,name,profile_json,mode) SELECT ?,?,?,?,? WHERE (SELECT count(*) FROM organizations WHERE owner_id=?)<10').bind(id,user.id,profile.name,JSON.stringify(profile),body.mode,user.id),
+   env.DB.prepare(`INSERT INTO organizations(id,owner_id,name,profile_json,mode) SELECT ?,?,?,?,? WHERE (SELECT count(*) FROM organizations WHERE owner_id=?)<10${unfinished}`)
+    .bind(id,user.id,profile.name,JSON.stringify(profile),body.mode,user.id,...(unfinished?[user.id]:[])),
    ...missionInserts(env.DB,id,diagnose(profile).missions,'EXISTS(SELECT 1 FROM organizations WHERE id=? AND owner_id=?)',[id,user.id]),
+   ...(unfinished?[env.DB.prepare('UPDATE hub_onboarding SET workspace_id=? WHERE customer_id=? AND EXISTS(SELECT 1 FROM organizations WHERE id=? AND owner_id=?)').bind(id,user.id,id,user.id)]:[]),
   ]);
-  if(!result.meta.changes)throw new ApiError(409,'Workspace limit reached.');
+  if(!result.meta.changes){
+   if(unfinished){
+    const previous=await env.DB.prepare('SELECT workspace_id FROM hub_onboarding WHERE customer_id=?').bind(user.id).first();
+    if(previous?.workspace_id)return json({id:previous.workspace_id});
+   }
+   throw new ApiError(409,'Workspace limit reached or onboarding draft unavailable.');
+  }
   return json({id},201);
  }
  if(['/api/hub/invitations/preview','/api/hub/invitations/accept'].includes(path)&&request.method==='POST')return invitation(request,env,user,await readJson(request,4096),path.endsWith('/accept'));
