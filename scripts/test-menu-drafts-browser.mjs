@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),args:['--no-sandbox']});
+async function openMenuDrafts(page) {
+ await page.getByRole('button',{name:'Resources',exact:true}).click();
+ await page.getByRole('button',{name:'Menu drafts',exact:true}).click();
+}
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];page.on('pageerror',error=>errors.push(error.message));
  await page.goto('http://127.0.0.1:5173/__qa/start',{waitUntil:'domcontentloaded'});
- await page.getByRole('button',{name:'Menu drafts',exact:true}).click();
+ await openMenuDrafts(page);
  await page.locator('#private-menu-name').waitFor();
  assert.equal(await page.locator('#private-menu-name').inputValue(),'Lumen Studio QA');
  await page.locator('#private-menu-category').click();
@@ -15,7 +19,7 @@ try{
  await page.getByText('Saved privately. No payment or publication occurred.',{exact:true}).waitFor();
  await page.waitForFunction(()=>document.querySelector('#private-menu-list')?.value);
  const id=await page.locator('#private-menu-list').inputValue();assert(id);
- await page.reload({waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'Menu drafts',exact:true}).click();
+ await page.reload({waitUntil:'domcontentloaded'});await openMenuDrafts(page);
  await page.locator('#private-menu-list option[value="'+id+'"]').waitFor({state:'attached'});
  await page.locator('#private-menu-list').selectOption(id);
  await page.locator('[data-product-name]').waitFor();
