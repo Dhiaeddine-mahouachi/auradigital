@@ -6488,3 +6488,40 @@ body[data-page="home"] .reference-hero .hero-note {
     font-size: 13px;
   }
 }
+
+/* Balanced desktop navigation: site sections centered, account controls on right. */
+@media (min-width: 1400px) {
+  .site-header .nav { position:relative; }
+  .site-header .nav > .brand { margin-right:auto; }
+  .site-header .nav > .nav-links {
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    margin-left:0;
+    justify-content:center;
+    width:max-content;
+    max-width:calc(100% - 510px);
+  }
+}
+@media (min-width:821px) and (max-width:1399px) {
+  .site-header .nav > .brand { margin-right:auto; }
+  .site-header .nav > .nav-links { margin-left:0; }
+  .site-header .nav-links { gap:clamp(10px,1vw,18px); }
+}
+/* Use luminous yellow for the contact CTA, distinct from the deep-green Sign In action. */
+.site-header .nav > a.nav-cta {
+  background:#e1e100;
+  color:#003d2b;
+  border:1px solid #e1e100;
+  border-radius:10px;
+  box-shadow:none;
+}
+.site-header .nav > a.nav-cta:hover {
+  background:#003d2b;
+  border-color:#003d2b;
+  color:#fafaf7;
+}
+.site-header .nav > a.nav-cta:focus-visible {
+  outline:3px solid #82982a;
+  outline-offset:3px;
+}
