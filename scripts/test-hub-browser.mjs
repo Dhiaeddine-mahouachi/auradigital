@@ -65,6 +65,22 @@ try {
  await desktop.waitForURL('**/hub/login');
  await desktop.locator('.growth-ring').filter({hasNotText:'0%'}).waitFor();
  await desktop.locator('[data-status=done]').waitFor();
+ // Exercise the real reset endpoint with a token seeded only in the in-memory QA database.
+ const recovery=await desktopContext.newPage();
+ const resetLink=await (await recovery.request.post(base+'/__qa/password-reset',{data:{email}})).json();
+ await recovery.goto(base+resetLink.path);
+ await recovery.waitForFunction(()=>!location.hash);
+ await recovery.locator('[name=newPassword]').fill('Saffron-lake-0143!');
+ await recovery.locator('#auth-form button').click();
+ await recovery.waitForURL('**/hub/login');
+ await recovery.locator('[name=email]').fill(email);
+ await recovery.locator('[name=password]').fill('Saffron-lake-0142!');
+ await recovery.locator('#auth-form button').click();
+ await recovery.locator('.form-error').filter({hasText:/incorrect/i}).waitFor();
+ await recovery.locator('[name=password]').fill('Saffron-lake-0143!');
+ await recovery.locator('#auth-form button').click();
+ await recovery.locator('[data-status=done]').waitFor();
+ await recovery.close();
  assert.deepEqual(exceptions,[]);
 
  // Use only the synthetic fixture in the screenshots.

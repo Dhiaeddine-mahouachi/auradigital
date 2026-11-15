@@ -490,13 +490,15 @@ async function renderGate() {
   if (route === "verify") {
     gateFrame(`<section class="panel">${robot()}<h1>${t("verify")}</h1><p id="verification-result" role="status"></p>${button("confirm", "verify")}<a href="/hub">${t("brand")}</a></section>`);
     document.querySelector('[data-action="verify"]').onclick = async (e) => {
-      e.target.disabled = true;
+      const confirmButton = e.target;
+      confirmButton.disabled = true;
       try {
         await api("/api/customer/verify", "POST", { token: flowToken });
         flowToken = "";
         document.querySelector("#verification-result").textContent = t("verified");
       } catch (error) {
         document.querySelector("#verification-result").textContent = error.message;
+        confirmButton.disabled = false;
       }
     };
     return;
@@ -512,7 +514,7 @@ async function renderGate() {
         const r = await api("/api/customer/forgot-password", "POST", { email: data.get("email") });
         toast(t("resetSent"));
       } else if (reset) {
-        await api("/api/customer/reset-password", "POST", { token: flowToken, password: data.get("password") });
+        await api("/api/customer/reset-password", "POST", { token: flowToken, password: data.get("newPassword") });
         location.assign("/hub/login" + authQuery);
       } else {
         await api("/api/customer/" + (signup ? "register" : "login"), "POST", { name: data.get("name"), email: data.get("email"), password: data.get("password"), acceptTerms: data.has("terms") });
@@ -677,6 +679,7 @@ function persistProfile() {
 }
 var roadmapView = "tree";
 var selectedMission = null;
+var workspaceSwitch = null;
 var requestLink = (service = "", task = "") => "/contact#" + new URLSearchParams({
   hub: "1",
   service,
@@ -723,8 +726,18 @@ function renderShell() {
     syncSidebar();
   };
   document.querySelector("#workspace-select").onchange = async (e) => {
-    selectedMission = null;
-    await loadWorkspace(e.target.value);
+    const select2 = e.target, id = select2.value;
+    select2.disabled = true;
+    workspaceSwitch = id;
+    try {
+      await loadWorkspace(id);
+    } catch (error) {
+      select2.value = workspace.organization.id;
+      toast(error.message);
+    } finally {
+      workspaceSwitch = null;
+      select2.disabled = false;
+    }
   };
   document.querySelector('[data-action="logout"]').onclick = async () => {
     try {
@@ -875,8 +888,9 @@ function growthDashboard() {
     async onGenerate(event) {
       event.target.disabled = true;
       try {
+        const id = workspace.organization.id;
         await api(endpoint("missions"), "POST", {});
-        await loadWorkspace();
+        await loadWorkspace(id);
       } catch (error) {
         event.target.disabled = false;
         toast(error.message);
@@ -891,8 +905,9 @@ function journey() {
   document.querySelector('[data-action="generate"]').onclick = async (e) => {
     e.target.disabled = true;
     try {
+      const id = workspace.organization.id;
       await api(endpoint("missions"), "POST", {});
-      await loadWorkspace();
+      await loadWorkspace(id);
     } catch (e2) {
       toast(e2.message);
     }
@@ -900,8 +915,9 @@ function journey() {
   document.querySelectorAll("[data-mission]").forEach((card) => {
     const m = workspace.missions.find((m2) => m2.id === card.dataset.mission), save = async (patch) => {
       try {
+        const id = workspace.organization.id;
         await api(endpoint("missions/" + m.id), "PATCH", { version: m.version, status: m.status, position: m.position, ...patch });
-        await loadWorkspace();
+        await loadWorkspace(id);
       } catch (e) {
         toast(e.message);
       }
@@ -1085,10 +1101,14 @@ function assistant() {
     }
   };
 }
-async function loadWorkspace(id) {
+async function loadWorkspace(id = workspace.organization.id) {
+  if (workspaceSwitch && id !== workspaceSwitch) return;
+  const next = await api("/api/hub/workspaces/" + id);
+  if ((workspaceSwitch || workspace.organization.id) !== id) return;
+  if (workspace.organization.id !== id) selectedMission = null;
   result = null;
   scenarioInputs = null;
-  workspace = await api("/api/hub/workspaces/" + (id || workspace.organization.id));
+  workspace = next;
   render();
 }
 async function load() {
