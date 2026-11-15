@@ -5,6 +5,7 @@ import { hubFixture } from '../test/hub-fixture.mjs';
 import { handleBusinessHub } from '../src/business-hub.js';
 import { handleCustomerIdentity } from '../src/customer-identity.js';
 import { handleShop } from '../src/shop.ts';
+import { tokenHash } from '../src/customer-accounts.ts';
 import { ApiError } from '../src/http.js';
 import { secureResponse } from '../src/security-policy.js';
 const f=await hubFixture();
@@ -20,6 +21,17 @@ const server=createServer(async(req,res)=>{try{
  const chunks=[];let size=0;for await(const c of req){size+=c.length;if(size>220000){res.writeHead(413);res.end();return;}chunks.push(c);}
  const origin=`http://${req.headers.host}`;f.env.CUSTOMER_AUTH_ORIGIN=origin;
  const request=new Request(origin+(req.url==='/'?'/hub':req.url),{method:req.method,headers:{...req.headers,cookie:String(req.headers.cookie||'').replace(/aura_qa_customer=/g,'__Host-aura_customer=')},...(['GET','HEAD'].includes(req.method)?{}:{body:Buffer.concat(chunks)})});
+ if(req.url==='/__qa/password-reset'&&req.method==='POST'){
+  const {email}=await request.json();
+  const user=await f.DB.prepare('SELECT id,email FROM customer_users WHERE email=?').bind(email).first();
+  if(!user||!user.email.endsWith('@example.test')){res.writeHead(404);res.end();return;}
+  const token=crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-','');
+  const now=Math.floor(Date.now()/1000);
+  await f.DB.prepare('INSERT INTO customer_action_tokens(token_hash,customer_id,email,purpose,expires_at,created_at) VALUES(?,?,?,?,?,?)')
+   .bind(await tokenHash(token),user.id,user.email,'reset',now+1800,now).run();
+  res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});
+  res.end(JSON.stringify({path:'/hub/reset#token='+token}));return;
+ }
  const publicFixture=new Map([['/contact','contact.html'],['/script.js','script.js']]);
  const publicAsset=publicFixture.get(new URL(request.url).pathname);
  const fallback=async()=>publicAsset?new Response(await readFile(new URL('../'+publicAsset,import.meta.url)),

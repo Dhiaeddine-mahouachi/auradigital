@@ -33,7 +33,7 @@ function render(){document.documentElement.lang=lang;document.documentElement.di
 function gateFrame(content){app.innerHTML=`<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main id="main" class="gate">${content}</main>`;bindCommon();}
 async function renderGate(){
  if(route==='invitation'&&me){gateFrame(`<section class="panel">${robot()}<h1>${t('inviteAccept')}</h1><div id="invitation-content" role="status">…</div></section>`);try{const data=await api('/api/hub/invitations/preview','POST',{token:flowToken}),i=data.invitation;document.querySelector('#invitation-content').innerHTML=`<h2>${esc(i.business)}</h2><p>${esc(i.email)} · ${esc(t(i.role))}</p><p>${esc(i.message)}</p><p>${t('permissions')}: ${esc(i.permissions.join(', '))}</p><p>${esc(new Date(i.expiresAt*1000).toLocaleString(lang))}</p><p class="warning">${t('blocked')}</p><form id="accept-invitation"><label class="check"><input type="checkbox" name="consent" required>${t('recurringConsent')}</label><button class="primary">${t('inviteAccept')}</button></form>`;document.querySelector('#accept-invitation').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/hub/invitations/accept','POST',{token:flowToken,acceptInvitation:true,acceptRecurring:true,consentVersion:'seat-5-usd-month-v1'});flowToken='';toast(t('awaiting'));document.querySelector('#invitation-content').textContent=t('blocked');}catch(e){toast(e.message);}};}catch(e){document.querySelector('#invitation-content').textContent=e.message;document.querySelector('#invitation-content').append(Object.assign(document.createElement('a'),{href:'/hub/settings',textContent:t('settings')}));}return;}
- if(route==='verify'){gateFrame(`<section class="panel">${robot()}<h1>${t('verify')}</h1><p id="verification-result" role="status"></p>${button('confirm','verify')}<a href="/hub">${t('brand')}</a></section>`);document.querySelector('[data-action="verify"]').onclick=async e=>{e.target.disabled=true;try{await api('/api/customer/verify','POST',{token:flowToken});flowToken='';document.querySelector('#verification-result').textContent=t('verified');}catch(error){document.querySelector('#verification-result').textContent=error.message;}};return;}
+ if(route==='verify'){gateFrame(`<section class="panel">${robot()}<h1>${t('verify')}</h1><p id="verification-result" role="status"></p>${button('confirm','verify')}<a href="/hub">${t('brand')}</a></section>`);document.querySelector('[data-action="verify"]').onclick=async e=>{const confirmButton=e.target;confirmButton.disabled=true;try{await api('/api/customer/verify','POST',{token:flowToken});flowToken='';document.querySelector('#verification-result').textContent=t('verified');}catch(error){document.querySelector('#verification-result').textContent=error.message;confirmButton.disabled=false;}};return;}
  const signup=route==='signup',forgot=route==='forgot',reset=route==='reset';
  gateFrame(`<section class="auth-intro"><p class="eyebrow">AURADIGITAL / ${t('brand')}</p><h1>${t('welcome')}</h1><p>${t('tag')}</p>${robot()}</section><section class="panel auth-panel"><h2>${t(reset?'reset':forgot?'forgot':signup?'signup':'signIn')}</h2><form id="auth-form">${signup?field('name','name','','text','required minlength="2" maxlength="100" autocomplete="name"'):''}${reset?'':field('email','email','','email','required maxlength="254" autocomplete="email"')}${forgot?'':field('password',reset?'newPassword':'password','','password','required '+(signup||reset?'minlength="12" ':'')+'maxlength="72" autocomplete="'+(signup||reset?'new-password':'current-password')+'"')}${signup?`<label class="check"><input type="checkbox" name="terms" required>${t('terms')}</label>`:''}<p class="form-error" role="alert"></p><button class="primary">${t(reset?'reset':forgot?'continue':signup?'signup':'signIn')}</button></form>${!forgot&&!reset?`${authCapabilities.google?`<hr><label class="check"><input id="google-terms" type="checkbox">${t('terms')}</label>${button('google','google',true)}`:''}<div class="auth-links"><a href="/hub/${signup?'login':'signup'}${authQuery}">${t(signup?'signIn':'signup')}</a>${authCapabilities.email?`<a href="/hub/forgot${authQuery}">${t('forgot')}</a>`:''}</div>`:`<a href="/hub/login${authQuery}">${t('signIn')}</a>`}</section>`);
  document.querySelector('#auth-form').onsubmit=async e=>{e.preventDefault();const form=e.target,b=form.querySelector('button'),data=new FormData(form);b.disabled=true;try{if(forgot){const r=await api('/api/customer/forgot-password','POST',{email:data.get('email')});toast(t('resetSent'));}else if(reset){await api('/api/customer/reset-password','POST',{token:flowToken,password:data.get('password')});location.assign('/hub/login'+authQuery);}else{await api('/api/customer/'+(signup?'register':'login'),'POST',{name:data.get('name'),email:data.get('email'),password:data.get('password'),acceptTerms:data.has('terms')});if(route!=='invitation'&&resumeShop())return;route=route==='invitation'?'invitation':'';await load();}}catch(error){form.querySelector('[role="alert"]').textContent=error.message;}finally{b.disabled=false;}};
@@ -75,7 +75,7 @@ function persistProfile(){
   if(status)status.textContent=t('saved');
  });saveQueue=job;return job;
 }
-let roadmapView='tree',selectedMission=null;
+let roadmapView='tree',selectedMission=null,workspaceSwitch=null;
 const requestLink=(service='',task='')=>'/contact#'+new URLSearchParams({
  hub:'1',...(workspace.organization.owner?{workspace:workspace.organization.id}:{}),service,business:workspace.organization.name,task,name:me.name,email:me.email,
 });
@@ -106,7 +106,14 @@ function renderShell(){
  <div id="page-content"></div></main></div></div>`;
  bindCommon();document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{page=b.dataset.page;document.body.classList.remove('menu-open');render();document.querySelector('#main').focus();});
  document.querySelector('#toggle-menu').onclick=e=>{const open=document.body.classList.toggle('menu-open');e.target.setAttribute('aria-expanded',String(open));syncSidebar();};
- document.querySelector('#workspace-select').onchange=async e=>{selectedMission=null;await loadWorkspace(e.target.value);};
+ document.querySelector('#workspace-select').onchange=async e=>{
+  const select=e.target, id=select.value;
+  select.disabled=true;
+  workspaceSwitch=id;
+  try{await loadWorkspace(id);}
+  catch(error){select.value=workspace.organization.id;toast(error.message);}
+  finally{workspaceSwitch=null;select.disabled=false;}
+ };
  document.querySelector('[data-action="logout"]').onclick=async()=>{try{await api('/api/customer/logout','POST',{});location.assign('/hub/login');}catch(e){toast(e.message);}};
  document.querySelector('[data-action="send-verification"]')?.addEventListener('click',async e=>{e.target.disabled=true;try{await api('/api/customer/send-verification','POST',{});toast(t('saved'));}catch(e){toast(e.message);}finally{e.target.disabled=false;}});
  syncSidebar();
@@ -194,7 +201,7 @@ function growthDashboard(){
   },
   async onGenerate(event){
    event.target.disabled=true;
-   try{await api(endpoint('missions'),'POST',{});await loadWorkspace();}
+   try{const id=workspace.organization.id;await api(endpoint('missions'),'POST',{});await loadWorkspace(id);}
    catch(error){event.target.disabled=false;toast(error.message);}
   },
   onAsk:askAuri,
@@ -203,9 +210,9 @@ function growthDashboard(){
 function journey(){
  const write=workspace.permissions.includes('roadmap:write');
  content(`<div class="panel-bar"><p>${t('noPurchase')}</p>${button('createJourney','generate',false,!write)}</div><div class="journey-levels">${[1,2,3,4,5].map(l=>`<section class="journey-level"><div class="level-heading"><span class="level-number">0${l}</span><div><span class="eyebrow">${t('level')} ${l}</span><h2>${t(['foundation','visibility','conversion','automation','scale'][l-1])}</h2></div></div>${workspace.missions.filter(m=>m.level===l).map(m=>`<article class="panel mission" data-mission="${m.id}"><div class="panel-bar"><h3>${esc((m.objective===m.service?cap(m.capability):m.objective))}</h3><span class="pill">${t(m.status)}</span></div><p>${m.description.startsWith('Establish ')?t('why'):esc(m.description)}</p><p>${t('benefit')}</p><div class="mission-meta"><span>${t('quote')}</span><span>${t('priority')}: ${t(m.priority===1?'high':m.priority===2?'medium':'low')}</span>${m.dependencies?.length?`<span>↳ ${esc(m.dependencies.map(cap).join(', '))}</span>`:''}</div><div class="actions">${select('status','status',['planned','in_progress','done','postponed'].map(v=>[v,t(v)]),m.status)}${button('up','up',true,!write)}${button('down','down',true,!write)}${button('edit','edit',true,!write)}</div><p>${m.nextAction==='Define scope or record your existing solution.'?t('nextAction')+': '+t('quote'):esc(m.nextAction)}</p></article>`).join('')||`<p class="empty-level">${t('empty')}</p>`}</section>`).join('')}</div>`);
- document.querySelector('[data-action="generate"]').onclick=async e=>{e.target.disabled=true;try{await api(endpoint('missions'),'POST',{});await loadWorkspace();}catch(e){toast(e.message);}};
+ document.querySelector('[data-action="generate"]').onclick=async e=>{e.target.disabled=true;try{const id=workspace.organization.id;await api(endpoint('missions'),'POST',{});await loadWorkspace(id);}catch(e){toast(e.message);}};
  document.querySelectorAll('[data-mission]').forEach(card=>{
-  const m=workspace.missions.find(m=>m.id===card.dataset.mission),save=async patch=>{try{await api(endpoint('missions/'+m.id),'PATCH',{version:m.version,status:m.status,position:m.position,...patch});await loadWorkspace();}catch(e){toast(e.message);}};
+  const m=workspace.missions.find(m=>m.id===card.dataset.mission),save=async patch=>{try{const id=workspace.organization.id;await api(endpoint('missions/'+m.id),'PATCH',{version:m.version,status:m.status,position:m.position,...patch});await loadWorkspace(id);}catch(e){toast(e.message);}};
   card.querySelector('select').disabled=!write;card.querySelector('select').onchange=e=>save({status:e.target.value});
   card.querySelector('[data-action="up"]').onclick=()=>save({direction:'up'});
   card.querySelector('[data-action="down"]').onclick=()=>save({direction:'down'});
@@ -261,7 +268,13 @@ function assistant(){
   });
  }
 }
-async function loadWorkspace(id){result=null;scenarioInputs=null;workspace=await api('/api/hub/workspaces/'+(id||workspace.organization.id));render();}
+async function loadWorkspace(id=workspace.organization.id){
+ if(workspaceSwitch&&id!==workspaceSwitch)return;
+ const next=await api('/api/hub/workspaces/'+id);
+ if((workspaceSwitch||workspace.organization.id)!==id)return;
+ if(workspace.organization.id!==id)selectedMission=null;
+ result=null;scenarioInputs=null;workspace=next;render();
+}
 async function load(){try{const data=await api('/api/hub/workspaces');me=data.user;if(['login','signup'].includes(route)&&resumeShop())return;workspaces=data.workspaces;if(workspaces.length){const selected=workspace&&workspaces.find(w=>w.id===workspace.organization.id);workspace=await api('/api/hub/workspaces/'+(selected?.id||workspaces[0].id));}if(route==='settings'){page='settings';route='';}if(route==='signup'||route==='login')route='';render();}catch(e){if(e.status===401){me=null;render();}else{gateFrame(`<section class="panel"><h1>${t('brand')}</h1><p role="alert">${esc(e.message)}</p><a href="/account">${t('openAccount')}</a></section>`);}}}
 async function start(){
  if(['verify','reset','forgot'].includes(route)){render();return;}

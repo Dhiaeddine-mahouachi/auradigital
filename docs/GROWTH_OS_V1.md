@@ -1,6 +1,6 @@
 # Growth OS V1 delivery checkpoint
 
-November 16, 2026 (Istanbul). This increment builds on the unified account and roadmap entry changes in PR #60.
+November 16, 2026 (Istanbul). This increment builds on the unified account, roadmap entry, recovery, and workspace-switching changes now in main through PR #61.
 
 | Customer journey | Findings and implementation | Verification |
 | --- | --- | --- |

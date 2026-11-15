@@ -79,6 +79,22 @@ try {
  await desktop.locator('.sidebar [data-page=assistant]').click();
  await desktop.locator('[data-action=order-status]').click();
  await desktop.locator('#auri-response').getByText('You have no orders yet.',{exact:true}).waitFor();
+ // Exercise the real reset endpoint with a token seeded only in the in-memory QA database.
+ const recovery=await desktopContext.newPage();
+ const resetLink=await (await recovery.request.post(base+'/__qa/password-reset',{data:{email}})).json();
+ await recovery.goto(base+resetLink.path);
+ await recovery.waitForFunction(()=>!location.hash);
+ await recovery.locator('[name=password]').fill('Saffron-lake-0143!');
+ await recovery.locator('#auth-form button').click();
+ await recovery.waitForURL('**/hub/login');
+ await recovery.locator('[name=email]').fill(email);
+ await recovery.locator('[name=password]').fill('Saffron-lake-0142!');
+ await recovery.locator('#auth-form button').click();
+ await recovery.locator('.form-error').filter({hasText:/incorrect/i}).waitFor();
+ await recovery.locator('[name=password]').fill('Saffron-lake-0143!');
+ await recovery.locator('#auth-form button').click();
+ await recovery.locator('[data-status=done]').waitFor();
+ await recovery.close();
  assert.deepEqual(exceptions,[]);
 
  // Use only the synthetic fixture in the screenshots.
@@ -106,6 +122,12 @@ try {
  await mobile.waitForFunction(()=>document.querySelector('.growth-answer')?.textContent.length>5);
  await mobile.evaluate(()=>window.scrollTo(0,0));
  await mobile.screenshot({path:output+'/AuraDigital-Mobile.png',fullPage:true,animations:'disabled'});
+ await mobile.locator('#language').selectOption('ar');
+ await mobile.waitForFunction(()=>document.documentElement.dir==='rtl');
+ await mobile.locator('#toggle-menu').click();
+ await mobile.locator('.sidebar [data-page=services]').click();
+ await mobile.getByRole('heading',{name:'AuraMenu',exact:true}).waitFor();
+ assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  console.log('Hub browser QA passed: signup, login, generated roadmap, tree, timeline, persisted progress, AURI, service handoff and mobile.');
 } finally {
  await browser.close();
