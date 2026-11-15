@@ -21,7 +21,7 @@ for(const [country,region,currency,price] of [['TR','TR','TRY',6750],['TN','TN',
 test('trusted CF only, exact eurozone mapping, deterministic fallback and manual override',()=>{
  for(const c of ['CH','NO','SE','PL','RO','HU','ZZ',undefined])assert.equal(selectRegion(defaults,geo(c)),'TR');
  assert.equal(selectRegion(defaults,geo('ZZ',{'CF-IPCountry':'TN','Accept-Language':'fr-TN'})),'TR');
- assert.equal(selectRegion(defaults,geo('TR',{Cookie:'aura-pricing-region=TN'})),'TN');
+ assert.equal(selectRegion(defaults,geo('TR',{Cookie:'aura-pricing-region=TN'})),'TR');
  assert.equal(selectRegion(defaults,geo('US'),'GB'),'GB');
  assert.throws(()=>selectRegion(defaults,geo('TR'),'__proto__'));
  assert.equal(selectRegion(defaults,geo('TR',{Cookie:'aura-pricing-region=UNKNOWN'})),'TR');
@@ -82,7 +82,7 @@ test('private drafts, strict permissions, optimistic publication, audit and rest
 });
 test('manual selector persistence and single-engine frontend wiring are present',()=>{
  const ui=readFileSync(new URL('../pricing/ui.js',import.meta.url),'utf8');
- assert.match(ui,/aura-pricing-region=.*Max-Age=31536000/);assert.match(ui,/aura:pricingchange/);assert.match(ui,/aria-label','Pricing country and currency/);
+ assert.doesNotMatch(ui,/aura-region-selector|auraPricingRegion|function regionSelector/);assert.match(ui,/aura:pricingchange/);
  for(const page of ['index','websites','services','packages','spinflow','contact','aura-menu','nfc','qr-menu'])assert.match(readFileSync(new URL('../'+page+'.html',import.meta.url),'utf8'),/pricing\/ui.js/);
 });
 test('live worker routes return Tunisian prices and deterministic regional chatbot answers',async()=>{
