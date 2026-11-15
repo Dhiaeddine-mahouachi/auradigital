@@ -1,3 +1,4 @@
+import { missionGuide } from './roadmap.js';
 import { ApiError } from './http.js';
 export const FORMULA_VERSION = 'aura-funnel-1';
 export const capabilities = [
@@ -11,6 +12,14 @@ export const capabilities = [
  {id:'automation',level:4,service:'AI Automation',dependencies:['crm'],priority:3},
  {id:'analytics',level:5,service:'Analytics',dependencies:['website'],priority:2},
  {id:'retention',level:5,service:'Customer Retention',dependencies:['crm'],priority:3},
+ {id:'branding',level:1,service:'Brand identity',dependencies:[],priority:3},
+ {id:'hosting',level:1,service:'Hosting and security',dependencies:['website'],priority:3},
+ {id:'ads',level:2,service:'Search advertising',dependencies:['leads'],priority:3,optional:true},
+ {id:'reviews',level:2,service:'Online reviews',dependencies:['discovery'],priority:3},
+ {id:'whatsapp',level:3,service:'WhatsApp integration',dependencies:[],priority:3},
+ {id:'conversion',level:3,service:'Conversion optimization',dependencies:['leads'],priority:3},
+ {id:'followups',level:4,service:'Automated follow-ups',dependencies:['crm'],priority:3,optional:true},
+ {id:'menu',level:1,service:'Digital menu',dependencies:[],priority:2,industry:'restaurant'},
 ];
 const industries = ['restaurant','services','ecommerce','real_estate','other'];
 export function validateProfile(input) {
@@ -31,8 +40,26 @@ export function validateProfile(input) {
 }
 export function diagnose(profile) {
  const existing=new Set(profile.capabilities||[]);if(profile.website)existing.add('website');
- const missions=capabilities.filter(c=>!existing.has(c.id)).map(c=>({...c,objective:c.service,description:`Establish ${c.service.toLowerCase()} for your business.`,reason:'This capability has not been reported in your business profile.',estimatedCost:null,currency:profile.currency||'USD',expectedBenefit:'Potential improvement; measure against your own baseline.',nextAction:'Define scope or record your existing solution.',completionSource:'customer_reported'}));
- return {ruleVersion:'aura-readiness-1',source:'customer_entered',strengths:capabilities.filter(c=>existing.has(c.id)).map(c=>c.service),missing:missions.map(c=>c.id),readiness:Math.round(existing.size/capabilities.length*100),budget:profile.budget??null,currency:profile.currency||'USD',missions,notice:'Readiness measures reported capabilities, not business success. Cost requires an approved quote. No purchase is required to complete a mission.'};
+ const relevant=capabilities.filter(c=>!c.industry || c.industry===profile.industry);
+ const demand=[profile.goals,profile.difficulties].join(' ');
+ const visibility=/visibility|search|traffic|local|reservations|customers|görünür|visibilité|عملاء/i.test(demand);
+ const conversion=/leads|sales|convert|bookings|ventes|satış|مبيعات/i.test(demand);
+ const automation=/automat|follow.up|manual|messag|otomasyon|أتمتة/i.test(demand);
+ const missions=relevant.filter(c=>!existing.has(c.id)).map(c=>{
+  const [,reason,nextAction]=missionGuide[c.id];
+  const prioritized=(visibility&&['discovery','seo','reviews'].includes(c.id)) ||
+   (conversion&&['leads','whatsapp','crm'].includes(c.id)) ||
+   (automation&&['automation','followups'].includes(c.id)) ||
+   (profile.industry==='restaurant'&&['discovery','menu'].includes(c.id)) ||
+   (profile.industry==='ecommerce'&&['analytics','conversion'].includes(c.id));
+  const optional=c.optional===true || (profile.budget===0&&c.id==='automation');
+  return {...c,priority:prioritized&&!optional?1:c.priority,optional,objective:c.service,description:reason,reason,
+   estimatedCost:null,currency:profile.currency||'USD',expectedBenefit:reason,nextAction,completionSource:'customer_reported'};
+ });
+ const strengths=relevant.filter(c=>existing.has(c.id)).map(c=>c.service);
+ return {ruleVersion:'aura-readiness-2',source:'customer_entered',strengths,missing:missions.map(c=>c.id),
+  readiness:Math.round(strengths.length/relevant.length*100),budget:profile.budget??null,currency:profile.currency||'USD',missions,
+  notice:'Readiness measures reported capabilities. Cost requires an approved quote. No purchase is required to complete a mission.'};
 }
 function number(value,key,min,max) {if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max)throw new ApiError(400,`Invalid ${key}.`);return value;}
 export function simulate(raw) {

@@ -19,7 +19,11 @@ const server=createServer(async(req,res)=>{try{
  const chunks=[];let size=0;for await(const c of req){size+=c.length;if(size>220000){res.writeHead(413);res.end();return;}chunks.push(c);}
  const origin=`http://${req.headers.host}`;f.env.CUSTOMER_AUTH_ORIGIN=origin;
  const request=new Request(origin+(req.url==='/'?'/hub':req.url),{method:req.method,headers:{...req.headers,cookie:String(req.headers.cookie||'').replace(/aura_qa_customer=/g,'__Host-aura_customer=')},...(['GET','HEAD'].includes(req.method)?{}:{body:Buffer.concat(chunks)})});
- const response=secureResponse(await handleCustomerIdentity(request,f.env)||await handleBusinessHub(request,f.env)||await handleShop(request,f.env)||await f.env.ASSETS.fetch(request),request,{},null);
+ const publicFixture=new Map([['/contact','contact.html'],['/script.js','script.js']]);
+ const publicAsset=publicFixture.get(new URL(request.url).pathname);
+ const fallback=async()=>publicAsset?new Response(await readFile(new URL('../'+publicAsset,import.meta.url)),
+  {headers:{'Content-Type':publicAsset.endsWith('.js')?'text/javascript':'text/html'}}):f.env.ASSETS.fetch(request);
+ const response=secureResponse(await handleCustomerIdentity(request,f.env)||await handleBusinessHub(request,f.env)||await handleShop(request,f.env)||await fallback(),request,{},null);
  // The preview gateway is HTTP. Only this isolated in-memory QA harness maps
  // the Secure __Host session to an unprefixed local cookie. Production is unchanged.
  const headers=new Headers(response.headers);
