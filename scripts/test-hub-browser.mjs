@@ -70,7 +70,7 @@ try {
  const resetLink=await (await recovery.request.post(base+'/__qa/password-reset',{data:{email}})).json();
  await recovery.goto(base+resetLink.path);
  await recovery.waitForFunction(()=>!location.hash);
- await recovery.locator('[name=newPassword]').fill('Saffron-lake-0143!');
+ await recovery.locator('[name=password]').fill('Saffron-lake-0143!');
  await recovery.locator('#auth-form button').click();
  await recovery.waitForURL('**/hub/login');
  await recovery.locator('[name=email]').fill(email);

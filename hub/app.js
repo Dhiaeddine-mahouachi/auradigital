@@ -514,7 +514,7 @@ async function renderGate() {
         const r = await api("/api/customer/forgot-password", "POST", { email: data.get("email") });
         toast(t("resetSent"));
       } else if (reset) {
-        await api("/api/customer/reset-password", "POST", { token: flowToken, password: data.get("newPassword") });
+        await api("/api/customer/reset-password", "POST", { token: flowToken, password: data.get("password") });
         location.assign("/hub/login" + authQuery);
       } else {
         await api("/api/customer/" + (signup ? "register" : "login"), "POST", { name: data.get("name"), email: data.get("email"), password: data.get("password"), acceptTerms: data.has("terms") });
