@@ -32,17 +32,13 @@ const services = [
   ["AuraWeddings",null,"/aura-weddings","Animated invitations, design studio and RSVP."],
 ];
 const home = [
-  ["Websites & Development","launch","/websites"],
-  ["Website Management","essential-care","/packages"],
-  ["Hosting & Security","standard-infra","/services#infrastructure"],
-  ["Advertising & Growth","basic-ads","/services#advertising"],
-  ["Business Systems & ERP","spinflow-start","/spinflow"],
-  ["Dashboards & Automation","basic-dashboard","/websites#web-addons"],
+  ["Websites & Development","/websites"],
+  ["Website Management","/packages"],
+  ["Hosting & Security","/services#infrastructure"],
+  ["Advertising & Growth","/services#advertising"],
+  ["Business Systems & ERP","/spinflow"],
+  ["Dashboards & Automation","/websites#web-addons"],
 ];
-const tr = (title,url,item) => '<a class="aura-price-mini" href="'+escape(url)+'">'+
-    '<span>'+escape(title)+'</span><b>'+price(item)+
-    (item.id==="spinflow-start"?'<small> Custom ERP: '+price(getItem("erp-essential"))+'</small>':'')+
-    '</b><span aria-hidden="true">↗</span></a>';
 const serviceCard = ([name,id,url,description]) => {
   const item=id?getItem(id):null;
   return '<article class="service-card"><div><h3>'+escape(name)+'</h3><p>'+escape(description)+'</p>'+
@@ -68,8 +64,8 @@ const erpSection = () => '<div class="aura-price-card-grid">'+catalogue.erp.map(
   'Managed ERP hosting: '+amount(p.annualHosting)+'/year; first-year combined: <b>'+amount(firstYearERP(p.id))+'</b>')).join("")+'</div>';
 
  switch(view) {
-  case "home": return '<div class="aura-price-mini-grid">'+home.map(([name,id,url])=>
-    tr(name,url,getItem(id))).join("")+'</div>';
+  case "home-services": return '<div class="aura-price-mini-grid">'+home.map(([name,url])=>
+    '<a class="aura-price-mini" href="'+escape(url)+'"><span>'+escape(name)+'</span><span aria-hidden="true">↗</span></a>').join("")+'</div>';
   case "services": return services.map(serviceCard).join("");
   case "packages": return catalogue.care.map(p=>card(p, p.updates+' total content updates / month')).join("");
   case "infrastructure": return '<div class="aura-price-compact">'+infraRows+'</div>';
