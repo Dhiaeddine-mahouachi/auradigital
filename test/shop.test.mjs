@@ -7,6 +7,8 @@ import { filterThemes, emptyFilters, emptyPersonalization, quoteCart, restoreCar
 import { createSession } from '../src/security.js';
 
 const seeds = JSON.parse(await readFile(new URL('../shop/catalog.seed.json', import.meta.url), 'utf8'));
+const horizontal = seeds.filter(theme => theme.orientation === 'Horizontal');
+const restaurantCard = horizontal.find(theme => theme.slug === 'collection-restaurant-terracotta');
 const item = overrides => ({ id: 'test-cart-item', themeId: seeds[0].id, material: 'PVC', finish: 'Matte', quantity: 2, personalization: { ...emptyPersonalization, business: 'Example Café', destination: 'https://example.com/menu' }, ...overrides });
 const request = (path, method = 'GET', data, cookie, origin = 'https://auradigitalworks.com') => new Request(`https://auradigitalworks.com${path}`, { method, headers: { Origin: origin, 'Content-Type': 'application/json', ...(cookie ? { Cookie: cookie } : {}) }, ...(data ? { body: JSON.stringify(data) } : {}) });
 
@@ -66,9 +68,11 @@ test('public API has server-priced quotes and requires sign-in before checkout',
   const { env, sqlite } = await shopFixture();
   try {
     const response = await handleShop(request('/api/shop/catalog'), env), data = await response.json();
-    assert.equal(response.status, 200); assert.equal(data.themes.length, 58); assert.equal(data.checkout.enabled, true);
+    assert.equal(response.status, 200); assert.equal(data.themes.length, horizontal.length); assert.equal(data.checkout.enabled, true);
     assert.equal((await handleShop(request('/api/shop/catalog', 'POST', {}), env)).status, 405);
-    assert.equal((await handleShop(request('/api/shop/quote', 'POST', { items: [item()] }), env)).status, 200);
+    assert.ok(data.themes.every(theme => theme.orientation === 'Horizontal'));
+    assert.equal((await handleShop(request('/api/shop/quote', 'POST', { items: [item({ themeId: restaurantCard.id })] }), env)).status, 200);
+    assert.equal((await handleShop(request('/api/shop/quote', 'POST', { items: [item({ themeId: 'oliva-bistro' })] }), env)).status, 400);
     assert.equal((await handleShop(request('/api/shop/checkout', 'POST', { paid: true }), env)).status, 401);
     assert.equal((await handleShop(request('/api/shop/checkout', 'POST', {}, null, 'https://attacker.example'), env)).status, 403);
   } finally { sqlite.close(); }
@@ -84,17 +88,17 @@ test('first catalog request initializes missing shop schema and preserves subseq
     const response = await handleShop(request('/api/shop/catalog'), env);
     assert.equal(response.status, 200);
     const data = await response.json();
-    assert.equal(data.themes.length, 58);
+    assert.equal(data.themes.length, horizontal.length);
     assert.equal(data.checkout.enabled, true);
     for (const theme of data.themes) { assert.equal(theme.status, 'demo'); assert.equal(theme.available, true); assert.equal(theme.approved, false); assert.equal(theme.priceMinor, 60000); }
-    assert.equal((await handleShop(request('/shop/cards/oliva-bistro'), env)).status, 200);
-    const edited = { ...seeds[0], name: 'Preserved edit', status: 'archived' };
+    assert.equal((await handleShop(request('/shop/cards/oliva-bistro'), env)).status, 404);
+    const edited = { ...restaurantCard, name: 'Preserved edit', status: 'archived' };
     sqlite.prepare('UPDATE shop_card_themes SET data_json = ? WHERE id = ?').run(JSON.stringify(edited), edited.id);
-    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, 57);
+    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, horizontal.length - 1);
     assert.equal(JSON.parse(sqlite.prepare('SELECT data_json FROM shop_card_themes WHERE id = ?').get(edited.id).data_json).name, 'Preserved edit');
     // The deployed catalog synchronization restores shipped themes when empty.
     sqlite.exec('DELETE FROM shop_card_themes');
-    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, 58);
+    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, horizontal.length);
   } finally { sqlite.close(); }
 });
 test('a direct admin create initializes missing catalog schema using the existing session', async () => {
@@ -126,7 +130,7 @@ test('catalog management reuses admin auth, denies viewers/CSRF and atomically r
     assert.equal((await handleShop(request('/api/admin/shop/themes/oliva-bistro', 'PUT', { theme: seeds[0] }, manager, 'https://attacker.example'), env)).status, 403);
     const next = { ...seeds[0], name: 'Changed restaurant', status: 'archived' };
     assert.equal((await handleShop(request('/api/admin/shop/themes/oliva-bistro', 'PUT', { theme: next }, manager), env)).status, 200);
-    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, 57);
+    assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, horizontal.length);
     assert.equal(sqlite.prepare("SELECT COUNT(*) AS count FROM admin_audit_log WHERE resource='shop_themes'").get().count, 1);
     assert.equal((await handleShop(request('/api/admin/shop/themes', 'POST', { theme: { ...seeds[0], id: 'another-id' } }, manager), env)).status, 409);
     sqlite.exec("CREATE TRIGGER reject_shop_audit BEFORE INSERT ON admin_audit_log BEGIN SELECT RAISE(ABORT, 'audit unavailable'); END");
@@ -150,7 +154,8 @@ test('uploaded artwork upgrades legacy catalog rows without changing order ident
     assert.match(raw.front, /-front\.svg$/);
     raw.name = 'Preserved restaurant name'; raw.description = 'Preserved custom copy';
     sqlite.prepare("UPDATE shop_card_themes SET data_json = ? WHERE id='oliva-bistro'").run(JSON.stringify(raw));
-    const catalog = await (await handleShop(request('/api/shop/catalog'), env)).json();
+    const manager = await adminCookie(env, 'manager');
+    const catalog = await (await handleShop(request('/api/admin/shop/themes', 'GET', null, manager), env)).json();
     const theme = catalog.themes.find(t => t.id === raw.id);
     assert.match(theme.front, /demo-oliva-bistro-pair\.png$/);
     assert.equal(theme.name, raw.name); assert.equal(theme.description, raw.description);
@@ -161,16 +166,16 @@ test('uploaded artwork upgrades legacy catalog rows without changing order ident
     // A different administrator-selected asset must not be replaced.
     migrated.front = '/shop/artwork/custom-front.png';
     sqlite.prepare("UPDATE shop_card_themes SET data_json = ? WHERE id='oliva-bistro'").run(JSON.stringify(migrated));
-    const next = await (await handleShop(request('/api/shop/catalog'), env)).json();
+    const next = await (await handleShop(request('/api/admin/shop/themes', 'GET', null, manager), env)).json();
     assert.equal(next.themes.find(t => t.id === raw.id).front, migrated.front);
   } finally { sqlite.close(); }
 });
 test('shop routing serves unique metadata, proper HEAD, canonical redirect and real 404s', async () => {
   const { env, sqlite } = await shopFixture();
   try {
-    const page = await handleShop(request('/shop/cards/oliva-bistro'), env), html = await page.text();
-    assert.match(html, /Oliva Bistro NFC &amp; QR Card/);
-    assert.match(html, /rel="canonical" href="https:\/\/auradigitalworks.com\/shop\/cards\/oliva-bistro"/);
+    const page = await handleShop(request('/shop/cards/collection-restaurant-terracotta'), env), html = await page.text();
+    assert.match(html, /Restaurant Terracotta NFC &amp; QR Card/);
+    assert.match(html, /rel="canonical" href="https:\/\/auradigitalworks.com\/shop\/cards\/collection-restaurant-terracotta"/);
     assert.equal((await handleShop(request('/shop/cards/not-a-theme'), env)).status, 404);
     assert.equal((await handleShop(request('/shop/cart'), env)).headers.get('X-Robots-Tag'), 'noindex, nofollow');
     assert.equal(await (await handleShop(request('/shop', 'HEAD'), env)).text(), '');

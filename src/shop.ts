@@ -95,7 +95,7 @@ async function catalog(env: Env, includeArchived = false): Promise<Theme[]> {
     }
     if (uploaded && theme.status === 'demo' && theme.front === uploaded.front && theme.back === uploaded.back && theme.priceMinor === null) theme = validateTheme({ ...theme, priceMinor: 60000, available: true, madeToOrder: true });
     return theme;
-  }).filter(t => includeArchived || t.status !== 'archived');
+  }).filter(t => includeArchived || (t.status !== 'archived' && t.orientation === 'Horizontal'));
 }
 export async function handleShop(request: Request, env: Env): Promise<Response | null> {
   const customerResponse = await handleCustomerApi(request, env);
