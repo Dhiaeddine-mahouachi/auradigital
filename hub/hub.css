@@ -106,3 +106,9 @@
 .growth-topbar .avatar{background:#34735c;color:#fff}
 .growth-branch h3 small{color:#daf0e6}
 @media(max-width:390px){.growth-topbar .secondary.menu-button{padding-inline:5px}.growth-greeting strong{font-size:.84rem}}
+
+.hub-marketplace{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:1rem}
+.hub-marketplace .panel{margin:0}
+.hub-order-list{list-style:none;padding:0;margin-block:1rem}
+.hub-order-list li{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.5rem 1rem;padding:.75rem 0;border-block-start:1px solid var(--line)}
+.hub-order-list a{color:var(--green);font-weight:700}

@@ -283,7 +283,19 @@ async function checkoutPage() {
   });
 }
 type BankOrder = { id: string; reference: string; bank: { iban: string; holder: string }; totalMinor: number; paymentStatus: string; productionStatus: string; transferReportedAt: string | null; shipping: Record<string, string>; items: { name: string; quantity: number; subtotalMinor: number }[] };
-function statusLabel(order: BankOrder) { return order.paymentStatus === 'paid' ? 'Payment verified · Awaiting artwork approval' : order.paymentStatus === 'cancelled' ? 'Cancelled' : order.transferReportedAt ? 'Transfer reported · Awaiting verification' : 'Pending Payment · Awaiting bank transfer'; }
+function statusLabel(order: BankOrder) {
+  if (order.paymentStatus === 'paid') {
+    const phases: Record<string, string> = {
+      awaiting_artwork: 'Awaiting artwork approval',
+      in_production: 'In production',
+      shipped: 'Shipped',
+      delivered: 'Delivered',
+    };
+    return ['Payment verified', phases[order.productionStatus]].filter(Boolean).join(' · ');
+  }
+  if (order.paymentStatus === 'cancelled') return 'Cancelled';
+  return order.transferReportedAt ? 'Transfer reported · Awaiting verification' : 'Pending Payment · Awaiting bank transfer';
+}
 async function orderPage(id: string) {
   if (!customer) { signInRequired('/shop/orders/' + id); return; }
   const { order }: { order: BankOrder } = await api('/api/shop/orders/' + id);

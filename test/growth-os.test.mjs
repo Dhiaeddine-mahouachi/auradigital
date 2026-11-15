@@ -1,3 +1,4 @@
+import { customerOrderSummary } from '../src/shop/bank-orders.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -80,4 +81,63 @@ test('AURI spends from the shared ledger under a per-customer cap and falls back
  const ledger=await f.DB.prepare('SELECT calls,reserved_tokens FROM ai_usage').first();
  assert.equal(ledger.calls,10);
  assert(ledger.reserved_tokens>0);
+});
+
+
+test('AURI order status uses personal orders only in an owned workspace and returns no checkout details', async () => {
+ const f=await hubFixture();
+ try {
+  const owner=await f.user('orders-owner@example.test',true);
+  const memberUser=await f.user('orders-member@example.test',true);
+  const org=await workspace(f,owner);
+  await member(f,org,memberUser,'admin');
+  await customerOrderSummary(f.env,owner.id);
+  for(const [user,reference] of [[owner,'AD-OWNER'],[memberUser,'AD-MEMBER']]){
+   await f.DB.prepare(`INSERT INTO shop_bank_orders(id,reference,customer_id,idempotency_key,request_hash,
+    items_json,shipping_json,bank_json,total_minor) VALUES(?,?,?,?,?,?,?,?,?)`)
+    .bind(crypto.randomUUID(),reference,user.id,crypto.randomUUID(),'test','[]','{"address":"Synthetic Street"}','{}',60000).run();
+  }
+  const path='/api/hub/workspaces/'+org+'/auri';
+  const result=await (await f.call(path,owner,'POST',{tool:'order_status'})).json();
+  assert.equal(result.mode,'rules');
+  assert.deepEqual(result.data.orders.map(order=>order.reference),['AD-OWNER']);
+  assert.equal(result.data.orders[0].shipping,undefined);
+  assert.equal(result.data.orders[0].bank,undefined);
+  assert.equal((await f.call(path,memberUser,'POST',{tool:'order_status'})).status,403);
+ } finally {f.sqlite.close();}
+});
+
+test('Hub quote handoff persists CRM lead, receipt and workspace ownership together', async () => {
+ const {default: app}=await import('../src/worker-entry.js');
+ const f=await hubFixture();
+ try {
+  const sql=await readFile(new URL('../migrations/0030_hub_contact_requests.sql',import.meta.url),'utf8');
+  f.sqlite.exec(sql);
+  f.sqlite.exec(sql);
+  const owner=await f.user('quote-owner@example.test',true),other=await f.user('quote-other@example.test',true);
+  const org=await workspace(f,owner),otherOrg=await workspace(f,other);
+  const payload={name:'Quote Owner',email:owner.email,phone:'+90 500 000 0000',
+   service:'Ad Management',message:'Please quote search advertising.',language:'en',workspaceId:org};
+  const post=(body,customer,key='hub-contact-test-01')=>app.fetch(new Request('https://aura.test/api/contact',{
+   method:'POST',headers:{'Content-Type':'application/json',Origin:'https://aura.test',
+    'Idempotency-Key':key,...(customer?{Cookie:customer.cookie}:{})},body:JSON.stringify(body),
+  }),f.env,{waitUntil(){}});
+  assert.equal((await post(payload,null)).status,401);
+  assert.equal((await post({...payload,email:other.email},other)).status,404);
+  assert.equal((await post({...payload,workspaceId:otherOrg},owner)).status,404);
+  const first=await post(payload,owner);
+  assert.equal(first.status,201);
+  const receipt=await first.json();
+  const replay=await post(payload,owner);
+  assert.equal(replay.status,200);
+  assert.equal((await replay.json()).requestId,receipt.requestId);
+  assert.equal((await post({...payload,message:'Changed details'},owner)).status,409);
+  const leads=await f.DB.prepare('SELECT company, service, status FROM clients').all();
+  assert.deepEqual(leads.results.map(row=>({...row})),[{company:profile().name,service:payload.service,status:'lead'}]);
+  const list=await (await f.call('/api/hub/workspaces/'+org+'/requests',owner)).json();
+  assert.deepEqual(list.requests,[{reference:receipt.requestId,service:payload.service,submittedAt:receipt.submittedAt}]);
+  assert.equal((await f.call('/api/hub/workspaces/'+org+'/requests',other)).status,404);
+  assert.deepEqual((await (await f.call('/api/hub/workspaces/'+otherOrg+'/requests',other)).json()).requests,[]);
+  assert.deepEqual(f.sqlite.prepare('PRAGMA foreign_key_check').all(),[]);
+ } finally {f.sqlite.close();}
 });

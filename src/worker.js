@@ -1,4 +1,5 @@
 import { pricingFor, checkQuoteVersion } from './global-pricing.js';
+import { authenticatedCustomer } from './customer-accounts.ts';
 import { ensureRequestDelivery, requestFingerprint, outboxStatements, deliverRequestEmails } from "./request-delivery.js";
 import { MENU_PLANS, ensureMenuBilling, menuBilling, menuBillingInsert, activateMenuBilling, menuEntitlement } from "./menu-billing.js";
 import { ApiError, json, readJson } from "./http.js";
@@ -109,10 +110,21 @@ async function createContactRequest(request, db, env, ctx) {
 
   const body = await readJson(request, CONTACT_BODY_BYTES);
   const name = qsClean(body.name, 120);
-  const email = qsClean(body.email, 160).toLowerCase();
+  const email = qsClean(body.email, body.workspaceId === undefined ? 160 : 254).toLowerCase();
   const phone = qsClean(body.phone, 50);
   const service = qsClean(body.service, 120);
   const message = qsClean(body.message, 2000);
+  let hub = null;
+  if (body.workspaceId !== undefined) {
+    const user = await authenticatedCustomer(request, env);
+    if (!user) throw new ApiError(401, 'Sign in to send a workspace request.');
+    if (email !== user.email || typeof body.workspaceId !== 'string' || !/^[a-f0-9-]{36}$/.test(body.workspaceId)) {
+      throw new ApiError(400, 'Use your AuraDigital account email and select your workspace.');
+    }
+    const workspace = await db.prepare('SELECT id, name FROM organizations WHERE id=? AND owner_id=?').bind(body.workspaceId,user.id).first();
+    if (!workspace) throw new ApiError(404, 'Workspace unavailable for this request.');
+    hub = { workspace, user };
+  }
   let verifiedPricingSnapshot = "";
   // Recompute all public estimates server-side; never trust client-supplied totals.
   if (body.pricingSelection != null) {
@@ -176,11 +188,12 @@ async function createContactRequest(request, db, env, ctx) {
 
   if (body.website) return json({ error: "Invalid request." }, 400);
   await ensureRequestDelivery(db);
-  const fingerprint = await requestFingerprint([name,email,phone,service,message,body.pricingSelection || null]);
+  const scope = hub ? [hub.workspace.id,hub.user.id] : [];
+  const fingerprint = await requestFingerprint([name,email,phone,service,message,body.pricingSelection || null,...scope]);
   const suppliedKey = request.headers.get("Idempotency-Key");
   if (suppliedKey && !/^[a-zA-Z0-9-]{16,80}$/.test(suppliedKey)) return json({error:"Invalid submission key."},400);
   // Old clients also receive content-based deduplication for the current UTC day.
-  const key = await requestFingerprint([suppliedKey || `${fingerprint}/${new Date().toISOString().slice(0,10)}`,email]);
+  const key = await requestFingerprint([suppliedKey || `${fingerprint}/${new Date().toISOString().slice(0,10)}`,email,...scope]);
   const respond = async (receipt, duplicate = false) => {
     if (receipt.fingerprint !== fingerprint) return json({error:"Submission key was already used for different information."},409);
     // Email outages never turn a committed request into a failed submission.
@@ -202,7 +215,7 @@ async function createContactRequest(request, db, env, ctx) {
   const requestId = `WEB-${crypto.randomUUID()}`;
   const submittedAt = new Date().toISOString();
   const notification = {
-    requestType:"Website contact",requestId,businessName:name,contactName:name,
+    requestType:"Website contact",requestId,businessName:hub?.workspace.name || name,contactName:name,
     customerEmail:email,phone,service,submittedAt,
     dashboardUrl:new URL("/admin/",request.url).toString(),
     details:[["Service",service],["Message",message],...(verifiedPricingSnapshot ? [["Verified pricing",verifiedPricingSnapshot]] : [])],
@@ -210,8 +223,10 @@ async function createContactRequest(request, db, env, ctx) {
   try {
     const saved = await db.batch([
       db.prepare("INSERT INTO request_receipts(key,fingerprint,request_id,created_at) VALUES(?,?,?,?)").bind(key,fingerprint,requestId,submittedAt),
-      db.prepare("INSERT INTO clients (name, company, email, phone, service, status, notes) VALUES (?, '', ?, ?, ?, 'lead', ?)").bind(name,email,phone,service,notes),
+      db.prepare("INSERT INTO clients (name, company, email, phone, service, status, notes) VALUES (?, ?, ?, ?, ?, 'lead', ?)").bind(name,hub?.workspace.name || '',email,phone,service,notes),
       db.prepare("UPDATE request_receipts SET client_id=last_insert_rowid() WHERE key=?").bind(key),
+      ...(hub ? [db.prepare('INSERT INTO hub_contact_requests(request_id,organization_id,customer_id,service,submitted_at) VALUES (?,?,?,?,?)')
+        .bind(requestId,hub.workspace.id,hub.user.id,service,submittedAt)] : []),
       ...outboxStatements(db,notification),
     ]);
     if (saved.some(result => result.success === false)) throw new Error("request_save_failed");

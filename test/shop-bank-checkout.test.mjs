@@ -98,9 +98,30 @@ test('reporting a transfer never pays an order; only authorized manual confirmat
     for (const role of ['viewer', 'manager']) await env.DB.prepare('INSERT INTO admin_users (id, username, display_name, password_hash, role) VALUES (?, ?, ?, ?, ?)').bind(role, role, role, 'unused', role).run();
     const viewer = `__Host-aura_admin=${await createSession(env.DB, 'viewer')}`, manager = `__Host-aura_admin=${await createSession(env.DB, 'manager')}`;
     assert.equal((await call(env, '/api/admin/shop/orders/' + order.id, 'PATCH', { action: 'confirm_transfer' }, viewer)).status, 403);
+    const transition = (from, to) => ({ action: 'advance_production', from, to });
+    const orderPath = '/api/admin/shop/orders/' + order.id;
+    assert.equal((await call(env, orderPath, 'PATCH', transition('awaiting_artwork', 'in_production'), manager)).status, 409);
     const paid = await (await call(env, '/api/admin/shop/orders/' + order.id, 'PATCH', { action: 'confirm_transfer' }, manager)).json();
     assert.equal(paid.order.paymentStatus, 'paid'); assert.equal(paid.order.productionStatus, 'awaiting_artwork'); assert.ok(paid.order.paidAt);
     await call(env, '/api/admin/shop/orders/' + order.id, 'PATCH', { action: 'confirm_transfer' }, manager);
     assert.equal(sqlite.prepare("SELECT count(*) AS n FROM admin_audit_log WHERE action='confirm_bank_transfer'").get().n, 1);
+    assert.equal((await call(env, orderPath, 'PATCH', transition('awaiting_artwork', 'shipped'), manager)).status, 400);
+    assert.equal((await call(env, orderPath, 'PATCH', transition('awaiting_artwork', 'in_production'), viewer)).status, 403);
+    assert.equal((await call(env, orderPath, 'PATCH', transition('awaiting_artwork', 'in_production'), cookie)).status, 401);
+    for (const [from, to] of [['awaiting_artwork', 'in_production'], ['in_production', 'shipped'], ['shipped', 'delivered']]) {
+      const responses = await Promise.all(Array.from({length: 2}, () => call(env, orderPath, 'PATCH', transition(from, to), manager)));
+      for (const response of responses) {
+        assert.equal(response.status, 200);
+        assert.equal((await response.json()).order.productionStatus, to);
+      }
+    }
+    assert.equal((await call(env, orderPath, 'PATCH', transition('awaiting_artwork', 'in_production'), manager)).status, 409);
+    assert.equal(sqlite.prepare("SELECT count(*) AS n FROM admin_audit_log WHERE action LIKE 'shop_production_%'").get().n, 3);
+    const summary = await (await call(env, '/api/shop/orders?view=summary', 'GET', undefined, cookie)).json();
+    assert.deepEqual(Object.keys(summary.orders[0]).sort(), ['createdAt','currency','id','paymentStatus','productionStatus','reference','totalMinor']);
+    assert.equal(summary.orders[0].productionStatus, 'delivered');
+    const other = await signup(env, 'other-order@example.com');
+    assert.deepEqual((await (await call(env, '/api/shop/orders?view=summary', 'GET', undefined, other)).json()).orders, []);
+
   } finally { sqlite.close(); }
 });

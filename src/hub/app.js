@@ -1,3 +1,4 @@
+import { commerceCopy, orderMarkup } from './commerce.js';
 import { customerReturnPath } from '../customer-return.js';
 import { renderRoadmap, roadmapLabels } from './roadmap-view.js';
 import { missionGuide, missionState } from '../roadmap.js';
@@ -76,16 +77,16 @@ function persistProfile(){
 }
 let roadmapView='tree',selectedMission=null,workspaceSwitch=null;
 const requestLink=(service='',task='')=>'/contact#'+new URLSearchParams({
- hub:'1',service,business:workspace.organization.name,task,name:me.name,email:me.email,
+ hub:'1',...(workspace.organization.owner?{workspace:workspace.organization.id}:{}),service,business:workspace.organization.name,task,name:me.name,email:me.email,
 });
-const navigation=['home','journey','tasks','assistant','services','resources','settings'];
+const navigation=['home','journey','tasks','assistant','services','orders','resources','settings'];
 const moreNavigation=['profile','simulator','menuDrafts','projects','websites','hosting','files','reports','invoices','rewards','team','support'];
 function renderShell(){
  window.scrollTo({top:0,left:0,behavior:'instant'});
  const l=roadmapLabels(lang),growth=['home','journey'].includes(page);
  const alerts=workspace.missions.filter(m=>m.priority===1&&!m.optional&&!['done','postponed'].includes(m.status)&&!missionState(m,workspace.missions,workspace.profile).blocked);
  const navItem=p=>`<button class="nav-item ${page===p?'active':''}" data-page="${p}" ${page===p?'aria-current="page"':''}>
- <span aria-hidden="true">${({home:'⌂',journey:'♧',tasks:'☑',assistant:'✧',services:'◇',resources:'▤',settings:'⚙'})[p]||'·'}</span>${esc(l[p]||t(p))}</button>`;
+ <span aria-hidden="true">${({home:'⌂',journey:'♧',tasks:'☑',assistant:'✧',services:'◇',orders:'▤',resources:'▤',settings:'⚙'})[p]||'·'}</span>${esc(l[p]||t(p))}</button>`;
  app.innerHTML=`<div class="shell growth-shell ${growth?'growth-active':''}"><aside class="sidebar" id="sidebar">
  <a href="/" class="wordmark">aura<span>digital.</span></a><label class="field workspace-picker"><span class="sr-only">${t('businessName')}</span>
  <select id="workspace-select" aria-label="${t('businessName')}">${workspaces.map(o=>`<option value="${o.id}" ${o.id===workspace.organization.id?'selected':''}>${esc(o.id===workspace.organization.id?workspace.organization.name:o.name)}</option>`).join('')}</select></label>
@@ -128,15 +129,50 @@ async function renderPage(){
  if(page==='menuDrafts')return renderMenuDrafts({host:document.querySelector('#page-content'),api,endpoint,profile:workspace.profile,canWrite:workspace.permissions.includes('roadmap:write')});
  if(page==='home'||page==='journey')return growthDashboard();
  if(page==='tasks')return journey();
+ if(page==='orders'||page==='projects')return showOrders(page==='projects');
+ if(page==='services'){
+  const labels=commerceCopy(lang);
+  const offerings=[
+   ['AuraWeb',cap('website'),'/websites'],
+   ['AuraMenu',cap('menu'),'/aura-menu'],
+   ['AuraAds',cap('ads'),requestLink('Ad Management')],
+   ['AuraShop','NFC','/shop'],
+   [cap('automation'),cap('whatsapp'),requestLink('AI & Automation')],
+  ];
+  content(`<div class="hub-marketplace">${offerings.map(([name,description,href])=>`<article class="panel"><h2>${esc(name)}</h2><p>${esc(description)}</p><a class="secondary" href="${esc(href)}">${esc(href.startsWith('/contact')?labels.quote:href==='/shop'?labels.browse:t('openServices'))} ↗</a></article>`).join('')}</div>`);
+  return;
+ }
  if(page==='resources'){
-  content(`<section class="panel"><div class="resource-links"><a class="secondary" href="/shop">AuraShop</a><a class="secondary" href="/account">${esc(t('orders'))}</a>${moreNavigation.map(p=>`<button type="button" class="secondary" data-resource="${p}">${esc(t(p))}</button>`).join('')}</div></section>`);
+  content(`<section class="panel"><div class="resource-links"><a class="secondary" href="/shop">AuraShop</a><button type="button" class="secondary" data-resource="orders">${esc(t('orders'))}</button>${moreNavigation.map(p=>`<button type="button" class="secondary" data-resource="${p}">${esc(t(p))}</button>`).join('')}</div></section>`);
   document.querySelectorAll('[data-resource]').forEach(b=>b.onclick=()=>{page=b.dataset.resource;render();});
   return;
  }
  if(page==='simulator')return simulator();if(page==='team')return team();if(page==='assistant')return assistant();
  if(page==='settings'){content(`<section class="panel"><h2>${t('security')}</h2><p>${esc(me.email)} · ${me.verified?t('verified'):t('verify')}</p>${authCapabilities.email?`<a class="secondary" href="/hub/forgot">${t('reset')}</a>`:''}${me.verified&&authCapabilities.google?`<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t('linkGoogle')}</a></p>`:''}<hr>${button('team','open-team',true)}${button('newWorkspace','new-workspace',true)}</section>`);document.querySelector('[data-action="open-team"]').onclick=()=>{page='team';render();};document.querySelector('[data-action="new-workspace"]').onclick=()=>{workspace=null;editing=false;render();};return;}
- const service=page==='services',support=page==='support',reports=['reports','rewards'].includes(page);
- content(`<section class="panel quiet-panel"><span class="eyebrow">${reports?'NOT CONNECTED':service?'SERVICE CATALOGUE':'INTEGRATION PENDING'}</span><h2>${t(page)}</h2><p>${t(service?'serviceNote':support?'supportText':reports?'reportNote':'unavailable')}</p><a class="primary" href="${service?'/services':'/contact'}">${t(service?'openServices':'contact')} ↗</a></section>`);
+ const support=page==='support',reports=['reports','rewards'].includes(page);
+ content(`<section class="panel quiet-panel"><span class="eyebrow">${reports?'NOT CONNECTED':'INTEGRATION PENDING'}</span><h2>${t(page)}</h2><p>${t(support?'supportText':reports?'reportNote':'unavailable')}</p><a class="primary" href="/contact">${t('contact')} ↗</a></section>`);
+}
+async function showOrders(fulfillment) {
+ const host=document.querySelector('#page-content'),labels=commerceCopy(lang);
+ host.setAttribute('aria-busy','true');
+ try {
+  const quoteLink=requestLink();
+  const [{orders},requestData]=await Promise.all([
+   api('/api/shop/orders?view=summary'),
+   fulfillment?api(endpoint('requests')):null,
+  ]);
+  const shown=fulfillment?orders.filter(order=>order.paymentStatus==='paid'&&order.productionStatus!=='delivered'):orders;
+  host.innerHTML=`<section class="panel"><h2>${esc(fulfillment?labels.fulfillment:labels.orders)}</h2><p>${esc(labels.scope)}</p>
+   ${shown.length?orderMarkup(shown,lang,esc):`<p>${esc(fulfillment?labels.noFulfillment:labels.empty)}</p>`}
+   <a class="secondary" href="/shop">${esc(labels.browse)} ↗</a></section>
+   ${requestData?`<section class="panel"><h2>${esc(labels.requests)}</h2>
+   ${requestData.requests.length?`<ul class="hub-order-list">${requestData.requests.map(row=>`<li><strong>${esc(row.service)}</strong><span>${esc(labels.received)}</span><bdi>${esc(row.reference)}</bdi></li>`).join('')}</ul>`:`<p>${esc(labels.noRequests)}</p>`}
+   <a class="secondary" href="${esc(quoteLink)}">${esc(labels.quote)} ↗</a></section>`:''}`;
+ } catch(error) {
+  host.innerHTML=`<section class="panel"><p role="alert">${esc(error.message)}</p></section>`;
+ } finally {
+  host.removeAttribute('aria-busy');
+ }
 }
 async function askAuri(question,missionId) {
  const {data}=await api(endpoint('auri'),'POST',missionId?{tool:'task',missionId}:{tool:'guidance',question,lang});
@@ -210,7 +246,28 @@ async function team(){
  const a=await api(endpoint('activity'));document.querySelector('#activity').innerHTML=a.events.map(e=>`<p>${esc(e.created_at)} · ${esc(e.action)}</p>`).join('')||t('empty');
 }
 const rolesForUI=()=>['viewer','member','admin'].map(v=>[v,t(v)]);
-function assistant(){content(`<section class="panel assistant-panel">${robot()}<div><span class="eyebrow">AURI</span><h2>${t('aiRules')}</h2><p>${t('aiNotice')}</p><div class="actions">${button('diagnosis','diagnosis',true)}${button('recommend','next-action',true)}</div><div id="auri-response" role="status"></div></div></section>`);for(const [action,tool]of [['diagnosis','diagnosis'],['next-action','next_action']])document.querySelector(`[data-action="${action}"]`).onclick=async e=>{e.target.disabled=true;try{const r=await api(endpoint('auri'),'POST',{tool});document.querySelector('#auri-response').innerHTML=tool==='diagnosis'?`<h3>${t('missing')}</h3><ul>${r.data.missing.map(k=>`<li>${esc(cap(k))}</li>`).join('')}</ul>`:`<h3>${esc(r.data.nextAction?cap(r.data.nextAction.capability):t('empty'))}</h3><p>${t('why')}</p>`;}catch(e){toast(e.message);}finally{e.target.disabled=false;}};}
+function assistant(){
+ const labels=commerceCopy(lang);
+ content(`<section class="panel assistant-panel">${robot()}<div><span class="eyebrow">AURI</span><h2>${t('aiRules')}</h2><p>${t('aiNotice')}</p><div class="actions">${button('diagnosis','diagnosis',true)}${button('recommend','next-action',true)}${workspace.organization.owner?'<button type="button" class="secondary" data-action="order-status">'+esc(labels.ask)+'</button>':''}</div><div id="auri-response" role="status"></div></div></section>`);
+ const response=document.querySelector('#auri-response');
+ for(const [action,tool] of [['diagnosis','diagnosis'],['next-action','next_action'],['order-status','order_status']]){
+  document.querySelector(`[data-action="${action}"]`)?.addEventListener('click',async e=>{
+   const control=e.currentTarget;control.disabled=true;
+   try {
+    const {data}=await api(endpoint('auri'),'POST',{tool});
+    if(tool==='diagnosis')response.innerHTML=`<h3>${t('missing')}</h3><ul>${data.missing.map(k=>`<li>${esc(cap(k))}</li>`).join('')}</ul>`;
+    else if(tool==='order_status')response.innerHTML=data.orders.length?orderMarkup(data.orders,lang,esc):esc(labels.empty);
+    else {
+     const mission=data.nextAction;
+     const guide=mission&&missionGuide[mission.capability];
+     if(!response.isConnected)return;
+     response.innerHTML=mission?`<h3>${esc(cap(mission.capability))}</h3><p>${esc(guide?.[2]||mission.nextAction)}</p>
+      ${guide?.[0]?`<a class="secondary" href="${esc(requestLink(guide[0],mission.objective))}">${esc(labels.quote)} ↗</a>`:''}`:esc(t('empty'));
+    }
+   }catch(error){if(response.isConnected)toast(error.message);}finally{control.disabled=false;}
+  });
+ }
+}
 async function loadWorkspace(id=workspace.organization.id){
  if(workspaceSwitch&&id!==workspaceSwitch)return;
  const next=await api('/api/hub/workspaces/'+id);

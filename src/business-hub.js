@@ -1,3 +1,4 @@
+import { customerOrderSummary } from './shop/bank-orders.ts';
 import { explainRoadmap } from './hub-auri.js';
 import { eligibleMissions } from './roadmap.js';
 import { handleMenuDrafts } from './menu-drafts.js';
@@ -129,7 +130,7 @@ export async function handleBusinessHub(request,env) {
   return json({id},201);
  }
  if(['/api/hub/invitations/preview','/api/hub/invitations/accept'].includes(path)&&request.method==='POST')return invitation(request,env,user,await readJson(request,4096),path.endsWith('/accept'));
- const match=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})(?:\/(profile|diagnosis|missions|scenarios|team|invitations|activity|auri)(?:\/([a-f0-9-]{36}))?)?$/.exec(path);
+ const match=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})(?:\/(profile|diagnosis|missions|scenarios|team|invitations|activity|auri|requests)(?:\/([a-f0-9-]{36}))?)?$/.exec(path);
  if(!match)throw new ApiError(404,'Not found.');
  const [,org,section,item]=match;
  await authorize(env.DB,org,user);
@@ -151,6 +152,13 @@ export async function handleBusinessHub(request,env) {
    ...missionInserts(env.DB,org,diagnose(profile).missions,`EXISTS(SELECT 1 FROM organizations WHERE id=? AND version=? AND profile_json=?) AND ${guard.sql}`,[org,b.version+1,profileJson,...guard.args]),
   ]);
   if(!result.meta.changes)throw new ApiError(409,'The profile changed or access was revoked. Reload before saving.');return json({saved:true});
+ }
+ if(section==='requests'&&!item&&request.method==='GET') {
+  const guard=accessGuard(env.DB,org,user);
+  const {results}=await env.DB.prepare(`SELECT request_id AS reference,service,submitted_at AS submittedAt
+   FROM hub_contact_requests WHERE organization_id=? AND customer_id=? AND ${guard.sql}
+   ORDER BY submitted_at DESC,request_id DESC LIMIT 50`).bind(org,user.id,...guard.args).all();
+  return json({requests:results});
  }
  if(section==='diagnosis'&&request.method==='GET')return json(diagnose(JSON.parse((await env.DB.prepare('SELECT profile_json FROM organizations WHERE id=?').bind(org).first()).profile_json)));
  if(section==='missions'&&!item&&request.method==='POST') {
@@ -221,10 +229,17 @@ export async function handleBusinessHub(request,env) {
  }
  if(section==='auri'&&request.method==='POST') {
   const guard=await authorize(env.DB,org,user,'auri:use');const b=await readJson(request,4000);
-  if(!['diagnosis','next_action','simulation','task','guidance'].includes(b.tool))throw new ApiError(400,'Choose an authorized AURI tool.');
+  if(!['diagnosis','next_action','simulation','task','guidance','order_status'].includes(b.tool))throw new ApiError(400,'Choose an authorized AURI tool.');
   // Deterministic, narrowly scoped tools; no SQL, arbitrary tool names or provider output executes.
   const profile=JSON.parse((await env.DB.prepare('SELECT profile_json FROM organizations WHERE id=?').bind(org).first()).profile_json),analysis=diagnose(profile);
   const missions=currentRecommendations(await getMissions(env.DB,org),analysis),eligible=eligibleMissions(missions,profile);
+  if(b.tool==='order_status') {
+   const workspaceOwner=await env.DB.prepare(`SELECT id FROM organizations WHERE id=? AND owner_id=? AND ${guard.sql}`)
+    .bind(org,user.id,...guard.args).first();
+   if(!workspaceOwner)throw new ApiError(403,'Use your own workspace to check personal orders.');
+   const orders=await customerOrderSummary(env,user.id);
+   return json({mode:'rules',data:{orders:orders.slice(0,5)}});
+  }
   if(b.tool==='guidance') {
    if(typeof b.question!=='string'||!b.question.trim()||b.question.length>500||!['en','tr','fr','ar'].includes(b.lang))throw new ApiError(400,'Enter a short roadmap question.');
    const issue=b.question.trim();
