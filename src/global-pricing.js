@@ -43,8 +43,7 @@ export async function handleGlobalPricing(request,env) {
  const url=new URL(request.url),path=url.pathname;
  if(path==='/api/pricing'&&request.method==='GET') {
   const {engine,config,region,version}=await pricingFor(request,env);
-  const saved=(request.headers.get('Cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('aura-pricing-region='))?.split('=')[1];
-  const selectionNotice=saved&&(!Object.hasOwn(config.regions,saved)||!config.regions[saved].enabled)?'Your previous pricing region is unavailable. Showing '+config.regions[region].name+' prices.':!config.enabled?'Regional pricing is disabled. Showing '+config.regions[region].name+' prices.':null;
+  const selectionNotice=!config.enabled?'Regional pricing is disabled. Showing '+config.regions[region].name+' prices.':null;
   return json({selectionNotice,catalogue:engine.catalogue,region,currency:engine.catalogue.currency,version,regions:Object.entries(config.regions).filter(([,r])=>r.enabled).map(([id,r])=>({id,name:r.name,currency:r.currency}))},200,{'Cache-Control':'private, no-store','Vary':'Cookie'});
  }
  if(!path.startsWith('/api/admin/global-pricing'))return null;
