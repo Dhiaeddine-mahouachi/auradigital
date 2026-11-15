@@ -93,6 +93,7 @@
       "لنتحدث عن مشروعك",
     ],
     ["Çözümleri keşfet", "Explore solutions", "اكتشف الحلول"],
+    ["Büyüme yol haritanızı oluşturun ↗", "Build your growth roadmap ↗", "أنشئ خارطة نمو أعمالك ↗"],
     ["Tek dijital partner", "One digital partner", "شريك رقمي واحد"],
     [
       "Strategy · Creative · Technology · Growth",

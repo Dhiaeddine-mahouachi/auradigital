@@ -70,7 +70,7 @@ try {
   await page.getByRole('button', { name: 'Review changes' }).click(); await page.getByRole('button', { name: 'Save changes' }).click();
   await page.waitForURL('**/shop/cart'); await page.getByText('Updated Café', { exact: false }).waitFor();
   assert.equal(await page.locator('.shop-cart-row').count(), 1);
-  await page.getByRole('button', { name: 'Remove Oliva Bistro' }).click(); await page.getByRole('heading', { name: 'Your panier is ready for its first card.' }).waitFor();
+  await page.getByRole('button', { name: 'Remove Oliva Bistro' }).click(); await page.getByRole('heading', { name: 'Your cart is ready for its first card.' }).waitFor();
   await context.close();
 
   const checkout = await pageFor({ viewport: { width: 1440, height: 1000 } });

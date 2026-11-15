@@ -1,3 +1,4 @@
+import { customerReturnPath } from './customer-return.js';
 import { ApiError, json, readJson } from './http.js';
 import { authenticatedCustomer, tokenHash, signInCustomer, ensureCustomers } from './customer-accounts.ts';
 import { sameOrigin, hashPassword, validatePassword } from './security.js';
@@ -86,7 +87,7 @@ async function google(request,env) {
   const user=await authenticatedCustomer(request,env);
   if(user)await requireVerified(env.DB,user);
   const state=randomToken(),binding=randomToken(),verifier=randomToken(),nonce=randomToken();
-  await env.DB.batch([env.DB.prepare('DELETE FROM customer_oidc_flows WHERE expires_at<=?').bind(now()),env.DB.prepare('INSERT INTO customer_oidc_flows(state_hash,binding_hash,verifier,nonce,customer_id,expires_at,return_path) VALUES(?,?,?,?,?,?,?)').bind(await tokenHash(state),await tokenHash(binding),verifier,nonce,user?.id||null,now()+600,['/hub','/account','/shop/checkout'].includes(url.searchParams.get('next'))?url.searchParams.get('next'):(env.GROWTH_OS_ENABLED==='true'?'/hub':'/account'))]);
+  await env.DB.batch([env.DB.prepare('DELETE FROM customer_oidc_flows WHERE expires_at<=?').bind(now()),env.DB.prepare('INSERT INTO customer_oidc_flows(state_hash,binding_hash,verifier,nonce,customer_id,expires_at,return_path) VALUES(?,?,?,?,?,?,?)').bind(await tokenHash(state),await tokenHash(binding),verifier,nonce,user?.id||null,now()+600,customerReturnPath(url.searchParams.get('next'), env.GROWTH_OS_ENABLED==='true'?'/hub':'/account'))]);
   const u=new URL('https://accounts.google.com/o/oauth2/v2/auth');
   for(const [k,v] of Object.entries({client_id:env.GOOGLE_CLIENT_ID,redirect_uri:callback,response_type:'code',scope:'openid email profile',state,nonce,code_challenge:encode(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier)))),code_challenge_method:'S256',prompt:'select_account'}))u.searchParams.set(k,v);
   return new Response(null,{status:303,headers:{Location:u.toString(),'Set-Cookie':flowCookie(binding),'Cache-Control':'no-store'}});
@@ -119,7 +120,7 @@ async function google(request,env) {
  }
  // Never overwrite a changed email on an established account merely from Google's email.
  const signed=await signInCustomer(env,{id:user.id,email:user.email,name:user.name,profile:JSON.parse(user.profile_json)});
- const headers=new Headers({'Location':origin+(['/hub','/account','/shop/checkout'].includes(flow.return_path)?flow.return_path:'/account'),'Cache-Control':'no-store'});headers.append('Set-Cookie',signed.headers.get('Set-Cookie'));headers.append('Set-Cookie',flowCookie('',0));
+ const headers=new Headers({'Location':origin+customerReturnPath(flow.return_path, env.GROWTH_OS_ENABLED==='true'?'/hub':'/account'),'Cache-Control':'no-store'});headers.append('Set-Cookie',signed.headers.get('Set-Cookie'));headers.append('Set-Cookie',flowCookie('',0));
  return new Response(null,{status:303,headers});
 }
 export async function handleCustomerIdentity(request,env) {

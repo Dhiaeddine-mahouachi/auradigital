@@ -1,3 +1,4 @@
+import { customerReturnPath } from './customer-return.js';
 import { ApiError, json, readJson } from './http.js';
 import { getAuthenticatedAdmin, sameOrigin } from './security.js';
 import { categories, purposes, styles, quoteCart, type Theme } from './shop/model.ts';
@@ -148,6 +149,12 @@ export async function handleShop(request: Request, env: Env): Promise<Response |
   const orderPage = /^\/shop\/orders\/[a-f0-9-]{36}$/.test(path);
   if (path !== '/shop' && path !== '/shop/cart' && path !== '/shop/checkout' && !accountPage && !orderPage && !detail) return null;
   if (!['GET', 'HEAD'].includes(method)) return json({ error: 'Method not allowed.' }, 405);
+  if (env.GROWTH_OS_ENABLED === 'true' && (path === '/account/login' || path === '/account/signup')) {
+    const next = customerReturnPath(url.searchParams.get('next'), '');
+    const destination = new URL(path.replace('/account/', '/hub/'), url);
+    if (next) destination.searchParams.set('next', next);
+    return new Response(null, { status: 302, headers: { Location: destination.pathname + destination.search, 'Cache-Control': 'no-store' } });
+  }
   let theme: Theme | undefined;
   if (detail) {
     theme = (await catalog(env)).find(t => t.slug === detail[1]);

@@ -180,3 +180,26 @@ test('shop routing serves unique metadata, proper HEAD, canonical redirect and r
     for (const path of ['/shop', '/shop/', '/shop/cards/*', '/shop/cart']) assert.ok(config.assets.run_worker_first.includes(path));
   } finally { sqlite.close(); }
 });
+
+test('growth-enabled shop routes forward authentication to the Hub and retain only supported return destinations', async () => {
+  const { env, sqlite } = await shopFixture();
+  try {
+    env.GROWTH_OS_ENABLED = 'true';
+    const order = '/shop/orders/12345678-1234-1234-1234-123456789abc';
+    for (const [path, next, expected] of [
+      ['/account/login', '', '/hub/login'],
+      ['/account/login', '/shop/checkout', '/hub/login?next=%2Fshop%2Fcheckout'],
+      ['/account/signup', order, '/hub/signup?next=' + encodeURIComponent(order)],
+      ['/account/signup', 'https://example.test/shop/checkout', '/hub/signup'],
+    ]) {
+      const response = await handleShop(request(path + '?next=' + encodeURIComponent(next)), env);
+      assert.equal(response.status, 302);
+      assert.equal(response.headers.get('Location'), expected);
+    }
+    assert.equal((await handleShop(request('/account'), env)).status, 200);
+    env.GROWTH_OS_ENABLED = 'false';
+    assert.equal((await handleShop(request('/account/login'), env)).status, 200);
+  } finally {
+    sqlite.close();
+  }
+});
