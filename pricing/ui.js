@@ -464,32 +464,9 @@ function chatAnswer(key,lang=locale()){
 function publishContext(){W.AuraPricing={catalogue,currency:catalogue.currency,region:catalogue.region,version:catalogue.version,getItem,quote,chatAnswer,linkFor,selection:null};}
 publishContext();
 window.dispatchEvent(new CustomEvent('aura:pricingchange',{detail:{region:catalogue.region,currency:catalogue.currency}}));
-async function regionSelector(){
- const target=document.querySelector('#siteHeader .nav')||document.querySelector('header nav')||document.querySelector('header');
- if(!target||document.getElementById('auraPricingRegion'))return;
- const select=document.createElement('select');select.id='auraPricingRegion';select.setAttribute('aria-label','Pricing country and currency');select.className='aura-region-selector';
- for(const r of pricingData.regions){const o=document.createElement('option');o.value=r.id;o.textContent=r.name+' — '+r.currency;o.selected=r.id===catalogue.region;select.append(o);}
- select.addEventListener('change',async()=>{
-  select.disabled=true;const previous=catalogue.region;
-  try{
-   const response=await fetch('/api/pricing?region='+encodeURIComponent(select.value),{cache:'no-store'});
-   if(!response.ok)throw new Error('Pricing unavailable');
-   pricingData=await response.json();
-   ({catalogue,getItem,fmt,priceText,quote,firstYearWebsite,firstYearERP}=createPricingEngine(pricingData.catalogue));
-   document.cookie='aura-pricing-region='+encodeURIComponent(catalogue.region)+'; Path=/; Max-Age=31536000; SameSite=Lax; Secure';
-   const current=new URL(location.href);current.searchParams.delete('region');history.replaceState(null,'',current);
-   publishContext();refresh();
-   const message=document.querySelector('[data-contact-form] [name="message"]');
-   if(message?.value.startsWith('Pricing request (indicative'))message.value='';
-   contact();window.dispatchEvent(new CustomEvent('aura:pricingchange',{detail:{region:catalogue.region,currency:catalogue.currency}}));
-  }catch{select.value=previous;select.setAttribute('aria-label','Pricing unavailable. Please retry.');}
-  finally{select.disabled=false;}
- });
- target.append(select);
- if(pricingData.selectionNotice){const note=document.createElement('small');note.setAttribute('role','status');note.textContent=pricingData.selectionNotice;target.append(note);}
-}
+
 function refresh(){
- home();services();infra();ads();packages();websiteCards();websiteComparison();configurator();spinflow();regionSelector();
+ home();services();infra();ads();packages();websiteCards();websiteComparison();configurator();spinflow();
  document.querySelectorAll("[data-setting]").forEach(e=>{const id={nfc_price:"nfc-card",auramenu_self_price:"auramenu-self",qr_menu_price:"auramenu-managed",web_single_price:"launch",web_multi_price:"growth",web_dynamic_price:"system"}[e.dataset.setting];if(id)e.textContent=price(getItem(id));});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{refresh();contact();});
