@@ -275,3 +275,4 @@ auri-character[data-rendered] img{visibility:hidden}
  .growth-shell .auri-dock{bottom:calc(63px + env(safe-area-inset-bottom))}
  .growth-shell .workspace{padding-block-end:54px}
 }
+.skip:not(:focus){clip-path:inset(50%)}

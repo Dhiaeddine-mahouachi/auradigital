@@ -184,7 +184,12 @@ async function renderPage(){
   const ready=eligibleMissions(workspace.missions,workspace.profile);
   const existing=[...new Set([...(workspace.profile.capabilities||[]),...(workspace.profile.website?['website']:[])])];
   if(page==='services'){
-   const recommended=ready.filter(m=>m.route!=='alternative'&&missionGuide[m.capability]?.[0]).slice(0,3);
+   const recommendations=new Map();
+   for(const mission of ready){
+    const service=missionGuide[mission.capability]?.[0];
+    if(service&&mission.route!=='alternative'&&!recommendations.has(service))recommendations.set(service,mission);
+   }
+   const recommended=[...recommendations.values()].slice(0,3);
    content(`<section class="panel"><h2>${esc(command.recommended)}</h2>
     <div class="command-list">${recommended.map(m=>{
      const [service,benefit]=missionGuide[m.capability];

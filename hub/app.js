@@ -1156,7 +1156,12 @@ async function renderPage() {
     const ready = eligibleMissions(workspace.missions, workspace.profile);
     const existing = [.../* @__PURE__ */ new Set([...workspace.profile.capabilities || [], ...workspace.profile.website ? ["website"] : []])];
     if (page === "services") {
-      const recommended = ready.filter((m) => m.route !== "alternative" && missionGuide[m.capability]?.[0]).slice(0, 3);
+      const recommendations = /* @__PURE__ */ new Map();
+      for (const mission of ready) {
+        const service2 = missionGuide[mission.capability]?.[0];
+        if (service2 && mission.route !== "alternative" && !recommendations.has(service2)) recommendations.set(service2, mission);
+      }
+      const recommended = [...recommendations.values()].slice(0, 3);
       content(`<section class="panel"><h2>${esc2(command.recommended)}</h2>
     <div class="command-list">${recommended.map((m) => {
         const [service2, benefit] = missionGuide[m.capability];
