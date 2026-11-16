@@ -1,0 +1,95 @@
+/* AuraDigital / Emerald Gloss — all first-party public surfaces.
+   Do not alter customer artwork, QR codes, or invitation designs. */
+:root{--eg-bg:#0b1711;--eg-panel:#1e3829;--eg-panel-high:#294a38;--eg-ink:#f2f8ed;--eg-muted:#c1d3c0;--eg-line:rgba(208,241,203,.27);--eg-lime:#dfff4d;--eg-gloss:linear-gradient(121deg,rgba(233,255,218,.015),rgba(236,255,226,.11) 34%,rgba(236,255,226,.015) 51%,transparent 65%)}
+body.cinematic-enabled{
+--aura-bg:#0b1711;--aura-bg-2:#142b20;--aura-surface:#1b382a;--aura-surface-2:#244b35;--aura-surface-3:#2b543c;--aura-text:#f2f8ed;--aura-muted:#c1d3c0;--aura-line:var(--eg-line);--aura-accent:var(--eg-lime);--paper:var(--eg-bg);--ink:var(--eg-ink);--white:var(--eg-ink);
+color:var(--eg-ink);background:radial-gradient(ellipse at 85% 9%,rgba(113,174,132,.2),transparent 48%),linear-gradient(132deg,#09130e,#183326 53%,#0b1913);
+}
+body.cinematic-enabled .page-hero{color:var(--eg-ink);background:radial-gradient(ellipse at 84% 0%,rgba(134,188,150,.23),transparent 45%),linear-gradient(126deg,#0d1c14,#214330 48%,#0e2117)}
+body.cinematic-enabled .section:not(.aw-section){color:var(--eg-ink);background:radial-gradient(ellipse at 88% -10%,rgba(116,185,137,.13),transparent 44%),linear-gradient(128deg,#10241a,#183225 52%,#10241b)}
+body.cinematic-enabled .section.alt{background:radial-gradient(ellipse at 13% 8%,rgba(159,207,156,.19),transparent 47%),linear-gradient(126deg,#244633,#10281d 63%,#1e3a2b)}
+body.cinematic-enabled .cta-band{color:var(--eg-ink);background:radial-gradient(ellipse at 79% 0%,rgba(139,192,141,.17),transparent 45%),linear-gradient(121deg,#1b3e2d,#11291e 65%,#0d1f17)}
+body.cinematic-enabled :is(.service-card,.detail-card,.price-card,.visual-explainer,.contact-form,.contact-card,.tap-card,.project-card,.process-step,.business-flow,.work-showcase){
+background:var(--eg-gloss),linear-gradient(140deg,#264634,#132a20 80%);color:var(--eg-ink);border-color:var(--eg-line);box-shadow:inset 0 1px rgba(244,255,238,.06),0 17px 45px rgba(0,0,0,.13);
+}
+body.cinematic-enabled :is(.service-card,.detail-card,.price-card,.visual-explainer,.contact-form,.contact-card,.tap-card,.project-card,.process-step) :is(h2,h3,h4){color:var(--eg-ink)}
+body.cinematic-enabled :is(.service-card,.detail-card,.price-card,.visual-explainer,.contact-form,.contact-card,.tap-card,.project-card,.process-step) :is(p,small){color:var(--eg-muted)}
+body.cinematic-enabled :is(.field input,.field textarea,.field select,.chat-form input,.chat-quick button,.price-toggle,.price-toggle button){color:var(--eg-ink);background:#142c20;border-color:var(--eg-line)}
+body.cinematic-enabled :is(input,textarea)::placeholder{color:#a8beaa;opacity:1}
+body.cinematic-enabled :is(.field input,.field textarea,.field select):focus-visible{outline:2px solid var(--eg-lime);outline-offset:2px}
+body.cinematic-enabled :is(.cookie-consent,.chat-panel,.chat-message p,.chat-quick button,.lang-menu,.nav-products-menu,.nav-links.open){background:#203c2b;color:var(--eg-ink);border-color:var(--eg-line)}
+body.cinematic-enabled .menu-choice-card{background:var(--eg-gloss),linear-gradient(140deg,#274b34,#152d22);color:var(--eg-ink);border-color:var(--eg-line)}
+body.cinematic-enabled .menu-choice-card :is(h2,h3,p,label,legend,small){color:inherit}
+body.cinematic-enabled .menu-choice-card :is(.menu-choice-close,.menu-choice-action,.menu-choice-card fieldset label){background:#223c2d;color:var(--eg-ink);border-color:var(--eg-line)}
+body.cinematic-enabled .nav-products-menu{background:linear-gradient(139deg,#284936,#122a1d);color:var(--eg-ink)}
+
+/* Shop: replace all light storefront/account/checkout planes; preserve product artwork. */
+body.shop-page{
+--paper:#0f251a;--ink:#f1f7ec;--dark:#f1f7ec;--text:#f1f7ec;--text-muted:#c1d3c0;--muted:#c1d3c0;--line:var(--eg-line);--lime:var(--eg-lime);
+background:radial-gradient(ellipse at 90% 6%,rgba(119,190,151,.24),transparent 43%),linear-gradient(144deg,#0c1812,#1d3b2b 57%,#0b1b12);color:var(--eg-ink);
+}
+body.shop-page :is(h1,h2,h3,h4,.shop-product-meta strong,.shop-detail-copy .shop-price,.shop-unit-price,.shop-cart-total strong,.shop-checkout-total strong,.shop-order-link>strong,.shop-bank-card h2){color:var(--eg-ink)}
+body.shop-page :is(p,small,.shop-kicker,.shop-note,.shop-product-meta){color:var(--eg-muted)}
+body.shop-page #siteHeader,body.shop-page #siteHeader.scrolled{background:rgba(12,32,21,.97)!important;border-color:var(--eg-line)!important;box-shadow:0 8px 30px rgba(0,0,0,.21)!important}
+body.shop-page #siteHeader :is(.nav-links,.brand-name,.brand-name strong){color:var(--eg-ink)}
+body.shop-page :is(.shop-header-search,.shop-filters[data-open=true] .shop-filter-body,.shop-how,.shop-detail-art,.shop-cart-summary,.shop-auth,.shop-order-link,.shop-bank-card,.shop-note,.shop-dialog,.shop-payment-status,.shop-hero-card,.shop-toolbar,.nav-products-menu){
+color:var(--eg-ink);background:var(--eg-gloss),linear-gradient(139deg,#274835,#142d21);border-color:var(--eg-line)
+}
+body.shop-page .shop-product-stage,body.shop-page .shop-product:nth-child(2n) .shop-product-stage,body.shop-page .shop-product:nth-child(3n) .shop-product-stage{
+background:linear-gradient(137deg,#3b5c45,#1d352a 59%,#2b4535);border-color:var(--eg-line);box-shadow:0 12px 35px #0003
+}
+body.shop-page :is(.shop-filter-chips button,.shop-results-head select,.shop-search input,.shop-field input,.shop-field select,.shop-field textarea,.shop-cart-actions input,.shop-cart-actions .shop-quantity-step,.shop-skip,.shop-category-tabs button){
+color:var(--eg-ink);background:#1c3828;border-color:var(--eg-line)
+}
+body.shop-page :is(input,textarea)::placeholder{color:#afc5b1;opacity:1}
+body.shop-page .shop-field select option{background:#153022;color:#f1f8ee}
+body.shop-page .shop-field :is(input:disabled,input[readonly]){background:#293e30;color:#d0dfcc}
+body.shop-page .shop-payment-status{color:var(--eg-ink)!important}
+body.shop-page .shop-badge{background:#294333;color:#ecf6e5}
+body.shop-page .shop-primary,body.shop-page .shop-cart-toggle [data-cart-count]{background:var(--eg-lime);color:#13200f!important;border-color:var(--eg-lime)}
+body.shop-page .shop-primary:hover{background:#edff93;color:#13200f!important}
+body.shop-page .customer-access-bar{background:#244631;border-color:var(--eg-line)}
+body.shop-page .customer-access-bar a{color:#f2f8ee}
+body.shop-page :is(.shop-field input,.shop-field select,.shop-field textarea,.shop-results-head select):focus-visible{outline:2px solid var(--eg-lime);outline-offset:2px}
+body.shop-page :is(.shop-error,[role="alert"]){color:#ffbbb0}
+
+/* AuraHub already has a dark theme. Give surfaces the matching emerald sheen. */
+body:has(.aurahub-shell),body:has(.command-gate),body:has(.command-setup){background:#0b1711;color:var(--eg-ink)}
+.aurahub-shell{--hub-canvas:#102219;--hub-surface:#1b3527;--hub-raised:#284534;--hub-border:#4a6850;background:radial-gradient(ellipse at 77% 8%,rgba(141,206,161,.15),transparent 46%),linear-gradient(139deg,#0d1b14,#1b3528 60%,#0c1911)}
+.aurahub-shell :is(.sidebar,.hub-topbar){background:linear-gradient(132deg,#13291e,#0c1c15);border-color:var(--eg-line)}
+.aurahub-shell :is(.panel,.hub-page-start),.aurahub-shell .hub-home-grid .hub-service-links>a{background:var(--eg-gloss),linear-gradient(139deg,#263f2d,#13271e);border-color:var(--eg-line)}
+.command-gate-header{background:linear-gradient(135deg,#183020,#0f2118);border-color:var(--eg-line)}
+.command-gate :is(.auth-intro,.auth-panel),.command-setup :is(.mode-card,.setup-heading){background:var(--eg-gloss),linear-gradient(136deg,#25402d,#172d22);border-color:var(--eg-line)}
+.command-gate :is(.field input,.secondary),.command-setup :is(.field input,.field select,.field textarea,.secondary){background:#1b3526;color:#f2f8ed;border-color:var(--eg-line)}
+
+/* NFC card builder and payment/order status. Original card colors and QR remain unchanged. */
+body:has(.builder-shell),body:has(.status-shell){
+--paper:#0e2117;--card:#213e2b;--ink:#f2f8ed;--muted:#bbd0bd;--line:var(--eg-line);
+color:var(--eg-ink);background:radial-gradient(ellipse at 83% 5%,rgba(118,191,144,.22),transparent 47%),linear-gradient(134deg,#0d1d14,#21412e 56%,#0e1d15)
+}
+body:has(.builder-shell) .builder-header{background:rgba(17,38,26,.95);border-color:var(--eg-line)}
+body:has(.builder-shell) :is(.builder-brand,.back-link,.builder-intro h1,.section-copy h2,.section-copy p,.fields label,.order-total,.order-total b){color:var(--eg-ink)}
+body:has(.builder-shell) :is(.form-card,.type-option,.language-switch,.palette,.success-card),
+body:has(.status-shell) :is(.status-card,.status-card dl div,.payment-panel){color:var(--eg-ink);background:var(--eg-gloss),linear-gradient(135deg,#2a4d37,#162d23);border-color:var(--eg-line)}
+body:has(.builder-shell) :is(.fields input,.fields textarea,.fields select){background:#183527;color:var(--eg-ink);border-color:var(--eg-line)}
+body:has(.builder-shell) :is(input,textarea)::placeholder{color:#b1c6b0;opacity:1}
+body:has(.builder-shell) :is(.language-switch button,.type-option,.palette){color:var(--eg-ink)}
+body:has(.builder-shell) :is(.language-switch button.active,.type-option:has(input:checked)){background:#335e43;color:#f8ffef;border-color:#c2ef9d}
+body:has(.builder-shell) :is(.section-number,.type-icon,.success-icon){background:#2c503b;color:#dcff9d}
+body:has(.status-shell) :is(.status-card h1,.status-card dd,.payment-panel-head strong,.payment-row b,.payment-row code,.status-actions a){color:var(--eg-ink)}
+body:has(.status-shell) :is(.payment-panel-head span,.status-card dt,.payment-row small){color:#d2e8cd}
+body:has(.status-shell) .payment-panel>p{color:#f4d39c!important}
+body:has(.status-shell) .payment-buttons button{background:#274630;border-color:var(--eg-line);color:var(--eg-ink)}
+body:has(.status-shell) .payment-buttons a{background:var(--eg-lime);color:#14220f}
+
+/* Weddings showcase marketing. Preserve white intentionally inside actual invitation previews. */
+body[data-page="auraweddings"] .aw-ivory{
+background:var(--eg-gloss),linear-gradient(131deg,#224431,#152d23 52%,#274637);
+color:var(--eg-ink);border-color:var(--eg-line)}
+body[data-page="auraweddings"] .aw-ivory :is(h2,h3,p,.aw-language-list){color:var(--eg-ink)}
+body[data-page="auraweddings"] .aw-ivory .aw-primary{background:var(--eg-lime);color:#14200e!important}
+body[data-page="auraweddings"] .aw-personalizer :is(input,select,textarea){background:#19392a;color:#eff7ed;border-color:var(--eg-line)}
+body[data-page="auraweddings"] .aw-personalizer :is(input,select,textarea)::placeholder{color:#b3c9b3}
+
+/* Minimal static shine; no animation or interfering glass overlays. */
+@media(prefers-reduced-motion:reduce){body.shop-page .shop-product-stage,.aurahub-shell .panel,body.cinematic-enabled .service-card{animation:none!important;transition:none!important}}
