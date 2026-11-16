@@ -34,6 +34,13 @@ jobs:
       - name: Audit live desktop and mobile landing imagery (diagnostic)
         continue-on-error: true
         run: LANDING_ORIGIN=https://auradigitalworks.com node scripts/test-landing-images-browser.mjs
+      - name: Validate landing images with local production assets
+        run: |
+          python3 -m http.server 4191 --bind 127.0.0.1 > /tmp/auradigital-landing-images.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4191/ > /dev/null
+          LANDING_ORIGIN=http://127.0.0.1:4191 node scripts/test-landing-images-browser.mjs
       - name: Test private draft customer interactions
         run: |
           PORT=5173 node scripts/dev-hub.mjs > /tmp/hub-menu-qa.log 2>&1 &
