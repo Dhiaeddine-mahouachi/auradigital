@@ -386,3 +386,38 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
  .vision-auri-portrait .auri{width:86px;height:95px}
 }
 @media(prefers-reduced-motion:reduce){.vision-stage-button{transition:none}}
+
+.auri-setup {
+ --setup-text: #f6f7f8;
+ --setup-muted: #a6a8ad;
+ --setup-accent: #dfff43;
+ min-height: calc(100svh - 76px);
+ padding: clamp(2rem, 8vh, 6rem) 1rem 3rem;
+ background: #101113;
+ color: var(--setup-text);
+}
+.auri-setup-heading, .auri-setup-form { width: min(100%, 44rem); margin-inline: auto; }
+.auri-setup-heading { text-align: center; margin-bottom: 2rem; }
+.auri-setup-character { display: grid; place-items: center; margin: 0 auto 1rem; }
+.auri-setup-character img { width: 64px; height: 64px; object-fit: contain; }
+.auri-setup h1 { margin: 0; font-size: clamp(2rem, 6vw, 3.6rem); line-height: 1.05; letter-spacing: -.035em; }
+.auri-setup-heading p { margin: 1rem auto 0; max-width: 33rem; color: var(--setup-muted); }
+.auri-setup-composer { background: #1c1e21; border: 1px solid #34363a; border-radius: 1.1rem; padding: 1rem; }
+.auri-setup-composer:focus-within { border-color: var(--setup-accent); }
+.auri-setup textarea { display: block; width: 100%; resize: vertical; background: transparent; color: inherit; border: 0; padding: .5rem; font: inherit; }
+.auri-setup textarea:focus { outline: 0; }
+.auri-setup-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.auri-setup-actions [type="submit"] { margin-inline-start: auto; }
+.auri-setup .primary { background: var(--setup-accent); color: #101113; border-color: var(--setup-accent); }
+.auri-setup .secondary { cursor: pointer; background: #25272b; color: var(--setup-text); border-color: #34363a; }
+.auri-setup :is(button, label):focus-within { outline-offset: 3px; }
+.auri-setup label:has([type="file"]:focus-visible) { outline: 2px solid var(--setup-accent); }
+.auri-setup-review { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem 1rem; }
+.auri-setup .field :is(input, select) { background: #1c1e21; color: var(--setup-text); border-color: #34363a; }
+.auri-setup small, .auri-setup [role="status"] { color: var(--setup-muted); overflow-wrap: anywhere; }
+.auri-setup [role="alert"] { color: #ff9c9c; }
+.auri-setup [role]:empty { display: none; }
+@media (max-width: 36rem) {
+ .auri-setup-review { grid-template-columns: 1fr; }
+ .auri-setup-actions [type="submit"] { width: 100%; }
+}

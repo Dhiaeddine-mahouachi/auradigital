@@ -1,3 +1,4 @@
+import { createOnboarding, renderOnboarding } from './onboarding.js';
 import { blueprintLabels, commandLabels } from './blueprint-copy.js';
 import { missionAlternative } from '../mission-routes.js';
 import { auriCharacter, connectAuri } from './auri-companion.js';
@@ -16,7 +17,7 @@ let me=null,workspaces=[],workspace=null,page='home',editing=false,mode='myself'
 let route=location.pathname.split('/')[2]||'',flowToken=new URLSearchParams(location.hash.slice(1)).get('token')||'';
 const returnPath=['login','signup','forgot'].includes(route)?customerReturnPath(new URLSearchParams(location.search).get('next'),''):'';
 const authQuery=returnPath?'?'+new URLSearchParams({next:returnPath}):'';
-let authCapabilities={};
+let authCapabilities={}, firstLogin=null;
 function resumeShop(){
  if(!returnPath||returnPath==='/hub')return false;
  location.replace(returnPath);
@@ -62,7 +63,28 @@ function field(key,label,value='',type='text',extra='') {return `<label class="f
 const select=(key,label,options,value)=>`<label class="field">${esc(t(label))}<select name="${key}">${options.map(([v,l])=>`<option value="${esc(v)}" ${v===value?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
 function languageControl(){return `<label class="language"><span class="sr-only">Language</span><select id="language" aria-label="Language">${[['en','EN · English'],['ar','AR · العربية'],['fr','FR · Français'],['tr','TR · Türkçe']].map(([v,l])=>`<option value="${v}" ${lang===v?'selected':''}>${l}</option>`).join('')}</select></label>`;}
 function bindCommon(){document.querySelector('#language')?.addEventListener('change',async e=>{clearTimeout(saveTimer);if(editing&&workspace)await persistProfile();lang=e.target.value;localStorage.setItem('aura-hub-language',lang);render();});}
-function render(){disconnectAuri();disconnectDesk();document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';app.setAttribute('aria-busy','false');if(!me||['verify','reset','forgot','invitation'].includes(route)){renderGate();return;}if(!workspace||editing){renderSetup();return;}renderShell();}
+function render(){disconnectAuri();disconnectDesk();document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';app.setAttribute('aria-busy','false');if(!me||['verify','reset','forgot','invitation'].includes(route)){renderGate();return;}if(!workspace&&!workspaces.length){openFirstLogin();return;}if(!workspace||editing){renderSetup();return;}renderShell();}
+function openFirstLogin(){
+ firstLogin??=createOnboarding();
+ renderOnboarding({
+  app,state:firstLogin,lang,t,esc,robot,
+  header:'<header class="gate-header command-gate-header"><a href="/" class="wordmark">Aura <span>Command</span></a>'+languageControl()+'</header>',
+  bind:()=>{bindCommon();bindAuri(document.querySelector('.auri-setup-character'),setupScope);},
+  analyze:text=>api('/api/hub/onboarding/analyze','POST',{text}),
+  complete:async(values,requestId)=>{
+   const profile={...emptyProfile(),...values};
+   const created=await api('/api/hub/workspaces','POST',{profile,mode:'auri',requestId});
+   const next=await api('/api/hub/workspaces/'+created.id);
+   workspace=next;
+   workspaces=[{id:created.id,name:next.organization.name,mode:'auri',owner:true}];
+   firstLogin=null;
+   page='home';
+   render();
+   document.querySelector('#main').focus();
+   pulseAuri(created.id,'success');
+  },
+ });
+}
 function gateFrame(content){app.innerHTML=`<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">Aura <span>Command</span></a>${languageControl()}</header><main id="main" class="gate command-gate">${content}</main>`;bindCommon();}
 async function renderGate(){
  if(route==='invitation'&&me){gateFrame(`<section class="panel">${robot()}<h1>${t('inviteAccept')}</h1><div id="invitation-content" role="status">…</div></section>`);try{const data=await api('/api/hub/invitations/preview','POST',{token:flowToken}),i=data.invitation;document.querySelector('#invitation-content').innerHTML=`<h2>${esc(i.business)}</h2><p>${esc(i.email)} · ${esc(t(i.role))}</p><p>${esc(i.message)}</p><p>${t('permissions')}: ${esc(i.permissions.join(', '))}</p><p>${esc(new Date(i.expiresAt*1000).toLocaleString(lang))}</p><p class="warning">${t('blocked')}</p><form id="accept-invitation"><label class="check"><input type="checkbox" name="consent" required>${t('recurringConsent')}</label><button class="primary">${t('inviteAccept')}</button></form>`;document.querySelector('#accept-invitation').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/hub/invitations/accept','POST',{token:flowToken,acceptInvitation:true,acceptRecurring:true,consentVersion:'seat-5-usd-month-v1'});flowToken='';toast(t('awaiting'));document.querySelector('#invitation-content').textContent=t('blocked');}catch(e){toast(e.message);}};}catch(e){document.querySelector('#invitation-content').textContent=e.message;document.querySelector('#invitation-content').append(Object.assign(document.createElement('a'),{href:'/hub/settings',textContent:t('settings')}));}return;}
