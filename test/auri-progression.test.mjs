@@ -145,7 +145,7 @@ test('Auri bootstraps the additive schema on an existing workspace and keeps cus
  const {auriSchema}=await import('../src/auri-schema.js');
  const files=['0030_auri_milestones','0031_auri_preferences','0032_auri_drafts','0033_mission_evidence'];
  const migrations=await Promise.all(files.map(name=>readFile(new URL(`../migrations/${name}.sql`,import.meta.url),'utf8')));
- assert.equal(auriSchema,migrations.map(sql=>sql.trim()).join('\n'));
+ assert.equal(auriSchema.replace(/\r\n/g,'\n'),migrations.map(sql=>sql.trim().replace(/\r\n/g,'\n')).join('\n'));
  const {call,sqlite,user}=await hubFixture();
  const owner=await user('release-owner@example.test');
  const created=await call('/api/hub/workspaces',owner,'POST',{mode:'auri',profile:profile('Existing business')});
