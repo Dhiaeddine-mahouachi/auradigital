@@ -295,32 +295,51 @@ function home(){
  const data=[
  ["Websites & Development","/websites"],
  ["Website Management","/packages"],
- ["Hosting & Security","/services#infrastructure"],
- ["Advertising & Growth","/services#advertising"],
+ ["Hosting & Security","/contact?service=pricing&plan=standard-infra"],
+ ["Advertising & Growth","/contact?service=pricing&plan=basic-ads"],
  ["Business Systems & ERP","/spinflow"],
  ["Dashboards & Automation","/websites#web-addons"]
  ];
  target.innerHTML='<div class="aura-price-mini-grid">'+data.map(([name,href])=>
  '<a class="aura-price-mini" href="'+href+'"><span>'+safe(t(name))+'</span><span aria-hidden="true">↗</span></a>').join("")+'</div>';
 }
+
+const serviceIconPaths={
+  web:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/>',
+  ads:'<path d="m4 10 15-5v14L4 14v-4Z"/><path d="m7 15 2 6h4l-3-5"/>',
+  care:'<path d="M12 3 4.5 6v5.5c0 5 3 8 7.5 9.5 4.5-1.5 7.5-4.5 7.5-9.5V6L12 3Z"/><path d="m9 12 2 2 4-4"/>',
+  hosting:'<rect x="4" y="3" width="16" height="8" rx="2"/><rect x="4" y="13" width="16" height="8" rx="2"/><path d="M8 7h.01M8 17h.01M12 7h5M12 17h5"/>',
+  email:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+  erp:'<rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>',
+  seo:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8 12l2-2 2 1 3-3"/>',
+  ai:'<rect x="5" y="7" width="14" height="13" rx="3"/><path d="M12 3v4M9 3h6M9 13h.01M15 13h.01M9 17h6"/>',
+  brand:'<path d="m12 2 2.7 7.3L22 12l-7.3 2.7L12 22l-2.7-7.3L2 12l7.3-2.7L12 2Z"/>',
+  nfc:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 10v4m3-5a5 5 0 0 1 0 6m3-8a8 8 0 0 1 0 10"/>',
+  weddings:'<path d="M20.8 4.6a5.3 5.3 0 0 0-7.5 0L12 5.9l-1.3-1.3a5.3 5.3 0 0 0-7.5 7.5L12 21l8.8-8.9a5.3 5.3 0 0 0 0-7.5Z"/>'
+};
+const serviceIcon=key=>'<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">'+(serviceIconPaths[key]||serviceIconPaths.web)+'</svg>';
 function services(){
  const target=$('[data-pricing-view="services"]');if(!target)return;
  const items=[
- ["Web Design & Development","launch","/websites","⌘","Business websites, landing pages and web applications."],
- ["Google & Meta Ads","basic-ads","#advertising","↗","Campaign setup, conversion tracking and management."],
- ["Website Care","essential-care","/packages","◎","Website maintenance, uptime checks and defined monthly updates."],
- ["Hosting & Security","standard-infra","#infrastructure","◇","Domain, DNS, SSL, hosting and baseline protection."],
- ["Business Email","business-email","#infrastructure","✉","Business mailbox setup; provider subscriptions are separate."],
- ["ERP & systems","spinflow-start","/spinflow","▣","Cloud SaaS and scoped custom ERP for business operations."],
- ["SEO & Google Maps",null,"/contact?service=SEO","⌖","Local visibility, Google Business profile and on-page SEO."],
- ["AI & Automation",null,"/contact?service=AI%20%26%20Automation","✦","Lead routing, WhatsApp flows and scoped workflow automation."],
- ["Brand & Creative Direction",null,"/contact?service=Brand%20Design","◈","Identity systems, creative direction and advertising assets."],
- ["NFC & QR","nfc-card","/nfc","◉","NFC cards, digital menus and smart customer experiences."],
- ["AuraWeddings",null,"/aura-weddings","♡","Interactive wedding invitations, themes and RSVP."]
+  ["Web Design & Development","launch","/websites","web","Business websites, landing pages and web applications."],
+  ["Google & Meta Ads","basic-ads","/contact?service=pricing&plan=basic-ads","ads","Campaign setup, conversion tracking and management."],
+  ["Website Care","essential-care","/packages","care","Website maintenance, uptime checks and defined monthly updates."],
+  ["Hosting & Security","standard-infra","/contact?service=pricing&plan=standard-infra","hosting","Domain, DNS, SSL, hosting and baseline protection."],
+  ["Business Email","business-email","/contact?service=pricing&plan=business-email","email","Business mailbox setup; provider subscriptions are separate."],
+  ["ERP & systems","spinflow-start","/spinflow","erp","Cloud SaaS and scoped custom ERP for business operations."],
+  ["SEO & Google Maps",null,"/contact?service=SEO","seo","Local visibility, Google Business profile and on-page SEO."],
+  ["AI & Automation",null,"/contact?service=AI%20%26%20Automation","ai","Lead routing, WhatsApp flows and scoped workflow automation."],
+  ["Brand & Creative Direction",null,"/contact?service=Brand%20Design","brand","Identity systems, creative direction and advertising assets."],
+  ["NFC & QR","nfc-card","/nfc","nfc","NFC cards, digital menus and smart customer experiences."],
+  ["AuraWeddings",null,"/aura-weddings","weddings","Interactive wedding invitations, themes and RSVP."]
  ];
  target.innerHTML=items.map(([name,id,url,icon,description])=>
- '<article class="service-card reveal in"><div><div class="service-icon">'+icon+'</div><h3>'+safe(t(name))+'</h3><p>'+safe(t(description))+'</p><p class="aura-price-service">'+(id?safe(price(getItem(id))):safe(t("Request Quote")))+
- '</p>'+(id==="spinflow-start"?'<p class="aura-price-footnote">'+safe(locale()==="tr"?"Özel ERP: ":"Custom ERP: ")+safe(price(getItem("erp-essential")))+'</p>':'')+'<a class="service-link" href="'+safe(url)+'">'+safe(t("Explore"))+' ↗</a></div></article>').join("");
+  '<article class="service-card reveal in"><div class="service-card-content">'+
+  '<div class="service-icon">'+serviceIcon(icon)+'</div><h3>'+safe(t(name))+'</h3>'+
+  '<p class="service-description">'+safe(t(description))+'</p>'+
+  '<div class="service-card-bottom"><p class="aura-price-service">'+(id?safe(price(getItem(id))):safe(t("Request Quote")))+'</p>'+
+  (id==="spinflow-start"?'<p class="aura-price-footnote">'+safe(locale()==="tr"?"Özel ERP: ":"Custom ERP: ")+safe(price(getItem("erp-essential")))+'</p>':'')+
+  '<a class="service-link" href="'+safe(url)+'">'+safe(t("Explore"))+' <span aria-hidden="true">↗</span></a></div></div></article>').join("");
 }
 function infra(){
  const target=$('[data-pricing-view="infrastructure"]');if(!target)return;
@@ -452,8 +471,8 @@ function chatAnswer(key,lang=locale()){
  if(key==="web")return (tr?"Web sitesi paketleri: ":"Website packages: ")+lines(a.website)+". /websites";
  if(key==="package")return (tr?"Aylık bakım planları: ":"Monthly care plans: ")+lines(a.care)+". /packages. "+(tr?"Barındırma ayrı.":"Hosting separate.");
  if(key==="erp")return (tr?"Spinflow SaaS (planlanan): ":"Spinflow SaaS (planned): ")+lines(a.saas)+". "+(tr?"Özel ERP: ":"Custom ERP: ")+lines(a.erp)+". /spinflow";
- if(key==="advertising")return lines(a.advertising)+". "+(tr?"Medya bütçesi hariç. /services#advertising":"Media spend excluded. /services#advertising");
- if(key==="infrastructure")return lines(a.infrastructure)+". /services#infrastructure";
+ if(key==="advertising")return lines(a.advertising)+". "+(tr?"Medya bütçesi hariç. /services#service-offerings":"Media spend excluded. /services#service-offerings");
+ if(key==="infrastructure")return lines(a.infrastructure)+". /services#service-offerings";
  if(key==="email")return lines(a.infrastructure.filter(x=>["business-email","additional-email"].includes(x.id)))+". "+(tr?"Abonelikler ayrı.":"Mailbox subscriptions separate.");
  if(key==="dashboard")return lines(a.websiteAddons)+". "+(tr?"Uyumlu paketler: Growth ve üstü.":"Eligibility: Growth or above, CRM from System.");
  return null;
