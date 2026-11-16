@@ -139,3 +139,21 @@ test('Existing website evidence can enter review without creating a purchase req
  assert.equal(after.evidence[missionId],'pending');
  assert.equal(after.auri.verifiedMilestones,0);
 });
+
+test('Auri bootstraps the additive schema on an existing workspace and keeps customer data',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const {auriSchema}=await import('../src/auri-schema.js');
+ const files=['0030_auri_milestones','0031_auri_preferences','0032_auri_drafts','0033_mission_evidence'];
+ const migrations=await Promise.all(files.map(name=>readFile(new URL(`../migrations/${name}.sql`,import.meta.url),'utf8')));
+ assert.equal(auriSchema,migrations.map(sql=>sql.trim()).join('\n'));
+ const {call,sqlite,user}=await hubFixture();
+ const owner=await user('release-owner@example.test');
+ const created=await call('/api/hub/workspaces',owner,'POST',{mode:'auri',profile:profile('Existing business')});
+ const {id}=await created.json();
+ sqlite.exec('DROP TABLE mission_evidence; DROP TABLE auri_drafts; DROP TABLE auri_preferences; DROP TABLE auri_verified_milestones;');
+ const first=await call('/api/hub/workspaces/'+id,owner);
+ assert.equal(first.status,200);
+ assert.equal((await first.json()).profile.name,'Existing business');
+ const next=await call('/api/hub/workspaces/'+id+'/auri',owner,'PATCH',{name:'Pebble',hidden:false});
+ assert.equal(next.status,200);
+});

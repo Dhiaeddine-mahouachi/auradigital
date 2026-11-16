@@ -1,3 +1,4 @@
+import { ensureAuriSchema } from './auri-schema.js';
 import { changeMissionRoute, submitMissionEvidence, workspaceEvidence } from './mission-evidence.js';
 import { auriPreferences, saveAuriPreferences } from './auri-preferences.js';
 import { auriProgress } from './auri-progression.js';
@@ -140,6 +141,9 @@ export async function handleBusinessHub(request,env) {
  if(!match)throw new ApiError(404,'Not found.');
  const [,org,section,item]=match;
  await authorize(env.DB,org,user);
+ if((!section&&request.method==='GET')||['auri','mission-route','mission-evidence','existing-evidence'].includes(section)){
+  await ensureAuriSchema(env.DB);
+ }
  if(!section&&request.method==='GET'){
   const guard=accessGuard(env.DB,org,user),o=await env.DB.prepare(`SELECT id,name,profile_json,mode,version,owner_id FROM organizations WHERE id=? AND ${guard.sql}`).bind(org,...guard.args).first();
   if(!o)throw new ApiError(404,'Workspace unavailable.');

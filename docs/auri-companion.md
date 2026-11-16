@@ -76,8 +76,7 @@ through its normal interaction shows the evolution or milestone animation.
 1. Run `npm run check`, `npm test`, and `npm run deploy:check`.
 2. Start the local in-memory fixture with `PORT=4173 node scripts/dev-hub.mjs` and run
    `node scripts/test-hub-browser.mjs` with Chromium installed.
-3. Apply D1 migrations `0030_auri_milestones.sql` through `0033_mission_evidence.sql` before
-   enabling the new Worker build. These migrations create tables for verified outcomes,
-   member preferences, saved drafts and evidence reviews.
-4. Merge through the established GitHub workflow. Confirm the Cloudflare production
-   deployment and smoke-test `/hub`, the same-origin assets, and the workspace API.
+3. Merge through the established GitHub workflow. On the first authenticated use, the
+   Worker initializes the additive schema from migrations 0030–0033 through its D1
+   binding. Wrangler can still record the idempotent migrations in its ledger later.
+4. Confirm Cloudflare production and smoke-test the Hub and its same-origin assets.

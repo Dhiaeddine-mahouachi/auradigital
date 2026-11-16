@@ -1,3 +1,4 @@
+import { ensureAuriSchema } from './auri-schema.js';
 import { reviewMissionEvidence } from './mission-evidence.js';
 import { verifyAuriMilestone } from "./auri-progression.js";
 import { json, readJson } from "./http.js";
@@ -103,6 +104,7 @@ export async function handleAdminWorkspace(request, env) {
 
   if (url.pathname === "/api/admin/workspace/mission-evidence") {
     if (env.GROWTH_OS_ENABLED !== "true") return json({ error: "Business Hub unavailable." }, 404);
+    await ensureAuriSchema(env.DB);
     if (request.method === "GET") {
       const { results } = await env.DB.prepare(`SELECT e.id,o.name AS business,e.mission_title,e.outcome,e.proof,e.created_at
         FROM mission_evidence e JOIN organizations o ON o.id=e.organization_id
@@ -114,6 +116,7 @@ export async function handleAdminWorkspace(request, env) {
 
   if (url.pathname === "/api/admin/workspace/auri-milestones" && request.method === "POST") {
     if (env.GROWTH_OS_ENABLED !== "true") return json({ error: "Business Hub unavailable." }, 404);
+    await ensureAuriSchema(env.DB);
     const { status, error } = await verifyAuriMilestone(env.DB, admin, await readJson(request, 1500));
     return json(error ? { error } : { verified: true }, status, { "Cache-Control": "no-store" });
   }
