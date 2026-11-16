@@ -41,6 +41,13 @@ jobs:
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4191/ > /dev/null
           LANDING_ORIGIN=http://127.0.0.1:4191 node scripts/test-landing-images-browser.mjs
+      - name: Test single colorful Before and After comparison at four viewports
+        run: |
+          python3 -m http.server 4193 --bind 127.0.0.1 > /tmp/aura-comparison-preview.log 2>&1 &
+          compare_server_pid=$!
+          trap 'kill "$compare_server_pid" 2>/dev/null || true' EXIT
+          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4193/index.html > /dev/null
+          COMPARE_TEST_ORIGIN=http://127.0.0.1:4193 node scripts/test-home-comparison-browser.mjs
       - name: Test Portfolio scroll animation and imagery on desktop and mobile
         run: |
           python3 -m http.server 4192 --bind 127.0.0.1 > /tmp/portfolio-preview.log 2>&1 &
@@ -67,6 +74,14 @@ jobs:
         with:
           name: private-menu-draft-screenshots
           path: test-output/menu-drafts-*.png
+          if-no-files-found: ignore
+
+      - name: Preserve Before and After screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aura-before-after-screenshots
+          path: test-output/aura-comparison-*.png
           if-no-files-found: ignore
 
       - name: Preserve Portfolio screenshots
