@@ -508,7 +508,7 @@ assistantScript.type = "module";
 assistantScript.src = "/assistant/ui.js?v=ai-recovery-20261013";
 document.head.appendChild(assistantScript);
 const i18nScript = document.createElement("script");
-i18nScript.src = "/i18n.js?v=site-copy-2";
+i18nScript.src = "/i18n.js?v=site-copy-3";
 document.head.appendChild(i18nScript);
 
 

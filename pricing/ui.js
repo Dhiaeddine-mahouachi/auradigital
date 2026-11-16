@@ -254,7 +254,11 @@ const featuresTR = {
 "Advertising & Growth":"Reklam ve Büyüme","Business Systems & ERP":"İş Sistemleri ve ERP",
 "Dashboards & Automation":"Yönetim Panelleri ve Otomasyon",
 };
-function t(value){ if(locale()!=="tr") return value; return tr[value] || featuresTR[value] || W.AuraI18n?.translate(value) || value; }
+function t(value) {
+  const lang = locale();
+  if (lang === "tr") return tr[value] || featuresTR[value] || W.AuraI18n?.translate(value) || value;
+  return lang === "ar" ? W.AuraI18n?.translate(value) || value : value;
+}
 const safe=s=>String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
 const money=n=>fmt(n,locale());
 const price=p=>priceText(p,locale());

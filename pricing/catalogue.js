@@ -69,14 +69,25 @@ export const groups = ["website","care","infrastructure","advertising","saas","s
 export function createPricingEngine(catalogue) {
   for(const g of groups) for(const p of catalogue[g]) {if(p.price===null)p.price=NaN;if(p.annualHosting===null)p.annualHosting=NaN;}
 const getItem = id => groups.flatMap(g => catalogue[g]).find(p => p.id === id) || null;
+const priceCopy = {
+ en: { quote: "Request Quote", from: "From ", month: "/month", year: "/year", number: "en-US" },
+ tr: { quote: "Teklif iste", from: "Başlangıç ", month: "/ay", year: "/yıl", number: "tr-TR" },
+ ar: { quote: "اطلب عرض سعر", from: "ابتداءً من ", month: " شهريًا", year: " سنويًا", number: "ar" },
+};
+const wording = lang => Object.hasOwn(priceCopy, lang) ? priceCopy[lang] : priceCopy.en;
 const fmt = (number, lang="en") => {
-  if (!Number.isFinite(number)) return lang==="tr"?"Teklif iste":"Request Quote";
+  if (!Number.isFinite(number)) return wording(lang).quote;
   const currency=catalogue.currency;
   const digits=currency==="TND"?3:2;
-  const value=new Intl.NumberFormat(lang==="tr"?"tr-TR":"en-US",{maximumFractionDigits:digits}).format(number);
+  const value=new Intl.NumberFormat(wording(lang).number,{maximumFractionDigits:digits}).format(number);
   return currency==="TRY"?value+" TL":currency==="TND"?value+" DT":({USD:"$",EUR:"€",GBP:"£"}[currency]||currency+" ")+value;
 };
-const priceText = (item, lang="en") => !Number.isFinite(item.price) ? (lang==="tr"?"Teklif iste":"Request Quote") : (item.from ? (lang==="tr"?"Başlangıç ":"From ") : "")+fmt(item.price,lang)+(item.billing==="month"? (lang==="tr"?"/ay":"/month") : item.billing==="year"?(lang==="tr"?"/yıl":"/year"):"");
+const priceText = (item, lang="en") => {
+  const words = wording(lang);
+  if (!Number.isFinite(item.price)) return words.quote;
+  return (item.from ? words.from : "") + fmt(item.price, lang) +
+    (item.billing === "month" ? words.month : item.billing === "year" ? words.year : "");
+};
 const firstYearWebsite = (id, infra = true) => {
   const plan = catalogue.website.find(p => p.id === id);
   if (!plan) throw new Error("Unknown website plan");
