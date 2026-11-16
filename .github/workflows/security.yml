@@ -55,6 +55,13 @@ jobs:
           trap 'kill "$portfolio_server_pid" 2>/dev/null || true' EXIT
           curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4192/portfolio.html > /dev/null
           PORTFOLIO_TEST_ORIGIN=http://127.0.0.1:4192 node scripts/test-portfolio-browser.mjs
+      - name: Verify Emerald Gloss contrast surfaces on representative pages
+        run: |
+          python3 -m http.server 4195 --bind 127.0.0.1 > /tmp/emerald-theme.log 2>&1 &
+          theme_pid=$!
+          trap 'kill "$theme_pid" 2>/dev/null || true' EXIT
+          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4195/ > /dev/null
+          AURA_THEME_TEST_ORIGIN=http://127.0.0.1:4195 node scripts/test-emerald-gloss-browser.mjs
       - name: Test private draft customer interactions
         run: |
           PORT=5173 node scripts/dev-hub.mjs > /tmp/hub-menu-qa.log 2>&1 &
