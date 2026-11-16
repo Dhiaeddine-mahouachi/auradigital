@@ -33,18 +33,10 @@ if (header) {
       "",
     )}<a class="mobile-account-link" href="/account/login">My account</a></div><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Language" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">EN</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Let's Talk <span>↗</span></a><a class="nav-account" href="/account/login">Sign in</a><button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button></div>`;
 }
-const productsToggle = document.querySelector(".nav-products-toggle");
-productsToggle?.addEventListener("click", () => productsToggle.setAttribute("aria-expanded", String(productsToggle.getAttribute("aria-expanded") !== "true")));
-document.addEventListener("click", event => { if (!event.target.closest(".nav-products")) productsToggle?.setAttribute("aria-expanded", "false"); });
-document.addEventListener("keydown", event => { if (event.key === "Escape") productsToggle?.setAttribute("aria-expanded", "false"); });
 if (page === "shop" && header) {
   const nav = header.querySelector(".nav");
   const links = header.querySelector(".nav-links");
   links.innerHTML = `<a href="/">Home</a><a class="active" href="/shop">Shop</a>${links.querySelector(".nav-products").outerHTML}<a href="/about">About</a><a href="/shop#how-it-works">How It Works</a><a href="/contact">Contact</a><a href="/account">My account</a>`;
-  const toggle = links.querySelector(".nav-products-toggle");
-  toggle.addEventListener("click", () => toggle.setAttribute("aria-expanded", String(toggle.getAttribute("aria-expanded") !== "true")));
-  document.addEventListener("click", e => { if (!e.target.closest(".nav-products")) toggle.setAttribute("aria-expanded", "false"); });
-  document.addEventListener("keydown", e => { if (e.key === "Escape") toggle.setAttribute("aria-expanded", "false"); });
   header.querySelector(".lang-switcher").remove(); header.querySelector(".nav-cta").remove();
   nav.insertAdjacentHTML("beforeend", `<form class="shop-header-search" action="/shop"><label><span class="shop-sr-only">Search NFC cards</span><input type="search" name="search" placeholder="Search NFC cards…"></label><button aria-label="Search cards">⌕</button></form>`);
   header.insertAdjacentHTML("afterend", '<nav class="customer-access-bar" aria-label="Customer account"><a href="/account/login">Sign in</a><a href="/account/signup">Create account ↗</a></nav>');
@@ -88,8 +80,46 @@ onScroll();
 addEventListener("scroll", onScroll, { passive: true });
 const menuBtn = document.getElementById("menuBtn"),
   navLinks = document.getElementById("navLinks");
+const products = navLinks?.querySelector(".nav-products");
+const productsToggle = products?.querySelector(".nav-products-toggle");
+const desktopHover = matchMedia("(min-width: 821px) and (any-hover: hover)");
+let productsPinned = false;
+const productsOpen = () => productsToggle?.getAttribute("aria-expanded") === "true";
+function setProductsOpen(open) {
+  productsToggle?.setAttribute("aria-expanded", String(open));
+  if (!open) productsPinned = false;
+}
+products?.addEventListener("pointerenter", event => {
+  if (desktopHover.matches && event.pointerType === "mouse" && !navLinks.classList.contains("open")) {
+    setProductsOpen(true);
+  }
+});
+products?.addEventListener("pointerleave", event => {
+  if (event.pointerType === "mouse" && !productsPinned && !products.contains(document.activeElement)) {
+    setProductsOpen(false);
+  }
+});
+productsToggle?.addEventListener("click", () => {
+  productsPinned = !productsPinned;
+  setProductsOpen(productsPinned);
+});
+products?.addEventListener("focusout", event => {
+  if (!products.contains(event.relatedTarget)) setProductsOpen(false);
+});
+document.addEventListener("click", event => {
+  if (products && !products.contains(event.target)) setProductsOpen(false);
+});
+document.addEventListener("keydown", event => {
+  if (event.key !== "Escape" || !productsOpen()) return;
+  const focusWasInside = products.contains(document.activeElement);
+  setProductsOpen(false);
+  if (focusWasInside) productsToggle.focus();
+});
+desktopHover.addEventListener("change", () => setProductsOpen(false));
+
 menuBtn?.addEventListener("click", () => {
   const open = navLinks.classList.toggle("open");
+  if (!open) setProductsOpen(false);
   menuBtn.setAttribute("aria-expanded", String(open));
   menuBtn.textContent = open ? "×" : "☰";
 });
