@@ -76,4 +76,46 @@
       selectFeature(featureButtons[next].dataset.hubFeature,true);
     });
   });
+
+  const comparison = document.querySelector('[data-business-compare]');
+  const slider = comparison?.querySelector('[data-compare-slider]');
+  if (slider) {
+    const updateComparison = () => {
+      const value = slider.valueAsNumber;
+      comparison.style.setProperty('--hx-split', value + '%');
+      slider.setAttribute('aria-valuetext', value + '% before, ' + (100 - value) + '% with AuraHub');
+    };
+    slider.addEventListener('input', updateComparison);
+    updateComparison();
+  }
+
+  const portrait = document.querySelector('[data-landing-auri]');
+  if (portrait && window.matchMedia) {
+    const motion = matchMedia('(prefers-reduced-motion: reduce)');
+    const hero = portrait.closest('.ac-hero');
+    const reset = () => portrait.style.removeProperty('--hx-look');
+    hero?.addEventListener('pointermove', event => {
+      if (motion.matches || event.pointerType !== 'mouse' || portrait.hasAttribute('data-rendered')) return;
+      const bounds = portrait.getBoundingClientRect();
+      const offset = (distance, size) => Math.max(-8, Math.min(8, distance / Math.max(size, 180) * 8));
+      const x = offset(event.clientX - bounds.left - bounds.width / 2, bounds.width);
+      const y = offset(event.clientY - bounds.top - bounds.height / 2, bounds.height);
+      portrait.style.setProperty('--hx-look', x + 'px, ' + y + 'px');
+    }, {passive:true});
+    hero?.addEventListener('pointerleave', reset);
+    motion.addEventListener('change', reset);
+    if (!motion.matches && 'IntersectionObserver' in window && window.WebGL2RenderingContext && !navigator.connection?.saveData) {
+      const observer = new IntersectionObserver(async ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        try {
+          const { mountAuri } = await import('/media/auri/viewer.js?v=idle-motion-2');
+          if (portrait.isConnected && !motion.matches) await mountAuri(portrait);
+        } catch {
+          // The portrait remains available on browsers without hardware rendering.
+        }
+      });
+      observer.observe(portrait);
+    }
+  }
 })();

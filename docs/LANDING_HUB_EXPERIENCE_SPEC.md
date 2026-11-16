@@ -102,3 +102,7 @@ The public landing page is the introduction to the **same product** that custome
 - Every CTA goes to an existing route.
 - No dead buttons, no broken images, no horizontal overflow at mobile widths.
 - No regression of Hub auth/production data.
+
+## Replacing the landing examples
+
+Store screenshots under `media/landing/` and update the corresponding `data-image-slot` in `index.html`. The `website` and `menu` slots already contain screenshot images. For `automation` and `email`, replace the example markup inside the slot with an image and concise alt text. For `before` and `after`, replace the two preview windows with equal-size screenshots taken at the same viewport width. Update the text below the comparison to describe the screenshots. The landing has no upload form.
