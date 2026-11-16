@@ -55,13 +55,13 @@ test("service pages load shared pricing while the homepage stays roadmap-first",
   const html=name=>readFileSync(new URL("../"+name+".html",import.meta.url),"utf8");
   for(const name of ["services","packages","websites","spinflow","contact"]){
     const page=html(name);
-    assert.match(page,/pricing\\/ui\\.js/);
-    assert.match(page,/<footer id="siteFooter">/);
+    assert.ok(page.includes("pricing/ui.js"));
+    assert.ok(page.includes('<footer id="siteFooter">'));
   }
   assert.match(html("index"),/Build my roadmap/i);
-  assert.doesNotMatch(html("index"),/pricing\\/ui\\.js/);
+  assert.ok(!html("index").includes("pricing/ui.js"));
   assert.doesNotMatch(html("packages"), /3[.,]590|5[.,]590|7[.,]590|data-weekly|data-price-mode/);
-  assert.doesNotMatch(html("services"), /Social Media &amp; Content|1 Sayfa · 5\\.000/);
+  assert.doesNotMatch(html("services"), /Social Media &amp; Content|1 Sayfa/);
 });
 test("contact API stores server-verified pricing and rejects invented prices", async () => {
   const sqlite=new DatabaseSync(":memory:");
