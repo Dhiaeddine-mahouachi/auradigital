@@ -24,8 +24,8 @@ test('palette uses several complementary hues and light/dark section contrast',(
   for(const component of ['.ac-hero','.ac-feature-strip','.hx-persona','.ac-how','.ac-partner','.hx-inside','.bc-section','.ac-final','.pf-hero','.pf-platform','.service-card']){
     assert.ok(css.includes(component),'missing component '+component);
   }
-  assert.match(css,/\.ac-how \.ac-flow-step:nth-child\(2\)/);
-  assert.match(css,/\.ac-how \.ac-flow-step:nth-child\(3\)/);
+  assert.ok(css.includes('.ac-how .ac-flow-step:nth-child(2)'));
+  assert.ok(css.includes('.ac-how .ac-flow-step:nth-child(3)'));
   assert.match(css,/\.ac-final h2/);
 });
 
