@@ -1,0 +1,439 @@
+/* AuraDigital | Luminous public palette 2026-11-16
+   A balanced light/dark rhythm for public marketing pages only.
+   Signed-in AuraHub, admin, checkout, and application tokens are untouched. */
+body.cinematic-enabled {
+  --shine-ink:#18362b;
+  --shine-ivory:#f8f9f2;
+  --shine-sage:#ebf2e8;
+  --shine-mint:#e6f5ee;
+  --shine-blue:#a4d6ef;
+  --shine-teal:#79dfd0;
+  --shine-peach:#f4ceaa;
+  --shine-lime:#e1e100;
+}
+/* Keep familiar dark navigation while adding a very fine glass reflection. */
+body.cinematic-enabled .nav-cta,
+body.cinematic-enabled .btn-primary {
+  background:linear-gradient(112deg,#e1e100 0%,#f4f58b 48%,#e1e100 100%);
+  border-color:#e1e100;
+  box-shadow:0 3px 18px rgba(225,225,0,.14),inset 0 1px rgba(255,255,255,.47);
+}
+body.cinematic-enabled #siteFooter {
+  background:linear-gradient(145deg,#102c23 0%,#0a1a17 60%,#0a1113 100%);
+  border-top:1px solid rgba(156,220,187,.23);
+}
+body.cinematic-enabled .cinema-footer-marquee {
+  background:linear-gradient(95deg,#1a3930,#233c39,#24351f);
+  border-color:rgba(147,211,170,.22);
+}
+/* HOME: subtle ambient colors; the real interface stays readable. */
+body[data-page="home"] .aura-home {
+  --shine-main:#18362b;
+  background:#0b1414;
+}
+body[data-page="home"] .aura-home .ac-hero {
+  background:
+    radial-gradient(ellipse 51% 74% at 95% 23%,rgba(123,222,205,.22),transparent 70%),
+    radial-gradient(ellipse 39% 50% at 4% 15%,rgba(149,185,240,.12),transparent 72%),
+    radial-gradient(ellipse 53% 46% at 48% 98%,rgba(225,225,0,.10),transparent 72%),
+    linear-gradient(123deg,#101d22,#12261f 55%,#0d1512);
+}
+body[data-page="home"] .aura-home .ac-ambient--one {
+  background:rgba(125,221,205,.17);
+}
+body[data-page="home"] .aura-home .ac-ambient--two {
+  background:rgba(162,194,236,.12);
+}
+body[data-page="home"] .aura-home .ac-stage-glow {
+  background:radial-gradient(ellipse,rgba(126,232,208,.24),rgba(225,225,0,.09) 45%,transparent 72%);
+  filter:blur(38px);
+}
+body[data-page="home"] .aura-home .ac-app {
+  border-color:rgba(166,232,207,.42);
+  box-shadow:0 40px 100px rgba(2,15,11,.55),
+             0 0 62px rgba(107,220,190,.14),
+             inset 0 1px rgba(245,255,248,.19);
+}
+body[data-page="home"] .aura-home .ac-app-overview {
+  background:linear-gradient(136deg,#2a4539 0%,#242e21 60%,#202d2b 100%);
+}
+body[data-page="home"] .aura-home .ac-auri-bubble {
+  background:linear-gradient(145deg,#233b37,#1e2b23);
+  border-color:rgba(126,221,202,.48);
+  box-shadow:0 16px 48px rgba(0,0,0,.23),inset 0 1px rgba(255,255,255,.09);
+}
+body[data-page="home"] .aura-home .ac-btn--primary {
+  background:linear-gradient(110deg,#e1e100,#f3f49e 46%,#e1e100);
+  border-color:#e1e100;
+  box-shadow:0 9px 31px rgba(225,225,0,.23),inset 0 1px rgba(255,255,255,.53);
+}
+/* A light sage separator gives the first strong change of atmosphere. */
+body[data-page="home"] .aura-home .ac-feature-strip {
+  background:linear-gradient(100deg,#eff6ed,#e4f3e8 52%,#eaf0df);
+  border-block:1px solid rgba(43,93,67,.16);
+}
+body[data-page="home"] .aura-home .ac-feature-strip span {
+  color:#294a3a;
+  font-weight:760;
+}
+body[data-page="home"] .aura-home .ac-feature-strip i {
+  color:#357d65;
+}
+/* EXPERIENCE: ivory canvas around a still-dark, actual Hub-style preview. */
+body[data-page="home"] .aura-home .hx-persona {
+  background:
+    radial-gradient(ellipse 42% 66% at 94% 12%,rgba(117,205,187,.20),transparent 75%),
+    linear-gradient(140deg,#fafaf5 0%,#eff6ed 57%,#f1f4ed 100%);
+  border-top-color:rgba(21,58,37,.13);
+  color:var(--shine-ink);
+}
+body[data-page="home"] .aura-home .hx-persona .hx-section-head h2 {
+  color:#18392c;
+}
+body[data-page="home"] .aura-home .hx-persona .hx-section-head h2 em {
+  color:#257d65;
+}
+body[data-page="home"] .aura-home .hx-persona .hx-kicker {
+  color:#317d64;
+}
+body[data-page="home"] .aura-home .hx-persona .hx-section-head>p,
+body[data-page="home"] .aura-home .hx-persona .hx-persona-foot {
+  color:#506a59;
+}
+body[data-page="home"] .aura-home .hx-persona-choice {
+  color:#193a2b;
+  border-color:rgba(70,115,85,.22);
+  background:rgba(255,255,255,.78);
+  box-shadow:0 8px 29px rgba(37,83,55,.06),inset 0 1px rgba(255,255,255,.88);
+}
+body[data-page="home"] .aura-home .hx-persona-choice:hover {
+  background:#fff;
+  border-color:#87c0a3;
+}
+body[data-page="home"] .aura-home .hx-persona-choice.is-active {
+  background:linear-gradient(120deg,#e8f9d9,#f4fae8);
+  border-color:#81b980;
+  box-shadow:inset 3px 0 #388c6e,0 13px 30px rgba(44,125,86,.12);
+}
+body[data-page="home"] .aura-home .hx-persona-choice small {
+  color:#587160;
+}
+body[data-page="home"] .aura-home .hx-persona-choice>b {
+  color:#397c64;
+}
+body[data-page="home"] .aura-home .hx-persona-icon {
+  background:#dff1e6;
+  border-color:#a1d1b3;
+  color:#267b61;
+}
+body[data-page="home"] .aura-home .hx-persona-preview {
+  color:#eff4e9;
+  background:#172820;
+  border-color:rgba(69,153,123,.55);
+  box-shadow:0 26px 80px rgba(28,79,57,.18),0 0 46px rgba(69,153,125,.07);
+}
+/* JOURNEY: brighter mint, ivory and soft-blue cards with dark accessible text. */
+body[data-page="home"] .aura-home .ac-how {
+  background:linear-gradient(138deg,#e5f2ee 0%,#f6f8f0 50%,#e9f0f9 100%);
+  color:#18392d;
+  border-top-color:rgba(38,93,69,.15);
+}
+body[data-page="home"] .aura-home .ac-how .ac-section-heading h2 {
+  color:#18362c;
+}
+body[data-page="home"] .aura-home .ac-how .ac-section-heading h2 em {
+  color:#287d6b;
+}
+body[data-page="home"] .aura-home .ac-how .ac-label {
+  color:#386d61;
+}
+body[data-page="home"] .aura-home .ac-how .ac-section-heading>p {
+  color:#466658;
+}
+body[data-page="home"] .aura-home .ac-flow-step {
+  color:#1b392c;
+  background:linear-gradient(151deg,#fff,#f4faf4);
+  border:1px solid rgba(54,112,78,.19);
+  box-shadow:0 17px 50px rgba(46,81,63,.09),inset 0 1px #fff;
+}
+body[data-page="home"] .aura-home .ac-flow-step:nth-child(2) {
+  background:linear-gradient(149deg,#f9fcff,#e9f3fc);
+  border-color:rgba(67,125,181,.22);
+}
+body[data-page="home"] .aura-home .ac-flow-step:nth-child(3) {
+  background:linear-gradient(151deg,#fffefa,#fff1e6);
+  border-color:rgba(176,121,71,.22);
+}
+body[data-page="home"] .aura-home .ac-flow-step h3 {
+  color:#173729;
+}
+body[data-page="home"] .aura-home .ac-flow-step p {
+  color:#526758;
+}
+body[data-page="home"] .aura-home .ac-flow-step .ac-flow-num,
+body[data-page="home"] .aura-home .ac-flow-step .ac-flow-symbol {
+  color:#2b866c;
+}
+body[data-page="home"] .aura-home .ac-flow-step .ac-flow-symbol {
+  background:linear-gradient(140deg,#d9f3e5,#e0f1fc);
+  border:1px solid rgba(56,143,120,.2);
+}
+body[data-page="home"] .aura-home .ac-flow-step:nth-child(2) .ac-flow-num,
+body[data-page="home"] .aura-home .ac-flow-step:nth-child(2) .ac-flow-symbol {
+  color:#377cb1;
+}
+body[data-page="home"] .aura-home .ac-flow-step:nth-child(3) .ac-flow-num,
+body[data-page="home"] .aura-home .ac-flow-step:nth-child(3) .ac-flow-symbol {
+  color:#aa6c36;
+}
+/* AURI: a cobalt-teal nighttime studio makes the assistant look alive. */
+body[data-page="home"] .aura-home .ac-partner {
+  background:
+    radial-gradient(ellipse 58% 71% at 89% 25%,rgba(106,183,224,.16),transparent 70%),
+    radial-gradient(ellipse 54% 54% at 9% 86%,rgba(109,234,192,.11),transparent 75%),
+    linear-gradient(137deg,#13252b,#10201e 63%,#101b22);
+}
+body[data-page="home"] .aura-home .ac-partner h2 em {
+  color:#a4d6ef;
+}
+body[data-page="home"] .aura-home .ac-partner .ac-label {
+  color:#91dfcf;
+}
+body[data-page="home"] .aura-home .ac-partner .ac-partner-choices>div>span {
+  color:#99dfee;
+  background:rgba(110,211,224,.10);
+  border:1px solid rgba(124,217,226,.18);
+}
+body[data-page="home"] .aura-home .ac-partner .ac-partner-choices>div:nth-child(2)>span {
+  color:#e0c6ff;
+  background:rgba(182,143,226,.10);
+}
+body[data-page="home"] .aura-home .ac-chat-showcase {
+  background:linear-gradient(150deg,#1e3031,#1a232b);
+  border-color:rgba(150,218,231,.35);
+  box-shadow:0 35px 95px rgba(0,10,20,.38),0 0 45px rgba(121,211,226,.09);
+}
+body[data-page="home"] .aura-home .ac-chat-line--user {
+  background:#304b5a;
+}
+body[data-page="home"] .aura-home .ac-chat-line--auri {
+  background:#24443f;
+  border-color:rgba(127,219,191,.23);
+}
+/* Real Hub section retains dark interface fidelity, but not flat black scenery. */
+body[data-page="home"] .aura-home .hx-inside {
+  background:
+    radial-gradient(ellipse 48% 58% at 92% 16%,rgba(132,202,233,.15),transparent 74%),
+    radial-gradient(ellipse 50% 65% at 3% 87%,rgba(128,217,180,.12),transparent 74%),
+    linear-gradient(142deg,#0f1c20,#14291f 69%,#102019);
+}
+body[data-page="home"] .aura-home .hx-inside .hx-section-head h2 em {
+  color:#a4d6ef;
+}
+body[data-page="home"] .aura-home .hx-real-hub-showcase,
+body[data-page="home"] .aura-home .hx-hub-frame {
+  border-color:rgba(140,221,204,.4);
+  box-shadow:0 28px 95px rgba(0,12,14,.4),0 0 58px rgba(108,203,185,.09);
+}
+/* The multicolored before/after board gets illumination, not more cards. */
+body[data-page="home"] .aura-home .bc-section {
+  background:
+    radial-gradient(ellipse 50% 75% at 95% 12%,rgba(137,186,255,.13),transparent 72%),
+    radial-gradient(ellipse 42% 58% at 4% 95%,rgba(122,223,206,.13),transparent 74%),#10191a;
+}
+body[data-page="home"] .aura-home .bc-board {
+  border-color:rgba(135,213,187,.48);
+  box-shadow:0 30px 95px rgba(1,19,20,.48),0 0 56px rgba(124,213,207,.10);
+}
+/* SHOWCASE: a warm ivory gallery behind saturated real project screenshots. */
+body[data-page="home"] .aura-home .hx-showcase {
+  background:
+    radial-gradient(ellipse 45% 55% at 92% 5%,rgba(240,197,153,.20),transparent 72%),
+    linear-gradient(135deg,#f9f8f2,#eff6ee 61%,#ecf0ec);
+  border-top-color:rgba(51,105,74,.14);
+  color:#183629;
+}
+body[data-page="home"] .aura-home .hx-showcase .hx-kicker {
+  color:#477b69;
+}
+body[data-page="home"] .aura-home .hx-showcase .hx-section-head h2 {
+  color:#1b392e;
+}
+body[data-page="home"] .aura-home .hx-showcase .hx-section-head h2 em {
+  color:#38876d;
+}
+body[data-page="home"] .aura-home .hx-showcase .hx-section-head>p,
+body[data-page="home"] .aura-home .hx-showcase-bottom {
+  color:#506d5c;
+}
+body[data-page="home"] .aura-home .hx-showcase-card {
+  color:#f1f6ed;
+  background:linear-gradient(165deg,#1b3030,#17251d);
+  border-color:rgba(58,119,102,.38);
+  box-shadow:0 18px 50px rgba(32,70,55,.12),inset 0 1px rgba(255,255,255,.08);
+}
+body[data-page="home"] .aura-home .hx-showcase-card:nth-child(2) {
+  border-color:rgba(70,151,140,.5);
+}
+body[data-page="home"] .aura-home .hx-showcase-card:nth-child(3) {
+  border-color:rgba(99,147,194,.45);
+}
+body[data-page="home"] .aura-home .hx-showcase-card:nth-child(4) {
+  border-color:rgba(190,143,185,.45);
+}
+body[data-page="home"] .aura-home .hx-showcase-card:hover {
+  box-shadow:0 26px 68px rgba(27,70,55,.22),0 0 22px rgba(80,196,168,.10);
+}
+body[data-page="home"] .aura-home .hx-showcase-bottom a {
+  color:#247b62;
+}
+/* FINAL: bright editorial landing, contrasting with a forest-green CTA. */
+body[data-page="home"] .aura-home .ac-final {
+  background:
+    radial-gradient(ellipse 63% 65% at 50% 100%,rgba(225,225,0,.31),transparent 75%),
+    radial-gradient(ellipse 43% 55% at 0% 0%,rgba(119,209,190,.23),transparent 72%),
+    linear-gradient(135deg,#f9faf2,#ecf5e9 59%,#f4f5d9);
+  color:#18362b;
+}
+body[data-page="home"] .aura-home .ac-final .ac-label {
+  color:#38745c;
+}
+body[data-page="home"] .aura-home .ac-final h2 {
+  color:#183b2c;
+}
+body[data-page="home"] .aura-home .ac-final h2 em {
+  color:#2b8669;
+}
+body[data-page="home"] .aura-home .ac-final p {
+  color:#476454;
+}
+body[data-page="home"] .aura-home .ac-final-foot {
+  color:#557260;
+}
+body[data-page="home"] .aura-home .ac-btn--final {
+  background:linear-gradient(111deg,#164936,#236b52);
+  border-color:#1b553f;
+  color:#fff!important;
+  box-shadow:0 15px 35px rgba(33,101,73,.22),inset 0 1px rgba(255,255,255,.2);
+}
+body[data-page="home"] .aura-home .ac-btn--final:hover {
+  background:linear-gradient(111deg,#246a51,#32866b);
+}
+/* Portfolio already has intentional ivory and lime sections: just a little more depth. */
+body[data-page="portfolio"] .pf-hero {
+  background:
+    radial-gradient(ellipse 48% 68% at 90% 12%,rgba(124,214,195,.17),transparent 72%),
+    radial-gradient(ellipse 42% 56% at 8% 92%,rgba(135,182,236,.13),transparent 76%),
+    linear-gradient(145deg,#10211e,#0b1717);
+}
+body[data-page="portfolio"] .pf-stories {
+  background:
+    radial-gradient(ellipse at 95% 16%,rgba(145,196,221,.08),transparent 55%),
+    linear-gradient(160deg,#0d1916,#142921 48%,#101a1e);
+}
+body[data-page="portfolio"] .pf-platform {
+  background:
+    radial-gradient(ellipse 45% 55% at 93% 11%,rgba(158,202,251,.17),transparent 75%),
+    linear-gradient(145deg,#101c23,#152e28);
+}
+body[data-page="portfolio"] .pf-story-life,
+body[data-page="portfolio"] .pf-product {
+  border-color:rgba(148,216,189,.30);
+  box-shadow:0 16px 54px rgba(0,0,0,.20);
+}
+/* Services: shift the whole backdrop slightly cool and illuminate service surfaces. */
+body[data-page="services"] .service-network {
+  background:
+    radial-gradient(ellipse at 89% 17%,rgba(119,210,199,.12),transparent 54%),
+    linear-gradient(135deg,#101d22,#173024);
+}
+body[data-page="services"] .service-card {
+  box-shadow:0 12px 37px rgba(2,17,12,.16),inset 0 1px rgba(240,255,244,.045);
+}
+body[data-page="services"] .service-card:nth-child(3n+1) {
+  border-color:rgba(127,221,196,.31);
+}
+body[data-page="services"] .service-card:nth-child(3n+2) {
+  border-color:rgba(161,193,234,.30);
+}
+body[data-page="services"] .service-card:nth-child(3n) {
+  border-color:rgba(227,199,148,.28);
+}
+/* Supporting pages: more colorful depth without changing their component contracts. */
+body.cinematic-enabled:is([data-page="about"],[data-page="websites"],[data-page="contact"]) .page-hero {
+  background:
+    radial-gradient(ellipse 51% 77% at 87% 22%,rgba(127,214,193,.18),transparent 78%),
+    radial-gradient(ellipse 43% 65% at 2% 95%,rgba(138,177,232,.13),transparent 76%),
+    linear-gradient(141deg,#10251c,#132925 60%,#102126);
+}
+/* AuraMenu and Packages were designed with dark copy on light heroes; retain that contrast. */
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero {
+  background:
+    radial-gradient(ellipse 57% 75% at 88% 17%,rgba(132,215,184,.34),transparent 74%),
+    radial-gradient(ellipse 40% 65% at 8% 92%,rgba(246,208,154,.28),transparent 75%),
+    linear-gradient(140deg,#f8f9eb,#edf5e9 60%,#e8f3ee);
+  color:#173b2b;
+  border-color:rgba(37,91,64,.18);
+}
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero p,
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero .crumb,
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero .crumb a {
+  color:#466a55;
+}
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero .display {
+  color:#18372a;
+}
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero .eyebrow {
+  color:#39765b;
+}
+body.cinematic-enabled:is([data-page="about"],[data-page="websites"],[data-page="contact"]) .section.alt {
+  background:linear-gradient(142deg,#153428,#1b3338);
+}
+body.cinematic-enabled:is([data-page="about"],[data-page="websites"],[data-page="contact"]) .detail-card:nth-child(3n+1) {
+  background:linear-gradient(150deg,#1a3a34,#122b23);
+}
+body.cinematic-enabled:is([data-page="about"],[data-page="websites"],[data-page="contact"]) .detail-card:nth-child(3n+2) {
+  background:linear-gradient(145deg,#203647,#152a2b);
+}
+body.cinematic-enabled:is([data-page="about"],[data-page="websites"],[data-page="contact"]) .detail-card:nth-child(3n) {
+  background:linear-gradient(145deg,#3a352a,#222d25);
+}
+body.cinematic-enabled .cta-box {
+  background:
+    radial-gradient(ellipse 49% 65% at 90% 18%,rgba(138,226,207,.16),transparent 73%),
+    radial-gradient(ellipse 48% 55% at 4% 95%,rgba(237,205,133,.11),transparent 75%),
+    linear-gradient(135deg,#193d30,#102b25 70%,#122932);
+  border:1px solid rgba(147,214,183,.24);
+  box-shadow:0 26px 80px rgba(0,15,14,.21),inset 0 1px rgba(255,255,255,.06);
+}
+/* Static sheen catches light; no page-wide animation or distracting flicker. */
+body.cinematic-enabled .btn-primary:focus-visible,
+body[data-page="home"] .ac-btn:focus-visible {
+  outline:3px solid #9be4ce;
+  outline-offset:3px;
+}
+@media (max-width:760px) {
+  body[data-page="home"] .aura-home .ac-hero {
+    background:radial-gradient(ellipse at 90% 12%,rgba(114,220,197,.18),transparent 65%),
+               linear-gradient(145deg,#111e22,#0f201a);
+  }
+  body[data-page="home"] .aura-home .hx-persona,
+  body[data-page="home"] .aura-home .ac-how,
+  body[data-page="home"] .aura-home .hx-showcase {
+    background-image:linear-gradient(150deg,#f5faf4,#edf4ef);
+  }
+  body[data-page="home"] .aura-home .ac-final {
+    background-image:linear-gradient(145deg,#f7f9ee,#e9f3dd);
+  }
+  body[data-page="home"] .aura-home .ac-flow-step {
+    box-shadow:0 9px 24px rgba(36,95,63,.08);
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  body.cinematic-enabled .btn-primary,
+  body[data-page="home"] .aura-home .ac-btn--primary,
+  body[data-page="home"] .aura-home .ac-btn--final,
+  body[data-page="home"] .aura-home .hx-showcase-card {
+    transition:none;
+  }
+}
