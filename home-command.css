@@ -291,3 +291,13 @@ body[data-page="home"] main{overflow:clip}
  .aura-home .ac-auri-float{animation:none}
  .aura-home .ac-app,.aura-home .ac-btn,.aura-home .ac-flow-step,.aura-home .ac-solution{transition:none;transform:none!important}
 }
+
+/* Keep consent accessible without letting three stacked buttons obscure the mobile hero. */
+@media(max-width:700px){
+ body[data-page="home"] .cookie-consent{padding:13px 14px;gap:11px;border-radius:16px;bottom:10px}
+ body[data-page="home"] .cookie-copy{gap:10px}
+ body[data-page="home"] .cookie-icon{flex-basis:27px;width:27px;height:27px}
+ body[data-page="home"] .cookie-copy p{font-size:.66rem;line-height:1.4}
+ body[data-page="home"] .cookie-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ body[data-page="home"] .cookie-actions .btn{font-size:.62rem;line-height:1.15;white-space:normal;padding:9px 5px;min-height:41px;border-radius:12px}
+}
