@@ -11,204 +11,104 @@
     />
     <link rel="icon" href="auradigital-mark-20260928.png" type="image/png" />
     <link rel="manifest" href="site.webmanifest" />
-    <script>
-      (() => {
-        const key = 'auraDigitalIntroSeen';
-        let returning = false;
-        try { returning = sessionStorage.getItem(key) === '1'; sessionStorage.setItem(key, '1'); } catch (_) {}
-        try { if (document.referrer && new URL(document.referrer).origin === location.origin) returning = true; } catch (_) {}
-        const navigation = performance.getEntriesByType('navigation')[0];
-        if (navigation?.type === 'back_forward') returning = true;
-        if (returning) document.documentElement.classList.add('aura-intro-seen');
-        addEventListener('pageshow', event => {
-          if (event.persisted) { document.documentElement.classList.add('aura-intro-seen'); document.getElementById('landingLoader')?.remove(); }
-        });
-      })();
-    </script>
-    <style>
-      html.aura-intro-seen #landingLoader{display:none!important}
-      /* Inline so the loader covers the homepage before external files or scripts finish. */
-      html{background:#080808}
-      #landingLoader{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#080808;color:#111114;opacity:1;visibility:visible;animation:loader-safety 4.6s step-end forwards}
-      #landingLoader .cinema-loader-lockup{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,3vmin,28px)}
-      #landingLoader .cinema-loader-orb{width:clamp(230px,56vmin,480px);aspect-ratio:1;position:relative;display:block;overflow:hidden;border-radius:50%;background:#ffff00}
-      #landingLoader .cinema-loader-title{display:block;color:#f2f5ef;font-family:inherit;font-size:clamp(1.65rem,4vw,2.7rem);font-weight:800;line-height:1;letter-spacing:-.055em;text-align:center}
-      #landingLoader .cinema-loader-title b{color:#e1e100;font-weight:inherit}
-      #landingLoader .cinema-loader-art{display:block;width:125%;height:auto;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
-      #landingLoader.is-done{animation:none;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility .45s ease}
-      @keyframes loader-safety{to{opacity:0;visibility:hidden;pointer-events:none}}
-      @media(max-width:600px){#landingLoader .cinema-loader-orb{width:min(78vw,340px)}}
-      @media(prefers-reduced-motion:reduce){#landingLoader{display:none}}
-    </style>
     <link rel="stylesheet" href="style.css?v=direct-design-20261004" />
     <link rel="stylesheet" href="responsive.css?v=direct-design-20261004" />
     <link rel="stylesheet" href="cinematic.css?v=direct-design-20261004" />
-    <link rel="stylesheet" href="home-command.css?v=20261116" />
+    <link rel="stylesheet" href="home-command.css?v=20261116-v2" />
     
 
-    <style id="home-context-visuals">
-      .context-visual{position:relative;margin:0;overflow:hidden;border:1px solid rgba(225,225,0,.16);border-radius:14px;background:#09170f;box-shadow:0 28px 80px rgba(0,0,0,.28)}
-      .context-visual::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(225,225,0,.06),transparent 34%,rgba(7,24,15,.16))}
-      .context-visual img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:contain;background:#07180f}
-      .campaign-stage .context-visual--workflow{aspect-ratio:4/5;min-height:0;align-self:center}
-      .campaign-stage .context-visual--workflow img{min-height:0;object-position:center}
-      .cta-box--visual{display:grid!important;grid-template-columns:minmax(0,1.08fr) minmax(300px,.72fr);gap:clamp(28px,5vw,72px);align-items:center;justify-content:stretch!important}
-      .cta-box--visual .cta-box-copy{position:relative;z-index:2;min-width:0}
-      .cinematic-enabled .cta-box--visual .display,.cta-box--visual .display{font-size:clamp(2.9rem,5.4vw,6.2rem);max-width:780px}
-      .cta-box--visual .context-visual--project{z-index:1;width:100%;aspect-ratio:4/5;height:auto;min-height:0;align-self:center}
-      .cta-box--visual::after{opacity:.32}
-      @media(max-width:1050px){
-        .campaign-stage .context-visual--workflow{min-height:0}
-        .campaign-stage .context-visual--workflow img{min-height:0}
-        .cta-box--visual{grid-template-columns:1fr!important}
-        .cta-box--visual .context-visual--project{height:auto;min-height:0}
-      }
-      @media(max-width:600px){
-        .campaign-stage .context-visual--workflow{min-height:0;border-radius:12px}
-        .campaign-stage .context-visual--workflow img{min-height:0}
-        .cta-box--visual{gap:28px}
-        .cta-box--visual .context-visual--project{height:auto;min-height:0;border-radius:12px}
-        .cinematic-enabled .cta-box--visual .display,.cta-box--visual .display{font-size:clamp(2.55rem,12vw,4.3rem)}
-      }
-
-      /* Homepage workflow balance */
-      .campaign-stage{align-items:center}
-      .campaign-stage-copy{
-        justify-content:center;
-        padding:clamp(34px,4.2vw,60px);
-        transform:translateY(-22px);
-      }
-      .campaign-stage-copy h3{max-width:560px}
-      .business-flow{
-        margin-top:clamp(42px,5vw,72px);
-        border:1px solid rgba(225,235,226,.14);
-        border-radius:16px;
-        overflow:hidden;
-        background:#0a1e14;
-        color:#f2f5ef;
-      }
-      .business-flow>div{
-        min-height:150px;
-        padding:26px 28px;
-        border-color:rgba(225,235,226,.14);
-      }
-      .business-flow b{color:#e1e100}
-      .business-flow span{font-size:clamp(1.1rem,1.8vw,1.4rem)}
-      .business-flow small{max-width:220px;color:#9faea2;font-size:.7rem;line-height:1.55}
-      body[data-page="home"].cinematic-enabled .cinema-footer-marquee{
-        margin-bottom:clamp(58px,7vw,96px);
-      }
-
-      @media(max-width:1050px){
-        .campaign-stage-copy{transform:translateY(-10px)}
-        .business-flow{margin-top:42px}
-      }
-      @media(max-width:600px){
-        .campaign-stage-copy{transform:none;padding-top:22px;padding-bottom:30px}
-        .business-flow{margin-top:32px;border-radius:12px}
-        .business-flow>div{min-height:132px;padding:20px}
-        .business-flow small{font-size:.66rem}
-        body[data-page="home"].cinematic-enabled .cinema-footer-marquee{margin-bottom:52px}
-      }
-    </style>
-  </head>
+    </head>
   <body data-page="home" class="cinematic-enabled">
-    <div id="landingLoader" class="cinema-loader cinema-loader--draw" role="status" aria-label="AuraDigital loading">
-      <div class="cinema-loader-lockup">
-      <span class="cinema-loader-orb">
-      <svg viewBox="0 0 1774 887" xmlns="http://www.w3.org/2000/svg"
-           aria-hidden="true" class="cinema-loader-art">
-        <defs>
-          <mask id="aura-loader-d" maskUnits="userSpaceOnUse" x="0" y="0" width="1774" height="887">
-            <rect width="1774" height="887" fill="#000"/>
-            <path data-d-stroke d="M800,292 H1125 C1200,292 1232,340 1232,401 C1232,462 1200,511 1125,511 H955 V345"
-              fill="none" stroke="#fff" stroke-width="110" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1"/>
-            <rect data-d-fill width="1774" height="887" fill="#fff" opacity="0"/>
-          </mask>
-          <mask id="aura-loader-g" maskUnits="userSpaceOnUse" x="0" y="0" width="1774" height="887">
-            <rect width="1774" height="887" fill="#000"/>
-            <path data-g-stroke d="M890,396 H640 C580,396 541,445 541,494 C541,540 578,571 640,571 H814 V448"
-              fill="none" stroke="#fff" stroke-width="110" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1"/>
-            <rect data-g-fill width="1774" height="887" fill="#fff" opacity="0"/>
-          </mask>
-        </defs>
-        <g data-d-part fill="#111114" transform="translate(0,24)">
-          <path mask="url(#aura-loader-d)"
-            d="M821,253 H1125 C1220,253 1284,320 1284,401 C1284,482 1220,550 1125,550 H905 V356 H975 C995,356 1006,368 1006,385 V473 H1110 C1150,473 1180,445 1180,403 C1180,360 1150,331 1110,331 H821 Z"/>
-        </g>
-        <g data-g-part fill="#111114" transform="translate(0,-24)">
-          <path mask="url(#aura-loader-g)"
-            d="M630,356 H868 V437 H640 C610,437 595,462 595,490 C595,510 610,530 640,530 H760 V500 C760,478 778,458 800,458 H868 V611 H620 C540,611 488,560 488,494 C488,420 550,356 630,356 Z"/>
-        </g>
-      </svg>
-      </span>
-      <span class="cinema-loader-title" aria-hidden="true"><b>aura</b>digital</span>
-      </div>
-    </div>
-    <script src="logo-loader.js?v=20261003-session"></script>
     <header id="siteHeader"></header>
     <main class="aura-home" id="main-content">
-  <section class="ah-hero" aria-labelledby="ah-heading">
-    <div class="ah-wrap ah-hero-copy">
-      <span class="ah-kicker">Introducing Aura Command · AI-powered business growth</span>
-      <h1 id="ah-heading">Your business.<br><span class="ah-accent">One intelligent system.</span></h1>
-      <p class="ah-lede">Build a personalized growth roadmap with AI. Launch the right digital tools, manage your services, and track what comes next — all from one workspace.</p>
-      <div class="ah-actions"><a class="ah-button" href="/hub">Build my roadmap <span aria-hidden="true">↗</span></a><a class="ah-button ah-button--quiet" href="#how-it-works">See how it works</a></div>
-      <p class="ah-support">Start with your goals. Choose what you need. Grow at your own pace.</p>
-    </div>
-  </section>
-  <section class="ah-section ah-demo" id="command-preview" aria-labelledby="command-heading">
-    <div class="ah-wrap">
-      <div class="ah-section-head"><span class="ah-kicker">Your business command center</span><h2 id="command-heading">From scattered tools to <span class="ah-accent">one clear roadmap.</span></h2><p>See your priorities, next steps, and connected services in one organized view.</p></div>
-      <div class="ah-workspace" role="group" aria-label="Illustrative preview of Aura Command dashboard">
-        <div class="ah-workspace-bar"><span class="ah-brand"><span>✦ aura</span> command</span><span class="ah-preview-tag">Product concept · Preview</span></div>
-        <div class="ah-workspace-content">
-          <div class="ah-workspace-nav" aria-hidden="true"><span class="selected">◈ Overview</span><span>◇ Growth roadmap</span><span>▤ My services</span><span>◎ AI assistant</span><span>⚙ Settings</span></div>
-          <div class="ah-workspace-main">
-            <span class="ah-kicker">Your growth journey</span>
-            <h3>Build your next chapter.</h3>
-            <p>A guided view of the work that moves your business forward.</p>
-            <div class="ah-progress-head"><span>Roadmap progress</span><span>1 of 4 steps</span></div><div class="ah-progress-track"><span></span></div>
-            <div class="ah-roadmap">
-              <div class="ah-step"><span class="ah-number">01 ✓</span><strong>Discover</strong><small>Understand your goals</small></div>
-              <div class="ah-step"><span class="ah-number">02</span><strong>Plan</strong><small>Find your priorities</small></div>
-              <div class="ah-step"><span class="ah-number">03</span><strong>Launch</strong><small>Activate your tools</small></div>
-              <div class="ah-step"><span class="ah-number">04</span><strong>Grow</strong><small>Track your progress</small></div>
+  <section class="ac-hero" aria-labelledby="ac-hero-title">
+    <div class="ac-ambient ac-ambient--one" aria-hidden="true"></div><div class="ac-ambient ac-ambient--two" aria-hidden="true"></div>
+    <div class="ac-wrap ac-hero-grid">
+      <div class="ac-hero-copy">
+        <span class="ac-eyebrow"><span class="ac-signal" aria-hidden="true"></span> AURADIGITAL / THE BUSINESS GROWTH OS</span>
+        <h1 id="ac-hero-title">Your business.<br><em>All coming<br>together.</em></h1>
+        <p>Tell Auri what you're building. Get your next steps, request what you need, and watch it all come together in one workspace.</p>
+        <div class="ac-actions">
+          <a class="ac-btn ac-btn--primary" href="/hub">Build my roadmap <span aria-hidden="true">↗</span></a>
+          <a class="ac-btn ac-btn--subtle" href="#see-it">Explore the system <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="ac-hero-foot"><span><i aria-hidden="true">✦</i> AI-guided from day one</span><span><i aria-hidden="true">✦</i> Real people when you need them</span></div>
+      </div>
+      <div class="ac-stage" aria-label="Aura Command illustrated interface preview">
+        <div class="ac-stage-glow" aria-hidden="true"></div>
+        <div class="ac-app">
+          <div class="ac-app-top"><div class="ac-app-dots" aria-hidden="true"><i></i><i></i><i></i></div><span>auradigital / aura command</span><span class="ac-app-demo">INTERACTIVE PREVIEW</span></div>
+          <div class="ac-app-shell">
+            <aside class="ac-app-nav" aria-label="Preview navigation"><div class="ac-rail-mark">✦</div><div class="ac-rail-icon ac-rail-icon--active" aria-hidden="true">⌂</div><div class="ac-rail-icon" aria-hidden="true">◇</div><div class="ac-rail-icon" aria-hidden="true">▦</div><div class="ac-rail-icon" aria-hidden="true">◎</div><div class="ac-rail-bottom" aria-hidden="true">⚙</div></aside>
+            <div class="ac-app-main">
+              <div class="ac-app-intro"><div><span class="ac-app-overline">YOUR WORKSPACE <span class="ac-online">● ACTIVE</span></span><h2>Let's build what's next.</h2><p>Your business, your priorities, one clear plan.</p></div><div class="ac-app-avatar" aria-hidden="true">B</div></div>
+              <div class="ac-app-overview">
+                <div class="ac-overview-label"><span>YOUR GROWTH PATH</span><strong data-demo-progress>01 / 04</strong></div>
+                <div class="ac-path"><div class="ac-path-node ac-path-node--done"><span>✓</span><small>Discover</small></div><div class="ac-path-line ac-path-line--done"></div><div class="ac-path-node ac-path-node--current"><span>2</span><small>Build</small></div><div class="ac-path-line"></div><div class="ac-path-node"><span>3</span><small>Grow</small></div><div class="ac-path-line"></div><div class="ac-path-node"><span>4</span><small>Scale</small></div></div>
+              </div>
+              <div class="ac-app-task"><div class="ac-task-heading"><span>✦ RECOMMENDED NEXT</span><span class="ac-task-badge">AI ROADMAP</span></div><div class="ac-task-body"><div><h3 data-demo-heading>Launch your website</h3><p data-demo-sub>A professional home for your business.</p></div><span class="ac-task-arrow" aria-hidden="true">↗</span></div><div class="ac-task-footer"><span><span class="ac-task-indicator"></span> Ready to plan</span><a href="/hub">Open in AuraHub ↗</a></div></div>
+              <div class="ac-mini-row"><div><span class="ac-mini-icon">◇</span><span>My services</span><b>See all ↗</b></div><div><span class="ac-mini-icon">▤</span><span>Requests</span><b>Track ↗</b></div></div>
             </div>
-            <div class="ah-assistant"><div><strong>Need help deciding what comes next?</strong><p>Let your AI assistant guide your next step.</p></div><a href="/hub">Open Aura Command ↗</a></div>
           </div>
         </div>
+        <div class="ac-auri-float" aria-label="Auri assistant illustrated suggestion">
+          <div class="ac-auri-portrait"><img src="/media/auri/level-1.webp" alt="" loading="eager" width="116" height="116"></div>
+          <div class="ac-auri-bubble"><span><b class="ac-dot"></b> AURI / YOUR AI PARTNER</span><p data-demo-reply>We can start with your website. I'll help you plan what it needs.</p><a href="/hub">Talk to Auri <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <div class="ac-stage-caption">01 — PLAN IT <span>02 — BUILD IT</span> 03 — GROW IT</div>
       </div>
     </div>
+    <a class="ac-scroll-prompt" href="#see-it">DISCOVER HOW IT WORKS <span aria-hidden="true">↓</span></a>
   </section>
-  <section class="ah-section" id="how-it-works" aria-labelledby="process-heading"><div class="ah-wrap">
-    <div class="ah-section-head"><span class="ah-kicker">Simple by design</span><h2 id="process-heading">A better way to <span class="ah-accent">build your business.</span></h2><p>Less setup, fewer disconnected systems, and a clear next action at every stage.</p></div>
-    <div class="ah-process">
-      <div class="ah-process-item"><strong>01</strong><h3>Tell us about your business</h3><p>Answer a few guided questions or describe your goals to AI.</p></div>
-      <div class="ah-process-item"><strong>02</strong><h3>Get your roadmap</h3><p>See recommended priorities in a simple, numbered plan.</p></div>
-      <div class="ah-process-item"><strong>03</strong><h3>Choose your tools</h3><p>Explore the services that fit your needs and budget.</p></div>
-      <div class="ah-process-item"><strong>04</strong><h3>Manage and grow</h3><p>Follow progress and keep your work organized in one hub.</p></div>
+
+  <section class="ac-feature-strip" aria-label="Core AuraDigital benefits"><div class="ac-wrap">
+    <span><i>✦</i> ONE ACCOUNT</span><span><i>✦</i> PERSONALIZED ROADMAP</span><span><i>✦</i> AI + HUMAN EXPERTISE</span><span><i>✦</i> EVERY SERVICE, CONNECTED</span>
+  </div></section>
+
+  <section class="ac-section ac-how" id="see-it" aria-labelledby="ac-how-title"><div class="ac-wrap">
+    <div class="ac-section-heading"><div><span class="ac-label">01 / HOW IT WORKS</span><h2 id="ac-how-title">Less searching.<br><em>More doing.</em></h2></div><p>Stop figuring out which tool you need. Start with your business — Auri helps you find the next move.</p></div>
+    <div class="ac-flow">
+      <div class="ac-flow-step"><span class="ac-flow-num">01 <b>↗</b></span><div class="ac-flow-symbol" aria-hidden="true">✳</div><h3>Tell Auri your goal.</h3><p>Describe your business or share what you already have.</p></div>
+      <div class="ac-flow-step"><span class="ac-flow-num">02 <b>↗</b></span><div class="ac-flow-symbol" aria-hidden="true">◇</div><h3>See your roadmap.</h3><p>A clear order of priorities, built around your needs.</p></div>
+      <div class="ac-flow-step"><span class="ac-flow-num">03 <b>↗</b></span><div class="ac-flow-symbol" aria-hidden="true">▣</div><h3>Make it happen.</h3><p>Choose a service, request help, and follow its progress.</p></div>
     </div>
   </div></section>
-  <section class="ah-section" id="solutions" aria-labelledby="solutions-heading"><div class="ah-wrap">
-    <div class="ah-section-head"><span class="ah-kicker">One connected ecosystem</span><h2 id="solutions-heading">Everything your business needs. <span class="ah-accent">Nothing it doesn't.</span></h2><p>Start with one solution or connect multiple services through AuraDigital.</p></div>
-    <div class="ah-grid">
-      <a class="ah-card" href="/websites"><span class="ah-card-num">01 · BUILD</span><div><h3>Digital presence</h3><p>Websites, hosting, domains and online experiences.</p></div><span class="ah-card-arrow" aria-hidden="true">↗</span></a>
-      <a class="ah-card" href="/services#growth"><span class="ah-card-num">02 · GROW</span><div><h3>Customer acquisition</h3><p>Google Ads, local visibility and search optimization.</p></div><span class="ah-card-arrow" aria-hidden="true">↗</span></a>
-      <a class="ah-card" href="/services#automation"><span class="ah-card-num">03 · AUTOMATE</span><div><h3>Smarter workflows</h3><p>WhatsApp automation, digital menus and customer touchpoints.</p></div><span class="ah-card-arrow" aria-hidden="true">↗</span></a>
-      <a class="ah-card" href="/services#infrastructure"><span class="ah-card-num">04 · MANAGE</span><div><h3>Ongoing operations</h3><p>Website care, security and connected business services.</p></div><span class="ah-card-arrow" aria-hidden="true">↗</span></a>
+
+  <section class="ac-section ac-solutions" id="solutions" aria-labelledby="ac-solutions-title"><div class="ac-wrap">
+    <div class="ac-section-heading"><div><span class="ac-label">02 / CONNECTED TOOLS</span><h2 id="ac-solutions-title">Everything you need.<br><em>Nothing you don't.</em></h2></div><p>Real deliverables, not complicated software. One workspace to manage them all.</p></div>
+    <div class="ac-solutions-grid">
+      <a class="ac-solution ac-solution--web" href="/websites"><div class="ac-solution-top"><span>01 / BUILD</span><span aria-hidden="true">↗</span></div><div class="ac-web-art" aria-hidden="true"><div class="ac-web-browser"><div class="ac-web-bar">● ● ● <span>yourbusiness.com</span></div><div class="ac-web-image"><span>YOUR BRAND,<br>ONLINE.</span><i>Explore →</i></div></div><div class="ac-web-phone"><div></div><span>NEW<br>WEBSITE</span></div></div><h3>Your website. Live.</h3><p>Beautiful, professional, ready for customers.</p></a>
+      <a class="ac-solution ac-solution--mail" href="/services"><div class="ac-solution-top"><span>02 / CONNECT</span><span aria-hidden="true">↗</span></div><div class="ac-mail-art" aria-hidden="true"><div class="ac-mail-icon">✉</div><span>YOUR BUSINESS EMAIL</span><strong>hello@yourbusiness.com</strong><div class="ac-mail-status"><i>✓</i> Professional identity</div></div><h3>Your business. Credible.</h3><p>A real business identity, set up for you.</p></a>
+      <a class="ac-solution ac-solution--growth" href="/services#growth"><div class="ac-solution-top"><span>03 / GROW</span><span aria-hidden="true">↗</span></div><div class="ac-ads-art" aria-hidden="true"><span>YOUR VISIBILITY</span><div class="ac-ads-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="ac-ads-bottom">Google Ads <span>↗</span></div></div><h3>Get discovered.</h3><p>Reach the people already looking for you.</p></a>
+      <a class="ac-solution ac-solution--chat" href="/services#automation"><div class="ac-solution-top"><span>04 / AUTOMATE</span><span aria-hidden="true">↗</span></div><div class="ac-chat-art" aria-hidden="true"><div class="ac-chat-bubble">Hi! Do you have availability?</div><div class="ac-chat-bubble ac-chat-bubble--reply"><span>✦</span> Thanks for reaching out! Let's help you.</div><div class="ac-chat-status">WHATSAPP WORKFLOW <span>● CONNECTED</span></div></div><h3>Always connected.</h3><p>Smarter customer conversations and workflows.</p></a>
+    </div>
+    <div class="ac-services-foot"><span>WEBSITES · EMAIL · ADS · WHATSAPP · QR MENUS · HOSTING · AUTOMATION</span><a href="/services">Explore all services ↗</a></div>
+  </div></section>
+
+  <section class="ac-section ac-partner" id="auri" aria-labelledby="ac-auri-title"><div class="ac-wrap ac-partner-grid">
+    <div class="ac-partner-copy"><span class="ac-label">03 / MEET AURI</span><h2 id="ac-auri-title">You ask.<br><em>We make it happen.</em></h2><p>Auri helps you understand what to do and prepare your request. Need someone to finish the work? The AuraDigital team is part of the same journey.</p>
+      <div class="ac-partner-choices"><div><span>✳</span><strong>Use AI assistance</strong><small>Explore and plan your next step.</small></div><div><span>◎</span><strong>Ask our team</strong><small>Get hands-on delivery and support.</small></div></div>
+      <a class="ac-btn ac-btn--primary" href="/hub">Start with Auri <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="ac-chat-showcase">
+      <div class="ac-chat-header"><span class="ac-chat-identity"><img src="/media/auri/level-1.webp" alt="" loading="lazy" width="56" height="56"><span><b>Auri</b><small>Your business co-pilot</small></span></span><span class="ac-chat-live"><i></i> PRODUCT PREVIEW</span></div>
+      <div class="ac-conversation" aria-live="polite"><div class="ac-chat-line ac-chat-line--user" data-scenario-user>I want to launch my business online.</div><div class="ac-chat-line ac-chat-line--auri"><span class="ac-chat-mini">✦</span><span data-scenario-answer>Let's start with the essentials: a website, a business email, and a way for customers to reach you. I'll organize the steps in your roadmap.</span></div></div>
+      <div class="ac-example-header">TRY AN EXAMPLE</div>
+      <div class="ac-scenarios" aria-label="Explore Auri example requests"><button type="button" class="is-selected" aria-pressed="true" data-scenario="launch">Launch a business</button><button type="button" aria-pressed="false" data-scenario="customers">Find customers</button><button type="button" aria-pressed="false" data-scenario="automate">Automate replies</button></div>
+      <a href="/hub" class="ac-input-cta">Ask Auri about your business <span aria-hidden="true">↗</span></a>
+      <p class="ac-preview-note">Example conversations only. Open AuraHub to use the real assistant.</p>
     </div>
   </div></section>
-  <section class="ah-section" id="why-aura" aria-labelledby="why-heading"><div class="ah-wrap ah-split">
-    <div><span class="ah-kicker">Built around your next move</span><h2 id="why-heading">Technology that makes <span class="ah-accent">business simpler.</span></h2><p style="margin-top:25px">AuraDigital combines digital execution with an AI-guided planning experience, giving you a clearer view of what to build and why.</p><ul class="ah-bullets"><li>A personalized plan instead of a generic package</li><li>One account for your digital growth journey</li><li>Services designed to work together</li><li>Human support when your project needs it</li></ul></div>
-    <div class="ah-proof"><span class="ah-kicker">Real work, real businesses</span><h3>Explore what we've built.</h3><p>Discover AuraDigital projects and services, from digital storefronts to customer experiences.</p><div class="ah-actions"><a class="ah-button ah-button--quiet" href="/portfolio">View portfolio ↗</a><a class="ah-button ah-button--quiet" href="/contact">Talk to our team ↗</a></div></div>
-  </div></section>
-  <section class="ah-final" aria-labelledby="final-heading"><div class="ah-wrap"><span class="ah-kicker">Your next chapter starts here</span><h2 id="final-heading" style="margin-top:20px">Ready to build your <span class="ah-accent">growth roadmap?</span></h2><p>Tell Aura Command where you want to go. Start with a guided roadmap and decide what to activate next.</p><div class="ah-actions"><a class="ah-button" href="/hub">Build my roadmap ↗</a><a class="ah-button ah-button--quiet" href="/contact">Let's talk ↗</a></div></div></section>
+
+  <section class="ac-section ac-proof-section" aria-labelledby="ac-proof-title"><div class="ac-wrap ac-proof-grid"><div><span class="ac-label">04 / REAL WORK</span><h2 id="ac-proof-title">Not just a plan.<br><em>Something real.</em></h2></div><div class="ac-proof-content"><p>From a business website to a digital menu or automation, everything you request should have a place in your workspace — with clear status and next steps.</p><div class="ac-proof-links"><a href="/portfolio">Explore our work <span aria-hidden="true">↗</span></a><a href="/contact">Talk to the team <span aria-hidden="true">↗</span></a></div></div></div></section>
+
+  <section class="ac-final" aria-labelledby="ac-final-title"><div class="ac-wrap ac-final-inner"><span class="ac-label">YOUR NEXT CHAPTER STARTS HERE</span><h2 id="ac-final-title">Make your next<br><em>move count.</em></h2><p>One conversation can turn your business idea into a plan.</p><a class="ac-btn ac-btn--final" href="/hub">Build my roadmap <span aria-hidden="true">↗</span></a><span class="ac-final-foot">Made for ambitious businesses, not complicated workflows.</span></div></section>
 </main>
     <footer id="siteFooter"></footer>
     <script src="script.js?v=shop-nav-20261027"></script>
     <script src="cinematic.js?v=direct-design-20261004"></script>
     
     
+  <script defer src="home-command.js?v=20261116-v2"></script>
   </body>
 </html>
