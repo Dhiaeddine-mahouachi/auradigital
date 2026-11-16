@@ -1,0 +1,228 @@
+/* AuraDigital Landing — mirrors AuraHub's graphite/lime tokens and product surfaces.
+   Every illustration on this public page is explicitly illustrative or an existing project asset. */
+.aura-home{--ac-lime:#eaff33;--hub-accent:#eaff33;--hub-surface:#171c19;--hub-raised:#202720;--hub-border:#353f35;--hub-text:#eff4e9;--hub-muted:#afbeb0;--hub-canvas:#0c1010;background:#0b1010;color:var(--hub-text)}
+body[data-page="home"]{background:#0b1010}
+.aura-home .ac-hero{background:radial-gradient(circle at 73% 48%,#a4c31c13,transparent 45%),#0b1010}
+.aura-home .ac-hero h1{font-size:clamp(3.9rem,6.3vw,7rem);line-height:.99;letter-spacing:-.073em}
+.aura-home .ac-hero-copy>p{color:#b4c5b9}
+.aura-home em{color:#eaff33}
+.aura-home .ac-btn--primary,.aura-home .ac-btn--final{background:#eaff33;border-color:#eaff33;color:#0b140b!important}
+.aura-home .ac-btn--primary:hover{background:#f2ff8b}
+.aura-home .ac-btn--subtle{background:#1d251f;border-color:#394638}
+.aura-home .ac-app{background:#151a17;border-color:#465344;box-shadow:0 34px 92px #000b,0 0 55px #b6ec1630}
+.aura-home .ac-app-top{background:#111715}
+.aura-home .ac-app-nav{background:#0e1512}
+.aura-home .ac-rail-mark{background:#eaff33}
+.aura-home .ac-rail-icon--active{color:#eaff33;background:#26331b}
+.aura-home .ac-app-main{background:#151b18}
+.aura-home .ac-app-overview{background:linear-gradient(150deg,#243020,#1a211b);border-color:#46582c}
+.aura-home .ac-path-node--done>span{background:#eaff33;border-color:#eaff33}
+.aura-home .ac-path-node--current>span{border-color:#eaff33;color:#eaff33}
+.aura-home .ac-app-task{background:#1b241c;border-color:#71823470}
+.aura-home .ac-auri-bubble{background:#202a23;border-color:#7d984140}
+.aura-home .ac-feature-strip{background:#141b16}
+.aura-home .ac-how{background:#0e1412}
+.aura-home .ac-flow-step{background:linear-gradient(150deg,#202b22,#131b17)}
+.aura-home .ac-flow-step:hover{border-color:#eaff33}
+.aura-home .ac-proof-section{background:#111a15}
+.aura-home .ac-final{background:radial-gradient(ellipse at 50% 100%,#dfff251d,transparent 48%),#0b1010}
+.aura-home .ac-btn--final{background:#eaff33}
+.aura-home .ac-hero-foot i,.aura-home .ac-scroll-prompt span,.aura-home .ac-overview-label strong,.aura-home .ac-task-heading,.aura-home .ac-task-arrow,.aura-home .ac-task-footer>a,.aura-home .ac-auri-bubble a{color:#eaff33}
+.aura-home .ac-scenarios button.is-selected{border-color:#eaff33}
+.aura-home .ac-input-cta{background:#eaff33}
+
+/* Shared Hub-like landing sections */
+.aura-home .hx-section{padding:clamp(88px,9vw,140px) 0;border-top:1px solid #ffffff10;position:relative}
+.aura-home .hx-kicker{display:block;font-size:.72rem;letter-spacing:.15em;font-weight:780;color:#eaff33;margin-bottom:18px}
+.aura-home .hx-section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:36px;margin-bottom:43px}
+.aura-home .hx-section-head h2{font-size:clamp(2.8rem,5vw,5.8rem);line-height:1;letter-spacing:-.074em;font-weight:740;color:#f5f8ed}
+.aura-home .hx-section-head>p{max-width:350px;font-size:.97rem;line-height:1.65;color:#adbcaf;margin-bottom:6px}
+.aura-home .hx-overline{display:block;color:#d6ef92;letter-spacing:.13em;font-size:.64rem;font-weight:760}
+.aura-home .hx-preview-tag{font-size:.57rem;letter-spacing:.09em;color:#a9b6a5}
+.aura-home .hx-section a:focus-visible,.aura-home .hx-section button:focus-visible{outline:2px solid #eaff33;outline-offset:4px}
+.aura-home .hx-section [hidden]{display:none!important}
+
+/* Persona-led preview */
+.aura-home .hx-persona{background:radial-gradient(circle at 75% 45%,#bbee1420,transparent 42%),#101615}
+.aura-home .hx-persona-layout{display:grid;grid-template-columns:minmax(0,.67fr) minmax(0,1.33fr);gap:19px;align-items:stretch}
+.aura-home .hx-persona-list{display:flex;flex-direction:column;gap:10px}
+.aura-home .hx-persona-choice{display:grid;grid-template-columns:45px 1fr auto;gap:13px;align-items:center;min-height:89px;text-align:left;padding:14px;border:1px solid #354337;border-radius:14px;background:#18201a;color:#e9f1e6;cursor:pointer;font:inherit;transition:background .2s,border-color .2s,transform .2s}
+.aura-home .hx-persona-choice:hover{background:#222f24;transform:translateX(3px)}
+.aura-home .hx-persona-choice.is-active{border-color:#d8fa57;background:linear-gradient(110deg,#293b21,#1b291d);box-shadow:inset 3px 0 #eaff33}
+.aura-home .hx-persona-icon{display:grid;place-items:center;width:43px;height:43px;border:1px solid #4c5c43;border-radius:11px;background:#202d22;color:#eaff33;font-size:1.55rem}
+.aura-home .hx-persona-choice strong{display:block;font-size:.91rem}
+.aura-home .hx-persona-choice small{display:block;color:#b1c0ad;font-size:.71rem;margin-top:5px}
+.aura-home .hx-persona-choice>b{font-size:1.2rem;color:#eaff33;font-weight:400}
+.aura-home .hx-persona-foot{margin:9px 8px;color:#8ea392;font-size:.75rem;line-height:1.6}
+.aura-home .hx-persona-preview{background:#161e1a;border:1px solid #41523c;border-radius:18px;overflow:hidden;box-shadow:0 28px 85px #0006}
+.aura-home .hx-window-head{min-height:51px;display:flex;justify-content:space-between;align-items:center;gap:12px;background:#111715;border-bottom:1px solid #354033;padding:11px 18px}
+.aura-home .hx-window-head>span:first-child{display:inline-flex;align-items:center;gap:8px;color:#e7f2df;font-size:.78rem;font-weight:650}
+.aura-home .hx-window-head img{border-radius:7px;object-fit:contain}
+.aura-home .hx-dot-separator{color:#5a6757}
+.aura-home .hx-persona-dashboard{padding:clamp(17px,2.6vw,33px)}
+.aura-home .hx-persona-overview{display:grid;grid-template-columns:1fr 102px;align-items:center;gap:18px}
+.aura-home .hx-persona-overview h3{font-size:clamp(1.5rem,2.45vw,2.25rem);letter-spacing:-.05em;line-height:1.08;margin:13px 0 9px}
+.aura-home .hx-persona-overview p{max-width:455px;font-size:.84rem;line-height:1.57;color:#b9c9b9}
+.aura-home .hx-persona-overview img{width:100%;height:102px;object-fit:contain;filter:drop-shadow(0 5px 16px #d6f13520);animation:hx-float 5s ease-in-out infinite}
+.aura-home .hx-roadmap-label{display:flex;justify-content:space-between;gap:12px;margin:30px 0 12px;font-size:.65rem;letter-spacing:.09em;color:#e9f3de;font-weight:770}
+.aura-home .hx-roadmap-label span:last-child{font-weight:450;letter-spacing:normal;color:#91a191}
+.aura-home .hx-roadmap-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.aura-home .hx-roadmap-step{display:flex;flex-direction:column;min-width:0;gap:10px;min-height:141px;padding:16px 13px;border:1px solid #3b473a;border-radius:12px;background:#1f2a22}
+.aura-home .hx-roadmap-step.is-current{border-color:#eaff33;background:linear-gradient(130deg,#2a3825,#222e23)}
+.aura-home .hx-roadmap-step>span{font-size:.82rem;color:#eaff33;font-weight:770}
+.aura-home .hx-roadmap-step strong{font-size:.86rem;line-height:1.28}
+.aura-home .hx-roadmap-step small{font-size:.67rem;color:#a5b8a4;margin-top:auto}
+.aura-home .hx-auri-suggestion{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px 12px;align-items:center;margin-top:18px;padding:16px;border:1px solid #5d703a;border-radius:13px;background:#283526}
+.aura-home .hx-auri-dot{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#eaff33;color:#11210f;font-size:1.25rem}
+.aura-home .hx-auri-suggestion p{font-size:.83rem;line-height:1.5;color:#f1f4e9}
+.aura-home .hx-auri-suggestion a{grid-column:2;font-size:.73rem;color:#eaff33;font-weight:700}
+
+/* Product imagery: real project images are direct assets from the existing Portfolio */
+.aura-home .hx-showcase{background:#0c1210}
+.aura-home .hx-showcase-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.aura-home .hx-showcase-card{display:flex;flex-direction:column;min-width:0;border:1px solid #3e4c3d;border-radius:18px;overflow:hidden;background:#171e19;transition:transform .28s,border-color .28s,box-shadow .28s}
+.aura-home .hx-showcase-card:hover{transform:translateY(-6px);border-color:#eaff33;box-shadow:0 25px 60px #0005}
+.aura-home .hx-showcase-image{position:relative;height:clamp(230px,23vw,352px);overflow:hidden;background:#121816}
+.aura-home .hx-showcase-image>img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.aura-home .hx-showcase-card:hover .hx-showcase-image>img{transform:scale(1.035)}
+.aura-home .hx-showcase-info{display:flex;justify-content:space-between;align-items:center;gap:20px;min-height:140px;padding:22px 25px}
+.aura-home .hx-showcase-info span{color:#d3eb89;font-size:.62rem;letter-spacing:.12em;font-weight:750}
+.aura-home .hx-showcase-info h3{font-size:clamp(1.3rem,1.9vw,1.82rem);letter-spacing:-.045em;line-height:1.2;margin:10px 0 7px}
+.aura-home .hx-showcase-info p{font-size:.79rem;color:#aabbad;line-height:1.5}
+.aura-home .hx-showcase-info>b{display:grid;place-items:center;flex:none;width:40px;height:40px;border:1px solid #5b6b48;border-radius:12px;color:#eaff33;font-size:1.25rem}
+.aura-home .hx-menu-image{display:grid;place-items:center;background:radial-gradient(ellipse at 52% 38%,#2b4a31,#101a14 64%)}
+.aura-home .hx-menu-image>img{width:78%;max-width:420px;height:90%;object-fit:contain;border-radius:20px;transform:rotate(-5deg);filter:drop-shadow(0 15px 35px #0008)}
+.aura-home .hx-showcase-card:hover .hx-menu-image>img{transform:rotate(-2deg) scale(1.04)}
+.aura-home .hx-menu-caption{position:absolute;right:24px;bottom:15px;padding:12px 15px;border:1px solid #64733e;background:#182019e8;border-radius:12px;font-weight:710;font-size:1rem;line-height:1.25}
+.aura-home .hx-menu-caption em{font-style:normal;color:#eaff33}
+.aura-home .hx-product-chip{position:absolute;z-index:1;left:18px;top:16px;color:#e7f3c2;background:#1c2a22de;padding:7px 10px;border-radius:9px;font-size:.62rem;letter-spacing:.09em}
+.aura-home .hx-chat-image{padding:20px;background:radial-gradient(ellipse at 30% 50%,#204631,#111b16 65%)}
+.aura-home .hx-chat-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 7px 16px;color:#d7f5d9;font-size:.75rem;font-weight:710}
+.aura-home .hx-chat-top i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#9cff9e;margin-right:6px}
+.aura-home .hx-chat-top small{font-size:.56rem;color:#9ab0a0;letter-spacing:.05em}
+.aura-home .hx-chat-demo{display:flex;flex-direction:column;gap:13px;max-width:530px;margin:auto}
+.aura-home .hx-chat-visitor,.aura-home .hx-chat-reply{max-width:78%;padding:15px 19px;border-radius:15px;line-height:1.4;font-size:.82rem;box-shadow:0 10px 25px #0003}
+.aura-home .hx-chat-visitor{align-self:flex-start;background:#334d3d;color:#f2fcf4;border-bottom-left-radius:4px}
+.aura-home .hx-chat-reply{align-self:flex-end;background:#e1f0ce;color:#17291c;border-bottom-right-radius:4px}
+.aura-home .hx-chat-flow{align-self:center;margin-top:8px;padding:10px 15px;border:1px solid #5c7d5d;border-radius:12px;background:#13251c;color:#d5f4d6;font-size:.64rem}
+.aura-home .hx-chat-flow b{padding:0 5px;color:#eaff33}
+.aura-home .hx-showcase-bottom{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:23px;color:#93a595;font-size:.78rem}
+.aura-home .hx-showcase-bottom a{flex:none;color:#eaff33;font-weight:720}
+.aura-home .hx-creative-image>img{object-position:top}
+
+/* AUI Hub experience — mirrors the real sidebar / work surface / status indicators */
+.aura-home .hx-inside{background:radial-gradient(ellipse at 10% 10%,#b2e62f10,transparent 48%),#0d1411}
+.aura-home .hx-hub-frame{display:grid;grid-template-columns:235px minmax(0,1fr);min-height:490px;border:1px solid #495346;border-radius:19px;overflow:hidden;background:#161d19;box-shadow:0 24px 80px #0007}
+.aura-home .hx-hub-sidebar{display:flex;flex-direction:column;gap:24px;padding:21px 14px;border-right:1px solid #39443a;background:#111815}
+.aura-home .hx-hub-sidebar-brand{display:flex;align-items:center;gap:10px;padding:8px 10px 22px;border-bottom:1px solid #ffffff12;color:#f4f5ea;font-size:.96rem}
+.aura-home .hx-hub-sidebar-brand img{border-radius:7px;object-fit:contain}
+.aura-home .hx-hub-tabs{display:flex;flex-direction:column;gap:9px}
+.aura-home .hx-hub-tabs button{display:flex;align-items:center;gap:13px;width:100%;min-height:50px;padding:12px 14px;background:transparent;border:1px solid transparent;border-radius:10px;text-align:left;color:#b6c4b7;font:inherit;font-size:.86rem;cursor:pointer}
+.aura-home .hx-hub-tabs button[aria-selected="true"]{background:#2b3d21;border-color:#4e6338;color:#eaff33}
+.aura-home .hx-hub-tabs button:hover{background:#263127}
+.aura-home .hx-hub-tabs button span{flex:1}
+.aura-home .hx-hub-side-foot{margin-top:auto;color:#7d9583;font-size:.58rem;letter-spacing:.08em;padding:12px}
+.aura-home .hx-hub-content{min-width:0}
+.aura-home .hx-hub-topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;min-height:65px;padding:14px 27px;border-bottom:1px solid #364436;color:#b4c4b5;font-size:.79rem;background:#151d18}
+.aura-home .hx-hub-topbar strong{color:#ebf0dd;font-weight:600}
+.aura-home .hx-hub-panel{padding:clamp(25px,4vw,46px)}
+.aura-home .hx-hub-panel h3{font-size:clamp(1.6rem,2.8vw,2.65rem);letter-spacing:-.055em;margin:15px 0 8px}
+.aura-home .hx-hub-panel>p{font-size:.87rem;color:#acbba9}
+.aura-home .hx-level-track{display:flex;align-items:flex-start;gap:8px;margin:34px 0}
+.aura-home .hx-level{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;width:66px;height:60px;flex:none;border:1px solid #556154;border-radius:13px;color:#879989;font-size:.9rem}
+.aura-home .hx-level small{font-size:.62rem;color:#a0b4a1}
+.aura-home .hx-level.is-done{border-color:#b4e845;background:#2d3d1f;color:#eaff33}
+.aura-home .hx-level.is-active{border-color:#eaff33;background:#27341f;color:#eaff33;box-shadow:0 0 0 4px #eaff330e}
+.aura-home .hx-level-track>span{height:1px;flex:1;min-width:8px;background:#6c8067;margin-top:27px}
+.aura-home .hx-focus-card{display:flex;flex-direction:column;gap:9px;padding:24px 26px;border:1px solid #657638;border-radius:14px;background:linear-gradient(130deg,#2c3925,#1d271e)}
+.aura-home .hx-focus-card>span{color:#eaff33;font-size:.67rem;letter-spacing:.12em;font-weight:770}
+.aura-home .hx-focus-card strong{font-size:1.13rem;font-weight:710}
+.aura-home .hx-focus-card small{font-size:.81rem;color:#b7c6b7}
+.aura-home .hx-services-list{display:grid;gap:12px;margin-top:24px}
+.aura-home .hx-services-list>div{display:flex;align-items:center;gap:15px;padding:10px;border-radius:13px;border:1px solid #4a5545;background:#202921}
+.aura-home .hx-services-list img{width:88px;height:66px;object-fit:cover;border-radius:9px}
+.aura-home .hx-services-list span{display:flex;flex-direction:column;gap:7px;flex:1}
+.aura-home .hx-services-list span strong{font-size:.88rem}
+.aura-home .hx-services-list span small{font-size:.74rem;color:#afc0ac}
+.aura-home .hx-services-list b{padding:7px 9px;border-radius:11px;color:#dff6ad;background:#35452e;font-size:.56rem;letter-spacing:.08em}
+.aura-home .hx-request-track{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:28px}
+.aura-home .hx-request-track>div{display:flex;flex-direction:column;gap:11px;padding:17px 13px;border:1px solid #475644;border-radius:12px;background:#232d24}
+.aura-home .hx-request-track span{color:#eaff33;font-weight:700}
+.aura-home .hx-request-track strong{font-size:.84rem;line-height:1.28}
+.aura-home .hx-request-track small{font-size:.68rem;color:#aabcae;line-height:1.4}
+.aura-home .hx-auri-chat{display:grid;gap:16px;margin:28px 0}
+.aura-home .hx-auri-prompt{justify-self:end;max-width:77%;padding:16px 18px;background:#33412f;border-radius:14px 14px 3px 14px;font-size:.86rem}
+.aura-home .hx-auri-answer{display:flex;align-items:center;gap:14px;max-width:86%;padding:14px;border:1px solid #4d6443;background:#223023;border-radius:14px 14px 14px 3px;font-size:.85rem;line-height:1.6}
+.aura-home .hx-auri-answer img{width:60px;height:60px;flex:none;object-fit:contain}
+.aura-home .hx-inline-cta{display:inline-block;color:#eaff33;font-size:.81rem;font-weight:730}
+.aura-home .hx-inside-footer{display:flex;justify-content:space-between;gap:20px;margin-top:22px;font-size:.77rem;color:#a1b5a5}
+.aura-home .hx-inside-footer a{color:#eaff33;font-weight:730}
+@keyframes hx-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@media(max-width:1090px){
+ .aura-home .hx-persona-layout{grid-template-columns:minmax(0,.76fr) minmax(0,1.24fr)}
+ .aura-home .hx-persona-choice{grid-template-columns:40px minmax(0,1fr) auto;padding:10px}
+ .aura-home .hx-persona-choice strong{font-size:.82rem}
+ .aura-home .hx-persona-icon{width:39px;height:39px}
+ .aura-home .hx-roadmap-step{padding:13px 9px}
+}
+@media(max-width:900px){
+ .aura-home .hx-section-head{align-items:start;flex-direction:column}
+ .aura-home .hx-persona-layout{grid-template-columns:1fr}
+ .aura-home .hx-persona-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .aura-home .hx-persona-foot{grid-column:1/-1}
+ .aura-home .hx-hub-frame{grid-template-columns:180px minmax(0,1fr)}
+ .aura-home .hx-hub-tabs button{padding:12px 9px;font-size:.74rem}
+ .aura-home .hx-request-track{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:680px){
+ .aura-home .hx-section{padding:72px 0}
+ .aura-home .hx-section-head{gap:15px;margin-bottom:29px}
+ .aura-home .hx-section-head h2{font-size:clamp(2.55rem,9.5vw,4.1rem)}
+ .aura-home .hx-section-head>p{font-size:.87rem}
+ .aura-home .hx-persona-list{gap:8px}
+ .aura-home .hx-persona-choice{grid-template-columns:32px minmax(0,1fr);gap:8px;min-height:90px}
+ .aura-home .hx-persona-icon{width:32px;height:32px;font-size:1.15rem}
+ .aura-home .hx-persona-choice strong{font-size:.72rem}
+ .aura-home .hx-persona-choice small{font-size:.62rem;line-height:1.4}
+ .aura-home .hx-persona-choice>b{display:none}
+ .aura-home .hx-window-head{padding:10px}
+ .aura-home .hx-preview-tag{font-size:.48rem}
+ .aura-home .hx-persona-dashboard{padding:15px}
+ .aura-home .hx-persona-overview{grid-template-columns:1fr 77px;gap:8px}
+ .aura-home .hx-persona-overview h3{font-size:1.38rem}
+ .aura-home .hx-persona-overview p{font-size:.73rem}
+ .aura-home .hx-persona-overview img{height:83px}
+ .aura-home .hx-roadmap-steps{gap:6px}
+ .aura-home .hx-roadmap-step{min-height:130px;padding:11px 8px}
+ .aura-home .hx-roadmap-step strong{font-size:.7rem}
+ .aura-home .hx-roadmap-label{font-size:.58rem}
+ .aura-home .hx-roadmap-label span:last-child{font-size:.58rem;text-align:right}
+ .aura-home .hx-auri-suggestion{padding:12px;gap:8px}
+ .aura-home .hx-auri-suggestion p{font-size:.74rem}
+ .aura-home .hx-showcase-grid{grid-template-columns:1fr}
+ .aura-home .hx-showcase-image{height:270px}
+ .aura-home .hx-showcase-info{padding:18px}
+ .aura-home .hx-showcase-info h3{font-size:1.42rem}
+ .aura-home .hx-showcase-bottom{flex-direction:column;align-items:start;gap:12px}
+ .aura-home .hx-menu-caption{right:14px;bottom:12px;font-size:.87rem}
+ .aura-home .hx-hub-frame{grid-template-columns:1fr}
+ .aura-home .hx-hub-sidebar{padding:9px 12px;gap:10px;border-right:0;border-bottom:1px solid #39443a}
+ .aura-home .hx-hub-sidebar-brand,.aura-home .hx-hub-side-foot{display:none}
+ .aura-home .hx-hub-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+ .aura-home .hx-hub-tabs button{display:flex;flex-direction:column;justify-content:center;gap:5px;text-align:center;padding:8px 4px;min-height:62px;line-height:1.2;font-size:1.1rem}
+ .aura-home .hx-hub-tabs button span{font-size:.58rem}
+ .aura-home .hx-hub-topbar{padding:13px}
+ .aura-home .hx-hub-panel{padding:19px 15px}
+ .aura-home .hx-level{width:48px;height:55px;font-size:.77rem}
+ .aura-home .hx-level small{font-size:.49rem}
+ .aura-home .hx-level-track{gap:4px}
+ .aura-home .hx-level-track>span{min-width:4px}
+ .aura-home .hx-hub-panel h3{font-size:1.65rem}
+ .aura-home .hx-services-list b{font-size:.5rem;padding:6px}
+ .aura-home .hx-services-list img{width:65px}
+ .aura-home .hx-inside-footer{flex-direction:column;gap:8px}
+}
+@media(prefers-reduced-motion:reduce){
+ .aura-home .hx-persona-overview img{animation:none}
+ .aura-home .hx-showcase-card,.aura-home .hx-showcase-image>img,.aura-home .hx-persona-choice{transition:none!important;transform:none!important}
+}
