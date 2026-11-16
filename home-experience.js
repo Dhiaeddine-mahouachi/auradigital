@@ -86,6 +86,24 @@
       slider.setAttribute('aria-valuetext', value + '% before, ' + (100 - value) + '% with AuraHub');
     };
     slider.addEventListener('input', updateComparison);
+    let pointerId;
+    function moveDivider(event) {
+      const bounds = comparison.getBoundingClientRect();
+      slider.value = String(Math.max(0, Math.min(100, Math.round((event.clientX - bounds.left) / bounds.width * 100))));
+      updateComparison();
+    }
+    slider.addEventListener('pointerdown', event => {
+      if (!event.isPrimary || event.button !== 0) return;
+      event.preventDefault();
+      slider.focus({preventScroll:true});
+      pointerId = event.pointerId;
+      slider.setPointerCapture(pointerId);
+      moveDivider(event);
+    });
+    slider.addEventListener('pointermove', event => {
+      if (event.pointerId === pointerId) moveDivider(event);
+    });
+    slider.addEventListener('lostpointercapture', () => { pointerId = undefined; });
     updateComparison();
   }
 
