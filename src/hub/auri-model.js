@@ -57,6 +57,18 @@ export async function mountAuri(host) {
  let raf=0,visible=true,disposed=false;
  let lastPhase='',started=performance.now();
  const motionDuration=4.5;
+ let targetX=0,targetY=0,gazeX=0,gazeY=0;
+ let lastPointer=0;
+ const clamp=value=>Math.max(-1,Math.min(1,value));
+ function followPointer(event){
+  if(event.pointerType!=='mouse'||preference.matches||!visible||document.hidden)return;
+  const bounds=host.getBoundingClientRect();
+  targetX=clamp((event.clientX-bounds.left-bounds.width/2)/Math.max(220,bounds.width));
+  targetY=clamp((event.clientY-bounds.top-bounds.height/2)/Math.max(220,bounds.height));
+  lastPointer=performance.now();
+  schedule();
+ }
+ function resetGaze(){targetX=targetY=lastPointer=0;schedule();}
  function render(now=performance.now()) {
   raf=0;
   if(!visible||document.hidden||disposed)return;
@@ -81,12 +93,16 @@ export async function mountAuri(host) {
   camera.updateProjectionMatrix();
   const settle=login?Math.min(1,Math.max(0,motionDuration-time)):1;
   const idleGuide=host.dataset.variant==='guide'&&phase==='idle';
+  const tracking=lastPointer>0&&now-lastPointer<1800;
+  gazeX=preference.matches?0:gazeX+((tracking?targetX:0)-gazeX)*.14;
+  gazeY=preference.matches?0:gazeY+((tracking?targetY:0)-gazeY)*.14;
   const pulse=preference.matches||idleGuide?0:Math.sin(time*2)*settle;
   const wave=login&&!preference.matches?Math.max(0,1-Math.abs(time-1.7)/1.45):0;
   modelRoot.position.y=.028*pulse+(happy&&!preference.matches?.15*Math.abs(Math.sin(t*6))*Math.max(0,1-t/2):0);
   modelRoot.rotation.y=phase==='evolving'&&!preference.matches?.32*Math.sin(Math.min(1,t/1.4)*Math.PI):.035*pulse;
   head.rotation.z=phase==='thinking'?-.14:phase==='error'?.1:.026*pulse;
-  head.rotation.y=phase==='listening'?-.17:.04*pulse;
+  head.rotation.y=(phase==='listening'?-.17:.04*pulse)+.27*gazeX;
+  head.rotation.x=-.17*gazeY;
   const blink=time>0&&time%4.2>4.04;
   eyes.scale.y=phase==='sleeping'||asleep?.23:blink?.14:happy?.73:1+.08*pulse;
   const tap=preference.matches?0:.19*Math.sin(time*13);
@@ -96,7 +112,7 @@ export async function mountAuri(host) {
   right.rotation.z=happy?.28:wave*(.25+.2*Math.sin(time*12));
   if(phase==='error')eyes.scale.y=.64;
   renderer.render(scene,camera);
-  if(!preference.matches&&!asleep&&!idleGuide&&(!login||t<motionDuration))raf=requestAnimationFrame(render);
+  if(!preference.matches&&(tracking||Math.abs(gazeX)+Math.abs(gazeY)>.004||(!asleep&&!idleGuide&&(!login||t<motionDuration))))raf=requestAnimationFrame(render);
  }
  function schedule(){if(!raf&&visible&&!document.hidden&&!disposed)raf=requestAnimationFrame(render);}
  const resize=new ResizeObserver(()=>{
@@ -119,6 +135,8 @@ export async function mountAuri(host) {
   updates.disconnect();
   preference.removeEventListener('change',schedule);
   document.removeEventListener('visibilitychange',schedule);
+  window.removeEventListener('pointermove',followPointer);
+  document.documentElement.removeEventListener('pointerleave',resetGaze);
   deskSurface.dispose();
   deskMaterial.dispose();
   keyShape.dispose();
@@ -136,5 +154,7 @@ export async function mountAuri(host) {
  updates.observe(host,{attributes:true,attributeFilter:['data-phase','level']});
  preference.addEventListener('change',schedule);
  document.addEventListener('visibilitychange',schedule);
+ window.addEventListener('pointermove',followPointer,{passive:true});
+ document.documentElement.addEventListener('pointerleave',resetGaze);
  return dispose;
 }

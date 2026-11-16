@@ -1,3 +1,5 @@
+import { deliverables } from './service-deliverables.js';
+
 export const serviceLabels={
  en:['My Services','Everything AuraDigital creates and manages for your business.','All','In progress','Needs action','Delivered','Active','No services match this view.','Open details','Payment','Unavailable','Delivery deadline','Awaiting confirmation','Renewal date','Created'],
  fr:['Mes services','Tout ce qu’AuraDigital crée et gère pour votre entreprise.','Tous','En cours','Action requise','Livré','Actif','Aucun service dans cette vue.','Voir les détails','Paiement','Indisponible','Date de livraison','En attente de confirmation','Date de renouvellement','Créé'],
@@ -35,6 +37,32 @@ const previewCopy={
  tr:['Hizmet örnekleri','Bu hizmeti iste','Örnek görsel','Posta kutusu','Yeni mesaj','Hoş geldiniz!','Nasıl yardımcı olabiliriz?'],
  ar:['أمثلة على الخدمات','اطلب هذه الخدمة','رسم توضيحي','صندوق البريد','رسالة جديدة','أهلاً بك!','كيف يمكننا مساعدتك؟'],
 };
+const detailCopy={
+ en:['Explore services','See what you get','What you’ll get','Scope, price and delivery are confirmed in your quote.','Start your roadmap to request this service.'],
+ fr:['Explorer les services','Voir le contenu','Ce que vous recevrez','Le devis précise le périmètre, le prix et le délai.','Créez votre feuille de route pour demander ce service.'],
+ tr:['Hizmetleri keşfet','İçeriği gör','Neler alacaksınız','Kapsam, fiyat ve teslim süresi teklifinizde kesinleşir.','Bu hizmeti istemek için yol haritanızı başlatın.'],
+ ar:['استكشف الخدمات','اطّلع على التفاصيل','ما الذي ستحصل عليه','يؤكد عرض السعر النطاق والسعر وموعد التسليم.','ابدأ خارطة الطريق لطلب هذه الخدمة.'],
+};
+export function serviceShortcuts(lang,esc,link){
+ return `<section class="hub-service-shortcuts"><header><h2>${detailCopy[lang][0]}</h2><a href="${esc(link('services'))}">${esc(serviceLabels[lang][0])} →</a></header>
+ <div class="hub-service-links">${examples.map(example=>`<a href="${esc(link('services',{offer:example.kind}))}"><span class="service-icon">${icon(example.kind)}</span><span>${esc(example[lang])}</span><span aria-hidden="true">↗</span></a>`).join('')}</div></section>`;
+}
+function scopeMarkup(kind,lang){
+ const scope=deliverables[kind]?.[lang];
+ if(!scope)return '';
+ return `<section class="service-scope"><h3>${detailCopy[lang][2]}</h3><ul>${scope.slice(1).map(item=>`<li>${item}</li>`).join('')}</ul><p>${detailCopy[lang][3]}</p></section>`;
+}
+export function renderServiceOffer({host,offer,lang,esc,link,canRequest,canSetUp}){
+ const example=examples.find(item=>item.kind===offer);
+ if(!example)return false;
+ host.innerHTML=`<a class="service-back" href="${esc(link('services'))}">← ${serviceLabels[lang][0]}</a>
+ <article class="service-offer"><div class="service-offer-visual">${serviceArt(offer,lang)}</div>
+ <div class="service-offer-copy"><span class="service-icon">${icon(offer)}</span><h2>${esc(example[lang])}</h2>
+ <p>${deliverables[offer][lang][0]}</p>${scopeMarkup(offer,lang)}
+ ${canRequest?`<a class="growth-primary" href="${esc(link('requests',{new:'1',service:example.service}))}">${previewCopy[lang][1]} →</a>`:
+  canSetUp?`<a class="growth-primary" href="${esc(link('onboarding'))}">${detailCopy[lang][4]}</a>`:''}</div></article>`;
+ return true;
+}
 const serviceKind=name=>[
  [/e.?mail|mailbox/i,'email'],[/menu/i,'menu'],[/whatsapp|automation|chat/i,'chat'],
  [/hosting|domain/i,'hosting'],[/brand|design identity/i,'brand'],[/web/i,'web'],
@@ -73,9 +101,9 @@ function facts(record,lang,labels,esc){
 export function serviceSummary(records,labels,esc) {
  return `<dl class="service-summary">${filters.map((filter,index)=>`<div><dt>${esc(labels[index+2])}</dt><dd>${filter==='all'?records.length:records.filter(record=>group(record)===filter).length}</dd></div>`).join('')}</dl>`;
 }
-export function renderServices({host,records,lang,esc,link,canRequest}){
+export function renderServices({host,records,lang,esc,link}){
  const labels=serviceLabels[lang]||serviceLabels.en;
- const [examplesTitle,requestLabel]=previewCopy[lang];
+ const [examplesTitle]=previewCopy[lang];
  const headers=(kind,name)=>`<header><span class="service-icon">${icon(kind)}</span><h2>${esc(name)}</h2></header>`;
  host.innerHTML=`<p class="service-intro">${labels[1]}</p>
  ${records.length?`<div class="service-filters" role="group" aria-label="${labels[0]}">${filters.map((filter,index)=>`<button type="button" data-service-filter="${filter}" aria-controls="service-grid" aria-pressed="${filter==='all'}">${labels[index+2]} <span>${filter==='all'?records.length:records.filter(record=>group(record)===filter).length}</span></button>`).join('')}</div>
@@ -84,13 +112,13 @@ export function renderServices({host,records,lang,esc,link,canRequest}){
   return `<article class="service-card" data-service-group="${group(record)||'other'}">
    ${serviceArt(kind,lang)}<span class="service-state">${esc(serviceStatus(record,labels))}</span>
    <div class="service-card-body">${headers(kind,record.name)}${facts(record,lang,labels,esc)}
-   <a class="growth-primary" href="${esc(link('services',{serviceRecord:record.key}))}">${labels[8]} <span aria-hidden="true">↗</span></a></div>
+   <a class="growth-primary service-card-link" href="${esc(link('services',{serviceRecord:record.key}))}">${labels[8]} <span aria-hidden="true">↗</span></a></div>
    </article>`;
- }).join('')}</div><p class="hub-empty" role="status" data-service-empty hidden>${labels[7]}</p>`:`<h2 class="service-example-title">${examplesTitle}</h2>
- <div class="service-grid">${examples.map(example=>`<article class="service-card">
+ }).join('')}</div><p class="hub-empty" role="status" data-service-empty hidden>${labels[7]}</p>`:''}<h2 class="service-example-title">${examplesTitle}</h2>
+ <div class="service-grid service-catalogue">${examples.map(example=>`<article class="service-card">
   ${serviceArt(example.kind,lang)}<div class="service-card-body">${headers(example.kind,example[lang])}
-  ${canRequest?`<a class="growth-secondary" href="${esc(link('requests',{new:'1',service:example.service}))}">${requestLabel} <span aria-hidden="true">↗</span></a>`:''}</div>
- </article>`).join('')}</div>`}`;
+  <a class="growth-secondary service-card-link" href="${esc(link('services',{offer:example.kind}))}">${detailCopy[lang][1]} <span aria-hidden="true">↗</span></a></div>
+ </article>`).join('')}</div>`;
  if(!records.length)return;
  host.querySelector('.service-filters').onclick=event=>{
   const button=event.target.closest('[data-service-filter]');
@@ -111,5 +139,6 @@ export function renderServiceDetails({host,record,lang,esc,link,askLabel}){
  ${serviceArt(serviceKind(record.name),lang)}${facts(record,lang,labels,esc)}
  <dl class="service-facts"><div><dt>${labels[14]}</dt><dd>${esc(serviceDate(record.createdAt,lang,labels[10]))}</dd></div></dl>
  <div class="actions"><a class="growth-secondary" href="${esc(link('services'))}">${labels[0]}</a>
+ ${deliverables[serviceKind(record.name)]?`<a class="growth-secondary" href="${esc(link('services',{offer:serviceKind(record.name)}))}">${detailCopy[lang][1]}</a>`:''}
  ${askLabel?`<a class="growth-primary" href="${esc(link('assistant',{serviceRecord:record.key}))}">${esc(askLabel)}</a>`:''}</div></article>`;
 }

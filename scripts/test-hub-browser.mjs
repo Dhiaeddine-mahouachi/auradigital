@@ -104,9 +104,15 @@ try {
 
  await nav(desktop,'services');
  await heading(desktop,'Service examples').waitFor();
- assert.equal(await desktop.locator('.service-card .service-art').count(),6);
+ assert.equal(await desktop.locator('.service-catalogue .service-art').count(),6);
  await desktop.locator('.service-card').filter({has:heading(desktop,'Business Email')})
-  .getByRole('link',{name:'Request this service'}).click();
+  .getByRole('link',{name:'See what you get'}).click();
+ await heading(desktop,'What you’ll get').waitFor();
+ await desktop.getByText('A mailbox such as contact@yourbusiness.com').waitFor();
+ await desktop.reload();
+ await heading(desktop,'What you’ll get').waitFor();
+ await screenshot(desktop,'aura-command-business-email');
+ await desktop.getByRole('link',{name:'Request this service'}).click();
  assert.equal(await desktop.locator('[name=service]').inputValue(),'Business Email');
  await nav(desktop,'home');
  await desktop.getByRole('link',{name:'Continue setup'}).waitFor();
@@ -114,17 +120,17 @@ try {
  await second.goto(base+'/__qa/start');
  await second.getByRole('link',{name:'Review your menu',exact:true}).waitFor();
  const otherId=new URL(await second.locator('.sidebar nav a').first().getAttribute('href'),base).searchParams.get('workspace');
- await screenshot(second,'AuraHub-Returning-Home');
+ await screenshot(second,'aura-command-home');
  await nav(second,'services');
  await heading(second,'Website hosting').waitFor();
- await heading(second,'Website').waitFor();
+ await second.locator('#service-grid').getByRole('heading',{name:'Website',exact:true}).waitFor();
  await second.locator('[data-service-filter=active]').focus();
  await second.keyboard.press('Enter');
- assert.equal(await second.locator('.service-card:visible').count(),1);
+ assert.equal(await second.locator('#service-grid .service-card:visible').count(),1);
  await second.locator('[data-service-filter=all]').click();
- assert.equal(await second.locator('.service-card:visible').count(),2);
+ assert.equal(await second.locator('#service-grid .service-card:visible').count(),2);
  await screenshot(second,'AuraHub-My-Services');
- await second.locator('.service-card').filter({has:heading(second,'Website')}).getByRole('link',{name:'Open details'}).click();
+ await second.locator('#service-grid .service-card').filter({has:heading(second,'Website')}).getByRole('link',{name:'Open details'}).click();
  await second.locator('.service-detail').getByText('Dec 2, 2026').waitFor();
  await screenshot(second,'AuraHub-Website-Details');
  await nav(second,'home');
@@ -147,6 +153,10 @@ try {
 
  const mobile=await pageAt({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
  await mobile.goto(base+'/__qa/start');
+ await mobile.locator('.hub-service-links').getByRole('link',{name:'Business Email'}).click();
+ await heading(mobile,'What you’ll get').waitFor();
+ assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ await screenshot(mobile,'aura-command-service-mobile');
  await mobile.locator('.command-bottom-nav [data-page=journey]').click();
  assert.equal(await mobile.locator('.vision-stage').count(),3);
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));

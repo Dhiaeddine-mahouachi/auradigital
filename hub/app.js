@@ -1,3 +1,43 @@
+// src/hub/service-deliverables.js
+var deliverables = {
+  web: {
+    en: ["A website customers can use on their phone", "A mobile-ready website with your key pages", "A clear way to call, message, or enquire", "Launch and access handover"],
+    fr: ["Un site accessible sur t\xE9l\xE9phone", "Un site adapt\xE9 au mobile avec vos pages principales", "Un moyen simple de vous joindre", "Mise en ligne et remise des acc\xE8s"],
+    tr: ["M\xFC\u015Fterilerinizin telefondan kullanabilece\u011Fi bir site", "Temel sayfalar\u0131 i\xE7eren mobil uyumlu site", "Arama, mesaj veya ileti\u015Fim se\xE7ene\u011Fi", "Yay\u0131nlama ve eri\u015Fim devri"],
+    ar: ["\u0645\u0648\u0642\u0639 \u064A\u0639\u0645\u0644 \u0639\u0644\u0649 \u0647\u0648\u0627\u062A\u0641 \u0639\u0645\u0644\u0627\u0626\u0643", "\u0645\u0648\u0642\u0639 \u0645\u062A\u0648\u0627\u0641\u0642 \u0645\u0639 \u0627\u0644\u0647\u0627\u062A\u0641 \u064A\u0636\u0645 \u0635\u0641\u062D\u0627\u062A\u0643 \u0627\u0644\u0623\u0633\u0627\u0633\u064A\u0629", "\u0637\u0631\u064A\u0642\u0629 \u0648\u0627\u0636\u062D\u0629 \u0644\u0644\u0627\u062A\u0635\u0627\u0644 \u0623\u0648 \u0627\u0644\u0645\u0631\u0627\u0633\u0644\u0629", "\u0625\u0637\u0644\u0627\u0642 \u0627\u0644\u0645\u0648\u0642\u0639 \u0648\u062A\u0633\u0644\u064A\u0645 \u0627\u0644\u0648\u0635\u0648\u0644"]
+  },
+  email: {
+    en: ["Email with your business name on it", "A mailbox such as contact@yourbusiness.com", "Domain email records (MX, SPF, DKIM and DMARC as supported)", "Sign-in and mailbox handover instructions"],
+    fr: ["Une adresse e-mail au nom de votre entreprise", "Une bo\xEEte comme contact@yourbusiness.com", "Enregistrements du domaine selon le fournisseur", "Consignes de connexion et remise de la bo\xEEte"],
+    tr: ["\u0130\u015Fletmenizin ad\u0131n\u0131 ta\u015F\u0131yan e-posta", "contact@yourbusiness.com gibi bir posta kutusu", "Sa\u011Flay\u0131c\u0131n\u0131n destekledi\u011Fi alan ad\u0131 kay\u0131tlar\u0131", "Oturum a\xE7ma ve posta kutusu teslim talimatlar\u0131"],
+    ar: ["\u0628\u0631\u064A\u062F \u064A\u062D\u0645\u0644 \u0627\u0633\u0645 \u0646\u0634\u0627\u0637\u0643", "\u0635\u0646\u062F\u0648\u0642 \u0628\u0631\u064A\u062F \u0645\u062B\u0644 contact@yourbusiness.com", "\u0633\u062C\u0644\u0627\u062A \u0627\u0644\u0628\u0631\u064A\u062F \u0644\u0644\u0646\u0637\u0627\u0642 \u0648\u0641\u0642 \u062F\u0639\u0645 \u0627\u0644\u0645\u0632\u0648\u062F", "\u062A\u0639\u0644\u064A\u0645\u0627\u062A \u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062F\u062E\u0648\u0644 \u0648\u062A\u0633\u0644\u064A\u0645 \u0627\u0644\u0635\u0646\u062F\u0648\u0642"]
+  },
+  menu: {
+    en: ["A menu customers open from their phone", "A mobile menu with categories, items and prices", "A shareable menu link and printable QR code", "Guidance for updating your menu"],
+    fr: ["Un menu \xE0 ouvrir sur t\xE9l\xE9phone", "Un menu mobile avec cat\xE9gories, articles et prix", "Un lien et un code QR imprimable", "Des instructions pour mettre \xE0 jour le menu"],
+    tr: ["Telefondan a\xE7\u0131lan bir men\xFC", "Kategori, \xFCr\xFCn ve fiyatlar\u0131 i\xE7eren mobil men\xFC", "Payla\u015F\u0131labilir ba\u011Flant\u0131 ve yazd\u0131r\u0131labilir QR kod", "Men\xFCy\xFC g\xFCncelleme talimatlar\u0131"],
+    ar: ["\u0642\u0627\u0626\u0645\u0629 \u064A\u0641\u062A\u062D\u0647\u0627 \u0627\u0644\u0639\u0645\u064A\u0644 \u0639\u0644\u0649 \u0647\u0627\u062A\u0641\u0647", "\u0642\u0627\u0626\u0645\u0629 \u0644\u0644\u0647\u0627\u062A\u0641 \u0628\u0627\u0644\u0623\u0642\u0633\u0627\u0645 \u0648\u0627\u0644\u0623\u0635\u0646\u0627\u0641 \u0648\u0627\u0644\u0623\u0633\u0639\u0627\u0631", "\u0631\u0627\u0628\u0637 \u0644\u0644\u0645\u0634\u0627\u0631\u0643\u0629 \u0648\u0631\u0645\u0632 QR \u0644\u0644\u0637\u0628\u0627\u0639\u0629", "\u0625\u0631\u0634\u0627\u062F\u0627\u062A \u0644\u062A\u062D\u062F\u064A\u062B \u0627\u0644\u0642\u0627\u0626\u0645\u0629"]
+  },
+  chat: {
+    en: ["A WhatsApp flow that handles routine questions", "A welcome flow with your common questions", "Shortcuts for enquiries, menus or bookings as agreed", "Testing and instructions for handing over to your team"],
+    fr: ["Un parcours WhatsApp pour les questions courantes", "Un accueil avec vos questions fr\xE9quentes", "Des raccourcis convenus vers le menu, les demandes ou les r\xE9servations", "Des tests et des instructions pour votre \xE9quipe"],
+    tr: ["S\u0131k sorular\u0131 kar\u015F\u0131layan WhatsApp ak\u0131\u015F\u0131", "S\u0131k sorulan sorularla kar\u015F\u0131lama ak\u0131\u015F\u0131", "Anla\u015F\u0131lan men\xFC, talep veya rezervasyon k\u0131sayollar\u0131", "Test ve ekibe devir talimatlar\u0131"],
+    ar: ["\u0645\u0633\u0627\u0631 \u0648\u0627\u062A\u0633\u0627\u0628 \u0644\u0644\u0623\u0633\u0626\u0644\u0629 \u0627\u0644\u0645\u062A\u0643\u0631\u0631\u0629", "\u062A\u0631\u062D\u064A\u0628 \u0648\u0625\u062C\u0627\u0628\u0627\u062A \u0644\u0644\u0623\u0633\u0626\u0644\u0629 \u0627\u0644\u0634\u0627\u0626\u0639\u0629", "\u0627\u062E\u062A\u0635\u0627\u0631\u0627\u062A \u0644\u0644\u0642\u0627\u0626\u0645\u0629 \u0623\u0648 \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0623\u0648 \u0627\u0644\u062D\u062C\u0648\u0632\u0627\u062A \u062D\u0633\u0628 \u0627\u0644\u0627\u062A\u0641\u0627\u0642", "\u0627\u062E\u062A\u0628\u0627\u0631 \u0648\u062A\u0639\u0644\u064A\u0645\u0627\u062A \u0644\u062A\u062D\u0648\u064A\u0644 \u0627\u0644\u0645\u062D\u0627\u062F\u062B\u0629 \u0625\u0644\u0649 \u0641\u0631\u064A\u0642\u0643"]
+  },
+  brand: {
+    en: ["A consistent identity across your business", "A logo direction with the agreed variations", "A colour and typography guide", "Exported files for the agreed uses"],
+    fr: ["Une identit\xE9 coh\xE9rente pour votre entreprise", "Un logo et les variantes convenues", "Un guide des couleurs et de la typographie", "Des fichiers export\xE9s pour les usages convenus"],
+    tr: ["\u0130\u015Fletmenizin her yerinde tutarl\u0131 kimlik", "Logo ve kararla\u015Ft\u0131r\u0131lan varyasyonlar", "Renk ve tipografi rehberi", "Kararla\u015Ft\u0131r\u0131lan kullan\u0131mlar i\xE7in dosyalar"],
+    ar: ["\u0647\u0648\u064A\u0629 \u0645\u0648\u062D\u062F\u0629 \u0644\u0646\u0634\u0627\u0637\u0643", "\u0634\u0639\u0627\u0631 \u0648\u0627\u0644\u0646\u0633\u062E \u0627\u0644\u0645\u062A\u0641\u0642 \u0639\u0644\u064A\u0647\u0627", "\u062F\u0644\u064A\u0644 \u0627\u0644\u0623\u0644\u0648\u0627\u0646 \u0648\u0627\u0644\u062E\u0637\u0648\u0637", "\u0645\u0644\u0641\u0627\u062A \u062C\u0627\u0647\u0632\u0629 \u0644\u0644\u0627\u0633\u062A\u062E\u062F\u0627\u0645\u0627\u062A \u0627\u0644\u0645\u062A\u0641\u0642 \u0639\u0644\u064A\u0647\u0627"]
+  },
+  hosting: {
+    en: ["A business-owned domain connected to your site", "Domain registration or connection and DNS setup", "Hosting and HTTPS setup for the agreed plan", "An access and renewal handover"],
+    fr: ["Un domaine \xE0 votre nom reli\xE9 \xE0 votre site", "Enregistrement ou connexion du domaine et configuration DNS", "H\xE9bergement et HTTPS selon la formule convenue", "Remise des acc\xE8s et informations de renouvellement"],
+    tr: ["Sitenize ba\u011Fl\u0131 ve i\u015Fletmenize ait alan ad\u0131", "Alan ad\u0131 kayd\u0131 veya ba\u011Flant\u0131s\u0131 ve DNS kurulumu", "Anla\u015F\u0131lan pakete g\xF6re hosting ve HTTPS kurulumu", "Eri\u015Fim ve yenileme bilgilerinin teslimi"],
+    ar: ["\u0646\u0637\u0627\u0642 \u0628\u0627\u0633\u0645 \u0646\u0634\u0627\u0637\u0643 \u0645\u0631\u062A\u0628\u0637 \u0628\u0645\u0648\u0642\u0639\u0643", "\u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u0646\u0637\u0627\u0642 \u0623\u0648 \u0631\u0628\u0637\u0647 \u0648\u0625\u0639\u062F\u0627\u062F DNS", "\u0625\u0639\u062F\u0627\u062F \u0627\u0644\u0627\u0633\u062A\u0636\u0627\u0641\u0629 \u0648HTTPS \u062D\u0633\u0628 \u0627\u0644\u062E\u0637\u0629 \u0627\u0644\u0645\u062A\u0641\u0642 \u0639\u0644\u064A\u0647\u0627", "\u062A\u0633\u0644\u064A\u0645 \u0627\u0644\u0648\u0635\u0648\u0644 \u0648\u0645\u0639\u0644\u0648\u0645\u0627\u062A \u0627\u0644\u062A\u062C\u062F\u064A\u062F"]
+  }
+};
+
 // src/hub/service-view.js
 var serviceLabels = {
   en: ["My Services", "Everything AuraDigital creates and manages for your business.", "All", "In progress", "Needs action", "Delivered", "Active", "No services match this view.", "Open details", "Payment", "Unavailable", "Delivery deadline", "Awaiting confirmation", "Renewal date", "Created"],
@@ -48,6 +88,31 @@ var previewCopy = {
   tr: ["Hizmet \xF6rnekleri", "Bu hizmeti iste", "\xD6rnek g\xF6rsel", "Posta kutusu", "Yeni mesaj", "Ho\u015F geldiniz!", "Nas\u0131l yard\u0131mc\u0131 olabiliriz?"],
   ar: ["\u0623\u0645\u062B\u0644\u0629 \u0639\u0644\u0649 \u0627\u0644\u062E\u062F\u0645\u0627\u062A", "\u0627\u0637\u0644\u0628 \u0647\u0630\u0647 \u0627\u0644\u062E\u062F\u0645\u0629", "\u0631\u0633\u0645 \u062A\u0648\u0636\u064A\u062D\u064A", "\u0635\u0646\u062F\u0648\u0642 \u0627\u0644\u0628\u0631\u064A\u062F", "\u0631\u0633\u0627\u0644\u0629 \u062C\u062F\u064A\u062F\u0629", "\u0623\u0647\u0644\u0627\u064B \u0628\u0643!", "\u0643\u064A\u0641 \u064A\u0645\u0643\u0646\u0646\u0627 \u0645\u0633\u0627\u0639\u062F\u062A\u0643\u061F"]
 };
+var detailCopy = {
+  en: ["Explore services", "See what you get", "What you\u2019ll get", "Scope, price and delivery are confirmed in your quote.", "Start your roadmap to request this service."],
+  fr: ["Explorer les services", "Voir le contenu", "Ce que vous recevrez", "Le devis pr\xE9cise le p\xE9rim\xE8tre, le prix et le d\xE9lai.", "Cr\xE9ez votre feuille de route pour demander ce service."],
+  tr: ["Hizmetleri ke\u015Ffet", "\u0130\xE7eri\u011Fi g\xF6r", "Neler alacaks\u0131n\u0131z", "Kapsam, fiyat ve teslim s\xFCresi teklifinizde kesinle\u015Fir.", "Bu hizmeti istemek i\xE7in yol haritan\u0131z\u0131 ba\u015Flat\u0131n."],
+  ar: ["\u0627\u0633\u062A\u0643\u0634\u0641 \u0627\u0644\u062E\u062F\u0645\u0627\u062A", "\u0627\u0637\u0651\u0644\u0639 \u0639\u0644\u0649 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644", "\u0645\u0627 \u0627\u0644\u0630\u064A \u0633\u062A\u062D\u0635\u0644 \u0639\u0644\u064A\u0647", "\u064A\u0624\u0643\u062F \u0639\u0631\u0636 \u0627\u0644\u0633\u0639\u0631 \u0627\u0644\u0646\u0637\u0627\u0642 \u0648\u0627\u0644\u0633\u0639\u0631 \u0648\u0645\u0648\u0639\u062F \u0627\u0644\u062A\u0633\u0644\u064A\u0645.", "\u0627\u0628\u062F\u0623 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642 \u0644\u0637\u0644\u0628 \u0647\u0630\u0647 \u0627\u0644\u062E\u062F\u0645\u0629."]
+};
+function serviceShortcuts(lang2, esc3, link2) {
+  return `<section class="hub-service-shortcuts"><header><h2>${detailCopy[lang2][0]}</h2><a href="${esc3(link2("services"))}">${esc3(serviceLabels[lang2][0])} \u2192</a></header>
+ <div class="hub-service-links">${examples.map((example) => `<a href="${esc3(link2("services", { offer: example.kind }))}"><span class="service-icon">${icon(example.kind)}</span><span>${esc3(example[lang2])}</span><span aria-hidden="true">\u2197</span></a>`).join("")}</div></section>`;
+}
+function scopeMarkup(kind, lang2) {
+  const scope = deliverables[kind]?.[lang2];
+  if (!scope) return "";
+  return `<section class="service-scope"><h3>${detailCopy[lang2][2]}</h3><ul>${scope.slice(1).map((item) => `<li>${item}</li>`).join("")}</ul><p>${detailCopy[lang2][3]}</p></section>`;
+}
+function renderServiceOffer({ host, offer, lang: lang2, esc: esc3, link: link2, canRequest, canSetUp }) {
+  const example = examples.find((item) => item.kind === offer);
+  if (!example) return false;
+  host.innerHTML = `<a class="service-back" href="${esc3(link2("services"))}">\u2190 ${serviceLabels[lang2][0]}</a>
+ <article class="service-offer"><div class="service-offer-visual">${serviceArt(offer, lang2)}</div>
+ <div class="service-offer-copy"><span class="service-icon">${icon(offer)}</span><h2>${esc3(example[lang2])}</h2>
+ <p>${deliverables[offer][lang2][0]}</p>${scopeMarkup(offer, lang2)}
+ ${canRequest ? `<a class="growth-primary" href="${esc3(link2("requests", { new: "1", service: example.service }))}">${previewCopy[lang2][1]} \u2192</a>` : canSetUp ? `<a class="growth-primary" href="${esc3(link2("onboarding"))}">${detailCopy[lang2][4]}</a>` : ""}</div></article>`;
+  return true;
+}
 var serviceKind = (name) => [
   [/e.?mail|mailbox/i, "email"],
   [/menu/i, "menu"],
@@ -89,9 +154,9 @@ function facts(record, lang2, labels3, esc3) {
 function serviceSummary(records, labels3, esc3) {
   return `<dl class="service-summary">${filters.map((filter, index) => `<div><dt>${esc3(labels3[index + 2])}</dt><dd>${filter === "all" ? records.length : records.filter((record) => group(record) === filter).length}</dd></div>`).join("")}</dl>`;
 }
-function renderServices({ host, records, lang: lang2, esc: esc3, link: link2, canRequest }) {
+function renderServices({ host, records, lang: lang2, esc: esc3, link: link2 }) {
   const labels3 = serviceLabels[lang2] || serviceLabels.en;
-  const [examplesTitle, requestLabel] = previewCopy[lang2];
+  const [examplesTitle] = previewCopy[lang2];
   const headers = (kind, name) => `<header><span class="service-icon">${icon(kind)}</span><h2>${esc3(name)}</h2></header>`;
   host.innerHTML = `<p class="service-intro">${labels3[1]}</p>
  ${records.length ? `<div class="service-filters" role="group" aria-label="${labels3[0]}">${filters.map((filter, index) => `<button type="button" data-service-filter="${filter}" aria-controls="service-grid" aria-pressed="${filter === "all"}">${labels3[index + 2]} <span>${filter === "all" ? records.length : records.filter((record) => group(record) === filter).length}</span></button>`).join("")}</div>
@@ -100,13 +165,13 @@ function renderServices({ host, records, lang: lang2, esc: esc3, link: link2, ca
     return `<article class="service-card" data-service-group="${group(record) || "other"}">
    ${serviceArt(kind, lang2)}<span class="service-state">${esc3(serviceStatus(record, labels3))}</span>
    <div class="service-card-body">${headers(kind, record.name)}${facts(record, lang2, labels3, esc3)}
-   <a class="growth-primary" href="${esc3(link2("services", { serviceRecord: record.key }))}">${labels3[8]} <span aria-hidden="true">\u2197</span></a></div>
+   <a class="growth-primary service-card-link" href="${esc3(link2("services", { serviceRecord: record.key }))}">${labels3[8]} <span aria-hidden="true">\u2197</span></a></div>
    </article>`;
-  }).join("")}</div><p class="hub-empty" role="status" data-service-empty hidden>${labels3[7]}</p>` : `<h2 class="service-example-title">${examplesTitle}</h2>
- <div class="service-grid">${examples.map((example) => `<article class="service-card">
+  }).join("")}</div><p class="hub-empty" role="status" data-service-empty hidden>${labels3[7]}</p>` : ""}<h2 class="service-example-title">${examplesTitle}</h2>
+ <div class="service-grid service-catalogue">${examples.map((example) => `<article class="service-card">
   ${serviceArt(example.kind, lang2)}<div class="service-card-body">${headers(example.kind, example[lang2])}
-  ${canRequest ? `<a class="growth-secondary" href="${esc3(link2("requests", { new: "1", service: example.service }))}">${requestLabel} <span aria-hidden="true">\u2197</span></a>` : ""}</div>
- </article>`).join("")}</div>`}`;
+  <a class="growth-secondary service-card-link" href="${esc3(link2("services", { offer: example.kind }))}">${detailCopy[lang2][1]} <span aria-hidden="true">\u2197</span></a></div>
+ </article>`).join("")}</div>`;
   if (!records.length) return;
   host.querySelector(".service-filters").onclick = (event) => {
     const button2 = event.target.closest("[data-service-filter]");
@@ -127,6 +192,7 @@ function renderServiceDetails({ host, record, lang: lang2, esc: esc3, link: link
  ${serviceArt(serviceKind(record.name), lang2)}${facts(record, lang2, labels3, esc3)}
  <dl class="service-facts"><div><dt>${labels3[14]}</dt><dd>${esc3(serviceDate(record.createdAt, lang2, labels3[10]))}</dd></div></dl>
  <div class="actions"><a class="growth-secondary" href="${esc3(link2("services"))}">${labels3[0]}</a>
+ ${deliverables[serviceKind(record.name)] ? `<a class="growth-secondary" href="${esc3(link2("services", { offer: serviceKind(record.name) }))}">${detailCopy[lang2][1]}</a>` : ""}
  ${askLabel ? `<a class="growth-primary" href="${esc3(link2("assistant", { serviceRecord: record.key }))}">${esc3(askLabel)}</a>` : ""}</div></article>`;
 }
 
@@ -1874,8 +1940,11 @@ async function workSnapshot() {
 }
 function buildCard(ui) {
   const canBuild = !workspace || ["profile:write", "roadmap:write"].every((permission) => workspace.permissions.includes(permission));
-  return `<section class="hub-hero hub-welcome">${guideCharacter()}<h2>${esc2(ui.build)}</h2>
- <p>${esc2(ui.buildNote)}</p>${canBuild ? `<a class="growth-primary" href="${esc2(link("onboarding"))}">${esc2(ui.buildAction)} <span aria-hidden="true">\u2192</span></a>` : ""}</section><div data-home-guide></div>`;
+  return `<section class="hub-hero hub-welcome"><div>
+ <h2>${esc2(ui.build)}</h2><p>${esc2(ui.buildNote)}</p>
+ ${canBuild ? `<a class="growth-primary" href="${esc2(link("onboarding"))}">${esc2(ui.buildAction)} <span aria-hidden="true">\u2192</span></a>` : ""}
+ <a class="growth-secondary" href="${esc2(link("services"))}">${esc2(serviceLabels[lang][0])}</a></div>
+ <div class="hub-hero-art">${guideCharacter()}</div></section>${serviceShortcuts(lang, esc2, link)}<div data-home-guide></div>`;
 }
 function renderBuildCard(ui) {
   content(buildCard(ui));
@@ -1904,20 +1973,22 @@ async function home() {
   const hero = (menu ? ui.menuReady : item?.name) || (next ? missionTitle(next) : workspace.missions.every((m) => m.status === "done") ? ui.complete : ui.journey);
   const destination = item ? link(menu ? "menuDrafts" : "requests", menu ? { draft: item.id } : { request: item.id }) : link("journey", { task: next?.id });
   const label = item ? menu ? ui.reviewMenu : ui.openRequest : next ? ui.continue : ui.journey;
-  const complete = !item && !next && workspace.missions.every((m) => m.status === "done");
   const note = item ? menu ? item.name : workStatus(item) : next ? next.reason || next.description : "";
   const done = workspace.missions.filter((m) => m.status === "done").length;
   const stage = next ? [ui.small, ui.systems, ui.scale][hubStage(next.level)] : ui.journey;
   host.innerHTML = `<section class="hub-hero"><div>
  ${item ? `<span class="hub-highlight">${esc2(ui.attention)}</span>` : next ? `<span class="hub-highlight">${esc2(ui.next)}</span>` : ""}
  <h2>${esc2(hero)}</h2>${note ? `<p>${esc2(note)}</p>` : ""}
- <a class="growth-primary" href="${esc2(destination)}">${esc2(label)} <span aria-hidden="true">\u2192</span></a>${complete ? ` <a class="growth-secondary" href="${esc2(link("services"))}">${esc2(ui.services)}</a>` : ""}</div>
- <div class="hub-hero-art">${menu ? menuArtwork(item) : robot()}</div></section>
+ <a class="growth-primary" href="${esc2(destination)}">${esc2(label)} <span aria-hidden="true">\u2192</span></a>${workspace.permissions.includes("auri:use") ? ` <a class="growth-secondary" href="${esc2(link("assistant", item?.kind === "request" ? { request: item.id } : { task: next?.id }))}">${esc2(ui.assistant)}</a>` : ""}</div>
+ <div class="hub-hero-art">${menu ? menuArtwork(item) : auriCharacter(auriLevel(), { variant: "guide" })}</div></section>
  ${serviceSummary(records, serviceLabels[lang], esc2)}
  <div class="hub-work-rows">
- <a class="hub-work-row" href="${esc2(link("journey"))}"><span class="hub-row-icon">${hubIcon("journey")}</span><span><strong>${esc2(ui.journey)}</strong><small>${esc2(stage)} \xB7 ${done} / ${workspace.missions.length} ${esc2(roadmapLabels(lang).completed)}</small></span><span aria-hidden="true">\u203A</span></a>
+ <a class="hub-work-row" href="${esc2(link("journey"))}"><span class="hub-row-icon">${hubIcon("journey")}</span><span><strong>${esc2(ui.journey)}</strong><small>${esc2(stage)} \xB7 ${done} / ${workspace.missions.length} ${esc2(roadmapLabels(lang).completed)}</small>
+ <progress class="hub-roadmap-progress" value="${done}" max="${workspace.missions.length}" aria-label="${esc2(roadmapLabels(lang).completed)}"></progress></span><span aria-hidden="true">\u203A</span></a>
  ${item && next ? `<a class="hub-work-row" href="${esc2(link("journey", { task: next.id }))}"><span class="hub-row-icon">${hubIcon("journey")}</span><span><strong>${esc2(ui.next)}</strong><small>${esc2(missionTitle(next))}</small></span><span aria-hidden="true">\u203A</span></a>` : ""}
- ${progress.slice(0, 2).map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")}</div>`;
+  ${progress.slice(0, 2).map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")}</div>
+ ${serviceShortcuts(lang, esc2, link)}`;
+  bindAuri(host, workspace.organization.id);
 }
 async function myWork() {
   const ui = hubLabels(lang), host = document.querySelector("#page-content"), id = workspace.organization.id;
@@ -1948,7 +2019,7 @@ async function myWork() {
   if (page === "services" && !service) {
     host.innerHTML = '<p role="status">\u2026</p>';
     const { records } = await api(endpoint("work"));
-    if (host.isConnected) renderServices({ host, records: records || [], lang, esc: esc2, link, canRequest: workspace.permissions.includes("roadmap:write") });
+    if (host.isConnected) renderServices({ host, records: records || [], lang, esc: esc2, link });
     return;
   }
   const { attention, progress, services, requests: requests2 } = await workSnapshot();
@@ -1968,6 +2039,22 @@ async function renderPage() {
   const label = hubLabels(lang);
   if (page === "invoices") return content(`<section class="panel"><a class="primary" href="/account">${esc2(t("orders"))}</a></section>`);
   if (page === "home") return home();
+  if (page === "services" && (query.has("offer") || !workspace)) {
+    const host = document.querySelector("#page-content");
+    if (query.has("offer")) {
+      const found = renderServiceOffer({
+        host,
+        offer: query.get("offer"),
+        lang,
+        esc: esc2,
+        link,
+        canRequest: workspace?.permissions.includes("roadmap:write"),
+        canSetUp: !workspace
+      });
+      if (!found) throw new Error(label.unavailable);
+    } else renderServices({ host, records: [], lang, esc: esc2, link });
+    return;
+  }
   if (!workspace) return renderBuildCard(label);
   if (page === "services" || page === "requests") return myWork();
   if ((page === "journey" || page === "onboarding") && !workspace.missions.length) return renderBuildCard(label);

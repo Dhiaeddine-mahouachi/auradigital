@@ -630,3 +630,57 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 .service-rack{margin-inline-end:40%;display:grid;gap:3px;transform:rotate(-8deg)}
 .service-rack i{width:102px;height:23px;border:1px solid #505a38;border-radius:5px;background:radial-gradient(circle at 88% 50%,#eaff33 2px,transparent 3px),linear-gradient(#30332c,#101210);box-shadow:0 0 15px #d8ed2340}
 .service-domain{position:absolute;inset-inline-end:0;max-width:63%;overflow-wrap:anywhere;background:#1c2923;border:1px solid #5a755e;padding:8px 10px;border-radius:8px;color:#dcebdd;font-size:.75rem}
+
+/* Hub overview and catalogue */
+.aurahub-shell .hub-welcome,.aurahub-shell .hub-hero:has(.hub-hero-art){
+ border:1px solid #434a28;
+ background:radial-gradient(ellipse at 83% 63%,#3b4216 0%,transparent 50%),linear-gradient(135deg,#1a221b,#101513 70%);
+}
+.aurahub-shell .hub-hero-art{position:relative;isolation:isolate}
+.aurahub-shell .hub-hero-art:has(auri-character)::before{
+ content:'';position:absolute;inset:12% 7%;z-index:-1;border:1px solid #bace4638;border-radius:50%;
+ background:radial-gradient(circle,#b9ca3929,transparent 68%);box-shadow:0 0 42px #8b9c2130;
+}
+.hub-service-shortcuts{margin-block:26px 4px}
+.hub-service-shortcuts header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-block-end:12px}
+.hub-service-shortcuts h2{font-size:1.15rem;margin:0}
+.hub-service-shortcuts header a,.service-back{color:#eaff33;font-weight:650}
+.hub-service-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.hub-service-links>a{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;
+ min-height:55px;padding:9px 12px;border:1px solid #353d2d;border-radius:12px;background:#171d18;color:#f1f4e9;
+ font-size:.84rem;text-decoration:none;overflow-wrap:anywhere}
+.hub-service-links>a:hover{border-color:#b5c746;background:#232b18}
+.hub-service-links>a>span:last-child{color:#d6e477}
+.service-catalogue{margin-block-end:12px}
+.service-catalogue .service-card:hover{border-color:#98a642}
+.service-catalogue .service-card:focus-within{outline:2px solid #eaff33;outline-offset:2px}
+.service-card-link{position:static}
+.service-card-link::after{content:'';position:absolute;inset:0}
+.service-grid .service-card-body:has(.service-card-link){position:static;margin-block-start:0}
+.service-back{display:inline-block;margin-block-end:15px;text-decoration:none}
+.service-offer{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.04fr);border:1px solid #363e30;
+ border-radius:18px;overflow:hidden;background:#171c19}
+.service-offer-visual{display:grid;min-width:0}
+.service-offer-visual .service-art{min-height:265px;height:100%}
+.service-offer-visual .service-artwork{height:100%;min-height:240px}
+.service-offer-visual .service-laptop img{height:clamp(100px,15vw,165px)}
+.service-offer-copy{padding:clamp(18px,4vw,42px)}
+.service-offer-copy>h2{margin:12px 0 6px;font-size:clamp(1.5rem,2.8vw,2.4rem);line-height:1.16}
+.service-offer-copy>p,.service-scope p{color:#cbd1c5}
+.service-scope{margin-block:20px;padding-block-start:17px;border-block-start:1px solid #ffffff1e}
+.service-scope h3{font-size:1rem;margin:0}
+.service-scope ul{display:grid;gap:10px;padding-inline-start:20px;color:#f2f5ea}
+.service-scope li::marker{color:#eaff33}
+.service-scope p{font-size:.84rem}
+@media(max-width:900px){.hub-service-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.service-offer{grid-template-columns:1fr}.service-offer-visual .service-art,.service-offer-visual .service-artwork{min-height:195px}}
+@media(max-width:380px){.hub-service-links{grid-template-columns:1fr}}
+.aurahub-shell .hub-welcome{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);justify-items:stretch;text-align:start;max-width:none;gap:16px;box-shadow:none}
+.aurahub-shell .hub-welcome .growth-secondary,.aurahub-shell .hub-hero .growth-secondary{margin-block-start:8px}
+.hub-roadmap-progress{display:block;width:min(100%,265px);height:7px;margin-block-start:7px;accent-color:#eaff33}
+.service-grid .service-card:focus-within{outline:2px solid #eaff33;outline-offset:2px}
+@media(max-width:480px){
+ .aurahub-shell .hub-welcome{grid-template-columns:minmax(0,1fr) minmax(0,.42fr);gap:8px;padding:16px 13px}
+ .aurahub-shell .hub-welcome .auri{width:100%;height:auto;aspect-ratio:1}
+ .aurahub-shell .hub-welcome .growth-secondary{font-size:.76rem;padding:8px 10px}
+}

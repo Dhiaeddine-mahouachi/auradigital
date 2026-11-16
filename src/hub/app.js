@@ -1,4 +1,4 @@
-import { renderServices, renderServiceDetails, serviceLabels, serviceSummary, serviceDate, serviceStatus } from './service-view.js';
+import { renderServices, renderServiceOffer, serviceShortcuts, renderServiceDetails, serviceLabels, serviceSummary, serviceDate, serviceStatus } from './service-view.js';
 import { mountGuide } from './guide-view.js';
 import { currentHubLocation, hubIcon, hubLabels, hubLink, hubStage } from './hub-navigation.js';
 import { renderRequestForm, renderWorkRow, workRows, workStatus } from './work-view.js';
@@ -255,8 +255,11 @@ async function workSnapshot(){
 }
 function buildCard(ui){
  const canBuild=!workspace||['profile:write','roadmap:write'].every(permission=>workspace.permissions.includes(permission));
- return `<section class="hub-hero hub-welcome">${guideCharacter()}<h2>${esc(ui.build)}</h2>
- <p>${esc(ui.buildNote)}</p>${canBuild?`<a class="growth-primary" href="${esc(link('onboarding'))}">${esc(ui.buildAction)} <span aria-hidden="true">→</span></a>`:''}</section><div data-home-guide></div>`;
+ return `<section class="hub-hero hub-welcome"><div>
+ <h2>${esc(ui.build)}</h2><p>${esc(ui.buildNote)}</p>
+ ${canBuild?`<a class="growth-primary" href="${esc(link('onboarding'))}">${esc(ui.buildAction)} <span aria-hidden="true">→</span></a>`:''}
+ <a class="growth-secondary" href="${esc(link('services'))}">${esc(serviceLabels[lang][0])}</a></div>
+ <div class="hub-hero-art">${guideCharacter()}</div></section>${serviceShortcuts(lang,esc,link)}<div data-home-guide></div>`;
 }
 function renderBuildCard(ui){
  content(buildCard(ui));
@@ -283,20 +286,22 @@ async function home(){
  const hero=(menu?ui.menuReady:item?.name)|| (next?missionTitle(next):workspace.missions.every(m=>m.status==='done')?ui.complete:ui.journey);
  const destination=item?link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id}):link('journey',{task:next?.id});
  const label=item?(menu?ui.reviewMenu:ui.openRequest):next?ui.continue:ui.journey;
- const complete=!item&&!next&&workspace.missions.every(m=>m.status==='done');
  const note=item?(menu?item.name:workStatus(item)):next?(next.reason||next.description):'';
  const done=workspace.missions.filter(m=>m.status==='done').length;
  const stage=next?[ui.small,ui.systems,ui.scale][hubStage(next.level)]:ui.journey;
  host.innerHTML=`<section class="hub-hero"><div>
  ${item?`<span class="hub-highlight">${esc(ui.attention)}</span>`:next?`<span class="hub-highlight">${esc(ui.next)}</span>`:''}
  <h2>${esc(hero)}</h2>${note?`<p>${esc(note)}</p>`:''}
- <a class="growth-primary" href="${esc(destination)}">${esc(label)} <span aria-hidden="true">→</span></a>${complete?` <a class="growth-secondary" href="${esc(link('services'))}">${esc(ui.services)}</a>`:''}</div>
- <div class="hub-hero-art">${menu?menuArtwork(item):robot()}</div></section>
+ <a class="growth-primary" href="${esc(destination)}">${esc(label)} <span aria-hidden="true">→</span></a>${workspace.permissions.includes('auri:use')?` <a class="growth-secondary" href="${esc(link('assistant',item?.kind==='request'?{request:item.id}:{task:next?.id}))}">${esc(ui.assistant)}</a>`:''}</div>
+ <div class="hub-hero-art">${menu?menuArtwork(item):auriCharacter(auriLevel(),{variant:'guide'})}</div></section>
  ${serviceSummary(records,serviceLabels[lang],esc)}
  <div class="hub-work-rows">
- <a class="hub-work-row" href="${esc(link('journey'))}"><span class="hub-row-icon">${hubIcon('journey')}</span><span><strong>${esc(ui.journey)}</strong><small>${esc(stage)} · ${done} / ${workspace.missions.length} ${esc(roadmapLabels(lang).completed)}</small></span><span aria-hidden="true">›</span></a>
+ <a class="hub-work-row" href="${esc(link('journey'))}"><span class="hub-row-icon">${hubIcon('journey')}</span><span><strong>${esc(ui.journey)}</strong><small>${esc(stage)} · ${done} / ${workspace.missions.length} ${esc(roadmapLabels(lang).completed)}</small>
+ <progress class="hub-roadmap-progress" value="${done}" max="${workspace.missions.length}" aria-label="${esc(roadmapLabels(lang).completed)}"></progress></span><span aria-hidden="true">›</span></a>
  ${item&&next?`<a class="hub-work-row" href="${esc(link('journey',{task:next.id}))}"><span class="hub-row-icon">${hubIcon('journey')}</span><span><strong>${esc(ui.next)}</strong><small>${esc(missionTitle(next))}</small></span><span aria-hidden="true">›</span></a>`:''}
- ${progress.slice(0,2).map(record=>renderWorkRow(record,{ui,esc,link})).join('')}</div>`;
+  ${progress.slice(0,2).map(record=>renderWorkRow(record,{ui,esc,link})).join('')}</div>
+ ${serviceShortcuts(lang,esc,link)}`;
+ bindAuri(host,workspace.organization.id);
 }
 async function myWork(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content'),id=workspace.organization.id;
@@ -324,7 +329,7 @@ async function myWork(){
  if(page==='services'&&!service){
   host.innerHTML='<p role="status">…</p>';
   const {records}=await api(endpoint('work'));
-  if(host.isConnected)renderServices({host,records:records||[],lang,esc,link,canRequest:workspace.permissions.includes('roadmap:write')});
+  if(host.isConnected)renderServices({host,records:records||[],lang,esc,link});
   return;
  }
  const {attention,progress,services,requests}=await workSnapshot();
@@ -347,6 +352,15 @@ async function renderPage(){
  const label=hubLabels(lang);
  if(page==='invoices')return content(`<section class="panel"><a class="primary" href="/account">${esc(t('orders'))}</a></section>`);
  if(page==='home')return home();
+ if(page==='services'&&(query.has('offer')||!workspace)){
+  const host=document.querySelector('#page-content');
+  if(query.has('offer')){
+   const found=renderServiceOffer({host,offer:query.get('offer'),lang,esc,link,
+    canRequest:workspace?.permissions.includes('roadmap:write'),canSetUp:!workspace});
+   if(!found)throw new Error(label.unavailable);
+  }else renderServices({host,records:[],lang,esc,link});
+  return;
+ }
  if(!workspace)return renderBuildCard(label);
  if(page==='services'||page==='requests')return myWork();
  if((page==='journey'||page==='onboarding')&&!workspace.missions.length)return renderBuildCard(label);
