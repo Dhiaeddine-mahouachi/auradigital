@@ -106,3 +106,64 @@
 .growth-topbar .avatar{background:#34735c;color:#fff}
 .growth-branch h3 small{color:#daf0e6}
 @media(max-width:390px){.growth-topbar .secondary.menu-button{padding-inline:5px}.growth-greeting strong{font-size:.84rem}}
+
+/* Auri sits in the Hub content flow so it never covers navigation or controls. */
+auri-character{display:inline-grid;place-items:center;aspect-ratio:1;animation:none}
+auri-character img,auri-character canvas{grid-area:1/1;width:100%;height:100%;object-fit:contain}
+auri-character[data-rendered] img{visibility:hidden}
+.auri-companion{background:#101214;color:#fafaf7;border-radius:18px;border:1px solid #383c38;margin:0 0 14px}
+.auri-companion summary{display:flex;align-items:center;gap:12px;min-height:64px;padding:4px 14px;cursor:pointer;list-style:none}
+.auri-companion summary::-webkit-details-marker{display:none}
+.auri-companion summary::after{content:"+";font-size:1.3rem;margin-inline-start:auto;color:#e1e100}
+.auri-companion[open] summary::after{content:"−"}
+.auri-companion summary:focus-visible{outline:2px solid #e1e100;outline-offset:3px;border-radius:12px}
+.auri-companion summary .auri{flex:0 0 58px;width:58px}
+.auri-companion summary strong,.auri-companion small{display:block}
+.auri-companion small{color:#d2d5d2}
+.auri-companion .auri-status{color:#e1e100;font-size:.81rem}
+.auri-companion-body{padding:0 16px 16px}
+.auri-companion form{display:flex;flex-wrap:wrap;gap:8px}
+.auri-companion label{flex:1 1 180px}
+.auri-companion input{width:100%;color:#fafaf7;background:#1b1e20;border-color:#6a706a}
+.auri-companion .primary{background:#e1e100;color:#101214}
+.auri-companion [data-auri-reply]:empty{display:none}
+.auri-companion [data-auri-roadmap]{margin-block-start:8px}
+.auri-onboarding{display:flex;align-items:center;gap:12px;color:#14211b}
+.auri-onboarding .auri{width:100px}
+@media (max-width:480px){.auri-companion summary{gap:8px;padding-inline:8px}.auri-companion summary .auri{width:46px;flex-basis:46px}}
+.auri-companion[data-auri-pending] summary{border-inline-start:3px solid #e1e100}
+
+/* Auri stays outside the dashboard grid. Reserve room for the collapsed dock. */
+#auri-companion:not(:empty){min-block-size:84px}
+.auri-dock{position:fixed;z-index:14;right:max(16px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));inline-size:min(330px,calc(100vw - 32px));margin:0;box-shadow:0 12px 36px #10121437}
+.auri-dock[open]{inline-size:min(400px,calc(100vw - 32px));max-block-size:calc(100dvh - 28px);overflow:auto}
+.auri-dock .auri-status{max-inline-size:11ch;overflow-wrap:anywhere}
+.auri-actions{display:flex;flex-wrap:wrap;gap:8px;margin-block:12px 0}
+.auri-actions [data-auri-roadmap]{margin:0}
+.auri-companion output,.auri-companion [data-auri-reply]{white-space:pre-wrap;overflow-wrap:anywhere}
+.auri-companion [hidden]{display:none!important}
+.auri-workspace-card{max-inline-size:760px}
+.auri-workspace-card header{display:flex;gap:16px;align-items:center;padding:4px 16px}
+.auri-workspace-card header .auri{width:108px;height:108px}
+.auri-workspace-card [data-auri-name]{margin-block-start:20px;align-items:end}
+.auri-workspace-card [data-auri-name] label{max-inline-size:370px}
+.auri-workspace-card [data-auri-name] input{display:block;margin-block-start:5px}
+@media(max-width:600px){
+ .auri-dock:not([open]){inline-size:min(233px,calc(100vw - 24px));right:12px}
+ .auri-dock[open]{inset-inline:10px;inline-size:auto;max-block-size:70dvh}
+ .auri-dock:not([open]) .auri-status{position:absolute;clip-path:inset(50%);inline-size:1px;block-size:1px}
+ .auri-dock summary{min-height:54px}
+ body.menu-open .auri-dock{visibility:hidden}
+}
+.auri-work-log{max-inline-size:760px;margin-block:16px}
+.auri-work-log article{border-top:1px solid var(--line);padding-block:14px}
+.auri-work-log time{margin-inline-start:10px;color:var(--muted);font-size:.85rem}
+.auri-work-log article p{white-space:pre-wrap;overflow-wrap:anywhere}
+.mission-evidence{display:grid;gap:8px;margin-block:10px}
+.mission-evidence button{justify-self:start}
+.mission-proof-status{margin-block:12px 0;font-weight:600}
+.hub-next-mission{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:18px 22px;margin-block-end:16px}
+.hub-next-mission h2,.hub-next-mission p{margin:0}
+.hub-next-mission p{font-size:.8rem}
+.hub-existing-proof{margin-block-end:16px;padding:12px 18px}
+.hub-existing-proof form{max-inline-size:560px}

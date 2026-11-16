@@ -1,3 +1,175 @@
+// src/hub/blueprint-copy.js
+var copy = {
+  en: ["Overview", "Marketplace", "Insights", "Other way", "Not relevant", "Do later", "I already have this", "Use the original route", "Evidence link or description", "Submit for review", "Under review", "Verified", "Needs new evidence", "Verified outcomes", "Next mission"],
+  tr: ["Genel bak\u0131\u015F", "Pazar yeri", "\u0130\xE7g\xF6r\xFCler", "Ba\u015Fka bir yol", "Uygun de\u011Fil", "Daha sonra", "Buna zaten sahibim", "\u0130lk yola d\xF6n", "Kan\u0131t ba\u011Flant\u0131s\u0131 veya a\xE7\u0131klamas\u0131", "\u0130ncelemeye g\xF6nder", "\u0130nceleniyor", "Do\u011Fruland\u0131", "Yeni kan\u0131t gerekli", "Do\u011Frulanan sonu\xE7lar", "Sonraki g\xF6rev"],
+  fr: ["Vue d\u2019ensemble", "Marketplace", "Analyses", "Autre m\xE9thode", "Non pertinent", "Plus tard", "Je l\u2019ai d\xE9j\xE0", "Revenir \xE0 la m\xE9thode initiale", "Lien ou description de la preuve", "Envoyer pour examen", "En cours d\u2019examen", "V\xE9rifi\xE9", "Nouvelle preuve requise", "R\xE9sultats v\xE9rifi\xE9s", "Prochaine mission"],
+  ar: ["\u0646\u0638\u0631\u0629 \u0639\u0627\u0645\u0629", "\u0627\u0644\u0633\u0648\u0642", "\u0627\u0644\u0631\u0624\u0649", "\u0637\u0631\u064A\u0642\u0629 \u0623\u062E\u0631\u0649", "\u063A\u064A\u0631 \u0645\u0646\u0627\u0633\u0628", "\u0644\u0627\u062D\u0642\u064B\u0627", "\u0644\u062F\u064A\u0651 \u0647\u0630\u0627 \u0628\u0627\u0644\u0641\u0639\u0644", "\u0627\u0644\u0631\u062C\u0648\u0639 \u0625\u0644\u0649 \u0627\u0644\u0637\u0631\u064A\u0642\u0629 \u0627\u0644\u0623\u0635\u0644\u064A\u0629", "\u0631\u0627\u0628\u0637 \u0623\u0648 \u0648\u0635\u0641 \u0644\u0644\u062F\u0644\u064A\u0644", "\u0625\u0631\u0633\u0627\u0644 \u0644\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u0642\u064A\u062F \u0627\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u062A\u0645 \u0627\u0644\u062A\u062D\u0642\u0642", "\u064A\u0644\u0632\u0645 \u062F\u0644\u064A\u0644 \u062C\u062F\u064A\u062F", "\u0627\u0644\u0646\u062A\u0627\u0626\u062C \u0627\u0644\u0645\u062D\u0642\u0642\u0629", "\u0627\u0644\u0645\u0647\u0645\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629"]
+};
+var blueprintLabels = (lang2) => Object.fromEntries(["overview", "marketplace", "insights", "alternative", "irrelevant", "later", "proof", "original", "proofLabel", "submit", "pending", "approved", "rejected", "verified", "next"].map((key, i) => [key, copy[lang2][i]]));
+
+// src/mission-routes.js
+var goalByCapability = {
+  domain: "foundation",
+  email: "foundation",
+  branding: "foundation",
+  hosting: "foundation",
+  website: "visibility",
+  seo: "visibility",
+  discovery: "visibility",
+  ads: "visibility",
+  reviews: "visibility",
+  leads: "conversion",
+  whatsapp: "conversion",
+  conversion: "conversion",
+  menu: "conversion",
+  crm: "operations",
+  automation: "operations",
+  followups: "operations",
+  analytics: "measurement",
+  retention: "measurement"
+};
+var alternatives = {
+  foundation: ["Document goals and responsibilities", "Write down the offer, audience, priority and who owns the next step."],
+  visibility: ["Use an existing discovery channel", "Publish accurate business information and a contact action in a directory, portfolio, storefront or referral channel your audience uses."],
+  conversion: ["Use an existing customer intake channel", "Make the next step clear through a booking, enquiry, ordering or support channel. Test one customer request from start to finish."],
+  operations: ["Run a repeatable manual workflow", "Record the handoff, owner and follow-up in a shared checklist or tracker. Test it on a typical request."],
+  measurement: ["Review one useful business metric", "Record a baseline, review it after an improvement, and document what you will change next."]
+};
+var missionOutcome = (capability) => goalByCapability[capability] || null;
+function missionAlternative(capability) {
+  const option = alternatives[missionOutcome(capability)];
+  return option ? { title: option[0], steps: option[1] } : null;
+}
+
+// src/hub/auri-controller.js
+var channels = /* @__PURE__ */ new Map();
+var subscribers = /* @__PURE__ */ new Set();
+function channel(scope) {
+  if (!channels.has(scope)) channels.set(scope, { active: /* @__PURE__ */ new Map(), outcome: "idle", timer: null });
+  return channels.get(scope);
+}
+function notify(scope) {
+  const state = channel(scope);
+  const phase = [...state.active.values()].at(-1)?.phase || state.outcome;
+  for (const subscriber of subscribers) subscriber(scope, phase);
+}
+function watchAuri(scope, listener) {
+  const subscriber = (key, phase) => {
+    if (key === scope) listener(phase);
+  };
+  subscribers.add(subscriber);
+  notify(scope);
+  return () => subscribers.delete(subscriber);
+}
+function pulseAuri(scope, phase, duration = 1800) {
+  const state = channel(scope);
+  clearTimeout(state.timer);
+  state.outcome = phase;
+  notify(scope);
+  state.timer = setTimeout(() => {
+    state.outcome = "idle";
+    notify(scope);
+    if (!state.active.size) channels.delete(scope);
+  }, duration);
+}
+async function runAuri(scope, phase, operation, success = "success") {
+  const state = channel(scope);
+  const token = /* @__PURE__ */ Symbol();
+  const job = { phase, completed: false };
+  const latest = () => [...state.active.keys()].at(-1) === token;
+  state.active.set(token, job);
+  clearTimeout(state.timer);
+  state.outcome = "idle";
+  const typing = phase === "working" ? setTimeout(() => {
+    if (!job.completed) {
+      job.phase = "typing";
+      notify(scope);
+    }
+  }, 420) : null;
+  notify(scope);
+  try {
+    const result2 = await operation();
+    if (latest()) pulseAuri(scope, success);
+    return result2;
+  } catch (error) {
+    if (latest()) pulseAuri(scope, "error");
+    throw error;
+  } finally {
+    job.completed = true;
+    clearTimeout(typing);
+    state.active.delete(token);
+    notify(scope);
+    if (!state.active.size && state.outcome === "idle") channels.delete(scope);
+  }
+}
+
+// src/hub/auri-companion.js
+var lowBandwidth = () => navigator.connection?.saveData || ["slow-2g", "2g"].includes(navigator.connection?.effectiveType);
+var AuriCharacter = class extends HTMLElement {
+  connectedCallback() {
+    if (this.hasAttribute("poster-only") || lowBandwidth() || !("IntersectionObserver" in window) || !window.WebGL2RenderingContext) return;
+    this.observer = new IntersectionObserver(async ([entry]) => {
+      if (!entry.isIntersecting) return;
+      this.observer.disconnect();
+      try {
+        const { mountAuri } = await import("/media/auri/viewer.js");
+        if (this.isConnected) this.disposeModel = await mountAuri(this);
+      } catch {
+      }
+    }, { rootMargin: "100px" });
+    this.observer.observe(this);
+  }
+  disconnectedCallback() {
+    this.observer?.disconnect();
+    this.disposeModel?.();
+  }
+};
+customElements.define("auri-character", AuriCharacter);
+var auriCharacter = (level = 1, { posterOnly = false } = {}) => {
+  const value = Number.isInteger(level) && level >= 1 && level <= 7 ? level : 1;
+  return `<auri-character class="auri" aria-hidden="true" level="${value}" ${posterOnly ? "poster-only" : ""}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
+};
+function connectAuri(host, scope, labels2) {
+  const status = host.querySelector("[data-auri-status]");
+  const character = host.querySelector("auri-character");
+  if (!character) return () => {
+  };
+  return watchAuri(scope, (phase) => {
+    character.dataset.phase = phase;
+    if (status) status.textContent = labels2[phase] || "";
+    host.querySelector("details")?.toggleAttribute("data-auri-pending", ["thinking", "working", "typing", "drafting"].includes(phase));
+  });
+}
+
+// src/hub/auri-copy.js
+var states = ["listening", "thinking", "working", "typing", "speaking", "happy", "success", "error", "evolving"];
+var actions = {
+  en: ["Listening", "Preparing a reply\u2026", "Building your roadmap\u2026", "Building your roadmap\u2026", "Reply ready", "Milestone verified", "Roadmap saved", "Auri could not finish the request", "Auri evolved"],
+  tr: ["Dinliyor", "Yan\u0131t haz\u0131rlan\u0131yor\u2026", "Yol haritas\u0131 haz\u0131rlan\u0131yor\u2026", "Yol haritas\u0131 haz\u0131rlan\u0131yor\u2026", "Yan\u0131t haz\u0131r", "Hedef do\u011Fruland\u0131", "Yol haritas\u0131 kaydedildi", "Auri iste\u011Fi tamamlayamad\u0131", "Auri geli\u015Fti"],
+  fr: ["\xC0 l\u2019\xE9coute", "Pr\xE9paration de la r\xE9ponse\u2026", "Cr\xE9ation de votre feuille de route\u2026", "Cr\xE9ation de votre feuille de route\u2026", "R\xE9ponse pr\xEAte", "Objectif v\xE9rifi\xE9", "Feuille de route enregistr\xE9e", "Auri n\u2019a pas pu traiter la demande", "Auri a \xE9volu\xE9"],
+  ar: ["\u064A\u0633\u062A\u0645\u0639", "\u062C\u0627\u0631\u064D \u062A\u062C\u0647\u064A\u0632 \u0627\u0644\u0631\u062F\u2026", "\u062C\u0627\u0631\u064D \u0625\u0639\u062F\u0627\u062F \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642\u2026", "\u062C\u0627\u0631\u064D \u0625\u0639\u062F\u0627\u062F \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642\u2026", "\u0627\u0644\u0631\u062F \u062C\u0627\u0647\u0632", "\u062A\u0645 \u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646 \u0627\u0644\u0625\u0646\u062C\u0627\u0632", "\u062A\u0645 \u062D\u0641\u0638 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u062A\u0639\u0630\u0631 \u0639\u0644\u0649 \u0623\u0648\u0631\u064A \u0625\u0643\u0645\u0627\u0644 \u0627\u0644\u0637\u0644\u0628", "\u062A\u0637\u0648\u0651\u0631 \u0623\u0648\u0631\u064A"]
+};
+var auriLabels = (lang2) => ({
+  ...Object.fromEntries(states.map((state, i) => [state, actions[lang2][i]])),
+  drafting: auriDraftCopy(lang2).drafting,
+  draft_ready: auriDraftCopy(lang2).ready
+});
+var auriNames = ["Awakening", "Learning", "Helper", "Builder", "Operator", "Strategist", "Aura Master"];
+var controls = {
+  en: ["AI Workspace", "Hide companion", "Show companion", "Companion name", "Ready to help", "Stop voice", "Companion hidden"],
+  tr: ["Yapay Zek\xE2 \xC7al\u0131\u015Fma Alan\u0131", "Asistan\u0131 gizle", "Asistan\u0131 g\xF6ster", "Asistan\u0131n ad\u0131", "Yard\u0131ma haz\u0131r", "Sesi durdur", "Asistan gizli"],
+  fr: ["Espace de travail IA", "Masquer le compagnon", "Afficher le compagnon", "Nom du compagnon", "Pr\xEAt \xE0 aider", "Arr\xEAter la lecture", "Compagnon masqu\xE9"],
+  ar: ["\u0645\u0633\u0627\u062D\u0629 \u0639\u0645\u0644 \u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064A", "\u0625\u062E\u0641\u0627\u0621 \u0627\u0644\u0631\u0641\u064A\u0642", "\u0625\u0638\u0647\u0627\u0631 \u0627\u0644\u0631\u0641\u064A\u0642", "\u0627\u0633\u0645 \u0627\u0644\u0631\u0641\u064A\u0642", "\u062C\u0627\u0647\u0632 \u0644\u0644\u0645\u0633\u0627\u0639\u062F\u0629", "\u0625\u064A\u0642\u0627\u0641 \u0627\u0644\u0635\u0648\u062A", "\u0627\u0644\u0631\u0641\u064A\u0642 \u0645\u062E\u0641\u064A"]
+};
+var auriControls = (lang2) => Object.fromEntries(["workspace", "hide", "show", "name", "ready", "stop", "hidden"].map((key, i) => [key, controls[lang2][i]]));
+var draftCopy = {
+  en: ["Draft customer follow-up", "Preparing a follow-up draft\u2026", "Draft ready to review", "Recent work", "AI draft", "Template draft", "Saved for review"],
+  tr: ["M\xFC\u015Fteri takip mesaj\u0131 tasla\u011F\u0131", "Takip tasla\u011F\u0131 haz\u0131rlan\u0131yor\u2026", "Taslak incelemeye haz\u0131r", "Son \xE7al\u0131\u015Fmalar", "YZ tasla\u011F\u0131", "\u015Eablon tasla\u011F\u0131", "\u0130nceleme i\xE7in kaydedildi"],
+  fr: ["R\xE9diger une relance client", "Pr\xE9paration du brouillon\u2026", "Brouillon \xE0 relire", "Travaux r\xE9cents", "Brouillon IA", "Brouillon \xE0 partir d\u2019un mod\xE8le", "Enregistr\xE9 pour relecture"],
+  ar: ["\u0625\u0646\u0634\u0627\u0621 \u0645\u0633\u0648\u062F\u0629 \u0645\u062A\u0627\u0628\u0639\u0629 \u0644\u0644\u0639\u0645\u064A\u0644", "\u062C\u0627\u0631\u064D \u0625\u0639\u062F\u0627\u062F \u0645\u0633\u0648\u062F\u0629 \u0627\u0644\u0645\u062A\u0627\u0628\u0639\u0629\u2026", "\u0627\u0644\u0645\u0633\u0648\u062F\u0629 \u062C\u0627\u0647\u0632\u0629 \u0644\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u0627\u0644\u0639\u0645\u0644 \u0627\u0644\u0623\u062E\u064A\u0631", "\u0645\u0633\u0648\u062F\u0629 \u0628\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064A", "\u0645\u0633\u0648\u062F\u0629 \u0645\u0646 \u0642\u0627\u0644\u0628", "\u062D\u064F\u0641\u0638\u062A \u0644\u0644\u0645\u0631\u0627\u062C\u0639\u0629"]
+};
+var auriDraftCopy = (lang2) => Object.fromEntries(["create", "drafting", "ready", "history", "ai", "template", "review"].map((key, i) => [key, draftCopy[lang2][i]]));
+
 // src/customer-return.js
 function customerReturnPath(value, fallback) {
   return ["/hub", "/account", "/shop/checkout"].includes(value) || typeof value === "string" && /^\/shop\/orders\/[a-f0-9-]{36}$/.test(value) ? value : fallback;
@@ -33,7 +205,7 @@ var missionGuide = {
 function missionState(mission, missions, profile) {
   const existing = new Set(profile.capabilities || []);
   if (profile.website) existing.add("website");
-  const requirements = (mission.dependencies || []).filter((id) => !existing.has(id) && !missions.some((candidate) => candidate.capability === id && candidate.status === "done"));
+  const requirements = (mission.route === "alternative" ? [] : mission.dependencies || []).filter((id) => !existing.has(id) && !missions.some((candidate) => candidate.capability === id && candidate.status === "done"));
   return { requirements, blocked: mission.status !== "done" && requirements.length > 0 };
 }
 function eligibleMissions(missions, profile) {
@@ -80,8 +252,8 @@ var roadmapLabels = (lang2) => Object.fromEntries([
   "completed",
   "askTask"
 ].map((key, i) => [key, labels[lang2][i]]));
-function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap2, lang: lang2, view, selectedId, onSelect, onView, onSave, onEdit, onGenerate, onAsk, robot: robot2, requestLink: requestLink2 }) {
-  const l = roadmapLabels(lang2);
+function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap2, lang: lang2, view, selectedId, overview = false, onSelect, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, robot: robot2, requestLink: requestLink2 }) {
+  const l = roadmapLabels(lang2), ui = blueprintLabels(lang2);
   const { missions, profile, analysis, permissions } = workspace2;
   const canWrite = permissions.includes("roadmap:write");
   const canAsk = permissions.includes("auri:use");
@@ -90,7 +262,7 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
   const completion = (items) => items.length ? Math.round(items.filter((m) => m.status === "done").length / items.length * 100) : 0;
   const progress = completion(missions);
   const stageOf = (m) => Math.min(m.level, 4);
-  const title = (m) => m.objective === m.service ? cap2(m.capability) : m.objective;
+  const title = (m) => m.route === "alternative" ? missionAlternative(m.capability)?.title || m.objective : m.objective === m.service ? cap2(m.capability) : m.objective;
   const stages = roadmapStages.map((stage, i) => ({ ...stage, missions: missions.filter((m) => stageOf(m) === i + 1) }));
   const stageName = (stage, i) => lang2 === "en" ? ["Build Foundation", "Increase Visibility", "Convert More Visitors", "Automate & Scale"][i] : t2(stage.key);
   const currentStage = stages.findIndex((stage) => stage.missions.some((m) => !m.optional && !["done", "postponed"].includes(m.status)));
@@ -119,13 +291,21 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
   ${m.completedAt ? `<time datetime="${esc3(m.completedAt)}">${esc3(new Date(m.completedAt).toLocaleDateString(lang2))}</time>` : ""}
   ${m.dependencies?.length ? `<small>${l.requirements} \xB7 ${esc3(m.dependencies.map(cap2).join(", "))}</small>` : ""}</div>`).join("") || `<p>${esc3(t2("empty"))}</p>`}</section>`).join("")}</div>`;
   const metric = (icon, value, label) => `<article class="growth-card growth-metric"><span class="growth-metric-icon" aria-hidden="true">${icon}</span><div><strong>${esc3(value)}</strong><span>${label}</span></div></article>`;
+  const existing = [.../* @__PURE__ */ new Set([...profile.capabilities || [], ...profile.website ? ["website"] : []])].filter((id) => missionAlternative(id) && !missions.some((m) => m.capability === id));
+  const existingProof = canWrite && existing.length ? `<details class="growth-card hub-existing-proof"><summary>${esc3(ui.proof)}</summary>
+  <form data-existing-evidence class="mission-evidence"><label class="field">${esc3(t2("capabilities"))}
+   <select name="capability">${existing.map((id) => `<option value="${esc3(id)}">${esc3(cap2(id))}</option>`).join("")}</select></label>
+   <label class="field">${esc3(ui.proofLabel)}<textarea name="proof" required minlength="10" maxlength="1000" rows="2"></textarea></label>
+   <button class="growth-secondary">${esc3(ui.submit)}</button></form></details>` : "";
   const detail = selected ? taskDetails(selected) : `<p>${esc3(t2("empty"))}</p>`;
-  host.innerHTML = `<section class="growth-metrics" aria-label="${l.progress}">
+  host.innerHTML = `${overview && eligible[0] ? `<section class="growth-card hub-next-mission">
+  <div><p>${esc3(ui.next)}</p><h2>${esc3(title(eligible[0]))}</h2></div><button class="growth-primary" type="button" data-next-mission>${esc3(l.focus)}</button>
+ </section>` : ""}<section class="growth-metrics" aria-label="${l.progress}">
  <article class="growth-card growth-metric"><span class="growth-ring" style="--progress:${progress}%">${missions.length ? progress + "%" : "\u2014"}</span><div><strong>${l.progress}</strong><span>${missions.filter((m) => m.status === "done").length} / ${missions.length} \xB7 ${l.completed}</span></div></article>
  ${metric("\u25A5", currentStage < 0 ? "\u2014" : stageName(stages[currentStage], currentStage), l.stage)}
  ${metric("\u25CE", eligible.filter((m) => m.priority === 1 && !m.optional).length, l.priority)}
- ${metric("\u25A6", "\u2014", l.estimate)}</section>
- <div class="growth-layout"><section class="growth-card growth-map"><header class="growth-panel-head"><h2>${l.heading}</h2><div class="growth-tabs">
+ ${metric("\u2713", workspace2.auri?.verifiedMilestones || 0, ui.verified)}</section>
+ ${existingProof}<div class="growth-layout"><section class="growth-card growth-map"><header class="growth-panel-head"><h2>${l.heading}</h2><div class="growth-tabs">
  <button type="button" data-view="tree" aria-pressed="${view === "tree"}">${l.tree}</button><button type="button" data-view="timeline" aria-pressed="${view === "timeline"}">${l.timeline}</button>
  </div></header>${view === "tree" ? tree : timeline}
  ${analysis.missions.some((m) => !missions.some((item) => item.capability === m.id)) && canWrite ? `<button type="button" class="growth-secondary" data-refresh>${l.refresh}</button>` : ""}</section>
@@ -133,23 +313,34 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
  <section class="growth-card growth-auri"><header>${robot2()}<h2>${l.assistant}</h2></header>
  <div class="growth-answer" role="status"></div>${canAsk ? `<form><input name="question" aria-label="${l.ask}" placeholder="${l.ask}" maxlength="500" required><button class="growth-primary" aria-label="${l.ask}">\u27A4</button></form>` : ""}</section></aside></div>`;
   function taskDetails(m) {
-    const guide = missionGuide[m.capability];
+    const alternate = m.route === "alternative" ? missionAlternative(m.capability) : null;
+    const guide = alternate ? null : missionGuide[m.capability];
+    const proof = workspace2.evidence?.[m.id];
     const reason = m.reason?.startsWith("This capability has not been reported") ? guide?.[1] : m.reason;
-    const action = m.nextAction === "Define scope or record your existing solution." ? guide?.[2] : m.nextAction;
+    const action = alternate?.steps || (m.nextAction === "Define scope or record your existing solution." ? guide?.[2] : m.nextAction);
     const { requirements, blocked } = missionState(m, missions, profile);
     const row = (label, body) => `<div class="growth-detail-row"><h3>${label}</h3><p>${esc3(body)}</p></div>`;
     return `<div class="growth-focus-top"><span>${l.focus}</span><small>${esc3(status(m))}${m.optional ? " \xB7 " + l.optional : ""}</small></div>
    <h2>${esc3(title(m))}</h2>
-   ${m.description !== reason && !m.description.startsWith("Establish ") ? `<p>${esc3(m.description)}</p>` : ""}
-   ${row(l.why, reason || m.description)}
-   ${row(l.requirements, m.dependencies?.length ? m.dependencies.map(cap2).join(", ") : "\u2014")}
+   ${!alternate && m.description !== reason && !m.description.startsWith("Establish ") ? `<p>${esc3(m.description)}</p>` : ""}
+   ${alternate ? "" : row(l.why, reason || m.description)}
+   ${!alternate && m.dependencies?.length ? row(l.requirements, m.dependencies.map(cap2).join(", ")) : ""}
    ${guide?.[0] ? row(l.help, guide[0] + " \xB7 " + t2("quote")) : ""}
    <details class="growth-diy" open><summary>${l.myself}</summary>${row(l.how, action)}
    ${blocked ? `<p>${l.blocked} \xB7 ${esc3(requirements.map(cap2).join(", "))}</p>` : ""}</details>
    <div class="growth-actions">
    ${guide?.[0] ? `<a class="growth-primary" href="${esc3(requestLink2(guide[0], title(m)))}">${l.hire} \u2192</a>` : ""}
    ${canWrite ? `<button class="growth-secondary" data-quick-status="${m.status === "done" ? "planned" : blocked ? "in_progress" : "done"}">${m.status === "done" ? esc3(t2("planned")) : blocked ? l.start : l.complete}</button><label><span class="sr-only">${esc3(t2("status"))}</span><select data-status-change>${["planned", "in_progress", "done", "postponed"].map((value) => `<option value="${value}" ${m.status === value ? "selected" : ""}>${esc3(t2(value))}</option>`).join("")}</select></label><button class="growth-secondary" data-edit>${esc3(t2("edit"))}</button>` : ""}
-   ${canAsk ? `<button class="growth-secondary" data-ask-task>${l.askTask}</button>` : ""}</div>`;
+   ${canAsk ? `<button class="growth-secondary" data-ask-task>${l.askTask}</button>` : ""}</div>
+   ${proof ? `<p class="mission-proof-status" role="status">${esc3(ui[proof])}</p>` : ""}
+   ${canWrite && missionAlternative(m.capability) ? `<div class="growth-actions">
+    ${proof === "pending" || m.status === "done" ? "" : alternate ? `<button type="button" class="growth-secondary" data-route="original">${esc3(ui.original)}</button>` : `<button type="button" class="growth-secondary" data-route="alternative">${esc3(ui.irrelevant)}</button>`}
+    ${m.status === "done" || m.status === "postponed" ? "" : `<button type="button" class="growth-secondary" data-quick-status="postponed">${esc3(ui.later)}</button>`}
+   </div>${!alternate && m.status !== "done" && proof !== "pending" ? `<details class="growth-diy"><summary>${esc3(ui.alternative)}</summary>
+    <p>${esc3(missionAlternative(m.capability).steps)}</p><button type="button" class="growth-secondary" data-route="alternative">${esc3(t2("continue"))}</button></details>` : ""}
+${proof === "pending" || proof === "approved" ? "" : `<details class="growth-diy"><summary>${esc3(ui.proof)}</summary>
+    <form data-evidence class="mission-evidence"><label class="field">${esc3(ui.proofLabel)}<textarea name="proof" required minlength="10" maxlength="1000" rows="3"></textarea></label>
+    <button class="growth-secondary">${esc3(ui.submit)}</button></form></details>`}` : ""}`;
   }
   async function ask(question, missionId) {
     const response = host.querySelector(".growth-answer");
@@ -164,10 +355,20 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
   host.querySelectorAll("[data-view]").forEach((button2) => button2.onclick = () => onView(button2.dataset.view));
   host.querySelector("[data-refresh]")?.addEventListener("click", onGenerate);
   host.querySelector("[data-edit]")?.addEventListener("click", () => onEdit(selected));
-  host.querySelector("[data-quick-status]")?.addEventListener("click", (event) => {
+  for (const button2 of host.querySelectorAll("[data-quick-status]")) button2.addEventListener("click", (event) => {
     const input = host.querySelector("[data-status-change]");
     input.value = event.currentTarget.dataset.quickStatus;
     onSave(selected, input);
+  });
+  for (const button2 of host.querySelectorAll("[data-route]")) button2.addEventListener("click", (event) => onRoute(selected, event.currentTarget));
+  host.querySelector("[data-next-mission]")?.addEventListener("click", () => onSelect(eligible[0].id, true));
+  host.querySelector("[data-existing-evidence]")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    onExistingEvidence(event.currentTarget);
+  });
+  host.querySelector("[data-evidence]")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    onEvidence(selected, event.currentTarget);
   });
   host.querySelector("[data-status-change]")?.addEventListener("change", (event) => onSave(selected, event.target));
   host.querySelector("[data-ask-task]")?.addEventListener("click", () => ask("", selected.id));
@@ -252,8 +453,8 @@ async function renderMenuDrafts({ host, api: api2, endpoint: endpoint2, profile,
       editor();
     });
     async function save(state = "draft") {
-      const controls = [...host.querySelectorAll("#private-menu-editor button")];
-      controls.forEach((b) => b.disabled = true);
+      const controls2 = [...host.querySelectorAll("#private-menu-editor button")];
+      controls2.forEach((b) => b.disabled = true);
       message("Saving\u2026");
       try {
         const value2 = read(), body = { draft: value2, state, ...selected ? { version: selected.version } : {} };
@@ -266,7 +467,7 @@ async function renderMenuDrafts({ host, api: api2, endpoint: endpoint2, profile,
       } catch (error) {
         message(error.status === 409 ? "Draft changed in another session. Download your current draft before reloading the saved copy." : error.message);
       } finally {
-        controls.forEach((b) => b.disabled = false);
+        controls2.forEach((b) => b.disabled = false);
       }
     }
     host.querySelector("#private-menu-save").onclick = () => save("draft");
@@ -296,17 +497,17 @@ async function renderMenuDrafts({ host, api: api2, endpoint: endpoint2, profile,
 }
 
 // src/hub/i18n.js
-var copy = {
+var copy2 = {
   en: { brand: "Business Hub", tag: "Understand. Build. Collaborate. Grow.", welcome: "Welcome to AuraDigital.", choose: "How would you like to build your business journey?", myself: "Build Myself", myselfText: "Set your goals, explore services and shape your own roadmap.", auri: "Build With AURI", auriText: "Take a guided journey, one short question at a time.", home: "Overview", profile: "Business Profile", journey: "Business Journey", simulator: "Growth Simulator", assistant: "AURI Assistant", reports: "Reports & Analytics", projects: "Projects", websites: "My Websites", services: "My Services", hosting: "Domains & Hosting", files: "Files & Documents", orders: "Shop & Orders", invoices: "Invoices & Payments", rewards: "Rewards", team: "Team Members", support: "Support", settings: "Settings", grow: "GROW", manage: "MANAGE", account: "ACCOUNT", menu: "Menu", close: "Close", save: "Save", saved: "Saved", saving: "Saving\u2026", continue: "Continue", back: "Back", skip: "Skip", signIn: "Sign In", signup: "Create Account", email: "Email", password: "Password", name: "Full name", terms: "I accept the account conditions and use of my details to manage my account.", google: "Continue with Google", forgot: "Forgot password?", logout: "Log Out", verify: "Verify email", verifyLater: "You can draft your profile and roadmap now. Verify your email before billing, team invitations or shared private access.", sendVerification: "Send verification link", reset: "Reset password", resetSent: "If an eligible account exists, a reset link will be sent.", newPassword: "New password", confirm: "Confirm", cancel: "Cancel", error: "Something went wrong. Please try again.", noData: "No measured data is connected yet.", next: "Your next step", readiness: "Capability readiness", progress: "Roadmap progress", level: "Level", foundation: "Foundation", visibility: "Visibility", conversion: "Conversion", automation: "Automation", scale: "Scale", createJourney: "Generate my roadmap", noPurchase: "Complete missions using any provider or your own work. AuraDigital purchases are optional.", quote: "Scope & quote required", planned: "Planned", in_progress: "In progress", done: "Done", postponed: "Postponed", up: "Move earlier", down: "Move later", edit: "Edit", objective: "Objective", description: "Description", nextAction: "Next action", why: "Recommended because this capability has not been reported in your profile.", benefit: "Potential improvement; compare results against your own baseline.", assumptions: "Assumptions, not guarantees", calculate: "Calculate scenarios", scenarioName: "Scenario name", saveScenario: "Save scenario", export: "Export JSON", history: "Saved scenarios", conservative: "Conservative", base: "Base", ambitious: "Ambitious", visits: "Monthly website visits", leads: "Monthly website leads", closeRate: "Lead-to-customer conversion (%)", customerValue: "Revenue per customer in this period", margin: "Contribution margin (%)", monthlyCost: "Monthly service cost", setupCost: "One-time setup cost", trafficLift: "Traffic increase (%)", leadRateLift: "Lead-rate increase (%)", closeRateLift: "Closing-rate increase (%)", customers: "Additional customers", revenue: "Additional monthly revenue", profit: "Additional contribution profit", net: "Net monthly contribution after service cost", roi: "First-year ROI", payback: "Setup payback (months)", na: "Not applicable", simNotice: "Illustrative estimates. Enter combined changes once per funnel stage to avoid counting the same benefit twice. Rates are capped at 100%. Costs and revenue must use the same currency and period. Taxes, fixed overhead and financing are excluded.", formula: "Customers = visits \xD7 lead rate \xD7 closing rate. Contribution = additional revenue \xD7 margin. First-year ROI = (12 \xD7 additional contribution \u2212 setup \u2212 12 \xD7 monthly costs) \xF7 (setup + 12 \xD7 monthly costs). Payback = setup \xF7 net monthly contribution, where positive.", teamTitle: "Grow together with your team.", teamText: "Invite trusted people to help manage your business. Each additional member gets their own secure access for $5 USD/month, paid by that member.", blocked: "Live recurring checkout is BLOCKED until billing, taxes, signed webhooks and cancellation terms are configured and verified. Invitations do not grant access or charge anyone.", invite: "Invite Member", role: "Role", message: "Optional invitation message", status: "Status", subscription: "Subscription", paymentDate: "Next payment", remove: "Remove access", removeConfirm: "Immediately revoke this member\u2019s business access? Their personal account and shared business data will be preserved.", cancelInvite: "Cancel invitation", resend: "Replace & resend", inviteAccept: "Accept invitation", recurringConsent: "I accept this invitation and the $5 USD monthly recurring subscription for my own access. Checkout is currently blocked; I will not be charged and access will remain pending.", awaiting: "Awaiting payment", permissions: "Permissions", activity: "Access activity", unavailable: "This integration is not connected to your verified workspace yet.", legacy: "Your existing accounts, products and orders remain available through their existing authorized workflows.", openAccount: "Open my account & orders", contact: "Contact support", aiRules: "AURI guided tools", aiNotice: "Rules-based guidance is available. Generative business advice and private invoice/project tools are not integrated yet.", diagnosis: "Business diagnosis", recommend: "Recommend my next action", strengths: "Reported strengths", missing: "Missing capabilities", source: "Source: customer-entered profile", businessName: "Business name", industry: "Industry", country: "Country", city: "City", stage: "Business stage", website: "Website (HTTPS)", tools: "Existing digital tools", acquisition: "How do customers find you?", difficulties: "Main difficulties", goals: "Business goals", budget: "Approximate budget (optional)", currency: "Currency", timeline: "Desired timeline", industryDetails: "Industry details", capabilities: "Capabilities you already have", restaurant: "Restaurant", ecommerce: "E-commerce", real_estate: "Real estate", other: "Other", servicesIndustry: "Service business", restaurantQuestion: "How do guests discover you, view your menu and make reservations?", ecommerceQuestion: "How do you manage your catalog, checkout and repeat purchases?", realEstateQuestion: "How do you list properties, capture inquiries and follow up?", servicesQuestion: "How do customers book, receive quotes and pay?", otherQuestion: "Describe how you serve customers.", newWorkspace: "New business", switchMode: "Switch onboarding mode", verified: "Email verified", owner: "Owner", admin: "Admin", member: "Member", viewer: "Viewer", readOnly: "Read-only access", supportText: "Send a support request through the existing contact form.", verifiedRequired: "Verify your email to manage team access.", empty: "Nothing here yet.", billingPrivate: "Each member\u2019s payment details stay private. This page shows access status only.", security: "Security settings", linkGoogle: "Link my verified Google identity", rename: "Save changes", refresh: "Reload", serviceNote: "Explore current services and request a scope-specific quote.", openServices: "Explore services", reportNote: "Traffic, revenue, actual-versus-projected reports and rewards cannot be displayed until trustworthy sources and a valid loyalty ledger are connected." },
   fr: { brand: "Espace entreprise", tag: "Comprendre. Construire. Collaborer. Grandir.", welcome: "Bienvenue chez AuraDigital.", choose: "Comment souhaitez-vous construire votre parcours ?", myself: "Construire moi-m\xEAme", myselfText: "D\xE9finissez vos objectifs et cr\xE9ez votre feuille de route.", auri: "Construire avec AURI", auriText: "Avancez avec des questions courtes et adapt\xE9es.", home: "Vue d\u2019ensemble", profile: "Profil entreprise", journey: "Parcours entreprise", simulator: "Simulateur de croissance", assistant: "Assistant AURI", reports: "Rapports et analyses", projects: "Projets", websites: "Mes sites", services: "Mes services", hosting: "Domaines et h\xE9bergement", files: "Fichiers et documents", orders: "Boutique et commandes", invoices: "Factures et paiements", rewards: "R\xE9compenses", team: "Membres de l\u2019\xE9quipe", support: "Assistance", settings: "Param\xE8tres", grow: "D\xC9VELOPPER", manage: "G\xC9RER", account: "COMPTE", menu: "Menu", close: "Fermer", save: "Enregistrer", saved: "Enregistr\xE9", saving: "Enregistrement\u2026", continue: "Continuer", back: "Retour", skip: "Passer", signIn: "Se connecter", signup: "Cr\xE9er un compte", email: "E-mail", password: "Mot de passe", name: "Nom complet", terms: "J\u2019accepte les conditions du compte et l\u2019utilisation de mes donn\xE9es pour sa gestion.", google: "Continuer avec Google", forgot: "Mot de passe oubli\xE9 ?", logout: "Se d\xE9connecter", verify: "V\xE9rifier l\u2019e-mail", verifyLater: "Cr\xE9ez votre profil et votre parcours maintenant. V\xE9rifiez votre e-mail avant les paiements, invitations ou acc\xE8s priv\xE9s partag\xE9s.", sendVerification: "Envoyer le lien de v\xE9rification", reset: "R\xE9initialiser le mot de passe", newPassword: "Nouveau mot de passe", confirm: "Confirmer", cancel: "Annuler", error: "Une erreur est survenue. R\xE9essayez.", next: "Votre prochaine \xE9tape", readiness: "Capacit\xE9s d\xE9clar\xE9es", progress: "Avancement du parcours", level: "Niveau", foundation: "Fondations", visibility: "Visibilit\xE9", conversion: "Conversion", automation: "Automatisation", scale: "Expansion", createJourney: "G\xE9n\xE9rer mon parcours", noPurchase: "R\xE9alisez vos missions avec le prestataire de votre choix ou vous-m\xEAme. Aucun achat AuraDigital obligatoire.", quote: "Devis n\xE9cessaire", planned: "Pr\xE9vu", in_progress: "En cours", done: "Termin\xE9", postponed: "Report\xE9", up: "Avancer", down: "Reculer", edit: "Modifier", objective: "Objectif", description: "Description", nextAction: "Prochaine action", why: "Recommand\xE9 car cette capacit\xE9 ne figure pas dans votre profil.", benefit: "Am\xE9lioration possible \xE0 comparer \xE0 vos propres r\xE9sultats.", assumptions: "Hypoth\xE8ses, sans garantie", calculate: "Calculer les sc\xE9narios", scenarioName: "Nom du sc\xE9nario", saveScenario: "Enregistrer le sc\xE9nario", export: "Exporter JSON", history: "Sc\xE9narios enregistr\xE9s", conservative: "Prudent", base: "Central", ambitious: "Ambitieux", visits: "Visites mensuelles du site", leads: "Prospects mensuels du site", closeRate: "Conversion prospect-client (%)", customerValue: "Revenu par client sur la p\xE9riode", margin: "Marge contributive (%)", monthlyCost: "Co\xFBt mensuel des services", setupCost: "Co\xFBt initial", trafficLift: "Hausse du trafic (%)", leadRateLift: "Hausse du taux de prospects (%)", closeRateLift: "Hausse du taux de conversion (%)", customers: "Clients suppl\xE9mentaires", revenue: "Revenu mensuel suppl\xE9mentaire", profit: "Contribution suppl\xE9mentaire", net: "Contribution nette apr\xE8s services", roi: "ROI de la premi\xE8re ann\xE9e", payback: "D\xE9lai de retour initial (mois)", na: "Non applicable", teamTitle: "D\xE9veloppez votre entreprise ensemble.", teamText: "Invitez votre \xE9quipe. Chaque membre suppl\xE9mentaire paie son propre abonnement de 5 USD par mois.", blocked: "Paiement r\xE9current BLOQU\xC9 en attendant la configuration et la validation du prestataire, des taxes, des webhooks et des conditions d\u2019annulation. Une invitation ne donne aucun acc\xE8s et ne d\xE9bite rien.", invite: "Inviter un membre", role: "R\xF4le", message: "Message facultatif", status: "Statut", subscription: "Abonnement", paymentDate: "Prochain paiement", remove: "R\xE9voquer l\u2019acc\xE8s", removeConfirm: "R\xE9voquer imm\xE9diatement cet acc\xE8s ? Le compte personnel et les donn\xE9es partag\xE9es seront conserv\xE9s.", cancelInvite: "Annuler l\u2019invitation", resend: "Remplacer et renvoyer", inviteAccept: "Accepter l\u2019invitation", recurringConsent: "J\u2019accepte l\u2019invitation et l\u2019abonnement r\xE9current de 5 USD par mois pour mon acc\xE8s personnel. Le paiement est bloqu\xE9 : aucun d\xE9bit ni acc\xE8s avant validation.", awaiting: "En attente de paiement", permissions: "Autorisations", activity: "Activit\xE9 des acc\xE8s", unavailable: "Cette int\xE9gration n\u2019est pas encore reli\xE9e \xE0 votre espace v\xE9rifi\xE9.", legacy: "Vos comptes, produits et commandes existants restent disponibles dans leurs parcours autoris\xE9s.", openAccount: "Mon compte et mes commandes", contact: "Contacter l\u2019assistance", aiRules: "Outils guid\xE9s AURI", aiNotice: "Conseils fond\xE9s sur des r\xE8gles disponibles. Les conseils g\xE9n\xE9ratifs et les outils priv\xE9s de facturation/projet ne sont pas encore int\xE9gr\xE9s.", diagnosis: "Diagnostic entreprise", recommend: "Recommander la prochaine action", strengths: "Points forts d\xE9clar\xE9s", missing: "Capacit\xE9s manquantes", source: "Source : profil renseign\xE9 par le client", businessName: "Nom de l\u2019entreprise", industry: "Secteur", country: "Pays", city: "Ville", stage: "Stade de d\xE9veloppement", website: "Site web (HTTPS)", tools: "Outils num\xE9riques existants", acquisition: "Comment trouvez-vous vos clients ?", difficulties: "Difficult\xE9s principales", goals: "Objectifs", budget: "Budget approximatif (facultatif)", currency: "Devise", timeline: "D\xE9lai souhait\xE9", industryDetails: "Pr\xE9cisions sur votre secteur", capabilities: "Capacit\xE9s d\xE9j\xE0 disponibles", restaurant: "Restaurant", ecommerce: "Commerce en ligne", real_estate: "Immobilier", other: "Autre", servicesIndustry: "Entreprise de services", restaurantQuestion: "Comment vos clients vous trouvent-ils, consultent-ils le menu et r\xE9servent-ils ?", ecommerceQuestion: "Comment g\xE9rez-vous le catalogue, les paiements et les achats r\xE9p\xE9t\xE9s ?", realEstateQuestion: "Comment publiez-vous les biens et suivez-vous les demandes ?", servicesQuestion: "Comment g\xE9rez-vous r\xE9servations, devis et paiements ?", otherQuestion: "Comment servez-vous vos clients ?", newWorkspace: "Nouvelle entreprise", switchMode: "Changer de mode", verified: "E-mail v\xE9rifi\xE9", owner: "Propri\xE9taire", admin: "Administrateur", member: "Membre", viewer: "Lecteur", readOnly: "Lecture seule", verifiedRequired: "V\xE9rifiez votre e-mail pour g\xE9rer l\u2019\xE9quipe.", empty: "Aucun \xE9l\xE9ment pour le moment.", billingPrivate: "Les d\xE9tails de paiement de chaque membre restent priv\xE9s.", security: "Param\xE8tres de s\xE9curit\xE9", linkGoogle: "Associer mon compte Google v\xE9rifi\xE9", rename: "Enregistrer les modifications", refresh: "Recharger", serviceNote: "D\xE9couvrez nos services et demandez un devis adapt\xE9.", openServices: "D\xE9couvrir les services", reportNote: "Les rapports et r\xE9compenses n\xE9cessitent des sources fiables et un registre de fid\xE9lit\xE9 connect\xE9." },
   tr: { brand: "\u0130\u015Fletme Merkezi", tag: "Anla. Kur. Birlikte \xE7al\u0131\u015F. B\xFCy\xFC.", welcome: "AuraDigital\u2019e ho\u015F geldiniz.", choose: "\u0130\u015Fletme yolculu\u011Funuzu nas\u0131l olu\u015Fturmak istersiniz?", myself: "Kendim Olu\u015Fturay\u0131m", myselfText: "Hedeflerinizi belirleyin ve yol haritan\u0131z\u0131 olu\u015Fturun.", auri: "AURI ile Olu\u015Ftur", auriText: "K\u0131sa, ilgili sorularla ad\u0131m ad\u0131m ilerleyin.", home: "Genel Bak\u0131\u015F", profile: "\u0130\u015Fletme Profili", journey: "\u0130\u015Fletme Yolculu\u011Fu", simulator: "B\xFCy\xFCme Sim\xFClat\xF6r\xFC", assistant: "AURI Asistan\u0131", reports: "Raporlar ve Analiz", projects: "Projeler", websites: "Web Sitelerim", services: "Hizmetlerim", hosting: "Alan Ad\u0131 ve Hosting", files: "Dosyalar ve Belgeler", orders: "Ma\u011Faza ve Sipari\u015Fler", invoices: "Faturalar ve \xD6demeler", rewards: "\xD6d\xFCller", team: "Ekip \xDCyeleri", support: "Destek", settings: "Ayarlar", grow: "B\xDCY\xDC", manage: "Y\xD6NET", account: "HESAP", menu: "Men\xFC", close: "Kapat", save: "Kaydet", saved: "Kaydedildi", saving: "Kaydediliyor\u2026", continue: "Devam", back: "Geri", skip: "Atla", signIn: "Giri\u015F Yap", signup: "Hesap Olu\u015Ftur", email: "E-posta", password: "\u015Eifre", name: "Ad soyad", terms: "Hesap ko\u015Fullar\u0131n\u0131 ve bilgilerimin hesab\u0131m\u0131 y\xF6netmek i\xE7in kullan\u0131lmas\u0131n\u0131 kabul ediyorum.", google: "Google ile devam et", forgot: "\u015Eifremi unuttum", logout: "\xC7\u0131k\u0131\u015F Yap", verify: "E-postay\u0131 do\u011Frula", verifyLater: "Profil ve yol haritas\u0131 tasla\u011F\u0131 olu\u015Fturabilirsiniz. \xD6deme, ekip daveti ve \xF6zel payla\u015F\u0131ml\u0131 eri\u015Fim \xF6ncesinde e-postan\u0131z\u0131 do\u011Frulay\u0131n.", sendVerification: "Do\u011Frulama ba\u011Flant\u0131s\u0131 g\xF6nder", reset: "\u015Eifreyi s\u0131f\u0131rla", newPassword: "Yeni \u015Fifre", confirm: "Onayla", cancel: "\u0130ptal", error: "Bir hata olu\u015Ftu. Tekrar deneyin.", next: "Sonraki ad\u0131m\u0131n\u0131z", readiness: "Bildirilen yetkinlikler", progress: "Yol haritas\u0131 ilerlemesi", level: "Seviye", foundation: "Temel", visibility: "G\xF6r\xFCn\xFCrl\xFCk", conversion: "D\xF6n\xFC\u015F\xFCm", automation: "Otomasyon", scale: "\xD6l\xE7ekleme", createJourney: "Yol haritam\u0131 olu\u015Ftur", noPurchase: "G\xF6revleri kendiniz veya istedi\u011Finiz sa\u011Flay\u0131c\u0131yla tamamlay\u0131n. AuraDigital\u2019den sat\u0131n alma zorunlu de\u011Fildir.", quote: "Kapsam ve teklif gerekli", planned: "Planland\u0131", in_progress: "Devam ediyor", done: "Tamamland\u0131", postponed: "Ertelendi", up: "\xD6ne ta\u015F\u0131", down: "Geri ta\u015F\u0131", edit: "D\xFCzenle", objective: "Hedef", description: "A\xE7\u0131klama", nextAction: "Sonraki i\u015Flem", why: "Bu yetkinlik profilinizde bildirilmedi\u011Fi i\xE7in \xF6nerildi.", benefit: "Olas\u0131 iyile\u015Fme; kendi ba\u015Flang\u0131\xE7 verinizle kar\u015F\u0131la\u015Ft\u0131r\u0131n.", assumptions: "Varsay\u0131mlar, garanti de\u011Fildir", calculate: "Senaryolar\u0131 hesapla", scenarioName: "Senaryo ad\u0131", saveScenario: "Senaryoyu kaydet", export: "JSON d\u0131\u015Fa aktar", history: "Kay\u0131tl\u0131 senaryolar", conservative: "Temkinli", base: "Temel", ambitious: "\u0130ddial\u0131", visits: "Ayl\u0131k site ziyareti", leads: "Ayl\u0131k site potansiyel m\xFC\u015Fterisi", closeRate: "M\xFC\u015Fteriye d\xF6n\xFC\u015F\xFCm (%)", customerValue: "D\xF6nemde m\xFC\u015Fteri ba\u015F\u0131na gelir", margin: "Katk\u0131 marj\u0131 (%)", monthlyCost: "Ayl\u0131k hizmet maliyeti", setupCost: "Ba\u015Flang\u0131\xE7 maliyeti", trafficLift: "Trafik art\u0131\u015F\u0131 (%)", leadRateLift: "Potansiyel m\xFC\u015Fteri oran\u0131 art\u0131\u015F\u0131 (%)", closeRateLift: "Sat\u0131\u015F d\xF6n\xFC\u015F\xFCm oran\u0131 art\u0131\u015F\u0131 (%)", customers: "Ek m\xFC\u015Fteri", revenue: "Ek ayl\u0131k gelir", profit: "Ek katk\u0131 k\xE2r\u0131", net: "Hizmet maliyeti sonras\u0131 net katk\u0131", roi: "\u0130lk y\u0131l yat\u0131r\u0131m getirisi", payback: "Ba\u015Flang\u0131\xE7 geri \xF6deme s\xFCresi (ay)", na: "Uygulanamaz", teamTitle: "Ekibinizle birlikte b\xFCy\xFCy\xFCn.", teamText: "G\xFCvendi\u011Finiz ki\u015Fileri davet edin. Her ek \xFCye kendi eri\u015Fimi i\xE7in ayda 5 USD \xF6der.", blocked: "Sa\u011Flay\u0131c\u0131, vergiler, imzal\u0131 webhook ve iptal ko\u015Fullar\u0131 yap\u0131land\u0131r\u0131l\u0131p do\u011Frulanana kadar canl\u0131 abonelik \xF6demesi ENGELL\u0130D\u0130R. Davet eri\u015Fim sa\u011Flamaz ve \xFCcret almaz.", invite: "\xDCye Davet Et", role: "Rol", message: "\u0130ste\u011Fe ba\u011Fl\u0131 davet mesaj\u0131", status: "Durum", subscription: "Abonelik", paymentDate: "Sonraki \xF6deme", remove: "Eri\u015Fimi kald\u0131r", removeConfirm: "Bu \xFCyenin i\u015Fletme eri\u015Fimi hemen kald\u0131r\u0131ls\u0131n m\u0131? Ki\u015Fisel hesab\u0131 ve ortak i\u015Fletme verileri korunur.", cancelInvite: "Daveti iptal et", resend: "Yenile ve yeniden g\xF6nder", inviteAccept: "Daveti kabul et", recurringConsent: "Daveti ve ki\u015Fisel eri\u015Fimim i\xE7in ayl\u0131k 5 USD yinelenen aboneli\u011Fi kabul ediyorum. \xD6deme \u015Fu anda engelli; \xFCcret al\u0131nmaz ve eri\u015Fim beklemede kal\u0131r.", awaiting: "\xD6deme bekleniyor", permissions: "\u0130zinler", activity: "Eri\u015Fim hareketleri", unavailable: "Bu entegrasyon do\u011Frulanm\u0131\u015F \xE7al\u0131\u015Fma alan\u0131n\u0131za hen\xFCz ba\u011Fl\u0131 de\u011Fil.", legacy: "Mevcut hesaplar\u0131n\u0131z, \xFCr\xFCnleriniz ve sipari\u015Fleriniz kendi yetkili ak\u0131\u015Flar\u0131nda kullan\u0131labilir.", openAccount: "Hesab\u0131m ve sipari\u015Flerim", contact: "Destek ile ileti\u015Fim", aiRules: "AURI rehber ara\xE7lar\u0131", aiNotice: "Kural tabanl\u0131 rehberlik kullan\u0131labilir. \xDCretken i\u015Fletme \xF6nerileri ile \xF6zel fatura ve proje ara\xE7lar\u0131 hen\xFCz entegre de\u011Fil.", diagnosis: "\u0130\u015Fletme analizi", recommend: "Sonraki ad\u0131m\u0131 \xF6ner", strengths: "Bildirilen g\xFC\xE7l\xFC y\xF6nler", missing: "Eksik yetkinlikler", source: "Kaynak: m\xFC\u015Fteri taraf\u0131ndan girilen profil", businessName: "\u0130\u015Fletme ad\u0131", industry: "Sekt\xF6r", country: "\xDClke", city: "\u015Eehir", stage: "\u0130\u015Fletme a\u015Famas\u0131", website: "Web sitesi (HTTPS)", tools: "Mevcut dijital ara\xE7lar", acquisition: "M\xFC\u015Fteriler sizi nas\u0131l buluyor?", difficulties: "Ba\u015Fl\u0131ca zorluklar", goals: "\u0130\u015Fletme hedefleri", budget: "Yakla\u015F\u0131k b\xFCt\xE7e (iste\u011Fe ba\u011Fl\u0131)", currency: "Para birimi", timeline: "Hedeflenen zaman", industryDetails: "Sekt\xF6r ayr\u0131nt\u0131lar\u0131", capabilities: "Mevcut yetkinlikleriniz", restaurant: "Restoran", ecommerce: "E-ticaret", real_estate: "Gayrimenkul", other: "Di\u011Fer", servicesIndustry: "Hizmet i\u015Fletmesi", restaurantQuestion: "Misafirler sizi nas\u0131l buluyor, men\xFCy\xFC g\xF6r\xFCyor ve rezervasyon yap\u0131yor?", ecommerceQuestion: "Katalo\u011Fu, \xF6demeyi ve tekrar al\u0131\u015Fveri\u015Fi nas\u0131l y\xF6netiyorsunuz?", realEstateQuestion: "\u0130lan, m\xFC\u015Fteri talebi ve takibi nas\u0131l y\xF6netiyorsunuz?", servicesQuestion: "Randevu, teklif ve \xF6demeler nas\u0131l y\xF6netiliyor?", otherQuestion: "M\xFC\u015Fterilere nas\u0131l hizmet veriyorsunuz?", newWorkspace: "Yeni i\u015Fletme", switchMode: "Rehberlik modunu de\u011Fi\u015Ftir", verified: "E-posta do\u011Fruland\u0131", owner: "Sahip", admin: "Y\xF6netici", member: "\xDCye", viewer: "G\xF6r\xFCnt\xFCleyici", readOnly: "Salt okunur", verifiedRequired: "Ekibi y\xF6netmek i\xE7in e-postan\u0131z\u0131 do\u011Frulay\u0131n.", empty: "Hen\xFCz kay\u0131t yok.", billingPrivate: "Her \xFCyenin \xF6deme bilgileri gizli kal\u0131r.", security: "G\xFCvenlik ayarlar\u0131", linkGoogle: "Do\u011Frulanm\u0131\u015F Google hesab\u0131m\u0131 ba\u011Fla", rename: "De\u011Fi\u015Fiklikleri kaydet", refresh: "Yenile", serviceNote: "Hizmetleri inceleyin ve i\u015Fletmenize \xF6zel teklif isteyin.", openServices: "Hizmetleri ke\u015Ffet", reportNote: "Raporlar ve \xF6d\xFCller i\xE7in g\xFCvenilir veri kaynaklar\u0131 ve do\u011Frulanm\u0131\u015F sadakat defteri ba\u011Flanmal\u0131d\u0131r." },
   ar: { brand: "\u0645\u0631\u0643\u0632 \u0627\u0644\u0623\u0639\u0645\u0627\u0644", tag: "\u0627\u0641\u0647\u0645. \u0627\u0628\u0646\u0650. \u062A\u0639\u0627\u0648\u0646. \u0627\u0646\u0645\u064F.", welcome: "\u0645\u0631\u062D\u0628\u064B\u0627 \u0628\u0643 \u0641\u064A AuraDigital.", choose: "\u0643\u064A\u0641 \u062A\u0631\u064A\u062F \u0628\u0646\u0627\u0621 \u0631\u062D\u0644\u0629 \u0646\u0645\u0648 \u0623\u0639\u0645\u0627\u0644\u0643\u061F", myself: "\u0623\u0628\u0646\u064A \u0628\u0646\u0641\u0633\u064A", myselfText: "\u062D\u062F\u062F \u0623\u0647\u062F\u0627\u0641\u0643 \u0648\u0627\u0633\u062A\u0643\u0634\u0641 \u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0648\u0635\u0645\u0645 \u062E\u0627\u0631\u0637\u0629 \u0637\u0631\u064A\u0642\u0643.", auri: "\u0623\u0628\u0646\u064A \u0645\u0639 AURI", auriText: "\u0627\u0628\u062F\u0623 \u0631\u062D\u0644\u0629 \u0645\u0648\u062C\u0647\u0629\u060C \u0628\u0633\u0624\u0627\u0644 \u0642\u0635\u064A\u0631 \u0641\u064A \u0643\u0644 \u062E\u0637\u0648\u0629.", home: "\u0646\u0638\u0631\u0629 \u0639\u0627\u0645\u0629", profile: "\u0645\u0644\u0641 \u0627\u0644\u0646\u0634\u0627\u0637 \u0627\u0644\u062A\u062C\u0627\u0631\u064A", journey: "\u0631\u062D\u0644\u0629 \u0627\u0644\u0623\u0639\u0645\u0627\u0644", simulator: "\u0645\u062D\u0627\u0643\u064A \u0627\u0644\u0646\u0645\u0648", assistant: "\u0645\u0633\u0627\u0639\u062F AURI", reports: "\u0627\u0644\u062A\u0642\u0627\u0631\u064A\u0631 \u0648\u0627\u0644\u062A\u062D\u0644\u064A\u0644\u0627\u062A", projects: "\u0627\u0644\u0645\u0634\u0627\u0631\u064A\u0639", websites: "\u0645\u0648\u0627\u0642\u0639\u064A", services: "\u062E\u062F\u0645\u0627\u062A\u064A", hosting: "\u0627\u0644\u0646\u0637\u0627\u0642\u0627\u062A \u0648\u0627\u0644\u0627\u0633\u062A\u0636\u0627\u0641\u0629", files: "\u0627\u0644\u0645\u0644\u0641\u0627\u062A \u0648\u0627\u0644\u0645\u0633\u062A\u0646\u062F\u0627\u062A", orders: "\u0627\u0644\u0645\u062A\u062C\u0631 \u0648\u0627\u0644\u0637\u0644\u0628\u0627\u062A", invoices: "\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631 \u0648\u0627\u0644\u0645\u062F\u0641\u0648\u0639\u0627\u062A", rewards: "\u0627\u0644\u0645\u0643\u0627\u0641\u0622\u062A", team: "\u0623\u0639\u0636\u0627\u0621 \u0627\u0644\u0641\u0631\u064A\u0642", support: "\u0627\u0644\u062F\u0639\u0645", settings: "\u0627\u0644\u0625\u0639\u062F\u0627\u062F\u0627\u062A", grow: "\u0627\u0644\u0646\u0645\u0648", manage: "\u0627\u0644\u0625\u062F\u0627\u0631\u0629", account: "\u0627\u0644\u062D\u0633\u0627\u0628", menu: "\u0627\u0644\u0642\u0627\u0626\u0645\u0629", close: "\u0625\u063A\u0644\u0627\u0642", save: "\u062D\u0641\u0638", saved: "\u062A\u0645 \u0627\u0644\u062D\u0641\u0638", saving: "\u062C\u0627\u0631\u064D \u0627\u0644\u062D\u0641\u0638\u2026", continue: "\u0645\u062A\u0627\u0628\u0639\u0629", back: "\u0631\u062C\u0648\u0639", skip: "\u062A\u062E\u0637\u064A", signIn: "\u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062F\u062E\u0648\u0644", signup: "\u0625\u0646\u0634\u0627\u0621 \u062D\u0633\u0627\u0628", email: "\u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A", password: "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631", name: "\u0627\u0644\u0627\u0633\u0645 \u0627\u0644\u0643\u0627\u0645\u0644", terms: "\u0623\u0648\u0627\u0641\u0642 \u0639\u0644\u0649 \u0634\u0631\u0648\u0637 \u0627\u0644\u062D\u0633\u0627\u0628 \u0648\u0627\u0633\u062A\u062E\u062F\u0627\u0645 \u0628\u064A\u0627\u0646\u0627\u062A\u064A \u0644\u0625\u062F\u0627\u0631\u062A\u0647.", google: "\u0627\u0644\u0645\u062A\u0627\u0628\u0639\u0629 \u0628\u0627\u0633\u062A\u062E\u062F\u0627\u0645 Google", forgot: "\u0646\u0633\u064A\u062A \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631\u061F", logout: "\u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062E\u0631\u0648\u062C", verify: "\u062A\u0623\u0643\u064A\u062F \u0627\u0644\u0628\u0631\u064A\u062F", verifyLater: "\u064A\u0645\u0643\u0646\u0643 \u0625\u0639\u062F\u0627\u062F \u0645\u0644\u0641\u0643 \u0648\u0645\u0633\u0648\u062F\u0629 \u062E\u0627\u0631\u0637\u0629 \u0637\u0631\u064A\u0642\u0643 \u0627\u0644\u0622\u0646. \u062A\u0623\u0643\u064A\u062F \u0627\u0644\u0628\u0631\u064A\u062F \u0645\u0637\u0644\u0648\u0628 \u0642\u0628\u0644 \u0627\u0644\u0641\u0648\u062A\u0631\u0629 \u0648\u062F\u0639\u0648\u0627\u062A \u0627\u0644\u0641\u0631\u064A\u0642 \u0648\u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0627\u0644\u0645\u0639\u0644\u0648\u0645\u0627\u062A \u0627\u0644\u062E\u0627\u0635\u0629 \u0627\u0644\u0645\u0634\u062A\u0631\u0643\u0629.", sendVerification: "\u0625\u0631\u0633\u0627\u0644 \u0631\u0627\u0628\u0637 \u0627\u0644\u062A\u0623\u0643\u064A\u062F", reset: "\u0625\u0639\u0627\u062F\u0629 \u062A\u0639\u064A\u064A\u0646 \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631", newPassword: "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u0627\u0644\u062C\u062F\u064A\u062F\u0629", confirm: "\u062A\u0623\u0643\u064A\u062F", cancel: "\u0625\u0644\u063A\u0627\u0621", error: "\u062D\u062F\u062B \u062E\u0637\u0623. \u062D\u0627\u0648\u0644 \u0645\u062C\u062F\u062F\u064B\u0627.", next: "\u062E\u0637\u0648\u062A\u0643 \u0627\u0644\u062A\u0627\u0644\u064A\u0629", readiness: "\u062C\u0627\u0647\u0632\u064A\u0629 \u0627\u0644\u0625\u0645\u0643\u0627\u0646\u0627\u062A", progress: "\u062A\u0642\u062F\u0645 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", level: "\u0627\u0644\u0645\u0633\u062A\u0648\u0649", foundation: "\u0627\u0644\u0623\u0633\u0627\u0633", visibility: "\u0627\u0644\u0638\u0647\u0648\u0631", conversion: "\u0627\u0644\u062A\u062D\u0648\u064A\u0644", automation: "\u0627\u0644\u0623\u062A\u0645\u062A\u0629", scale: "\u0627\u0644\u062A\u0648\u0633\u0639", createJourney: "\u0625\u0646\u0634\u0627\u0621 \u062E\u0627\u0631\u0637\u0629 \u0637\u0631\u064A\u0642\u064A", noPurchase: "\u064A\u0645\u0643\u0646\u0643 \u0625\u062A\u0645\u0627\u0645 \u0627\u0644\u0645\u0647\u0627\u0645 \u0628\u0646\u0641\u0633\u0643 \u0623\u0648 \u0645\u0639 \u0623\u064A \u0645\u0632\u0648\u062F. \u0634\u0631\u0627\u0621 \u062E\u062F\u0645\u0627\u062A AuraDigital \u0627\u062E\u062A\u064A\u0627\u0631\u064A.", quote: "\u064A\u062A\u0637\u0644\u0628 \u062A\u062D\u062F\u064A\u062F \u0627\u0644\u0646\u0637\u0627\u0642 \u0648\u0639\u0631\u0636 \u0633\u0639\u0631", planned: "\u0645\u062E\u0637\u0637", in_progress: "\u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", done: "\u0645\u0643\u062A\u0645\u0644", postponed: "\u0645\u0624\u062C\u0644", up: "\u062A\u0642\u062F\u064A\u0645", down: "\u062A\u0623\u062E\u064A\u0631", edit: "\u062A\u0639\u062F\u064A\u0644", objective: "\u0627\u0644\u0647\u062F\u0641", description: "\u0627\u0644\u0648\u0635\u0641", nextAction: "\u0627\u0644\u0625\u062C\u0631\u0627\u0621 \u0627\u0644\u062A\u0627\u0644\u064A", why: "\u0645\u0648\u0635\u0649 \u0628\u0647 \u0644\u0623\u0646 \u0647\u0630\u0647 \u0627\u0644\u0625\u0645\u0643\u0627\u0646\u064A\u0629 \u0644\u0645 \u062A\u064F\u0630\u0643\u0631 \u0641\u064A \u0645\u0644\u0641 \u0646\u0634\u0627\u0637\u0643.", benefit: "\u062A\u062D\u0633\u064A\u0646 \u0645\u062D\u062A\u0645\u0644\u060C \u064A\u064F\u0642\u0627\u0631\u0646 \u0628\u0646\u062A\u0627\u0626\u062C\u0643 \u0627\u0644\u0641\u0639\u0644\u064A\u0629.", assumptions: "\u0627\u0641\u062A\u0631\u0627\u0636\u0627\u062A \u0648\u0644\u064A\u0633\u062A \u0636\u0645\u0627\u0646\u0627\u062A", calculate: "\u062D\u0633\u0627\u0628 \u0627\u0644\u0633\u064A\u0646\u0627\u0631\u064A\u0648\u0647\u0627\u062A", scenarioName: "\u0627\u0633\u0645 \u0627\u0644\u0633\u064A\u0646\u0627\u0631\u064A\u0648", saveScenario: "\u062D\u0641\u0638 \u0627\u0644\u0633\u064A\u0646\u0627\u0631\u064A\u0648", export: "\u062A\u0635\u062F\u064A\u0631 JSON", history: "\u0627\u0644\u0633\u064A\u0646\u0627\u0631\u064A\u0648\u0647\u0627\u062A \u0627\u0644\u0645\u062D\u0641\u0648\u0638\u0629", conservative: "\u0645\u062A\u062D\u0641\u0638", base: "\u0623\u0633\u0627\u0633\u064A", ambitious: "\u0637\u0645\u0648\u062D", visits: "\u0632\u064A\u0627\u0631\u0627\u062A \u0627\u0644\u0645\u0648\u0642\u0639 \u0627\u0644\u0634\u0647\u0631\u064A\u0629", leads: "\u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0627\u0644\u0645\u062D\u062A\u0645\u0644\u0648\u0646 \u0634\u0647\u0631\u064A\u064B\u0627 \u0639\u0628\u0631 \u0627\u0644\u0645\u0648\u0642\u0639", closeRate: "\u0646\u0633\u0628\u0629 \u0627\u0644\u062A\u062D\u0648\u0644 \u0625\u0644\u0649 \u0639\u0645\u064A\u0644 (%)", customerValue: "\u0627\u0644\u0625\u064A\u0631\u0627\u062F \u0644\u0643\u0644 \u0639\u0645\u064A\u0644 \u0641\u064A \u0627\u0644\u0641\u062A\u0631\u0629", margin: "\u0647\u0627\u0645\u0634 \u0627\u0644\u0645\u0633\u0627\u0647\u0645\u0629 (%)", monthlyCost: "\u062A\u0643\u0644\u0641\u0629 \u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0627\u0644\u0634\u0647\u0631\u064A\u0629", setupCost: "\u062A\u0643\u0644\u0641\u0629 \u0627\u0644\u0625\u0639\u062F\u0627\u062F \u0645\u0631\u0629 \u0648\u0627\u062D\u062F\u0629", trafficLift: "\u0632\u064A\u0627\u062F\u0629 \u0627\u0644\u0632\u064A\u0627\u0631\u0627\u062A (%)", leadRateLift: "\u0632\u064A\u0627\u062F\u0629 \u0645\u0639\u062F\u0644 \u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0627\u0644\u0645\u062D\u062A\u0645\u0644\u064A\u0646 (%)", closeRateLift: "\u0632\u064A\u0627\u062F\u0629 \u0645\u0639\u062F\u0644 \u0625\u062A\u0645\u0627\u0645 \u0627\u0644\u0628\u064A\u0639 (%)", customers: "\u0639\u0645\u0644\u0627\u0621 \u0625\u0636\u0627\u0641\u064A\u0648\u0646", revenue: "\u0627\u0644\u0625\u064A\u0631\u0627\u062F \u0627\u0644\u0634\u0647\u0631\u064A \u0627\u0644\u0625\u0636\u0627\u0641\u064A", profit: "\u0631\u0628\u062D \u0627\u0644\u0645\u0633\u0627\u0647\u0645\u0629 \u0627\u0644\u0625\u0636\u0627\u0641\u064A", net: "\u0635\u0627\u0641\u064A \u0627\u0644\u0645\u0633\u0627\u0647\u0645\u0629 \u0628\u0639\u062F \u062A\u0643\u0644\u0641\u0629 \u0627\u0644\u062E\u062F\u0645\u0629", roi: "\u0627\u0644\u0639\u0627\u0626\u062F \u0639\u0644\u0649 \u0627\u0644\u0627\u0633\u062A\u062B\u0645\u0627\u0631 \u0644\u0644\u0633\u0646\u0629 \u0627\u0644\u0623\u0648\u0644\u0649", payback: "\u0641\u062A\u0631\u0629 \u0627\u0633\u062A\u0631\u062F\u0627\u062F \u0627\u0644\u0625\u0639\u062F\u0627\u062F (\u0623\u0634\u0647\u0631)", na: "\u063A\u064A\u0631 \u0642\u0627\u0628\u0644 \u0644\u0644\u062A\u0637\u0628\u064A\u0642", teamTitle: "\u0627\u0646\u0645\u064F \u0645\u0639 \u0641\u0631\u064A\u0642\u0643.", teamText: "\u0627\u062F\u0639\u064F \u0623\u0634\u062E\u0627\u0635\u064B\u0627 \u0645\u0648\u062B\u0648\u0642\u064A\u0646 \u0644\u0645\u0633\u0627\u0639\u062F\u062A\u0643. \u064A\u062F\u0641\u0639 \u0643\u0644 \u0639\u0636\u0648 \u0625\u0636\u0627\u0641\u064A \u0627\u0634\u062A\u0631\u0627\u0643\u0647 \u0627\u0644\u062E\u0627\u0635 \u0628\u0642\u064A\u0645\u0629 5 \u062F\u0648\u0644\u0627\u0631\u0627\u062A \u0623\u0645\u0631\u064A\u0643\u064A\u0629 \u0634\u0647\u0631\u064A\u064B\u0627.", blocked: "\u0627\u0644\u062F\u0641\u0639 \u0627\u0644\u0645\u062A\u0643\u0631\u0631 \u0627\u0644\u0645\u0628\u0627\u0634\u0631 \u0645\u062D\u0638\u0648\u0631 \u0625\u0644\u0649 \u062D\u064A\u0646 \u0625\u0639\u062F\u0627\u062F \u0645\u0632\u0648\u062F \u0627\u0644\u062F\u0641\u0639 \u0648\u0627\u0644\u0636\u0631\u0627\u0626\u0628 \u0648\u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646 \u0627\u0644\u0625\u0634\u0639\u0627\u0631\u0627\u062A \u0648\u0634\u0631\u0648\u0637 \u0627\u0644\u0625\u0644\u063A\u0627\u0621. \u0627\u0644\u062F\u0639\u0648\u0629 \u0644\u0627 \u062A\u0645\u0646\u062D \u0627\u0644\u0648\u0635\u0648\u0644 \u0648\u0644\u0627 \u062A\u062E\u0635\u0645 \u0623\u064A \u0645\u0628\u0644\u063A.", invite: "\u062F\u0639\u0648\u0629 \u0639\u0636\u0648", role: "\u0627\u0644\u062F\u0648\u0631", message: "\u0631\u0633\u0627\u0644\u0629 \u062F\u0639\u0648\u0629 \u0627\u062E\u062A\u064A\u0627\u0631\u064A\u0629", status: "\u0627\u0644\u062D\u0627\u0644\u0629", subscription: "\u0627\u0644\u0627\u0634\u062A\u0631\u0627\u0643", paymentDate: "\u0627\u0644\u062F\u0641\u0639\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629", remove: "\u0625\u0644\u063A\u0627\u0621 \u0627\u0644\u0648\u0635\u0648\u0644", removeConfirm: "\u0647\u0644 \u062A\u0631\u064A\u062F \u0625\u0644\u063A\u0627\u0621 \u0648\u0635\u0648\u0644 \u0647\u0630\u0627 \u0627\u0644\u0639\u0636\u0648 \u0641\u0648\u0631\u064B\u0627\u061F \u0633\u064A\u064F\u062D\u062A\u0641\u0638 \u0628\u062D\u0633\u0627\u0628\u0647 \u0627\u0644\u0634\u062E\u0635\u064A \u0648\u0628\u064A\u0627\u0646\u0627\u062A \u0627\u0644\u0646\u0634\u0627\u0637 \u0627\u0644\u0645\u0634\u062A\u0631\u0643\u0629.", cancelInvite: "\u0625\u0644\u063A\u0627\u0621 \u0627\u0644\u062F\u0639\u0648\u0629", resend: "\u062A\u062C\u062F\u064A\u062F \u0648\u0625\u0639\u0627\u062F\u0629 \u0625\u0631\u0633\u0627\u0644", inviteAccept: "\u0642\u0628\u0648\u0644 \u0627\u0644\u062F\u0639\u0648\u0629", recurringConsent: "\u0623\u0642\u0628\u0644 \u0627\u0644\u062F\u0639\u0648\u0629 \u0648\u0627\u0644\u0627\u0634\u062A\u0631\u0627\u0643 \u0627\u0644\u0634\u0647\u0631\u064A \u0627\u0644\u0645\u062A\u0643\u0631\u0631 \u0628\u0642\u064A\u0645\u0629 5 \u062F\u0648\u0644\u0627\u0631\u0627\u062A \u0623\u0645\u0631\u064A\u0643\u064A\u0629 \u0644\u0648\u0635\u0648\u0644\u064A \u0627\u0644\u0634\u062E\u0635\u064A. \u0627\u0644\u062F\u0641\u0639 \u0645\u062D\u0638\u0648\u0631 \u062D\u0627\u0644\u064A\u064B\u0627\u061B \u0644\u0646 \u064A\u064F\u062E\u0635\u0645 \u0645\u0628\u0644\u063A \u0648\u0633\u064A\u0628\u0642\u0649 \u0627\u0644\u0648\u0635\u0648\u0644 \u0645\u0639\u0644\u0642\u064B\u0627.", awaiting: "\u0628\u0627\u0646\u062A\u0638\u0627\u0631 \u0627\u0644\u062F\u0641\u0639", permissions: "\u0627\u0644\u0635\u0644\u0627\u062D\u064A\u0627\u062A", activity: "\u0633\u062C\u0644 \u0627\u0644\u0648\u0635\u0648\u0644", unavailable: "\u0644\u0645 \u064A\u064F\u0631\u0628\u0637 \u0647\u0630\u0627 \u0627\u0644\u062A\u0643\u0627\u0645\u0644 \u0628\u0639\u062F \u0628\u0645\u0633\u0627\u062D\u0629 \u0639\u0645\u0644\u0643 \u0627\u0644\u0645\u062A\u062D\u0642\u0642 \u0645\u0646\u0647\u0627.", legacy: "\u062D\u0633\u0627\u0628\u0627\u062A\u0643 \u0648\u0645\u0646\u062A\u062C\u0627\u062A\u0643 \u0648\u0637\u0644\u0628\u0627\u062A\u0643 \u0627\u0644\u062D\u0627\u0644\u064A\u0629 \u0645\u062A\u0627\u062D\u0629 \u0636\u0645\u0646 \u0645\u0633\u0627\u0631\u0627\u062A\u0647\u0627 \u0627\u0644\u0645\u0635\u0631\u062D \u0628\u0647\u0627.", openAccount: "\u0641\u062A\u062D \u062D\u0633\u0627\u0628\u064A \u0648\u0637\u0644\u0628\u0627\u062A\u064A", contact: "\u0627\u0644\u062A\u0648\u0627\u0635\u0644 \u0645\u0639 \u0627\u0644\u062F\u0639\u0645", aiRules: "\u0623\u062F\u0648\u0627\u062A AURI \u0627\u0644\u0645\u0648\u062C\u0647\u0629", aiNotice: "\u0627\u0644\u0625\u0631\u0634\u0627\u062F \u0627\u0644\u0642\u0627\u0626\u0645 \u0639\u0644\u0649 \u0627\u0644\u0642\u0648\u0627\u0639\u062F \u0645\u062A\u0627\u062D. \u0627\u0644\u0627\u0633\u062A\u0634\u0627\u0631\u0627\u062A \u0627\u0644\u062A\u0648\u0644\u064A\u062F\u064A\u0629 \u0648\u0623\u062F\u0648\u0627\u062A \u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631 \u0648\u0627\u0644\u0645\u0634\u0627\u0631\u064A\u0639 \u0627\u0644\u062E\u0627\u0635\u0629 \u0644\u0645 \u062A\u064F\u0631\u0628\u0637 \u0628\u0639\u062F.", diagnosis: "\u062A\u062D\u0644\u064A\u0644 \u0627\u0644\u0646\u0634\u0627\u0637", recommend: "\u0627\u0642\u062A\u0631\u0627\u062D \u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629", strengths: "\u0646\u0642\u0627\u0637 \u0627\u0644\u0642\u0648\u0629 \u0627\u0644\u0645\u064F\u0628\u0644\u063A \u0639\u0646\u0647\u0627", missing: "\u0627\u0644\u0625\u0645\u0643\u0627\u0646\u0627\u062A \u0627\u0644\u0646\u0627\u0642\u0635\u0629", source: "\u0627\u0644\u0645\u0635\u062F\u0631: \u0628\u064A\u0627\u0646\u0627\u062A \u0623\u062F\u062E\u0644\u0647\u0627 \u0627\u0644\u0639\u0645\u064A\u0644", businessName: "\u0627\u0633\u0645 \u0627\u0644\u0646\u0634\u0627\u0637 \u0627\u0644\u062A\u062C\u0627\u0631\u064A", industry: "\u0627\u0644\u0642\u0637\u0627\u0639", country: "\u0627\u0644\u062F\u0648\u0644\u0629", city: "\u0627\u0644\u0645\u062F\u064A\u0646\u0629", stage: "\u0645\u0631\u062D\u0644\u0629 \u0627\u0644\u0646\u0634\u0627\u0637", website: "\u0627\u0644\u0645\u0648\u0642\u0639 \u0627\u0644\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A (HTTPS)", tools: "\u0627\u0644\u0623\u062F\u0648\u0627\u062A \u0627\u0644\u0631\u0642\u0645\u064A\u0629 \u0627\u0644\u062D\u0627\u0644\u064A\u0629", acquisition: "\u0643\u064A\u0641 \u064A\u062C\u062F\u0643 \u0627\u0644\u0639\u0645\u0644\u0627\u0621\u061F", difficulties: "\u0623\u0647\u0645 \u0627\u0644\u0635\u0639\u0648\u0628\u0627\u062A", goals: "\u0623\u0647\u062F\u0627\u0641 \u0627\u0644\u0646\u0634\u0627\u0637", budget: "\u0627\u0644\u0645\u064A\u0632\u0627\u0646\u064A\u0629 \u0627\u0644\u062A\u0642\u0631\u064A\u0628\u064A\u0629 (\u0627\u062E\u062A\u064A\u0627\u0631\u064A)", currency: "\u0627\u0644\u0639\u0645\u0644\u0629", timeline: "\u0627\u0644\u062C\u062F\u0648\u0644 \u0627\u0644\u0632\u0645\u0646\u064A \u0627\u0644\u0645\u0637\u0644\u0648\u0628", industryDetails: "\u062A\u0641\u0627\u0635\u064A\u0644 \u0627\u0644\u0642\u0637\u0627\u0639", capabilities: "\u0627\u0644\u0625\u0645\u0643\u0627\u0646\u0627\u062A \u0627\u0644\u0645\u062A\u0648\u0641\u0631\u0629 \u0644\u062F\u064A\u0643", restaurant: "\u0645\u0637\u0639\u0645", ecommerce: "\u062A\u062C\u0627\u0631\u0629 \u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A\u0629", real_estate: "\u0639\u0642\u0627\u0631\u0627\u062A", other: "\u0623\u062E\u0631\u0649", servicesIndustry: "\u0646\u0634\u0627\u0637 \u062E\u062F\u0645\u064A", restaurantQuestion: "\u0643\u064A\u0641 \u064A\u062C\u062F\u0643 \u0627\u0644\u0636\u064A\u0648\u0641 \u0648\u064A\u0637\u0644\u0639\u0648\u0646 \u0639\u0644\u0649 \u0627\u0644\u0642\u0627\u0626\u0645\u0629 \u0648\u064A\u062D\u062C\u0632\u0648\u0646\u061F", ecommerceQuestion: "\u0643\u064A\u0641 \u062A\u062F\u064A\u0631 \u0627\u0644\u0643\u062A\u0627\u0644\u0648\u062C \u0648\u0627\u0644\u062F\u0641\u0639 \u0648\u0627\u0644\u0645\u0634\u062A\u0631\u064A\u0627\u062A \u0627\u0644\u0645\u062A\u0643\u0631\u0631\u0629\u061F", realEstateQuestion: "\u0643\u064A\u0641 \u062A\u0639\u0631\u0636 \u0627\u0644\u0639\u0642\u0627\u0631\u0627\u062A \u0648\u062A\u062A\u0627\u0628\u0639 \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A\u061F", servicesQuestion: "\u0643\u064A\u0641 \u064A\u062F\u064A\u0631 \u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0627\u0644\u0645\u0648\u0627\u0639\u064A\u062F \u0648\u0639\u0631\u0648\u0636 \u0627\u0644\u0623\u0633\u0639\u0627\u0631 \u0648\u0627\u0644\u0645\u062F\u0641\u0648\u0639\u0627\u062A\u061F", otherQuestion: "\u0635\u0641 \u0637\u0631\u064A\u0642\u0629 \u062E\u062F\u0645\u0629 \u0639\u0645\u0644\u0627\u0626\u0643.", newWorkspace: "\u0646\u0634\u0627\u0637 \u062C\u062F\u064A\u062F", switchMode: "\u062A\u063A\u064A\u064A\u0631 \u0648\u0636\u0639 \u0627\u0644\u0625\u0631\u0634\u0627\u062F", verified: "\u062A\u0645 \u062A\u0623\u0643\u064A\u062F \u0627\u0644\u0628\u0631\u064A\u062F", owner: "\u0627\u0644\u0645\u0627\u0644\u0643", admin: "\u0645\u062F\u064A\u0631", member: "\u0639\u0636\u0648", viewer: "\u0645\u0634\u0627\u0647\u062F", readOnly: "\u0644\u0644\u0642\u0631\u0627\u0621\u0629 \u0641\u0642\u0637", verifiedRequired: "\u0623\u0643\u062F \u0628\u0631\u064A\u062F\u0643 \u0644\u0625\u062F\u0627\u0631\u0629 \u0627\u0644\u0641\u0631\u064A\u0642.", empty: "\u0644\u0627 \u062A\u0648\u062C\u062F \u0639\u0646\u0627\u0635\u0631 \u0628\u0639\u062F.", billingPrivate: "\u062A\u0628\u0642\u0649 \u062A\u0641\u0627\u0635\u064A\u0644 \u062F\u0641\u0639 \u0643\u0644 \u0639\u0636\u0648 \u062E\u0627\u0635\u0629 \u0628\u0647.", security: "\u0625\u0639\u062F\u0627\u062F\u0627\u062A \u0627\u0644\u0623\u0645\u0627\u0646", linkGoogle: "\u0631\u0628\u0637 \u0647\u0648\u064A\u062A\u064A \u0627\u0644\u0645\u062A\u062D\u0642\u0642 \u0645\u0646\u0647\u0627 \u0641\u064A Google", rename: "\u062D\u0641\u0638 \u0627\u0644\u062A\u063A\u064A\u064A\u0631\u0627\u062A", refresh: "\u0625\u0639\u0627\u062F\u0629 \u0627\u0644\u062A\u062D\u0645\u064A\u0644", serviceNote: "\u0627\u0633\u062A\u0643\u0634\u0641 \u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0648\u0627\u0637\u0644\u0628 \u0639\u0631\u0636 \u0633\u0639\u0631 \u0645\u0646\u0627\u0633\u0628\u064B\u0627 \u0644\u0646\u0634\u0627\u0637\u0643.", openServices: "\u0627\u0633\u062A\u0643\u0634\u0627\u0641 \u0627\u0644\u062E\u062F\u0645\u0627\u062A", reportNote: "\u0644\u0627 \u062A\u064F\u0639\u0631\u0636 \u0627\u0644\u062A\u0642\u0627\u0631\u064A\u0631 \u0648\u0627\u0644\u0645\u0643\u0627\u0641\u0622\u062A \u0642\u0628\u0644 \u0631\u0628\u0637 \u0645\u0635\u0627\u062F\u0631 \u0628\u064A\u0627\u0646\u0627\u062A \u0645\u0648\u062B\u0648\u0642\u0629 \u0648\u0633\u062C\u0644 \u0648\u0644\u0627\u0621 \u0635\u062D\u064A\u062D." }
 };
 var capabilityNames = { en: { website: "Website", domain: "Domain & hosting", email: "Business email", seo: "SEO", discovery: "Business discovery", leads: "Lead capture", crm: "CRM", automation: "AI automation", analytics: "Analytics", retention: "Customer retention" }, fr: { website: "Site web", domain: "Domaine et h\xE9bergement", email: "E-mail professionnel", seo: "R\xE9f\xE9rencement", discovery: "Visibilit\xE9 locale", leads: "Acquisition de prospects", crm: "CRM", automation: "Automatisation IA", analytics: "Analyse", retention: "Fid\xE9lisation" }, tr: { website: "Web sitesi", domain: "Alan ad\u0131 ve hosting", email: "Kurumsal e-posta", seo: "SEO", discovery: "\u0130\u015Fletme ke\u015Ffi", leads: "Potansiyel m\xFC\u015Fteri toplama", crm: "CRM", automation: "Yapay zek\xE2 otomasyonu", analytics: "Analitik", retention: "M\xFC\u015Fteri ba\u011Fl\u0131l\u0131\u011F\u0131" }, ar: { website: "\u0627\u0644\u0645\u0648\u0642\u0639 \u0627\u0644\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A", domain: "\u0627\u0644\u0646\u0637\u0627\u0642 \u0648\u0627\u0644\u0627\u0633\u062A\u0636\u0627\u0641\u0629", email: "\u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u0645\u0647\u0646\u064A", seo: "\u062A\u062D\u0633\u064A\u0646 \u0645\u062D\u0631\u0643\u0627\u062A \u0627\u0644\u0628\u062D\u062B", discovery: "\u0627\u0643\u062A\u0634\u0627\u0641 \u0627\u0644\u0646\u0634\u0627\u0637", leads: "\u0627\u0633\u062A\u0642\u0637\u0627\u0628 \u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0627\u0644\u0645\u062D\u062A\u0645\u0644\u064A\u0646", crm: "\u0625\u062F\u0627\u0631\u0629 \u0639\u0644\u0627\u0642\u0627\u062A \u0627\u0644\u0639\u0645\u0644\u0627\u0621", automation: "\u0623\u062A\u0645\u062A\u0629 \u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064A", analytics: "\u0627\u0644\u062A\u062D\u0644\u064A\u0644\u0627\u062A", retention: "\u0627\u0644\u0627\u062D\u062A\u0641\u0627\u0638 \u0628\u0627\u0644\u0639\u0645\u0644\u0627\u0621" } };
-Object.assign(copy.en, { sample: "The starting numbers are illustrative. Replace them with your own business data before making decisions.", solutions: "Selected digital solutions", addSolutions: "Add selected solutions to roadmap", formulaTitle: "How the calculation works", priority: "Priority", high: "High", medium: "Medium", low: "Low", pending: "Pending", active: "Active", removed: "Removed", accepted: "Accepted", canceled: "Canceled", expired: "Expired", sent: "Sent", failed: "Failed", pending_payment: "Pending payment", past_due: "Past due", restrict: "Restrict access", months: "months", seats: "additional seats", googleInvite: "After Google sign-in, reopen your invitation link to continue.", resetSent: "If an eligible account exists, a reset link will be sent." });
-Object.assign(copy.fr, { sample: "Les valeurs initiales sont illustratives. Remplacez-les par vos donn\xE9es avant de prendre une d\xE9cision.", solutions: "Solutions num\xE9riques choisies", addSolutions: "Ajouter les solutions au parcours", formulaTitle: "M\xE9thode de calcul", priority: "Priorit\xE9", high: "Haute", medium: "Moyenne", low: "Basse", pending: "En attente", active: "Actif", removed: "Acc\xE8s r\xE9voqu\xE9", accepted: "Accept\xE9e", canceled: "Annul\xE9e", expired: "Expir\xE9e", sent: "Envoy\xE9e", failed: "\xC9chec", pending_payment: "Paiement en attente", past_due: "En retard", restrict: "Restreindre l\u2019acc\xE8s", months: "mois", seats: "places suppl\xE9mentaires", googleInvite: "Apr\xE8s la connexion Google, rouvrez le lien d\u2019invitation.", resetSent: "Si un compte admissible existe, un lien sera envoy\xE9.", noData: "Aucune donn\xE9e mesur\xE9e n\u2019est connect\xE9e.", supportText: "Envoyez votre demande via le formulaire de contact existant.", simNotice: "Estimations illustratives. Saisissez une seule am\xE9lioration combin\xE9e par \xE9tape pour \xE9viter les doubles comptes. Les taux sont plafonn\xE9s \xE0 100 %. Utilisez la m\xEAme devise et p\xE9riode. Taxes, frais fixes et financement exclus.", formula: "Clients = visites \xD7 taux de prospects \xD7 taux de conversion. Contribution = revenu suppl\xE9mentaire \xD7 marge. ROI annuel = (12 \xD7 contribution suppl\xE9mentaire \u2212 co\xFBt initial \u2212 12 \xD7 co\xFBt mensuel) \xF7 (co\xFBt initial + 12 \xD7 co\xFBt mensuel). Retour = co\xFBt initial \xF7 contribution mensuelle nette positive." });
-Object.assign(copy.tr, { sample: "Ba\u015Flang\u0131\xE7 de\u011Ferleri \xF6rnektir. Karar vermeden \xF6nce kendi i\u015Fletme verilerinizi girin.", solutions: "Se\xE7ilen dijital \xE7\xF6z\xFCmler", addSolutions: "Se\xE7ilen \xE7\xF6z\xFCmleri yol haritas\u0131na ekle", formulaTitle: "Hesaplama y\xF6ntemi", priority: "\xD6ncelik", high: "Y\xFCksek", medium: "Orta", low: "D\xFC\u015F\xFCk", pending: "Beklemede", active: "Etkin", removed: "Eri\u015Fim kald\u0131r\u0131ld\u0131", accepted: "Kabul edildi", canceled: "\u0130ptal edildi", expired: "S\xFCresi doldu", sent: "G\xF6nderildi", failed: "Ba\u015Far\u0131s\u0131z", pending_payment: "\xD6deme bekliyor", past_due: "\xD6deme gecikti", restrict: "Eri\u015Fimi k\u0131s\u0131tla", months: "ay", seats: "ek koltuk", googleInvite: "Google giri\u015Finden sonra devam etmek i\xE7in davet ba\u011Flant\u0131s\u0131n\u0131 yeniden a\xE7\u0131n.", resetSent: "Uygun bir hesap varsa s\u0131f\u0131rlama ba\u011Flant\u0131s\u0131 g\xF6nderilecektir.", noData: "Hen\xFCz \xF6l\xE7\xFClen veri kayna\u011F\u0131 ba\u011Fl\u0131 de\u011Fil.", supportText: "Mevcut ileti\u015Fim formundan destek talebi g\xF6nderin.", simNotice: "\xD6rnek tahminlerdir. Ayn\u0131 fayday\u0131 iki kez saymamak i\xE7in her a\u015Famada tek bir birle\u015Fik art\u0131\u015F girin. Oranlar %100 ile s\u0131n\u0131rl\u0131d\u0131r. Maliyet ve gelir ayn\u0131 para birimi ve d\xF6nemde olmal\u0131d\u0131r. Vergi, sabit gider ve finansman hari\xE7tir.", formula: "M\xFC\u015Fteri = ziyaret \xD7 potansiyel m\xFC\u015Fteri oran\u0131 \xD7 sat\u0131\u015F oran\u0131. Katk\u0131 = ek gelir \xD7 marj. \u0130lk y\u0131l getirisi = (12 \xD7 ek katk\u0131 \u2212 ba\u015Flang\u0131\xE7 \u2212 12 \xD7 ayl\u0131k maliyet) \xF7 (ba\u015Flang\u0131\xE7 + 12 \xD7 ayl\u0131k maliyet). Geri \xF6deme = ba\u015Flang\u0131\xE7 \xF7 pozitif net ayl\u0131k katk\u0131." });
-Object.assign(copy.ar, { sample: "\u0627\u0644\u0623\u0631\u0642\u0627\u0645 \u0627\u0644\u0623\u0648\u0644\u064A\u0629 \u0623\u0645\u062B\u0644\u0629 \u062A\u0648\u0636\u064A\u062D\u064A\u0629. \u0627\u0633\u062A\u0628\u062F\u0644\u0647\u0627 \u0628\u0628\u064A\u0627\u0646\u0627\u062A \u0646\u0634\u0627\u0637\u0643 \u0642\u0628\u0644 \u0627\u062A\u062E\u0627\u0630 \u0623\u064A \u0642\u0631\u0627\u0631.", solutions: "\u0627\u0644\u062D\u0644\u0648\u0644 \u0627\u0644\u0631\u0642\u0645\u064A\u0629 \u0627\u0644\u0645\u062E\u062A\u0627\u0631\u0629", addSolutions: "\u0625\u0636\u0627\u0641\u0629 \u0627\u0644\u062D\u0644\u0648\u0644 \u0627\u0644\u0645\u062E\u062A\u0627\u0631\u0629 \u0625\u0644\u0649 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", formulaTitle: "\u0643\u064A\u0641 \u064A\u0639\u0645\u0644 \u0627\u0644\u062D\u0633\u0627\u0628", priority: "\u0627\u0644\u0623\u0648\u0644\u0648\u064A\u0629", high: "\u0645\u0631\u062A\u0641\u0639\u0629", medium: "\u0645\u062A\u0648\u0633\u0637\u0629", low: "\u0645\u0646\u062E\u0641\u0636\u0629", pending: "\u0645\u0639\u0644\u0642", active: "\u0646\u0634\u0637", removed: "\u062A\u0645 \u0625\u0644\u063A\u0627\u0621 \u0627\u0644\u0648\u0635\u0648\u0644", accepted: "\u0645\u0642\u0628\u0648\u0644\u0629", canceled: "\u0645\u0644\u063A\u0627\u0629", expired: "\u0645\u0646\u062A\u0647\u064A\u0629", sent: "\u0623\u064F\u0631\u0633\u0644\u062A", failed: "\u0641\u0634\u0644\u062A", pending_payment: "\u0628\u0627\u0646\u062A\u0638\u0627\u0631 \u0627\u0644\u062F\u0641\u0639", past_due: "\u0645\u062A\u0623\u062E\u0631 \u0639\u0646 \u0627\u0644\u062F\u0641\u0639", restrict: "\u062A\u0642\u064A\u064A\u062F \u0627\u0644\u0648\u0635\u0648\u0644", months: "\u0623\u0634\u0647\u0631", seats: "\u0645\u0642\u0627\u0639\u062F \u0625\u0636\u0627\u0641\u064A\u0629", googleInvite: "\u0628\u0639\u062F \u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062F\u062E\u0648\u0644 \u0628\u0627\u0633\u062A\u062E\u062F\u0627\u0645 Google\u060C \u0623\u0639\u062F \u0641\u062A\u062D \u0631\u0627\u0628\u0637 \u0627\u0644\u062F\u0639\u0648\u0629 \u0644\u0644\u0645\u062A\u0627\u0628\u0639\u0629.", resetSent: "\u0625\u0630\u0627 \u0648\u064F\u062C\u062F \u062D\u0633\u0627\u0628 \u0645\u0624\u0647\u0644\u060C \u0641\u0633\u064A\u064F\u0631\u0633\u0644 \u0631\u0627\u0628\u0637 \u0625\u0639\u0627\u062F\u0629 \u0627\u0644\u062A\u0639\u064A\u064A\u0646.", noData: "\u0644\u0645 \u062A\u064F\u0631\u0628\u0637 \u0628\u064A\u0627\u0646\u0627\u062A \u0645\u0642\u0627\u0633\u0629 \u0628\u0639\u062F.", supportText: "\u0623\u0631\u0633\u0644 \u0637\u0644\u0628 \u0627\u0644\u062F\u0639\u0645 \u0639\u0628\u0631 \u0646\u0645\u0648\u0630\u062C \u0627\u0644\u062A\u0648\u0627\u0635\u0644 \u0627\u0644\u062D\u0627\u0644\u064A.", simNotice: "\u062A\u0642\u062F\u064A\u0631\u0627\u062A \u062A\u0648\u0636\u064A\u062D\u064A\u0629. \u0623\u062F\u062E\u0644 \u062A\u062D\u0633\u064A\u0646\u064B\u0627 \u0645\u062C\u0645\u0639\u064B\u0627 \u0648\u0627\u062D\u062F\u064B\u0627 \u0644\u0643\u0644 \u0645\u0631\u062D\u0644\u0629 \u0644\u062A\u062C\u0646\u0628 \u0627\u062D\u062A\u0633\u0627\u0628 \u0627\u0644\u0641\u0627\u0626\u062F\u0629 \u0645\u0631\u062A\u064A\u0646. \u0627\u0644\u0646\u0633\u0628 \u0645\u062D\u062F\u0648\u062F\u0629 \u0628\u0640100\u066A. \u0627\u0633\u062A\u062E\u062F\u0645 \u0627\u0644\u0639\u0645\u0644\u0629 \u0648\u0627\u0644\u0641\u062A\u0631\u0629 \u0646\u0641\u0633\u064A\u0647\u0645\u0627 \u0644\u0644\u062A\u0643\u0627\u0644\u064A\u0641 \u0648\u0627\u0644\u0625\u064A\u0631\u0627\u062F\u0627\u062A. \u0627\u0644\u0636\u0631\u0627\u0626\u0628 \u0648\u0627\u0644\u0645\u0635\u0627\u0631\u064A\u0641 \u0627\u0644\u062B\u0627\u0628\u062A\u0629 \u0648\u0627\u0644\u062A\u0645\u0648\u064A\u0644 \u0645\u0633\u062A\u062B\u0646\u0627\u0629.", formula: "\u0627\u0644\u0639\u0645\u0644\u0627\u0621 = \u0627\u0644\u0632\u064A\u0627\u0631\u0627\u062A \xD7 \u0645\u0639\u062F\u0644 \u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0627\u0644\u0645\u062D\u062A\u0645\u0644\u064A\u0646 \xD7 \u0645\u0639\u062F\u0644 \u0625\u062A\u0645\u0627\u0645 \u0627\u0644\u0628\u064A\u0639. \u0627\u0644\u0645\u0633\u0627\u0647\u0645\u0629 = \u0627\u0644\u0625\u064A\u0631\u0627\u062F \u0627\u0644\u0625\u0636\u0627\u0641\u064A \xD7 \u0627\u0644\u0647\u0627\u0645\u0634. \u0639\u0627\u0626\u062F \u0627\u0644\u0633\u0646\u0629 \u0627\u0644\u0623\u0648\u0644\u0649 = (12 \xD7 \u0627\u0644\u0645\u0633\u0627\u0647\u0645\u0629 \u0627\u0644\u0625\u0636\u0627\u0641\u064A\u0629 \u2212 \u0627\u0644\u0625\u0639\u062F\u0627\u062F \u2212 12 \xD7 \u0627\u0644\u062A\u0643\u0644\u0641\u0629 \u0627\u0644\u0634\u0647\u0631\u064A\u0629) \xF7 (\u0627\u0644\u0625\u0639\u062F\u0627\u062F + 12 \xD7 \u0627\u0644\u062A\u0643\u0644\u0641\u0629 \u0627\u0644\u0634\u0647\u0631\u064A\u0629). \u0627\u0644\u0627\u0633\u062A\u0631\u062F\u0627\u062F = \u0627\u0644\u0625\u0639\u062F\u0627\u062F \xF7 \u0635\u0627\u0641\u064A \u0627\u0644\u0645\u0633\u0627\u0647\u0645\u0629 \u0627\u0644\u0634\u0647\u0631\u064A\u0629 \u0627\u0644\u0645\u0648\u062C\u0628." });
+Object.assign(copy2.en, { sample: "The starting numbers are illustrative. Replace them with your own business data before making decisions.", solutions: "Selected digital solutions", addSolutions: "Add selected solutions to roadmap", formulaTitle: "How the calculation works", priority: "Priority", high: "High", medium: "Medium", low: "Low", pending: "Pending", active: "Active", removed: "Removed", accepted: "Accepted", canceled: "Canceled", expired: "Expired", sent: "Sent", failed: "Failed", pending_payment: "Pending payment", past_due: "Past due", restrict: "Restrict access", months: "months", seats: "additional seats", googleInvite: "After Google sign-in, reopen your invitation link to continue.", resetSent: "If an eligible account exists, a reset link will be sent." });
+Object.assign(copy2.fr, { sample: "Les valeurs initiales sont illustratives. Remplacez-les par vos donn\xE9es avant de prendre une d\xE9cision.", solutions: "Solutions num\xE9riques choisies", addSolutions: "Ajouter les solutions au parcours", formulaTitle: "M\xE9thode de calcul", priority: "Priorit\xE9", high: "Haute", medium: "Moyenne", low: "Basse", pending: "En attente", active: "Actif", removed: "Acc\xE8s r\xE9voqu\xE9", accepted: "Accept\xE9e", canceled: "Annul\xE9e", expired: "Expir\xE9e", sent: "Envoy\xE9e", failed: "\xC9chec", pending_payment: "Paiement en attente", past_due: "En retard", restrict: "Restreindre l\u2019acc\xE8s", months: "mois", seats: "places suppl\xE9mentaires", googleInvite: "Apr\xE8s la connexion Google, rouvrez le lien d\u2019invitation.", resetSent: "Si un compte admissible existe, un lien sera envoy\xE9.", noData: "Aucune donn\xE9e mesur\xE9e n\u2019est connect\xE9e.", supportText: "Envoyez votre demande via le formulaire de contact existant.", simNotice: "Estimations illustratives. Saisissez une seule am\xE9lioration combin\xE9e par \xE9tape pour \xE9viter les doubles comptes. Les taux sont plafonn\xE9s \xE0 100 %. Utilisez la m\xEAme devise et p\xE9riode. Taxes, frais fixes et financement exclus.", formula: "Clients = visites \xD7 taux de prospects \xD7 taux de conversion. Contribution = revenu suppl\xE9mentaire \xD7 marge. ROI annuel = (12 \xD7 contribution suppl\xE9mentaire \u2212 co\xFBt initial \u2212 12 \xD7 co\xFBt mensuel) \xF7 (co\xFBt initial + 12 \xD7 co\xFBt mensuel). Retour = co\xFBt initial \xF7 contribution mensuelle nette positive." });
+Object.assign(copy2.tr, { sample: "Ba\u015Flang\u0131\xE7 de\u011Ferleri \xF6rnektir. Karar vermeden \xF6nce kendi i\u015Fletme verilerinizi girin.", solutions: "Se\xE7ilen dijital \xE7\xF6z\xFCmler", addSolutions: "Se\xE7ilen \xE7\xF6z\xFCmleri yol haritas\u0131na ekle", formulaTitle: "Hesaplama y\xF6ntemi", priority: "\xD6ncelik", high: "Y\xFCksek", medium: "Orta", low: "D\xFC\u015F\xFCk", pending: "Beklemede", active: "Etkin", removed: "Eri\u015Fim kald\u0131r\u0131ld\u0131", accepted: "Kabul edildi", canceled: "\u0130ptal edildi", expired: "S\xFCresi doldu", sent: "G\xF6nderildi", failed: "Ba\u015Far\u0131s\u0131z", pending_payment: "\xD6deme bekliyor", past_due: "\xD6deme gecikti", restrict: "Eri\u015Fimi k\u0131s\u0131tla", months: "ay", seats: "ek koltuk", googleInvite: "Google giri\u015Finden sonra devam etmek i\xE7in davet ba\u011Flant\u0131s\u0131n\u0131 yeniden a\xE7\u0131n.", resetSent: "Uygun bir hesap varsa s\u0131f\u0131rlama ba\u011Flant\u0131s\u0131 g\xF6nderilecektir.", noData: "Hen\xFCz \xF6l\xE7\xFClen veri kayna\u011F\u0131 ba\u011Fl\u0131 de\u011Fil.", supportText: "Mevcut ileti\u015Fim formundan destek talebi g\xF6nderin.", simNotice: "\xD6rnek tahminlerdir. Ayn\u0131 fayday\u0131 iki kez saymamak i\xE7in her a\u015Famada tek bir birle\u015Fik art\u0131\u015F girin. Oranlar %100 ile s\u0131n\u0131rl\u0131d\u0131r. Maliyet ve gelir ayn\u0131 para birimi ve d\xF6nemde olmal\u0131d\u0131r. Vergi, sabit gider ve finansman hari\xE7tir.", formula: "M\xFC\u015Fteri = ziyaret \xD7 potansiyel m\xFC\u015Fteri oran\u0131 \xD7 sat\u0131\u015F oran\u0131. Katk\u0131 = ek gelir \xD7 marj. \u0130lk y\u0131l getirisi = (12 \xD7 ek katk\u0131 \u2212 ba\u015Flang\u0131\xE7 \u2212 12 \xD7 ayl\u0131k maliyet) \xF7 (ba\u015Flang\u0131\xE7 + 12 \xD7 ayl\u0131k maliyet). Geri \xF6deme = ba\u015Flang\u0131\xE7 \xF7 pozitif net ayl\u0131k katk\u0131." });
+Object.assign(copy2.ar, { sample: "\u0627\u0644\u0623\u0631\u0642\u0627\u0645 \u0627\u0644\u0623\u0648\u0644\u064A\u0629 \u0623\u0645\u062B\u0644\u0629 \u062A\u0648\u0636\u064A\u062D\u064A\u0629. \u0627\u0633\u062A\u0628\u062F\u0644\u0647\u0627 \u0628\u0628\u064A\u0627\u0646\u0627\u062A \u0646\u0634\u0627\u0637\u0643 \u0642\u0628\u0644 \u0627\u062A\u062E\u0627\u0630 \u0623\u064A \u0642\u0631\u0627\u0631.", solutions: "\u0627\u0644\u062D\u0644\u0648\u0644 \u0627\u0644\u0631\u0642\u0645\u064A\u0629 \u0627\u0644\u0645\u062E\u062A\u0627\u0631\u0629", addSolutions: "\u0625\u0636\u0627\u0641\u0629 \u0627\u0644\u062D\u0644\u0648\u0644 \u0627\u0644\u0645\u062E\u062A\u0627\u0631\u0629 \u0625\u0644\u0649 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", formulaTitle: "\u0643\u064A\u0641 \u064A\u0639\u0645\u0644 \u0627\u0644\u062D\u0633\u0627\u0628", priority: "\u0627\u0644\u0623\u0648\u0644\u0648\u064A\u0629", high: "\u0645\u0631\u062A\u0641\u0639\u0629", medium: "\u0645\u062A\u0648\u0633\u0637\u0629", low: "\u0645\u0646\u062E\u0641\u0636\u0629", pending: "\u0645\u0639\u0644\u0642", active: "\u0646\u0634\u0637", removed: "\u062A\u0645 \u0625\u0644\u063A\u0627\u0621 \u0627\u0644\u0648\u0635\u0648\u0644", accepted: "\u0645\u0642\u0628\u0648\u0644\u0629", canceled: "\u0645\u0644\u063A\u0627\u0629", expired: "\u0645\u0646\u062A\u0647\u064A\u0629", sent: "\u0623\u064F\u0631\u0633\u0644\u062A", failed: "\u0641\u0634\u0644\u062A", pending_payment: "\u0628\u0627\u0646\u062A\u0638\u0627\u0631 \u0627\u0644\u062F\u0641\u0639", past_due: "\u0645\u062A\u0623\u062E\u0631 \u0639\u0646 \u0627\u0644\u062F\u0641\u0639", restrict: "\u062A\u0642\u064A\u064A\u062F \u0627\u0644\u0648\u0635\u0648\u0644", months: "\u0623\u0634\u0647\u0631", seats: "\u0645\u0642\u0627\u0639\u062F \u0625\u0636\u0627\u0641\u064A\u0629", googleInvite: "\u0628\u0639\u062F \u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062F\u062E\u0648\u0644 \u0628\u0627\u0633\u062A\u062E\u062F\u0627\u0645 Google\u060C \u0623\u0639\u062F \u0641\u062A\u062D \u0631\u0627\u0628\u0637 \u0627\u0644\u062F\u0639\u0648\u0629 \u0644\u0644\u0645\u062A\u0627\u0628\u0639\u0629.", resetSent: "\u0625\u0630\u0627 \u0648\u064F\u062C\u062F \u062D\u0633\u0627\u0628 \u0645\u0624\u0647\u0644\u060C \u0641\u0633\u064A\u064F\u0631\u0633\u0644 \u0631\u0627\u0628\u0637 \u0625\u0639\u0627\u062F\u0629 \u0627\u0644\u062A\u0639\u064A\u064A\u0646.", noData: "\u0644\u0645 \u062A\u064F\u0631\u0628\u0637 \u0628\u064A\u0627\u0646\u0627\u062A \u0645\u0642\u0627\u0633\u0629 \u0628\u0639\u062F.", supportText: "\u0623\u0631\u0633\u0644 \u0637\u0644\u0628 \u0627\u0644\u062F\u0639\u0645 \u0639\u0628\u0631 \u0646\u0645\u0648\u0630\u062C \u0627\u0644\u062A\u0648\u0627\u0635\u0644 \u0627\u0644\u062D\u0627\u0644\u064A.", simNotice: "\u062A\u0642\u062F\u064A\u0631\u0627\u062A \u062A\u0648\u0636\u064A\u062D\u064A\u0629. \u0623\u062F\u062E\u0644 \u062A\u062D\u0633\u064A\u0646\u064B\u0627 \u0645\u062C\u0645\u0639\u064B\u0627 \u0648\u0627\u062D\u062F\u064B\u0627 \u0644\u0643\u0644 \u0645\u0631\u062D\u0644\u0629 \u0644\u062A\u062C\u0646\u0628 \u0627\u062D\u062A\u0633\u0627\u0628 \u0627\u0644\u0641\u0627\u0626\u062F\u0629 \u0645\u0631\u062A\u064A\u0646. \u0627\u0644\u0646\u0633\u0628 \u0645\u062D\u062F\u0648\u062F\u0629 \u0628\u0640100\u066A. \u0627\u0633\u062A\u062E\u062F\u0645 \u0627\u0644\u0639\u0645\u0644\u0629 \u0648\u0627\u0644\u0641\u062A\u0631\u0629 \u0646\u0641\u0633\u064A\u0647\u0645\u0627 \u0644\u0644\u062A\u0643\u0627\u0644\u064A\u0641 \u0648\u0627\u0644\u0625\u064A\u0631\u0627\u062F\u0627\u062A. \u0627\u0644\u0636\u0631\u0627\u0626\u0628 \u0648\u0627\u0644\u0645\u0635\u0627\u0631\u064A\u0641 \u0627\u0644\u062B\u0627\u0628\u062A\u0629 \u0648\u0627\u0644\u062A\u0645\u0648\u064A\u0644 \u0645\u0633\u062A\u062B\u0646\u0627\u0629.", formula: "\u0627\u0644\u0639\u0645\u0644\u0627\u0621 = \u0627\u0644\u0632\u064A\u0627\u0631\u0627\u062A \xD7 \u0645\u0639\u062F\u0644 \u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0627\u0644\u0645\u062D\u062A\u0645\u0644\u064A\u0646 \xD7 \u0645\u0639\u062F\u0644 \u0625\u062A\u0645\u0627\u0645 \u0627\u0644\u0628\u064A\u0639. \u0627\u0644\u0645\u0633\u0627\u0647\u0645\u0629 = \u0627\u0644\u0625\u064A\u0631\u0627\u062F \u0627\u0644\u0625\u0636\u0627\u0641\u064A \xD7 \u0627\u0644\u0647\u0627\u0645\u0634. \u0639\u0627\u0626\u062F \u0627\u0644\u0633\u0646\u0629 \u0627\u0644\u0623\u0648\u0644\u0649 = (12 \xD7 \u0627\u0644\u0645\u0633\u0627\u0647\u0645\u0629 \u0627\u0644\u0625\u0636\u0627\u0641\u064A\u0629 \u2212 \u0627\u0644\u0625\u0639\u062F\u0627\u062F \u2212 12 \xD7 \u0627\u0644\u062A\u0643\u0644\u0641\u0629 \u0627\u0644\u0634\u0647\u0631\u064A\u0629) \xF7 (\u0627\u0644\u0625\u0639\u062F\u0627\u062F + 12 \xD7 \u0627\u0644\u062A\u0643\u0644\u0641\u0629 \u0627\u0644\u0634\u0647\u0631\u064A\u0629). \u0627\u0644\u0627\u0633\u062A\u0631\u062F\u0627\u062F = \u0627\u0644\u0625\u0639\u062F\u0627\u062F \xF7 \u0635\u0627\u0641\u064A \u0627\u0644\u0645\u0633\u0627\u0647\u0645\u0629 \u0627\u0644\u0634\u0647\u0631\u064A\u0629 \u0627\u0644\u0645\u0648\u062C\u0628." });
 var addedCapabilityNames = {
   en: ["Brand identity", "Hosting & security", "Search advertising", "Online reviews", "WhatsApp integration", "Conversion optimization", "Automated follow-ups", "Digital menu"],
   tr: ["Marka kimli\u011Fi", "Bar\u0131nd\u0131rma ve g\xFCvenlik", "Arama reklamlar\u0131", "\xC7evrimi\xE7i yorumlar", "WhatsApp entegrasyonu", "D\xF6n\xFC\u015F\xFCm optimizasyonu", "Otomatik takip", "Dijital men\xFC"],
@@ -350,6 +551,45 @@ var capabilities = [
   { id: "followups", level: 4, service: "Automated follow-ups", dependencies: ["crm"], priority: 3, optional: true },
   { id: "menu", level: 1, service: "Digital menu", dependencies: [], priority: 2, industry: "restaurant" }
 ];
+function diagnose(profile) {
+  const existing = new Set(profile.capabilities || []);
+  if (profile.website) existing.add("website");
+  const relevant = capabilities.filter((c) => !c.industry || c.industry === profile.industry);
+  const demand = [profile.goals, profile.difficulties].join(" ");
+  const visibility = /visibility|search|traffic|local|reservations|customers|görünür|visibilité|عملاء/i.test(demand);
+  const conversion = /leads|sales|convert|bookings|ventes|satış|مبيعات/i.test(demand);
+  const automation = /automat|follow.up|manual|messag|otomasyon|أتمتة/i.test(demand);
+  const missions = relevant.filter((c) => !existing.has(c.id)).map((c) => {
+    const [, reason, nextAction] = missionGuide[c.id];
+    const prioritized = visibility && ["discovery", "seo", "reviews"].includes(c.id) || conversion && ["leads", "whatsapp", "crm"].includes(c.id) || automation && ["automation", "followups"].includes(c.id) || profile.industry === "restaurant" && ["discovery", "menu"].includes(c.id) || profile.industry === "ecommerce" && ["analytics", "conversion"].includes(c.id);
+    const optional = c.optional === true || profile.budget === 0 && c.id === "automation";
+    return {
+      ...c,
+      priority: prioritized && !optional ? 1 : c.priority,
+      optional,
+      objective: c.service,
+      description: reason,
+      reason,
+      estimatedCost: null,
+      currency: profile.currency || "USD",
+      expectedBenefit: reason,
+      nextAction,
+      completionSource: "customer_reported"
+    };
+  });
+  const strengths = relevant.filter((c) => existing.has(c.id)).map((c) => c.service);
+  return {
+    ruleVersion: "aura-readiness-2",
+    source: "customer_entered",
+    strengths,
+    missing: missions.map((c) => c.id),
+    readiness: Math.round(strengths.length / relevant.length * 100),
+    budget: profile.budget ?? null,
+    currency: profile.currency || "USD",
+    missions,
+    notice: "Readiness measures reported capabilities. Cost requires an approved quote. No purchase is required to complete a mission."
+  };
+}
 function number(value, key, min, max) {
   if (typeof value !== "number" || !Number.isFinite(value) || value < min || value > max) throw new ApiError(400, `Invalid ${key}.`);
   return value;
@@ -386,7 +626,7 @@ var app = document.querySelector("#app");
 var notice = document.querySelector("#notice");
 var esc2 = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 var lang = localStorage.getItem("aura-hub-language") || "en";
-if (!copy[lang]) lang = "en";
+if (!copy2[lang]) lang = "en";
 var me = null;
 var workspaces = [];
 var workspace = null;
@@ -410,14 +650,46 @@ function resumeShop() {
   return true;
 }
 if (flowToken) history.replaceState(null, "", location.pathname + location.search);
-var t = (k) => k === "menuDrafts" ? { en: "Menu drafts", ar: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", tr: "Men\xFC taslaklar\u0131", fr: "Brouillons de menus" }[lang] : copy[lang][k] || copy.en[k] || k;
+var t = (k) => k === "menuDrafts" ? { en: "Menu drafts", ar: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", tr: "Men\xFC taslaklar\u0131", fr: "Brouillons de menus" }[lang] : copy2[lang][k] || copy2.en[k] || k;
 var cap = (k) => capabilityNames[lang][k] || capabilities.find((c) => c.id === k)?.service || k;
 var toast = (message) => {
   notice.textContent = message;
   notice.classList.add("visible");
   setTimeout(() => notice.classList.remove("visible"), 7e3);
 };
-var robot = () => `<svg class="auri" viewBox="0 0 160 170" role="img" aria-label="AURI"><defs><linearGradient id="metal" x2="1" y2="1"><stop stop-color="#fffef9"/><stop offset="1" stop-color="#bfc7bf"/></linearGradient></defs><ellipse cx="80" cy="157" rx="43" ry="6" fill="#003d2b" opacity=".12"/><path d="M47 125Q42 91 80 91T113 125L108 145H52Z" fill="url(#metal)"/><rect x="23" y="29" width="114" height="78" rx="33" fill="url(#metal)"/><rect x="32" y="38" width="96" height="60" rx="26" fill="#0f241c"/><g fill="#e1e100" class="eyes"><rect x="49" y="58" width="18" height="19" rx="8"/><rect x="93" y="58" width="18" height="19" rx="8"/></g><path d="M72 85Q80 90 88 85" fill="none" stroke="#e1e100" stroke-width="2" stroke-linecap="round"/><path d="M80 29V18" stroke="#a7b7ad" stroke-width="5"/><circle cx="80" cy="13" r="5" fill="#e1e100"/><path d="M36 113L25 134M124 113L135 134" stroke="#d4dbd1" stroke-width="15" stroke-linecap="round"/><circle cx="80" cy="124" r="7" fill="#003d2b"/></svg>`;
+var setupScope = "setup";
+var disconnectAuri = () => {
+};
+var auriLevel = () => workspace?.auri?.level || 1;
+var auriPreference = () => workspace?.auriPreferences || { name: "Auri", hidden: false };
+var auriSessions = /* @__PURE__ */ new Map();
+var auriVoice = null;
+var setupAuriName = "";
+var setupDeferred = [];
+var robot = () => auriCharacter(auriLevel(), { posterOnly: true });
+function bindAuri(host, scope) {
+  disconnectAuri();
+  disconnectAuri = connectAuri(host, scope, { idle: auriControls(lang).ready, ...auriLabels(lang) });
+}
+async function finishSetup() {
+  await runAuri(setupScope, "working", async () => {
+    await persistProfile();
+    if (mode === "auri" && setupAuriName.trim()) await updateAuriPreferences({ name: setupAuriName });
+  });
+  setupAuriName = "";
+  setupDeferred = [];
+  editing = false;
+  page = "home";
+  await loadWorkspace();
+  pulseAuri(workspace.organization.id, "success");
+}
+async function generateRoadmap() {
+  const id = workspace.organization.id;
+  await runAuri(id, "working", async () => {
+    await api(endpoint("missions"), "POST", {});
+    await loadWorkspace(id);
+  });
+}
 async function api(path, method = "GET", body) {
   const response = await fetch(path, { method, credentials: "same-origin", headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : void 0 });
   const data = await response.json().catch(() => ({ error: t("error") }));
@@ -447,6 +719,7 @@ function bindCommon() {
   });
 }
 function render() {
+  disconnectAuri();
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   app.setAttribute("aria-busy", "false");
@@ -541,6 +814,15 @@ async function renderGate() {
 }
 var emptyProfile = () => ({ name: "", industry: "other", country: "", city: "", stage: "", website: "", tools: "", acquisition: "", difficulties: "", goals: "", timeline: "", industryDetails: "", budget: null, currency: "USD", capabilities: [] });
 function profileField(k) {
+  if (k === "roadmapPreview") {
+    const proposed = diagnose(draft).missions.map((m) => ({ ...m, capability: m.id, status: "planned" }));
+    const labels2 = blueprintLabels(lang);
+    const first = eligibleMissions(proposed, draft).slice(0, 3);
+    return `<fieldset><legend>${esc2(roadmapLabels(lang).priority)}</legend>${first.length ? first.map((m) => `<label class="check">
+   <input type="checkbox" name="deferredMission" value="${esc2(m.id)}" ${setupDeferred.includes(m.id) ? "checked" : ""}>
+   ${esc2(labels2.later)} \xB7 ${esc2(cap(m.id))}</label>`).join("") : `<p>${esc2(t("empty"))}</p>`}</fieldset>`;
+  }
+  if (k === "auriName") return field(k, auriControls(lang).name, setupAuriName, "text", 'maxlength="24"');
   const value = draft[k] ?? "";
   if (k === "industry") return select(k, k, [["restaurant", t("restaurant")], ["services", t("servicesIndustry")], ["ecommerce", t("ecommerce")], ["real_estate", t("real_estate")], ["other", t("other")]], value);
   if (k === "currency") return select(k, k, ["USD", "EUR", "TRY", "TND"].map((x) => [x, x]), value);
@@ -558,19 +840,28 @@ function renderSetup() {
     mode = workspace?.organization.mode || "myself";
   }
   const choosing = !editing;
-  const setupKeys = workspace ? profileKeys : ["name", "industry", "goals", "budget", "currency", "website", "capabilities"];
-  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div><form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+  const setupKeys = workspace ? profileKeys : mode === "auri" ? ["name", "industry", "industryDetails", "goals", "capabilities", "auriName", "roadmapPreview"] : ["name", "industry", "goals", "budget", "currency", "website", "capabilities"];
+  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div>${mode === "auri" ? `<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>` : ""}<form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
   bindCommon();
   document.querySelectorAll("[data-mode]").forEach((b) => b.onclick = () => {
     mode = b.dataset.mode;
     editing = true;
     step = 0;
+    setupAuriName = "";
+    setupDeferred = [];
     render();
   });
   if (choosing) return;
   const form = document.querySelector("#profile-form");
+  const avatar = document.querySelector(".auri-onboarding");
+  if (avatar) {
+    bindAuri(avatar, setupScope);
+    pulseAuri(setupScope, "listening", 950);
+  }
   const collect = () => {
     const data = new FormData(form);
+    if (data.has("auriName")) setupAuriName = data.get("auriName");
+    if (form.querySelector("[name=deferredMission]")) setupDeferred = data.getAll("deferredMission");
     for (const k of profileKeys) {
       if (k === "capabilities") {
         if (form.querySelector('[name="capabilities"]')) draft.capabilities = data.getAll(k);
@@ -603,10 +894,7 @@ function renderSetup() {
         step++;
         render();
       } else {
-        await persistProfile();
-        editing = false;
-        page = "home";
-        await loadWorkspace();
+        await finishSetup();
       }
     } catch (error) {
       form.querySelector('[role="alert"]').textContent = error.message;
@@ -630,10 +918,7 @@ function renderSetup() {
     try {
       if (workspace && draft.name.trim()) await persistProfile();
       if (delta > 0 && step === setupKeys.length - 1) {
-        await persistProfile();
-        editing = false;
-        page = "home";
-        await loadWorkspace();
+        await finishSetup();
         return;
       }
       step = Math.max(0, step + delta);
@@ -657,12 +942,13 @@ function renderSetup() {
 function persistProfile() {
   if (!draft.name.trim()) return Promise.resolve();
   const snapshot = structuredClone(draft), selectedMode = mode;
+  const deferredMissions = selectedMode === "auri" ? setupDeferred.filter((id) => diagnose(snapshot).missions.some((m) => m.id === id)) : [];
   const job = saveQueue.catch(() => {
   }).then(async () => {
     const status = document.querySelector("#save-state");
     if (status) status.textContent = t("saving");
     if (!workspace) {
-      const created = await api("/api/hub/workspaces", "POST", { profile: snapshot, mode: selectedMode });
+      const created = await api("/api/hub/workspaces", "POST", { profile: snapshot, mode: selectedMode, deferredMissions });
       workspace = await api("/api/hub/workspaces/" + created.id);
       workspaces.push({ id: created.id, name: snapshot.name, owner: true });
     } else {
@@ -688,18 +974,20 @@ var requestLink = (service = "", task = "") => "/contact#" + new URLSearchParams
   name: me.name,
   email: me.email
 });
-var navigation = ["home", "journey", "tasks", "assistant", "services", "resources", "settings"];
+var navigation = ["home", "journey", "assistant", "services", "insights", "settings"];
+var pageGroup = { tasks: "journey", simulator: "insights", reports: "insights", rewards: "insights", profile: "settings", team: "settings", resources: "settings", menuDrafts: "services" };
+var blueprintNav = (page2, lang2) => ({ home: blueprintLabels(lang2).overview, services: blueprintLabels(lang2).marketplace, insights: blueprintLabels(lang2).insights, assistant: auriControls(lang2).workspace })[page2];
 var moreNavigation = ["profile", "simulator", "menuDrafts", "projects", "websites", "hosting", "files", "reports", "invoices", "rewards", "team", "support"];
 function renderShell() {
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   const l = roadmapLabels(lang), growth = ["home", "journey"].includes(page);
   const alerts = workspace.missions.filter((m) => m.priority === 1 && !m.optional && !["done", "postponed"].includes(m.status) && !missionState(m, workspace.missions, workspace.profile).blocked);
-  const navItem = (p) => `<button class="nav-item ${page === p ? "active" : ""}" data-page="${p}" ${page === p ? 'aria-current="page"' : ""}>
- <span aria-hidden="true">${{ home: "\u2302", journey: "\u2667", tasks: "\u2611", assistant: "\u2727", services: "\u25C7", resources: "\u25A4", settings: "\u2699" }[p] || "\xB7"}</span>${esc2(l[p] || t(p))}</button>`;
+  const navItem = (p, primary = false) => `<button class="nav-item ${(primary ? pageGroup[page] || page : page) === p ? "active" : ""}" data-page="${p}" ${page === p ? 'aria-current="page"' : ""}>
+ <span aria-hidden="true">${{ home: "\u2302", journey: "\u2667", tasks: "\u2611", assistant: "\u2727", services: "\u25C7", resources: "\u25A4", insights: "\u25A4", settings: "\u2699" }[p] || "\xB7"}</span>${esc2(blueprintNav(p, lang) || l[p] || t(p))}</button>`;
   app.innerHTML = `<div class="shell growth-shell ${growth ? "growth-active" : ""}"><aside class="sidebar" id="sidebar">
  <a href="/" class="wordmark">aura<span>digital.</span></a><label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span>
  <select id="workspace-select" aria-label="${t("businessName")}">${workspaces.map((o) => `<option value="${o.id}" ${o.id === workspace.organization.id ? "selected" : ""}>${esc2(o.id === workspace.organization.id ? workspace.organization.name : o.name)}</option>`).join("")}</select></label>
- <nav aria-label="${t("brand")}">${navigation.map(navItem).join("")}</nav><div class="growth-request"><a class="growth-primary" href="${esc2(requestLink())}">${l.request} \u2192</a></div></aside>
+ <nav aria-label="${t("brand")}">${navigation.map((p) => navItem(p, true)).join("")}</nav><div class="growth-request"><a class="growth-primary" href="${esc2(requestLink())}">${l.request} \u2192</a></div></aside>
  <div class="workspace"><header class="topbar growth-topbar"><button class="menu-button secondary" id="toggle-menu" aria-controls="sidebar" aria-expanded="false">${t("menu")}</button>
  <div class="growth-greeting"><strong>${esc2(l.welcome)}, ${esc2(me.name.split(" ")[0])}</strong><span>${esc2(workspace.organization.name)}</span></div>
  ${languageControl()}
@@ -710,9 +998,9 @@ function renderShell() {
  ${navItem("journey")}</div></details>
  <details class="growth-account"><summary><span class="avatar">${esc2(me.name.slice(0, 1))}</span><span>${esc2(me.name)}</span></summary>
  <div class="growth-account-menu">${navItem("profile")}${navItem("settings")}${button("logout", "logout", true)}</div></details></header>
- <main id="main" tabindex="-1">${growth ? `<h1 class="sr-only">${l[page]}</h1>` : `<div class="page-heading"><h1>${esc2(l[page] || t(page))}</h1></div>`}
+ <main id="main" tabindex="-1">${growth ? `<h1 class="sr-only">${l[page]}</h1>` : `<div class="page-heading"><h1>${esc2(blueprintNav(page, lang) || l[page] || t(page))}</h1></div>`}
  ${!me.verified && authCapabilities.email ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}
- <div id="page-content"></div></main></div></div>`;
+ <div id="page-content"></div></main><div id="auri-companion"></div></div></div>`;
   bindCommon();
   document.querySelectorAll("[data-page]").forEach((b) => b.onclick = () => {
     page = b.dataset.page;
@@ -759,6 +1047,7 @@ function renderShell() {
     }
   });
   syncSidebar();
+  if (page !== "assistant") renderCompanion();
   renderPage().catch((e) => {
     document.querySelector("#page-content").innerHTML = `<section class="panel"><p role="alert">${esc2(e.message)}</p>${button("refresh", "refresh", true)}</section>`;
     document.querySelector('[data-action="refresh"]').onclick = () => loadWorkspace().catch((e2) => toast(e2.message));
@@ -798,6 +1087,17 @@ async function renderPage() {
   if (page === "menuDrafts") return renderMenuDrafts({ host: document.querySelector("#page-content"), api, endpoint, profile: workspace.profile, canWrite: workspace.permissions.includes("roadmap:write") });
   if (page === "home" || page === "journey") return growthDashboard();
   if (page === "tasks") return journey();
+  if (["services", "insights"].includes(page)) {
+    const marketplace = page === "services", labels2 = blueprintLabels(lang);
+    const metrics = marketplace ? "" : `<section class="panel"><h2>${esc2(labels2.verified)}</h2><progress max="5" value="${workspace.auri?.verifiedMilestones || 0}"></progress><p>${workspace.auri?.verifiedMilestones || 0} / 5</p></section>`;
+    content(`${metrics}<section class="panel resource-links">${marketplace ? `<a class="primary" href="/shop">AuraShop</a><a class="secondary" href="/services">${esc2(t("openServices"))}</a><a class="secondary" href="/account">${esc2(t("orders"))}</a>${button("menuDrafts", "menu-drafts", true)}` : button("simulator", "simulator", true)}</section>`);
+    const destination = marketplace ? "menuDrafts" : "simulator";
+    document.querySelector("#page-content button[data-action]").onclick = () => {
+      page = destination;
+      render();
+    };
+    return;
+  }
   if (page === "resources") {
     content(`<section class="panel"><div class="resource-links"><a class="secondary" href="/shop">AuraShop</a><a class="secondary" href="/account">${esc2(t("orders"))}</a>${moreNavigation.map((p) => `<button type="button" class="secondary" data-resource="${p}">${esc2(t(p))}</button>`).join("")}</div></section>`);
     document.querySelectorAll("[data-resource]").forEach((b) => b.onclick = () => {
@@ -810,12 +1110,17 @@ async function renderPage() {
   if (page === "team") return team();
   if (page === "assistant") return assistant();
   if (page === "settings") {
-    content(`<section class="panel"><h2>${t("security")}</h2><p>${esc2(me.email)} \xB7 ${me.verified ? t("verified") : t("verify")}</p>${authCapabilities.email ? `<a class="secondary" href="/hub/forgot">${t("reset")}</a>` : ""}${me.verified && authCapabilities.google ? `<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t("linkGoogle")}</a></p>` : ""}<hr>${button("team", "open-team", true)}${button("newWorkspace", "new-workspace", true)}</section>`);
+    content(`<section class="panel"><h2>${t("security")}</h2><p>${esc2(me.email)} \xB7 ${me.verified ? t("verified") : t("verify")}</p>${authCapabilities.email ? `<a class="secondary" href="/hub/forgot">${t("reset")}</a>` : ""}${me.verified && authCapabilities.google ? `<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t("linkGoogle")}</a></p>` : ""}<hr>${button("team", "open-team", true)}${button("resources", "open-resources", true)}${button("newWorkspace", "new-workspace", true)}</section>`);
+    document.querySelector('[data-action="open-resources"]').onclick = () => {
+      page = "resources";
+      render();
+    };
     document.querySelector('[data-action="open-team"]').onclick = () => {
       page = "team";
       render();
     };
     document.querySelector('[data-action="new-workspace"]').onclick = () => {
+      stopAuriVoice();
       workspace = null;
       editing = false;
       render();
@@ -826,11 +1131,15 @@ async function renderPage() {
   content(`<section class="panel quiet-panel"><span class="eyebrow">${reports ? "NOT CONNECTED" : service ? "SERVICE CATALOGUE" : "INTEGRATION PENDING"}</span><h2>${t(page)}</h2><p>${t(service ? "serviceNote" : support ? "supportText" : reports ? "reportNote" : "unavailable")}</p><a class="primary" href="${service ? "/services" : "/contact"}">${t(service ? "openServices" : "contact")} \u2197</a></section>`);
 }
 async function askAuri(question, missionId) {
-  const { data } = await api(endpoint("auri"), "POST", missionId ? { tool: "task", missionId } : { tool: "guidance", question, lang });
+  const id = workspace.organization.id;
+  const { data } = await runAuri(id, "thinking", () => api(endpoint("auri"), "POST", missionId ? { tool: "task", missionId } : { tool: "guidance", question, lang }), "speaking");
+  if (workspace?.organization.id !== id) return "";
   if (data.reply) return data.reply;
   if (/customers|visibility|sales|müşteri|clients|عملاء/i.test(question) && data.priorities?.length) return data.priorities.map((m) => cap(m.capability)).join(" \xB7 ");
   const task = data.mission || data.nextAction;
   if (!task) return t("empty");
+  const alternate = task.route === "alternative" ? missionAlternative(task.capability) : null;
+  if (alternate) return [alternate.title, alternate.steps].join(" \xB7 ");
   const guide = missionGuide[task.capability], requirements = missionState(task, workspace.missions, workspace.profile).requirements;
   if (!missionId && /website|web site|site web|موقع/i.test(question)) {
     const website = workspace.missions.find((m) => m.capability === "website");
@@ -852,13 +1161,14 @@ function growthDashboard() {
     lang,
     view: roadmapView,
     selectedId: selectedMission,
+    overview: page === "home",
     robot,
     requestLink,
-    onSelect(id) {
+    onSelect(id, scroll = false) {
       selectedMission = id;
       growthDashboard();
       const detail = document.getElementById("growth-focus");
-      detail.focus({ preventScroll: !matchMedia("(max-width: 800px)").matches });
+      detail.focus({ preventScroll: !scroll && !matchMedia("(max-width: 800px)").matches });
     },
     onView(view) {
       roadmapView = view;
@@ -888,11 +1198,47 @@ function growthDashboard() {
     async onGenerate(event) {
       event.target.disabled = true;
       try {
-        const id = workspace.organization.id;
-        await api(endpoint("missions"), "POST", {});
-        await loadWorkspace(id);
+        await generateRoadmap();
       } catch (error) {
         event.target.disabled = false;
+        toast(error.message);
+      }
+    },
+    async onRoute(mission, trigger) {
+      trigger.disabled = true;
+      const id = workspace.organization.id;
+      try {
+        await api(endpoint("mission-route/" + mission.id), "PATCH", { version: mission.version, route: trigger.dataset.route });
+        await loadWorkspace(id);
+      } catch (error) {
+        trigger.disabled = false;
+        toast(error.message);
+      }
+    },
+    async onEvidence(mission, form) {
+      const submit = form.querySelector("button");
+      submit.disabled = true;
+      const id = workspace.organization.id;
+      try {
+        await api(endpoint("mission-evidence/" + mission.id), "POST", { version: mission.version, proof: new FormData(form).get("proof") });
+        await loadWorkspace(id);
+      } catch (error) {
+        submit.disabled = false;
+        toast(error.message);
+      }
+    },
+    async onExistingEvidence(form) {
+      const submit = form.querySelector("button");
+      submit.disabled = true;
+      const id = workspace.organization.id;
+      try {
+        const result2 = await api(endpoint("existing-evidence"), "POST", Object.fromEntries(new FormData(form)));
+        if (workspace?.organization.id === id) {
+          selectedMission = result2.missionId;
+          await loadWorkspace(id);
+        }
+      } catch (error) {
+        submit.disabled = false;
         toast(error.message);
       }
     },
@@ -905,11 +1251,10 @@ function journey() {
   document.querySelector('[data-action="generate"]').onclick = async (e) => {
     e.target.disabled = true;
     try {
-      const id = workspace.organization.id;
-      await api(endpoint("missions"), "POST", {});
-      await loadWorkspace(id);
-    } catch (e2) {
-      toast(e2.message);
+      await generateRoadmap();
+    } catch (error) {
+      e.target.disabled = false;
+      toast(error.message);
     }
   };
   document.querySelectorAll("[data-mission]").forEach((card) => {
@@ -1087,29 +1432,219 @@ async function team() {
   document.querySelector("#activity").innerHTML = a.events.map((e) => `<p>${esc2(e.created_at)} \xB7 ${esc2(e.action)}</p>`).join("") || t("empty");
 }
 var rolesForUI = () => ["viewer", "member", "admin"].map((v) => [v, t(v)]);
-function assistant() {
-  content(`<section class="panel assistant-panel">${robot()}<div><span class="eyebrow">AURI</span><h2>${t("aiRules")}</h2><p>${t("aiNotice")}</p><div class="actions">${button("diagnosis", "diagnosis", true)}${button("recommend", "next-action", true)}</div><div id="auri-response" role="status"></div></div></section>`);
-  for (const [action, tool] of [["diagnosis", "diagnosis"], ["next-action", "next_action"]]) document.querySelector(`[data-action="${action}"]`).onclick = async (e) => {
-    e.target.disabled = true;
+async function updateAuriPreferences(values) {
+  const id = workspace.organization.id;
+  const result2 = await api(endpoint("auri"), "PATCH", { ...auriPreference(), ...values });
+  if (workspace?.organization.id === id) workspace.auriPreferences = result2;
+}
+function stopAuriVoice() {
+  if (!auriVoice) return;
+  speechSynthesis.cancel();
+  const { scope } = auriVoice;
+  auriVoice = null;
+  pulseAuri(scope, "idle");
+}
+function renderCompanion(full = false) {
+  const host = document.querySelector(full ? "#auri-workspace" : "#auri-companion");
+  const preferences = auriPreference(), controls2 = auriControls(lang);
+  if (preferences.hidden && !full) return;
+  const id = workspace.organization.id;
+  if (!auriSessions.has(id)) auriSessions.set(id, { open: false, reply: "", pending: false, error: "" });
+  const session = auriSessions.get(id);
+  const level = auriLevel(), canAsk = workspace.permissions.includes("auri:use");
+  const { ask: label, focus } = roadmapLabels(lang);
+  const next = eligibleMissions(workspace.missions, workspace.profile)[0];
+  const readAloud = { en: "Read aloud", tr: "Sesli oku", fr: "Lire \xE0 voix haute", ar: "\u0642\u0631\u0627\u0621\u0629 \u0628\u0635\u0648\u062A \u0639\u0627\u0644\u064D" }[lang];
+  const send = { en: "Send", tr: "G\xF6nder", fr: "Envoyer", ar: "\u0625\u0631\u0633\u0627\u0644" }[lang];
+  const identity = `${auriCharacter(level)}<span><strong>${esc2(preferences.name)}</strong><small>${esc2(t("level"))} ${level} \xB7 ${auriNames[level - 1]}</small></span>
+  <span class="auri-status" role="status" data-auri-status></span>`;
+  const body = `<div class="auri-companion-body">
+  ${next ? `<p><strong>${esc2(focus)}</strong> \xB7 ${esc2(cap(next.capability))}</p>` : ""}
+  ${canAsk ? `<form data-auri-ask><label><span class="sr-only">${esc2(label)}</span><input name="question" maxlength="500" placeholder="${esc2(label)}" required></label>
+  <button class="primary" ${session.pending ? "disabled" : ""}>${esc2(send)}</button></form><p data-auri-reply role="status">${esc2(session.error || session.reply)}</p>
+  ${"speechSynthesis" in window ? `<button type="button" class="secondary" data-auri-voice ${session.reply && !session.error ? "" : "hidden"}>${esc2(readAloud)}</button>
+  <button type="button" class="secondary" data-auri-stop ${auriVoice?.scope === id ? "" : "hidden"}>${esc2(controls2.stop)}</button>` : ""}` : ""}
+  <div class="auri-actions">
+  <button type="button" class="secondary" data-auri-roadmap>${esc2(t("journey"))}</button>
+  ${full ? "" : `<button type="button" class="secondary" data-auri-open-workspace>${esc2(controls2.workspace)}</button>`}
+  <button type="button" class="secondary" data-auri-hide>${esc2(preferences.hidden ? controls2.show : controls2.hide)}</button></div>
+  ${full ? `<form data-auri-name><label>${esc2(controls2.name)}<input name="name" value="${esc2(preferences.name)}" required maxlength="24"></label>
+  <button class="secondary">${esc2(t("save"))}</button></form>` : ""}
+ </div>`;
+  host.innerHTML = full ? `<section class="auri-companion auri-workspace-card"><header>${identity}</header>${body}</section>` : `<details class="auri-companion auri-dock" ${session.open ? "open" : ""}><summary>${identity}</summary>${body}</details>`;
+  bindAuri(host, id);
+  const panel = host.querySelector("details");
+  if (panel) {
+    panel.ontoggle = () => {
+      if (panel.isConnected) session.open = panel.open;
+    };
+    panel.onkeydown = (event) => {
+      if (event.key === "Escape" && panel.open) {
+        panel.open = false;
+        panel.querySelector("summary").focus();
+      }
+    };
+  }
+  function navigate(target) {
+    page = target;
+    render();
+    document.querySelector("#main").focus();
+  }
+  host.querySelector("[data-auri-roadmap]").onclick = () => navigate("journey");
+  const open = host.querySelector("[data-auri-open-workspace]");
+  if (open) open.onclick = () => navigate("assistant");
+  host.querySelector("[data-auri-hide]").onclick = async (event) => {
+    const trigger = event.currentTarget;
+    trigger.disabled = true;
     try {
-      const r = await api(endpoint("auri"), "POST", { tool });
-      document.querySelector("#auri-response").innerHTML = tool === "diagnosis" ? `<h3>${t("missing")}</h3><ul>${r.data.missing.map((k) => `<li>${esc2(cap(k))}</li>`).join("")}</ul>` : `<h3>${esc2(r.data.nextAction ? cap(r.data.nextAction.capability) : t("empty"))}</h3><p>${t("why")}</p>`;
-    } catch (e2) {
-      toast(e2.message);
+      await updateAuriPreferences({ hidden: !preferences.hidden });
+      if (workspace?.organization.id !== id) return;
+      stopAuriVoice();
+      session.open = false;
+      if (trigger.isConnected) {
+        render();
+        document.querySelector("#main").focus();
+      }
+    } catch (error) {
+      toast(error.message);
+      trigger.disabled = false;
+    }
+  };
+  const rename = host.querySelector("[data-auri-name]");
+  if (rename) rename.onsubmit = async (event) => {
+    event.preventDefault();
+    const submit = rename.querySelector("button");
+    submit.disabled = true;
+    try {
+      await updateAuriPreferences({ name: new FormData(rename).get("name") });
+      if (rename.isConnected) {
+        render();
+        document.querySelector("[data-auri-name] input")?.focus();
+        toast(t("saved"));
+      }
+    } catch (error) {
+      toast(error.message);
+      submit.disabled = false;
+    }
+  };
+  const form = host.querySelector("[data-auri-ask]");
+  const voice = host.querySelector("[data-auri-voice]");
+  const stop = host.querySelector("[data-auri-stop]");
+  if (voice) voice.onclick = () => {
+    stopAuriVoice();
+    const message = new SpeechSynthesisUtterance(session.reply);
+    message.lang = lang;
+    auriVoice = { scope: id, message };
+    message.onstart = () => pulseAuri(id, "speaking", 3500);
+    message.onend = message.onerror = () => {
+      if (auriVoice?.message !== message) return;
+      auriVoice = null;
+      pulseAuri(id, "idle");
+      document.querySelector("[data-auri-stop]")?.setAttribute("hidden", "");
+    };
+    stop.hidden = false;
+    speechSynthesis.speak(message);
+  };
+  if (stop) stop.onclick = () => {
+    stopAuriVoice();
+    stop.hidden = true;
+  };
+  if (form) form.onsubmit = async (event) => {
+    event.preventDefault();
+    const submit = form.querySelector("button"), reply = host.querySelector("[data-auri-reply]");
+    const question = new FormData(form).get("question").trim();
+    if (!question || session.pending) return;
+    stopAuriVoice();
+    session.pending = submit.disabled = true;
+    if (voice) voice.hidden = true;
+    if (stop) stop.hidden = true;
+    session.reply = session.error = reply.textContent = "";
+    try {
+      session.reply = await askAuri(question);
+    } catch (error) {
+      session.error = error.message;
     } finally {
-      e.target.disabled = false;
+      session.pending = submit.disabled = false;
+      reply.textContent = session.error || session.reply;
+      if (voice) voice.hidden = !session.reply;
+      if (!form.isConnected && workspace?.organization.id === id) renderCompanion(page === "assistant");
+    }
+  };
+}
+function assistant() {
+  const canAsk = workspace.permissions.includes("auri:use");
+  const labels2 = auriDraftCopy(lang);
+  content(`<div id="auri-workspace"></div>${canAsk ? `<section class="panel auri-work-log">
+  <div class="actions"><button type="button" class="primary" data-auri-draft>${esc2(labels2.create)}</button>${button("diagnosis", "diagnosis", true)}${button("recommend", "next-action", true)}</div><div data-auri-tools-status role="status"></div>
+  <p role="status" data-draft-status></p>
+  <h2>${esc2(labels2.history)}</h2><div data-auri-drafts></div></section>` : ""}`);
+  renderCompanion(true);
+  if (!canAsk) return;
+  const create = document.querySelector("[data-auri-draft]");
+  const log = document.querySelector("[data-auri-drafts]");
+  const status = document.querySelector("[data-draft-status]");
+  const path = endpoint("auri"), id = workspace.organization.id;
+  const toolsStatus = document.querySelector("[data-auri-tools-status]");
+  for (const [action, tool] of [["diagnosis", "diagnosis"], ["next-action", "next_action"]]) {
+    const trigger = document.querySelector(`[data-action="${action}"]`);
+    trigger.onclick = async () => {
+      trigger.disabled = true;
+      try {
+        const { data } = await runAuri(id, "thinking", () => api(path, "POST", { tool }), "speaking");
+        toolsStatus.textContent = tool === "diagnosis" ? `${t("missing")} \xB7 ${data.missing.map(cap).join(", ") || t("empty")}` : data.nextAction ? cap(data.nextAction.capability) : t("empty");
+      } catch (error) {
+        toolsStatus.textContent = error.message;
+      } finally {
+        trigger.disabled = false;
+      }
+    };
+  }
+  const session = auriSessions.get(id);
+  create.disabled = Boolean(session.draftPending);
+  status.textContent = session.draftError || "";
+  async function readDrafts() {
+    const { drafts } = await api(path);
+    log.innerHTML = drafts.map((draft2) => `<article><strong>${esc2(labels2[draft2.source])}</strong>
+   <time datetime="${new Date(draft2.created_at).toISOString()}">${esc2(new Date(draft2.created_at).toLocaleString(lang))}</time>
+   <p>${esc2(draft2.body)}</p></article>`).join("");
+  }
+  readDrafts().catch((error) => {
+    status.textContent = error.message;
+  });
+  create.onclick = async () => {
+    if (session.draftPending) return;
+    session.draftPending = create.disabled = true;
+    session.draftError = status.textContent = "";
+    try {
+      await runAuri(id, "drafting", () => api(path, "POST", { tool: "draft_follow_up", lang }), "draft_ready");
+      if (create.isConnected) {
+        await readDrafts();
+        status.textContent = labels2.review;
+      }
+    } catch (error) {
+      session.draftError = status.textContent = error.message;
+    } finally {
+      session.draftPending = create.disabled = false;
+      if (!create.isConnected && page === "assistant" && workspace?.organization.id === id) assistant();
     }
   };
 }
 async function loadWorkspace(id = workspace.organization.id) {
   if (workspaceSwitch && id !== workspaceSwitch) return;
+  const previous = workspace;
   const next = await api("/api/hub/workspaces/" + id);
   if ((workspaceSwitch || workspace.organization.id) !== id) return;
-  if (workspace.organization.id !== id) selectedMission = null;
+  if (workspace.organization.id !== id) {
+    selectedMission = null;
+    stopAuriVoice();
+  }
   result = null;
   scenarioInputs = null;
   workspace = next;
   render();
+  if (previous.organization.id === id && next.auri?.verifiedMilestones > previous.auri?.verifiedMilestones) {
+    pulseAuri(id, next.auri.level > previous.auri.level ? "evolving" : "happy", 2400);
+  }
 }
 async function load() {
   try {

@@ -29,7 +29,7 @@ export const missionGuide = {
 export function missionState(mission, missions, profile) {
  const existing = new Set(profile.capabilities || []);
  if (profile.website) existing.add('website');
- const requirements = (mission.dependencies || []).filter(id =>
+ const requirements = (mission.route==='alternative'?[]:(mission.dependencies || [])).filter(id =>
   !existing.has(id) && !missions.some(candidate => candidate.capability === id && candidate.status === 'done'));
  return {requirements, blocked: mission.status !== 'done' && requirements.length > 0};
 }

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),args:['--no-sandbox']});
 async function openMenuDrafts(page) {
- await page.getByRole('button',{name:'Resources',exact:true}).click();
+ await page.getByRole('button',{name:'Marketplace',exact:true}).click();
  await page.getByRole('button',{name:'Menu drafts',exact:true}).click();
 }
 try{
