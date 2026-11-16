@@ -6,6 +6,13 @@ var copy = {
   ar: ["\u0646\u0638\u0631\u0629 \u0639\u0627\u0645\u0629", "\u0627\u0644\u0633\u0648\u0642", "\u0627\u0644\u0631\u0624\u0649", "\u0637\u0631\u064A\u0642\u0629 \u0623\u062E\u0631\u0649", "\u063A\u064A\u0631 \u0645\u0646\u0627\u0633\u0628", "\u0644\u0627\u062D\u0642\u064B\u0627", "\u0644\u062F\u064A\u0651 \u0647\u0630\u0627 \u0628\u0627\u0644\u0641\u0639\u0644", "\u0627\u0644\u0631\u062C\u0648\u0639 \u0625\u0644\u0649 \u0627\u0644\u0637\u0631\u064A\u0642\u0629 \u0627\u0644\u0623\u0635\u0644\u064A\u0629", "\u0631\u0627\u0628\u0637 \u0623\u0648 \u0648\u0635\u0641 \u0644\u0644\u062F\u0644\u064A\u0644", "\u0625\u0631\u0633\u0627\u0644 \u0644\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u0642\u064A\u062F \u0627\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u062A\u0645 \u0627\u0644\u062A\u062D\u0642\u0642", "\u064A\u0644\u0632\u0645 \u062F\u0644\u064A\u0644 \u062C\u062F\u064A\u062F", "\u0627\u0644\u0646\u062A\u0627\u0626\u062C \u0627\u0644\u0645\u062D\u0642\u0642\u0629", "\u0627\u0644\u0645\u0647\u0645\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629"]
 };
 var blueprintLabels = (lang2) => Object.fromEntries(["overview", "marketplace", "insights", "alternative", "irrelevant", "later", "proof", "original", "proofLabel", "submit", "pending", "approved", "rejected", "verified", "next"].map((key, i) => [key, copy[lang2][i]]));
+var commandCopy = {
+  en: ["Growth Vision", "Continue roadmap", "Zoom in", "Zoom out", "Reset zoom", "Recommended", "Available", "Customer completed", "Explore solutions", "Your existing tools", "Business performance", "Connect a supported analytics source to see business performance.", "Priority missions", "Let\u2019s build your business growth plan."],
+  tr: ["B\xFCy\xFCme Haritas\u0131", "Yol haritas\u0131na devam et", "Yak\u0131nla\u015Ft\u0131r", "Uzakla\u015Ft\u0131r", "Yak\u0131nla\u015Ft\u0131rmay\u0131 s\u0131f\u0131rla", "\xD6nerilen", "Kullan\u0131labilir", "M\xFC\u015Fteri tamamlad\u0131", "\xC7\xF6z\xFCmleri ke\u015Ffedin", "Mevcut ara\xE7lar\u0131n\u0131z", "\u0130\u015F performans\u0131", "\u0130\u015F performans\u0131n\u0131 g\xF6rmek i\xE7in desteklenen bir analiz kayna\u011F\u0131 ba\u011Flay\u0131n.", "\xD6ncelikli g\xF6revler", "\u0130\u015Fletmenizin b\xFCy\xFCme plan\u0131n\u0131 olu\u015Ftural\u0131m."],
+  fr: ["Vision de croissance", "Poursuivre la feuille de route", "Agrandir", "R\xE9duire", "R\xE9initialiser le zoom", "Recommand\xE9", "Disponible", "Termin\xE9 par le client", "Explorer les solutions", "Vos outils existants", "Performance de l\u2019entreprise", "Connectez une source d\u2019analyse compatible pour consulter les performances.", "Missions prioritaires", "Cr\xE9ons le plan de croissance de votre entreprise."],
+  ar: ["\u0631\u0624\u064A\u0629 \u0627\u0644\u0646\u0645\u0648", "\u0645\u062A\u0627\u0628\u0639\u0629 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u062A\u0643\u0628\u064A\u0631", "\u062A\u0635\u063A\u064A\u0631", "\u0625\u0639\u0627\u062F\u0629 \u0636\u0628\u0637 \u0627\u0644\u062A\u0643\u0628\u064A\u0631", "\u0645\u0648\u0635\u0649 \u0628\u0647", "\u0645\u062A\u0627\u062D", "\u0623\u0643\u0645\u0644\u0647 \u0627\u0644\u0639\u0645\u064A\u0644", "\u0627\u0633\u062A\u0643\u0634\u0641 \u0627\u0644\u062D\u0644\u0648\u0644", "\u0623\u062F\u0648\u0627\u062A\u0643 \u0627\u0644\u062D\u0627\u0644\u064A\u0629", "\u0623\u062F\u0627\u0621 \u0627\u0644\u0646\u0634\u0627\u0637 \u0627\u0644\u062A\u062C\u0627\u0631\u064A", "\u0627\u0631\u0628\u0637 \u0645\u0635\u062F\u0631 \u062A\u062D\u0644\u064A\u0644\u0627\u062A \u0645\u062F\u0639\u0648\u0645\u064B\u0627 \u0644\u0639\u0631\u0636 \u0623\u062F\u0627\u0621 \u0627\u0644\u0646\u0634\u0627\u0637 \u0627\u0644\u062A\u062C\u0627\u0631\u064A.", "\u0627\u0644\u0645\u0647\u0627\u0645 \u0630\u0627\u062A \u0627\u0644\u0623\u0648\u0644\u0648\u064A\u0629", "\u0644\u0646\u0636\u0639 \u062E\u0637\u0629 \u0646\u0645\u0648 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A."]
+};
+var commandLabels = (lang2) => Object.fromEntries(["vision", "continue", "zoomIn", "zoomOut", "zoomReset", "recommended", "available", "selfDone", "solutions", "tools", "performance", "connect", "priorities", "onboarding"].map((key, i) => [key, commandCopy[lang2][i]]));
 
 // src/mission-routes.js
 var goalByCapability = {
@@ -252,8 +259,8 @@ var roadmapLabels = (lang2) => Object.fromEntries([
   "completed",
   "askTask"
 ].map((key, i) => [key, labels[lang2][i]]));
-function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap2, lang: lang2, view, selectedId, overview = false, auriDesk = "", evolutionNames = [], onSelect, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, robot: robot2, requestLink: requestLink2 }) {
-  const l = roadmapLabels(lang2), ui = blueprintLabels(lang2);
+function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap2, lang: lang2, view, selectedId, overview = false, auriDesk = "", evolutionNames = [], onSelect, onContinue, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, robot: robot2, requestLink: requestLink2 }) {
+  const l = roadmapLabels(lang2), ui = blueprintLabels(lang2), command = commandLabels(lang2);
   const { missions, profile, analysis, permissions } = workspace2;
   const canWrite = permissions.includes("roadmap:write");
   const canAsk = permissions.includes("auri:use");
@@ -267,9 +274,10 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
   const stageName = (stage, i) => lang2 === "en" ? ["Build Foundation", "Increase Visibility", "Convert More Visitors", "Automate & Scale"][i] : t2(stage.key);
   const currentStage = stages.findIndex((stage) => stage.missions.some((m) => !m.optional && !["done", "postponed"].includes(m.status)));
   const isBlocked = (m) => missionState(m, missions, profile).blocked;
-  const status = (m) => isBlocked(m) ? l.blocked : t2(m.status);
-  const node = (m) => `<button type="button" class="growth-node" data-node="${esc3(m.id)}" data-status="${isBlocked(m) ? "blocked" : m.status}" aria-pressed="${m.id === selected?.id}">
-  <span class="growth-dot" aria-hidden="true">${m.status === "done" ? "\u2713" : isBlocked(m) ? "\xB7" : ""}</span>
+  const displayState = (m) => ({ approved: "verified", pending: "review" })[workspace2.evidence?.[m.id]] || (isBlocked(m) ? "blocked" : m.status === "planned" && m.id === eligible[0]?.id ? "recommended" : m.status);
+  const status = (m) => ({ verified: ui.approved, review: ui.pending, recommended: command.recommended, planned: command.available, done: command.selfDone, blocked: l.blocked })[displayState(m)] || t2(m.status);
+  const node = (m) => `<button type="button" class="growth-node" data-node="${esc3(m.id)}" data-status="${isBlocked(m) ? "blocked" : m.status}" data-display-state="${displayState(m)}" aria-pressed="${m.id === selected?.id}">
+  <span class="growth-dot" aria-hidden="true">${displayState(m) === "verified" || m.status === "done" ? "\u2713" : isBlocked(m) ? "\xB7" : ""}</span>
   <span>${esc3(title(m))}<small>${esc3(status(m))}${m.optional ? " \xB7 " + l.optional : ""}</small></span>
  </button>`;
   const tree = `<div class="growth-tree">
@@ -310,18 +318,24 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
    </ol>
    <div class="hub-next-mission">
     <div><p class="hub-section-label">${esc3(ui.next)}</p><h2>${next ? esc3(title(next)) : esc3(t2("empty"))}</h2></div>
-    ${next ? `<button class="growth-primary" type="button" data-next-mission>${esc3(l.focus)} <span aria-hidden="true">\u2197</span></button>` : ""}
+    ${next ? `<button class="growth-primary" type="button" data-next-mission>${esc3(command.continue)} <span aria-hidden="true">\u2197</span></button>` : ""}
    </div>
   </section>${auriDesk}
  </div>`;
-  host.innerHTML = `${overview ? overviewHero : ""}<section class="growth-metrics" aria-label="${l.progress}">
+  host.innerHTML = `${overview ? overviewHero : ""}
+ ${overview && eligible.length ? `<section class="command-priorities" aria-label="${esc3(command.priorities)}">${eligible.slice(0, 3).map((m) => `<article class="growth-card"><small>${esc3(status(m))}</small><h2>${esc3(title(m))}</h2><p>${esc3(m.route === "alternative" ? missionAlternative(m.capability)?.steps : missionGuide[m.capability]?.[1] || m.description)}</p>
+  <button class="growth-secondary" type="button" data-priority="${esc3(m.id)}">${esc3(l.focus)}</button></article>`).join("")}</section>` : ""}<section class="growth-metrics" aria-label="${l.progress}">
  <article class="growth-card growth-metric"><span class="growth-ring" style="--progress:${progress}%">${missions.length ? progress + "%" : "\u2014"}</span><div><strong>${l.progress}</strong><span>${missions.filter((m) => m.status === "done").length} / ${missions.length} \xB7 ${l.completed}</span></div></article>
  ${metric("\u25A5", currentStage < 0 ? "\u2014" : stageName(stages[currentStage], currentStage), l.stage)}
  ${metric("\u25CE", eligible.filter((m) => m.priority === 1 && !m.optional).length, l.priority)}
  ${metric("\u2713", workspace2.auri?.verifiedMilestones || 0, ui.verified)}</section>
- ${existingProof}<div class="growth-layout"><section class="growth-card growth-map"><header class="growth-panel-head"><h2>${l.heading}</h2><div class="growth-tabs">
+ ${existingProof}<div class="growth-layout"><section class="growth-card growth-map"><header class="growth-panel-head"><h2>${esc3(command.vision)}</h2><div class="growth-tabs">
  <button type="button" data-view="tree" aria-pressed="${view === "tree"}">${l.tree}</button><button type="button" data-view="timeline" aria-pressed="${view === "timeline"}">${l.timeline}</button>
- </div></header>${view === "tree" ? tree : timeline}
+ </div></header>${view === "tree" ? `<div class="command-zoom">
+ <button type="button" class="growth-secondary" data-zoom="out" aria-label="${esc3(command.zoomOut)}">\u2212</button>
+ <button type="button" class="growth-secondary" data-zoom="reset" aria-label="${esc3(command.zoomReset)}">100%</button>
+ <button type="button" class="growth-secondary" data-zoom="in" aria-label="${esc3(command.zoomIn)}">+</button>
+ </div><div class="command-map-viewport" tabindex="0" aria-label="${esc3(command.vision)}">${tree}</div>` : timeline}
  ${analysis.missions.some((m) => !missions.some((item) => item.capability === m.id)) && canWrite ? `<button type="button" class="growth-secondary" data-refresh>${l.refresh}</button>` : ""}</section>
  <aside class="growth-side"><section class="growth-card growth-focus" id="growth-focus" tabindex="-1">${detail}</section>
  <section class="growth-card growth-auri"><header>${robot2()}<h2>${l.assistant}</h2></header>
@@ -375,7 +389,38 @@ ${proof === "pending" || proof === "approved" ? "" : `<details class="growth-diy
     onSave(selected, input);
   });
   for (const button2 of host.querySelectorAll("[data-route]")) button2.addEventListener("click", (event) => onRoute(selected, event.currentTarget));
-  host.querySelector("[data-next-mission]")?.addEventListener("click", () => onSelect(eligible[0].id, true));
+  host.querySelector("[data-next-mission]")?.addEventListener("click", () => onContinue(eligible[0].id));
+  for (const button2 of host.querySelectorAll("[data-priority]")) button2.addEventListener("click", () => onContinue(button2.dataset.priority));
+  const map = host.querySelector(".command-map-viewport");
+  if (map) {
+    let zoom = 100;
+    const canvas = map.firstElementChild;
+    const update = () => {
+      canvas.style.width = zoom > 100 ? map.clientWidth + "px" : "";
+      canvas.style.zoom = zoom / 100;
+      host.querySelector("[data-zoom=reset]").textContent = zoom + "%";
+    };
+    let drag;
+    map.onpointerdown = (event) => {
+      if (event.pointerType !== "mouse" || event.button !== 0 || event.target.closest("button,a,input,select,textarea")) return;
+      if (map.scrollWidth <= map.clientWidth) return;
+      drag = { x: event.clientX, y: event.clientY, left: map.scrollLeft, top: map.scrollTop };
+      map.setPointerCapture(event.pointerId);
+    };
+    map.onpointermove = (event) => {
+      if (!drag) return;
+      map.scrollLeft = drag.left + drag.x - event.clientX;
+      map.scrollTop = drag.top + drag.y - event.clientY;
+    };
+    map.onlostpointercapture = () => {
+      drag = null;
+    };
+    for (const button2 of host.querySelectorAll("[data-zoom]")) button2.onclick = () => {
+      const action = button2.dataset.zoom;
+      zoom = action === "reset" ? 100 : Math.min(150, Math.max(75, zoom + (action === "in" ? 25 : -25)));
+      update();
+    };
+  }
   host.querySelector("[data-existing-evidence]")?.addEventListener("submit", (event) => {
     event.preventDefault();
     onExistingEvidence(event.currentTarget);
@@ -858,7 +903,7 @@ function renderSetup() {
   }
   const choosing = !editing;
   const setupKeys = workspace ? profileKeys : mode === "auri" ? ["name", "industry", "industryDetails", "goals", "capabilities", "auriName", "roadmapPreview"] : ["name", "industry", "goals", "budget", "currency", "website", "capabilities"];
-  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div>${mode === "auri" ? `<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>` : ""}<form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup command-setup" id="main"><div class="setup-heading"><p class="eyebrow">Aura Command</p><h1>${choosing ? commandLabels(lang).onboarding : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div>${mode === "auri" ? `<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>` : ""}<form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
   bindCommon();
   document.querySelectorAll("[data-mode]").forEach((b) => b.onclick = () => {
     mode = b.dataset.mode;
@@ -993,7 +1038,7 @@ var requestLink = (service = "", task = "") => "/contact#" + new URLSearchParams
 });
 var navigation = ["home", "journey", "assistant", "services", "insights", "settings"];
 var pageGroup = { tasks: "journey", simulator: "insights", reports: "insights", rewards: "insights", profile: "settings", team: "settings", resources: "settings", menuDrafts: "services" };
-var blueprintNav = (page2, lang2) => ({ home: blueprintLabels(lang2).overview, services: blueprintLabels(lang2).marketplace, insights: blueprintLabels(lang2).insights, assistant: auriControls(lang2).workspace })[page2];
+var blueprintNav = (page2, lang2) => ({ home: blueprintLabels(lang2).overview, services: blueprintLabels(lang2).marketplace, insights: blueprintLabels(lang2).insights, journey: commandLabels(lang2).vision, assistant: "Auri" })[page2];
 var moreNavigation = ["profile", "simulator", "menuDrafts", "projects", "websites", "hosting", "files", "reports", "invoices", "rewards", "team", "support"];
 function renderShell() {
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -1002,9 +1047,9 @@ function renderShell() {
   const navItem = (p, primary = false) => `<button class="nav-item ${(primary ? pageGroup[page] || page : page) === p ? "active" : ""}" data-page="${p}" ${page === p ? 'aria-current="page"' : ""}>
  <span aria-hidden="true">${{ home: "\u2302", journey: "\u2667", tasks: "\u2611", assistant: "\u2727", services: "\u25C7", resources: "\u25A4", insights: "\u25A4", settings: "\u2699" }[p] || "\xB7"}</span>${esc2(blueprintNav(p, lang) || l[p] || t(p))}</button>`;
   app.innerHTML = `<div class="shell growth-shell ${growth ? "growth-active" : ""}"><aside class="sidebar" id="sidebar">
- <a href="/" class="wordmark">aura<span>digital.</span></a><label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span>
+ <a href="/" class="wordmark command-wordmark">Aura <span>Command</span></a><label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span>
  <select id="workspace-select" aria-label="${t("businessName")}">${workspaces.map((o) => `<option value="${o.id}" ${o.id === workspace.organization.id ? "selected" : ""}>${esc2(o.id === workspace.organization.id ? workspace.organization.name : o.name)}</option>`).join("")}</select></label>
- <nav aria-label="${t("brand")}">${navigation.map((p) => navItem(p, true)).join("")}</nav><div class="growth-request"><a class="growth-primary" href="${esc2(requestLink())}">${l.request} \u2192</a></div></aside>
+ <nav aria-label="${t("brand")}">${navigation.map((p) => navItem(p, true)).join("")}</nav><p class="command-level">${esc2(t("level"))} ${auriLevel()} \xB7 ${esc2(auriNames[auriLevel() - 1])}</p><div class="growth-request"><a class="growth-primary" href="${esc2(requestLink())}">${l.request} \u2192</a></div></aside>
  <div class="workspace"><header class="topbar growth-topbar"><button class="menu-button secondary" id="toggle-menu" aria-controls="sidebar" aria-expanded="false">${t("menu")}</button>
  <div class="growth-greeting"><strong>${esc2(l.welcome)}, ${esc2(me.name.split(" ")[0])}</strong><span>${esc2(workspace.organization.name)}</span></div>
  ${languageControl()}
@@ -1015,12 +1060,14 @@ function renderShell() {
  ${navItem("journey")}</div></details>
  <details class="growth-account"><summary><span class="avatar">${esc2(me.name.slice(0, 1))}</span><span>${esc2(me.name)}</span></summary>
  <div class="growth-account-menu">${navItem("profile")}${navItem("settings")}${button("logout", "logout", true)}</div></details></header>
- <main id="main" tabindex="-1">${growth ? page === "journey" ? `<h1 class="sr-only">${l[page]}</h1>` : "" : `<div class="page-heading"><h1>${esc2(blueprintNav(page, lang) || l[page] || t(page))}</h1></div>`}
+ <main id="main" tabindex="-1">${growth ? page === "journey" ? `<h1 class="sr-only">${esc2(blueprintNav(page, lang) || l[page])}</h1>` : "" : `<div class="page-heading"><h1>${esc2(blueprintNav(page, lang) || l[page] || t(page))}</h1></div>`}
  ${!me.verified && authCapabilities.email ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}
- <div id="page-content"></div></main><div id="auri-companion"></div></div></div>`;
+ <div id="page-content"></div></main><div id="auri-companion"></div>
+ <nav class="command-bottom-nav" aria-label="Aura Command">${["home", "journey", "assistant", "services"].map((p) => `<button type="button" data-mobile-page="${p}" ${(pageGroup[page] || page) === p ? 'aria-current="page"' : ""}>${esc2(blueprintNav(p, lang) || l[p] || t(p))}</button>`).join("")}</nav>
+ </div></div>`;
   bindCommon();
-  document.querySelectorAll("[data-page]").forEach((b) => b.onclick = () => {
-    page = b.dataset.page;
+  document.querySelectorAll("[data-page],[data-mobile-page]").forEach((b) => b.onclick = () => {
+    page = b.dataset.page || b.dataset.mobilePage;
     document.body.classList.remove("menu-open");
     render();
     document.querySelector("#main").focus();
@@ -1104,15 +1151,38 @@ async function renderPage() {
   if (page === "menuDrafts") return renderMenuDrafts({ host: document.querySelector("#page-content"), api, endpoint, profile: workspace.profile, canWrite: workspace.permissions.includes("roadmap:write") });
   if (page === "home" || page === "journey") return growthDashboard();
   if (page === "tasks") return journey();
-  if (["services", "insights"].includes(page)) {
-    const marketplace = page === "services", labels2 = blueprintLabels(lang);
-    const metrics = marketplace ? "" : `<section class="panel"><h2>${esc2(labels2.verified)}</h2><progress max="5" value="${workspace.auri?.verifiedMilestones || 0}"></progress><p>${workspace.auri?.verifiedMilestones || 0} / 5</p></section>`;
-    content(`${metrics}<section class="panel resource-links">${marketplace ? `<a class="primary" href="/shop">AuraShop</a><a class="secondary" href="/services">${esc2(t("openServices"))}</a><a class="secondary" href="/account">${esc2(t("orders"))}</a>${button("menuDrafts", "menu-drafts", true)}` : button("simulator", "simulator", true)}</section>`);
-    const destination = marketplace ? "menuDrafts" : "simulator";
-    document.querySelector("#page-content button[data-action]").onclick = () => {
-      page = destination;
-      render();
-    };
+  if (page === "services" || page === "insights") {
+    const labels2 = blueprintLabels(lang), command = commandLabels(lang);
+    const ready = eligibleMissions(workspace.missions, workspace.profile);
+    const existing = [.../* @__PURE__ */ new Set([...workspace.profile.capabilities || [], ...workspace.profile.website ? ["website"] : []])];
+    if (page === "services") {
+      const recommended = ready.filter((m) => m.route !== "alternative" && missionGuide[m.capability]?.[0]).slice(0, 3);
+      content(`<section class="panel"><h2>${esc2(command.recommended)}</h2>
+    <div class="command-list">${recommended.map((m) => {
+        const [service2, benefit] = missionGuide[m.capability];
+        return `<article><div><h3>${esc2(service2)}</h3><p>${esc2(cap(m.capability))} \xB7 ${esc2(benefit)}</p></div>
+      <a class="secondary" href="${esc2(requestLink(service2, cap(m.capability)))}">${esc2(t("quote"))}</a></article>`;
+      }).join("") || `<p>${esc2(t("empty"))}</p>`}</div></section>
+    <section class="panel"><h2>${esc2(command.solutions)}</h2><div class="resource-links">
+    <a class="primary" href="/shop">AuraShop</a><a class="secondary" href="/services">${esc2(t("openServices"))}</a>
+    <a class="secondary" href="/account">${esc2(t("orders"))}</a>${button("menuDrafts", "menu-drafts", true)}</div></section>
+    <section class="panel"><h2>${esc2(command.tools)}</h2><p>${esc2(existing.map(cap).join(" \xB7 ") || t("empty"))}</p></section>`);
+      document.querySelector('[data-action="menu-drafts"]').onclick = () => {
+        page = "menuDrafts";
+        render();
+      };
+    } else {
+      const verified = workspace.auri?.verifiedMilestones || 0;
+      const active = workspace.missions.filter((m) => m.status === "in_progress").length;
+      const pending = Object.values(workspace.evidence || {}).filter((status) => status === "pending").length;
+      content(`<div class="command-metrics">${[[labels2.verified, verified], [t("in_progress"), active], [labels2.pending, pending]].map(([label, count]) => `<section class="panel"><p>${esc2(label)}</p><strong>${count}</strong></section>`).join("")}</div>
+    <section class="panel"><h2>${esc2(command.priorities)}</h2><ul>${ready.slice(0, 3).map((m) => `<li>${esc2(m.route === "alternative" ? missionAlternative(m.capability)?.title : cap(m.capability))}</li>`).join("") || `<li>${esc2(t("empty"))}</li>`}</ul></section>
+    <section class="panel"><h2>${esc2(command.performance)}</h2><p>${esc2(command.connect)}</p>${button("simulator", "simulator", true)}</section>`);
+      document.querySelector('[data-action="simulator"]').onclick = () => {
+        page = "simulator";
+        render();
+      };
+    }
     return;
   }
   if (page === "resources") {
@@ -1127,7 +1197,15 @@ async function renderPage() {
   if (page === "team") return team();
   if (page === "assistant") return assistant();
   if (page === "settings") {
-    content(`<section class="panel"><h2>${t("security")}</h2><p>${esc2(me.email)} \xB7 ${me.verified ? t("verified") : t("verify")}</p>${authCapabilities.email ? `<a class="secondary" href="/hub/forgot">${t("reset")}</a>` : ""}${me.verified && authCapabilities.google ? `<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t("linkGoogle")}</a></p>` : ""}<hr>${button("team", "open-team", true)}${button("resources", "open-resources", true)}${button("newWorkspace", "new-workspace", true)}</section>`);
+    content(`<section class="panel"><h2>${t("security")}</h2><p>${esc2(me.email)} \xB7 ${me.verified ? t("verified") : t("verify")}</p>${authCapabilities.email ? `<a class="secondary" href="/hub/forgot">${t("reset")}</a>` : ""}${me.verified && authCapabilities.google ? `<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t("linkGoogle")}</a></p>` : ""}<hr>${button("profile", "open-profile", true)}${button("auri", "open-auri-settings", true)}${button("team", "open-team", true)}${button("resources", "open-resources", true)}${button("newWorkspace", "new-workspace", true)}</section>`);
+    document.querySelector('[data-action="open-profile"]').onclick = () => {
+      page = "profile";
+      render();
+    };
+    document.querySelector('[data-action="open-auri-settings"]').onclick = () => {
+      page = "assistant";
+      render();
+    };
     document.querySelector('[data-action="open-resources"]').onclick = () => {
       page = "resources";
       render();
@@ -1191,6 +1269,12 @@ function growthDashboard() {
     evolutionNames: auriNames,
     robot,
     requestLink,
+    onContinue(id) {
+      selectedMission = id;
+      page = "journey";
+      render();
+      document.querySelector("#main").focus();
+    },
     onSelect(id, scroll = false) {
       selectedMission = id;
       growthDashboard();

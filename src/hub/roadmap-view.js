@@ -1,5 +1,5 @@
 import { missionAlternative } from '../mission-routes.js';
-import { blueprintLabels } from './blueprint-copy.js';
+import { blueprintLabels, commandLabels } from './blueprint-copy.js';
 import { eligibleMissions, missionGuide, missionState, roadmapStages } from '../roadmap.js';
 
 const labels = {
@@ -12,8 +12,8 @@ export const roadmapLabels = lang => Object.fromEntries([
  'home','journey','tasks','resources','welcome','progress','stage','priority','estimate','root','heading','tree','timeline','focus','why','how','requirements','myself','hire','ask','optional','blocked','refresh','request','start','complete','assistant','help','upcoming','completed','askTask',
 ].map((key,i)=>[key,labels[lang][i]]));
 
-export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selectedId, overview=false, auriDesk='', evolutionNames=[], onSelect, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, robot, requestLink}) {
- const l=roadmapLabels(lang), ui=blueprintLabels(lang);
+export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selectedId, overview=false, auriDesk='', evolutionNames=[], onSelect, onContinue, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, robot, requestLink}) {
+ const l=roadmapLabels(lang), ui=blueprintLabels(lang), command=commandLabels(lang);
  const {missions,profile,analysis,permissions}=workspace;
  const canWrite=permissions.includes('roadmap:write');
  const canAsk=permissions.includes('auri:use');
@@ -27,9 +27,11 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
  const stageName=(stage,i)=>lang==='en'?['Build Foundation','Increase Visibility','Convert More Visitors','Automate & Scale'][i]:t(stage.key);
  const currentStage=stages.findIndex(stage=>stage.missions.some(m=>!m.optional&&!['done','postponed'].includes(m.status)));
  const isBlocked=m=>missionState(m,missions,profile).blocked;
- const status=m=>isBlocked(m)?l.blocked:t(m.status);
- const node=m=>`<button type="button" class="growth-node" data-node="${esc(m.id)}" data-status="${isBlocked(m)?'blocked':m.status}" aria-pressed="${m.id===selected?.id}">
-  <span class="growth-dot" aria-hidden="true">${m.status==='done'?'✓':isBlocked(m)?'·':''}</span>
+ const displayState=m=>({approved:'verified',pending:'review'})[workspace.evidence?.[m.id]]
+  ||(isBlocked(m)?'blocked':m.status==='planned'&&m.id===eligible[0]?.id?'recommended':m.status);
+ const status=m=>({verified:ui.approved,review:ui.pending,recommended:command.recommended,planned:command.available,done:command.selfDone,blocked:l.blocked})[displayState(m)]||t(m.status);
+ const node=m=>`<button type="button" class="growth-node" data-node="${esc(m.id)}" data-status="${isBlocked(m)?'blocked':m.status}" data-display-state="${displayState(m)}" aria-pressed="${m.id===selected?.id}">
+  <span class="growth-dot" aria-hidden="true">${displayState(m)==='verified'||m.status==='done'?'✓':isBlocked(m)?'·':''}</span>
   <span>${esc(title(m))}<small>${esc(status(m))}${m.optional?' · '+l.optional:''}</small></span>
  </button>`;
  const tree=`<div class="growth-tree">
@@ -68,18 +70,25 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
    </ol>
    <div class="hub-next-mission">
     <div><p class="hub-section-label">${esc(ui.next)}</p><h2>${next?esc(title(next)):esc(t('empty'))}</h2></div>
-    ${next?`<button class="growth-primary" type="button" data-next-mission>${esc(l.focus)} <span aria-hidden="true">↗</span></button>`:''}
+    ${next?`<button class="growth-primary" type="button" data-next-mission>${esc(command.continue)} <span aria-hidden="true">↗</span></button>`:''}
    </div>
   </section>${auriDesk}
  </div>`;
- host.innerHTML=`${overview?overviewHero:''}<section class="growth-metrics" aria-label="${l.progress}">
+ host.innerHTML=`${overview?overviewHero:''}
+ ${overview&&eligible.length?`<section class="command-priorities" aria-label="${esc(command.priorities)}">${eligible.slice(0,3).map(m=>
+  `<article class="growth-card"><small>${esc(status(m))}</small><h2>${esc(title(m))}</h2><p>${esc(m.route==='alternative'?missionAlternative(m.capability)?.steps:missionGuide[m.capability]?.[1]||m.description)}</p>
+  <button class="growth-secondary" type="button" data-priority="${esc(m.id)}">${esc(l.focus)}</button></article>`).join('')}</section>`:''}<section class="growth-metrics" aria-label="${l.progress}">
  <article class="growth-card growth-metric"><span class="growth-ring" style="--progress:${progress}%">${missions.length?progress+'%':'—'}</span><div><strong>${l.progress}</strong><span>${missions.filter(m=>m.status==='done').length} / ${missions.length} · ${l.completed}</span></div></article>
  ${metric('▥',currentStage<0?'—':stageName(stages[currentStage],currentStage),l.stage)}
  ${metric('◎',eligible.filter(m=>m.priority===1&&!m.optional).length,l.priority)}
  ${metric('✓',workspace.auri?.verifiedMilestones||0,ui.verified)}</section>
- ${existingProof}<div class="growth-layout"><section class="growth-card growth-map"><header class="growth-panel-head"><h2>${l.heading}</h2><div class="growth-tabs">
+ ${existingProof}<div class="growth-layout"><section class="growth-card growth-map"><header class="growth-panel-head"><h2>${esc(command.vision)}</h2><div class="growth-tabs">
  <button type="button" data-view="tree" aria-pressed="${view==='tree'}">${l.tree}</button><button type="button" data-view="timeline" aria-pressed="${view==='timeline'}">${l.timeline}</button>
- </div></header>${view==='tree'?tree:timeline}
+ </div></header>${view==='tree'?`<div class="command-zoom">
+ <button type="button" class="growth-secondary" data-zoom="out" aria-label="${esc(command.zoomOut)}">−</button>
+ <button type="button" class="growth-secondary" data-zoom="reset" aria-label="${esc(command.zoomReset)}">100%</button>
+ <button type="button" class="growth-secondary" data-zoom="in" aria-label="${esc(command.zoomIn)}">+</button>
+ </div><div class="command-map-viewport" tabindex="0" aria-label="${esc(command.vision)}">${tree}</div>`:timeline}
  ${analysis.missions.some(m=>!missions.some(item=>item.capability===m.id))&&canWrite?`<button type="button" class="growth-secondary" data-refresh>${l.refresh}</button>`:''}</section>
  <aside class="growth-side"><section class="growth-card growth-focus" id="growth-focus" tabindex="-1">${detail}</section>
  <section class="growth-card growth-auri"><header>${robot()}<h2>${l.assistant}</h2></header>
@@ -130,7 +139,36 @@ ${proof==='pending'||proof==='approved'?'':`<details class="growth-diy"><summary
   onSave(selected,input);
  });
  for(const button of host.querySelectorAll('[data-route]'))button.addEventListener('click',event=>onRoute(selected,event.currentTarget));
- host.querySelector('[data-next-mission]')?.addEventListener('click',()=>onSelect(eligible[0].id,true));
+ host.querySelector('[data-next-mission]')?.addEventListener('click',()=>onContinue(eligible[0].id));
+ for(const button of host.querySelectorAll('[data-priority]'))button.addEventListener('click',()=>onContinue(button.dataset.priority));
+ const map=host.querySelector('.command-map-viewport');
+ if(map){
+  let zoom=100;
+  const canvas=map.firstElementChild;
+  const update=()=>{
+   canvas.style.width=zoom>100?map.clientWidth+'px':'';
+   canvas.style.zoom=zoom/100;
+   host.querySelector('[data-zoom=reset]').textContent=zoom+'%';
+  };
+  let drag;
+  map.onpointerdown=event=>{
+   if(event.pointerType!=='mouse'||event.button!==0||event.target.closest('button,a,input,select,textarea'))return;
+   if(map.scrollWidth<=map.clientWidth)return;
+   drag={x:event.clientX,y:event.clientY,left:map.scrollLeft,top:map.scrollTop};
+   map.setPointerCapture(event.pointerId);
+  };
+  map.onpointermove=event=>{
+   if(!drag)return;
+   map.scrollLeft=drag.left+drag.x-event.clientX;
+   map.scrollTop=drag.top+drag.y-event.clientY;
+  };
+  map.onlostpointercapture=()=>{drag=null;};
+  for(const button of host.querySelectorAll('[data-zoom]'))button.onclick=()=>{
+   const action=button.dataset.zoom;
+   zoom=action==='reset'?100:Math.min(150,Math.max(75,zoom+(action==='in'?25:-25)));
+   update();
+  };
+ }
  host.querySelector('[data-existing-evidence]')?.addEventListener('submit',event=>{
   event.preventDefault();
   onExistingEvidence(event.currentTarget);

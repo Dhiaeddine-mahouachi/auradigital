@@ -30,6 +30,13 @@ try {
  assert.equal(await desktop.locator('.hub-evolution-track li').count(),7);
  assert.equal(await desktop.locator('.hub-evolution-track [aria-current=step] span').innerText(),'2');
  assert.equal(await desktop.locator('.hub-auri-desk').isVisible(),true);
+ await desktop.locator('[data-next-mission]').click();
+ await desktop.getByRole('heading',{name:'Growth Vision',exact:true}).first().waitFor();
+ await desktop.getByRole('button',{name:'Zoom in'}).click();
+ assert.equal(await desktop.locator('[data-zoom=reset]').innerText(),'125%');
+ await desktop.getByRole('button',{name:'Reset zoom'}).click();
+ await desktop.locator('.sidebar [data-page=home]').click();
+
 
  const companion=desktop.locator('.auri-companion');
  await companion.locator('summary').click();
@@ -156,6 +163,17 @@ try {
  await mobile.waitForFunction(()=>document.querySelector('.growth-answer')?.textContent.length>5);
  await mobile.evaluate(()=>window.scrollTo(0,0));
  await mobile.screenshot({path:output+'/AuraDigital-Mobile.png',fullPage:true,animations:'disabled'});
+ for(const [device,screen] of [['desktop',desktop],['mobile',mobile]]){
+  for(const section of ['home','journey','assistant','services','insights','settings']){
+   if(device==='mobile')await screen.locator('#toggle-menu').click();
+   await screen.locator(`.sidebar [data-page=${section}]`).click();
+   await screen.locator('#page-content > *').first().waitFor();
+   await screen.screenshot({path:`${output}/aura-command-${device}-${section}.png`,fullPage:true,animations:'disabled'});
+  }
+ }
+ await mobile.locator('#language').selectOption('ar');
+ assert.equal(await mobile.locator('html').getAttribute('dir'),'rtl');
+ assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  console.log('Hub browser QA passed: signup, login, generated roadmap, tree, timeline, persisted progress, AURI, service handoff and mobile.');
 } finally {
  await browser.close();

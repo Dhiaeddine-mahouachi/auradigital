@@ -235,3 +235,43 @@ auri-character[data-rendered] img{visibility:hidden}
  .hub-auri-desk{display:none}
  .growth-shell main#main:not(.gate):not(.setup){padding-inline:14px}
 }
+
+/* Aura Command */
+.growth-shell{
+ --hub-canvas:#111411;--hub-surface:#1b201c;--hub-raised:#252b25;
+ --hub-border:#343d34;--hub-label:#a7b0a5;--hub-text:#f7f8f2;--hub-accent:#d8ff35;
+}
+.growth-shell .command-wordmark{font-size:1.25rem;letter-spacing:-.04em;white-space:nowrap}
+.command-level{margin:0;padding:8px 10px;border:1px solid var(--hub-border);border-radius:8px;color:var(--hub-label);font-size:.78rem}
+.command-priorities,.command-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-block-end:16px}
+.command-priorities article{padding:16px;display:grid;align-content:start;gap:8px}
+.command-priorities h2,.command-priorities p,.command-metrics p{margin:0}
+.command-priorities h2{font-size:1.04rem}
+.command-priorities button{justify-self:start}
+.command-metrics strong{font-size:1.75rem}
+.command-list article{display:flex;align-items:center;gap:14px;justify-content:space-between;padding-block:12px;border-block-start:1px solid var(--hub-border)}
+.command-list article :is(h3,p){margin:0}
+.command-map-viewport{overflow:auto;overscroll-behavior-inline:contain}
+.command-zoom{display:flex;justify-content:flex-end;gap:6px;margin-block-start:10px}
+.command-zoom button{min-inline-size:40px}
+.growth-node[data-display-state=recommended] .growth-dot{border-color:var(--hub-accent)}
+.growth-node[data-display-state=review] .growth-dot{border-color:#f4c76a}
+.growth-node[data-display-state=verified] .growth-dot{background:#295c3c;border-color:#74d9a0}
+.growth-node[data-display-state=done] .growth-dot{background:#303b30;border-color:#8e9e89}
+@media(max-width:680px){
+ .command-priorities,.command-metrics{grid-template-columns:minmax(0,1fr)}
+ .command-list article{align-items:flex-start;flex-direction:column}
+}
+.command-bottom-nav{display:none}
+.command-setup .setup-heading{max-width:680px}
+.command-setup .mode-card{background:#1b201c;color:#f7f8f2;border-color:#343d34}
+.command-setup .mode-card p{color:#c2cbbd}
+.command-setup .mode-card [class=mode-icon]{color:#d8ff35}
+@media(max-width:800px){
+ .command-bottom-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;inset:auto 0 0;z-index:15;
+  padding:4px 8px max(4px,env(safe-area-inset-bottom));background:#171c17;border-block-start:1px solid var(--hub-border)}
+ .command-bottom-nav button{min-height:45px;padding:5px;border:0;border-radius:8px;background:transparent;color:var(--hub-text);font-size:.72rem;overflow-wrap:anywhere}
+ .command-bottom-nav button[aria-current]{background:var(--hub-raised);color:var(--hub-accent)}
+ .growth-shell .auri-dock{bottom:calc(63px + env(safe-area-inset-bottom))}
+ .growth-shell .workspace{padding-block-end:54px}
+}

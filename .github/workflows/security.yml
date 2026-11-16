@@ -48,3 +48,11 @@ jobs:
           name: private-menu-draft-screenshots
           path: test-output/menu-drafts-*.png
           if-no-files-found: ignore
+
+      - name: Preserve Aura Command screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aura-command-screenshots
+          path: test-output/aura-command-*.png
+          if-no-files-found: ignore
