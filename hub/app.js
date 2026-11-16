@@ -1982,12 +1982,12 @@ async function home() {
  <a class="growth-primary" href="${esc2(destination)}">${esc2(label)} <span aria-hidden="true">\u2192</span></a>${workspace.permissions.includes("auri:use") ? ` <a class="growth-secondary" href="${esc2(link("assistant", item?.kind === "request" ? { request: item.id } : { task: next?.id }))}">${esc2(ui.assistant)}</a>` : ""}</div>
  <div class="hub-hero-art">${menu ? menuArtwork(item) : auriCharacter(auriLevel(), { variant: "guide" })}</div></section>
  ${serviceSummary(records, serviceLabels[lang], esc2)}
- <div class="hub-work-rows">
+ <div class="hub-home-grid"><div class="hub-work-rows">
  <a class="hub-work-row" href="${esc2(link("journey"))}"><span class="hub-row-icon">${hubIcon("journey")}</span><span><strong>${esc2(ui.journey)}</strong><small>${esc2(stage)} \xB7 ${done} / ${workspace.missions.length} ${esc2(roadmapLabels(lang).completed)}</small>
  <progress class="hub-roadmap-progress" value="${done}" max="${workspace.missions.length}" aria-label="${esc2(roadmapLabels(lang).completed)}"></progress></span><span aria-hidden="true">\u203A</span></a>
  ${item && next ? `<a class="hub-work-row" href="${esc2(link("journey", { task: next.id }))}"><span class="hub-row-icon">${hubIcon("journey")}</span><span><strong>${esc2(ui.next)}</strong><small>${esc2(missionTitle(next))}</small></span><span aria-hidden="true">\u203A</span></a>` : ""}
   ${progress.slice(0, 2).map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")}</div>
- ${serviceShortcuts(lang, esc2, link)}`;
+ ${serviceShortcuts(lang, esc2, link)}</div>`;
   bindAuri(host, workspace.organization.id);
 }
 async function myWork() {

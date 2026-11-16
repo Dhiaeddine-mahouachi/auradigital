@@ -684,3 +684,9 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
  .aurahub-shell .hub-welcome .auri{width:100%;height:auto;aspect-ratio:1}
  .aurahub-shell .hub-welcome .growth-secondary{font-size:.76rem;padding:8px 10px}
 }
+.service-shell .sidebar .nav-item.active>span{color:#171a0a}
+.hub-home-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:18px;align-items:start}
+.hub-home-grid .hub-service-shortcuts,.hub-home-grid .hub-work-rows{margin-block-start:0}
+.hub-home-grid .hub-service-links{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:820px){.hub-home-grid{grid-template-columns:1fr}}
+@media(max-width:380px){.hub-home-grid .hub-service-links{grid-template-columns:1fr}}
