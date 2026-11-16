@@ -40,11 +40,24 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
     <h3><span aria-hidden="true">${stage.icon}</span>${i+1}. ${esc(stageName(stage,i))}<small>${stage.missions.length?completion(stage.missions)+'%':'—'}</small></h3>
     <div class="growth-nodes">${stage.missions.map(node).join('')||`<p>${esc(t('empty'))}</p>`}</div></section>`).join('')}</div>
  </div>`;
- const groups=[[l.priority,eligible],[l.upcoming,missions.filter(m=>m.status!=='done'&&!eligible.includes(m))],
-  [l.completed,missions.filter(m=>m.status==='done').sort((a,b)=>(b.completedAt||'').localeCompare(a.completedAt||''))]];
- const timeline=`<div class="growth-timeline">${groups.map(([label,items])=>`<section><h3>${label}</h3>${items.map(m=>`<div>${node(m)}
-  ${m.completedAt?`<time datetime="${esc(m.completedAt)}">${esc(new Date(m.completedAt).toLocaleDateString(lang))}</time>`:''}
-  ${m.dependencies?.length?`<small>${l.requirements} · ${esc(m.dependencies.map(cap).join(', '))}</small>`:''}</div>`).join('')||`<p>${esc(t('empty'))}</p>`}</section>`).join('')}</div>`;
+ // Keep numbered milestones in their original growth stage instead of moving
+ // completed work into a separate group. This preserves a stable journey.
+ const timeline=`<div class="growth-timeline growth-numbered" role="list" aria-label="${esc(l.timeline)}">
+  ${stages.map((stage,i)=>`<section class="growth-timeline-stage" role="listitem" data-stage="${i+1}">
+   <header class="growth-stage-heading"><span class="growth-stage-number">${String(i+1).padStart(2,'0')}</span>
+    <div><h3>${esc(stageName(stage,i))}</h3><small>${stage.missions.filter(m=>m.status==='done').length} / ${stage.missions.length} · ${l.completed}</small></div>
+    <span class="growth-stage-percent">${stage.missions.length?completion(stage.missions)+'%':'—'}</span>
+   </header>
+   <div class="growth-stage-track">
+    ${stage.missions.map((m,j)=>`<div class="growth-milestone" data-milestone-status="${esc(m.status)}">
+      <span class="growth-milestone-index" aria-hidden="true">${i+1}.${j+1}</span>
+      ${node(m)}
+      ${m.completedAt?`<time datetime="${esc(m.completedAt)}">${esc(new Date(m.completedAt).toLocaleDateString(lang))}</time>`:''}
+      ${isBlocked(m)?`<small class="growth-milestone-blocked">${l.requirements} · ${esc(missionState(m,missions,profile).requirements.map(cap).join(', '))}</small>`:''}
+     </div>`).join('')||`<p>${esc(t('empty'))}</p>`}
+   </div>
+  </section>`).join('')}
+ </div>`;
  const metric=(icon,value,label)=>`<article class="growth-card growth-metric"><span class="growth-metric-icon" aria-hidden="true">${icon}</span><div><strong>${esc(value)}</strong><span>${label}</span></div></article>`;
  const detail=selected?taskDetails(selected):`<p>${esc(t('empty'))}</p>`;
  host.innerHTML=`<section class="growth-metrics" aria-label="${l.progress}">
