@@ -167,3 +167,9 @@ auri-character[data-rendered] img{visibility:hidden}
 .hub-next-mission p{font-size:.8rem}
 .hub-existing-proof{margin-block-end:16px;padding:12px 18px}
 .hub-existing-proof form{max-inline-size:560px}
+
+auri-character[data-skin="mint"]{filter:hue-rotate(108deg)}
+auri-character[data-skin="violet"]{filter:hue-rotate(198deg)}
+.auri-workspace-card [data-auri-name] select{display:block;width:100%;margin-block-start:5px;color:#fafaf7;background:#1b1e20;border-color:#6a706a}
+.auri-workspace-card [data-auri-name] .auri-still{display:flex;align-items:center;gap:8px;min-height:44px}
+.auri-workspace-card [data-auri-name] .auri-still input{width:auto;margin:0}

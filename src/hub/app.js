@@ -2,7 +2,8 @@ import { blueprintLabels } from './blueprint-copy.js';
 import { missionAlternative } from '../mission-routes.js';
 import { auriCharacter, connectAuri } from './auri-companion.js';
 import { pulseAuri, runAuri } from './auri-controller.js';
-import { auriControls, auriDraftCopy, auriLabels, auriNames } from './auri-copy.js';
+import { auriSkins } from '../auri-skins.js';
+import { auriAppearanceCopy, auriControls, auriDraftCopy, auriLabels, auriNames } from './auri-copy.js';
 import { customerReturnPath } from '../customer-return.js';
 import { renderRoadmap, roadmapLabels } from './roadmap-view.js';
 import { eligibleMissions, missionGuide, missionState } from '../roadmap.js';
@@ -28,10 +29,10 @@ const toast=message=>{notice.textContent=message;notice.classList.add('visible')
 const setupScope='setup';
 let disconnectAuri=()=>{};
 const auriLevel=()=>workspace?.auri?.level||1;
-const auriPreference=()=>workspace?.auriPreferences||{name:'Auri',hidden:false};
+const auriPreference=()=>workspace?.auriPreferences||{name:'Auri',hidden:false,skin:'original',still:false};
 const auriSessions=new Map();
 let auriVoice=null,setupAuriName='',setupDeferred=[];
-const robot=()=>auriCharacter(auriLevel(),{posterOnly:true});
+const robot=()=>auriCharacter(auriLevel(),{posterOnly:true,skin:auriPreference().skin});
 function bindAuri(host,scope){
  disconnectAuri();
  disconnectAuri=connectAuri(host,scope,{idle:auriControls(lang).ready,...auriLabels(lang)});
@@ -95,7 +96,7 @@ function renderSetup(){
  if(!editing){draft=workspace?structuredClone(workspace.profile):emptyProfile();mode=workspace?.organization.mode||'myself';}
  const choosing=!editing;
  const setupKeys=workspace?profileKeys:mode==='auri'?['name','industry','industryDetails','goals','capabilities','auriName','roadmapPreview']:['name','industry','goals','budget','currency','website','capabilities'];
- app.innerHTML=`<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t('brand')}</p><h1>${choosing?t('welcome'):esc(draft.name||t('profile'))}</h1><p>${choosing?t('choose'):t(mode==='auri'?'auriText':'myselfText')}</p></div>${choosing?`<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">↗</span><h2>${t('myself')}</h2><p>${t('myselfText')}</p><span>${t('continue')} →</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t('auri')}</h2><p>${t('auriText')}</p><span>${t('continue')} →</span></button></div>`:`<section class="panel profile-panel"><div class="panel-bar"><span>${mode==='auri'?`AURI · ${step+1}/${setupKeys.length}`:t('profile')}</span><span id="save-state" role="status"></span>${button('switchMode','switch-mode',true)}</div>${mode==='auri'?`<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>`:''}<form id="profile-form" class="${mode==='auri'?'guided':'form-grid'}">${(mode==='auri'?[setupKeys[step]]:setupKeys).map(profileField).join('')}<div class="actions full">${mode==='auri'?button('back','back-step',true,step===0)+button('skip','skip-step',true,step===0):''}<button class="primary" type="submit">${t(mode==='auri'&&step<setupKeys.length-1?'continue':'save')}</button>${workspace?button('home','leave-setup',true):''}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+ app.innerHTML=`<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t('brand')}</p><h1>${choosing?t('welcome'):esc(draft.name||t('profile'))}</h1><p>${choosing?t('choose'):t(mode==='auri'?'auriText':'myselfText')}</p></div>${choosing?`<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">↗</span><h2>${t('myself')}</h2><p>${t('myselfText')}</p><span>${t('continue')} →</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t('auri')}</h2><p>${t('auriText')}</p><span>${t('continue')} →</span></button></div>`:`<section class="panel profile-panel"><div class="panel-bar"><span>${mode==='auri'?`AURI · ${step+1}/${setupKeys.length}`:t('profile')}</span><span id="save-state" role="status"></span>${button('switchMode','switch-mode',true)}</div>${mode==='auri'?`<div class="auri-onboarding">${auriCharacter(auriLevel(),{posterOnly:auriPreference().still,skin:auriPreference().skin})}<p data-auri-status role="status"></p></div>`:''}<form id="profile-form" class="${mode==='auri'?'guided':'form-grid'}">${(mode==='auri'?[setupKeys[step]]:setupKeys).map(profileField).join('')}<div class="actions full">${mode==='auri'?button('back','back-step',true,step===0)+button('skip','skip-step',true,step===0):''}<button class="primary" type="submit">${t(mode==='auri'&&step<setupKeys.length-1?'continue':'save')}</button>${workspace?button('home','leave-setup',true):''}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
  bindCommon();document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;editing=true;step=0;setupAuriName='';setupDeferred=[];render();});
  if(choosing)return;
  const form=document.querySelector('#profile-form');
@@ -298,7 +299,7 @@ async function team(){
 const rolesForUI=()=>['viewer','member','admin'].map(v=>[v,t(v)]);
 async function updateAuriPreferences(values) {
  const id=workspace.organization.id;
- const result=await api(endpoint('auri'),'PATCH',{...auriPreference(),...values});
+ const result=await api(endpoint('auri'),'PATCH',values);
  if(workspace?.organization.id===id)workspace.auriPreferences=result;
 }
 
@@ -312,7 +313,7 @@ function stopAuriVoice() {
 
 function renderCompanion(full=false){
  const host=document.querySelector(full?'#auri-workspace':'#auri-companion');
- const preferences=auriPreference(), controls=auriControls(lang);
+ const preferences=auriPreference(), controls=auriControls(lang), appearance=auriAppearanceCopy(lang);
  if(preferences.hidden&&!full)return;
  const id=workspace.organization.id;
  if(!auriSessions.has(id))auriSessions.set(id,{open:false,reply:'',pending:false,error:''});
@@ -322,7 +323,7 @@ function renderCompanion(full=false){
  const next=eligibleMissions(workspace.missions,workspace.profile)[0];
  const readAloud=({en:'Read aloud',tr:'Sesli oku',fr:'Lire à voix haute',ar:'قراءة بصوت عالٍ'})[lang];
  const send=({en:'Send',tr:'Gönder',fr:'Envoyer',ar:'إرسال'})[lang];
- const identity=`${auriCharacter(level)}<span><strong>${esc(preferences.name)}</strong><small>${esc(t('level'))} ${level} · ${auriNames[level-1]}</small></span>
+ const identity=`${auriCharacter(level,{posterOnly:preferences.still,skin:preferences.skin})}<span><strong>${esc(preferences.name)}</strong><small>${esc(t('level'))} ${level} · ${auriNames[level-1]}</small></span>
   <span class="auri-status" role="status" data-auri-status></span>`;
  const body=`<div class="auri-companion-body">
   ${next?`<p><strong>${esc(focus)}</strong> · ${esc(cap(next.capability))}</p>`:''}
@@ -335,6 +336,9 @@ function renderCompanion(full=false){
   ${full?'':`<button type="button" class="secondary" data-auri-open-workspace>${esc(controls.workspace)}</button>`}
   <button type="button" class="secondary" data-auri-hide>${esc(preferences.hidden?controls.show:controls.hide)}</button></div>
   ${full?`<form data-auri-name><label>${esc(controls.name)}<input name="name" value="${esc(preferences.name)}" required maxlength="24"></label>
+  <label>${esc(appearance.appearance)}<select name="skin">${auriSkins.map(skin=>
+    `<option value="${skin}" ${skin===preferences.skin?'selected':''}>${esc(appearance[skin])}</option>`).join('')}</select></label>
+  <label class="auri-still"><input type="checkbox" name="still" ${preferences.still?'checked':''}>${esc(appearance.still)}</label>
   <button class="secondary">${esc(t('save'))}</button></form>`:''}
  </div>`;
  host.innerHTML=full?`<section class="auri-companion auri-workspace-card"><header>${identity}</header>${body}</section>`:
@@ -372,7 +376,8 @@ function renderCompanion(full=false){
   const submit=rename.querySelector('button');
   submit.disabled=true;
   try{
-   await updateAuriPreferences({name:new FormData(rename).get('name')});
+   const data=new FormData(rename);
+   await updateAuriPreferences({name:data.get('name'),skin:data.get('skin'),still:data.has('still')});
    if(rename.isConnected){render();document.querySelector('[data-auri-name] input')?.focus();toast(t('saved'));}
   }catch(error){toast(error.message);submit.disabled=false;}
  };

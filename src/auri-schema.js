@@ -1,4 +1,4 @@
-// Keep this additive bootstrap in sync with migrations 0030 through 0033.
+// Keep this additive bootstrap in sync with migrations 0030 through 0034.
 // The production Worker can safely initialize the new tables through its D1 binding.
 export const auriSchema = `
 CREATE TABLE IF NOT EXISTS auri_verified_milestones (
@@ -42,6 +42,13 @@ CREATE TABLE IF NOT EXISTS mission_evidence (
 CREATE UNIQUE INDEX IF NOT EXISTS mission_one_pending_evidence ON mission_evidence(mission_id) WHERE status='pending';
 CREATE INDEX IF NOT EXISTS mission_evidence_workspace ON mission_evidence(organization_id,created_at);
 CREATE INDEX IF NOT EXISTS mission_evidence_queue ON mission_evidence(status,created_at);
+CREATE TABLE IF NOT EXISTS auri_appearance (
+ organization_id TEXT NOT NULL REFERENCES organizations(id),
+ customer_id TEXT NOT NULL REFERENCES customer_users(id),
+ skin TEXT NOT NULL DEFAULT 'original' CHECK(skin IN ('original','mint','violet')),
+ still INTEGER NOT NULL DEFAULT 0 CHECK(still IN (0,1)),
+ PRIMARY KEY (organization_id,customer_id)
+);
 `.trim();
 
 const ready=new WeakSet();
