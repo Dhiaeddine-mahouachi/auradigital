@@ -13,6 +13,10 @@ try {
  desktop.on('pageerror',error=>exceptions.push(error.message));
  await desktop.goto(base+'/account/signup');
  await desktop.waitForURL('**/hub/signup');
+ await desktop.locator('.command-gate-header .wordmark').filter({hasText:'Aura Command'}).waitFor();
+ assert.match(await desktop.locator('script[src*="/hub/app.js"]').getAttribute('src'),/\?v=[a-f0-9]{12}$/);
+ assert.match(await desktop.locator('link[href*="/hub/hub.css"]').getAttribute('href'),/\?v=[a-f0-9]{12}$/);
+
  assert.equal(await desktop.locator('[data-action=google]').count(),0);
  await desktop.locator('[name=name]').fill('Samir QA');
  await desktop.locator('[name=email]').fill('samir-'+crypto.randomUUID()+'@example.test');
