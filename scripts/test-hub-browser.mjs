@@ -44,7 +44,9 @@ try {
 
  assert.equal(await desktop.locator('[data-stage]').count(),4);
  await desktop.locator('[data-page=assistant]').click();
- await desktop.locator('[data-auri-name] input').fill('Pebble');
+ await desktop.locator('[data-auri-name] [name=name]').fill('Pebble');
+ await desktop.getByLabel('Appearance', {exact:true}).selectOption('mint');
+ await desktop.getByLabel('Static companion', {exact:true}).check();
  await desktop.locator('[data-auri-name] button').click();
  await desktop.locator('.auri-workspace-card header strong').filter({hasText:'Pebble'}).waitFor();
  await desktop.locator('[data-auri-draft]').click();
@@ -58,6 +60,8 @@ try {
  await desktop.locator('[data-auri-hide]').filter({hasText:'Hide companion'}).waitFor();
  await desktop.locator('[data-page=home]').click();
  await desktop.locator('.auri-dock summary strong').filter({hasText:'Pebble'}).waitFor();
+ await desktop.reload();
+ await desktop.locator('.auri-dock auri-character[data-skin="mint"][poster-only]').waitFor();
  const website=desktop.locator('[data-node]').filter({hasText:/website/i}).first();
  await website.click();
  await desktop.locator('#growth-focus h2').filter({hasText:/website/i}).waitFor();

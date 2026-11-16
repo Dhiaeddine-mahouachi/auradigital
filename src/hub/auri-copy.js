@@ -25,3 +25,13 @@ const draftCopy={
  ar:['إنشاء مسودة متابعة للعميل','جارٍ إعداد مسودة المتابعة…','المسودة جاهزة للمراجعة','العمل الأخير','مسودة بالذكاء الاصطناعي','مسودة من قالب','حُفظت للمراجعة'],
 };
 export const auriDraftCopy=lang=>Object.fromEntries(['create','drafting','ready','history','ai','template','review'].map((key,i)=>[key,draftCopy[lang][i]]));
+
+const appearanceCopy={
+ en:['Appearance','Static companion','Original','Mint','Violet'],
+ tr:['Görünüm','Sabit asistan','Orijinal','Nane','Mor'],
+ fr:['Apparence','Compagnon statique','Original','Menthe','Violet'],
+ ar:['المظهر','رفيق ثابت','الأصلي','نعناعي','بنفسجي'],
+};
+export const auriAppearanceCopy=lang=>Object.fromEntries(
+ ['appearance','still','original','mint','violet'].map((key,i)=>[key,appearanceCopy[lang][i]]),
+);

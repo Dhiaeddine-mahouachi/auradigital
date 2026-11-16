@@ -41,6 +41,9 @@ function missionAlternative(capability) {
   return option ? { title: option[0], steps: option[1] } : null;
 }
 
+// src/auri-skins.js
+var auriSkins = Object.freeze(["original", "mint", "violet"]);
+
 // src/hub/auri-controller.js
 var channels = /* @__PURE__ */ new Map();
 var subscribers = /* @__PURE__ */ new Set();
@@ -125,9 +128,9 @@ var AuriCharacter = class extends HTMLElement {
   }
 };
 customElements.define("auri-character", AuriCharacter);
-var auriCharacter = (level = 1, { posterOnly = false } = {}) => {
+var auriCharacter = (level = 1, { posterOnly = false, skin = "original" } = {}) => {
   const value = Number.isInteger(level) && level >= 1 && level <= 7 ? level : 1;
-  return `<auri-character class="auri" aria-hidden="true" level="${value}" ${posterOnly ? "poster-only" : ""}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
+  return `<auri-character class="auri" aria-hidden="true" level="${value}" data-skin="${auriSkins.includes(skin) ? skin : "original"}" ${posterOnly ? "poster-only" : ""}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
 };
 function connectAuri(host, scope, labels2) {
   const status = host.querySelector("[data-auri-status]");
@@ -169,6 +172,15 @@ var draftCopy = {
   ar: ["\u0625\u0646\u0634\u0627\u0621 \u0645\u0633\u0648\u062F\u0629 \u0645\u062A\u0627\u0628\u0639\u0629 \u0644\u0644\u0639\u0645\u064A\u0644", "\u062C\u0627\u0631\u064D \u0625\u0639\u062F\u0627\u062F \u0645\u0633\u0648\u062F\u0629 \u0627\u0644\u0645\u062A\u0627\u0628\u0639\u0629\u2026", "\u0627\u0644\u0645\u0633\u0648\u062F\u0629 \u062C\u0627\u0647\u0632\u0629 \u0644\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u0627\u0644\u0639\u0645\u0644 \u0627\u0644\u0623\u062E\u064A\u0631", "\u0645\u0633\u0648\u062F\u0629 \u0628\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064A", "\u0645\u0633\u0648\u062F\u0629 \u0645\u0646 \u0642\u0627\u0644\u0628", "\u062D\u064F\u0641\u0638\u062A \u0644\u0644\u0645\u0631\u0627\u062C\u0639\u0629"]
 };
 var auriDraftCopy = (lang2) => Object.fromEntries(["create", "drafting", "ready", "history", "ai", "template", "review"].map((key, i) => [key, draftCopy[lang2][i]]));
+var appearanceCopy = {
+  en: ["Appearance", "Static companion", "Original", "Mint", "Violet"],
+  tr: ["G\xF6r\xFCn\xFCm", "Sabit asistan", "Orijinal", "Nane", "Mor"],
+  fr: ["Apparence", "Compagnon statique", "Original", "Menthe", "Violet"],
+  ar: ["\u0627\u0644\u0645\u0638\u0647\u0631", "\u0631\u0641\u064A\u0642 \u062B\u0627\u0628\u062A", "\u0627\u0644\u0623\u0635\u0644\u064A", "\u0646\u0639\u0646\u0627\u0639\u064A", "\u0628\u0646\u0641\u0633\u062C\u064A"]
+};
+var auriAppearanceCopy = (lang2) => Object.fromEntries(
+  ["appearance", "still", "original", "mint", "violet"].map((key, i) => [key, appearanceCopy[lang2][i]])
+);
 
 // src/customer-return.js
 function customerReturnPath(value, fallback) {
@@ -661,12 +673,12 @@ var setupScope = "setup";
 var disconnectAuri = () => {
 };
 var auriLevel = () => workspace?.auri?.level || 1;
-var auriPreference = () => workspace?.auriPreferences || { name: "Auri", hidden: false };
+var auriPreference = () => workspace?.auriPreferences || { name: "Auri", hidden: false, skin: "original", still: false };
 var auriSessions = /* @__PURE__ */ new Map();
 var auriVoice = null;
 var setupAuriName = "";
 var setupDeferred = [];
-var robot = () => auriCharacter(auriLevel(), { posterOnly: true });
+var robot = () => auriCharacter(auriLevel(), { posterOnly: true, skin: auriPreference().skin });
 function bindAuri(host, scope) {
   disconnectAuri();
   disconnectAuri = connectAuri(host, scope, { idle: auriControls(lang).ready, ...auriLabels(lang) });
@@ -841,7 +853,7 @@ function renderSetup() {
   }
   const choosing = !editing;
   const setupKeys = workspace ? profileKeys : mode === "auri" ? ["name", "industry", "industryDetails", "goals", "capabilities", "auriName", "roadmapPreview"] : ["name", "industry", "goals", "budget", "currency", "website", "capabilities"];
-  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div>${mode === "auri" ? `<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>` : ""}<form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div>${mode === "auri" ? `<div class="auri-onboarding">${auriCharacter(auriLevel(), { posterOnly: auriPreference().still, skin: auriPreference().skin })}<p data-auri-status role="status"></p></div>` : ""}<form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
   bindCommon();
   document.querySelectorAll("[data-mode]").forEach((b) => b.onclick = () => {
     mode = b.dataset.mode;
@@ -1434,7 +1446,7 @@ async function team() {
 var rolesForUI = () => ["viewer", "member", "admin"].map((v) => [v, t(v)]);
 async function updateAuriPreferences(values) {
   const id = workspace.organization.id;
-  const result2 = await api(endpoint("auri"), "PATCH", { ...auriPreference(), ...values });
+  const result2 = await api(endpoint("auri"), "PATCH", values);
   if (workspace?.organization.id === id) workspace.auriPreferences = result2;
 }
 function stopAuriVoice() {
@@ -1446,7 +1458,7 @@ function stopAuriVoice() {
 }
 function renderCompanion(full = false) {
   const host = document.querySelector(full ? "#auri-workspace" : "#auri-companion");
-  const preferences = auriPreference(), controls2 = auriControls(lang);
+  const preferences = auriPreference(), controls2 = auriControls(lang), appearance = auriAppearanceCopy(lang);
   if (preferences.hidden && !full) return;
   const id = workspace.organization.id;
   if (!auriSessions.has(id)) auriSessions.set(id, { open: false, reply: "", pending: false, error: "" });
@@ -1456,7 +1468,7 @@ function renderCompanion(full = false) {
   const next = eligibleMissions(workspace.missions, workspace.profile)[0];
   const readAloud = { en: "Read aloud", tr: "Sesli oku", fr: "Lire \xE0 voix haute", ar: "\u0642\u0631\u0627\u0621\u0629 \u0628\u0635\u0648\u062A \u0639\u0627\u0644\u064D" }[lang];
   const send = { en: "Send", tr: "G\xF6nder", fr: "Envoyer", ar: "\u0625\u0631\u0633\u0627\u0644" }[lang];
-  const identity = `${auriCharacter(level)}<span><strong>${esc2(preferences.name)}</strong><small>${esc2(t("level"))} ${level} \xB7 ${auriNames[level - 1]}</small></span>
+  const identity = `${auriCharacter(level, { posterOnly: preferences.still, skin: preferences.skin })}<span><strong>${esc2(preferences.name)}</strong><small>${esc2(t("level"))} ${level} \xB7 ${auriNames[level - 1]}</small></span>
   <span class="auri-status" role="status" data-auri-status></span>`;
   const body = `<div class="auri-companion-body">
   ${next ? `<p><strong>${esc2(focus)}</strong> \xB7 ${esc2(cap(next.capability))}</p>` : ""}
@@ -1469,6 +1481,8 @@ function renderCompanion(full = false) {
   ${full ? "" : `<button type="button" class="secondary" data-auri-open-workspace>${esc2(controls2.workspace)}</button>`}
   <button type="button" class="secondary" data-auri-hide>${esc2(preferences.hidden ? controls2.show : controls2.hide)}</button></div>
   ${full ? `<form data-auri-name><label>${esc2(controls2.name)}<input name="name" value="${esc2(preferences.name)}" required maxlength="24"></label>
+  <label>${esc2(appearance.appearance)}<select name="skin">${auriSkins.map((skin) => `<option value="${skin}" ${skin === preferences.skin ? "selected" : ""}>${esc2(appearance[skin])}</option>`).join("")}</select></label>
+  <label class="auri-still"><input type="checkbox" name="still" ${preferences.still ? "checked" : ""}>${esc2(appearance.still)}</label>
   <button class="secondary">${esc2(t("save"))}</button></form>` : ""}
  </div>`;
   host.innerHTML = full ? `<section class="auri-companion auri-workspace-card"><header>${identity}</header>${body}</section>` : `<details class="auri-companion auri-dock" ${session.open ? "open" : ""}><summary>${identity}</summary>${body}</details>`;
@@ -1516,7 +1530,8 @@ function renderCompanion(full = false) {
     const submit = rename.querySelector("button");
     submit.disabled = true;
     try {
-      await updateAuriPreferences({ name: new FormData(rename).get("name") });
+      const data = new FormData(rename);
+      await updateAuriPreferences({ name: data.get("name"), skin: data.get("skin"), still: data.has("still") });
       if (rename.isConnected) {
         render();
         document.querySelector("[data-auri-name] input")?.focus();

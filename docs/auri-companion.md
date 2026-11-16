@@ -29,8 +29,9 @@ device's reduced-motion preference.
 
 Overview and other Hub pages have an expandable corner dock. Mobile uses a bottom sheet.
 The dedicated **AI Workspace** is where customers rename their companion, restore a hidden
-dock, ask questions and review their last five saved customer follow-up drafts. Name and
-visibility are per member and workspace. The follow-up action uses the configured model
+dock, ask questions and review their last five saved customer follow-up drafts. Name, visibility, recolors and static mode are saved per member and workspace. All three
+recolors are free and work on all seven levels. Static mode keeps the level poster and live
+status text. The follow-up action uses the configured model
 when available and otherwise saves a clearly labeled template. Drafts are review-only and
 there is no dispatch action.
 
@@ -77,6 +78,6 @@ through its normal interaction shows the evolution or milestone animation.
 2. Start the local in-memory fixture with `PORT=4173 node scripts/dev-hub.mjs` and run
    `node scripts/test-hub-browser.mjs` with Chromium installed.
 3. Merge through the established GitHub workflow. On the first authenticated use, the
-   Worker initializes the additive schema from migrations 0030–0033 through its D1
+   Worker initializes the additive schema from migrations 0030–0034 through its D1
    binding. Wrangler can still record the idempotent migrations in its ledger later.
 4. Confirm Cloudflare production and smoke-test the Hub and its same-origin assets.

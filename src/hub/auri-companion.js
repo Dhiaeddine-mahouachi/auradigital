@@ -1,3 +1,4 @@
+import {auriSkins} from '../auri-skins.js';
 import {watchAuri} from './auri-controller.js';
 
 const lowBandwidth=()=>navigator.connection?.saveData||['slow-2g','2g'].includes(navigator.connection?.effectiveType);
@@ -24,9 +25,9 @@ class AuriCharacter extends HTMLElement {
 }
 customElements.define('auri-character',AuriCharacter);
 
-export const auriCharacter=(level=1,{posterOnly=false}={})=>{
+export const auriCharacter=(level=1,{posterOnly=false,skin='original'}={})=>{
  const value=Number.isInteger(level)&&level>=1&&level<=7?level:1;
- return `<auri-character class="auri" aria-hidden="true" level="${value}" ${posterOnly?'poster-only':''}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
+ return `<auri-character class="auri" aria-hidden="true" level="${value}" data-skin="${auriSkins.includes(skin)?skin:'original'}" ${posterOnly?'poster-only':''}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
 };
 
 export function connectAuri(host,scope,labels){

@@ -59,7 +59,7 @@ test('Only an authenticated AuraDigital operator can verify an outcome',async()=
  assert.equal(JSON.stringify(data).includes('record-1'),false);
 });
 
-test('Auri saves the member’s name, visibility and review-only drafts within their workspace',async()=>{
+test('Auri saves the member’s appearance, visibility and review-only drafts within their workspace',async()=>{
  const {call,user}=await hubFixture();
  const owner=await user('owner@example.test');
  const stranger=await user('stranger@example.test');
@@ -69,7 +69,14 @@ test('Auri saves the member’s name, visibility and review-only drafts within t
  assert.equal((await call(path+'/auri',owner,'PATCH',{name:'<b>',hidden:true})).status,400);
  assert.equal((await call(path+'/auri',owner,'PATCH',{name:'Milo',hidden:true})).status,200);
  const data=await (await call(path,owner)).json();
- assert.deepEqual(data.auriPreferences,{name:'Milo',hidden:true});
+ assert.deepEqual(data.auriPreferences,{name:'Milo',hidden:true,skin:'original',still:false});
+ assert.equal((await call(path+'/auri',stranger,'PATCH',{skin:'violet',still:true})).status,404);
+ assert.equal((await call(path+'/auri',owner,'PATCH',{skin:'locked',name:'Wrong'})).status,400);
+ assert.equal((await call(path+'/auri',owner,'PATCH',{skin:'mint',still:true})).status,200);
+ assert.equal((await call(path+'/auri',owner,'PATCH',{hidden:false})).status,200);
+ const refreshed=await (await call(path,owner)).json();
+ assert.deepEqual(refreshed.auriPreferences,{name:'Milo',hidden:false,skin:'mint',still:true});
+ assert.deepEqual(refreshed.auri,data.auri);
  assert.equal(data.auri.level,2);
  const response=await call(path+'/auri',owner,'POST',{tool:'draft_follow_up',lang:'en'});
  assert.equal(response.status,201);
@@ -143,14 +150,14 @@ test('Existing website evidence can enter review without creating a purchase req
 test('Auri bootstraps the additive schema on an existing workspace and keeps customer data',async()=>{
  const {readFile}=await import('node:fs/promises');
  const {auriSchema}=await import('../src/auri-schema.js');
- const files=['0030_auri_milestones','0031_auri_preferences','0032_auri_drafts','0033_mission_evidence'];
+ const files=['0030_auri_milestones','0031_auri_preferences','0032_auri_drafts','0033_mission_evidence','0034_auri_appearance'];
  const migrations=await Promise.all(files.map(name=>readFile(new URL(`../migrations/${name}.sql`,import.meta.url),'utf8')));
  assert.equal(auriSchema,migrations.map(sql=>sql.trim()).join('\n'));
  const {call,sqlite,user}=await hubFixture();
  const owner=await user('release-owner@example.test');
  const created=await call('/api/hub/workspaces',owner,'POST',{mode:'auri',profile:profile('Existing business')});
  const {id}=await created.json();
- sqlite.exec('DROP TABLE mission_evidence; DROP TABLE auri_drafts; DROP TABLE auri_preferences; DROP TABLE auri_verified_milestones;');
+ sqlite.exec('DROP TABLE mission_evidence; DROP TABLE auri_appearance; DROP TABLE auri_drafts; DROP TABLE auri_preferences; DROP TABLE auri_verified_milestones;');
  const first=await call('/api/hub/workspaces/'+id,owner);
  assert.equal(first.status,200);
  assert.equal((await first.json()).profile.name,'Existing business');
