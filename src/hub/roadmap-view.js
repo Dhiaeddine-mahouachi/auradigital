@@ -69,11 +69,11 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
  host.innerHTML=`${overview?overviewHero:''}
  ${overview&&eligible.length?`<section class="command-priorities" aria-label="${esc(command.priorities)}">${eligible.slice(0,3).map(m=>
   `<article class="growth-card"><small>${esc(status(m))}</small><h2>${esc(title(m))}</h2><p>${esc(m.route==='alternative'?missionAlternative(m.capability)?.steps:missionGuide[m.capability]?.[1]||m.description)}</p>
-  <button class="growth-secondary" type="button" data-priority="${esc(m.id)}">${esc(l.focus)}</button></article>`).join('')}</section>`:''}<section class="growth-metrics" aria-label="${l.progress}">
+  <button class="growth-secondary" type="button" data-priority="${esc(m.id)}">${esc(l.focus)}</button></article>`).join('')}</section>`:''}${overview?`<section class="growth-metrics" aria-label="${l.progress}">
  <article class="growth-card growth-metric"><span class="growth-ring" style="--progress:${progress}%">${missions.length?progress+'%':'—'}</span><div><strong>${l.progress}</strong><span>${missions.filter(m=>m.status==='done').length} / ${missions.length} · ${l.completed}</span></div></article>
  ${metric('▥',currentStage<0?'—':stageName(stages[currentStage],currentStage),l.stage)}
  ${metric('◎',eligible.filter(m=>m.priority===1&&!m.optional).length,l.priority)}
- ${metric('✓',workspace.auri?.verifiedMilestones||0,ui.verified)}</section>
+ ${metric('✓',workspace.auri?.verifiedMilestones||0,ui.verified)}</section>`:''}
  ${existingProof}<div class="growth-layout vision-layout"><section class="growth-card growth-map vision-map"><header class="growth-panel-head"><h2>${esc(command.vision)}</h2><div class="growth-tabs">
  <button type="button" data-view="tree" aria-pressed="${view==='tree'}">${l.tree}</button><button type="button" data-view="timeline" aria-pressed="${view==='timeline'}">${l.timeline}</button>
  </div></header>${view==='tree'?`<div class="command-map-viewport vision-path-viewport" tabindex="0" aria-label="${esc(command.vision)}">${tree}</div>`:timeline}
