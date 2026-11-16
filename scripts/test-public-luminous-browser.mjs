@@ -16,12 +16,12 @@ try{
     assert.ok(overflow<=3,label+' '+path+' horizontal overflow '+overflow);
     if(path==='/index.html'){
       for(const [selector,color] of [
-        ['.hx-persona .hx-section-head h2','rgb(24, 57, 44)'],
-        ['.ac-how .ac-section-heading h2','rgb(24, 54, 44)'],
-        ['.ac-final h2','rgb(24, 59, 44)'],
+        ['.hx-persona .hx-section-head h2','rgb(242, 248, 237)'],
+        ['.ac-how .ac-section-heading h2','rgb(242, 248, 237)'],
+        ['.ac-final h2','rgb(242, 248, 237)'],
       ]){
         const actual=await page.locator(selector).evaluate(el=>getComputedStyle(el).color);
-        assert.equal(actual,color,label+' '+selector+' should be dark on a light surface');
+        assert.equal(actual,color,label+' '+selector+' should be light on an emerald surface');
       }
       assert.ok((await page.locator('.ac-app').evaluate(el=>getComputedStyle(el).boxShadow)).includes('rgba'));
       for(const selector of ['.ac-hero','.hx-persona','.ac-how','.ac-partner','.hx-inside','.bc-section','.ac-final']){
@@ -35,10 +35,10 @@ try{
       }
     }
     if(path==='/packages.html'||path==='/aura-menu.html'){
-      assert.equal(await page.locator('.page-hero .display').evaluate(el=>getComputedStyle(el).color),'rgb(24, 55, 42)',label+' '+path+' heading contrast');
+      assert.equal(await page.locator('.page-hero .display').evaluate(el=>getComputedStyle(el).color),'rgb(242, 248, 237)',label+' '+path+' heading contrast');
     }
     await page.close();
   }
  }
- console.log('PASS: 8 public pages across mobile and desktop, complementary palette, light/dark contrast, no horizontal overflow.');
+ console.log('PASS: 8 public pages across mobile and desktop, complementary palette, dark Emerald Gloss contrast, no horizontal overflow.');
 }finally{await browser.close()}
