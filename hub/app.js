@@ -110,14 +110,22 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
     <h3><span aria-hidden="true">${stage.icon}</span>${i + 1}. ${esc3(stageName(stage, i))}<small>${stage.missions.length ? completion(stage.missions) + "%" : "\u2014"}</small></h3>
     <div class="growth-nodes">${stage.missions.map(node).join("") || `<p>${esc3(t2("empty"))}</p>`}</div></section>`).join("")}</div>
  </div>`;
-  const groups = [
-    [l.priority, eligible],
-    [l.upcoming, missions.filter((m) => m.status !== "done" && !eligible.includes(m))],
-    [l.completed, missions.filter((m) => m.status === "done").sort((a, b) => (b.completedAt || "").localeCompare(a.completedAt || ""))]
-  ];
-  const timeline = `<div class="growth-timeline">${groups.map(([label, items]) => `<section><h3>${label}</h3>${items.map((m) => `<div>${node(m)}
-  ${m.completedAt ? `<time datetime="${esc3(m.completedAt)}">${esc3(new Date(m.completedAt).toLocaleDateString(lang2))}</time>` : ""}
-  ${m.dependencies?.length ? `<small>${l.requirements} \xB7 ${esc3(m.dependencies.map(cap2).join(", "))}</small>` : ""}</div>`).join("") || `<p>${esc3(t2("empty"))}</p>`}</section>`).join("")}</div>`;
+  const timeline = `<div class="growth-timeline growth-numbered" role="list" aria-label="${esc3(l.timeline)}">
+  ${stages.map((stage, i) => `<section class="growth-timeline-stage" role="listitem" data-stage="${i + 1}">
+   <header class="growth-stage-heading"><span class="growth-stage-number">${String(i + 1).padStart(2, "0")}</span>
+    <div><h3>${esc3(stageName(stage, i))}</h3><small>${stage.missions.filter((m) => m.status === "done").length} / ${stage.missions.length} \xB7 ${l.completed}</small></div>
+    <span class="growth-stage-percent">${stage.missions.length ? completion(stage.missions) + "%" : "\u2014"}</span>
+   </header>
+   <div class="growth-stage-track">
+    ${stage.missions.map((m, j) => `<div class="growth-milestone" data-milestone-status="${esc3(m.status)}">
+      <span class="growth-milestone-index" aria-hidden="true">${i + 1}.${j + 1}</span>
+      ${node(m)}
+      ${m.completedAt ? `<time datetime="${esc3(m.completedAt)}">${esc3(new Date(m.completedAt).toLocaleDateString(lang2))}</time>` : ""}
+      ${isBlocked(m) ? `<small class="growth-milestone-blocked">${l.requirements} \xB7 ${esc3(missionState(m, missions, profile).requirements.map(cap2).join(", "))}</small>` : ""}
+     </div>`).join("") || `<p>${esc3(t2("empty"))}</p>`}
+   </div>
+  </section>`).join("")}
+ </div>`;
   const metric = (icon, value, label) => `<article class="growth-card growth-metric"><span class="growth-metric-icon" aria-hidden="true">${icon}</span><div><strong>${esc3(value)}</strong><span>${label}</span></div></article>`;
   const detail = selected ? taskDetails(selected) : `<p>${esc3(t2("empty"))}</p>`;
   host.innerHTML = `<section class="growth-metrics" aria-label="${l.progress}">
