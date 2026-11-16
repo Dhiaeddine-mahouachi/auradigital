@@ -1018,11 +1018,16 @@ function renderGrowthVisionPath({ workspace: workspace2, esc: esc3, lang: lang2 
   const xp = rewards.slice(0, verified).reduce((sum, value) => sum + value, 0);
   const maxXp = rewards.reduce((sum, value) => sum + value, 0);
   const complete = (stageMissions) => stageMissions.filter((m) => m.status === "done").length;
-  const missionRow = (m) => `<button class="vision-task" type="button" data-node="${esc3(m.id)}" data-display-state="${esc3(displayState(m))}" aria-pressed="${selected?.id === m.id}">
-  <span class="vision-task-icon" aria-hidden="true">${m.status === "done" ? "\u2713" : "\u25CB"}</span>
-  <span class="vision-task-name">${esc3(title(m))}<small>${esc3(m.reason || m.description || "")}</small></span>
-  <span class="vision-task-status">${esc3(status(m))} <span aria-hidden="true">\u2197</span></span>
- </button>`;
+  const missionButton = (m) => {
+    const state2 = displayState(m);
+    const icon2 = { verified: "\u2713", done: "\u2713", review: "\u25F7", recommended: "\u2726", in_progress: "\u25D4", blocked: "\xB7", postponed: "\u2013" }[state2] || "\u25CB";
+    return `<button class="vision-task" type="button" data-node="${esc3(m.id)}" data-display-state="${esc3(state2)}" aria-pressed="${selected?.id === m.id}">
+   <span class="vision-task-icon" aria-hidden="true">${icon2}</span>
+   <span class="vision-task-name">${esc3(title(m))}</span>
+   <span class="vision-task-status">${esc3(status(m))}</span>
+   <span class="vision-task-arrow" aria-hidden="true">\u203A</span>
+  </button>`;
+  };
   const stageCard = (item, index) => {
     const count = complete(item.missions), total = item.missions.length;
     const finished = total > 0 && count === total;
@@ -1051,7 +1056,7 @@ function renderGrowthVisionPath({ workspace: workspace2, esc: esc3, lang: lang2 
    <section class="vision-tasks" aria-label="${esc3(ui.missions)}">
     <div class="vision-level-heading"><div>
      <h3>${esc3(stage.name)}</h3></div></div>
-    <div class="vision-task-list">${stage.missions.map(missionRow).join("") || `<p class="vision-empty">${esc3(ui.empty)}</p>`}</div>
+    <div class="vision-task-list">${stage.missions.map(missionButton).join("") || `<p class="vision-empty">${esc3(ui.empty)}</p>`}</div>
     <p class="vision-note">${esc3(ui.next)}</p>
    </section>
    <section class="vision-auri" aria-label="${esc3(ui.auri)}">

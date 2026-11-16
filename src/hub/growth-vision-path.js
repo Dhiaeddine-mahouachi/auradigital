@@ -56,11 +56,16 @@ export function renderGrowthVisionPath({workspace,esc,lang='en',title,status,dis
  const xp=rewards.slice(0,verified).reduce((sum,value)=>sum+value,0);
  const maxXp=rewards.reduce((sum,value)=>sum+value,0);
  const complete=stageMissions=>stageMissions.filter(m=>m.status==='done').length;
- const missionRow=m=>`<button class="vision-task" type="button" data-node="${esc(m.id)}" data-display-state="${esc(displayState(m))}" aria-pressed="${selected?.id===m.id}">
-  <span class="vision-task-icon" aria-hidden="true">${m.status==='done'?'✓':'○'}</span>
-  <span class="vision-task-name">${esc(title(m))}<small>${esc(m.reason||m.description||'')}</small></span>
-  <span class="vision-task-status">${esc(status(m))} <span aria-hidden="true">↗</span></span>
- </button>`;
+ const missionButton=m=>{
+  const state=displayState(m);
+  const icon=({verified:'✓',done:'✓',review:'◷',recommended:'✦',in_progress:'◔',blocked:'·',postponed:'–'})[state]||'○';
+  return `<button class="vision-task" type="button" data-node="${esc(m.id)}" data-display-state="${esc(state)}" aria-pressed="${selected?.id===m.id}">
+   <span class="vision-task-icon" aria-hidden="true">${icon}</span>
+   <span class="vision-task-name">${esc(title(m))}</span>
+   <span class="vision-task-status">${esc(status(m))}</span>
+   <span class="vision-task-arrow" aria-hidden="true">›</span>
+  </button>`;
+ };
  const stageCard=(item,index)=>{
   const count=complete(item.missions),total=item.missions.length;
   const finished=total>0&&count===total;
@@ -89,7 +94,7 @@ export function renderGrowthVisionPath({workspace,esc,lang='en',title,status,dis
    <section class="vision-tasks" aria-label="${esc(ui.missions)}">
     <div class="vision-level-heading"><div>
      <h3>${esc(stage.name)}</h3></div></div>
-    <div class="vision-task-list">${stage.missions.map(missionRow).join('')||`<p class="vision-empty">${esc(ui.empty)}</p>`}</div>
+    <div class="vision-task-list">${stage.missions.map(missionButton).join('')||`<p class="vision-empty">${esc(ui.empty)}</p>`}</div>
     <p class="vision-note">${esc(ui.next)}</p>
    </section>
    <section class="vision-auri" aria-label="${esc(ui.auri)}">
