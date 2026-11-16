@@ -1,0 +1,176 @@
+/* Emerald Gloss / AuraDigital portfolio.
+   A restrained reflective finish. No glass filters on photography or screenshots. */
+body[data-page="portfolio"] .pf-page{
+  --pf-gloss-ink:#f2f7ef;
+  --pf-gloss-copy:#c5d9c7;
+  --pf-gloss-muted:#a8c0ac;
+  --pf-gloss-lime:#dfff4d;
+  background:#0b130f;
+  color:var(--pf-gloss-ink);
+}
+/* Metallic sheen is a static visual treatment: no shimmer loops, good for reduced-motion users. */
+body[data-page="portfolio"] .pf-hero{
+  background:
+    radial-gradient(ellipse at 83% 12%,rgba(103,169,132,.23),transparent 45%),
+    radial-gradient(ellipse at 10% 84%,rgba(67,121,85,.21),transparent 56%),
+    linear-gradient(132deg,#0b1410 0%,#1b3226 51%,#0b1712 100%);
+}
+body[data-page="portfolio"] .pf-intro,
+body[data-page="portfolio"] .pf-moment,
+body[data-page="portfolio"] .pf-outro{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  color:var(--pf-gloss-ink);
+  border-block:1px solid rgba(187,226,174,.12);
+}
+body[data-page="portfolio"] .pf-intro{
+  background:
+    radial-gradient(ellipse at 88% -8%,rgba(129,181,143,.27),transparent 54%),
+    linear-gradient(126deg,#223d2f 0%,#142920 49%,#294536 100%);
+}
+body[data-page="portfolio"] .pf-moment{
+  background:
+    radial-gradient(ellipse at 4% 0%,rgba(131,192,149,.25),transparent 55%),
+    radial-gradient(ellipse at 92% 104%,rgba(97,158,122,.22),transparent 50%),
+    linear-gradient(119deg,#152b22 0%,#294837 50%,#14271e 100%);
+}
+body[data-page="portfolio"] .pf-outro{
+  background:
+    radial-gradient(ellipse at 96% 12%,rgba(153,192,152,.25),transparent 49%),
+    linear-gradient(125deg,#1a3529 0%,#294638 46%,#13271e 100%);
+}
+/* Fine diagonal light reflection, gently faded and never covering content. */
+body[data-page="portfolio"] .pf-intro::before,
+body[data-page="portfolio"] .pf-moment::before,
+body[data-page="portfolio"] .pf-outro::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:linear-gradient(113deg,
+    transparent 0%,
+    transparent 26%,
+    rgba(225,255,221,.035) 35%,
+    rgba(232,255,220,.105) 41%,
+    rgba(255,255,255,.025) 48%,
+    transparent 62%);
+}
+body[data-page="portfolio"] .pf-intro::after,
+body[data-page="portfolio"] .pf-moment::after,
+body[data-page="portfolio"] .pf-outro::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  z-index:0;
+  width:min(64vw,880px);
+  height:min(64vw,880px);
+  right:-22%;
+  top:-64%;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(170,218,167,.11),transparent 65%);
+}
+body[data-page="portfolio"] .pf-intro > .container,
+body[data-page="portfolio"] .pf-moment > .container,
+body[data-page="portfolio"] .pf-outro > .container{position:relative;z-index:1}
+
+/* Section 01: editorial manifesto, legible against deep emerald. */
+body[data-page="portfolio"] .pf-intro .pf-section-number,
+body[data-page="portfolio"] .pf-moment .pf-section-number,
+body[data-page="portfolio"] .pf-outro .pf-section-number{color:#c9f9aa}
+body[data-page="portfolio"] .pf-intro h2,
+body[data-page="portfolio"] .pf-moment h2,
+body[data-page="portfolio"] .pf-outro h2{color:var(--pf-gloss-ink)}
+body[data-page="portfolio"] .pf-intro h2 em,
+body[data-page="portfolio"] .pf-moment h2 em,
+body[data-page="portfolio"] .pf-outro h2 em{color:var(--pf-gloss-lime)}
+body[data-page="portfolio"] .pf-intro p,
+body[data-page="portfolio"] .pf-moment-heading p,
+body[data-page="portfolio"] .pf-outro-content > p{color:var(--pf-gloss-copy)}
+body[data-page="portfolio"] .pf-intro .pf-inline-link,
+body[data-page="portfolio"] .pf-outro .pf-quiet-link{
+  color:#e9ffbe;
+  border-color:rgba(207,255,159,.6);
+}
+body[data-page="portfolio"] .pf-intro .pf-inline-link:hover,
+body[data-page="portfolio"] .pf-outro .pf-quiet-link:hover{color:#fff;border-color:#fff}
+
+/* Customer journey: emerald glass rules, no bright lime background. */
+body[data-page="portfolio"] .pf-moment-steps{
+  border-color:rgba(214,244,212,.3);
+  border-radius:2px;
+}
+body[data-page="portfolio"] .pf-moment-step{border-color:rgba(214,244,212,.27)}
+body[data-page="portfolio"] .pf-moment-step b{color:#dfff4d}
+body[data-page="portfolio"] .pf-moment-step h3{color:#f5f9f0}
+body[data-page="portfolio"] .pf-moment-step p{color:#c4d6c7}
+body[data-page="portfolio"] .pf-moment-step > span{color:#dfff4d}
+
+/* Alternate surfaces for deliberate color rhythm. */
+body[data-page="portfolio"] .pf-stories{
+  background:
+    radial-gradient(ellipse at 85% 12%,rgba(76,131,102,.14),transparent 42%),
+    linear-gradient(180deg,#0e1b15 0%,#111c16 52%,#0b130f 100%);
+}
+body[data-page="portfolio"] .pf-platform{
+  background:
+    radial-gradient(ellipse at 10% 12%,rgba(100,158,119,.14),transparent 45%),
+    linear-gradient(154deg,#101d17,#17281e 48%,#0b130f);
+}
+
+/* Keep the clients' original images intact: polish their surrounding frames. */
+body[data-page="portfolio"] .pf-story-life,
+body[data-page="portfolio"] .pf-hero-photo{
+  border:1px solid rgba(181,229,179,.35);
+  box-shadow:0 24px 72px rgba(0,0,0,.38),inset 0 0 0 1px rgba(255,255,255,.08);
+}
+body[data-page="portfolio"] .pf-story-screen{
+  background:linear-gradient(137deg,#466954 0%,#203c2e 40%,#3b5e48 51%,#192f25 100%);
+  border:1px solid rgba(222,252,204,.33);
+  box-shadow:0 24px 68px rgba(0,0,0,.58),0 0 35px rgba(132,187,132,.09);
+}
+body[data-page="portfolio"] .pf-story-screen img{
+  border:1px solid rgba(211,232,199,.2);
+}
+body[data-page="portfolio"] .pf-story-screen figcaption{color:#e8f6df}
+body[data-page="portfolio"] .pf-hero-secondary{
+  box-shadow:0 20px 62px rgba(0,0,0,.54),0 0 0 1px rgba(210,255,208,.14);
+}
+body[data-page="portfolio"] .pf-product{
+  background:linear-gradient(138deg,#253f32,#111d16);
+  border-color:rgba(203,234,199,.31);
+  box-shadow:0 20px 54px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.08);
+}
+body[data-page="portfolio"] .pf-product:hover,
+body[data-page="portfolio"] .pf-product:focus-visible{
+  border-color:rgba(221,255,149,.73);
+  box-shadow:0 25px 68px rgba(0,0,0,.38),0 0 32px rgba(162,213,135,.10);
+}
+
+/* Closing CTA: brighter lime against dark emerald is high contrast. */
+body[data-page="portfolio"] .pf-outro .pf-btn--lime{
+  background:#dfff4d;
+  color:#16210e;
+  box-shadow:0 9px 30px rgba(8,15,10,.24),inset 0 1px 0 rgba(255,255,255,.35);
+}
+body[data-page="portfolio"] .pf-outro .pf-btn--lime:hover{background:#edff96}
+body[data-page="portfolio"] .pf-outro-photo{
+  border:1px solid rgba(202,240,185,.33);
+  box-shadow:0 26px 74px rgba(0,0,0,.35),0 0 38px rgba(155,212,165,.06);
+}
+body[data-page="portfolio"] .pf-credits{
+  background:#0a120e;
+  border-color:rgba(195,232,195,.18);
+}
+@media(max-width:600px){
+  body[data-page="portfolio"] .pf-intro::after,
+  body[data-page="portfolio"] .pf-moment::after,
+  body[data-page="portfolio"] .pf-outro::after{top:-26%;right:-45%;width:100vw;height:100vw}
+  body[data-page="portfolio"] .pf-intro::before,
+  body[data-page="portfolio"] .pf-moment::before,
+  body[data-page="portfolio"] .pf-outro::before{opacity:.7}
+}
+@media(prefers-reduced-motion:reduce){
+  body[data-page="portfolio"] .pf-product{transition:none!important}
+}
