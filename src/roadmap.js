@@ -3,6 +3,7 @@ export const roadmapStages = [
  {key:'visibility', icon:'◎'},
  {key:'conversion', icon:'↗'},
  {key:'automation', icon:'⚙'},
+ {key:'scale', icon:'▥'},
 ];
 
 export const missionGuide = {
