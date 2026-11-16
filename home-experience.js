@@ -73,7 +73,7 @@
     slot.appendChild(label);
     img.hidden = true;
   }
-  const landingImages = Array.from(document.querySelectorAll('.aura-home img'));
+  const landingImages = Array.from(document.querySelectorAll('body[data-page="home"] img'));
   landingImages.forEach(img => {
     img.addEventListener('error', () => recoverImage(img));
     if (img.complete && img.naturalWidth === 0) recoverImage(img);
@@ -166,7 +166,7 @@
         if (!entry.isIntersecting) return;
         observer.disconnect();
         try {
-          const { mountAuri } = await import('/media/auri/viewer.js?v=idle-motion-2');
+          const { mountAuri } = await import('/media/auri/viewer.js?v=landing-imagerepair-20261116');
           if (portrait.isConnected && !motion.matches) await mountAuri(portrait);
         } catch {
           // The portrait remains available on browsers without hardware rendering.
