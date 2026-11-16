@@ -39,7 +39,8 @@ export function normalizePlan(result, profile) {
 export async function prepareHubPlan(env,user,profile,lang,source='') {
  if(typeof source!=='string'||source.length>4000)throw new ApiError(400,'Business description is too long.');
  const provider=auriProvider(env);
- if(provider.AI_PROVIDER!=='ollama'||!env.AI_RATE_LIMITER?.limit)throw new ApiError(503,'Auri roadmap generation is unavailable. Your answers are saved. Please retry later.');
+ const supported=provider.AI_PROVIDER==='ollama'||(provider.AI_PROVIDER==='cloudflare'&&typeof provider.AI?.run==='function');
+ if(!supported||!env.AI_RATE_LIMITER?.limit)throw new ApiError(503,'Auri roadmap generation is unavailable. Your answers are saved. Please retry later.');
  if(!(await env.AI_RATE_LIMITER.limit({key:'hub-plan:'+user.id})).success)throw new ApiError(429,'Auri is busy. Your answers are saved. Please retry shortly.');
  const candidates=diagnose(profile).missions.map(({id,level,dependencies,optional})=>({id,stage:stage(level),dependencies,optional}));
  const messages=[
