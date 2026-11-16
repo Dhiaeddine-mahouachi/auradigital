@@ -127,6 +127,7 @@ body[data-page="home"] .aura-home .hx-persona-icon {
   color:#267b61;
 }
 body[data-page="home"] .aura-home .hx-persona-preview {
+  color:#eff4e9;
   background:#172820;
   border-color:rgba(69,153,123,.55);
   box-shadow:0 26px 80px rgba(28,79,57,.18),0 0 46px rgba(69,153,125,.07);
@@ -266,6 +267,7 @@ body[data-page="home"] .aura-home .hx-showcase-bottom {
   color:#506d5c;
 }
 body[data-page="home"] .aura-home .hx-showcase-card {
+  color:#f1f6ed;
   background:linear-gradient(165deg,#1b3030,#17251d);
   border-color:rgba(58,119,102,.38);
   box-shadow:0 18px 50px rgba(32,70,55,.12),inset 0 1px rgba(255,255,255,.08);
