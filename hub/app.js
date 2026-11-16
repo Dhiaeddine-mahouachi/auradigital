@@ -252,7 +252,7 @@ var roadmapLabels = (lang2) => Object.fromEntries([
   "completed",
   "askTask"
 ].map((key, i) => [key, labels[lang2][i]]));
-function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap2, lang: lang2, view, selectedId, overview = false, onSelect, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, robot: robot2, requestLink: requestLink2 }) {
+function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap2, lang: lang2, view, selectedId, overview = false, auriDesk = "", evolutionNames = [], onSelect, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, robot: robot2, requestLink: requestLink2 }) {
   const l = roadmapLabels(lang2), ui = blueprintLabels(lang2);
   const { missions, profile, analysis, permissions } = workspace2;
   const canWrite = permissions.includes("roadmap:write");
@@ -298,9 +298,23 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
    <label class="field">${esc3(ui.proofLabel)}<textarea name="proof" required minlength="10" maxlength="1000" rows="2"></textarea></label>
    <button class="growth-secondary">${esc3(ui.submit)}</button></form></details>` : "";
   const detail = selected ? taskDetails(selected) : `<p>${esc3(t2("empty"))}</p>`;
-  host.innerHTML = `${overview && eligible[0] ? `<section class="growth-card hub-next-mission">
-  <div><p>${esc3(ui.next)}</p><h2>${esc3(title(eligible[0]))}</h2></div><button class="growth-primary" type="button" data-next-mission>${esc3(l.focus)}</button>
- </section>` : ""}<section class="growth-metrics" aria-label="${l.progress}">
+  const level = workspace2.auri?.level || 1;
+  const next = eligible[0];
+  const overviewHero = `<div class="hub-overview-grid ${auriDesk ? "has-companion" : ""}">
+  <section class="growth-card hub-overview-intro">
+   <p class="hub-section-label">${esc3(ui.overview)}</p>
+   <h1>${esc3(workspace2.organization.name)}</h1>
+   <ol class="hub-evolution-track" aria-label="${esc3(t2("level"))}">
+    ${evolutionNames.map((name, index) => `<li data-level-state="${index + 1 < level ? "complete" : index + 1 === level ? "current" : "locked"}" ${index + 1 === level ? 'aria-current="step"' : ""}>
+     <span>${index + 1}</span><small>${esc3(name)}</small></li>`).join("")}
+   </ol>
+   <div class="hub-next-mission">
+    <div><p class="hub-section-label">${esc3(ui.next)}</p><h2>${next ? esc3(title(next)) : esc3(t2("empty"))}</h2></div>
+    ${next ? `<button class="growth-primary" type="button" data-next-mission>${esc3(l.focus)} <span aria-hidden="true">\u2197</span></button>` : ""}
+   </div>
+  </section>${auriDesk}
+ </div>`;
+  host.innerHTML = `${overview ? overviewHero : ""}<section class="growth-metrics" aria-label="${l.progress}">
  <article class="growth-card growth-metric"><span class="growth-ring" style="--progress:${progress}%">${missions.length ? progress + "%" : "\u2014"}</span><div><strong>${l.progress}</strong><span>${missions.filter((m) => m.status === "done").length} / ${missions.length} \xB7 ${l.completed}</span></div></article>
  ${metric("\u25A5", currentStage < 0 ? "\u2014" : stageName(stages[currentStage], currentStage), l.stage)}
  ${metric("\u25CE", eligible.filter((m) => m.priority === 1 && !m.optional).length, l.priority)}
@@ -660,6 +674,8 @@ var toast = (message) => {
 var setupScope = "setup";
 var disconnectAuri = () => {
 };
+var disconnectDesk = () => {
+};
 var auriLevel = () => workspace?.auri?.level || 1;
 var auriPreference = () => workspace?.auriPreferences || { name: "Auri", hidden: false };
 var auriSessions = /* @__PURE__ */ new Map();
@@ -720,6 +736,7 @@ function bindCommon() {
 }
 function render() {
   disconnectAuri();
+  disconnectDesk();
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   app.setAttribute("aria-busy", "false");
@@ -998,7 +1015,7 @@ function renderShell() {
  ${navItem("journey")}</div></details>
  <details class="growth-account"><summary><span class="avatar">${esc2(me.name.slice(0, 1))}</span><span>${esc2(me.name)}</span></summary>
  <div class="growth-account-menu">${navItem("profile")}${navItem("settings")}${button("logout", "logout", true)}</div></details></header>
- <main id="main" tabindex="-1">${growth ? `<h1 class="sr-only">${l[page]}</h1>` : `<div class="page-heading"><h1>${esc2(blueprintNav(page, lang) || l[page] || t(page))}</h1></div>`}
+ <main id="main" tabindex="-1">${growth ? page === "journey" ? `<h1 class="sr-only">${l[page]}</h1>` : "" : `<div class="page-heading"><h1>${esc2(blueprintNav(page, lang) || l[page] || t(page))}</h1></div>`}
  ${!me.verified && authCapabilities.email ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}
  <div id="page-content"></div></main><div id="auri-companion"></div></div></div>`;
   bindCommon();
@@ -1152,8 +1169,16 @@ async function askAuri(question, missionId) {
   return [cap(task.capability), action, requirements.length ? requirements.map(cap).join(", ") : ""].filter(Boolean).join(" \xB7 ");
 }
 function growthDashboard() {
+  disconnectDesk();
+  const host = document.querySelector("#page-content");
+  const level = auriLevel(), companion = auriPreference(), controls2 = auriControls(lang);
+  const auriDesk = page === "home" && !companion.hidden ? `<section class="growth-card hub-auri-desk">
+  <header><strong>${esc2(companion.name)}</strong><span>${esc2(t("level"))} ${level}</span></header>
+  <div class="hub-desk-scene">${auriCharacter(level)}<span class="hub-desk-surface" aria-hidden="true"></span></div>
+  <footer><p data-auri-status></p><button type="button" class="growth-secondary" data-open-auri>${esc2(controls2.workspace)}</button></footer>
+ </section>` : "";
   renderRoadmap({
-    host: document.querySelector("#page-content"),
+    host,
     workspace,
     t,
     esc: esc2,
@@ -1162,6 +1187,8 @@ function growthDashboard() {
     view: roadmapView,
     selectedId: selectedMission,
     overview: page === "home",
+    auriDesk,
+    evolutionNames: auriNames,
     robot,
     requestLink,
     onSelect(id, scroll = false) {
@@ -1244,6 +1271,15 @@ function growthDashboard() {
     },
     onAsk: askAuri
   });
+  const desk = host.querySelector(".hub-auri-desk");
+  if (desk) {
+    disconnectDesk = connectAuri(desk, workspace.organization.id, { idle: controls2.ready, ...auriLabels(lang) });
+    desk.querySelector("[data-open-auri]").onclick = () => {
+      page = "assistant";
+      render();
+      document.querySelector("#main").focus();
+    };
+  }
 }
 function journey() {
   const write = workspace.permissions.includes("roadmap:write");
@@ -1456,7 +1492,7 @@ function renderCompanion(full = false) {
   const next = eligibleMissions(workspace.missions, workspace.profile)[0];
   const readAloud = { en: "Read aloud", tr: "Sesli oku", fr: "Lire \xE0 voix haute", ar: "\u0642\u0631\u0627\u0621\u0629 \u0628\u0635\u0648\u062A \u0639\u0627\u0644\u064D" }[lang];
   const send = { en: "Send", tr: "G\xF6nder", fr: "Envoyer", ar: "\u0625\u0631\u0633\u0627\u0644" }[lang];
-  const identity = `${auriCharacter(level)}<span><strong>${esc2(preferences.name)}</strong><small>${esc2(t("level"))} ${level} \xB7 ${auriNames[level - 1]}</small></span>
+  const identity = `${auriCharacter(level, { posterOnly: page === "home" && !matchMedia("(max-width:800px)").matches })}<span><strong>${esc2(preferences.name)}</strong><small>${esc2(t("level"))} ${level} \xB7 ${auriNames[level - 1]}</small></span>
   <span class="auri-status" role="status" data-auri-status></span>`;
   const body = `<div class="auri-companion-body">
   ${next ? `<p><strong>${esc2(focus)}</strong> \xB7 ${esc2(cap(next.capability))}</p>` : ""}

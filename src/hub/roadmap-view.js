@@ -12,7 +12,7 @@ export const roadmapLabels = lang => Object.fromEntries([
  'home','journey','tasks','resources','welcome','progress','stage','priority','estimate','root','heading','tree','timeline','focus','why','how','requirements','myself','hire','ask','optional','blocked','refresh','request','start','complete','assistant','help','upcoming','completed','askTask',
 ].map((key,i)=>[key,labels[lang][i]]));
 
-export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selectedId, overview=false, onSelect, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, robot, requestLink}) {
+export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selectedId, overview=false, auriDesk='', evolutionNames=[], onSelect, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, robot, requestLink}) {
  const l=roadmapLabels(lang), ui=blueprintLabels(lang);
  const {missions,profile,analysis,permissions}=workspace;
  const canWrite=permissions.includes('roadmap:write');
@@ -56,9 +56,23 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
    <label class="field">${esc(ui.proofLabel)}<textarea name="proof" required minlength="10" maxlength="1000" rows="2"></textarea></label>
    <button class="growth-secondary">${esc(ui.submit)}</button></form></details>`:'';
  const detail=selected?taskDetails(selected):`<p>${esc(t('empty'))}</p>`;
- host.innerHTML=`${overview&&eligible[0]?`<section class="growth-card hub-next-mission">
-  <div><p>${esc(ui.next)}</p><h2>${esc(title(eligible[0]))}</h2></div><button class="growth-primary" type="button" data-next-mission>${esc(l.focus)}</button>
- </section>`:''}<section class="growth-metrics" aria-label="${l.progress}">
+ const level=workspace.auri?.level||1;
+ const next=eligible[0];
+ const overviewHero=`<div class="hub-overview-grid ${auriDesk?'has-companion':''}">
+  <section class="growth-card hub-overview-intro">
+   <p class="hub-section-label">${esc(ui.overview)}</p>
+   <h1>${esc(workspace.organization.name)}</h1>
+   <ol class="hub-evolution-track" aria-label="${esc(t('level'))}">
+    ${evolutionNames.map((name,index)=>`<li data-level-state="${index+1<level?'complete':index+1===level?'current':'locked'}" ${index+1===level?'aria-current="step"':''}>
+     <span>${index+1}</span><small>${esc(name)}</small></li>`).join('')}
+   </ol>
+   <div class="hub-next-mission">
+    <div><p class="hub-section-label">${esc(ui.next)}</p><h2>${next?esc(title(next)):esc(t('empty'))}</h2></div>
+    ${next?`<button class="growth-primary" type="button" data-next-mission>${esc(l.focus)} <span aria-hidden="true">↗</span></button>`:''}
+   </div>
+  </section>${auriDesk}
+ </div>`;
+ host.innerHTML=`${overview?overviewHero:''}<section class="growth-metrics" aria-label="${l.progress}">
  <article class="growth-card growth-metric"><span class="growth-ring" style="--progress:${progress}%">${missions.length?progress+'%':'—'}</span><div><strong>${l.progress}</strong><span>${missions.filter(m=>m.status==='done').length} / ${missions.length} · ${l.completed}</span></div></article>
  ${metric('▥',currentStage<0?'—':stageName(stages[currentStage],currentStage),l.stage)}
  ${metric('◎',eligible.filter(m=>m.priority===1&&!m.optional).length,l.priority)}

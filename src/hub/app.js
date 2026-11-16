@@ -26,7 +26,7 @@ if(flowToken)history.replaceState(null,'',location.pathname+location.search);
 const t=k=>k==='menuDrafts'?({en:'Menu drafts',ar:'مسودات القوائم',tr:'Menü taslakları',fr:'Brouillons de menus'})[lang]:copy[lang][k]||copy.en[k]||k,cap=k=>capabilityNames[lang][k]||capabilities.find(c=>c.id===k)?.service||k;
 const toast=message=>{notice.textContent=message;notice.classList.add('visible');setTimeout(()=>notice.classList.remove('visible'),7000);};
 const setupScope='setup';
-let disconnectAuri=()=>{};
+let disconnectAuri=()=>{},disconnectDesk=()=>{};
 const auriLevel=()=>workspace?.auri?.level||1;
 const auriPreference=()=>workspace?.auriPreferences||{name:'Auri',hidden:false};
 const auriSessions=new Map();
@@ -62,7 +62,7 @@ function field(key,label,value='',type='text',extra='') {return `<label class="f
 const select=(key,label,options,value)=>`<label class="field">${esc(t(label))}<select name="${key}">${options.map(([v,l])=>`<option value="${esc(v)}" ${v===value?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
 function languageControl(){return `<label class="language"><span class="sr-only">Language</span><select id="language" aria-label="Language">${[['en','EN · English'],['ar','AR · العربية'],['fr','FR · Français'],['tr','TR · Türkçe']].map(([v,l])=>`<option value="${v}" ${lang===v?'selected':''}>${l}</option>`).join('')}</select></label>`;}
 function bindCommon(){document.querySelector('#language')?.addEventListener('change',async e=>{clearTimeout(saveTimer);if(editing&&workspace)await persistProfile();lang=e.target.value;localStorage.setItem('aura-hub-language',lang);render();});}
-function render(){disconnectAuri();document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';app.setAttribute('aria-busy','false');if(!me||['verify','reset','forgot','invitation'].includes(route)){renderGate();return;}if(!workspace||editing){renderSetup();return;}renderShell();}
+function render(){disconnectAuri();disconnectDesk();document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';app.setAttribute('aria-busy','false');if(!me||['verify','reset','forgot','invitation'].includes(route)){renderGate();return;}if(!workspace||editing){renderSetup();return;}renderShell();}
 function gateFrame(content){app.innerHTML=`<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main id="main" class="gate">${content}</main>`;bindCommon();}
 async function renderGate(){
  if(route==='invitation'&&me){gateFrame(`<section class="panel">${robot()}<h1>${t('inviteAccept')}</h1><div id="invitation-content" role="status">…</div></section>`);try{const data=await api('/api/hub/invitations/preview','POST',{token:flowToken}),i=data.invitation;document.querySelector('#invitation-content').innerHTML=`<h2>${esc(i.business)}</h2><p>${esc(i.email)} · ${esc(t(i.role))}</p><p>${esc(i.message)}</p><p>${t('permissions')}: ${esc(i.permissions.join(', '))}</p><p>${esc(new Date(i.expiresAt*1000).toLocaleString(lang))}</p><p class="warning">${t('blocked')}</p><form id="accept-invitation"><label class="check"><input type="checkbox" name="consent" required>${t('recurringConsent')}</label><button class="primary">${t('inviteAccept')}</button></form>`;document.querySelector('#accept-invitation').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/hub/invitations/accept','POST',{token:flowToken,acceptInvitation:true,acceptRecurring:true,consentVersion:'seat-5-usd-month-v1'});flowToken='';toast(t('awaiting'));document.querySelector('#invitation-content').textContent=t('blocked');}catch(e){toast(e.message);}};}catch(e){document.querySelector('#invitation-content').textContent=e.message;document.querySelector('#invitation-content').append(Object.assign(document.createElement('a'),{href:'/hub/settings',textContent:t('settings')}));}return;}
@@ -148,7 +148,7 @@ function renderShell(){
  ${navItem('journey')}</div></details>
  <details class="growth-account"><summary><span class="avatar">${esc(me.name.slice(0,1))}</span><span>${esc(me.name)}</span></summary>
  <div class="growth-account-menu">${navItem('profile')}${navItem('settings')}${button('logout','logout',true)}</div></details></header>
- <main id="main" tabindex="-1">${growth?`<h1 class="sr-only">${l[page]}</h1>`:`<div class="page-heading"><h1>${esc(blueprintNav(page,lang)||l[page]||t(page))}</h1></div>`}
+ <main id="main" tabindex="-1">${growth?(page==='journey'?`<h1 class="sr-only">${l[page]}</h1>`:''):`<div class="page-heading"><h1>${esc(blueprintNav(page,lang)||l[page]||t(page))}</h1></div>`}
  ${!me.verified&&authCapabilities.email?`<aside class="verification"><p>${t('verifyLater')}</p>${button('sendVerification','send-verification',true)}</aside>`:''}
  <div id="page-content"></div></main><div id="auri-companion"></div></div></div>`;
  bindCommon();document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{page=b.dataset.page;document.body.classList.remove('menu-open');render();document.querySelector('#main').focus();});
@@ -217,7 +217,15 @@ async function askAuri(question,missionId) {
  return [cap(task.capability),action,requirements.length?requirements.map(cap).join(', '):''].filter(Boolean).join(' · ');
 }
 function growthDashboard(){
- renderRoadmap({host:document.querySelector('#page-content'),workspace,t,esc,cap,lang,view:roadmapView,selectedId:selectedMission,overview:page==='home',robot,requestLink,
+ disconnectDesk();
+ const host=document.querySelector('#page-content');
+ const level=auriLevel(), companion=auriPreference(), controls=auriControls(lang);
+ const auriDesk=page==='home'&&!companion.hidden?`<section class="growth-card hub-auri-desk">
+  <header><strong>${esc(companion.name)}</strong><span>${esc(t('level'))} ${level}</span></header>
+  <div class="hub-desk-scene">${auriCharacter(level)}<span class="hub-desk-surface" aria-hidden="true"></span></div>
+  <footer><p data-auri-status></p><button type="button" class="growth-secondary" data-open-auri>${esc(controls.workspace)}</button></footer>
+ </section>`:'';
+ renderRoadmap({host,workspace,t,esc,cap,lang,view:roadmapView,selectedId:selectedMission,overview:page==='home',auriDesk,evolutionNames:auriNames,robot,requestLink,
   onSelect(id,scroll=false){selectedMission=id;growthDashboard();const detail=document.getElementById('growth-focus');detail.focus({preventScroll:!scroll&&!matchMedia('(max-width: 800px)').matches});},
   onView(view){roadmapView=view;growthDashboard();document.querySelector(`[data-view="${view}"]`)?.focus();},
   onEdit(mission){page='tasks';render();const card=document.querySelector(`[data-mission="${mission.id}"]`);card?.querySelector('[data-action=edit]').click();card?.querySelector('input')?.focus();},
@@ -256,7 +264,17 @@ function growthDashboard(){
   },
   onAsk:askAuri,
  });
+ const desk=host.querySelector('.hub-auri-desk');
+ if(desk){
+  disconnectDesk=connectAuri(desk,workspace.organization.id,{idle:controls.ready,...auriLabels(lang)});
+  desk.querySelector('[data-open-auri]').onclick=()=>{
+   page='assistant';
+   render();
+   document.querySelector('#main').focus();
+  };
+ }
 }
+
 function journey(){
  const write=workspace.permissions.includes('roadmap:write');
  content(`<div class="panel-bar"><p>${t('noPurchase')}</p>${button('createJourney','generate',false,!write)}</div><div class="journey-levels">${[1,2,3,4,5].map(l=>`<section class="journey-level"><div class="level-heading"><span class="level-number">0${l}</span><div><span class="eyebrow">${t('level')} ${l}</span><h2>${t(['foundation','visibility','conversion','automation','scale'][l-1])}</h2></div></div>${workspace.missions.filter(m=>m.level===l).map(m=>`<article class="panel mission" data-mission="${m.id}"><div class="panel-bar"><h3>${esc((m.objective===m.service?cap(m.capability):m.objective))}</h3><span class="pill">${t(m.status)}</span></div><p>${m.description.startsWith('Establish ')?t('why'):esc(m.description)}</p><p>${t('benefit')}</p><div class="mission-meta"><span>${t('quote')}</span><span>${t('priority')}: ${t(m.priority===1?'high':m.priority===2?'medium':'low')}</span>${m.dependencies?.length?`<span>↳ ${esc(m.dependencies.map(cap).join(', '))}</span>`:''}</div><div class="actions">${select('status','status',['planned','in_progress','done','postponed'].map(v=>[v,t(v)]),m.status)}${button('up','up',true,!write)}${button('down','down',true,!write)}${button('edit','edit',true,!write)}</div><p>${m.nextAction==='Define scope or record your existing solution.'?t('nextAction')+': '+t('quote'):esc(m.nextAction)}</p></article>`).join('')||`<p class="empty-level">${t('empty')}</p>`}</section>`).join('')}</div>`);
@@ -322,7 +340,7 @@ function renderCompanion(full=false){
  const next=eligibleMissions(workspace.missions,workspace.profile)[0];
  const readAloud=({en:'Read aloud',tr:'Sesli oku',fr:'Lire à voix haute',ar:'قراءة بصوت عالٍ'})[lang];
  const send=({en:'Send',tr:'Gönder',fr:'Envoyer',ar:'إرسال'})[lang];
- const identity=`${auriCharacter(level)}<span><strong>${esc(preferences.name)}</strong><small>${esc(t('level'))} ${level} · ${auriNames[level-1]}</small></span>
+ const identity=`${auriCharacter(level,{posterOnly:page==='home'&&!matchMedia('(max-width:800px)').matches})}<span><strong>${esc(preferences.name)}</strong><small>${esc(t('level'))} ${level} · ${auriNames[level-1]}</small></span>
   <span class="auri-status" role="status" data-auri-status></span>`;
  const body=`<div class="auri-companion-body">
   ${next?`<p><strong>${esc(focus)}</strong> · ${esc(cap(next.capability))}</p>`:''}

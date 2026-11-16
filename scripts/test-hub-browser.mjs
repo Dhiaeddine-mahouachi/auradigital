@@ -26,6 +26,11 @@ try {
  await desktop.locator('[name=goals]').fill('Increase sales');
  await desktop.locator('#profile-form button[type=submit]').click();
  await desktop.locator('.growth-root').waitFor();
+ await desktop.locator('.hub-overview-intro h1').filter({hasText:'TechStyle Store'}).waitFor();
+ assert.equal(await desktop.locator('.hub-evolution-track li').count(),7);
+ assert.equal(await desktop.locator('.hub-evolution-track [aria-current=step] span').innerText(),'2');
+ assert.equal(await desktop.locator('.hub-auri-desk').isVisible(),true);
+
  const companion=desktop.locator('.auri-companion');
  await companion.locator('summary').click();
  assert.match(await companion.locator('summary').innerText(),/Level 2/);
@@ -141,6 +146,8 @@ try {
  await mobile.goto(base+'/__qa/start');
  await mobile.locator('.growth-root').waitFor();
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ assert.equal(await mobile.locator('.hub-auri-desk').isVisible(),false);
+ assert.equal(await mobile.locator('.auri-dock summary').isVisible(),true);
  await mobile.locator('#toggle-menu').click();
  await mobile.locator('.sidebar [data-page=journey]').click();
  await mobile.locator('[data-node]').first().click();
