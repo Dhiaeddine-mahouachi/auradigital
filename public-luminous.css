@@ -437,3 +437,85 @@ body[data-page="home"] .ac-btn:focus-visible {
     transition:none;
   }
 }
+
+/* CURRENT BRAND OVERRIDE — Emerald Gloss throughout, no pale public section canvases.
+   The bright public colors above remain accent colors, not full-page backgrounds. */
+body[data-page="home"] .aura-home .ac-feature-strip{
+ background:linear-gradient(105deg,#234535,#143025 51%,#294739);
+ border-color:rgba(207,244,188,.24);
+}
+body[data-page="home"] .aura-home .ac-feature-strip span{color:#e8f6e5}
+body[data-page="home"] .aura-home .ac-feature-strip i{color:#dfff4d}
+body[data-page="home"] .aura-home .hx-persona{
+ background:radial-gradient(ellipse at 91% 6%,rgba(151,207,149,.19),transparent 47%),linear-gradient(137deg,#19392a,#0e2119 65%,#234031);
+ color:#f2f8ed;border-top-color:rgba(207,238,197,.24);
+}
+body[data-page="home"] .aura-home .hx-persona .hx-section-head h2,
+body[data-page="home"] .aura-home .ac-how .ac-section-heading h2,
+body[data-page="home"] .aura-home .ac-final h2{color:#f2f8ed}
+body[data-page="home"] .aura-home .hx-persona .hx-section-head h2 em,
+body[data-page="home"] .aura-home .ac-how .ac-section-heading h2 em,
+body[data-page="home"] .aura-home .ac-final h2 em{color:#dfff4d}
+body[data-page="home"] .aura-home .hx-persona :is(.hx-kicker,.hx-persona-choice>b),
+body[data-page="home"] .aura-home .ac-how .ac-label,
+body[data-page="home"] .aura-home .ac-final .ac-label{color:#dfff4d}
+body[data-page="home"] .aura-home .hx-persona :is(.hx-section-head>p,.hx-persona-foot),
+body[data-page="home"] .aura-home .ac-how .ac-section-heading>p,
+body[data-page="home"] .aura-home .ac-final :is(p,.ac-final-foot){color:#c2d6c6}
+body[data-page="home"] .aura-home .hx-persona-choice{
+ background:linear-gradient(136deg,#284837,#172b22);
+ color:#f2f8ed;border-color:rgba(197,235,185,.28);
+ box-shadow:0 13px 37px #0002,inset 0 1px rgba(255,255,255,.07);
+}
+body[data-page="home"] .aura-home .hx-persona-choice:hover{background:linear-gradient(136deg,#345845,#1b392a);border-color:#a3d787}
+body[data-page="home"] .aura-home .hx-persona-choice.is-active{
+ background:linear-gradient(124deg,#355a3d,#1d392a);
+ border-color:#dfff4d;box-shadow:inset 3px 0 #dfff4d,0 15px 42px #0003;
+}
+body[data-page="home"] .aura-home .hx-persona-choice small{color:#c7d9c9}
+body[data-page="home"] .aura-home .hx-persona-icon{background:#315440;color:#e1ffb7;border-color:rgba(225,255,176,.39)}
+body[data-page="home"] .aura-home .ac-how{
+ background:radial-gradient(ellipse at 9% 19%,rgba(148,197,194,.18),transparent 46%),linear-gradient(135deg,#122b24,#214031 53%,#101f1b);
+ color:#f2f8ed;border-color:rgba(194,233,193,.22);
+}
+body[data-page="home"] .aura-home .ac-flow-step,
+body[data-page="home"] .aura-home .ac-flow-step:nth-child(2),
+body[data-page="home"] .aura-home .ac-flow-step:nth-child(3){
+ color:#f2f8ed;
+ background:linear-gradient(145deg,#2c4c3c,#142b23 77%);
+ border-color:rgba(200,239,195,.28);
+ box-shadow:0 18px 44px #0004,inset 0 1px rgba(255,255,255,.07);
+}
+body[data-page="home"] .aura-home .ac-flow-step:nth-child(2){background:linear-gradient(146deg,#27434a,#162c32)}
+body[data-page="home"] .aura-home .ac-flow-step:nth-child(3){background:linear-gradient(146deg,#453c2d,#282d21)}
+body[data-page="home"] .aura-home .ac-flow-step h3{color:#f4f8f0}
+body[data-page="home"] .aura-home .ac-flow-step p{color:#cbd8cb}
+body[data-page="home"] .aura-home .ac-flow-step .ac-flow-num{color:#dfff4d}
+body[data-page="home"] .aura-home .ac-flow-step .ac-flow-symbol{
+ background:linear-gradient(145deg,#365c4b,#1d3a32);color:#e3ffb4;border-color:#82b992;
+}
+body[data-page="home"] .aura-home .hx-showcase{
+ background:linear-gradient(139deg,#213c30,#10281f 65%,#182d26);
+ color:#f2f8ed;border-color:rgba(203,232,193,.19);
+}
+body[data-page="home"] .aura-home .hx-showcase .hx-section-head h2{color:#f2f8ed}
+body[data-page="home"] .aura-home .hx-showcase .hx-section-head h2 em,
+body[data-page="home"] .aura-home .hx-showcase .hx-kicker,
+body[data-page="home"] .aura-home .hx-showcase-bottom a{color:#dfff4d}
+body[data-page="home"] .aura-home .hx-showcase :is(.hx-section-head>p,.hx-showcase-bottom){color:#c8dbc8}
+body[data-page="home"] .aura-home .ac-final{
+ background:radial-gradient(ellipse at 88% 15%,rgba(142,189,152,.23),transparent 48%),linear-gradient(133deg,#284735,#163328 54%,#0f2119);
+ color:#f2f8ed;
+}
+body[data-page="home"] .aura-home .ac-btn--final{
+ background:#dfff4d;border-color:#dfff4d;color:#172210!important;
+ box-shadow:0 10px 35px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.4);
+}
+body[data-page="home"] .aura-home .ac-btn--final:hover{background:#edffa0}
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero{
+ background:radial-gradient(ellipse at 89% 11%,rgba(124,201,150,.25),transparent 46%),linear-gradient(133deg,#1d3b2b,#10281e 61%,#19382a);
+ color:#f2f8ed;border-color:rgba(188,225,180,.25);
+}
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero :is(p,.crumb,.crumb a,.display,.eyebrow){color:#f2f8ed}
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero :is(.display em,.eyebrow){color:#dfff4d}
+@media(prefers-reduced-motion:reduce){body[data-page="home"] .aura-home .ac-flow-step{animation:none!important;transition:none!important}}
