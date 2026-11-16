@@ -87,20 +87,23 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
   const reason=m.reason?.startsWith('This capability has not been reported')?guide?.[1]:m.reason;
   const action=alternate?.steps||(m.nextAction==='Define scope or record your existing solution.'?guide?.[2]:m.nextAction);
   const {requirements,blocked}=missionState(m,missions,profile);
-  const row=(label,body)=>`<div class="growth-detail-row"><h3>${label}</h3><p>${esc(body)}</p></div>`;
-  return `<div class="growth-focus-top"><span>${l.focus}</span><small>${esc(status(m))}${m.optional?' · '+l.optional:''}</small></div>
-   <h2>${esc(title(m))}</h2>
-   ${!alternate&&m.description!==reason&&!m.description.startsWith('Establish ')?`<p>${esc(m.description)}</p>`:''}
-   ${alternate?'':row(l.why,reason||m.description)}
-   ${!alternate&&m.dependencies?.length?row(l.requirements,m.dependencies.map(cap).join(', ')):''}
-   ${guide?.[0]?row(l.help,guide[0]+' · '+t('quote')):''}
-   <details class="growth-diy" open><summary>${l.myself}</summary>${row(l.how,action)}
-   ${blocked?`<p>${l.blocked} · ${esc(requirements.map(cap).join(', '))}</p>`:''}</details>
+  const copy={
+   en:['Next step','Task options','Ask Auri','Request help'],
+   fr:['Prochaine étape','Options de la tâche','Demander à Auri','Demander de l’aide'],
+   tr:['Sıradaki adım','Görev seçenekleri','Auri’ye sor','Yardım iste'],
+   ar:['الخطوة التالية','خيارات المهمة','اسأل أوري','اطلب المساعدة'],
+  }[lang];
+  return `<div class="growth-focus-top"><h2>${esc(title(m))}</h2><small>${esc(status(m))}${m.optional?' · '+l.optional:''}</small></div>
+   ${!alternate?`<p class="focus-benefit">${esc(reason||m.description)}</p>`:''}
+   <div class="service-next-step"><strong>${copy[0]}</strong><p>${esc(blocked&&requirements.length?requirements.map(cap).join(' · '):action||guide?.[2]||m.description)}</p></div>
    <div class="growth-actions">
-   ${guide?.[0]?`<a class="growth-primary" href="${esc(requestLink(guide[0],m.id))}">${l.hire} →</a>`:''}
-   ${canWrite?`<button class="growth-secondary" data-quick-status="${m.status==='done'?'planned':blocked?'in_progress':'done'}">${m.status==='done'?esc(t('planned')):blocked?l.start:l.complete}</button><label><span class="sr-only">${esc(t('status'))}</span><select data-status-change>${['planned','in_progress','done','postponed'].map(value=>`<option value="${value}" ${m.status===value?'selected':''}>${esc(t(value))}</option>`).join('')}</select></label><button class="growth-secondary" data-edit>${esc(t('edit'))}</button>`:''}
-   ${canAsk?`<button class="growth-secondary" data-ask-task>${l.askTask}</button>`:''}</div>
+   ${canAsk?`<button type="button" class="growth-primary" data-ask-task>${copy[2]} ↗</button>`:''}
+   ${guide?.[0]?`<a class="growth-secondary" data-request-task href="${esc(requestLink(guide[0],m.id))}">${copy[3]} →</a>`:''}
+   ${canWrite?`<button type="button" class="growth-secondary" data-quick-status="${m.status==='done'?'planned':blocked?'in_progress':'done'}">${m.status==='done'?esc(t('planned')):blocked?l.start:l.complete}</button>`:''}</div>
    ${proof?`<p class="mission-proof-status" role="status">${esc(ui[proof])}</p>`:''}
+   ${canWrite?`<details class="growth-diy task-options"><summary>${copy[1]}</summary>
+   <div class="growth-actions"><label><span class="sr-only">${esc(t('status'))}</span><select data-status-change>${['planned','in_progress','done','postponed'].map(value=>`<option value="${value}" ${m.status===value?'selected':''}>${esc(t(value))}</option>`).join('')}</select></label><button type="button" class="growth-secondary" data-edit>${esc(t('edit'))}</button></div>
+   ${!blocked&&requirements.length?`<p>${l.requirements} · ${esc(requirements.map(cap).join(', '))}</p>`:''}` :''}
    ${canWrite&&missionAlternative(m.capability)?`<div class="growth-actions">
     ${proof==='pending'||m.status==='done'?'':alternate?`<button type="button" class="growth-secondary" data-route="original">${esc(ui.original)}</button>`:`<button type="button" class="growth-secondary" data-route="alternative">${esc(ui.irrelevant)}</button>`}
     ${m.status==='done'||m.status==='postponed'?'':`<button type="button" class="growth-secondary" data-quick-status="postponed">${esc(ui.later)}</button>`}
@@ -108,7 +111,7 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
     <p>${esc(missionAlternative(m.capability).steps)}</p><button type="button" class="growth-secondary" data-route="alternative">${esc(t('continue'))}</button></details>`:''}
 ${proof==='pending'||proof==='approved'?'':`<details class="growth-diy"><summary>${esc(ui.proof)}</summary>
     <form data-evidence class="mission-evidence"><label class="field">${esc(ui.proofLabel)}<textarea name="proof" required minlength="10" maxlength="1000" rows="3"></textarea></label>
-    <button class="growth-secondary">${esc(ui.submit)}</button></form></details>`}`:''}`;
+    <button class="growth-secondary">${esc(ui.submit)}</button></form></details>`}`:''}${canWrite?'</details>':''}`;
  }
  host.querySelectorAll('[data-node]').forEach(button=>button.onclick=()=>onSelect(button.dataset.node));
  host.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>onView(button.dataset.view));

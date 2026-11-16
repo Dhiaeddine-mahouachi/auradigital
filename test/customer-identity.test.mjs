@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { hubFixture,profile } from './hub-fixture.mjs';
 import { tokenHash } from '../src/customer-accounts.ts';
 import { validateGoogleToken,issueActionToken } from '../src/customer-identity.js';
-import { verifyPassword } from '../src/security.js';
+import { hashPassword, verifyPassword } from '../src/security.js';
 const enc=bytes=>Buffer.from(bytes).toString('base64url');
 async function jwtFixture(){const pair=await crypto.subtle.generateKey({name:'RSASSA-PKCS1-v1_5',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,['sign','verify']),jwk={...await crypto.subtle.exportKey('jwk',pair.publicKey),kid:'test-key',alg:'RS256',use:'sig'},claims={iss:'https://accounts.google.com',aud:'aura-client',sub:'stable-google-subject',email:'owner@test.test',email_verified:true,hd:'test.test',nonce:'test-nonce',iat:Math.floor(Date.now()/1000),exp:Math.floor(Date.now()/1000)+3600};async function sign(payload=claims,header={alg:'RS256',kid:'test-key'}){const base=enc(JSON.stringify(header))+'.'+enc(JSON.stringify(payload)),sig=await crypto.subtle.sign('RSASSA-PKCS1-v1_5',pair.privateKey,new TextEncoder().encode(base));return base+'.'+enc(new Uint8Array(sig));}return {claims,jwk,sign};}
 async function token(f,u,purpose,expires=Date.now()/1000+3600){const raw='a'.repeat(64);await f.DB.prepare('INSERT INTO customer_action_tokens(token_hash,customer_id,email,purpose,expires_at,created_at) VALUES(?,?,?,?,?,?)').bind(await tokenHash(raw),u.id,u.email,purpose,Math.floor(expires),Math.floor(Date.now()/1000)).run();return raw;}
@@ -35,4 +36,47 @@ test('menu builder verification status uses the authenticated current email, nev
  const response=await f.call('/api/customer/verification-status',verified);assert.equal((await response.json()).verified,true);assert.equal(response.headers.get('Cache-Control'),'no-store');
  await f.DB.prepare("UPDATE customer_users SET email='changed@test.test' WHERE id=?").bind(verified.id).run();
  assert.equal((await(await f.call('/api/customer/verification-status',verified)).json()).verified,false);
+});
+
+
+test('signed-in password change requires the old password and revokes sessions and reset links',async()=>{
+ const f=await hubFixture(),user=await f.user('u@test.test');
+ const currentPassword='My current password 123',password='My replacement password 456';
+ await f.DB.prepare('UPDATE customer_users SET password_hash=? WHERE id=?').bind(await hashPassword(currentPassword),user.id).run();
+ const reset=await token(f,user,'reset');
+ const path='/api/customer/change-password';
+ assert.equal((await f.call(path,null,'POST',{currentPassword,password})).status,401);
+ assert.equal((await f.call(path,user,'POST',{currentPassword:'Different',password})).status,403);
+ assert.equal((await f.call(path,user,'POST',{currentPassword,password},{Origin:'https://other.test'})).status,403);
+ assert.equal((await f.call(path,user,'POST',{currentPassword,password})).status,200);
+ assert.equal((await f.call('/api/customer/verification-status',user)).status,401);
+ assert.equal((await f.call('/api/customer/reset-password',null,'POST',{token:reset,password:currentPassword})).status,400);
+ assert(await verifyPassword(password,(await f.DB.prepare('SELECT password_hash FROM customer_users WHERE id=?').bind(user.id).first()).password_hash));
+});
+
+test('an email change requires confirmations from both inboxes and is single-use',async t=>{
+ const f=await hubFixture(),user=await f.user('before@test.test',true);
+ f.sqlite.exec(await readFile(new URL('../migrations/0035_customer_email_changes.sql',import.meta.url),'utf8'));
+ Object.assign(f.env,{RESEND_API_KEY:'fixture-key',CUSTOMER_EMAIL_ENABLED:'true'});
+ const currentPassword='My current password 123',email='after@test.test';
+ await f.DB.prepare('UPDATE customer_users SET password_hash=? WHERE id=?').bind(await hashPassword(currentPassword),user.id).run();
+ const messages=new Map();
+ t.mock.method(globalThis,'fetch',async(url,options)=>{
+  assert.equal(url,'https://api.resend.com/emails');
+  const message=JSON.parse(options.body);
+  messages.set(message.to[0],message.text.match(/#token=([a-f0-9]{64})/)[1]);
+  return new Response('{}');
+ });
+ const request='/api/customer/change-email',confirm='/api/customer/confirm-email-change';
+ assert.equal((await f.call(request,user,'POST',{currentPassword:'wrong',email})).status,403);
+ assert.equal((await f.call(request,user,'POST',{currentPassword,email})).status,200);
+ const newToken=messages.get(email),oldToken=messages.get(user.email);
+ assert.notEqual(oldToken,newToken);
+ assert.equal((await(await f.call(confirm,null,'POST',{token:newToken})).json()).complete,false);
+ assert.equal((await f.DB.prepare('SELECT email FROM customer_users WHERE id=?').bind(user.id).first()).email,user.email);
+ assert.equal((await f.call(confirm,null,'POST',{token:newToken})).status,400);
+ assert.equal((await(await f.call(confirm,null,'POST',{token:oldToken})).json()).complete,true);
+ assert.equal((await f.DB.prepare('SELECT email FROM customer_verified_emails WHERE customer_id=?').bind(user.id).first()).email,email);
+ assert.equal((await f.call('/api/customer/verification-status',user)).status,401);
+ assert.equal((await f.call(confirm,null,'POST',{token:oldToken})).status,400);
 });

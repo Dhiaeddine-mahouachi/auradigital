@@ -14,17 +14,17 @@ export function workRows(drafts,work) {
  const overdue=r=>due(r)<Date.now();
  attention.sort((a,b)=>Number(overdue(b))-Number(overdue(a))||Number(b.blocking)-Number(a.blocking)||(due(a)===due(b)?0:due(a)-due(b))||a.id.localeCompare(b.id));
  const progress=work.requests.filter(r=>!attentionStatuses.has(state(r))&&!terminal.has(state(r))).map(r=>({...r,kind:'request'}));
- return {attention,progress,services:work.services};
+ return {attention,progress,services:work.services,records:work.records||[],requests:work.requests};
 }
 export function renderWorkRow(record,{ui,esc,link}) {
  const menu=record.kind==='menu';
  const action=menu?ui.reviewMenu:ui.openRequest;
- return `<a class="hub-work-row" href="${esc(link(menu?'menuDrafts':'services',menu?{draft:record.id}:{request:record.id}))}">
+ return `<a class="hub-work-row" href="${esc(link(menu?'menuDrafts':'requests',menu?{draft:record.id}:{request:record.id}))}">
   <span class="hub-row-icon">${hubIcon(menu?'journey':'services')}</span><span><strong>${esc(record.name)}</strong>
   <small>${esc(menu?ui.menuReady:workStatus(record))}</small></span><span class="hub-row-action">${esc(action)} <span aria-hidden="true">↗</span></span></a>`;
 }
 
-const serviceOptions=['Web Design','Website Care','Pricing / Quote','Hosting / Security','Business Email','Spinflow ERP','NFC Card','AuraMenu','AuraWeddings','Ad Management','SEO / Google Maps','AI & Automation','Other'];
+const serviceOptions=['Web Design','Website Care','Pricing / Quote','Hosting / Security','Business Email','Branding','Spinflow ERP','NFC Card','AuraMenu','AuraWeddings','Ad Management','SEO / Google Maps','AI & Automation','Other'];
 export function renderRequestForm({host,lang,esc,me,workspace,service,task,draft,back,submitted}) {
  const ui=hubLabels(lang);
  const labels={

@@ -1,5 +1,5 @@
 export function customerReturnPath(value, fallback) {
-  if(typeof value==='string'&&value.length<=2048&&/^\/hub(?:\/(?:roadmap|auri|work|menu-drafts|onboarding|profile|settings|tasks|invoices|team|resources|simulator))?(?:\?[^#\r\n]*)?$/.test(value))return value;
+  if(typeof value==='string'&&value.length<=2048&&/^\/hub(?:\/(?:roadmap|auri|work|requests|menu-drafts|onboarding|profile|settings|tasks|invoices|team|resources|simulator))?(?:\?[^#\r\n]*)?$/.test(value))return value;
   return ['/hub', '/account', '/shop/checkout'].includes(value)
     || (typeof value === 'string' && /^\/shop\/orders\/[a-f0-9-]{36}$/.test(value))
     ? value

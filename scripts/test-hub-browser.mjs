@@ -29,7 +29,7 @@ try {
  await desktop.locator('[name=terms]').check();
  await desktop.locator('#auth-form button').click();
  await heading(desktop,'Build your roadmap').waitFor();
- assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Home','Roadmap','Ask Auri','My Work']);
+ assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Home','Roadmap','My Services','Requests','Ask Auri']);
  assert(await desktop.locator('.sidebar [data-page=journey]').evaluate(node=>node.clientHeight<66));
  await screenshot(desktop,'AuraHub-New-Home');
  await button(desktop,'What does a digital menu cost?').click();
@@ -63,7 +63,7 @@ try {
  await button(desktop,'Build my roadmap').click();
  await desktop.waitForURL('**/hub/roadmap?workspace=*');
  await heading(desktop,'Growth Vision').waitFor();
- assert.equal(await desktop.locator('.vision-stage').count(),3);
+ assert.equal(await desktop.locator('.vision-stage').count(),5);
  await desktop.locator('#growth-focus h2').filter({hasText:'Prepare your digital menu'}).waitFor();
  const org=new URL(desktop.url()).searchParams.get('workspace');
  await desktop.locator('.vision-task').filter({hasText:'Prepare your digital menu'}).click();
@@ -84,7 +84,7 @@ try {
  await desktop.goForward();
  await heading(desktop,'Growth Vision').waitFor();
  await screenshot(desktop,'AuraHub-Roadmap');
- await desktop.locator('#growth-focus a.growth-primary').click();
+ await desktop.locator('#growth-focus [data-request-task]').click();
  assert.equal(await desktop.locator('[name=service]').inputValue(),'AuraMenu');
  await desktop.locator('[name=phone]').fill('+90 555 555 00 00');
  await desktop.locator('[name=message]').fill('Please prepare a menu with Turkish and English descriptions.');
@@ -99,20 +99,46 @@ try {
  await desktop.getByText('Helping with · AuraMenu').waitFor();
  await desktop.getByRole('link',{name:'Return to record'}).click();
  assert.equal(desktop.url(),requestUrl);
- await nav(desktop,'services');
+ await nav(desktop,'requests');
  await desktop.locator('.hub-work-row').filter({hasText:'AuraMenu'}).waitFor();
 
+ await nav(desktop,'services');
+ await heading(desktop,'Service examples').waitFor();
+ assert.equal(await desktop.locator('.service-catalogue .service-art').count(),6);
+ await desktop.locator('.service-card').filter({has:heading(desktop,'Business Email')})
+  .getByRole('link',{name:'See what you get'}).click();
+ await heading(desktop,'What you’ll get').waitFor();
+ await desktop.getByText('A mailbox such as contact@yourbusiness.com').waitFor();
+ await desktop.reload();
+ await heading(desktop,'What you’ll get').waitFor();
+ await screenshot(desktop,'aura-command-business-email');
+ await desktop.locator('.service-offer').getByRole('link',{name:'Ask Auri'}).click();
+ await desktop.getByText('Helping with · Business Email').waitFor();
+ await desktop.locator('[data-auri-ask] input').fill('How would this help my café?');
+ await desktop.locator('[data-auri-ask] button').click();
+ await desktop.locator('[data-auri-transcript]').getByText(/short checklist/).waitFor();
+ await desktop.getByRole('link',{name:'Return to record'}).click();
+ await desktop.getByRole('link',{name:'Request this service'}).click();
+ assert.equal(await desktop.locator('[name=service]').inputValue(),'Business Email');
  await nav(desktop,'home');
  await desktop.getByRole('link',{name:'Continue setup'}).waitFor();
  const second=await pageAt({viewport:{width:1320,height:960}});
  await second.goto(base+'/__qa/start');
  await second.getByRole('link',{name:'Review your menu',exact:true}).waitFor();
  const otherId=new URL(await second.locator('.sidebar nav a').first().getAttribute('href'),base).searchParams.get('workspace');
- await screenshot(second,'AuraHub-Returning-Home');
+ await screenshot(second,'aura-command-home');
  await nav(second,'services');
- await second.locator('.hub-work-row').filter({hasText:'Website hosting'}).waitFor();
- await second.locator('.hub-work-row').filter({hasText:'In production'}).waitFor();
- await screenshot(second,'AuraHub-My-Work');
+ await heading(second,'Website hosting').waitFor();
+ await second.locator('#service-grid').getByRole('heading',{name:'Website',exact:true}).waitFor();
+ await second.locator('[data-service-filter=active]').focus();
+ await second.keyboard.press('Enter');
+ assert.equal(await second.locator('#service-grid .service-card:visible').count(),1);
+ await second.locator('[data-service-filter=all]').click();
+ assert.equal(await second.locator('#service-grid .service-card:visible').count(),2);
+ await screenshot(second,'AuraHub-My-Services');
+ await second.locator('#service-grid .service-card').filter({has:heading(second,'Website')}).getByRole('link',{name:'Open details'}).click();
+ await second.locator('.service-detail').getByText('Dec 2, 2026').waitFor();
+ await screenshot(second,'AuraHub-Website-Details');
  await nav(second,'home');
  const reviewLink=second.getByRole('link',{name:'Review your menu',exact:true});
  await reviewLink.click();
@@ -133,8 +159,12 @@ try {
 
  const mobile=await pageAt({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
  await mobile.goto(base+'/__qa/start');
+ await mobile.locator('.hub-service-links').getByRole('link',{name:'Business Email'}).click();
+ await heading(mobile,'What you’ll get').waitFor();
+ assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ await screenshot(mobile,'aura-command-service-mobile');
  await mobile.locator('.command-bottom-nav [data-page=journey]').click();
- assert.equal(await mobile.locator('.vision-stage').count(),3);
+ assert.equal(await mobile.locator('.vision-stage').count(),5);
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  assert(await mobile.locator('.command-bottom-nav').evaluate(node=>node.clientHeight<80));
  await screenshot(mobile,'AuraHub-Mobile-Roadmap');
@@ -153,9 +183,21 @@ try {
  assert.equal(await mobile.locator('html').getAttribute('dir'),'rtl');
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
 
+ await desktop.locator('.growth-account summary').click();
+ await desktop.locator('.growth-account').getByRole('link',{name:'Settings'}).click();
+ await heading(desktop,'Account').waitFor();
+ await desktop.locator('summary').getByText('Change password',{exact:true}).click();
+ assert(await desktop.locator('[name=currentPassword]').isVisible());
+ await desktop.getByText('Change email',{exact:true}).click();
+ await desktop.getByText('Email confirmation is currently unavailable.',{exact:true}).waitFor();
+ await screenshot(desktop,'aura-command-settings');
+
  // A signed-out deep link is retained through the shared account flow.
  await desktop.locator('.growth-account summary').click();
- await desktop.locator('[data-action=logout]').click();
+ await Promise.all([
+  desktop.waitForURL('**/hub/login'),
+  desktop.locator('[data-action=logout]').click(),
+ ]);
  await desktop.goto(requestUrl);
  await desktop.locator('[name=email]').fill(email);
  await desktop.locator('[name=password]').fill('Saffron-lake-0142!');

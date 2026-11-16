@@ -12,8 +12,8 @@ import { secureResponse } from '../src/security-policy.js';
 const f=await hubFixture();
 f.sqlite.exec(await readFile(new URL('../migrations/0005_ai_employee.sql',import.meta.url),'utf8'));
 f.sqlite.exec(`CREATE TABLE clients (id INTEGER PRIMARY KEY, name TEXT, company TEXT, email TEXT, phone TEXT, service TEXT, status TEXT, notes TEXT);
- CREATE TABLE subscriptions (id INTEGER PRIMARY KEY, client_id INTEGER, plan TEXT, status TEXT);
- CREATE TABLE orders (id INTEGER PRIMARY KEY, client_id INTEGER, status TEXT, due_date TEXT);`);
+ CREATE TABLE subscriptions (id INTEGER PRIMARY KEY, client_id INTEGER, plan TEXT, status TEXT, next_billing_date TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+ CREATE TABLE orders (id INTEGER PRIMARY KEY, client_id INTEGER, type TEXT, status TEXT, due_date TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP);`);
 f.env.AI_RATE_LIMITER={async limit(){return {success:true};}};
 if(process.env.HUB_OLLAMA_URL&&process.env.HUB_OLLAMA_MODEL){
  Object.assign(f.env,{HUB_OLLAMA_URL:process.env.HUB_OLLAMA_URL,HUB_OLLAMA_MODEL:process.env.HUB_OLLAMA_MODEL,HUB_OLLAMA_TOKEN:process.env.HUB_OLLAMA_TOKEN});
@@ -62,7 +62,7 @@ const qaReceipt=await qaContact.json();
 if(!qaContact.ok)throw new Error('Local CRM seed failed: '+qaReceipt.error);
 const qaClient=await f.DB.prepare('SELECT client_id FROM request_receipts WHERE request_id=?').bind(qaReceipt.requestId).first();
 await f.DB.batch([
- f.DB.prepare("INSERT INTO orders(client_id,status) VALUES (?,'in_production')").bind(qaClient.client_id),
+ f.DB.prepare("INSERT INTO orders(client_id,type,status,due_date) VALUES (?,'Website','in_production','2026-12-02')").bind(qaClient.client_id),
  f.DB.prepare("INSERT INTO subscriptions(client_id,plan,status) VALUES (?,'Website hosting','active')").bind(qaClient.client_id),
 ]);
 const server=createServer(async(req,res)=>{try{
@@ -82,10 +82,10 @@ const server=createServer(async(req,res)=>{try{
   res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});
   res.end(JSON.stringify({path:'/hub/reset#token='+token}));return;
  }
- const publicFixture=new Map([['/contact','contact.html'],['/script.js','script.js'],['/auradigital-mark.svg','auradigital-mark.svg'],['/qr-menu-phone.svg','qr-menu-phone.svg']]);
+ const publicFixture=new Map([['/contact','contact.html'],['/project-fifty.png','project-fifty.png'],['/script.js','script.js'],['/auradigital-mark.svg','auradigital-mark.svg'],['/qr-menu-phone.svg','qr-menu-phone.svg']]);
  const publicAsset=publicFixture.get(new URL(request.url).pathname);
  const fallback=async()=>publicAsset?new Response(await readFile(new URL('../'+publicAsset,import.meta.url)),
-  {headers:{'Content-Type':publicAsset.endsWith('.svg')?'image/svg+xml':publicAsset.endsWith('.js')?'text/javascript':'text/html'}}):f.env.ASSETS.fetch(request);
+  {headers:{'Content-Type':publicAsset.endsWith('.svg')?'image/svg+xml':publicAsset.endsWith('.js')?'text/javascript':publicAsset.endsWith('.png')?'image/png':'text/html'}}):f.env.ASSETS.fetch(request);
  const contactResponse=req.url==='/api/contact'&&req.method==='POST'?await createContactRequest(request,f.DB,f.env):null;
  const response=secureResponse(contactResponse||await handleCustomerIdentity(request,f.env)||await handleBusinessHub(request,f.env)||await handleShop(request,f.env)||await fallback(),request,{},null);
  // The preview gateway is HTTP. Only this isolated in-memory QA harness maps

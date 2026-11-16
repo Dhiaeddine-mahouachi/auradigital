@@ -1,3 +1,4 @@
+import { deliverables } from './hub/service-deliverables.js';
 import { hubGuide } from './hub-guide.js';
 import { getHubWork } from './hub-work.js';
 import { prepareHubPlan } from './hub-plan.js';
@@ -164,6 +165,11 @@ export async function handleBusinessHub(request,env) {
   return json({id},201);
  }
  if(['/api/hub/invitations/preview','/api/hub/invitations/accept'].includes(path)&&request.method==='POST')return invitation(request,env,user,await readJson(request,4096),path.endsWith('/accept'));
+ const serviceMatch=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})\/work\/((?:order|subscription)-[1-9]\d{0,18})$/.exec(path);
+ if(serviceMatch&&request.method==='GET'){
+  const [,org,key]=serviceMatch;
+  return json(await getHubWork(env,org,await authorize(env.DB,org,user),null,key));
+ }
  const workMatch=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})\/work(?:\/(WEB-[a-f0-9-]{36}))?$/.exec(path);
  if(workMatch&&request.method==='GET'){
   const [,org,record]=workMatch;
@@ -321,7 +327,12 @@ export async function handleBusinessHub(request,env) {
  }
  if(section==='auri'&&!item&&request.method==='POST') {
   const guard=await authorize(env.DB,org,user,'auri:use');const b=await readJson(request,4000);
-  if(!['diagnosis','next_action','simulation','task','guidance','draft_follow_up'].includes(b.tool))throw new ApiError(400,'Choose an authorized AURI tool.');
+  if(!['diagnosis','next_action','simulation','task','guidance','draft_follow_up','service_status'].includes(b.tool))throw new ApiError(400,'Choose an authorized AURI tool.');
+  if(b.tool==='service_status'){
+   if(typeof b.serviceKey!=='string'||!/^(?:order|subscription)-[1-9]\d{0,18}$/.test(b.serviceKey))throw new ApiError(400,'Choose a service.');
+   const service=await getHubWork(env,org,guard,null,b.serviceKey);
+   return json({mode:'rules',data:{service}});
+  }
   // Deterministic, narrowly scoped tools; no SQL, arbitrary tool names or provider output executes.
   const profile=JSON.parse((await env.DB.prepare('SELECT profile_json FROM organizations WHERE id=?').bind(org).first()).profile_json),analysis=diagnose(profile);
   const missions=currentRecommendations(await getMissions(env.DB,org),analysis),eligible=eligibleMissions(missions,profile);
@@ -336,10 +347,13 @@ export async function handleBusinessHub(request,env) {
    const mission=b.missionId?missions.find(m=>m.id===b.missionId):null;
    if(b.missionId&&!mission)throw new ApiError(404,'Mission not found.');
    const record=b.requestId?await getHubWork(env,org,guard,b.requestId):null;
+   const hasOffer=Object.hasOwn(b,'offer');
+   if(hasOffer&&(typeof b.offer!=='string'||!Object.hasOwn(deliverables,b.offer)||b.missionId||b.requestId))throw new ApiError(400,'Choose a valid service.');
+   const offer=hasOffer?deliverables[b.offer][b.lang]:null;
    const issue=b.question.trim();
-   const context=mission?{task:mission.objective,reason:mission.reason,status:mission.status,nextAction:mission.nextAction}:record?{service:record.name,status:record.productionStatus||record.status}:null;
+   const context=mission?{task:mission.objective,reason:mission.reason,status:mission.status,nextAction:mission.nextAction}:record?{service:record.name,status:record.productionStatus||record.status}:offer?{service:b.offer,outcome:offer[0],possibleDeliverables:offer.slice(1),scopeConfirmedByQuote:true}:null;
    const reply=await explainRoadmap(env,{org,user,guard,issue,context,lang:b.lang,profile,missions:[...eligible,...missions.filter(m=>!eligible.includes(m))]});
-   return json({mode:reply?'ai':'rules',data:{reply,mission,nextAction:eligible[0]||null,priorities:eligible.slice(0,3)}});
+   return json({mode:reply?'ai':'rules',data:{reply,offerGuidance:offer?.[0],mission,nextAction:eligible[0]||null,priorities:eligible.slice(0,3)}});
   }
   if(b.tool==='task') {
    const mission=missions.find(m=>m.id===b.missionId);

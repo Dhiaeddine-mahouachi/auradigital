@@ -9,7 +9,7 @@ class AuriCharacter extends HTMLElement {
    if(!entry.isIntersecting)return;
    this.observer.disconnect();
    try {
-    const {mountAuri}=await import('/media/auri/viewer.js');
+    const {mountAuri}=await import('/media/auri/viewer.js?v=idle-motion-2');
     if(this.isConnected)this.disposeModel=await mountAuri(this);
    } catch {
     // The level-specific poster remains visible if WebGL or loading fails.

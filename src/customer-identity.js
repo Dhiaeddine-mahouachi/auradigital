@@ -1,7 +1,7 @@
 import { customerReturnPath } from './customer-return.js';
 import { ApiError, json, readJson } from './http.js';
 import { authenticatedCustomer, tokenHash, signInCustomer, ensureCustomers } from './customer-accounts.ts';
-import { sameOrigin, hashPassword, validatePassword } from './security.js';
+import { sameOrigin, hashPassword, validatePassword, verifyPassword } from './security.js';
 const now=()=>Math.floor(Date.now()/1000);
 export const randomToken=()=>[...crypto.getRandomValues(new Uint8Array(32))].map(x=>x.toString(16).padStart(2,'0')).join('');
 const encode=bytes=>btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -123,6 +123,79 @@ async function google(request,env) {
  const headers=new Headers({'Location':origin+customerReturnPath(flow.return_path, env.GROWTH_OS_ENABLED==='true'?'/hub':'/account'),'Cache-Control':'no-store'});headers.append('Set-Cookie',signed.headers.get('Set-Cookie'));headers.append('Set-Cookie',flowCookie('',0));
  return new Response(null,{status:303,headers});
 }
+async function verifyCurrentPassword(env,user,password) {
+ const row=await env.DB.prepare('SELECT password_hash FROM customer_users WHERE id=? AND email=? COLLATE NOCASE AND active=1')
+  .bind(user.id,user.email).first();
+ if(typeof password!=='string'||!row||!await verifyPassword(password,row.password_hash))throw new ApiError(403,'Enter your current password.');
+ return row.password_hash;
+}
+async function changePassword(env,user,body,current) {
+ if(typeof body.password!=='string')throw new ApiError(400,'Enter a new password.');
+ let password;
+ try{password=await hashPassword(body.password);}catch(error){throw new ApiError(400,error.message);}
+ const updated='SELECT id FROM customer_users WHERE id=? AND password_hash=? AND active=1';
+ const [result]=await env.DB.batch([
+  env.DB.prepare('UPDATE customer_users SET password_hash=? WHERE id=? AND email=? COLLATE NOCASE AND password_hash=? AND active=1').bind(password,user.id,user.email,current),
+  env.DB.prepare(`UPDATE customer_action_tokens SET consumed_by=? WHERE purpose='reset' AND consumed_by IS NULL AND customer_id IN (${updated})`).bind(crypto.randomUUID(),user.id,password),
+  env.DB.prepare(`DELETE FROM customer_sessions WHERE customer_id IN (${updated})`).bind(user.id,password),
+ ]);
+ if(!result.meta.changes)throw new ApiError(409,'Account changed. Sign in again.');
+ return json({success:true});
+}
+async function requestEmailChange(env,user,body,current) {
+ const email=typeof body.email==='string'?body.email.trim().toLowerCase():'';
+ if(!email||email.length>254||!/^\S+@\S+\.\S+$/.test(email)||email===user.email.toLowerCase())throw new ApiError(400,'Enter a different valid email address.');
+ if(env.CUSTOMER_EMAIL_ENABLED!=='true'||!env.RESEND_API_KEY)throw new ApiError(503,'Email confirmation is unavailable.');
+ if(await env.DB.prepare('SELECT id FROM customer_users WHERE email=? COLLATE NOCASE').bind(email).first())throw new ApiError(409,'That address cannot be used.');
+ const origin=identityOrigin(env),oldToken=randomToken(),newToken=randomToken();
+ const [oldHash,newHash,fingerprint]=await Promise.all([tokenHash(oldToken),tokenHash(newToken),tokenHash(current)]);
+ const saved=await env.DB.prepare(`INSERT INTO customer_email_changes(customer_id,current_email,new_email,credential_fingerprint,current_token,new_token,expires_at)
+ SELECT id,email,?,?,?,?,? FROM customer_users WHERE id=? AND email=? COLLATE NOCASE AND password_hash=? AND active=1
+ ON CONFLICT(customer_id) DO UPDATE SET current_email=excluded.current_email,new_email=excluded.new_email,
+ credential_fingerprint=excluded.credential_fingerprint,current_token=excluded.current_token,new_token=excluded.new_token,
+ expires_at=excluded.expires_at,current_confirmed=0,new_confirmed=0,completed_by=NULL`)
+  .bind(email,fingerprint,oldHash,newHash,now()+1800,user.id,user.email,current).run();
+ if(!saved.meta.changes)throw new ApiError(409,'Account changed. Sign in again.');
+ try{
+  const message=token=>`Confirm your AuraDigital email change: ${origin}/hub/confirm-email#token=${token}\nConfirm from both addresses within 30 minutes. Ignore this if you did not request the change.`;
+  await Promise.all([
+   sendIdentityEmail(env,user.email,'Approve your AuraDigital email change',message(oldToken),oldHash),
+   sendIdentityEmail(env,email,'Confirm your new AuraDigital email',message(newToken),newHash),
+  ]);
+ }catch(error){
+  await env.DB.prepare('DELETE FROM customer_email_changes WHERE customer_id=? AND current_token=?').bind(user.id,oldHash).run();
+  throw error;
+ }
+ return json({sent:true});
+}
+async function confirmEmailChange(env,body) {
+ if(typeof body.token!=='string'||!/^[a-f0-9]{64}$/.test(body.token))throw new ApiError(400,'Invalid or expired link.');
+ const hash=await tokenHash(body.token),operation=crypto.randomUUID();
+ const row=await env.DB.prepare(`SELECT c.*,u.password_hash FROM customer_email_changes c JOIN customer_users u ON u.id=c.customer_id
+  WHERE (c.current_token=? OR c.new_token=?) AND c.expires_at>? AND c.completed_by IS NULL
+  AND u.active=1 AND u.email=c.current_email COLLATE NOCASE`).bind(hash,hash,now()).first();
+ if(!row||await tokenHash(row.password_hash)!==row.credential_fingerprint)throw new ApiError(400,'Invalid or expired link.');
+ const old=row.current_token===hash;
+ const confirmation=old?'current_confirmed':'new_confirmed';
+ const tokenColumn=old?'current_token':'new_token';
+ const completed='SELECT customer_id FROM customer_email_changes WHERE completed_by=?';
+ const [confirmed,ready,changed]=await env.DB.batch([
+  env.DB.prepare(`UPDATE customer_email_changes SET ${confirmation}=1 WHERE ${tokenColumn}=? AND ${confirmation}=0 AND expires_at>? AND completed_by IS NULL
+   AND EXISTS(SELECT 1 FROM customer_users WHERE id=customer_id AND email=current_email COLLATE NOCASE AND password_hash=? AND active=1)`).bind(hash,now(),row.password_hash),
+  env.DB.prepare(`UPDATE customer_email_changes SET completed_by=? WHERE changes()=1 AND ${tokenColumn}=? AND current_confirmed=1 AND new_confirmed=1
+   AND NOT EXISTS(SELECT 1 FROM customer_users WHERE email=new_email COLLATE NOCASE)`).bind(operation,hash),
+  env.DB.prepare(`UPDATE customer_users SET email=? WHERE id IN (${completed})`).bind(row.new_email,operation),
+  env.DB.prepare(`INSERT INTO customer_verified_emails(customer_id,email,source) SELECT customer_id,new_email,'email' FROM customer_email_changes WHERE completed_by=?
+   ON CONFLICT(customer_id) DO UPDATE SET email=excluded.email,verified_at=datetime('now'),source='email'`).bind(operation),
+  env.DB.prepare(`DELETE FROM customer_sessions WHERE customer_id IN (${completed})`).bind(operation),
+  env.DB.prepare(`UPDATE customer_action_tokens SET consumed_by=? WHERE consumed_by IS NULL AND customer_id IN (${completed})`).bind(operation,operation),
+ ]);
+ if(!confirmed.meta.changes)throw new ApiError(400,'Invalid or expired link.');
+ if(ready.meta.changes&&!changed.meta.changes)throw new ApiError(409,'Email could not be changed.');
+ const entry=await env.DB.prepare(`SELECT current_confirmed,new_confirmed,completed_by FROM customer_email_changes WHERE ${tokenColumn}=?`).bind(hash).first();
+ if(!changed.meta.changes&&entry?.current_confirmed&&entry?.new_confirmed&&!entry?.completed_by)throw new ApiError(409,'That address cannot be used. Start a new email change.');
+ return json({success:true,complete:!!changed.meta.changes});
+}
 export async function handleCustomerIdentity(request,env) {
  const path=new URL(request.url).pathname;
  if(!path.startsWith('/api/customer/'))return null;
@@ -135,11 +208,18 @@ export async function handleCustomerIdentity(request,env) {
  if(['/api/customer/google/start','/api/customer/google/callback'].includes(path)) {
   if(request.method!=='GET')throw new ApiError(405,'Method not allowed.');return google(request,env);
  }
- const actions={'/api/customer/send-verification':'send','/api/customer/verify':'verify','/api/customer/forgot-password':'forgot','/api/customer/reset-password':'reset'};
+ const actions={'/api/customer/send-verification':'send','/api/customer/verify':'verify','/api/customer/forgot-password':'forgot','/api/customer/reset-password':'reset','/api/customer/change-password':'changePassword','/api/customer/change-email':'changeEmail','/api/customer/confirm-email-change':'confirmEmail'};
  const action=actions[path];if(!action)return null;
  if(request.method!=='POST')throw new ApiError(405,'Method not allowed.');if(!sameOrigin(request))throw new ApiError(403,'Forbidden origin.');
  await rate(request,env,action);const body=await readJson(request,4096);
  if(action==='verify'||action==='reset')return consumeAction(env,body,action);
+ if(action==='confirmEmail')return confirmEmailChange(env,body);
+ if(action==='changePassword'||action==='changeEmail'){
+  const user=await authenticatedCustomer(request,env);
+  if(!user)throw new ApiError(401,'Sign in to your AuraDigital account.');
+  const current=await verifyCurrentPassword(env,user,body.currentPassword);
+  return action==='changePassword'?changePassword(env,user,body,current):requestEmailChange(env,user,body,current);
+ }
  if(action==='send'){
   const user=await authenticatedCustomer(request,env);if(!user)throw new ApiError(401,'Sign in to verify your email.');
   if(!await isEmailVerified(env.DB,user))await issueActionToken(env,user,'verify');return json({sent:true});

@@ -29,7 +29,7 @@ const router = {
       const identityResponse = await handleCustomerIdentity(request, env);
       if (identityResponse) return identityResponse;
     }
-    if (env.GROWTH_OS_ENABLED === 'true' || (env.CUSTOMER_IDENTITY_ENABLED === 'true' && ['/hub/reset','/hub/verify','/hub/forgot','/hub/app.js','/hub/hub.css'].includes(url.pathname))) {
+    if (env.GROWTH_OS_ENABLED === 'true' || (env.CUSTOMER_IDENTITY_ENABLED === 'true' && ['/hub/reset','/hub/verify','/hub/forgot','/hub/confirm-email','/hub/app.js','/hub/hub.css'].includes(url.pathname))) {
       const hubResponse = await handleBusinessHub(request, env);
       if (hubResponse) return hubResponse;
     } else if (url.pathname === '/hub' || url.pathname.startsWith('/hub/') || url.pathname.startsWith('/api/hub/')) {

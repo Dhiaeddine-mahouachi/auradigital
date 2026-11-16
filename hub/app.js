@@ -1,3 +1,314 @@
+// src/hub/settings-view.js
+var settingsCopy = {
+  en: ["Account", "Change password", "Current password", "New password", "Change email", "New email", "Send confirmation links", "Confirm from both inboxes.", "Email confirmation is currently unavailable.", "Preferences", "Workspace", "Password changed. Sign in again.", "Links sent. Confirm from both inboxes.", "Confirm email change", "Confirmation saved. Open the link from your other inbox.", "Email updated. Sign in with the new address.", "Forgot your password?"],
+  fr: ["Compte", "Modifier le mot de passe", "Mot de passe actuel", "Nouveau mot de passe", "Modifier l\u2019adresse e-mail", "Nouvelle adresse e-mail", "Envoyer les liens", "Confirmez depuis les deux bo\xEEtes.", "La confirmation par e-mail est indisponible.", "Pr\xE9f\xE9rences", "Espace de travail", "Mot de passe chang\xE9. Reconnectez-vous.", "Liens envoy\xE9s. Confirmez depuis les deux bo\xEEtes.", "Confirmer le changement d\u2019e-mail", "Confirmation enregistr\xE9e. Ouvrez le lien envoy\xE9 \xE0 l\u2019autre adresse.", "Adresse modifi\xE9e. Connectez-vous avec la nouvelle adresse.", "Mot de passe oubli\xE9 ?"],
+  tr: ["Hesap", "\u015Eifreyi de\u011Fi\u015Ftir", "Mevcut \u015Fifre", "Yeni \u015Fifre", "E-postay\u0131 de\u011Fi\u015Ftir", "Yeni e-posta", "Onay ba\u011Flant\u0131lar\u0131n\u0131 g\xF6nder", "Her iki posta kutusundan da onaylay\u0131n.", "E-posta onay\u0131 \u015Fu anda kullan\u0131lam\u0131yor.", "Tercihler", "\xC7al\u0131\u015Fma alan\u0131", "\u015Eifre de\u011Fi\u015Ftirildi. Tekrar giri\u015F yap\u0131n.", "Ba\u011Flant\u0131lar g\xF6nderildi. Her iki posta kutusundan onaylay\u0131n.", "E-posta de\u011Fi\u015Fikli\u011Fini onayla", "Onay kaydedildi. Di\u011Fer posta kutusundaki ba\u011Flant\u0131y\u0131 a\xE7\u0131n.", "E-posta g\xFCncellendi. Yeni adresle giri\u015F yap\u0131n.", "\u015Eifrenizi mi unuttunuz?"],
+  ar: ["\u0627\u0644\u062D\u0633\u0627\u0628", "\u063A\u064A\u0651\u0631 \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631", "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u0627\u0644\u062D\u0627\u0644\u064A\u0629", "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u0627\u0644\u062C\u062F\u064A\u062F\u0629", "\u063A\u064A\u0651\u0631 \u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A", "\u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u062C\u062F\u064A\u062F", "\u0623\u0631\u0633\u0644 \u0631\u0648\u0627\u0628\u0637 \u0627\u0644\u062A\u0623\u0643\u064A\u062F", "\u0623\u0643\u0651\u062F \u0645\u0646 \u0635\u0646\u062F\u0648\u0642\u064E\u064A \u0627\u0644\u0628\u0631\u064A\u062F.", "\u062A\u0623\u0643\u064A\u062F \u0627\u0644\u0628\u0631\u064A\u062F \u063A\u064A\u0631 \u0645\u062A\u0627\u062D \u062D\u0627\u0644\u064A\u064B\u0627.", "\u0627\u0644\u062A\u0641\u0636\u064A\u0644\u0627\u062A", "\u0645\u0633\u0627\u062D\u0629 \u0627\u0644\u0639\u0645\u0644", "\u062A\u063A\u064A\u0651\u0631\u062A \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631. \u0633\u062C\u0651\u0644 \u0627\u0644\u062F\u062E\u0648\u0644 \u0645\u062C\u062F\u062F\u064B\u0627.", "\u0623\u064F\u0631\u0633\u0644\u062A \u0627\u0644\u0631\u0648\u0627\u0628\u0637. \u0623\u0643\u0651\u062F \u0645\u0646 \u0635\u0646\u062F\u0648\u0642\u064E\u064A \u0627\u0644\u0628\u0631\u064A\u062F.", "\u0623\u0643\u0651\u062F \u062A\u063A\u064A\u064A\u0631 \u0627\u0644\u0628\u0631\u064A\u062F", "\u062A\u0645 \u0627\u0644\u062D\u0641\u0638. \u0627\u0641\u062A\u062D \u0627\u0644\u0631\u0627\u0628\u0637 \u0641\u064A \u0635\u0646\u062F\u0648\u0642 \u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u0622\u062E\u0631.", "\u062A\u0645 \u062A\u063A\u064A\u064A\u0631 \u0627\u0644\u0628\u0631\u064A\u062F. \u0633\u062C\u0651\u0644 \u0627\u0644\u062F\u062E\u0648\u0644 \u0628\u0627\u0644\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u062C\u062F\u064A\u062F.", "\u0646\u0633\u064A\u062A \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631\u061F"]
+};
+var accountSettingsCopy = (lang2) => settingsCopy[lang2] || settingsCopy.en;
+function renderAccountSettings({ host, user, lang: lang2, esc: esc3, t: t2, api: api2, link: link2, workspace: workspace2, canEmail, canLinkGoogle, onNewWorkspace, onSignIn, onLanguage }) {
+  const [account, password, current, newPassword, email, newEmail, send, confirmBoth, unavailable, preferences, space, passwordSaved, linksSent, , , , forgot] = accountSettingsCopy(lang2);
+  const currentField = `<label class="field">${current}<input name="currentPassword" type="password" required maxlength="200" autocomplete="current-password"></label>`;
+  host.innerHTML = `<div class="hub-settings-grid">
+ <section class="panel hub-settings-account"><h2>${account}</h2><div class="hub-account-address"><strong>${esc3(user.email)}</strong><span>${esc3(t2(user.verified ? "verified" : "verify"))}</span></div>
+ <details class="hub-settings-form"><summary>${password}</summary>
+ <form data-account-change="password">${currentField}<label class="field">${newPassword}<input name="password" type="password" required minlength="12" maxlength="72" autocomplete="new-password"></label><button type="submit" class="growth-primary">${password}</button></form>
+ ${canEmail ? `<a class="hub-settings-link" href="/hub/forgot">${forgot}</a>` : ""}</details>
+ <details class="hub-settings-form"><summary>${email}</summary>
+ ${canEmail ? `<p>${confirmBoth}</p><form data-account-change="email">${currentField}<label class="field">${newEmail}<input name="email" type="email" required maxlength="254" autocomplete="email"></label><button type="submit" class="growth-primary">${send}</button></form>` : `<p>${unavailable}</p>`}</details>
+ ${canLinkGoogle ? `<a class="growth-secondary" href="/api/customer/google/start?acceptTerms=true">${esc3(t2("linkGoogle"))}</a>` : ""}
+ <p class="hub-settings-feedback" role="status"></p></section>
+ <div class="hub-settings-side"><section class="panel"><h2>${preferences}</h2><label class="field">${{ en: "Language", fr: "Langue", tr: "Dil", ar: "\u0627\u0644\u0644\u063A\u0629" }[lang2]}
+ <select data-settings-language>${[["en", "English"], ["fr", "Fran\xE7ais"], ["tr", "T\xFCrk\xE7e"], ["ar", "\u0627\u0644\u0639\u0631\u0628\u064A\u0629"]].map(([value, label]) => `<option value="${value}" ${value === lang2 ? "selected" : ""}>${label}</option>`).join("")}</select></label><div class="hub-settings-links">
+ ${workspace2 ? `<a href="${esc3(link2("assistant"))}">${esc3(t2("auri"))} \u2197</a>` : ""}<a href="/account">${esc3(t2("orders"))} \u2197</a></div></section>
+ <section class="panel"><h2>${space}</h2><div class="hub-settings-links">
+ ${workspace2 ? `<a href="${esc3(link2("profile"))}">${esc3(t2("profile"))} \u2197</a><a href="${esc3(link2("team"))}">${esc3(t2("team"))} \u2197</a>` : ""}
+ <button type="button" class="growth-secondary" data-add-workspace>${esc3(t2("newWorkspace"))}</button></div></section></div></div>`;
+  const feedback = host.querySelector("[role=status]");
+  host.querySelector("[data-add-workspace]").onclick = onNewWorkspace;
+  host.querySelector("[data-settings-language]").onchange = (event) => onLanguage(event.target.value);
+  for (const form of host.querySelectorAll("[data-account-change]")) {
+    form.onsubmit = async (event) => {
+      event.preventDefault();
+      const action = form.dataset.accountChange, submit = form.querySelector("button");
+      if (submit.disabled) return;
+      submit.disabled = true;
+      feedback.textContent = "";
+      try {
+        await api2("/api/customer/change-" + action, "POST", Object.fromEntries(new FormData(form)));
+        form.reset();
+        if (action === "password") {
+          onSignIn(passwordSaved);
+          return;
+        }
+        feedback.textContent = linksSent;
+      } catch (error) {
+        feedback.textContent = error.message;
+      } finally {
+        submit.disabled = false;
+      }
+    };
+  }
+}
+
+// src/hub/service-ranking.js
+var categories = [
+  { pattern: /whatsapp/i, kind: "whatsapp", symbol: "WA", capabilities: ["whatsapp"] },
+  { pattern: /qr|menu|menü/i, kind: "menu", symbol: "QR", capabilities: ["menu"] },
+  { pattern: /google\s*(maps?|business)|business\s*discovery|local\s*listing/i, kind: "discovery", symbol: "MAP", capabilities: ["discovery"] },
+  { pattern: /review|rating|avis|yorum/i, kind: "reviews", symbol: "\u2605", capabilities: ["reviews"] },
+  { pattern: /google\s*ads|search\s*advert|ad\s*management|campaign|publicit/i, kind: "ads", symbol: "ADS", capabilities: ["ads"] },
+  { pattern: /seo|search\s*optim/i, kind: "seo", symbol: "SEO", capabilities: ["seo"] },
+  { pattern: /e-?mail|e-posta|courriel|mailbox/i, kind: "email", symbol: "@", capabilities: ["email"] },
+  { pattern: /crm|customer\s*management|lead\s*management|pipeline/i, kind: "crm", symbol: "CRM", capabilities: ["crm", "leads"] },
+  { pattern: /hosting|domain|security|ssl|website\s*care|maintenance/i, kind: "infrastructure", symbol: "DNS", capabilities: ["domain", "hosting"] },
+  { pattern: /automat|chatbot|ai\s*assistant|workflow|spinflow/i, kind: "automation", symbol: "AI", capabilities: ["automation", "followups"] },
+  { pattern: /nfc|smart\s*card/i, kind: "card", symbol: "NFC", capabilities: ["branding"] },
+  { pattern: /web|website|site|e-?commerce|online\s*shop/i, kind: "website", symbol: "WEB", capabilities: ["website"] },
+  { pattern: /brand|logo|video|photo|design|graphic/i, kind: "creative", symbol: "\u2726", capabilities: ["branding"] }
+];
+var classify = (name) => categories.find((x) => x.pattern.test(String(name || ""))) || { kind: "service", symbol: "\u2726", capabilities: [] };
+var baseImportance = { website: 100, infrastructure: 90, email: 85, discovery: 80, whatsapp: 70, seo: 68, crm: 65, reviews: 60, automation: 55, ads: 50, menu: 35, card: 25, creative: 20, service: 10 };
+var sectorBoost = {
+  restaurant: { menu: 90, discovery: 35, reviews: 25, whatsapp: 23 },
+  real_estate: { crm: 75, website: 30, whatsapp: 30, ads: 27 },
+  ecommerce: { website: 35, crm: 30, ads: 30, reviews: 30, whatsapp: 25 },
+  services: { email: 20, crm: 20, website: 15, discovery: 15 }
+};
+var validDate = (value) => {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}(?:$|[T ])/.test(value)) return null;
+  const short = value.slice(0, 10);
+  const date = Date.parse(short + "T00:00:00Z");
+  return Number.isFinite(date) && new Date(date).toISOString().slice(0, 10) === short ? date : null;
+};
+function rankServicesForBusiness(records, { profile = {}, missions = [], now = Date.now() } = {}) {
+  const sector = String(profile.industry || "").toLowerCase();
+  const text = [profile.goals, profile.difficulties].filter(Boolean).join(" ").toLowerCase();
+  const focus = new Set((Array.isArray(missions) ? missions : []).filter((m) => !m.optional && !["done", "postponed", "cancelled"].includes(m.status)).filter((m) => Number(m.priority) === 1 || ["in_progress", "active"].includes(m.status)).map((m) => m.capability || m.id));
+  const score = (record) => {
+    const { kind, capabilities: capabilities2 } = classify(record.name);
+    let value = (baseImportance[kind] || 10) + (sectorBoost[sector]?.[kind] || 0);
+    if (capabilities2.some((c) => focus.has(c))) value += 80;
+    if (/reservation|booking|menu/.test(text) && kind === "menu") value += 30;
+    if (/leads|sales|clients|customer|booking|appointment/.test(text) && ["crm", "whatsapp", "website"].includes(kind)) value += 20;
+    if (/automat|manual|time|efficien|repetit/.test(text) && ["automation", "whatsapp"].includes(kind)) value += 35;
+    if (/visib|traffic|search|find|local/.test(text) && ["discovery", "seo", "ads"].includes(kind)) value += 30;
+    const status = String(record.status || "").toLowerCase();
+    if (["waiting", "waiting_client", "needs_action", "review", "quote_ready"].includes(status)) value += 1e3;
+    else if (["in_progress", "production"].includes(status)) value += 70;
+    const deadline = validDate(record.dueDate);
+    if (deadline !== null && deadline < now + 864e5 * 14) value += deadline < now ? 500 : 260;
+    const renewal = validDate(record.renewalDate);
+    if (renewal !== null && renewal < now + 864e5 * 14) value += renewal < now ? 420 : 230;
+    return value;
+  };
+  return [...records].sort((a, b) => score(b) - score(a) || String(a.name || "").localeCompare(String(b.name || "")) || String(a.id || "").localeCompare(String(b.id || "")));
+}
+
+// src/hub/service-deliverables.js
+var deliverables = {
+  web: {
+    en: ["A website customers can use on their phone", "A mobile-ready website with your key pages", "A clear way to call, message, or enquire", "Launch and access handover"],
+    fr: ["Un site accessible sur t\xE9l\xE9phone", "Un site adapt\xE9 au mobile avec vos pages principales", "Un moyen simple de vous joindre", "Mise en ligne et remise des acc\xE8s"],
+    tr: ["M\xFC\u015Fterilerinizin telefondan kullanabilece\u011Fi bir site", "Temel sayfalar\u0131 i\xE7eren mobil uyumlu site", "Arama, mesaj veya ileti\u015Fim se\xE7ene\u011Fi", "Yay\u0131nlama ve eri\u015Fim devri"],
+    ar: ["\u0645\u0648\u0642\u0639 \u064A\u0639\u0645\u0644 \u0639\u0644\u0649 \u0647\u0648\u0627\u062A\u0641 \u0639\u0645\u0644\u0627\u0626\u0643", "\u0645\u0648\u0642\u0639 \u0645\u062A\u0648\u0627\u0641\u0642 \u0645\u0639 \u0627\u0644\u0647\u0627\u062A\u0641 \u064A\u0636\u0645 \u0635\u0641\u062D\u0627\u062A\u0643 \u0627\u0644\u0623\u0633\u0627\u0633\u064A\u0629", "\u0637\u0631\u064A\u0642\u0629 \u0648\u0627\u0636\u062D\u0629 \u0644\u0644\u0627\u062A\u0635\u0627\u0644 \u0623\u0648 \u0627\u0644\u0645\u0631\u0627\u0633\u0644\u0629", "\u0625\u0637\u0644\u0627\u0642 \u0627\u0644\u0645\u0648\u0642\u0639 \u0648\u062A\u0633\u0644\u064A\u0645 \u0627\u0644\u0648\u0635\u0648\u0644"]
+  },
+  email: {
+    en: ["Email with your business name on it", "A mailbox such as contact@yourbusiness.com", "Domain email records (MX, SPF, DKIM and DMARC as supported)", "Sign-in and mailbox handover instructions"],
+    fr: ["Une adresse e-mail au nom de votre entreprise", "Une bo\xEEte comme contact@yourbusiness.com", "Enregistrements du domaine selon le fournisseur", "Consignes de connexion et remise de la bo\xEEte"],
+    tr: ["\u0130\u015Fletmenizin ad\u0131n\u0131 ta\u015F\u0131yan e-posta", "contact@yourbusiness.com gibi bir posta kutusu", "Sa\u011Flay\u0131c\u0131n\u0131n destekledi\u011Fi alan ad\u0131 kay\u0131tlar\u0131", "Oturum a\xE7ma ve posta kutusu teslim talimatlar\u0131"],
+    ar: ["\u0628\u0631\u064A\u062F \u064A\u062D\u0645\u0644 \u0627\u0633\u0645 \u0646\u0634\u0627\u0637\u0643", "\u0635\u0646\u062F\u0648\u0642 \u0628\u0631\u064A\u062F \u0645\u062B\u0644 contact@yourbusiness.com", "\u0633\u062C\u0644\u0627\u062A \u0627\u0644\u0628\u0631\u064A\u062F \u0644\u0644\u0646\u0637\u0627\u0642 \u0648\u0641\u0642 \u062F\u0639\u0645 \u0627\u0644\u0645\u0632\u0648\u062F", "\u062A\u0639\u0644\u064A\u0645\u0627\u062A \u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062F\u062E\u0648\u0644 \u0648\u062A\u0633\u0644\u064A\u0645 \u0627\u0644\u0635\u0646\u062F\u0648\u0642"]
+  },
+  menu: {
+    en: ["A menu customers open from their phone", "A mobile menu with categories, items and prices", "A shareable menu link and printable QR code", "Guidance for updating your menu"],
+    fr: ["Un menu \xE0 ouvrir sur t\xE9l\xE9phone", "Un menu mobile avec cat\xE9gories, articles et prix", "Un lien et un code QR imprimable", "Des instructions pour mettre \xE0 jour le menu"],
+    tr: ["Telefondan a\xE7\u0131lan bir men\xFC", "Kategori, \xFCr\xFCn ve fiyatlar\u0131 i\xE7eren mobil men\xFC", "Payla\u015F\u0131labilir ba\u011Flant\u0131 ve yazd\u0131r\u0131labilir QR kod", "Men\xFCy\xFC g\xFCncelleme talimatlar\u0131"],
+    ar: ["\u0642\u0627\u0626\u0645\u0629 \u064A\u0641\u062A\u062D\u0647\u0627 \u0627\u0644\u0639\u0645\u064A\u0644 \u0639\u0644\u0649 \u0647\u0627\u062A\u0641\u0647", "\u0642\u0627\u0626\u0645\u0629 \u0644\u0644\u0647\u0627\u062A\u0641 \u0628\u0627\u0644\u0623\u0642\u0633\u0627\u0645 \u0648\u0627\u0644\u0623\u0635\u0646\u0627\u0641 \u0648\u0627\u0644\u0623\u0633\u0639\u0627\u0631", "\u0631\u0627\u0628\u0637 \u0644\u0644\u0645\u0634\u0627\u0631\u0643\u0629 \u0648\u0631\u0645\u0632 QR \u0644\u0644\u0637\u0628\u0627\u0639\u0629", "\u0625\u0631\u0634\u0627\u062F\u0627\u062A \u0644\u062A\u062D\u062F\u064A\u062B \u0627\u0644\u0642\u0627\u0626\u0645\u0629"]
+  },
+  chat: {
+    en: ["A WhatsApp flow that handles routine questions", "A welcome flow with your common questions", "Shortcuts for enquiries, menus or bookings as agreed", "Testing and instructions for handing over to your team"],
+    fr: ["Un parcours WhatsApp pour les questions courantes", "Un accueil avec vos questions fr\xE9quentes", "Des raccourcis convenus vers le menu, les demandes ou les r\xE9servations", "Des tests et des instructions pour votre \xE9quipe"],
+    tr: ["S\u0131k sorular\u0131 kar\u015F\u0131layan WhatsApp ak\u0131\u015F\u0131", "S\u0131k sorulan sorularla kar\u015F\u0131lama ak\u0131\u015F\u0131", "Anla\u015F\u0131lan men\xFC, talep veya rezervasyon k\u0131sayollar\u0131", "Test ve ekibe devir talimatlar\u0131"],
+    ar: ["\u0645\u0633\u0627\u0631 \u0648\u0627\u062A\u0633\u0627\u0628 \u0644\u0644\u0623\u0633\u0626\u0644\u0629 \u0627\u0644\u0645\u062A\u0643\u0631\u0631\u0629", "\u062A\u0631\u062D\u064A\u0628 \u0648\u0625\u062C\u0627\u0628\u0627\u062A \u0644\u0644\u0623\u0633\u0626\u0644\u0629 \u0627\u0644\u0634\u0627\u0626\u0639\u0629", "\u0627\u062E\u062A\u0635\u0627\u0631\u0627\u062A \u0644\u0644\u0642\u0627\u0626\u0645\u0629 \u0623\u0648 \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0623\u0648 \u0627\u0644\u062D\u062C\u0648\u0632\u0627\u062A \u062D\u0633\u0628 \u0627\u0644\u0627\u062A\u0641\u0627\u0642", "\u0627\u062E\u062A\u0628\u0627\u0631 \u0648\u062A\u0639\u0644\u064A\u0645\u0627\u062A \u0644\u062A\u062D\u0648\u064A\u0644 \u0627\u0644\u0645\u062D\u0627\u062F\u062B\u0629 \u0625\u0644\u0649 \u0641\u0631\u064A\u0642\u0643"]
+  },
+  brand: {
+    en: ["A consistent identity across your business", "A logo direction with the agreed variations", "A colour and typography guide", "Exported files for the agreed uses"],
+    fr: ["Une identit\xE9 coh\xE9rente pour votre entreprise", "Un logo et les variantes convenues", "Un guide des couleurs et de la typographie", "Des fichiers export\xE9s pour les usages convenus"],
+    tr: ["\u0130\u015Fletmenizin her yerinde tutarl\u0131 kimlik", "Logo ve kararla\u015Ft\u0131r\u0131lan varyasyonlar", "Renk ve tipografi rehberi", "Kararla\u015Ft\u0131r\u0131lan kullan\u0131mlar i\xE7in dosyalar"],
+    ar: ["\u0647\u0648\u064A\u0629 \u0645\u0648\u062D\u062F\u0629 \u0644\u0646\u0634\u0627\u0637\u0643", "\u0634\u0639\u0627\u0631 \u0648\u0627\u0644\u0646\u0633\u062E \u0627\u0644\u0645\u062A\u0641\u0642 \u0639\u0644\u064A\u0647\u0627", "\u062F\u0644\u064A\u0644 \u0627\u0644\u0623\u0644\u0648\u0627\u0646 \u0648\u0627\u0644\u062E\u0637\u0648\u0637", "\u0645\u0644\u0641\u0627\u062A \u062C\u0627\u0647\u0632\u0629 \u0644\u0644\u0627\u0633\u062A\u062E\u062F\u0627\u0645\u0627\u062A \u0627\u0644\u0645\u062A\u0641\u0642 \u0639\u0644\u064A\u0647\u0627"]
+  },
+  hosting: {
+    en: ["A business-owned domain connected to your site", "Domain registration or connection and DNS setup", "Hosting and HTTPS setup for the agreed plan", "An access and renewal handover"],
+    fr: ["Un domaine \xE0 votre nom reli\xE9 \xE0 votre site", "Enregistrement ou connexion du domaine et configuration DNS", "H\xE9bergement et HTTPS selon la formule convenue", "Remise des acc\xE8s et informations de renouvellement"],
+    tr: ["Sitenize ba\u011Fl\u0131 ve i\u015Fletmenize ait alan ad\u0131", "Alan ad\u0131 kayd\u0131 veya ba\u011Flant\u0131s\u0131 ve DNS kurulumu", "Anla\u015F\u0131lan pakete g\xF6re hosting ve HTTPS kurulumu", "Eri\u015Fim ve yenileme bilgilerinin teslimi"],
+    ar: ["\u0646\u0637\u0627\u0642 \u0628\u0627\u0633\u0645 \u0646\u0634\u0627\u0637\u0643 \u0645\u0631\u062A\u0628\u0637 \u0628\u0645\u0648\u0642\u0639\u0643", "\u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u0646\u0637\u0627\u0642 \u0623\u0648 \u0631\u0628\u0637\u0647 \u0648\u0625\u0639\u062F\u0627\u062F DNS", "\u0625\u0639\u062F\u0627\u062F \u0627\u0644\u0627\u0633\u062A\u0636\u0627\u0641\u0629 \u0648HTTPS \u062D\u0633\u0628 \u0627\u0644\u062E\u0637\u0629 \u0627\u0644\u0645\u062A\u0641\u0642 \u0639\u0644\u064A\u0647\u0627", "\u062A\u0633\u0644\u064A\u0645 \u0627\u0644\u0648\u0635\u0648\u0644 \u0648\u0645\u0639\u0644\u0648\u0645\u0627\u062A \u0627\u0644\u062A\u062C\u062F\u064A\u062F"]
+  }
+};
+
+// src/hub/service-view.js
+var serviceLabels = {
+  en: ["My Services", "Everything AuraDigital creates and manages for your business.", "All", "In progress", "Needs action", "Delivered", "Active", "No services match this view.", "Open details", "Payment", "Unavailable", "Delivery deadline", "Awaiting confirmation", "Renewal date", "Created"],
+  fr: ["Mes services", "Tout ce qu\u2019AuraDigital cr\xE9e et g\xE8re pour votre entreprise.", "Tous", "En cours", "Action requise", "Livr\xE9", "Actif", "Aucun service dans cette vue.", "Voir les d\xE9tails", "Paiement", "Indisponible", "Date de livraison", "En attente de confirmation", "Date de renouvellement", "Cr\xE9\xE9"],
+  tr: ["Hizmetlerim", "AuraDigital\u2019in i\u015Fletmeniz i\xE7in olu\u015Fturdu\u011Fu ve y\xF6netti\u011Fi her \u015Fey.", "T\xFCm\xFC", "Devam eden", "\u0130\u015Flem gerekli", "Teslim edildi", "Aktif", "Bu g\xF6r\xFCn\xFCmde hizmet yok.", "Ayr\u0131nt\u0131lar\u0131 a\xE7", "\xD6deme", "Kullan\u0131lam\u0131yor", "Teslim tarihi", "Onay bekleniyor", "Yenileme tarihi", "Olu\u015Fturuldu"],
+  ar: ["\u062E\u062F\u0645\u0627\u062A\u064A", "\u0643\u0644 \u0645\u0627 \u062A\u0646\u0634\u0626\u0647 AuraDigital \u0648\u062A\u062F\u064A\u0631\u0647 \u0644\u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A.", "\u0627\u0644\u0643\u0644", "\u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", "\u064A\u062A\u0637\u0644\u0628 \u0625\u062C\u0631\u0627\u0621\u064B", "\u062A\u0645 \u0627\u0644\u062A\u0633\u0644\u064A\u0645", "\u0646\u0634\u0637", "\u0644\u0627 \u062A\u0648\u062C\u062F \u062E\u062F\u0645\u0627\u062A \u0641\u064A \u0647\u0630\u0627 \u0627\u0644\u0639\u0631\u0636.", "\u0639\u0631\u0636 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644", "\u0627\u0644\u062F\u0641\u0639", "\u063A\u064A\u0631 \u0645\u062A\u0627\u062D", "\u0645\u0648\u0639\u062F \u0627\u0644\u062A\u0633\u0644\u064A\u0645", "\u0628\u0627\u0646\u062A\u0638\u0627\u0631 \u0627\u0644\u062A\u0623\u0643\u064A\u062F", "\u0645\u0648\u0639\u062F \u0627\u0644\u062A\u062C\u062F\u064A\u062F", "\u062A\u0627\u0631\u064A\u062E \u0627\u0644\u0625\u0646\u0634\u0627\u0621"]
+};
+var filters = ["all", "progress", "attention", "delivered", "active"];
+var statuses = {
+  new: "progress",
+  "in-progress": "progress",
+  scheduled: "progress",
+  production: "progress",
+  in_progress: "progress",
+  in_production: "progress",
+  ready: "attention",
+  waiting: "attention",
+  waiting_client: "attention",
+  waiting_for_customer: "attention",
+  review: "attention",
+  ready_for_review: "attention",
+  revisions_requested: "progress",
+  blocked: "progress",
+  completed: "delivered",
+  delivered: "delivered",
+  active: "active"
+};
+var group = (record) => Object.hasOwn(statuses, record.status) ? statuses[record.status] : void 0;
+var icons = {
+  email: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+  web: '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/>',
+  menu: '<path d="M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0v3h3v4m4-7v3m0 4h-1"/>',
+  chat: '<path d="M21 11a8 8 0 0 1-8 8H8l-5 2 2-5a8 8 0 1 1 16-5Z"/><path d="M8 11h1m3 0h1m3 0h1"/>',
+  hosting: '<rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h2m-2 11h2"/>',
+  general: '<path d="m12 2 9 5v10l-9 5-9-5V7zm0 10 9-5m-9 5-9-5m9 5v10"/>'
+};
+var examples = [
+  { kind: "web", service: "Web Design", en: "Website", fr: "Site web", tr: "Web sitesi", ar: "\u0645\u0648\u0642\u0639 \u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A" },
+  { kind: "email", service: "Business Email", en: "Business Email", fr: "E-mail professionnel", tr: "\u0130\u015F e-postas\u0131", ar: "\u0628\u0631\u064A\u062F \u0627\u0644\u0623\u0639\u0645\u0627\u0644" },
+  { kind: "menu", service: "AuraMenu", en: "QR Menu", fr: "Menu QR", tr: "QR men\xFC", ar: "\u0642\u0627\u0626\u0645\u0629 QR" },
+  { kind: "chat", service: "AI & Automation", en: "WhatsApp Automation", fr: "Automatisation WhatsApp", tr: "WhatsApp otomasyonu", ar: "\u0623\u062A\u0645\u062A\u0629 \u0648\u0627\u062A\u0633\u0627\u0628" },
+  { kind: "brand", service: "Branding", en: "Branding", fr: "Identit\xE9 visuelle", tr: "Marka kimli\u011Fi", ar: "\u0627\u0644\u0647\u0648\u064A\u0629 \u0627\u0644\u0628\u0635\u0631\u064A\u0629" },
+  { kind: "hosting", service: "Hosting / Security", en: "Hosting & Domain", fr: "H\xE9bergement et domaine", tr: "Hosting ve alan ad\u0131", ar: "\u0627\u0644\u0627\u0633\u062A\u0636\u0627\u0641\u0629 \u0648\u0627\u0644\u0646\u0637\u0627\u0642" }
+];
+var previewCopy = {
+  en: ["Service examples", "Request this service", "Illustration", "Mailbox", "New message", "Welcome!", "How can we help?"],
+  fr: ["Exemples de services", "Demander ce service", "Illustration", "Bo\xEEte mail", "Nouveau message", "Bienvenue !", "Comment vous aider ?"],
+  tr: ["Hizmet \xF6rnekleri", "Bu hizmeti iste", "\xD6rnek g\xF6rsel", "Posta kutusu", "Yeni mesaj", "Ho\u015F geldiniz!", "Nas\u0131l yard\u0131mc\u0131 olabiliriz?"],
+  ar: ["\u0623\u0645\u062B\u0644\u0629 \u0639\u0644\u0649 \u0627\u0644\u062E\u062F\u0645\u0627\u062A", "\u0627\u0637\u0644\u0628 \u0647\u0630\u0647 \u0627\u0644\u062E\u062F\u0645\u0629", "\u0631\u0633\u0645 \u062A\u0648\u0636\u064A\u062D\u064A", "\u0635\u0646\u062F\u0648\u0642 \u0627\u0644\u0628\u0631\u064A\u062F", "\u0631\u0633\u0627\u0644\u0629 \u062C\u062F\u064A\u062F\u0629", "\u0623\u0647\u0644\u0627\u064B \u0628\u0643!", "\u0643\u064A\u0641 \u064A\u0645\u0643\u0646\u0646\u0627 \u0645\u0633\u0627\u0639\u062F\u062A\u0643\u061F"]
+};
+var detailCopy = {
+  en: ["Explore services", "See what you get", "What you\u2019ll get", "Scope, price and delivery are confirmed in your quote.", "Start your roadmap to request this service."],
+  fr: ["Explorer les services", "Voir le contenu", "Ce que vous recevrez", "Le devis pr\xE9cise le p\xE9rim\xE8tre, le prix et le d\xE9lai.", "Cr\xE9ez votre feuille de route pour demander ce service."],
+  tr: ["Hizmetleri ke\u015Ffet", "\u0130\xE7eri\u011Fi g\xF6r", "Neler alacaks\u0131n\u0131z", "Kapsam, fiyat ve teslim s\xFCresi teklifinizde kesinle\u015Fir.", "Bu hizmeti istemek i\xE7in yol haritan\u0131z\u0131 ba\u015Flat\u0131n."],
+  ar: ["\u0627\u0633\u062A\u0643\u0634\u0641 \u0627\u0644\u062E\u062F\u0645\u0627\u062A", "\u0627\u0637\u0651\u0644\u0639 \u0639\u0644\u0649 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644", "\u0645\u0627 \u0627\u0644\u0630\u064A \u0633\u062A\u062D\u0635\u0644 \u0639\u0644\u064A\u0647", "\u064A\u0624\u0643\u062F \u0639\u0631\u0636 \u0627\u0644\u0633\u0639\u0631 \u0627\u0644\u0646\u0637\u0627\u0642 \u0648\u0627\u0644\u0633\u0639\u0631 \u0648\u0645\u0648\u0639\u062F \u0627\u0644\u062A\u0633\u0644\u064A\u0645.", "\u0627\u0628\u062F\u0623 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642 \u0644\u0637\u0644\u0628 \u0647\u0630\u0647 \u0627\u0644\u062E\u062F\u0645\u0629."]
+};
+function rankedExamples(profile, missions) {
+  return rankServicesForBusiness(examples.map((example) => ({ ...example, name: example.en })), { profile, missions });
+}
+function serviceShortcuts(lang2, esc3, link2, { profile, missions } = {}) {
+  return `<section class="hub-service-shortcuts"><header><h2>${detailCopy[lang2][0]}</h2><a href="${esc3(link2("services"))}">${esc3(serviceLabels[lang2][0])} \u2192</a></header>
+ <div class="hub-service-links">${rankedExamples(profile, missions).map((example) => `<a href="${esc3(link2("services", { offer: example.kind }))}"><span class="service-icon">${icon(example.kind)}</span><span>${esc3(example[lang2])}</span><span aria-hidden="true">\u2197</span></a>`).join("")}</div></section>`;
+}
+function scopeMarkup(kind, lang2) {
+  const scope = deliverables[kind]?.[lang2];
+  if (!scope) return "";
+  return `<section class="service-scope"><h3>${detailCopy[lang2][2]}</h3><ul>${scope.slice(1).map((item) => `<li>${item}</li>`).join("")}</ul><p>${detailCopy[lang2][3]}</p></section>`;
+}
+var serviceOffer = (offer) => examples.find((item) => item.kind === offer);
+function renderServiceOffer({ host, offer, lang: lang2, esc: esc3, link: link2, canRequest, canSetUp, askLabel }) {
+  const example = serviceOffer(offer);
+  if (!example) return false;
+  host.innerHTML = `<a class="service-back" href="${esc3(link2("services"))}">\u2190 ${serviceLabels[lang2][0]}</a>
+ <article class="service-offer"><div class="service-offer-visual">${serviceArt(offer, lang2)}</div>
+ <div class="service-offer-copy"><span class="service-icon">${icon(offer)}</span><h2>${esc3(example[lang2])}</h2>
+ <p>${deliverables[offer][lang2][0]}</p>${scopeMarkup(offer, lang2)}
+ <div class="growth-actions offer-actions">
+ ${askLabel ? `<a class="growth-primary" href="${esc3(link2("assistant", { offer }))}">${esc3(askLabel)} \u2197</a>` : ""}
+ ${canRequest ? `<a class="${askLabel ? "growth-secondary" : "growth-primary"}" href="${esc3(link2("requests", { new: "1", service: example.service }))}">${previewCopy[lang2][1]} \u2192</a>` : canSetUp ? `<a class="growth-primary" href="${esc3(link2("onboarding"))}">${detailCopy[lang2][4]}</a>` : ""}</div></div></article>`;
+  return true;
+}
+var serviceKind = (name) => [
+  [/e.?mail|mailbox/i, "email"],
+  [/menu/i, "menu"],
+  [/whatsapp|automation|chat/i, "chat"],
+  [/hosting|domain/i, "hosting"],
+  [/brand|design identity/i, "brand"],
+  [/web/i, "web"]
+].find(([pattern]) => pattern.test(name))?.[1] || "general";
+function icon(kind) {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[kind] || icons.general}</svg>`;
+}
+function serviceArt(kind, lang2) {
+  const [, , label, mailbox, message, welcome, help] = previewCopy[lang2];
+  const artwork = {
+    web: '<div class="service-laptop"><img src="/project-fifty.png" alt="" loading="lazy"></div>',
+    email: `<div class="service-mail-window"><small>${mailbox}</small><strong>${message}</strong><span>contact@yourbusiness.com</span><i></i><i></i></div>${icon("email")}`,
+    menu: '<div class="service-menu-stand">' + icon("menu") + '</div><img class="service-menu-phone" src="/qr-menu-phone.svg" alt="" loading="lazy">',
+    chat: `<div class="service-chat-phone"><span>${welcome}</span><span>${help}</span></div>${icon("chat")}`,
+    brand: '<div class="service-brand-kit"><div></div><span></span><span></span><span>Aa</span></div>',
+    hosting: '<div class="service-rack"><i></i><i></i><i></i></div><div class="service-domain">yourbusiness.com</div>'
+  };
+  return `<div class="service-art service-art--${kind}"><span class="service-art-label">${label}</span><div class="service-artwork" aria-hidden="true">${artwork[kind] || icon(kind)}</div></div>`;
+}
+function serviceDate(value, lang2, fallback) {
+  if (!value) return fallback;
+  const parsed = /* @__PURE__ */ new Date(value.replace(" ", "T") + (/^\d{4}-\d{2}-\d{2} \d/.test(value) ? "Z" : ""));
+  return Number.isNaN(parsed.valueOf()) ? fallback : new Intl.DateTimeFormat(lang2, { dateStyle: "medium", timeZone: "UTC" }).format(parsed);
+}
+function serviceStatus(record, labels3) {
+  const index = filters.indexOf(group(record));
+  if (index >= 3) return labels3[index + 2];
+  return String(record.status || labels3[10]).replaceAll("_", " ");
+}
+function facts(record, lang2, labels3, esc3) {
+  const renewal = record.kind === "subscription";
+  return `<dl class="service-facts"><div><dt>${labels3[9]}</dt><dd>${labels3[10]}</dd></div>
+ <div><dt>${labels3[renewal ? 13 : 11]}</dt><dd>${esc3(serviceDate(renewal ? record.renewalDate : record.dueDate, lang2, labels3[12]))}</dd></div></dl>`;
+}
+function serviceSummary(records, labels3, esc3) {
+  return `<dl class="service-summary">${filters.map((filter, index) => `<div><dt>${esc3(labels3[index + 2])}</dt><dd>${filter === "all" ? records.length : records.filter((record) => group(record) === filter).length}</dd></div>`).join("")}</dl>`;
+}
+function renderServices({ host, records, lang: lang2, esc: esc3, link: link2, profile, missions }) {
+  const labels3 = serviceLabels[lang2] || serviceLabels.en;
+  const [examplesTitle] = previewCopy[lang2];
+  const headers = (kind, name) => `<header><span class="service-icon">${icon(kind)}</span><h2>${esc3(name)}</h2></header>`;
+  host.innerHTML = `<p class="service-intro">${labels3[1]}</p>
+ ${records.length ? `<div class="service-filters" role="group" aria-label="${labels3[0]}">${filters.map((filter, index) => `<button type="button" data-service-filter="${filter}" aria-controls="service-grid" aria-pressed="${filter === "all"}">${labels3[index + 2]} <span>${filter === "all" ? records.length : records.filter((record) => group(record) === filter).length}</span></button>`).join("")}</div>
+ <div class="service-grid" id="service-grid">${rankServicesForBusiness(records, { profile, missions }).map((record) => {
+    const kind = serviceKind(record.name);
+    return `<article class="service-card" data-service-group="${group(record) || "other"}">
+   ${serviceArt(kind, lang2)}<span class="service-state">${esc3(serviceStatus(record, labels3))}</span>
+   <div class="service-card-body">${headers(kind, record.name)}${facts(record, lang2, labels3, esc3)}
+   <a class="growth-primary service-card-link" href="${esc3(link2("services", { serviceRecord: record.key }))}">${labels3[8]} <span aria-hidden="true">\u2197</span></a></div>
+   </article>`;
+  }).join("")}</div><p class="hub-empty" role="status" data-service-empty hidden>${labels3[7]}</p>` : ""}<h2 class="service-example-title">${examplesTitle}</h2>
+ <div class="service-grid service-catalogue">${rankedExamples(profile, missions).map((example) => `<article class="service-card">
+  ${serviceArt(example.kind, lang2)}<div class="service-card-body">${headers(example.kind, example[lang2])}
+  <a class="growth-secondary service-card-link" href="${esc3(link2("services", { offer: example.kind }))}">${detailCopy[lang2][1]} <span aria-hidden="true">\u2197</span></a></div>
+ </article>`).join("")}</div>`;
+  if (!records.length) return;
+  host.querySelector(".service-filters").onclick = (event) => {
+    const button2 = event.target.closest("[data-service-filter]");
+    if (!button2) return;
+    const filter = button2.dataset.serviceFilter;
+    for (const item of host.querySelectorAll("[data-service-filter]")) item.setAttribute("aria-pressed", String(item === button2));
+    let visible = 0;
+    for (const card of host.querySelectorAll("[data-service-group]")) {
+      card.hidden = filter !== "all" && card.dataset.serviceGroup !== filter;
+      if (!card.hidden) visible++;
+    }
+    host.querySelector("[data-service-empty]").hidden = visible > 0;
+  };
+}
+function renderServiceDetails({ host, record, lang: lang2, esc: esc3, link: link2, askLabel }) {
+  const labels3 = serviceLabels[lang2] || serviceLabels.en;
+  host.innerHTML = `<article class="service-card service-detail"><header><h2>${esc3(record.name)}</h2><span class="service-state">${esc3(serviceStatus(record, labels3))}</span></header>
+ ${serviceArt(serviceKind(record.name), lang2)}${facts(record, lang2, labels3, esc3)}
+ <dl class="service-facts"><div><dt>${labels3[14]}</dt><dd>${esc3(serviceDate(record.createdAt, lang2, labels3[10]))}</dd></div></dl>
+ <div class="actions"><a class="growth-secondary" href="${esc3(link2("services"))}">${labels3[0]}</a>
+ ${deliverables[serviceKind(record.name)] ? `<a class="growth-secondary" href="${esc3(link2("services", { offer: serviceKind(record.name) }))}">${detailCopy[lang2][1]}</a>` : ""}
+ ${askLabel ? `<a class="growth-primary" href="${esc3(link2("assistant", { serviceRecord: record.key }))}">${esc3(askLabel)}</a>` : ""}</div></article>`;
+}
+
 // src/hub/auri-controller.js
 var channels = /* @__PURE__ */ new Map();
 var subscribers = /* @__PURE__ */ new Set();
@@ -152,9 +463,16 @@ var labels = {
   ar: ["\u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629", "\u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A", "\u0623\u0639\u0645\u0627\u0644\u064A", "\u0623\u0646\u0634\u0626 \u062E\u0627\u0631\u0637\u0629 \u0637\u0631\u064A\u0642\u0643", "\u0623\u062E\u0628\u0631 \u0623\u0648\u0631\u064A \u0639\u0646 \u0646\u0634\u0627\u0637\u0643 \u0644\u062A\u062D\u0635\u0644 \u0639\u0644\u0649 \u062E\u0637\u0648\u062A\u0643 \u0627\u0644\u0623\u0648\u0644\u0649.", "\u0623\u0646\u0634\u0626 \u062E\u0627\u0631\u0637\u0629 \u0637\u0631\u064A\u0642\u064A", "\u062A\u0627\u0628\u0639 \u0627\u0644\u0625\u0639\u062F\u0627\u062F", "\u062E\u0637\u0648\u062A\u0643 \u0627\u0644\u062A\u0627\u0644\u064A\u0629", "\u064A\u062A\u0637\u0644\u0628 \u0627\u0646\u062A\u0628\u0627\u0647\u0643", "\u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", "\u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0627\u0644\u0646\u0634\u0637\u0629", "\u0631\u0627\u062C\u0639 \u0642\u0627\u0626\u0645\u062A\u0643", "\u0627\u0641\u062A\u062D \u0627\u0644\u0637\u0644\u0628", "\u0644\u0627 \u062A\u0648\u062C\u062F \u0639\u0646\u0627\u0635\u0631 \u062A\u062A\u0637\u0644\u0628 \u0627\u0646\u062A\u0628\u0627\u0647\u0643.", "\u0644\u0627 \u062A\u0648\u062C\u062F \u0623\u0639\u0645\u0627\u0644 \u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630.", "\u0644\u0627 \u062A\u0648\u062C\u062F \u062E\u062F\u0645\u0627\u062A \u0646\u0634\u0637\u0629 \u0628\u0639\u062F.", "\u0645\u0631\u062D\u0628\u064B\u0627 \u0628\u0643 \u0641\u064A", "\u0627\u0643\u062A\u0645\u0644\u062A \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u0627\u0644\u0639\u0648\u062F\u0629 \u0625\u0644\u0649 \u0627\u0644\u0633\u062C\u0644", "\u0627\u0644\u0645\u0633\u0627\u0639\u062F\u0629 \u0641\u064A", "\u0627\u0628\u062F\u0623 \u0628\u062E\u0637\u0648\u0627\u062A \u0628\u0633\u064A\u0637\u0629", "\u0627\u0628\u0646\u0650 \u0623\u0646\u0638\u0645\u0629", "\u062A\u0648\u0633\u0651\u0639 \u0628\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064A", "\u0645\u063A\u0644\u0642", "\u0627\u0644\u0645\u0631\u062D\u0644\u0629 \u0627\u0644\u062D\u0627\u0644\u064A\u0629", "\u0627\u0644\u0633\u062C\u0644 \u063A\u064A\u0631 \u0645\u062A\u0627\u062D", "\u0645\u0633\u0648\u062F\u0629 \u0627\u0644\u0642\u0627\u0626\u0645\u0629 \u062C\u0627\u0647\u0632\u0629 \u0644\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u062A\u0645\u062A \u0627\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u062A\u0641\u0627\u0635\u064A\u0644 \u0627\u0644\u0637\u0644\u0628", "\u0623\u062E\u0628\u0631\u0646\u064A \u0639\u0646 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A."]
 };
 var keys = ["home", "journey", "assistant", "services", "build", "buildNote", "buildAction", "continue", "next", "attention", "progress", "active", "reviewMenu", "openRequest", "emptyAttention", "emptyProgress", "emptyActive", "welcome", "complete", "return", "context", "small", "systems", "scale", "locked", "current", "unavailable", "menuReady", "reviewed", "requestDetails", "intake"];
-var hubLabels = (lang2) => Object.fromEntries(keys.map((key, index) => [key, (labels[lang2] || labels.en)[index]]));
-var destinations = { home: "", journey: "roadmap", assistant: "auri", services: "work", menuDrafts: "menu-drafts", profile: "profile", settings: "settings", resources: "resources", tasks: "tasks", simulator: "simulator", team: "team", insights: "insights", projects: "projects", websites: "websites", hosting: "hosting", files: "files", reports: "reports", invoices: "invoices", rewards: "rewards", support: "support", onboarding: "onboarding" };
-var hubStage = (level) => Number(level) < 3 ? 0 : Number(level) < 5 ? 1 : 2;
+var requests = { en: "Requests", fr: "Demandes", tr: "Talepler", ar: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A" };
+var hubLabels = (lang2) => ({ ...Object.fromEntries(keys.map((key, index) => [key, (labels[lang2] || labels.en)[index]])), requests: requests[lang2] || requests.en });
+var destinations = { home: "", journey: "roadmap", assistant: "auri", services: "work", requests: "requests", menuDrafts: "menu-drafts", profile: "profile", settings: "settings", resources: "resources", tasks: "tasks", simulator: "simulator", team: "team", insights: "insights", projects: "projects", websites: "websites", hosting: "hosting", files: "files", reports: "reports", invoices: "invoices", rewards: "rewards", support: "support", onboarding: "onboarding" };
+var hubStage = (level) => Math.max(0, Math.min(4, (Number(level) || 1) - 1));
+var hubStageNames = (lang2) => ({
+  en: ["Foundation", "Visibility", "Conversion", "Operations", "Scale"],
+  fr: ["Fondations", "Visibilit\xE9", "Conversion", "Op\xE9rations", "Croissance"],
+  tr: ["Temel", "G\xF6r\xFCn\xFCrl\xFCk", "D\xF6n\xFC\u015F\xFCm", "Operasyon", "B\xFCy\xFCme"],
+  ar: ["\u0627\u0644\u062A\u0623\u0633\u064A\u0633", "\u0627\u0644\u0638\u0647\u0648\u0631", "\u0627\u0644\u062A\u062D\u0648\u064A\u0644", "\u0627\u0644\u0639\u0645\u0644\u064A\u0627\u062A", "\u0627\u0644\u062A\u0648\u0633\u0639"]
+})[lang2] || ["Foundation", "Visibility", "Conversion", "Operations", "Scale"];
 var hubIcons = {
   home: '<path d="M3 10 12 3l9 7v10H3z M9 20v-7h6v7"/>',
   journey: '<path d="m2 8 10-5 10 5-10 5z M2 12l10 5 10-5 M2 16l10 5 10-5"/>',
@@ -192,16 +510,16 @@ function workRows(drafts, work) {
   const overdue = (r) => due(r) < Date.now();
   attention.sort((a, b) => Number(overdue(b)) - Number(overdue(a)) || Number(b.blocking) - Number(a.blocking) || (due(a) === due(b) ? 0 : due(a) - due(b)) || a.id.localeCompare(b.id));
   const progress = work.requests.filter((r) => !attentionStatuses.has(state(r)) && !terminal.has(state(r))).map((r) => ({ ...r, kind: "request" }));
-  return { attention, progress, services: work.services };
+  return { attention, progress, services: work.services, records: work.records || [], requests: work.requests };
 }
 function renderWorkRow(record, { ui, esc: esc3, link: link2 }) {
   const menu = record.kind === "menu";
   const action = menu ? ui.reviewMenu : ui.openRequest;
-  return `<a class="hub-work-row" href="${esc3(link2(menu ? "menuDrafts" : "services", menu ? { draft: record.id } : { request: record.id }))}">
+  return `<a class="hub-work-row" href="${esc3(link2(menu ? "menuDrafts" : "requests", menu ? { draft: record.id } : { request: record.id }))}">
   <span class="hub-row-icon">${hubIcon(menu ? "journey" : "services")}</span><span><strong>${esc3(record.name)}</strong>
   <small>${esc3(menu ? ui.menuReady : workStatus(record))}</small></span><span class="hub-row-action">${esc3(action)} <span aria-hidden="true">\u2197</span></span></a>`;
 }
-var serviceOptions = ["Web Design", "Website Care", "Pricing / Quote", "Hosting / Security", "Business Email", "Spinflow ERP", "NFC Card", "AuraMenu", "AuraWeddings", "Ad Management", "SEO / Google Maps", "AI & Automation", "Other"];
+var serviceOptions = ["Web Design", "Website Care", "Pricing / Quote", "Hosting / Security", "Business Email", "Branding", "Spinflow ERP", "NFC Card", "AuraMenu", "AuraWeddings", "Ad Management", "SEO / Google Maps", "AI & Automation", "Other"];
 function renderRequestForm({ host, lang: lang2, esc: esc3, me: me2, workspace: workspace2, service, task, draft: draft2, back, submitted }) {
   const ui = hubLabels(lang2);
   const labels3 = {
@@ -267,7 +585,7 @@ function createOnboarding() {
 function renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: esc3, header, robot: robot2, bind, analyze, complete, guide, save = () => {
 } }) {
   const [title, intro, placeholder, analyzeLabel, manual, attach, website, nameQuestion, industryQuestion, cityQuestion, goalQuestion, next, skip, review, create, creating, urlHint, fileHint, noFacts, analyzing, converse] = copy[lang2];
-  const { values, facts, answered } = state2;
+  const { values, facts: facts2, answered } = state2;
   const label = (key) => t2(key === "name" ? "businessName" : key === "industryDetails" ? "services" : key);
   const input = (key, required = false) => {
     const value = values[key] || "";
@@ -292,7 +610,7 @@ function renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: e
  <button type="button" class="secondary" data-setup="website">${esc3(website)}</button>
  <button type="submit" class="primary">${esc3(analyzeLabel)}</button></div></div>
  <p class="auri-setup-source" role="status">${esc3(state2.source || "")}</p>
- <button type="button" class="secondary" data-setup="manual">${esc3(manual)}</button>` : reviewing ? `<div class="auri-setup-review">${fields.map((key) => `<label class="field"><span>${esc3(label(key))}</span>${input(key, key === "name")}${facts[key] ? `<small>${esc3(facts[key].source)} \xB7 ${confidenceLabels[lang2][Number(facts[key].confidence === "inferred")]} \xB7 \u201C${esc3(facts[key].excerpt)}\u201D</small>` : ""}</label>`).join("")}</div>
+ <button type="button" class="secondary" data-setup="manual">${esc3(manual)}</button>` : reviewing ? `<div class="auri-setup-review">${fields.map((key) => `<label class="field"><span>${esc3(label(key))}</span>${input(key, key === "name")}${facts2[key] ? `<small>${esc3(facts2[key].source)} \xB7 ${confidenceLabels[lang2][Number(facts2[key].confidence === "inferred")]} \xB7 \u201C${esc3(facts2[key].excerpt)}\u201D</small>` : ""}</label>`).join("")}</div>
  <button type="submit" class="primary">${esc3(create)}</button>` : `<label class="field">${esc3(label(question))}${input(question, question === "name")}</label><button type="submit" class="primary">${esc3(next)}</button>
  ${question !== "name" ? `<button type="button" class="secondary" data-setup="skip">${esc3(skip)}</button>` : ""}
  <button type="button" class="secondary" data-setup="entry">${esc3(converse)}</button>`}
@@ -313,7 +631,7 @@ function renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: e
     for (const [key, value] of new FormData(form)) {
       if (!fields.includes(key)) continue;
       const clean = value.trim();
-      if (facts[key]?.value !== clean) delete facts[key];
+      if (facts2[key]?.value !== clean) delete facts2[key];
       values[key] = clean;
     }
   }
@@ -423,7 +741,7 @@ function renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: e
         for (const [key, fact] of Object.entries(extracted)) {
           if (!fields.includes(key) || values[key]) continue;
           values[key] = fact.value;
-          facts[key] = { ...fact, source: state2.source || "Auri" };
+          facts2[key] = { ...fact, source: state2.source || "Auri" };
         }
         state2.message = Object.keys(extracted).length ? "" : noFacts;
         state2.phase = "questions";
@@ -502,7 +820,7 @@ var AuriCharacter = class extends HTMLElement {
       if (!entry.isIntersecting) return;
       this.observer.disconnect();
       try {
-        const { mountAuri } = await import("/media/auri/viewer.js");
+        const { mountAuri } = await import("/media/auri/viewer.js?v=idle-motion-2");
         if (this.isConnected) this.disposeModel = await mountAuri(this);
       } catch {
       }
@@ -562,7 +880,7 @@ var auriDraftCopy = (lang2) => Object.fromEntries(["create", "drafting", "ready"
 
 // src/customer-return.js
 function customerReturnPath(value, fallback) {
-  if (typeof value === "string" && value.length <= 2048 && /^\/hub(?:\/(?:roadmap|auri|work|menu-drafts|onboarding|profile|settings|tasks|invoices|team|resources|simulator))?(?:\?[^#\r\n]*)?$/.test(value)) return value;
+  if (typeof value === "string" && value.length <= 2048 && /^\/hub(?:\/(?:roadmap|auri|work|requests|menu-drafts|onboarding|profile|settings|tasks|invoices|team|resources|simulator))?(?:\?[^#\r\n]*)?$/.test(value)) return value;
   return ["/hub", "/account", "/shop/checkout"].includes(value) || typeof value === "string" && /^\/shop\/orders\/[a-f0-9-]{36}$/.test(value) ? value : fallback;
 }
 
@@ -688,7 +1006,7 @@ function renderGrowthVisionPath({ workspace: workspace2, esc: esc3, lang: lang2 
   const ui = copy3[lang2] || copy3.en;
   const hub = hubLabels(lang2);
   const missions = workspace2.missions || [];
-  const stages = [hub.small, hub.systems, hub.scale].map((name, index) => ({
+  const stages = hubStageNames(lang2).map((name, index) => ({
     name,
     missions: missions.filter((m) => hubStage(m.level) === index)
   }));
@@ -713,7 +1031,7 @@ function renderGrowthVisionPath({ workspace: workspace2, esc: esc3, lang: lang2 
     const state2 = finished ? ui.done : active ? hub.current : current < index && current !== -1 ? hub.locked : ui.upcoming;
     const content2 = `<span class="vision-stage-status">${index + 1} \xB7 ${esc3(state2)}</span>
     <strong>${esc3(item.name)}</strong>
-    <img class="vision-stage-art" src="/hub/stage-${index + 1}.webp" alt="" width="140" height="106">
+    ${index < 3 ? `<img class="vision-stage-art" src="/hub/stage-${index + 1}.webp" alt="" width="140" height="106">` : `<span class="vision-stage-icon vision-stage-fallback" aria-hidden="true">${index === 3 ? "\u2699" : "\u25A5"}</span>`}
     <small>${count} / ${total} ${esc3(ui.missions.toLowerCase())}</small>`;
     return `<li class="vision-stage" data-stage-state="${finished ? "done" : active ? "active" : "upcoming"}">
    ${first ? `<button type="button" class="vision-stage-button" data-node="${esc3(first.id)}" aria-pressed="${chosen === index}">${content2}</button>` : `<div class="vision-stage-button">${content2}</div>`}
@@ -819,7 +1137,7 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
   const timeline = `<div class="growth-timeline">${groups.map(([label, items]) => `<section><h3>${label}</h3>${items.map((m) => `<div>${node(m)}
   ${m.completedAt ? `<time datetime="${esc3(m.completedAt)}">${esc3(new Date(m.completedAt).toLocaleDateString(lang2))}</time>` : ""}
   ${m.dependencies?.length ? `<small>${l.requirements} \xB7 ${esc3(m.dependencies.map(cap2).join(", "))}</small>` : ""}</div>`).join("") || `<p>${esc3(t2("empty"))}</p>`}</section>`).join("")}</div>`;
-  const metric = (icon, value, label) => `<article class="growth-card growth-metric"><span class="growth-metric-icon" aria-hidden="true">${icon}</span><div><strong>${esc3(value)}</strong><span>${label}</span></div></article>`;
+  const metric = (icon2, value, label) => `<article class="growth-card growth-metric"><span class="growth-metric-icon" aria-hidden="true">${icon2}</span><div><strong>${esc3(value)}</strong><span>${label}</span></div></article>`;
   const existing = [.../* @__PURE__ */ new Set([...profile.capabilities || [], ...profile.website ? ["website"] : []])].filter((id) => missionAlternative(id) && !missions.some((m) => m.capability === id));
   const existingProof = canWrite && existing.length ? `<details class="growth-card hub-existing-proof"><summary>${esc3(ui.proof)}</summary>
   <form data-existing-evidence class="mission-evidence"><label class="field">${esc3(t2("capabilities"))}
@@ -863,20 +1181,23 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
     const reason = m.reason?.startsWith("This capability has not been reported") ? guide?.[1] : m.reason;
     const action = alternate?.steps || (m.nextAction === "Define scope or record your existing solution." ? guide?.[2] : m.nextAction);
     const { requirements, blocked } = missionState(m, missions, profile);
-    const row = (label, body) => `<div class="growth-detail-row"><h3>${label}</h3><p>${esc3(body)}</p></div>`;
-    return `<div class="growth-focus-top"><span>${l.focus}</span><small>${esc3(status(m))}${m.optional ? " \xB7 " + l.optional : ""}</small></div>
-   <h2>${esc3(title(m))}</h2>
-   ${!alternate && m.description !== reason && !m.description.startsWith("Establish ") ? `<p>${esc3(m.description)}</p>` : ""}
-   ${alternate ? "" : row(l.why, reason || m.description)}
-   ${!alternate && m.dependencies?.length ? row(l.requirements, m.dependencies.map(cap2).join(", ")) : ""}
-   ${guide?.[0] ? row(l.help, guide[0] + " \xB7 " + t2("quote")) : ""}
-   <details class="growth-diy" open><summary>${l.myself}</summary>${row(l.how, action)}
-   ${blocked ? `<p>${l.blocked} \xB7 ${esc3(requirements.map(cap2).join(", "))}</p>` : ""}</details>
+    const copy5 = {
+      en: ["Next step", "Task options", "Ask Auri", "Request help"],
+      fr: ["Prochaine \xE9tape", "Options de la t\xE2che", "Demander \xE0 Auri", "Demander de l\u2019aide"],
+      tr: ["S\u0131radaki ad\u0131m", "G\xF6rev se\xE7enekleri", "Auri\u2019ye sor", "Yard\u0131m iste"],
+      ar: ["\u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629", "\u062E\u064A\u0627\u0631\u0627\u062A \u0627\u0644\u0645\u0647\u0645\u0629", "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A", "\u0627\u0637\u0644\u0628 \u0627\u0644\u0645\u0633\u0627\u0639\u062F\u0629"]
+    }[lang2];
+    return `<div class="growth-focus-top"><h2>${esc3(title(m))}</h2><small>${esc3(status(m))}${m.optional ? " \xB7 " + l.optional : ""}</small></div>
+   ${!alternate ? `<p class="focus-benefit">${esc3(reason || m.description)}</p>` : ""}
+   <div class="service-next-step"><strong>${copy5[0]}</strong><p>${esc3(blocked && requirements.length ? requirements.map(cap2).join(" \xB7 ") : action || guide?.[2] || m.description)}</p></div>
    <div class="growth-actions">
-   ${guide?.[0] ? `<a class="growth-primary" href="${esc3(requestLink2(guide[0], m.id))}">${l.hire} \u2192</a>` : ""}
-   ${canWrite ? `<button class="growth-secondary" data-quick-status="${m.status === "done" ? "planned" : blocked ? "in_progress" : "done"}">${m.status === "done" ? esc3(t2("planned")) : blocked ? l.start : l.complete}</button><label><span class="sr-only">${esc3(t2("status"))}</span><select data-status-change>${["planned", "in_progress", "done", "postponed"].map((value) => `<option value="${value}" ${m.status === value ? "selected" : ""}>${esc3(t2(value))}</option>`).join("")}</select></label><button class="growth-secondary" data-edit>${esc3(t2("edit"))}</button>` : ""}
-   ${canAsk ? `<button class="growth-secondary" data-ask-task>${l.askTask}</button>` : ""}</div>
+   ${canAsk ? `<button type="button" class="growth-primary" data-ask-task>${copy5[2]} \u2197</button>` : ""}
+   ${guide?.[0] ? `<a class="growth-secondary" data-request-task href="${esc3(requestLink2(guide[0], m.id))}">${copy5[3]} \u2192</a>` : ""}
+   ${canWrite ? `<button type="button" class="growth-secondary" data-quick-status="${m.status === "done" ? "planned" : blocked ? "in_progress" : "done"}">${m.status === "done" ? esc3(t2("planned")) : blocked ? l.start : l.complete}</button>` : ""}</div>
    ${proof ? `<p class="mission-proof-status" role="status">${esc3(ui[proof])}</p>` : ""}
+   ${canWrite ? `<details class="growth-diy task-options"><summary>${copy5[1]}</summary>
+   <div class="growth-actions"><label><span class="sr-only">${esc3(t2("status"))}</span><select data-status-change>${["planned", "in_progress", "done", "postponed"].map((value) => `<option value="${value}" ${m.status === value ? "selected" : ""}>${esc3(t2(value))}</option>`).join("")}</select></label><button type="button" class="growth-secondary" data-edit>${esc3(t2("edit"))}</button></div>
+   ${!blocked && requirements.length ? `<p>${l.requirements} \xB7 ${esc3(requirements.map(cap2).join(", "))}</p>` : ""}` : ""}
    ${canWrite && missionAlternative(m.capability) ? `<div class="growth-actions">
     ${proof === "pending" || m.status === "done" ? "" : alternate ? `<button type="button" class="growth-secondary" data-route="original">${esc3(ui.original)}</button>` : `<button type="button" class="growth-secondary" data-route="alternative">${esc3(ui.irrelevant)}</button>`}
     ${m.status === "done" || m.status === "postponed" ? "" : `<button type="button" class="growth-secondary" data-quick-status="postponed">${esc3(ui.later)}</button>`}
@@ -884,7 +1205,7 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
     <p>${esc3(missionAlternative(m.capability).steps)}</p><button type="button" class="growth-secondary" data-route="alternative">${esc3(t2("continue"))}</button></details>` : ""}
 ${proof === "pending" || proof === "approved" ? "" : `<details class="growth-diy"><summary>${esc3(ui.proof)}</summary>
     <form data-evidence class="mission-evidence"><label class="field">${esc3(ui.proofLabel)}<textarea name="proof" required minlength="10" maxlength="1000" rows="3"></textarea></label>
-    <button class="growth-secondary">${esc3(ui.submit)}</button></form></details>`}` : ""}`;
+    <button class="growth-secondary">${esc3(ui.submit)}</button></form></details>`}` : ""}${canWrite ? "</details>" : ""}`;
   }
   host.querySelectorAll("[data-node]").forEach((button2) => button2.onclick = () => onSelect(button2.dataset.node));
   host.querySelectorAll("[data-view]").forEach((button2) => button2.onclick = () => onView(button2.dataset.view));
@@ -1263,6 +1584,7 @@ function guideAt(host, scope, context) {
   if (!guideThreads.has(key)) guideThreads.set(key, []);
   mountGuide(host, { lang, esc: esc2, api, turns: guideThreads.get(key), scope, context });
 }
+var brandMarkup = '<img class="hub-brand-logo" src="/auradigital-mark-20260928.png" alt="" width="34" height="34"><span>AuraDigital</span>';
 var robot = () => auriCharacter(auriLevel(), { posterOnly: true });
 function bindAuri(host, scope) {
   disconnectAuri();
@@ -1321,7 +1643,7 @@ function render() {
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   app.setAttribute("aria-busy", "false");
-  if (!me || ["verify", "reset", "forgot", "invitation"].includes(route)) {
+  if (!me || ["verify", "reset", "forgot", "invitation", "confirm-email"].includes(route)) {
     renderGate();
     return;
   }
@@ -1359,7 +1681,7 @@ function openFirstLogin() {
     esc: esc2,
     robot: guideCharacter,
     guide: (host) => guideAt(host, setupScope, () => firstLogin?.values),
-    header: `<header class="gate-header command-gate-header"><a href="${esc2(link("home"))}" class="wordmark">AuraHub</a>${languageControl()}</header>`,
+    header: `<header class="gate-header command-gate-header"><a href="${esc2(link("home"))}" class="wordmark">${brandMarkup}</a>${languageControl()}</header>`,
     bind: () => {
       bindCommon();
       bindAuri(document.querySelector(".auri-setup-character"), setupScope);
@@ -1389,7 +1711,7 @@ function openFirstLogin() {
   });
 }
 function gateFrame(content2) {
-  app.innerHTML = `<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">Aura <span>Command</span></a>${languageControl()}</header><main id="main" class="gate command-gate">${content2}</main>`;
+  app.innerHTML = `<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">${brandMarkup}</a>${languageControl()}</header><main id="main" class="gate command-gate">${content2}</main>`;
   bindCommon();
 }
 async function renderGate() {
@@ -1413,6 +1735,23 @@ async function renderGate() {
       document.querySelector("#invitation-content").textContent = e.message;
       document.querySelector("#invitation-content").append(Object.assign(document.createElement("a"), { href: "/hub/settings", textContent: t("settings") }));
     }
+    return;
+  }
+  if (route === "confirm-email") {
+    const copy5 = accountSettingsCopy(lang);
+    gateFrame(`<section class="panel"><h1>${copy5[13]}</h1><p role="status" data-confirm-result></p>${button("confirm", "confirm-email")}<a href="/hub/login">${esc2(t("signIn"))}</a></section>`);
+    const action = document.querySelector("[data-action=confirm-email]"), status = document.querySelector("[data-confirm-result]");
+    action.onclick = async () => {
+      action.disabled = true;
+      try {
+        const result2 = await api("/api/customer/confirm-email-change", "POST", { token: flowToken });
+        flowToken = "";
+        status.textContent = copy5[result2.complete ? 15 : 14];
+      } catch (error) {
+        status.textContent = error.message;
+        action.disabled = false;
+      }
+    };
     return;
   }
   if (route === "verify") {
@@ -1497,7 +1836,7 @@ function renderSetup() {
   }
   const choosing = !editing;
   const setupKeys = workspace ? profileKeys : mode === "auri" ? ["name", "industry", "industryDetails", "goals", "capabilities", "auriName", "roadmapPreview"] : ["name", "industry", "goals", "budget", "currency", "website", "capabilities"];
-  app.innerHTML = `<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">Aura <span>Command</span></a>${languageControl()}</header><main class="setup command-setup" id="main"><div class="setup-heading"><p class="eyebrow">Aura Command</p><h1>${choosing ? commandLabels(lang).onboarding : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div>${mode === "auri" ? `<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>` : ""}<form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+  app.innerHTML = `<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">${brandMarkup}</a>${languageControl()}</header><main class="setup command-setup" id="main"><div class="setup-heading"><p class="eyebrow">Aura Command</p><h1>${choosing ? commandLabels(lang).onboarding : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div>${mode === "auri" ? `<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>` : ""}<form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
   bindCommon();
   document.querySelectorAll("[data-mode]").forEach((b) => b.onclick = () => {
     mode = b.dataset.mode;
@@ -1623,11 +1962,11 @@ var roadmapView = "tree";
 var selectedMission = null;
 var workspaceSwitch = null;
 var requestDrafts = /* @__PURE__ */ new Map();
-var navigation = ["home", "journey", "assistant", "services"];
+var navigation = ["home", "journey", "services", "requests", "assistant"];
 var pageGroup = { tasks: "journey", menuDrafts: "services", projects: "services", websites: "services", hosting: "services" };
 var moreNavigation = ["profile", "simulator", "menuDrafts", "projects", "websites", "hosting", "files", "reports", "invoices", "rewards", "team", "support"];
 var link = (target, params) => hubLink(target, workspace?.organization.id, params);
-var requestLink = (service = "", task = "") => link("services", { new: "1", service, task });
+var requestLink = (service = "", task = "") => link("requests", { new: "1", service, task });
 var query = new URLSearchParams(location.search);
 function syncLocation() {
   ({ page, query } = currentHubLocation());
@@ -1655,20 +1994,20 @@ function renderShell() {
   const active = pageGroup[page] || page;
   const navItem = (p, mobile = false) => `<a class="nav-item ${active === p ? "active" : ""}" href="${esc2(link(p))}"
   data-page="${p}" ${mobile ? `data-mobile-page="${p}"` : ""} ${active === p ? 'aria-current="page"' : ""}>
-  ${hubIcon(p)}<span>${esc2(labels3[p] || l[p] || t(p))}</span></a>`;
-  const title = page === "journey" ? commandLabels(lang).vision : labels3[page] || l[page] || t(page);
-  app.innerHTML = `<div class="shell growth-shell growth-active aurahub-shell"><aside class="sidebar" id="sidebar">
- <a href="${esc2(link("home"))}" class="wordmark command-wordmark"><svg viewBox="0 0 32 29" width="34" height="31" aria-hidden="true" fill="currentColor"><path d="M15.9 1.2a3.4 3.4 0 0 1 2.9 1.8L32 27.8l-9.2-4.1L15.9 10l-5.4 10.5 8.4-2.3 3 5.5L0 29 13 3a3.3 3.3 0 0 1 2.9-1.8Z"/></svg>AuraHub</a>
+  ${hubIcon(p)}<span>${esc2(p === "services" ? serviceLabels[lang][0] : labels3[p] || l[p] || t(p))}</span></a>`;
+  const title = page === "services" ? serviceLabels[lang][0] : page === "journey" ? commandLabels(lang).vision : labels3[page] || l[page] || t(page);
+  app.innerHTML = `<div class="shell growth-shell growth-active aurahub-shell ${page === "services" ? "service-shell" : ""}"><aside class="sidebar" id="sidebar">
+ <a href="${esc2(link("home"))}" class="wordmark command-wordmark">${brandMarkup}</a>
  <nav aria-label="AuraHub">${navigation.map((p) => navItem(p)).join("")}</nav></aside>
  <div class="workspace"><header class="topbar growth-topbar hub-topbar">
- <a class="hub-mobile-brand wordmark" href="${esc2(link("home"))}">AuraHub</a>
+ <a class="hub-mobile-brand wordmark" href="${esc2(link("home"))}">${brandMarkup}</a>
  ${workspace ? `<label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span>
  <select id="workspace-select" aria-label="${t("businessName")}">${workspaces.map((o) => `<option value="${esc2(o.id)}" ${o.id === workspace.organization.id ? "selected" : ""}>${esc2(o.id === workspace.organization.id ? workspace.organization.name : o.name)}</option>`).join("")}</select></label>` : ""}
  <details class="growth-account"><summary aria-label="${esc2(t("profile"))}">${hubIcon("profile")}</summary>
  <div class="growth-account-menu"><strong>${esc2(me.name)}</strong>${languageControl()}
- ${workspace ? navItem("profile") + navItem("settings") + navItem("invoices") : ""}${button("logout", "logout", true)}</div></details></header>
+ ${navItem("settings")}${workspace ? navItem("profile") + navItem("invoices") : ""}${button("logout", "logout", true)}</div></details></header>
  <main id="main" tabindex="-1"><div class="page-heading"><h1>${page === "home" && (!workspace || !workspace.missions.length) ? `${esc2(labels3.welcome)} <span>AuraHub</span>` : page === "journey" && lang === "en" ? "Growth <span>Vision</span>" : esc2(title)}</h1>
- ${page === "services" && workspace?.permissions.includes("roadmap:write") && !query.has("new") ? `<a class="growth-secondary" href="${esc2(requestLink())}">\uFF0B ${esc2(l.request)}</a>` : ""}</div>
+ ${["services", "requests"].includes(page) && workspace?.permissions.includes("roadmap:write") && !query.has("new") ? `<a class="growth-secondary" href="${esc2(requestLink())}">\uFF0B ${esc2(l.request)}</a>` : ""}</div>
  ${!me.verified && authCapabilities.email ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}
  <div id="page-content"></div></main>
  <nav class="command-bottom-nav" aria-label="AuraHub">${navigation.map((p) => navItem(p, true)).join("")}</nav>
@@ -1719,7 +2058,7 @@ app.addEventListener("click", (event) => {
   const anchor = event.target.closest("a[href]");
   if (!me || !anchor || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || anchor.target || anchor.origin !== location.origin) return;
   const slug = anchor.pathname.split("/")[2] || "";
-  if (!anchor.pathname.startsWith("/hub") || ["login", "signup", "verify", "forgot", "reset", "invitation"].includes(slug)) return;
+  if (!anchor.pathname.startsWith("/hub") || ["login", "signup", "verify", "forgot", "reset", "invitation", "confirm-email"].includes(slug)) return;
   const targetWorkspace = new URL(anchor.href).searchParams.get("workspace");
   if (targetWorkspace && targetWorkspace !== workspace?.organization.id) return;
   event.preventDefault();
@@ -1741,8 +2080,11 @@ async function workSnapshot() {
 }
 function buildCard(ui) {
   const canBuild = !workspace || ["profile:write", "roadmap:write"].every((permission) => workspace.permissions.includes(permission));
-  return `<section class="hub-hero hub-welcome">${guideCharacter()}<h2>${esc2(ui.build)}</h2>
- <p>${esc2(ui.buildNote)}</p>${canBuild ? `<a class="growth-primary" href="${esc2(link("onboarding"))}">${esc2(ui.buildAction)} <span aria-hidden="true">\u2192</span></a>` : ""}</section><div data-home-guide></div>`;
+  return `<section class="hub-hero hub-welcome"><div>
+ <h2>${esc2(ui.build)}</h2><p>${esc2(ui.buildNote)}</p>
+ ${canBuild ? `<a class="growth-primary" href="${esc2(link("onboarding"))}">${esc2(ui.buildAction)} <span aria-hidden="true">\u2192</span></a>` : ""}
+ <a class="growth-secondary" href="${esc2(link("services"))}">${esc2(serviceLabels[lang][0])}</a></div>
+ <div class="hub-hero-art">${guideCharacter()}</div></section>${serviceShortcuts(lang, esc2, link)}<div data-home-guide></div>`;
 }
 function renderBuildCard(ui) {
   content(buildCard(ui));
@@ -1765,34 +2107,44 @@ async function home() {
     return;
   }
   const next = nextMission();
-  const { attention, progress } = await workSnapshot();
+  const { attention, progress, records } = await workSnapshot();
   if (!host.isConnected) return;
   const item = attention[0], menu = item?.kind === "menu";
   const hero = (menu ? ui.menuReady : item?.name) || (next ? missionTitle(next) : workspace.missions.every((m) => m.status === "done") ? ui.complete : ui.journey);
-  const destination = item ? link(menu ? "menuDrafts" : "services", menu ? { draft: item.id } : { request: item.id }) : link("journey", { task: next?.id });
+  const destination = item ? link(menu ? "menuDrafts" : "requests", menu ? { draft: item.id } : { request: item.id }) : link("journey", { task: next?.id });
   const label = item ? menu ? ui.reviewMenu : ui.openRequest : next ? ui.continue : ui.journey;
-  const complete = !item && !next && workspace.missions.every((m) => m.status === "done");
   const note = item ? menu ? item.name : workStatus(item) : next ? next.reason || next.description : "";
   const done = workspace.missions.filter((m) => m.status === "done").length;
-  const stage = next ? [ui.small, ui.systems, ui.scale][hubStage(next.level)] : ui.journey;
+  const stage = next ? hubStageNames(lang)[hubStage(next.level)] : ui.journey;
   host.innerHTML = `<section class="hub-hero"><div>
  ${item ? `<span class="hub-highlight">${esc2(ui.attention)}</span>` : next ? `<span class="hub-highlight">${esc2(ui.next)}</span>` : ""}
  <h2>${esc2(hero)}</h2>${note ? `<p>${esc2(note)}</p>` : ""}
- <a class="growth-primary" href="${esc2(destination)}">${esc2(label)} <span aria-hidden="true">\u2192</span></a>${complete ? ` <a class="growth-secondary" href="${esc2(link("services"))}">${esc2(ui.services)}</a>` : ""}</div>
- <div class="hub-hero-art">${menu ? menuArtwork(item) : robot()}</div></section>
- <div class="hub-work-rows">
- <a class="hub-work-row" href="${esc2(link("journey"))}"><span class="hub-row-icon">${hubIcon("journey")}</span><span><strong>${esc2(ui.journey)}</strong><small>${esc2(stage)} \xB7 ${done} / ${workspace.missions.length} ${esc2(roadmapLabels(lang).completed)}</small></span><span aria-hidden="true">\u203A</span></a>
+ <a class="growth-primary" href="${esc2(destination)}">${esc2(label)} <span aria-hidden="true">\u2192</span></a>${workspace.permissions.includes("auri:use") ? ` <a class="growth-secondary" href="${esc2(link("assistant", item?.kind === "request" ? { request: item.id } : { task: next?.id }))}">${esc2(ui.assistant)}</a>` : ""}</div>
+ <div class="hub-hero-art">${menu ? menuArtwork(item) : auriCharacter(auriLevel(), { variant: "guide" })}</div></section>
+ ${serviceSummary(records, serviceLabels[lang], esc2)}
+ <div class="hub-home-grid"><div class="hub-work-rows">
+ <a class="hub-work-row" href="${esc2(link("journey"))}"><span class="hub-row-icon">${hubIcon("journey")}</span><span><strong>${esc2(ui.journey)}</strong><small>${esc2(stage)} \xB7 ${done} / ${workspace.missions.length} ${esc2(roadmapLabels(lang).completed)}</small>
+ <progress class="hub-roadmap-progress" value="${done}" max="${workspace.missions.length}" aria-label="${esc2(roadmapLabels(lang).completed)}"></progress></span><span aria-hidden="true">\u203A</span></a>
  ${item && next ? `<a class="hub-work-row" href="${esc2(link("journey", { task: next.id }))}"><span class="hub-row-icon">${hubIcon("journey")}</span><span><strong>${esc2(ui.next)}</strong><small>${esc2(missionTitle(next))}</small></span><span aria-hidden="true">\u203A</span></a>` : ""}
- ${progress.slice(0, 2).map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")}</div>`;
+  ${progress.slice(0, 2).map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")}</div>
+ ${serviceShortcuts(lang, esc2, link, { profile: workspace.profile, missions: workspace.missions })}</div>`;
+  bindAuri(host, workspace.organization.id);
 }
 async function myWork() {
   const ui = hubLabels(lang), host = document.querySelector("#page-content"), id = workspace.organization.id;
   const task = workspace.missions.find((m) => m.id === query.get("task"));
   if (query.has("new") && workspace.permissions.includes("roadmap:write")) {
-    return renderRequestForm({ host, lang, esc: esc2, me, workspace, service: query.get("service"), task: task ? missionTitle(task) : "", draft: requestDrafts.get(id) || "", back: link("services"), submitted: (request2) => {
+    return renderRequestForm({ host, lang, esc: esc2, me, workspace, service: query.get("service"), task: task ? missionTitle(task) : "", draft: requestDrafts.get(id) || "", back: link("requests"), submitted: (request2) => {
       requestDrafts.delete(id);
-      navigate("services", { request: request2 }, true);
+      navigate("requests", { request: request2 }, true);
     } });
+  }
+  const serviceRecord = query.get("serviceRecord");
+  if (serviceRecord && page === "services") {
+    host.innerHTML = '<p role="status">\u2026</p>';
+    const record = await api(endpoint("work/" + encodeURIComponent(serviceRecord)));
+    if (host.isConnected) renderServiceDetails({ host, record, lang, esc: esc2, link, askLabel: workspace.permissions.includes("auri:use") ? ui.assistant : null });
+    return;
   }
   const request = query.get("request");
   const service = query.get("active");
@@ -1804,7 +2156,13 @@ async function myWork() {
   ${workspace.permissions.includes("auri:use") ? `<a class="secondary" href="${esc2(link("assistant", { request }))}">${esc2(ui.assistant)}</a>` : ""}</section>`;
     return;
   }
-  const { attention, progress, services } = await workSnapshot();
+  if (page === "services" && !service) {
+    host.innerHTML = '<p role="status">\u2026</p>';
+    const { records } = await api(endpoint("work"));
+    if (host.isConnected) renderServices({ host, records: records || [], lang, esc: esc2, link, profile: workspace.profile, missions: workspace.missions });
+    return;
+  }
+  const { attention, progress, services, requests: requests2 } = await workSnapshot();
   if (!host.isConnected || workspace.organization.id !== id) return;
   if (service) {
     const record = services.find((item) => String(item.id) === service);
@@ -1813,14 +2171,67 @@ async function myWork() {
     return;
   }
   const section = (name, empty, rows) => `<section class="hub-work-section"><h2>${esc2(name)}</h2>${rows || `<p class="hub-empty">${esc2(empty)}</p>`}</section>`;
-  host.innerHTML = section(ui.attention, ui.emptyAttention, attention.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + section(ui.progress, ui.emptyProgress, progress.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + section(ui.active, ui.emptyActive, services.map((record) => `<a class="hub-work-row" href="${esc2(link("services", { active: record.id }))}"><span class="hub-row-icon">${hubIcon("services")}</span><span><strong>${esc2(record.name)}</strong><small>${esc2(workStatus(record))}</small></span><span aria-hidden="true">\u203A</span></a>`).join("")) + `<a href="${esc2(link("menuDrafts"))}" class="growth-secondary">${esc2(t("menuDrafts"))}</a>`;
+  if (!attention.length && !requests2.length) {
+    host.innerHTML = `<section class="panel hub-page-start"><span class="hub-row-icon">${hubIcon("services")}</span><div><h2>${esc2(ui.requests)}</h2>
+  <p>${esc2({ en: "Your requests will appear here.", fr: "Vos demandes appara\xEEtront ici.", tr: "Talepleriniz burada g\xF6r\xFCnecek.", ar: "\u0633\u062A\u0638\u0647\u0631 \u0637\u0644\u0628\u0627\u062A\u0643 \u0647\u0646\u0627." }[lang])}</p>
+  <a class="growth-primary" href="${esc2(link("services"))}">${esc2(serviceLabels[lang][0])} \u2192</a>
+  <a class="growth-secondary" href="${esc2(link("menuDrafts"))}">${esc2(t("menuDrafts"))}</a></div></section>${serviceShortcuts(lang, esc2, link, { profile: workspace.profile, missions: workspace.missions })}`;
+    return;
+  }
+  const displayed = new Set([...attention, ...progress].map((record) => record.id));
+  const history2 = requests2.filter((record) => !displayed.has(record.id));
+  host.innerHTML = section(ui.attention, ui.emptyAttention, attention.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + section(ui.progress, ui.emptyProgress, progress.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + (history2.length ? section(hubLabels(lang).requests, "", history2.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) : "") + `<a href="${esc2(link("menuDrafts"))}" class="growth-secondary">${esc2(t("menuDrafts"))}</a>`;
 }
 async function renderPage() {
   const label = hubLabels(lang);
   if (page === "invoices") return content(`<section class="panel"><a class="primary" href="/account">${esc2(t("orders"))}</a></section>`);
   if (page === "home") return home();
+  if (page === "services" && (query.has("offer") || !workspace)) {
+    const host = document.querySelector("#page-content");
+    if (query.has("offer")) {
+      const found = renderServiceOffer({
+        host,
+        offer: query.get("offer"),
+        lang,
+        esc: esc2,
+        link,
+        canRequest: workspace?.permissions.includes("roadmap:write"),
+        canSetUp: !workspace,
+        askLabel: workspace?.permissions.includes("auri:use") ? label.assistant : null
+      });
+      if (!found) throw new Error(label.unavailable);
+    } else renderServices({ host, records: [], lang, esc: esc2, link });
+    return;
+  }
+  if (page === "settings") return renderAccountSettings({
+    host: document.querySelector("#page-content"),
+    user: me,
+    lang,
+    esc: esc2,
+    t,
+    api,
+    link,
+    workspace,
+    canEmail: authCapabilities.email,
+    canLinkGoogle: me.verified && authCapabilities.google,
+    onSignIn: () => location.assign("/hub/login"),
+    onLanguage: (value) => {
+      lang = value;
+      localStorage.setItem("aura-hub-language", lang);
+      render();
+    },
+    onNewWorkspace: () => {
+      stopAuriVoice();
+      workspace = null;
+      editing = true;
+      draft = emptyProfile();
+      mode = "myself";
+      step = 0;
+      renderSetup();
+    }
+  });
   if (!workspace) return renderBuildCard(label);
-  if (page === "services") return myWork();
+  if (page === "services" || page === "requests") return myWork();
   if ((page === "journey" || page === "onboarding") && !workspace.missions.length) return renderBuildCard(label);
   if (page === "onboarding") {
     navigate("journey", {}, true);
@@ -1859,40 +2270,48 @@ async function renderPage() {
   if (page === "simulator") return simulator();
   if (page === "team") return team();
   if (page === "assistant") return assistant();
-  if (page === "settings") {
-    content(`<section class="panel"><h2>${t("security")}</h2><p>${esc2(me.email)} \xB7 ${me.verified ? t("verified") : t("verify")}</p>${authCapabilities.email ? `<a class="secondary" href="/hub/forgot">${t("reset")}</a>` : ""}${me.verified && authCapabilities.google ? `<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t("linkGoogle")}</a></p>` : ""}<hr>${button("profile", "open-profile", true)}${button("auri", "open-auri-settings", true)}${button("team", "open-team", true)}${button("resources", "open-resources", true)}${button("newWorkspace", "new-workspace", true)}</section>`);
-    document.querySelector('[data-action="open-profile"]').onclick = () => navigate("profile");
-    document.querySelector('[data-action="open-auri-settings"]').onclick = () => navigate("assistant");
-    document.querySelector('[data-action="open-resources"]').onclick = () => navigate("resources");
-    document.querySelector('[data-action="open-team"]').onclick = () => navigate("team");
-    document.querySelector('[data-action="new-workspace"]').onclick = () => {
-      stopAuriVoice();
-      workspace = null;
-      editing = true;
-      draft = emptyProfile();
-      mode = "myself";
-      step = 0;
-      renderSetup();
-    };
+  const shortcuts = { projects: ["requests", label.requests], websites: ["services", serviceLabels[lang][0], { offer: "web" }], hosting: ["services", serviceLabels[lang][0], { offer: "hosting" }], files: ["services", serviceLabels[lang][0]], reports: ["insights", t("simulator")], rewards: ["journey", commandLabels(lang).vision] };
+  const shortcut = shortcuts[page];
+  if (shortcut) {
+    const [destination, name, params] = shortcut;
+    content(`<section class="panel hub-page-start"><span class="hub-row-icon">${hubIcon(destination)}</span><div>
+  <h2>${esc2(name)}</h2><a class="growth-primary" href="${esc2(link(destination, params))}">${esc2(name)} \u2192</a></div></section>
+  ${["projects", "websites", "hosting", "files"].includes(page) ? serviceShortcuts(lang, esc2, link, { profile: workspace.profile, missions: workspace.missions }) : ""}`);
     return;
   }
-  const service = page === "services", support = page === "support", reports = ["reports", "rewards"].includes(page);
-  content(`<section class="panel quiet-panel"><span class="eyebrow">${reports ? "NOT CONNECTED" : service ? "SERVICE CATALOGUE" : "INTEGRATION PENDING"}</span><h2>${t(page)}</h2><p>${t(service ? "serviceNote" : support ? "supportText" : reports ? "reportNote" : "unavailable")}</p><a class="primary" href="${service ? "/services" : "/contact"}">${t(service ? "openServices" : "contact")} \u2197</a></section>`);
+  content(`<section class="panel hub-page-start"><span class="hub-row-icon">${hubIcon("assistant")}</span><div>
+ <h2>${esc2(t("contact"))}</h2><p>${esc2(t("supportText"))}</p>
+ ${workspace.permissions.includes("auri:use") ? `<a class="growth-primary" href="${esc2(link("assistant"))}">${esc2(label.assistant)} \u2197</a>` : ""}
+ <a class="growth-secondary" href="/contact">${esc2(t("contact"))}</a></div></section>`);
 }
-async function askAuri(question, missionId, requestId) {
+async function askAuri(question, missionId, requestId, serviceKey, offer) {
   const id = workspace.organization.id;
-  const { data } = await runAuri(id, "thinking", () => api(endpoint("auri"), "POST", { tool: "guidance", question, lang, ...missionId ? { missionId } : {}, ...requestId ? { requestId } : {} }), "speaking");
+  if (serviceKey) {
+    const { data: { service } } = await runAuri(id, "thinking", () => api(endpoint("auri"), "POST", { tool: "service_status", serviceKey }), "speaking");
+    const labels3 = serviceLabels[lang];
+    const renewal = service.kind === "subscription";
+    return `${service.name} \xB7 ${serviceStatus(service, labels3)}. ${labels3[renewal ? 13 : 11]} \xB7 ${serviceDate(renewal ? service.renewalDate : service.dueDate, lang, labels3[12])}.`;
+  }
+  const { data } = await runAuri(id, "thinking", () => api(endpoint("auri"), "POST", { tool: "guidance", question, lang, ...missionId ? { missionId } : {}, ...requestId ? { requestId } : {}, ...offer ? { offer } : {} }), "speaking");
   if (workspace?.organization.id !== id) return "";
   if (data.reply) return data.reply;
-  if (/customers|visibility|sales|müşteri|clients|عملاء/i.test(question) && data.priorities?.length) return data.priorities.map((m) => cap(m.capability)).join(" \xB7 ");
+  const fallback = {
+    en: "Auri AI is unavailable. Roadmap guidance",
+    fr: "L\u2019IA d\u2019Auri est indisponible. Conseil de la feuille de route",
+    tr: "Auri yapay zek\xE2s\u0131 kullan\u0131lam\u0131yor. Yol haritas\u0131 \xF6nerisi",
+    ar: "\u0630\u0643\u0627\u0621 \u0623\u0648\u0631\u064A \u063A\u064A\u0631 \u0645\u062A\u0627\u062D. \u0625\u0631\u0634\u0627\u062F \u0645\u0646 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642"
+  }[lang];
+  const guidance = (message) => fallback + " \xB7 " + message;
+  if (data.offerGuidance) return guidance(data.offerGuidance);
+  if (/customers|visibility|sales|müşteri|clients|عملاء/i.test(question) && data.priorities?.length) return guidance(data.priorities.map((m) => cap(m.capability)).join(" \xB7 "));
   const task = data.mission || data.nextAction;
-  if (requestId) return hubLabels(lang).requestDetails + " \xB7 " + hubLabels(lang).return;
-  if (!task) return t("empty");
+  if (requestId) return guidance(hubLabels(lang).requestDetails + " \xB7 " + hubLabels(lang).return);
+  if (!task) return guidance(t("empty"));
   const alternate = task.route === "alternative" ? missionAlternative(task.capability) : null;
-  if (alternate) return [alternate.title, alternate.steps].join(" \xB7 ");
+  if (alternate) return guidance([alternate.title, alternate.steps].join(" \xB7 "));
   const guide = missionGuide[task.capability], requirements = missionState(task, workspace.missions, workspace.profile).requirements;
   const action = task.nextAction === "Define scope or record your existing solution." ? guide?.[2] : task.nextAction;
-  return [cap(task.capability), action, requirements.length ? requirements.map(cap).join(", ") : ""].filter(Boolean).join(" \xB7 ");
+  return guidance([cap(task.capability), action, requirements.length ? requirements.map(cap).join(", ") : ""].filter(Boolean).join(" \xB7 "));
 }
 function growthDashboard() {
   disconnectDesk();
@@ -2194,8 +2613,8 @@ function renderCompanion(full = false) {
   if (preferences.hidden && !full) return;
   const id = workspace.organization.id;
   if (!auriSessions.has(id)) auriSessions.set(id, { open: false, reply: "", pending: false, error: "" });
-  const missionId = query.get("task"), requestId = query.get("request");
-  const sessionKey = [id, missionId, requestId].filter(Boolean).join(":");
+  const missionId = query.get("task"), requestId = query.get("request"), serviceKey = query.get("serviceRecord"), offer = query.get("offer");
+  const sessionKey = [id, missionId, requestId, serviceKey, offer].filter(Boolean).join(":");
   if (!auriSessions.has(sessionKey)) auriSessions.set(sessionKey, { open: false, reply: "", pending: false, error: "" });
   const session = auriSessions.get(sessionKey);
   session.turns ??= [];
@@ -2205,11 +2624,17 @@ function renderCompanion(full = false) {
   const next = eligibleMissions(workspace.missions, workspace.profile)[0];
   const readAloud = { en: "Read aloud", tr: "Sesli oku", fr: "Lire \xE0 voix haute", ar: "\u0642\u0631\u0627\u0621\u0629 \u0628\u0635\u0648\u062A \u0639\u0627\u0644\u064D" }[lang];
   const send = { en: "Send", tr: "G\xF6nder", fr: "Envoyer", ar: "\u0625\u0631\u0633\u0627\u0644" }[lang];
+  const suggested = offer && !session.turns.length ? {
+    en: "How would this help my business?",
+    fr: "Comment ce service aiderait-il mon entreprise ?",
+    tr: "Bu hizmet i\u015Fletmeme nas\u0131l yard\u0131mc\u0131 olur?",
+    ar: "\u0643\u064A\u0641 \u0633\u062A\u0633\u0627\u0639\u062F \u0647\u0630\u0647 \u0627\u0644\u062E\u062F\u0645\u0629 \u0646\u0634\u0627\u0637\u064A\u061F"
+  }[lang] : "";
   const identity = `${auriCharacter(level, { posterOnly: page === "home" && !matchMedia("(max-width:800px)").matches })}<span><strong>${esc2(preferences.name)}</strong><small>${esc2(t("level"))} ${level} \xB7 ${auriNames[level - 1]}</small></span>
   <span class="auri-status" role="status" data-auri-status></span>`;
   const body = `<div class="auri-companion-body">
-  ${next && !missionId && !requestId ? `<p><strong>${esc2(focus)}</strong> \xB7 ${esc2(cap(next.capability))}</p>` : ""}
-  ${canAsk ? `<div data-auri-transcript>${transcript()}</div><form data-auri-ask><label><span class="sr-only">${esc2(label)}</span><input name="question" maxlength="500" placeholder="${esc2(label)}" required></label>
+  ${next && !missionId && !requestId && !serviceKey && !offer ? `<p><strong>${esc2(focus)}</strong> \xB7 ${esc2(cap(next.capability))}</p>` : ""}
+  ${canAsk ? `<div data-auri-transcript>${transcript()}</div><form data-auri-ask><label><span class="sr-only">${esc2(label)}</span><input name="question" maxlength="500" value="${esc2(suggested)}" placeholder="${esc2(label)}" required></label>
   <button class="primary" ${session.pending ? "disabled" : ""}>${esc2(send)}</button></form><p data-auri-reply role="status" class="${session.error ? "" : "sr-only"}">${esc2(session.error)}</p>
   ${"speechSynthesis" in window ? `<button type="button" class="secondary" data-auri-voice ${session.reply && !session.error ? "" : "hidden"}>${esc2(readAloud)}</button>
   <button type="button" class="secondary" data-auri-stop ${auriVoice?.scope === id ? "" : "hidden"}>${esc2(controls2.stop)}</button>` : ""}` : ""}
@@ -2245,7 +2670,7 @@ function renderCompanion(full = false) {
   if (request) request.onclick = () => {
     if (session.reply) requestDrafts.set(id, session.reply);
     const mission = workspace.missions.find((item) => item.id === missionId);
-    const service = missionGuide[mission?.capability]?.[0] || "";
+    const service = serviceOffer(offer)?.service || missionGuide[mission?.capability]?.[0] || "";
     window.history.pushState(null, "", requestLink(service, mission?.id));
     syncLocation();
     render();
@@ -2317,7 +2742,7 @@ function renderCompanion(full = false) {
     if (stop) stop.hidden = true;
     session.reply = session.error = reply.textContent = "";
     try {
-      session.reply = await askAuri(question, missionId, requestId);
+      session.reply = await askAuri(question, missionId, requestId, serviceKey, offer);
       if (session.reply) {
         session.turns.push({ question, reply: session.reply });
         if (session.turns.length > 20) session.turns.shift();
@@ -2338,15 +2763,16 @@ function renderCompanion(full = false) {
 async function assistant() {
   const ui = hubLabels(lang), host = document.querySelector("#page-content");
   const id = workspace.organization.id;
-  const missionId = query.get("task"), requestId = query.get("request");
+  const missionId = query.get("task"), requestId = query.get("request"), serviceKey = query.get("serviceRecord"), offer = query.get("offer");
   const mission = missionId ? workspace.missions.find((m) => m.id === missionId) : null;
-  if (missionId && !mission) throw new Error(ui.unavailable);
-  const record = requestId ? await api(endpoint("work/" + encodeURIComponent(requestId))) : null;
+  const offerName = serviceOffer(offer)?.[lang];
+  if (missionId && !mission || offer && !offerName) throw new Error(ui.unavailable);
+  const record = requestId || serviceKey ? await api(endpoint("work/" + encodeURIComponent(requestId || serviceKey))) : null;
   if (!host.isConnected) return;
-  const returnLink = mission ? link("journey", { task: mission.id }) : record ? link("services", { request: record.id }) : null;
+  const returnLink = mission ? link("journey", { task: mission.id }) : serviceKey ? link("services", { serviceRecord: serviceKey }) : record ? link("requests", { request: record.id }) : offerName ? link("services", { offer }) : null;
   const canAsk = workspace.permissions.includes("auri:use");
   const labels3 = auriDraftCopy(lang);
-  content(`${returnLink ? `<div class="hub-context"><strong>${esc2(ui.context)} \xB7 ${esc2(mission ? missionTitle(mission) : record.name)}</strong><a class="growth-secondary" href="${esc2(returnLink)}">${esc2(ui.return)}</a></div>` : ""}<div id="auri-workspace"></div>${canAsk ? `<section class="panel auri-work-log">
+  content(`${returnLink ? `<div class="hub-context"><strong>${esc2(ui.context)} \xB7 ${esc2(mission ? missionTitle(mission) : record?.name || offerName)}</strong><a class="growth-secondary" href="${esc2(returnLink)}">${esc2(ui.return)}</a></div>` : ""}<div id="auri-workspace"></div>${canAsk ? `<section class="panel auri-work-log">
   <div class="actions"><button type="button" class="primary" data-auri-draft>${esc2(labels3.create)}</button>${button("diagnosis", "diagnosis", true)}${button("recommend", "next-action", true)}</div><div data-auri-tools-status role="status"></div>
   <p role="status" data-draft-status></p>
   <h2>${esc2(labels3.history)}</h2><div data-auri-drafts></div></section>` : ""}`);
@@ -2450,7 +2876,7 @@ async function load() {
   }
 }
 async function start() {
-  if (["verify", "reset", "forgot"].includes(route)) {
+  if (["verify", "reset", "forgot", "confirm-email"].includes(route)) {
     render();
     return;
   }
