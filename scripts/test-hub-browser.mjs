@@ -24,21 +24,31 @@ try {
  await desktop.locator('[name=password]').fill('Saffron-lake-0142!');
  await desktop.locator('[name=terms]').check();
  await desktop.locator('#auth-form button').click();
- await desktop.locator('[data-mode=myself]').click();
+ await desktop.getByRole('heading',{name:"Let's build your business."}).waitFor();
+ await desktop.locator('[name=source]').setInputFiles({
+  name:'business.txt',mimeType:'text/plain',buffer:Buffer.from('TechStyle sells clothing online.'),
+ });
+ await desktop.getByText('business.txt',{exact:true}).waitFor();
+ await desktop.getByRole('button',{name:'Start without documents'}).click();
  await desktop.locator('[name=name]').fill('TechStyle Store');
+ await desktop.getByRole('button',{name:'Continue'}).click();
  await desktop.locator('[name=industry]').selectOption('ecommerce');
+ await desktop.getByRole('button',{name:'Continue'}).click();
+ await desktop.getByRole('button',{name:'Skip'}).click();
  await desktop.locator('[name=goals]').fill('Increase sales');
- await desktop.locator('#profile-form button[type=submit]').click();
- await desktop.locator('.growth-root').waitFor();
+ await desktop.getByRole('button',{name:'Continue'}).click();
+ await desktop.getByRole('heading',{name:'Review your workspace details'}).waitFor();
+ await desktop.getByRole('button',{name:'Create workspace'}).click();
+ await desktop.locator('.growth-path').waitFor();
  await desktop.locator('.hub-overview-intro h1').filter({hasText:'TechStyle Store'}).waitFor();
  assert.equal(await desktop.locator('.hub-evolution-track li').count(),7);
  assert.equal(await desktop.locator('.hub-evolution-track [aria-current=step] span').innerText(),'2');
  assert.equal(await desktop.locator('.hub-auri-desk').isVisible(),true);
  await desktop.locator('[data-next-mission]').click();
  await desktop.getByRole('heading',{name:'Growth Vision',exact:true}).first().waitFor();
- await desktop.getByRole('button',{name:'Zoom in'}).click();
- assert.equal(await desktop.locator('[data-zoom=reset]').innerText(),'125%');
- await desktop.getByRole('button',{name:'Reset zoom'}).click();
+ assert.equal(await desktop.locator('.vision-stage').count(),5);
+ assert.equal(await desktop.locator('.vision-stage [aria-pressed=true]').count(),1);
+ assert.equal(await desktop.getByRole('progressbar').getAttribute('aria-valuenow'),'0');
  await desktop.locator('.sidebar [data-page=home]').click();
 
 
@@ -58,7 +68,7 @@ try {
  assert.equal(await avatar.getAttribute('level'),'2');
  await companion.locator('summary').click();
 
- assert.equal(await desktop.locator('[data-stage]').count(),4);
+ assert.equal(await desktop.locator('.vision-stage').count(),5);
  await desktop.locator('[data-page=assistant]').click();
  await desktop.locator('[data-auri-name] input').fill('Pebble');
  await desktop.locator('[data-auri-name] button').click();
@@ -74,7 +84,7 @@ try {
  await desktop.locator('[data-auri-hide]').filter({hasText:'Hide companion'}).waitFor();
  await desktop.locator('[data-page=home]').click();
  await desktop.locator('.auri-dock summary strong').filter({hasText:'Pebble'}).waitFor();
- const website=desktop.locator('[data-node]').filter({hasText:/website/i}).first();
+ const website=desktop.locator('.vision-task').filter({hasText:/website/i}).first();
  await website.click();
  await desktop.locator('#growth-focus h2').filter({hasText:/website/i}).waitFor();
  assert.equal(await desktop.locator('.sidebar nav [data-page]').count(),6);
@@ -121,7 +131,9 @@ try {
  await desktop.goto(base+'/account/login');
  await desktop.waitForURL('**/hub/login');
  await desktop.locator('.growth-ring').filter({hasNotText:'0%'}).waitFor();
- await desktop.locator('[data-status=done]').waitFor();
+ assert.equal(await desktop.locator('.auri-setup').count(),0);
+ await desktop.locator('[data-view=timeline]').click();
+ await desktop.locator('[data-status=done]').first().waitFor();
  // Exercise the real reset endpoint with a token seeded only in the in-memory QA database.
  const recovery=await desktopContext.newPage();
  const resetLink=await (await recovery.request.post(base+'/__qa/password-reset',{data:{email}})).json();
@@ -136,32 +148,35 @@ try {
  await recovery.locator('.form-error').filter({hasText:/incorrect/i}).waitFor();
  await recovery.locator('[name=password]').fill('Saffron-lake-0143!');
  await recovery.locator('#auth-form button').click();
- await recovery.locator('[data-status=done]').waitFor();
+ await recovery.locator('[data-view=timeline]').click();
+ await recovery.locator('[data-status=done]').first().waitFor();
  await recovery.close();
  assert.deepEqual(exceptions,[]);
 
  // Use only the synthetic fixture in the screenshots.
  await desktop.goto(base+'/__qa/start');
- await desktop.locator('.growth-root').waitFor();
- const active=desktop.locator('[data-node]').filter({hasText:/website/i}).first();
+ await desktop.locator('.growth-path').waitFor();
+ await desktop.locator('[data-view=tree]').click();
+ const active=desktop.locator('.vision-task').filter({hasText:/website/i}).first();
  await active.click();
  await desktop.locator('[data-status-change]').selectOption('done');
  await desktop.locator('.growth-ring').filter({hasNotText:'0%'}).waitFor();
- const seo=desktop.locator('[data-node]').filter({hasText:/SEO/i}).first();
+ await desktop.locator('.vision-stage').nth(1).locator('button').click();
+ const seo=desktop.locator('.vision-task').filter({hasText:/SEO/i}).first();
  await seo.click();
  await desktop.locator('[data-status-change]').selectOption('in_progress');
- await desktop.locator('[data-node][data-status=in_progress]').waitFor();
+ await desktop.locator('.vision-task[data-display-state=in_progress]').waitFor();
  await desktop.screenshot({path:output+'/AuraDigital-Desktop.png',fullPage:true,animations:'disabled'});
 
  const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
  await mobile.goto(base+'/__qa/start');
- await mobile.locator('.growth-root').waitFor();
+ await mobile.locator('.growth-path').waitFor();
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  assert.equal(await mobile.locator('.hub-auri-desk').isVisible(),false);
  assert.equal(await mobile.locator('.auri-dock summary').isVisible(),true);
  await mobile.locator('#toggle-menu').click();
  await mobile.locator('.sidebar [data-page=journey]').click();
- await mobile.locator('[data-node]').first().click();
+ await mobile.locator('.vision-stage [data-node]').first().click();
  await mobile.locator('#growth-focus h2').waitFor();
  await mobile.locator('[data-ask-task]').click();
  await mobile.waitForFunction(()=>document.querySelector('.growth-answer')?.textContent.length>5);
@@ -178,7 +193,7 @@ try {
  await mobile.locator('#language').selectOption('ar');
  assert.equal(await mobile.locator('html').getAttribute('dir'),'rtl');
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
- console.log('Hub browser QA passed: signup, login, generated roadmap, tree, timeline, persisted progress, AURI, service handoff and mobile.');
+ console.log('Hub browser QA passed: signup, login, confirmed onboarding, Growth Vision, timeline, persisted progress, AURI, service handoff and mobile.');
 } finally {
  await browser.close();
 }

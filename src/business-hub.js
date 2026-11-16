@@ -1,3 +1,4 @@
+import { analyzeOnboarding } from './hub-onboarding.js';
 import { ensureAuriSchema } from './auri-schema.js';
 import { changeMissionRoute, submitMissionEvidence, workspaceEvidence } from './mission-evidence.js';
 import { auriPreferences, saveAuriPreferences } from './auri-preferences.js';
@@ -113,6 +114,7 @@ export async function handleBusinessHub(request,env) {
  const user=await authenticatedCustomer(request,env);if(!user)throw new ApiError(401,'Sign in to your AuraDigital account.');
  const write=!['GET','HEAD'].includes(request.method);
  if(write){if(!sameOrigin(request))throw new ApiError(403,'Forbidden origin.');await limit(request,env,user);}
+ if(path==='/api/hub/onboarding/analyze'&&request.method==='POST')return analyzeOnboarding(request,env,user);
  const menuDraftResponse=await handleMenuDrafts(request,env,user,authorize);
  if(menuDraftResponse)return menuDraftResponse;
  if(path==='/api/hub/workspaces'&&request.method==='GET') {
@@ -123,17 +125,23 @@ export async function handleBusinessHub(request,env) {
   return json({user:{id:user.id,name:user.name,email:user.email,verified:await isEmailVerified(env.DB,user)},workspaces:[...owned.map(o=>({...o,owner:true})),...shared],billing});
  }
  if(path==='/api/hub/workspaces'&&request.method==='POST') {
-  const body=await readJson(request,16000),profile=validateProfile(body.profile),id=crypto.randomUUID();
+  const body=await readJson(request,16000),profile=validateProfile(body.profile);
+  if(body.requestId!==undefined&&!uuid(body.requestId))throw new ApiError(400,'Invalid setup request.');
+  const id=body.requestId??crypto.randomUUID();
   if(!['myself','auri'].includes(body.mode))throw new ApiError(400,'Choose an onboarding mode.');
   const suggested=diagnose(profile).missions;
   const deferred=body.deferredMissions??[];
   if(!Array.isArray(deferred)||deferred.length>3||deferred.some(id=>!suggested.some(m=>m.id===id)))throw new ApiError(400,'Choose which suggested missions to do later.');
 
+  const profileJson=JSON.stringify(profile);
   const [result]=await env.DB.batch([
-   env.DB.prepare('INSERT INTO organizations(id,owner_id,name,profile_json,mode) SELECT ?,?,?,?,? WHERE (SELECT count(*) FROM organizations WHERE owner_id=?)<10').bind(id,user.id,profile.name,JSON.stringify(profile),body.mode,user.id),
-   ...missionInserts(env.DB,id,suggested,'EXISTS(SELECT 1 FROM organizations WHERE id=? AND owner_id=?)',[id,user.id],deferred),
+   env.DB.prepare('INSERT INTO organizations(id,owner_id,name,profile_json,mode) SELECT ?,?,?,?,? WHERE (SELECT count(*) FROM organizations WHERE owner_id=?)<10 AND (?=0 OR NOT EXISTS(SELECT 1 FROM organizations WHERE owner_id=?)) ON CONFLICT(id) DO NOTHING').bind(id,user.id,profile.name,profileJson,body.mode,user.id,body.requestId?1:0,user.id),
+   ...missionInserts(env.DB,id,suggested,'EXISTS(SELECT 1 FROM organizations WHERE id=? AND owner_id=? AND version=1 AND profile_json=?)',[id,user.id,profileJson],deferred),
   ]);
-  if(!result.meta.changes)throw new ApiError(409,'Workspace limit reached.');
+  if(!result.meta.changes){
+   if(body.requestId&&await env.DB.prepare('SELECT id FROM organizations WHERE id=? AND owner_id=? AND profile_json=? AND mode=?').bind(id,user.id,profileJson,body.mode).first())return json({id});
+   throw new ApiError(409,body.requestId?'A workspace already exists. Reload the Hub to open it.':'Workspace limit reached.');
+  }
   return json({id},201);
  }
  if(['/api/hub/invitations/preview','/api/hub/invitations/accept'].includes(path)&&request.method==='POST')return invitation(request,env,user,await readJson(request,4096),path.endsWith('/accept'));
