@@ -741,3 +741,11 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 .hub-page-start h2{margin:0 0 8px}
 .hub-page-start .growth-secondary{margin-inline-start:5px}
 @media(max-width:760px){.hub-settings-grid{grid-template-columns:1fr}}
+
+/* Small visual cues for service help and first requests */
+.offer-actions .service-ask-auri{gap:8px;padding-inline:9px 12px}
+.service-ask-auri img{width:25px;height:25px;object-fit:contain;border-radius:6px;background:#192219}
+.hub-requests-empty{align-items:center}
+.hub-requests-empty>img{width:clamp(52px,10vw,80px);height:auto;flex:none;border-radius:16px;border:1px solid #566840;background:radial-gradient(ellipse,#3a4924,#18231b 74%)}
+.hub-home-grid .hub-service-links>a{min-height:58px;background:linear-gradient(145deg,#212b21,#171e19)}
+.hub-home-grid .hub-service-links>a:hover,.hub-home-grid .hub-service-links>a:focus-visible{background:#283520}

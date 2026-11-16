@@ -310,7 +310,7 @@ async function home(){
  <h2>${esc(hero)}</h2>${note?`<p>${esc(note)}</p>`:''}
  <a class="growth-primary" href="${esc(destination)}">${esc(label)} <span aria-hidden="true">→</span></a>${workspace.permissions.includes('auri:use')?` <a class="growth-secondary" href="${esc(link('assistant',item?.kind==='request'?{request:item.id}:{task:next?.id}))}">${esc(ui.assistant)}</a>`:''}</div>
  <div class="hub-hero-art">${menu?menuArtwork(item):auriCharacter(auriLevel(),{variant:'guide'})}</div></section>
- ${serviceSummary(records,serviceLabels[lang],esc)}
+ ${serviceSummary(records,serviceLabels[lang],esc,lang)}
  <div class="hub-home-grid"><div class="hub-work-rows">
  <a class="hub-work-row" href="${esc(link('journey'))}"><span class="hub-row-icon">${hubIcon('journey')}</span><span><strong>${esc(ui.journey)}</strong><small>${esc(stage)} · ${done} / ${workspace.missions.length} ${esc(roadmapLabels(lang).completed)}</small>
  <progress class="hub-roadmap-progress" value="${done}" max="${workspace.missions.length}" aria-label="${esc(roadmapLabels(lang).completed)}"></progress></span><span aria-hidden="true">›</span></a>
@@ -358,7 +358,7 @@ async function myWork(){
  }
  const section=(name,empty,rows)=>`<section class="hub-work-section"><h2>${esc(name)}</h2>${rows||`<p class="hub-empty">${esc(empty)}</p>`}</section>`;
  if(!attention.length&&!requests.length){
-  host.innerHTML=`<section class="panel hub-page-start"><span class="hub-row-icon">${hubIcon('services')}</span><div><h2>${esc(ui.requests)}</h2>
+  host.innerHTML=`<section class="panel hub-page-start hub-requests-empty"><img src="/media/auri/level-1.webp" alt="" width="80" height="80" loading="lazy"><div><h2>${esc(ui.requests)}</h2>
   <p>${esc(({en:'Your requests will appear here.',fr:'Vos demandes apparaîtront ici.',tr:'Talepleriniz burada görünecek.',ar:'ستظهر طلباتك هنا.'})[lang])}</p>
   <a class="growth-primary" href="${esc(link('services'))}">${esc(serviceLabels[lang][0])} →</a>
   <a class="growth-secondary" href="${esc(link('menuDrafts'))}">${esc(t('menuDrafts'))}</a></div></section>${serviceShortcuts(lang,esc,link,{profile:workspace.profile,missions:workspace.missions})}`;

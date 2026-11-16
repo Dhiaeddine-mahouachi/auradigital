@@ -2,13 +2,14 @@ import { rankServicesForBusiness } from './service-ranking.js';
 import { deliverables } from './service-deliverables.js';
 
 export const serviceLabels={
- en:['My Services','Everything AuraDigital creates and manages for your business.','All','In progress','Needs action','Delivered','Active','No services match this view.','Open details','Payment','Unavailable','Delivery deadline','Awaiting confirmation','Renewal date','Created'],
+ en:['My Services','Track your services, deadlines and renewals in one place.','All','In progress','Needs action','Delivered','Active','No services match this filter.','Open details','Payment','Unavailable','Delivery deadline','Awaiting confirmation','Renewal date','Created'],
  fr:['Mes services','Tout ce qu’AuraDigital crée et gère pour votre entreprise.','Tous','En cours','Action requise','Livré','Actif','Aucun service dans cette vue.','Voir les détails','Paiement','Indisponible','Date de livraison','En attente de confirmation','Date de renouvellement','Créé'],
  tr:['Hizmetlerim','AuraDigital’in işletmeniz için oluşturduğu ve yönettiği her şey.','Tümü','Devam eden','İşlem gerekli','Teslim edildi','Aktif','Bu görünümde hizmet yok.','Ayrıntıları aç','Ödeme','Kullanılamıyor','Teslim tarihi','Onay bekleniyor','Yenileme tarihi','Oluşturuldu'],
  ar:['خدماتي','كل ما تنشئه AuraDigital وتديره لنشاطك التجاري.','الكل','قيد التنفيذ','يتطلب إجراءً','تم التسليم','نشط','لا توجد خدمات في هذا العرض.','عرض التفاصيل','الدفع','غير متاح','موعد التسليم','بانتظار التأكيد','موعد التجديد','تاريخ الإنشاء'],
 };
 
 const filters=['all','progress','attention','delivered','active'];
+const totalLabels={en:'Total services',fr:'Total des services',tr:'Toplam hizmet',ar:'إجمالي الخدمات'};
 const statuses={
  new:'progress', 'in-progress':'progress', scheduled:'progress', production:'progress', in_progress:'progress', in_production:'progress',
  ready:'attention', waiting:'attention', waiting_client:'attention', waiting_for_customer:'attention', review:'attention',
@@ -65,7 +66,7 @@ export function renderServiceOffer({host,offer,lang,esc,link,canRequest,canSetUp
  <div class="service-offer-copy"><span class="service-icon">${icon(offer)}</span><h2>${esc(example[lang])}</h2>
  <p>${deliverables[offer][lang][0]}</p>${scopeMarkup(offer,lang)}
  <div class="growth-actions offer-actions">
- ${askLabel?`<a class="growth-primary" href="${esc(link('assistant',{offer}))}">${esc(askLabel)} ↗</a>`:''}
+ ${askLabel?`<a class="growth-primary service-ask-auri" href="${esc(link('assistant',{offer}))}"><img src="/media/auri/level-1.webp" alt="" width="25" height="25" loading="lazy">${esc(askLabel)} <span aria-hidden="true">↗</span></a>`:''}
  ${canRequest?`<a class="${askLabel?'growth-secondary':'growth-primary'}" href="${esc(link('requests',{new:'1',service:example.service}))}">${previewCopy[lang][1]} →</a>`:
   canSetUp?`<a class="growth-primary" href="${esc(link('onboarding'))}">${detailCopy[lang][4]}</a>`:''}</div></div></article>`;
  return true;
@@ -105,8 +106,8 @@ function facts(record,lang,labels,esc){
  return `<dl class="service-facts"><div><dt>${labels[9]}</dt><dd>${labels[10]}</dd></div>
  <div><dt>${labels[renewal?13:11]}</dt><dd>${esc(serviceDate(renewal?record.renewalDate:record.dueDate,lang,labels[12]))}</dd></div></dl>`;
 }
-export function serviceSummary(records,labels,esc) {
- return `<dl class="service-summary">${filters.map((filter,index)=>`<div><dt>${esc(labels[index+2])}</dt><dd>${filter==='all'?records.length:records.filter(record=>group(record)===filter).length}</dd></div>`).join('')}</dl>`;
+export function serviceSummary(records,labels,esc,lang) {
+ return `<dl class="service-summary">${filters.map((filter,index)=>`<div><dt>${esc(filter==='all'?totalLabels[lang]||totalLabels.en:labels[index+2])}</dt><dd>${filter==='all'?records.length:records.filter(record=>group(record)===filter).length}</dd></div>`).join('')}</dl>`;
 }
 export function renderServices({host,records,lang,esc,link,profile,missions}){
  const labels=serviceLabels[lang]||serviceLabels.en;
