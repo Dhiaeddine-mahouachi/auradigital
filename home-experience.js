@@ -24,7 +24,7 @@
       title: "Let's grow your brand.",
       description: "Put your work in front of the right people, then make it easy to book your services.",
       steps: ["Build a portfolio", "Set up business email", "Capture new leads"],
-      suggestion: '"Let's put your best work at the center and make the next step effortless."'
+      suggestion: "\"Let's put your best work at the center and make the next step effortless.\""
     }
   };
   const personaButtons = Array.from(document.querySelectorAll('[data-persona]'));
