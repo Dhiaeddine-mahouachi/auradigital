@@ -53,12 +53,14 @@ test("ERP and SaaS purchasing models remain distinct", () => {
 });
 test("public pages load the shared catalogue without exposing old tiers", () => {
   const html=name=>readFileSync(new URL("../"+name+".html",import.meta.url),"utf8");
-  for(const name of ["index","services","packages","websites","spinflow","contact"]){
+  for(const name of ["services","packages","websites","spinflow","contact"]){
     const s=html(name);assert.match(s,/pricing\/ui\.js/);assert.match(s,/<footer id="siteFooter">/);
   }
   assert.doesNotMatch(html("packages"), /3[.,]590|5[.,]590|7[.,]590|data-weekly|data-price-mode/);
   assert.doesNotMatch(html("services"), /Social Media &amp; Content|1 Sayfa · 5\.000/);
-  assert.match(html("index"), /class="service-network"/);
+  assert.match(html("index"), /id="command-preview"/);
+  assert.match(html("index"), /Build my roadmap/);
+  assert.doesNotMatch(html("index"), /data-pricing-view|pricing\\/ui\\.js|See pricing/);
 });
 test("contact API stores server-verified pricing and rejects invented prices", async () => {
   const sqlite=new DatabaseSync(":memory:");
