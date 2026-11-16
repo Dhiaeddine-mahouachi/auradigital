@@ -1,0 +1,33 @@
+/* Actual AuraHub screenshot showcase. Uses real captured UI, not recreation.
+   The tabs are connected to existing home-experience.js feature switcher. */
+.aura-home .hx-real-hub-showcase{overflow:hidden;border:1px solid #405449;border-radius:20px;background:#111916;box-shadow:0 35px 90px rgba(0,0,0,.38)}
+.aura-home .hx-real-hub-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:14px;background:#151e19;border-bottom:1px solid #35463a}
+.aura-home .hx-real-hub-tabs button{display:flex;justify-content:center;align-items:center;gap:11px;min-height:53px;min-width:0;padding:12px 10px;border:1px solid transparent;border-radius:12px;background:#1d2921;color:#c4d1c5;font:inherit;font-size:.87rem;font-weight:690;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.aura-home .hx-real-hub-tabs button:hover{background:#263629;border-color:#5c704c}
+.aura-home .hx-real-hub-tabs button[aria-selected="true"]{background:#2c431e;border-color:#eaff33;color:#efffc3}
+.aura-home .hx-real-hub-tabs button:focus-visible{outline:2px solid #eaff33;outline-offset:2px}
+.aura-home .hx-real-hub-tabs button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.aura-home .hx-real-hub-viewport{background:#0c1512}
+.aura-home .hx-real-panel{min-width:0}
+.aura-home .hx-real-panel[hidden]{display:none!important}
+.aura-home .hx-real-panel-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:23px 28px;border-bottom:1px solid #344337;background:linear-gradient(110deg,#17241c,#111917)}
+.aura-home .hx-real-panel-head h3{margin:8px 0 3px;font-size:clamp(1.2rem,2.2vw,1.85rem);letter-spacing:-.035em;color:#f0f5eb}
+.aura-home .hx-real-panel-head p{margin:0;color:#a9bdaa;font-size:.85rem;line-height:1.55}
+.aura-home .hx-real-panel-head>a{display:inline-flex;align-items:center;justify-content:center;flex:none;min-height:42px;padding:10px 15px;border:1px solid #688742;border-radius:10px;color:#eaff33;font-size:.79rem;font-weight:750;text-decoration:none}
+.aura-home .hx-real-panel-head>a:hover{background:#2d4326}
+.aura-home .hx-real-image{padding:18px;background:#0e1814}
+.aura-home .hx-real-image img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:contain;border:1px solid #35483b;border-radius:12px;background:#09110f}
+.aura-home .hx-inside-footer{align-items:center}
+@media(max-width:700px){
+ .aura-home .hx-real-hub-showcase{border-radius:16px}
+ .aura-home .hx-real-hub-tabs{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:7px}
+ .aura-home .hx-real-hub-tabs button{flex-direction:column;gap:4px;min-height:62px;padding:8px 3px;font-size:1.12rem}
+ .aura-home .hx-real-hub-tabs button span{font-size:.57rem;letter-spacing:-.02em}
+ .aura-home .hx-real-panel-head{display:block;padding:16px}
+ .aura-home .hx-real-panel-head h3{font-size:1.26rem}
+ .aura-home .hx-real-panel-head p{font-size:.75rem}
+ .aura-home .hx-real-panel-head>a{margin-top:13px;min-height:36px;font-size:.7rem}
+ .aura-home .hx-real-image{padding:7px}
+ .aura-home .hx-real-image img{border-radius:7px}
+}
+@media(prefers-reduced-motion:reduce){.aura-home .hx-real-hub-tabs button{transition:none}}
