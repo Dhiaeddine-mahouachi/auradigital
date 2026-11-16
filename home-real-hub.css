@@ -34,3 +34,16 @@
 
 .aura-home .hx-fullshot-link{display:block;cursor:zoom-in;border-radius:12px}
 .aura-home .hx-fullshot-link:focus-visible{outline:2px solid #eaff33;outline-offset:3px}
+
+/* Landing media must have a readable state if an image request fails twice. */
+.aura-home .hx-image-unavailable{
+  display:grid;place-items:center;min-height:220px;
+  background:radial-gradient(ellipse at 50% 40%,#283b2b 0%,#0f1915 75%);
+  border:1px solid rgba(225,225,0,.12);
+}
+.aura-home .hx-image-unavailable img{display:none!important}
+.aura-home .hx-image-unavailable-message{
+  display:block;max-width:90%;padding:22px;text-align:center;
+  color:#e5eadf;font-size:clamp(.8rem,1.2vw,1rem);line-height:1.5;
+  font-weight:650;letter-spacing:.01em;
+}
