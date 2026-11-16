@@ -1,3 +1,4 @@
+import { deliverables } from './hub/service-deliverables.js';
 import { hubGuide } from './hub-guide.js';
 import { getHubWork } from './hub-work.js';
 import { prepareHubPlan } from './hub-plan.js';
@@ -346,10 +347,13 @@ export async function handleBusinessHub(request,env) {
    const mission=b.missionId?missions.find(m=>m.id===b.missionId):null;
    if(b.missionId&&!mission)throw new ApiError(404,'Mission not found.');
    const record=b.requestId?await getHubWork(env,org,guard,b.requestId):null;
+   const hasOffer=Object.hasOwn(b,'offer');
+   if(hasOffer&&(typeof b.offer!=='string'||!Object.hasOwn(deliverables,b.offer)||b.missionId||b.requestId))throw new ApiError(400,'Choose a valid service.');
+   const offer=hasOffer?deliverables[b.offer][b.lang]:null;
    const issue=b.question.trim();
-   const context=mission?{task:mission.objective,reason:mission.reason,status:mission.status,nextAction:mission.nextAction}:record?{service:record.name,status:record.productionStatus||record.status}:null;
+   const context=mission?{task:mission.objective,reason:mission.reason,status:mission.status,nextAction:mission.nextAction}:record?{service:record.name,status:record.productionStatus||record.status}:offer?{service:b.offer,outcome:offer[0],possibleDeliverables:offer.slice(1),scopeConfirmedByQuote:true}:null;
    const reply=await explainRoadmap(env,{org,user,guard,issue,context,lang:b.lang,profile,missions:[...eligible,...missions.filter(m=>!eligible.includes(m))]});
-   return json({mode:reply?'ai':'rules',data:{reply,mission,nextAction:eligible[0]||null,priorities:eligible.slice(0,3)}});
+   return json({mode:reply?'ai':'rules',data:{reply,offerGuidance:offer?.[0],mission,nextAction:eligible[0]||null,priorities:eligible.slice(0,3)}});
   }
   if(b.tool==='task') {
    const mission=missions.find(m=>m.id===b.missionId);

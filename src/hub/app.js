@@ -1,4 +1,4 @@
-import { renderServices, renderServiceOffer, serviceShortcuts, renderServiceDetails, serviceLabels, serviceSummary, serviceDate, serviceStatus } from './service-view.js';
+import { renderServices, renderServiceOffer, serviceOffer, serviceShortcuts, renderServiceDetails, serviceLabels, serviceSummary, serviceDate, serviceStatus } from './service-view.js';
 import { mountGuide } from './guide-view.js';
 import { currentHubLocation, hubIcon, hubLabels, hubLink, hubStage, hubStageNames } from './hub-navigation.js';
 import { renderRequestForm, renderWorkRow, workRows, workStatus } from './work-view.js';
@@ -356,7 +356,7 @@ async function renderPage(){
   const host=document.querySelector('#page-content');
   if(query.has('offer')){
    const found=renderServiceOffer({host,offer:query.get('offer'),lang,esc,link,
-    canRequest:workspace?.permissions.includes('roadmap:write'),canSetUp:!workspace});
+    canRequest:workspace?.permissions.includes('roadmap:write'),canSetUp:!workspace,askLabel:workspace?.permissions.includes('auri:use')?label.assistant:null});
    if(!found)throw new Error(label.unavailable);
   }else renderServices({host,records:[],lang,esc,link});
   return;
@@ -384,7 +384,7 @@ async function renderPage(){
  const service=page==='services',support=page==='support',reports=['reports','rewards'].includes(page);
  content(`<section class="panel quiet-panel"><span class="eyebrow">${reports?'NOT CONNECTED':service?'SERVICE CATALOGUE':'INTEGRATION PENDING'}</span><h2>${t(page)}</h2><p>${t(service?'serviceNote':support?'supportText':reports?'reportNote':'unavailable')}</p><a class="primary" href="${service?'/services':'/contact'}">${t(service?'openServices':'contact')} ↗</a></section>`);
 }
-async function askAuri(question,missionId,requestId,serviceKey) {
+async function askAuri(question,missionId,requestId,serviceKey,offer) {
  const id=workspace.organization.id;
  if(serviceKey){
   const {data:{service}}=await runAuri(id,'thinking',()=>api(endpoint('auri'),'POST',{tool:'service_status',serviceKey}),'speaking');
@@ -392,7 +392,7 @@ async function askAuri(question,missionId,requestId,serviceKey) {
   const renewal=service.kind==='subscription';
   return `${service.name} · ${serviceStatus(service,labels)}. ${labels[renewal?13:11]} · ${serviceDate(renewal?service.renewalDate:service.dueDate,lang,labels[12])}.`;
  }
- const {data}=await runAuri(id,'thinking',()=>api(endpoint('auri'),'POST',{tool:'guidance',question,lang,...(missionId?{missionId}:{}),...(requestId?{requestId}:{})}),'speaking');
+ const {data}=await runAuri(id,'thinking',()=>api(endpoint('auri'),'POST',{tool:'guidance',question,lang,...(missionId?{missionId}:{}),...(requestId?{requestId}:{}),...(offer?{offer}:{})}),'speaking');
  if(workspace?.organization.id!==id)return '';
  if(data.reply)return data.reply;
  const fallback=({
@@ -402,6 +402,7 @@ async function askAuri(question,missionId,requestId,serviceKey) {
   ar:'ذكاء أوري غير متاح. إرشاد من خارطة الطريق',
  })[lang];
  const guidance=message=>fallback+' · '+message;
+ if(data.offerGuidance)return guidance(data.offerGuidance);
  if(/customers|visibility|sales|müşteri|clients|عملاء/i.test(question)&&data.priorities?.length)return guidance(data.priorities.map(m=>cap(m.capability)).join(' · '));
  const task=data.mission||data.nextAction;
  if(requestId)return guidance(hubLabels(lang).requestDetails+' · '+hubLabels(lang).return);
@@ -520,8 +521,8 @@ function renderCompanion(full=false){
  if(preferences.hidden&&!full)return;
  const id=workspace.organization.id;
  if(!auriSessions.has(id))auriSessions.set(id,{open:false,reply:'',pending:false,error:''});
- const missionId=query.get('task'),requestId=query.get('request'),serviceKey=query.get('serviceRecord');
- const sessionKey=[id,missionId,requestId,serviceKey].filter(Boolean).join(':');
+ const missionId=query.get('task'),requestId=query.get('request'),serviceKey=query.get('serviceRecord'),offer=query.get('offer');
+ const sessionKey=[id,missionId,requestId,serviceKey,offer].filter(Boolean).join(':');
  if(!auriSessions.has(sessionKey))auriSessions.set(sessionKey,{open:false,reply:'',pending:false,error:''});
  const session=auriSessions.get(sessionKey);
  session.turns??=[];
@@ -531,11 +532,18 @@ function renderCompanion(full=false){
  const next=eligibleMissions(workspace.missions,workspace.profile)[0];
  const readAloud=({en:'Read aloud',tr:'Sesli oku',fr:'Lire à voix haute',ar:'قراءة بصوت عالٍ'})[lang];
  const send=({en:'Send',tr:'Gönder',fr:'Envoyer',ar:'إرسال'})[lang];
+ const suggested=offer&&!session.turns.length?{
+  en:'How would this help my business?',
+  fr:'Comment ce service aiderait-il mon entreprise ?',
+  tr:'Bu hizmet işletmeme nasıl yardımcı olur?',
+  ar:'كيف ستساعد هذه الخدمة نشاطي؟',
+ }[lang]:'';
+
  const identity=`${auriCharacter(level,{posterOnly:page==='home'&&!matchMedia('(max-width:800px)').matches})}<span><strong>${esc(preferences.name)}</strong><small>${esc(t('level'))} ${level} · ${auriNames[level-1]}</small></span>
   <span class="auri-status" role="status" data-auri-status></span>`;
  const body=`<div class="auri-companion-body">
-  ${next&&!missionId&&!requestId&&!serviceKey?`<p><strong>${esc(focus)}</strong> · ${esc(cap(next.capability))}</p>`:''}
-  ${canAsk?`<div data-auri-transcript>${transcript()}</div><form data-auri-ask><label><span class="sr-only">${esc(label)}</span><input name="question" maxlength="500" placeholder="${esc(label)}" required></label>
+  ${next&&!missionId&&!requestId&&!serviceKey&&!offer?`<p><strong>${esc(focus)}</strong> · ${esc(cap(next.capability))}</p>`:''}
+  ${canAsk?`<div data-auri-transcript>${transcript()}</div><form data-auri-ask><label><span class="sr-only">${esc(label)}</span><input name="question" maxlength="500" value="${esc(suggested)}" placeholder="${esc(label)}" required></label>
   <button class="primary" ${session.pending?'disabled':''}>${esc(send)}</button></form><p data-auri-reply role="status" class="${session.error?'':'sr-only'}">${esc(session.error)}</p>
   ${'speechSynthesis' in window?`<button type="button" class="secondary" data-auri-voice ${session.reply&&!session.error?'':'hidden'}>${esc(readAloud)}</button>
   <button type="button" class="secondary" data-auri-stop ${auriVoice?.scope===id?'':'hidden'}>${esc(controls.stop)}</button>`:''}`:''}
@@ -565,7 +573,7 @@ function renderCompanion(full=false){
  if(request)request.onclick=()=>{
   if(session.reply)requestDrafts.set(id,session.reply);
   const mission=workspace.missions.find(item=>item.id===missionId);
-  const service=missionGuide[mission?.capability]?.[0]||'';
+  const service=serviceOffer(offer)?.service||missionGuide[mission?.capability]?.[0]||'';
   window.history.pushState(null,'',requestLink(service,mission?.id));syncLocation();render();
  };
  host.querySelector('[data-auri-hide]').onclick=async event=>{
@@ -619,7 +627,7 @@ function renderCompanion(full=false){
   if(stop)stop.hidden=true;
   session.reply=session.error=reply.textContent='';
   try{
-   session.reply=await askAuri(question,missionId,requestId,serviceKey);
+   session.reply=await askAuri(question,missionId,requestId,serviceKey,offer);
    if(session.reply){
     session.turns.push({question,reply:session.reply});
     if(session.turns.length>20)session.turns.shift();
@@ -640,16 +648,17 @@ function renderCompanion(full=false){
 async function assistant(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content');
  const id=workspace.organization.id;
- const missionId=query.get('task'),requestId=query.get('request'),serviceKey=query.get('serviceRecord');
+ const missionId=query.get('task'),requestId=query.get('request'),serviceKey=query.get('serviceRecord'),offer=query.get('offer');
  const mission=missionId?workspace.missions.find(m=>m.id===missionId):null;
- if(missionId&&!mission)throw new Error(ui.unavailable);
+ const offerName=serviceOffer(offer)?.[lang];
+ if((missionId&&!mission)||(offer&&!offerName))throw new Error(ui.unavailable);
  const record=requestId||serviceKey?await api(endpoint('work/'+encodeURIComponent(requestId||serviceKey))):null;
  if(!host.isConnected)return;
- const returnLink=mission?link('journey',{task:mission.id}):serviceKey?link('services',{serviceRecord:serviceKey}):record?link('requests',{request:record.id}):null;
+ const returnLink=mission?link('journey',{task:mission.id}):serviceKey?link('services',{serviceRecord:serviceKey}):record?link('requests',{request:record.id}):offerName?link('services',{offer}):null;
 
  const canAsk=workspace.permissions.includes('auri:use');
  const labels=auriDraftCopy(lang);
- content(`${returnLink?`<div class="hub-context"><strong>${esc(ui.context)} · ${esc(mission?missionTitle(mission):record.name)}</strong><a class="growth-secondary" href="${esc(returnLink)}">${esc(ui.return)}</a></div>`: ''}<div id="auri-workspace"></div>${canAsk?`<section class="panel auri-work-log">
+ content(`${returnLink?`<div class="hub-context"><strong>${esc(ui.context)} · ${esc(mission?missionTitle(mission):record?.name||offerName)}</strong><a class="growth-secondary" href="${esc(returnLink)}">${esc(ui.return)}</a></div>`: ''}<div id="auri-workspace"></div>${canAsk?`<section class="panel auri-work-log">
   <div class="actions"><button type="button" class="primary" data-auri-draft>${esc(labels.create)}</button>${button('diagnosis','diagnosis',true)}${button('recommend','next-action',true)}</div><div data-auri-tools-status role="status"></div>
   <p role="status" data-draft-status></p>
   <h2>${esc(labels.history)}</h2><div data-auri-drafts></div></section>`:''}`);

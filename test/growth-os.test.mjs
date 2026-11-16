@@ -105,3 +105,27 @@ test('Ask Auri uses Workers AI when its configured Ollama gateway rejects the re
  assert.deepEqual(endpoints,['https://ollama.example.test/api/chat']);
  assert.deepEqual({...await f.DB.prepare('SELECT calls,input_tokens FROM ai_usage').first()},{calls:2,input_tokens:90});
 });
+
+test('Auri grounds a service question in the selected offer and workspace',async()=>{
+ const f=await hubFixture(),u=await f.user('owner@test.test'),org=await workspace(f,u);
+ const path='/api/hub/workspaces/'+org+'/auri';
+ const payload={tool:'guidance',question:'How will this help?',lang:'en',offer:'email'};
+ const fallback=await (await f.call(path,u,'POST',payload)).json();
+ assert.equal(fallback.mode,'rules');
+ assert.match(fallback.data.offerGuidance,/business name/);
+ assert.equal((await f.call(path,u,'POST',{...payload,offer:'constructor'})).status,400);
+ f.sqlite.exec(await readFile(new URL('../migrations/0005_ai_employee.sql',import.meta.url),'utf8'));
+ Object.assign(f.env,{
+  AI_PROVIDER:'cloudflare',AI_MODEL:'@cf/meta/llama-3.1-8b-instruct-fp8',AI_RATE_LIMITER:f.env.HUB_WRITE_RATE_LIMITER,
+  AI:{async run(_model,{messages}){
+   const context=JSON.parse(messages[1].content);
+   assert.equal(context.industry,'restaurant');
+   assert.equal(context.record.service,'email');
+   assert.match(context.record.possibleDeliverables[0],/contact@yourbusiness.com/);
+   return {response:{reply:'A branded inbox gives diners one place to send booking questions.'}};
+  }},
+ });
+ const result=await (await f.call(path,u,'POST',payload)).json();
+ assert.equal(result.mode,'ai');
+ assert.match(result.data.reply,/diners/);
+});

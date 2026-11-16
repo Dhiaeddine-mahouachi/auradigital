@@ -693,3 +693,16 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 
 .aurahub-shell .vision-stage-fallback{display:grid;place-items:center;width:min(100%,140px);height:106px;font-size:3rem;background:radial-gradient(circle at 50% 35%,#34532a,#14241e 76%);border:1px solid #506b40;border-radius:22px;color:#d8ff35}
 @media(max-width:800px){.aurahub-shell .vision-stage-fallback{grid-column:2;grid-row:1 / 4;height:66px}}
+
+/* Compact roadmap and service actions */
+#growth-focus .growth-focus-top{align-items:start;gap:10px;margin-block-end:8px}
+#growth-focus .growth-focus-top h2{margin:0}
+#growth-focus .growth-focus-top small{flex:none}
+#growth-focus .focus-benefit{margin:0 0 14px;color:#c9d6cc}
+.service-next-step{padding:12px 15px;border-inline-start:3px solid var(--hub-accent);border-radius:7px;background:#ffffff08}
+.service-next-step strong{color:#eff4e8;font-size:.79rem}
+.service-next-step p{margin:4px 0 0;color:#c8d6c9;font-size:.9rem;line-height:1.45}
+#growth-focus .growth-actions,.offer-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#growth-focus .task-options{margin-block-start:8px;border-block-start:1px solid #ffffff25}
+#growth-focus .task-options .growth-diy{padding-block:8px}
+@media(max-width:420px){#growth-focus .growth-focus-top{flex-wrap:wrap}}

@@ -56,15 +56,18 @@ function scopeMarkup(kind,lang){
  if(!scope)return '';
  return `<section class="service-scope"><h3>${detailCopy[lang][2]}</h3><ul>${scope.slice(1).map(item=>`<li>${item}</li>`).join('')}</ul><p>${detailCopy[lang][3]}</p></section>`;
 }
-export function renderServiceOffer({host,offer,lang,esc,link,canRequest,canSetUp}){
- const example=examples.find(item=>item.kind===offer);
+export const serviceOffer=(offer)=>examples.find(item=>item.kind===offer);
+export function renderServiceOffer({host,offer,lang,esc,link,canRequest,canSetUp,askLabel}){
+ const example=serviceOffer(offer);
  if(!example)return false;
  host.innerHTML=`<a class="service-back" href="${esc(link('services'))}">← ${serviceLabels[lang][0]}</a>
  <article class="service-offer"><div class="service-offer-visual">${serviceArt(offer,lang)}</div>
  <div class="service-offer-copy"><span class="service-icon">${icon(offer)}</span><h2>${esc(example[lang])}</h2>
  <p>${deliverables[offer][lang][0]}</p>${scopeMarkup(offer,lang)}
- ${canRequest?`<a class="growth-primary" href="${esc(link('requests',{new:'1',service:example.service}))}">${previewCopy[lang][1]} →</a>`:
-  canSetUp?`<a class="growth-primary" href="${esc(link('onboarding'))}">${detailCopy[lang][4]}</a>`:''}</div></article>`;
+ <div class="growth-actions offer-actions">
+ ${askLabel?`<a class="growth-primary" href="${esc(link('assistant',{offer}))}">${esc(askLabel)} ↗</a>`:''}
+ ${canRequest?`<a class="${askLabel?'growth-secondary':'growth-primary'}" href="${esc(link('requests',{new:'1',service:example.service}))}">${previewCopy[lang][1]} →</a>`:
+  canSetUp?`<a class="growth-primary" href="${esc(link('onboarding'))}">${detailCopy[lang][4]}</a>`:''}</div></div></article>`;
  return true;
 }
 const serviceKind=name=>[

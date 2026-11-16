@@ -84,7 +84,7 @@ try {
  await desktop.goForward();
  await heading(desktop,'Growth Vision').waitFor();
  await screenshot(desktop,'AuraHub-Roadmap');
- await desktop.locator('#growth-focus a.growth-primary').click();
+ await desktop.locator('#growth-focus [data-request-task]').click();
  assert.equal(await desktop.locator('[name=service]').inputValue(),'AuraMenu');
  await desktop.locator('[name=phone]').fill('+90 555 555 00 00');
  await desktop.locator('[name=message]').fill('Please prepare a menu with Turkish and English descriptions.');
@@ -112,6 +112,12 @@ try {
  await desktop.reload();
  await heading(desktop,'What you’ll get').waitFor();
  await screenshot(desktop,'aura-command-business-email');
+ await desktop.locator('.service-offer').getByRole('link',{name:'Ask Auri'}).click();
+ await desktop.getByText('Helping with · Business Email').waitFor();
+ await desktop.locator('[data-auri-ask] input').fill('How would this help my café?');
+ await desktop.locator('[data-auri-ask] button').click();
+ await desktop.locator('[data-auri-transcript]').getByText(/short checklist/).waitFor();
+ await desktop.getByRole('link',{name:'Return to record'}).click();
  await desktop.getByRole('link',{name:'Request this service'}).click();
  assert.equal(await desktop.locator('[name=service]').inputValue(),'Business Email');
  await nav(desktop,'home');
