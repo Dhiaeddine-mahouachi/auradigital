@@ -8,35 +8,45 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const source=name=>readFileSync(resolve(root,name),'utf8');
 const html=source('portfolio.html');
 
-test('portfolio replaces old cards with four real, scroll-driven work stories',()=>{
- assert.doesNotMatch(html,/project-grid|project-case|id="gateaux"|id="fifty"|Decoration Gateaux|>Fifty</);
- assert.equal((html.match(/data-work-stage/g)||[]).length,4);
- for(const title of ['AuraHub','AuraMenu','Mutlu Nakliyat','Yurt Oto Elektrik'])assert.match(html,new RegExp(title));
+test('portfolio shows two documented business stories and independent product previews',()=>{
+ assert.match(html,/id="mutlu"/);
+ assert.match(html,/id="yurt-oto"/);
+ assert.equal((html.match(/class="pf-story pf-story--/g)||[]).length,2);
+ for(const name of ['Mutlu Nakliyat','Yurt Oto Elektrik','AuraHub'])assert.match(html,new RegExp(name));
+ assert.match(html,/https:\/\/mutlunakliyat\.site\//);
+ assert.match(html,/xn--yurtotoelektrikerhankcr-8qdb\.com/);
+ assert.match(html,/THE DELIVERED WEBSITE/);
+ assert.match(html,/not a claim that the clients above use every feature/i);
  assert.match(html,/client-showcase\.css/);
  assert.match(html,/client-showcase\.js/);
+ assert.doesNotMatch(html,/client-showcase-stack|project-grid-full|data-work-stage/);
 });
-test('all internal portfolio images exist and are nonempty',()=>{
+
+test('real project screenshots and real AuraHub interface screenshots exist',()=>{
  const imgs=[...html.matchAll(/<img[^>]+src="([^"]+)"/g)].map(m=>m[1].split('?')[0]);
- const internal=imgs.filter(src=>src.startsWith('/'));
- assert.ok(internal.length>=4);
- for(const path of internal){
-   const file=resolve(root,'.'+path);
-   assert.ok(statSync(file).size>1024,'Missing or unexpectedly small image: '+path);
+ const local=imgs.filter(src=>src.startsWith('/'));
+ assert.equal(local.length,5);
+ for(const image of local) {
+   const file=resolve(root,'.'+image);
+   assert.ok(statSync(file).size>1024,'Missing or unexpectedly small project image: '+image);
  }
 });
-test('people are presented as illustrative, never as fabricated reviews',()=>{
- assert.equal((html.match(/class="portfolio-person portfolio-person--/g)||[]).length,2);
- assert.match(html,/not identified as AuraDigital customers/);
- assert.match(html,/not client testimonials/);
- assert.doesNotMatch(html, /five-star reviews|★★★★★|100% satisfaction|we doubled|verified testimonial/i);
+
+test('photography is real-life editorial, not fabricated customer testimony',()=>{
+ const unsplash=[...html.matchAll(/src="https:\/\/images\.unsplash\.com\/photo-[^"]+"/g)];
+ assert.ok(unsplash.length>=3);
+ assert.match(html,/People photographed are illustrative, not identified as clients/);
+ assert.match(html,/not the clients or their staff/);
+ assert.match(html,/no testimonial, business performance claim/);
+ assert.doesNotMatch(html,/we doubled|verified testimonial|five-star reviews|100% satisfaction/i);
 });
-test('scroll motion is gated for mobile and reduced-motion preferences',()=>{
+
+test('portfolio layout works on mobile and respects reduced motion',()=>{
  const css=source('client-showcase.css');
  const js=source('client-showcase.js');
- assert.match(css,/@media\(max-width:760px\)/);
- assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(css,/@media\(max-width:600px\)/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(js,/reduced\.matches/);
- assert.match(js,/requestAnimationFrame\(render\)/);
- assert.match(js,/data-work-current/);
- assert.match(js,/portfolio-media-unavailable/);
+ assert.match(js,/IntersectionObserver/);
+ assert.match(js,/pf-media-unavailable/);
 });
