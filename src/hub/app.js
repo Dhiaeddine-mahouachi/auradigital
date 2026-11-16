@@ -1,4 +1,4 @@
-import { blueprintLabels } from './blueprint-copy.js';
+import { blueprintLabels, commandLabels } from './blueprint-copy.js';
 import { missionAlternative } from '../mission-routes.js';
 import { auriCharacter, connectAuri } from './auri-companion.js';
 import { pulseAuri, runAuri } from './auri-controller.js';
@@ -95,7 +95,7 @@ function renderSetup(){
  if(!editing){draft=workspace?structuredClone(workspace.profile):emptyProfile();mode=workspace?.organization.mode||'myself';}
  const choosing=!editing;
  const setupKeys=workspace?profileKeys:mode==='auri'?['name','industry','industryDetails','goals','capabilities','auriName','roadmapPreview']:['name','industry','goals','budget','currency','website','capabilities'];
- app.innerHTML=`<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t('brand')}</p><h1>${choosing?t('welcome'):esc(draft.name||t('profile'))}</h1><p>${choosing?t('choose'):t(mode==='auri'?'auriText':'myselfText')}</p></div>${choosing?`<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">↗</span><h2>${t('myself')}</h2><p>${t('myselfText')}</p><span>${t('continue')} →</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t('auri')}</h2><p>${t('auriText')}</p><span>${t('continue')} →</span></button></div>`:`<section class="panel profile-panel"><div class="panel-bar"><span>${mode==='auri'?`AURI · ${step+1}/${setupKeys.length}`:t('profile')}</span><span id="save-state" role="status"></span>${button('switchMode','switch-mode',true)}</div>${mode==='auri'?`<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>`:''}<form id="profile-form" class="${mode==='auri'?'guided':'form-grid'}">${(mode==='auri'?[setupKeys[step]]:setupKeys).map(profileField).join('')}<div class="actions full">${mode==='auri'?button('back','back-step',true,step===0)+button('skip','skip-step',true,step===0):''}<button class="primary" type="submit">${t(mode==='auri'&&step<setupKeys.length-1?'continue':'save')}</button>${workspace?button('home','leave-setup',true):''}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+ app.innerHTML=`<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup command-setup" id="main"><div class="setup-heading"><p class="eyebrow">Aura Command</p><h1>${choosing?commandLabels(lang).onboarding:esc(draft.name||t('profile'))}</h1><p>${choosing?t('choose'):t(mode==='auri'?'auriText':'myselfText')}</p></div>${choosing?`<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">↗</span><h2>${t('myself')}</h2><p>${t('myselfText')}</p><span>${t('continue')} →</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t('auri')}</h2><p>${t('auriText')}</p><span>${t('continue')} →</span></button></div>`:`<section class="panel profile-panel"><div class="panel-bar"><span>${mode==='auri'?`AURI · ${step+1}/${setupKeys.length}`:t('profile')}</span><span id="save-state" role="status"></span>${button('switchMode','switch-mode',true)}</div>${mode==='auri'?`<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>`:''}<form id="profile-form" class="${mode==='auri'?'guided':'form-grid'}">${(mode==='auri'?[setupKeys[step]]:setupKeys).map(profileField).join('')}<div class="actions full">${mode==='auri'?button('back','back-step',true,step===0)+button('skip','skip-step',true,step===0):''}<button class="primary" type="submit">${t(mode==='auri'&&step<setupKeys.length-1?'continue':'save')}</button>${workspace?button('home','leave-setup',true):''}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
  bindCommon();document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;editing=true;step=0;setupAuriName='';setupDeferred=[];render();});
  if(choosing)return;
  const form=document.querySelector('#profile-form');
@@ -126,7 +126,7 @@ const requestLink=(service='',task='')=>'/contact#'+new URLSearchParams({
 });
 const navigation=['home','journey','assistant','services','insights','settings'];
 const pageGroup={tasks:'journey',simulator:'insights',reports:'insights',rewards:'insights',profile:'settings',team:'settings',resources:'settings',menuDrafts:'services'};
-const blueprintNav=(page,lang)=>({home:blueprintLabels(lang).overview,services:blueprintLabels(lang).marketplace,insights:blueprintLabels(lang).insights,assistant:auriControls(lang).workspace})[page];
+const blueprintNav=(page,lang)=>({home:blueprintLabels(lang).overview,services:blueprintLabels(lang).marketplace,insights:blueprintLabels(lang).insights,journey:commandLabels(lang).vision,assistant:'Auri'})[page];
 const moreNavigation=['profile','simulator','menuDrafts','projects','websites','hosting','files','reports','invoices','rewards','team','support'];
 function renderShell(){
  window.scrollTo({top:0,left:0,behavior:'instant'});
@@ -135,9 +135,9 @@ function renderShell(){
  const navItem=(p,primary=false)=>`<button class="nav-item ${(primary?(pageGroup[page]||page):page)===p?'active':''}" data-page="${p}" ${page===p?'aria-current="page"':''}>
  <span aria-hidden="true">${({home:'⌂',journey:'♧',tasks:'☑',assistant:'✧',services:'◇',resources:'▤',insights:'▤',settings:'⚙'})[p]||'·'}</span>${esc(blueprintNav(p,lang)||l[p]||t(p))}</button>`;
  app.innerHTML=`<div class="shell growth-shell ${growth?'growth-active':''}"><aside class="sidebar" id="sidebar">
- <a href="/" class="wordmark">aura<span>digital.</span></a><label class="field workspace-picker"><span class="sr-only">${t('businessName')}</span>
+ <a href="/" class="wordmark command-wordmark">Aura <span>Command</span></a><label class="field workspace-picker"><span class="sr-only">${t('businessName')}</span>
  <select id="workspace-select" aria-label="${t('businessName')}">${workspaces.map(o=>`<option value="${o.id}" ${o.id===workspace.organization.id?'selected':''}>${esc(o.id===workspace.organization.id?workspace.organization.name:o.name)}</option>`).join('')}</select></label>
- <nav aria-label="${t('brand')}">${navigation.map(p=>navItem(p,true)).join('')}</nav><div class="growth-request"><a class="growth-primary" href="${esc(requestLink())}">${l.request} →</a></div></aside>
+ <nav aria-label="${t('brand')}">${navigation.map(p=>navItem(p,true)).join('')}</nav><p class="command-level">${esc(t('level'))} ${auriLevel()} · ${esc(auriNames[auriLevel()-1])}</p><div class="growth-request"><a class="growth-primary" href="${esc(requestLink())}">${l.request} →</a></div></aside>
  <div class="workspace"><header class="topbar growth-topbar"><button class="menu-button secondary" id="toggle-menu" aria-controls="sidebar" aria-expanded="false">${t('menu')}</button>
  <div class="growth-greeting"><strong>${esc(l.welcome)}, ${esc(me.name.split(' ')[0])}</strong><span>${esc(workspace.organization.name)}</span></div>
  ${languageControl()}
@@ -148,10 +148,12 @@ function renderShell(){
  ${navItem('journey')}</div></details>
  <details class="growth-account"><summary><span class="avatar">${esc(me.name.slice(0,1))}</span><span>${esc(me.name)}</span></summary>
  <div class="growth-account-menu">${navItem('profile')}${navItem('settings')}${button('logout','logout',true)}</div></details></header>
- <main id="main" tabindex="-1">${growth?(page==='journey'?`<h1 class="sr-only">${l[page]}</h1>`:''):`<div class="page-heading"><h1>${esc(blueprintNav(page,lang)||l[page]||t(page))}</h1></div>`}
+ <main id="main" tabindex="-1">${growth?(page==='journey'?`<h1 class="sr-only">${esc(blueprintNav(page,lang)||l[page])}</h1>`:''):`<div class="page-heading"><h1>${esc(blueprintNav(page,lang)||l[page]||t(page))}</h1></div>`}
  ${!me.verified&&authCapabilities.email?`<aside class="verification"><p>${t('verifyLater')}</p>${button('sendVerification','send-verification',true)}</aside>`:''}
- <div id="page-content"></div></main><div id="auri-companion"></div></div></div>`;
- bindCommon();document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{page=b.dataset.page;document.body.classList.remove('menu-open');render();document.querySelector('#main').focus();});
+ <div id="page-content"></div></main><div id="auri-companion"></div>
+ <nav class="command-bottom-nav" aria-label="Aura Command">${['home','journey','assistant','services'].map(p=>`<button type="button" data-mobile-page="${p}" ${(pageGroup[page]||page)===p?'aria-current="page"':''}>${esc(blueprintNav(p,lang)||l[p]||t(p))}</button>`).join('')}</nav>
+ </div></div>`;
+ bindCommon();document.querySelectorAll('[data-page],[data-mobile-page]').forEach(b=>b.onclick=()=>{page=b.dataset.page||b.dataset.mobilePage;document.body.classList.remove('menu-open');render();document.querySelector('#main').focus();});
  document.querySelector('#toggle-menu').onclick=e=>{const open=document.body.classList.toggle('menu-open');e.target.setAttribute('aria-expanded',String(open));syncSidebar();};
  document.querySelector('#workspace-select').onchange=async e=>{
   const select=e.target, id=select.value;
@@ -177,14 +179,38 @@ async function renderPage(){
  if(page==='menuDrafts')return renderMenuDrafts({host:document.querySelector('#page-content'),api,endpoint,profile:workspace.profile,canWrite:workspace.permissions.includes('roadmap:write')});
  if(page==='home'||page==='journey')return growthDashboard();
  if(page==='tasks')return journey();
- if(['services','insights'].includes(page)){
-  const marketplace=page==='services', labels=blueprintLabels(lang);
-  const metrics=marketplace?'':`<section class="panel"><h2>${esc(labels.verified)}</h2><progress max="5" value="${workspace.auri?.verifiedMilestones||0}"></progress><p>${workspace.auri?.verifiedMilestones||0} / 5</p></section>`;
-  content(`${metrics}<section class="panel resource-links">${marketplace?
-   `<a class="primary" href="/shop">AuraShop</a><a class="secondary" href="/services">${esc(t('openServices'))}</a><a class="secondary" href="/account">${esc(t('orders'))}</a>${button('menuDrafts','menu-drafts',true)}`:
-   button('simulator','simulator',true)}</section>`);
-  const destination=marketplace?'menuDrafts':'simulator';
-  document.querySelector('#page-content button[data-action]').onclick=()=>{page=destination;render();};
+ if(page==='services'||page==='insights'){
+  const labels=blueprintLabels(lang),command=commandLabels(lang);
+  const ready=eligibleMissions(workspace.missions,workspace.profile);
+  const existing=[...new Set([...(workspace.profile.capabilities||[]),...(workspace.profile.website?['website']:[])])];
+  if(page==='services'){
+   const recommendations=new Map();
+   for(const mission of ready){
+    const service=missionGuide[mission.capability]?.[0];
+    if(service&&mission.route!=='alternative'&&!recommendations.has(service))recommendations.set(service,mission);
+   }
+   const recommended=[...recommendations.values()].slice(0,3);
+   content(`<section class="panel"><h2>${esc(command.recommended)}</h2>
+    <div class="command-list">${recommended.map(m=>{
+     const [service,benefit]=missionGuide[m.capability];
+     return `<article><div><h3>${esc(service)}</h3><p>${esc(cap(m.capability))} · ${esc(benefit)}</p></div>
+      <a class="secondary" href="${esc(requestLink(service,cap(m.capability)))}">${esc(t('quote'))}</a></article>`;
+    }).join('')||`<p>${esc(t('empty'))}</p>`}</div></section>
+    <section class="panel"><h2>${esc(command.solutions)}</h2><div class="resource-links">
+    <a class="primary" href="/shop">AuraShop</a><a class="secondary" href="/services">${esc(t('openServices'))}</a>
+    <a class="secondary" href="/account">${esc(t('orders'))}</a>${button('menuDrafts','menu-drafts',true)}</div></section>
+    <section class="panel"><h2>${esc(command.tools)}</h2><p>${esc(existing.map(cap).join(' · ')||t('empty'))}</p></section>`);
+   document.querySelector('[data-action="menu-drafts"]').onclick=()=>{page='menuDrafts';render();};
+  }else{
+   const verified=workspace.auri?.verifiedMilestones||0;
+   const active=workspace.missions.filter(m=>m.status==='in_progress').length;
+   const pending=Object.values(workspace.evidence||{}).filter(status=>status==='pending').length;
+   content(`<div class="command-metrics">${[[labels.verified,verified],[t('in_progress'),active],[labels.pending,pending]].map(([label,count])=>
+    `<section class="panel"><p>${esc(label)}</p><strong>${count}</strong></section>`).join('')}</div>
+    <section class="panel"><h2>${esc(command.priorities)}</h2><ul>${ready.slice(0,3).map(m=>`<li>${esc(m.route==='alternative'?missionAlternative(m.capability)?.title:cap(m.capability))}</li>`).join('')||`<li>${esc(t('empty'))}</li>`}</ul></section>
+    <section class="panel"><h2>${esc(command.performance)}</h2><p>${esc(command.connect)}</p>${button('simulator','simulator',true)}</section>`);
+   document.querySelector('[data-action="simulator"]').onclick=()=>{page='simulator';render();};
+  }
   return;
  }
 
@@ -194,7 +220,7 @@ async function renderPage(){
   return;
  }
  if(page==='simulator')return simulator();if(page==='team')return team();if(page==='assistant')return assistant();
- if(page==='settings'){content(`<section class="panel"><h2>${t('security')}</h2><p>${esc(me.email)} · ${me.verified?t('verified'):t('verify')}</p>${authCapabilities.email?`<a class="secondary" href="/hub/forgot">${t('reset')}</a>`:''}${me.verified&&authCapabilities.google?`<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t('linkGoogle')}</a></p>`:''}<hr>${button('team','open-team',true)}${button('resources','open-resources',true)}${button('newWorkspace','new-workspace',true)}</section>`);document.querySelector('[data-action="open-resources"]').onclick=()=>{page='resources';render();};document.querySelector('[data-action="open-team"]').onclick=()=>{page='team';render();};document.querySelector('[data-action="new-workspace"]').onclick=()=>{stopAuriVoice();workspace=null;editing=false;render();};return;}
+ if(page==='settings'){content(`<section class="panel"><h2>${t('security')}</h2><p>${esc(me.email)} · ${me.verified?t('verified'):t('verify')}</p>${authCapabilities.email?`<a class="secondary" href="/hub/forgot">${t('reset')}</a>`:''}${me.verified&&authCapabilities.google?`<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t('linkGoogle')}</a></p>`:''}<hr>${button('profile','open-profile',true)}${button('auri','open-auri-settings',true)}${button('team','open-team',true)}${button('resources','open-resources',true)}${button('newWorkspace','new-workspace',true)}</section>`);document.querySelector('[data-action="open-profile"]').onclick=()=>{page='profile';render();};document.querySelector('[data-action="open-auri-settings"]').onclick=()=>{page='assistant';render();};document.querySelector('[data-action="open-resources"]').onclick=()=>{page='resources';render();};document.querySelector('[data-action="open-team"]').onclick=()=>{page='team';render();};document.querySelector('[data-action="new-workspace"]').onclick=()=>{stopAuriVoice();workspace=null;editing=false;render();};return;}
  const service=page==='services',support=page==='support',reports=['reports','rewards'].includes(page);
  content(`<section class="panel quiet-panel"><span class="eyebrow">${reports?'NOT CONNECTED':service?'SERVICE CATALOGUE':'INTEGRATION PENDING'}</span><h2>${t(page)}</h2><p>${t(service?'serviceNote':support?'supportText':reports?'reportNote':'unavailable')}</p><a class="primary" href="${service?'/services':'/contact'}">${t(service?'openServices':'contact')} ↗</a></section>`);
 }
@@ -226,6 +252,7 @@ function growthDashboard(){
   <footer><p data-auri-status></p><button type="button" class="growth-secondary" data-open-auri>${esc(controls.workspace)}</button></footer>
  </section>`:'';
  renderRoadmap({host,workspace,t,esc,cap,lang,view:roadmapView,selectedId:selectedMission,overview:page==='home',auriDesk,evolutionNames:auriNames,robot,requestLink,
+  onContinue(id){selectedMission=id;page='journey';render();document.querySelector('#main').focus();},
   onSelect(id,scroll=false){selectedMission=id;growthDashboard();const detail=document.getElementById('growth-focus');detail.focus({preventScroll:!scroll&&!matchMedia('(max-width: 800px)').matches});},
   onView(view){roadmapView=view;growthDashboard();document.querySelector(`[data-view="${view}"]`)?.focus();},
   onEdit(mission){page='tasks';render();const card=document.querySelector(`[data-mission="${mission.id}"]`);card?.querySelector('[data-action=edit]').click();card?.querySelector('input')?.focus();},
