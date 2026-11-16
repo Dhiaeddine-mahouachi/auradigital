@@ -37,7 +37,7 @@ if (page === "shop" && header) {
   const nav = header.querySelector(".nav");
   const links = header.querySelector(".nav-links");
   links.innerHTML = `<a href="/">Home</a><a class="active" href="/shop">Shop</a>${links.querySelector(".nav-products").outerHTML}<a href="/about">About</a><a href="/shop#how-it-works">How It Works</a><a href="/contact">Contact</a><a href="/account">My account</a>`;
-  header.querySelector(".lang-switcher").remove(); header.querySelector(".nav-cta").remove();
+  header.querySelector(".nav-cta").remove();
   nav.insertAdjacentHTML("beforeend", `<form class="shop-header-search" action="/shop"><label><span class="shop-sr-only">Search NFC cards</span><input type="search" name="search" placeholder="Search NFC cards…"></label><button aria-label="Search cards">⌕</button></form>`);
   header.insertAdjacentHTML("afterend", '<nav class="customer-access-bar" aria-label="Customer account"><a href="/account/login">Sign in</a><a href="/account/signup">Create account ↗</a></nav>');
   const searchForm = header.querySelector('.shop-header-search');
@@ -508,7 +508,7 @@ assistantScript.type = "module";
 assistantScript.src = "/assistant/ui.js?v=ai-recovery-20261013";
 document.head.appendChild(assistantScript);
 const i18nScript = document.createElement("script");
-i18nScript.src = "i18n.js?v=english-complete-20261003";
+i18nScript.src = "/i18n.js?v=site-copy-1";
 document.head.appendChild(i18nScript);
 
 

@@ -1379,144 +1379,267 @@
     ["Fiyat", "Price", "السعر"]
   );
   rows.push(["Giriş yap", "Sign in", "تسجيل الدخول"], ["Hesabım", "My account", "حسابي"]);
-  const maps = { tr: new Map(), en: new Map(), ar: new Map() };
+  rows.push(
+    ["Ürünler", "Products", "المنتجات"],
+    ["Mağaza", "Shop", "المتجر"],
+    ["Dijital restoran menüleri", "Digital restaurant menus", "قوائم مطاعم رقمية"],
+    ["Dijital kimliğiniz", "Your digital identity", "هويتك الرقمية"],
+    ["Düğün davetiyeleri", "Wedding invitations", "دعوات الزفاف"],
+    ["Çerez ayarları", "Cookie settings", "إعدادات ملفات تعريف الارتباط"],
+    ["Çerez tercihleri", "Cookie preferences", "تفضيلات ملفات تعريف الارتباط"],
+    ["Tümünü kabul et", "Accept all", "قبول الكل"],
+    ["Yalnızca gerekli olanlar", "Necessary only", "الضرورية فقط"],
+    ["Tümünü reddet", "Reject all", "رفض الكل"],
+    ["Auri ile tanışın.", "Meet Auri.", "تعرّف على Auri."],
+    ["Bir sonraki adımı atın.", "Build what's next.", "ابدأ خطوتك التالية."],
+    ["Auri ile işletmenize uygun bir plan oluşturun, doğru dijital araçları devreye alın ve her şeyi AuraHub üzerinden takip edin.", "Meet Auri, build a plan for your business, launch the right digital tools, and track everything in your own AuraHub.", "تعرّف على Auri، وأنشئ خطة لنشاطك، وأطلق الأدوات الرقمية المناسبة، وتابع كل شيء من خلال AuraHub."],
+    ["İşletmenizin büyüme platformu", "AURADIGITAL / THE BUSINESS GROWTH OS", "AuraDigital / منصة نمو الأعمال"],
+    ["İşletmenize uygun.", "Made for your kind of business.", "مصمّم لنشاط مثل نشاطك."],
+    ["Restoran ve kafe", "Restaurant & café", "مطعم ومقهى"],
+    ["Yerel hizmetler", "Local services", "خدمات محلية"],
+    ["Mağaza ve perakende", "Retail & shops", "البيع بالتجزئة والمتاجر"],
+    ["İçerik üreticisi ve serbest çalışan", "Creator & freelancer", "صانع محتوى ومستقل"],
+    ["AuraHub’ın içinden.", "Inside AuraHub.", "داخل AuraHub."],
+    ["Çalışma alanınız", "Your workspace", "مساحة عملك"],
+    ["Teklif iste ↗", "Request Quote ↗", "اطلب عرض سعر ↗"],
+    ["Büyüme planımı oluştur", "Build my roadmap", "أنشئ خطة نموّي"],
+    ["Sistemi keşfet", "Explore the system", "استكشف النظام"],
+    ["Bize ulaşın", "Contact us", "تواصل معنا"],
+    ["Öncesi ve sonrası", "Before & after.", "قبل وبعد."],
+    ["Büyüme Vizyonu", "Growth Vision", "رؤية النمو"],
+    ["Hizmetlerim", "My Services", "خدماتي"],
+    ["Talepler", "Requests", "الطلبات"],
+    ["Auri’ye sor", "Ask Auri", "اسأل Auri"],
+    ["Kart ara", "Search cards", "ابحث عن البطاقات"],
+    ["NFC kartlarını ara…", "Search NFC cards…", "ابحث عن بطاقات NFC…"],
+    ["Alışveriş sepetini aç", "Open shopping cart", "افتح سلة التسوق"]
+  );
+  const supported = ["tr", "en", "ar"];
+  const maps = Object.fromEntries(supported.map(lang => [lang, new Map()]));
+  const normalize = text => text.trim().replace(/\s+/gu, " ");
   rows.forEach(([tr, en, ar]) => {
-    for (const source of [tr, en, ar]) {
-      maps.tr.set(source, tr);
-      maps.en.set(source, en);
-      maps.ar.set(source, ar);
+    const values = { tr, en, ar };
+    for (const source of [tr, en, ar].map(normalize)) {
+      for (const lang of supported) {
+        const table = maps[lang];
+        const value = values[lang];
+        // Keep an existing translation when an older entry repeats its source.
+        if (!table.has(source) || normalize(value) !== source) table.set(source, value);
+      }
     }
   });
-  const supported = ["tr", "en", "ar"];
   const originals = new WeakMap();
   const attrOriginals = new WeakMap();
-  const originalTitle = document.title;
-  function storageGet() {
+  const online = { tr: new Map(), ar: new Map() };
+  const pending = { tr: new Set(), ar: new Set() };
+  const omitted = "script,style,template,noscript,code,[translate=no],[contenteditable],textarea,[data-w-copy],.lang-menu,.lang-current-label";
+  const attrs = ["placeholder", "aria-label", "aria-description", "alt", "title"];
+  let sourceManifest;
+  let phrases = new Set();
+  let queued = false;
+  let active = "en";
+  let scheduled = false;
+
+  const initial = () => {
+    const lang = new URLSearchParams(location.search).get("lang");
+    if (supported.includes(lang)) return lang;
     try {
-      return localStorage.getItem("aura-lang");
+      const saved = localStorage.getItem("aura-lang-choice-v3");
+      return supported.includes(saved) ? saved : "en";
+    } catch { return "en"; }
+  };
+
+  function mapped(raw, lang) {
+    if (typeof raw !== "string") return raw;
+    const key = normalize(raw);
+    const known = maps[lang].get(key);
+    if (known && known !== key) return known;
+    const translated = online[lang]?.get(key);
+    if (translated) return translated;
+    if (lang !== "en" && !online[lang]?.has(key) && key.length > 1 && /[A-Za-zÀ-ž]/u.test(key)) {
+      phrases.add(key);
+    }
+    return raw;
+  }
+
+  function translateRecord(record, current) {
+    if (record?.rendered === current) return record;
+    return { source: current, rendered: current };
+  }
+
+  function translatePage() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (!node.nodeValue.trim() || node.parentElement?.closest(omitted)) continue;
+      const rec = translateRecord(originals.get(node), node.nodeValue);
+      const source = rec.source;
+      const translated = mapped(source.trim(), active);
+      const next = source.replace(/^(\s*)[\s\S]*?(\s*)$/u, (_, before, after) => before + translated + after);
+      if (next !== node.nodeValue) {
+        const option = node.parentElement?.closest("option:not([value])");
+        if (option) option.value = option.value;
+        node.nodeValue = next;
+      }
+      rec.rendered = next;
+      originals.set(node, rec);
+    }
+    const selector = attrs.map(attr => "[" + attr + "]").join(",") +
+      ',meta[name="description"],meta[property="og:title"],meta[property="og:description"],input[type="submit"][value]';
+    document.querySelectorAll(selector).forEach(element => {
+      if (element.closest(omitted)) return;
+      const records = attrOriginals.get(element) || new Map();
+      attrOriginals.set(element, records);
+      const names = element.matches("meta") ? ["content"] : element.matches('input[type="submit"]') ? [...attrs, "value"] : attrs;
+      for (const name of names) {
+        const current = element.getAttribute(name);
+        if (!current) continue;
+        const rec = translateRecord(records.get(name), current);
+        const next = mapped(rec.source, active);
+        if (current !== next) element.setAttribute(name, next);
+        rec.rendered = next;
+        records.set(name, rec);
+      }
+    });
+    const title = document.querySelector("title");
+    if (title && !originals.has(title)) originals.set(title, { source: document.title, rendered: document.title });
+    if (title) {
+      const rec = translateRecord(originals.get(title), document.title);
+      const value = mapped(rec.source, active);
+      if (document.title !== value) document.title = value;
+      rec.rendered = value;
+      originals.set(title, rec);
+    }
+    syncLinks();
+    if (phrases.size) scheduleOnline();
+  }
+
+  function scheduleOnline() {
+    if (queued || active === "en") return;
+    queued = true;
+    setTimeout(translateOnline, 30);
+  }
+
+  async function translateOnline() {
+    queued = false;
+    const lang = active;
+    if (lang === "en") return;
+    const wanted = [...phrases];
+    phrases.clear();
+    try {
+      sourceManifest ??= fetch("/site-translation-source.json?v=1").then(response => {
+        if (!response.ok) throw new Error("Missing public translation sources");
+        return response.json();
+      }).then(entries => new Set(entries)).catch(error => { sourceManifest = undefined; throw error; });
+      const allowed = await sourceManifest;
+      if (active !== lang) return;
+      const waiting = pending[lang];
+      const keys = wanted.filter(key => allowed.has(key) && !online[lang].has(key) && !waiting.has(key));
+      keys.forEach(key => waiting.add(key));
+      for (let index = 0; index < keys.length; index += 24) {
+        const batch = keys.slice(index, index + 24);
+        try {
+          const response = await fetch("/api/site-translation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lang, phrases: batch }),
+          });
+          if (response.ok) {
+            const { translations } = await response.json();
+            for (const key of batch) online[lang].set(key, typeof translations?.[key] === "string" ? translations[key] : null);
+            if (active === lang) schedulePage();
+          }
+        } catch {
+          // The local dictionary remains functional during a network failure.
+        } finally {
+          batch.forEach(key => waiting.delete(key));
+        }
+        if (active !== lang) {
+          keys.slice(index + batch.length).forEach(key => waiting.delete(key));
+          break;
+        }
+      }
     } catch {
-      return null;
+      // Translate available dictionary copy immediately on every page.
     }
   }
-  function storageSet(v) {
-    try {
-      localStorage.setItem("aura-lang", v);
-      localStorage.setItem("aura-lang-choice-v2", "1");
-    } catch {}
-  }
-  function initial() {
-    // URL state is authoritative. A clean URL always opens in English.
-    // Selecting Turkish or Arabic writes ?lang=... so that choice survives
-    // navigation/reload without an old browser preference overriding default EN.
-    const q = new URLSearchParams(location.search).get("lang");
-    return supported.includes(q) ? q : "en";
-  }
-  function mapped(key, lang) {
-    return maps[lang]?.get(key) || key;
-  }
-  function translateTextNodes(lang) {
-    const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    let n;
-    while ((n = w.nextNode())) {
-      if (!originals.has(n)) originals.set(n, n.nodeValue);
-      const raw = originals.get(n),
-        key = raw.trim().replace(/\s+/g, " ");
-      if (!key) continue;
-      const val = mapped(key, lang);
-      const leading = raw.match(/^\s*/)?.[0] || "";
-      const trailing = raw.match(/\s*$/)?.[0] || "";
-      n.nodeValue = `${leading}${val}${trailing}`;
-    }
-  }
-  function translateAttrs(lang) {
-    document
-      .querySelectorAll("[placeholder],[aria-label],[alt]")
-      .forEach((el) => {
-        let o = attrOriginals.get(el);
-        if (!o) {
-          o = {
-            placeholder: el.getAttribute("placeholder"),
-            ariaLabel: el.getAttribute("aria-label"),
-            alt: el.getAttribute("alt"),
-          };
-          attrOriginals.set(el, o);
-        }
-        for (const [prop, attr] of [
-          ["placeholder", "placeholder"],
-          ["ariaLabel", "aria-label"],
-          ["alt", "alt"],
-        ]) {
-          if (o[prop]) el.setAttribute(attr, mapped(o[prop], lang));
-        }
-      });
-  }
-  function syncLinks(lang) {
-    document.querySelectorAll("a[href]").forEach((a) => {
-      const h = a.getAttribute("href");
-      if (!h || /^(https?:|mailto:|tel:|#|javascript:)/i.test(h)) return;
-      const parts = h.split("#");
-      const pathAndQuery = parts[0];
-      const base = pathAndQuery.split("?")[0] || location.pathname;
-      const query = new URLSearchParams(pathAndQuery.split("?")[1] || "");
-      if (lang === "en") query.delete("lang");
-      else query.set("lang", lang);
-      const qs = query.toString();
-      a.setAttribute("href", `${base}${qs ? "?" + qs : ""}${parts[1] ? "#" + parts[1] : ""}`);
+
+  function syncLinks() {
+    document.querySelectorAll("a[href]:not([download])").forEach(link => {
+      const href = link.getAttribute("href");
+      if (!href || href.startsWith("#")) return;
+      try {
+        const url = new URL(href, location.href);
+        if (url.origin !== location.origin || !/^https?:$/u.test(url.protocol) ||
+            /^\/(?:api|media|assets)\//u.test(url.pathname) || /\.(?!html?$)[a-z0-9]{2,5}$/iu.test(url.pathname)) return;
+        if (active === "en") url.searchParams.delete("lang");
+        else if (url.searchParams.get("lang") !== active) url.searchParams.set("lang", active);
+        else return;
+        const current = new URL(href, location.href);
+        if (current.href !== url.href) link.setAttribute("href", url.pathname + url.search + url.hash);
+      } catch {
+        // Ignore invalid and non-navigation hrefs.
+      }
     });
   }
 
-  function syncUrl(lang) {
-    const url = new URL(location.href);
-    if (lang === "en") url.searchParams.delete("lang");
-    else url.searchParams.set("lang", lang);
-    history.replaceState(history.state, "", url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : "") + url.hash);
+  function schedulePage() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => {
+      scheduled = false;
+      translatePage();
+    });
   }
-  function setDir(lang) {
-    document.documentElement.lang = lang;
-    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    document.body.classList.toggle("rtl", lang === "ar");
-  }
-  function updateSwitcher(lang) {
-    document
-      .querySelectorAll("[data-lang]")
-      .forEach((b) => b.classList.toggle("active", b.dataset.lang === lang));
-    const cur = document.querySelector(".lang-current-label");
-    if (cur) cur.textContent = lang.toUpperCase();
-  }
+
   function apply(lang, save = true) {
-    if (!supported.includes(lang)) lang = "en";
-    setDir(lang);
-    translateTextNodes(lang);
-    translateAttrs(lang);
-    document.title = mapped(originalTitle, lang);
-    syncLinks(lang);
-    updateSwitcher(lang);
+    active = supported.includes(lang) ? lang : "en";
+    phrases = new Set();
+    window.__auraLang = active;
+    document.documentElement.lang = active;
+    document.documentElement.dir = active === "ar" ? "rtl" : "ltr";
+    document.body.classList.toggle("rtl", active === "ar");
+    document.querySelectorAll(".lang-menu [data-lang]").forEach(button => {
+      const current = button.dataset.lang === active;
+      button.classList.toggle("active", current);
+      button.setAttribute("aria-pressed", String(current));
+    });
+    const label = document.querySelector(".lang-current-label");
+    if (label) label.textContent = active.toUpperCase();
     if (save) {
-      storageSet(lang);
-      syncUrl(lang);
+      try {
+        localStorage.setItem("aura-lang", active);
+        localStorage.setItem("aura-lang-choice-v3", active);
+        localStorage.setItem("aura-hub-language", active);
+      } catch {}
+      const url = new URL(location.href);
+      if (active === "en") url.searchParams.delete("lang");
+      else url.searchParams.set("lang", active);
+      history.replaceState(history.state, "", url.pathname + url.search + url.hash);
     }
-    window.__auraLang = lang;
-    window.dispatchEvent(new CustomEvent("aura:languagechange", { detail: { lang } }));
+    translatePage();
+    window.dispatchEvent(new CustomEvent("aura:languagechange", { detail: { lang: active } }));
   }
-  function period(mode) {
-    const lang = window.__auraLang || initial();
-    return mode === "weekly" ? mapped("/ hafta", lang) : mapped("/ ay", lang);
-  }
-  document.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-lang]");
-    if (!b) return;
-    e.preventDefault();
-    apply(b.dataset.lang);
+
+  document.addEventListener("click", event => {
+    const button = event.target.closest(".lang-menu [data-lang]");
+    if (!button) return;
+    event.preventDefault();
+    apply(button.dataset.lang);
     document.querySelector(".lang-menu")?.classList.remove("open");
-    document
-      .querySelector(".lang-current")
-      ?.setAttribute("aria-expanded", "false");
+    document.querySelector(".lang-current")?.setAttribute("aria-expanded", "false");
   });
   window.AuraI18n = {
     setLanguage: apply,
-    current: () => window.__auraLang || initial(),
-    translate: (key) => mapped(key, window.__auraLang || initial()),
-    period,
+    current: () => active,
+    translate: key => {
+      const value = mapped(key, active);
+      if (phrases.size) scheduleOnline();
+      return value;
+    },
+    period: mode => mapped(mode === "weekly" ? "/ hafta" : "/ ay", active),
   };
   apply(initial(), false);
+  const updates = new MutationObserver(schedulePage);
+  updates.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: [...attrs, "href"] });
 })();

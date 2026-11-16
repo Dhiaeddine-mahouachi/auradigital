@@ -1,3 +1,4 @@
+import { translateSiteCopy } from './site-translation.js';
 import { handleBusinessHub } from './business-hub.js';
 import { handleCustomerIdentity } from './customer-identity.js';
 import { handleGlobalPricing } from './global-pricing.js';
@@ -24,6 +25,8 @@ const router = {
       url.hostname = 'auradigitalworks.com';
       return Response.redirect(url.toString(), 301);
     }
+
+    if (url.pathname === '/api/site-translation') return translateSiteCopy(request, env, ctx);
 
     if (env.GROWTH_OS_ENABLED === 'true' || env.CUSTOMER_IDENTITY_ENABLED === 'true') {
       const identityResponse = await handleCustomerIdentity(request, env);

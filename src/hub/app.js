@@ -17,7 +17,15 @@ import { copy, capabilityNames } from './i18n.js';
 import { simulate, capabilities, diagnose } from '../growth-engine.js';
 const app=document.querySelector('#app'),notice=document.querySelector('#notice');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let lang=localStorage.getItem('aura-hub-language')||'en';if(!copy[lang])lang='en';
+const requestedLanguage=new URLSearchParams(location.search).get('lang');
+let lang=Object.hasOwn(copy,requestedLanguage)?requestedLanguage:localStorage.getItem('aura-hub-language')||'en';if(!Object.hasOwn(copy,lang))lang='en';
+function saveLanguage(value){
+ localStorage.setItem('aura-hub-language',value);
+ if(['en','tr','ar'].includes(value))localStorage.setItem('aura-lang-choice-v3',value);
+ const url=new URL(location.href);
+ if(value==='en')url.searchParams.delete('lang');else url.searchParams.set('lang',value);
+ history.replaceState(history.state,'',url.pathname+url.search+url.hash);
+}
 let me=null,workspaces=[],workspace=null,page='home',editing=false,mode='myself',step=0,draft={},result=null,scenarioInputs=null,saveQueue=Promise.resolve(),saveTimer;
 let route=location.pathname.split('/')[2]||'',flowToken=new URLSearchParams(location.hash.slice(1)).get('token')||'';
 const returnPath=['login','signup','forgot'].includes(route)?customerReturnPath(new URLSearchParams(location.search).get('next'),''):customerReturnPath(location.pathname+location.search,'');
@@ -75,7 +83,7 @@ const button=(label,action,secondary=false,disabled=false)=>`<button type="butto
 function field(key,label,value='',type='text',extra='') {return `<label class="field">${esc(t(label))}<input name="${key}" type="${type}" value="${esc(value)}" ${extra}></label>`;}
 const select=(key,label,options,value)=>`<label class="field">${esc(t(label))}<select name="${key}">${options.map(([v,l])=>`<option value="${esc(v)}" ${v===value?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
 function languageControl(){return `<label class="language"><span class="sr-only">Language</span><select id="language" aria-label="Language">${[['en','EN · English'],['ar','AR · العربية'],['fr','FR · Français'],['tr','TR · Türkçe']].map(([v,l])=>`<option value="${v}" ${lang===v?'selected':''}>${l}</option>`).join('')}</select></label>`;}
-function bindCommon(){document.querySelector('#language')?.addEventListener('change',async e=>{clearTimeout(saveTimer);if(editing&&workspace)await persistProfile();lang=e.target.value;localStorage.setItem('aura-hub-language',lang);render();});}
+function bindCommon(){document.querySelector('#language')?.addEventListener('change',async e=>{clearTimeout(saveTimer);if(editing&&workspace)await persistProfile();lang=e.target.value;saveLanguage(lang);render();});}
 function render(){
  disconnectAuri();disconnectDesk();
  document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
@@ -388,7 +396,7 @@ async function renderPage(){
   host:document.querySelector('#page-content'),user:me,lang,esc,t,api,link,workspace,
   canEmail:authCapabilities.email,canLinkGoogle:me.verified&&authCapabilities.google,
   onSignIn:()=>location.assign('/hub/login'),
-  onLanguage:value=>{lang=value;localStorage.setItem('aura-hub-language',lang);render();},
+  onLanguage:value=>{lang=value;saveLanguage(lang);render();},
   onNewWorkspace:()=>{stopAuriVoice();workspace=null;editing=true;draft=emptyProfile();mode='myself';step=0;renderSetup();},
  });
  if(!workspace)return renderBuildCard(label);

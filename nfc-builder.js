@@ -8,8 +8,8 @@
   const form = document.getElementById("nfcForm");
   const fields = form.elements;
   const supported = ["tr", "en", "ar"];
-  const stored = (() => { try { return localStorage.getItem("aura-nfc-lang"); } catch { return null; } })();
-  let language = supported.includes(new URLSearchParams(location.search).get("lang")) ? new URLSearchParams(location.search).get("lang") : "en";
+  const stored = (() => { try { return localStorage.getItem("aura-lang-choice-v3"); } catch { return null; } })();
+  let language = supported.includes(new URLSearchParams(location.search).get("lang")) ? new URLSearchParams(location.search).get("lang") : supported.includes(stored) ? stored : "en";
   let previousDefaults = { headline: copy.en.reviewDefault, instruction: copy.en.instructionDefault };
 
   function currentType() { return form.querySelector('[name="cardType"]:checked').value; }
@@ -23,7 +23,11 @@
     document.querySelectorAll("[data-i18n]").forEach((element) => { const value = copy[next][element.dataset.i18n]; if (value) element.textContent = value; });
     document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => { const value = copy[next][element.dataset.i18nPlaceholder]; if (value) element.placeholder = value; });
     document.querySelectorAll("[data-ui-lang]").forEach((button) => button.classList.toggle("active", button.dataset.uiLang === next));
-    try { localStorage.setItem("aura-nfc-lang", next); } catch {}
+    try { localStorage.setItem("aura-lang-choice-v3", next); } catch {}
+    const currentUrl = new URL(location.href);
+    if (next === "en") currentUrl.searchParams.delete("lang");
+    else currentUrl.searchParams.set("lang", next);
+    history.replaceState(history.state, "", currentUrl.pathname + currentUrl.search + currentUrl.hash);
     if (fields.cardLanguage.value === previousDefaults.language || !previousDefaults.language) fields.cardLanguage.value = next;
     const defaults = typeDefaults(currentType());
     if (!fields.headline.value || fields.headline.value === oldHeadline) fields.headline.value = defaults.headline;

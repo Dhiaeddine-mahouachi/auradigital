@@ -1518,8 +1518,17 @@ function simulate(raw) {
 var app = document.querySelector("#app");
 var notice = document.querySelector("#notice");
 var esc2 = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-var lang = localStorage.getItem("aura-hub-language") || "en";
-if (!copy4[lang]) lang = "en";
+var requestedLanguage = new URLSearchParams(location.search).get("lang");
+var lang = Object.hasOwn(copy4, requestedLanguage) ? requestedLanguage : localStorage.getItem("aura-hub-language") || "en";
+if (!Object.hasOwn(copy4, lang)) lang = "en";
+function saveLanguage(value) {
+  localStorage.setItem("aura-hub-language", value);
+  if (["en", "tr", "ar"].includes(value)) localStorage.setItem("aura-lang-choice-v3", value);
+  const url = new URL(location.href);
+  if (value === "en") url.searchParams.delete("lang");
+  else url.searchParams.set("lang", value);
+  history.replaceState(history.state, "", url.pathname + url.search + url.hash);
+}
 var me = null;
 var workspaces = [];
 var workspace = null;
@@ -1618,7 +1627,7 @@ function bindCommon() {
     clearTimeout(saveTimer);
     if (editing && workspace) await persistProfile();
     lang = e.target.value;
-    localStorage.setItem("aura-hub-language", lang);
+    saveLanguage(lang);
     render();
   });
 }
@@ -2202,7 +2211,7 @@ async function renderPage() {
     onSignIn: () => location.assign("/hub/login"),
     onLanguage: (value) => {
       lang = value;
-      localStorage.setItem("aura-hub-language", lang);
+      saveLanguage(lang);
       render();
     },
     onNewWorkspace: () => {
