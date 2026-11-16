@@ -180,13 +180,88 @@ function hubLink(page2, workspace2, params = {}) {
   return "/hub" + (destinations[page2] ? "/" + destinations[page2] : "") + (query2.size ? "?" + query2 : "");
 }
 
+// src/hub/service-cards.js
+var translations = {
+  en: { open: "Open", renewal: "Renews", benefits: { website: "Your online home", infrastructure: "Keep your site online", email: "Professional communication", menu: "Share your menu", whatsapp: "Reply to customers", crm: "Manage leads", discovery: "Help customers find you", ads: "Reach new customers", seo: "Improve search visibility", reviews: "Build customer trust", automation: "Save repetitive work", card: "Share contact details", creative: "Show your business", service: "Manage your service" } },
+  fr: { open: "Ouvrir", renewal: "Renouvellement", benefits: { website: "Votre vitrine en ligne", infrastructure: "Gardez votre site actif", email: "Communication professionnelle", menu: "Partagez votre menu", whatsapp: "R\xE9pondez aux clients", crm: "Suivez vos prospects", discovery: "Soyez plus visible", ads: "Touchez de nouveaux clients", seo: "Visibilit\xE9 sur Google", reviews: "Inspirez confiance", automation: "Automatisez les t\xE2ches", card: "Partagez vos contacts", creative: "Pr\xE9sentez votre activit\xE9", service: "G\xE9rez votre service" } },
+  tr: { open: "A\xE7", renewal: "Yenileme", benefits: { website: "Dijital vitrininiz", infrastructure: "Siteniz yay\u0131nda kals\u0131n", email: "Profesyonel ileti\u015Fim", menu: "Men\xFCn\xFCz\xFC payla\u015F\u0131n", whatsapp: "M\xFC\u015Fterileri yan\u0131tlay\u0131n", crm: "Potansiyel m\xFC\u015Fterileri y\xF6netin", discovery: "Kolay bulunabilin", ads: "Yeni m\xFC\u015Fterilere ula\u015F\u0131n", seo: "Aramada g\xF6r\xFCn\xFCr olun", reviews: "G\xFCven olu\u015Fturun", automation: "Tekrarlanan i\u015Fleri azalt\u0131n", card: "\u0130leti\u015Fim bilgilerini payla\u015F\u0131n", creative: "\u0130\u015Fletmenizi tan\u0131t\u0131n", service: "Hizmetinizi y\xF6netin" } },
+  ar: { open: "\u0641\u062A\u062D", renewal: "\u0627\u0644\u062A\u062C\u062F\u064A\u062F", benefits: { website: "\u0648\u0627\u062C\u0647\u0629 \u0639\u0645\u0644\u0643 \u0627\u0644\u0631\u0642\u0645\u064A\u0629", infrastructure: "\u0623\u0628\u0642 \u0645\u0648\u0642\u0639\u0643 \u0645\u062A\u0627\u062D\u064B\u0627", email: "\u062A\u0648\u0627\u0635\u0644 \u0627\u062D\u062A\u0631\u0627\u0641\u064A", menu: "\u0634\u0627\u0631\u0643 \u0642\u0627\u0626\u0645\u062A\u0643", whatsapp: "\u0631\u062F \u0639\u0644\u0649 \u0627\u0644\u0639\u0645\u0644\u0627\u0621", crm: "\u0646\u0638\u0645 \u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0627\u0644\u0645\u062D\u062A\u0645\u0644\u064A\u0646", discovery: "\u0633\u0647\u0651\u0644 \u0627\u0644\u0639\u062B\u0648\u0631 \u0639\u0644\u064A\u0643", ads: "\u0627\u062C\u0630\u0628 \u0639\u0645\u0644\u0627\u0621 \u062C\u062F\u062F", seo: "\u0627\u0638\u0647\u0631 \u0641\u064A \u0627\u0644\u0628\u062D\u062B", reviews: "\u0639\u0632\u0632 \u062B\u0642\u0629 \u0627\u0644\u0639\u0645\u0644\u0627\u0621", automation: "\u0648\u0641\u0631 \u0648\u0642\u062A \u0627\u0644\u0645\u0647\u0627\u0645", card: "\u0634\u0627\u0631\u0643 \u0628\u064A\u0627\u0646\u0627\u062A \u0627\u0644\u062A\u0648\u0627\u0635\u0644", creative: "\u0627\u0639\u0631\u0636 \u0646\u0634\u0627\u0637\u0643", service: "\u0623\u062F\u0631 \u062E\u062F\u0645\u062A\u0643" } }
+};
+var categories = [
+  { pattern: /whatsapp/i, kind: "whatsapp", symbol: "WA", capabilities: ["whatsapp"] },
+  { pattern: /qr|menu|menü/i, kind: "menu", symbol: "QR", capabilities: ["menu"] },
+  { pattern: /google\s*(maps?|business)|business\s*discovery|local\s*listing/i, kind: "discovery", symbol: "MAP", capabilities: ["discovery"] },
+  { pattern: /review|rating|avis|yorum/i, kind: "reviews", symbol: "\u2605", capabilities: ["reviews"] },
+  { pattern: /google\s*ads|search\s*advert|ad\s*management|campaign|publicit/i, kind: "ads", symbol: "ADS", capabilities: ["ads"] },
+  { pattern: /seo|search\s*optim/i, kind: "seo", symbol: "SEO", capabilities: ["seo"] },
+  { pattern: /e-?mail|e-posta|courriel|mailbox/i, kind: "email", symbol: "@", capabilities: ["email"] },
+  { pattern: /crm|customer\s*management|lead\s*management|pipeline/i, kind: "crm", symbol: "CRM", capabilities: ["crm", "leads"] },
+  { pattern: /hosting|domain|security|ssl|website\s*care|maintenance/i, kind: "infrastructure", symbol: "DNS", capabilities: ["domain", "hosting"] },
+  { pattern: /automat|chatbot|ai\s*assistant|workflow|spinflow/i, kind: "automation", symbol: "AI", capabilities: ["automation", "followups"] },
+  { pattern: /nfc|smart\s*card/i, kind: "card", symbol: "NFC", capabilities: ["branding"] },
+  { pattern: /web|website|site|e-?commerce|online\s*shop/i, kind: "website", symbol: "WEB", capabilities: ["website"] },
+  { pattern: /brand|logo|video|photo|design|graphic/i, kind: "creative", symbol: "\u2726", capabilities: ["branding"] }
+];
+var classify = (name) => categories.find((x) => x.pattern.test(String(name || ""))) || { kind: "service", symbol: "\u2726", capabilities: [] };
+var baseImportance = { website: 100, infrastructure: 90, email: 85, discovery: 80, whatsapp: 70, seo: 68, crm: 65, reviews: 60, automation: 55, ads: 50, menu: 35, card: 25, creative: 20, service: 10 };
+var sectorBoost = {
+  restaurant: { menu: 90, discovery: 35, reviews: 25, whatsapp: 23 },
+  real_estate: { crm: 75, website: 30, whatsapp: 30, ads: 27 },
+  ecommerce: { website: 35, crm: 30, ads: 30, reviews: 30, whatsapp: 25 },
+  services: { email: 20, crm: 20, website: 15, discovery: 15 }
+};
+var validDate = (value) => {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}(?:$|[T ])/.test(value)) return null;
+  const short = value.slice(0, 10);
+  const date = Date.parse(short + "T00:00:00Z");
+  return Number.isFinite(date) && new Date(date).toISOString().slice(0, 10) === short ? date : null;
+};
+function rankServicesForBusiness(records, { profile = {}, missions = [], now = Date.now() } = {}) {
+  const sector = String(profile.industry || "").toLowerCase();
+  const text = [profile.goals, profile.difficulties].filter(Boolean).join(" ").toLowerCase();
+  const focus = new Set((Array.isArray(missions) ? missions : []).filter((m) => !m.optional && !["done", "postponed", "cancelled"].includes(m.status)).filter((m) => Number(m.priority) === 1 || ["in_progress", "active"].includes(m.status)).map((m) => m.capability || m.id));
+  const score = (record) => {
+    const { kind, capabilities: capabilities2 } = classify(record.name);
+    let value = (baseImportance[kind] || 10) + (sectorBoost[sector]?.[kind] || 0);
+    if (capabilities2.some((c) => focus.has(c))) value += 80;
+    if (/reservation|booking|menu/.test(text) && kind === "menu") value += 30;
+    if (/leads|sales|clients|customer|booking|appointment/.test(text) && ["crm", "whatsapp", "website"].includes(kind)) value += 20;
+    if (/automat|manual|time|efficien|repetit/.test(text) && ["automation", "whatsapp"].includes(kind)) value += 35;
+    if (/visib|traffic|search|find|local/.test(text) && ["discovery", "seo", "ads"].includes(kind)) value += 30;
+    const status = String(record.status || "").toLowerCase();
+    if (["waiting", "waiting_client", "needs_action", "review", "quote_ready"].includes(status)) value += 1e3;
+    else if (["in_progress", "production"].includes(status)) value += 70;
+    const deadline = validDate(record.dueDate);
+    if (deadline !== null && deadline < now + 864e5 * 14) value += deadline < now ? 500 : 260;
+    const renewal = validDate(record.renewalDate);
+    if (renewal !== null && renewal < now + 864e5 * 14) value += renewal < now ? 420 : 230;
+    return value;
+  };
+  return [...records].sort((a, b) => score(b) - score(a) || String(a.name || "").localeCompare(String(b.name || "")) || String(a.id || "").localeCompare(String(b.id || "")));
+}
+function renderOwnedServiceCard(record, { esc: esc3, href, lang: lang2 = "en" }) {
+  const labels3 = translations[lang2] || translations.en;
+  const category = classify(record.name);
+  const active = String(record.status || "").toLowerCase() === "active";
+  const renewal = validDate(record.renewalDate) !== null ? record.renewalDate.slice(0, 10) : null;
+  return `<article class="hub-service-card hub-service-compact" data-service-kind="${category.kind}">
+  <div class="hub-service-preview" aria-hidden="true"><span class="hub-service-mark">${esc3(category.symbol)}</span></div>
+  <div class="hub-service-card-body">
+   <div class="hub-service-card-heading"><h3>${esc3(record.name || "Service")}</h3><span class="hub-service-status ${active ? "is-active" : ""}">${esc3(record.status || "Pending")}</span></div>
+   <p class="hub-service-benefit">${esc3(labels3.benefits[category.kind] || labels3.benefits.service)}</p>
+   ${renewal ? `<p class="hub-service-renewal">${esc3(labels3.renewal)} \xB7 ${esc3(renewal)}</p>` : ""}
+   <a class="hub-service-primary" href="${esc3(href)}">${esc3(labels3.open)} <span aria-hidden="true">\u2197</span></a>
+  </div>
+ </article>`;
+}
+
 // src/hub/work-view.js
 var statusKeys = { lead: "Received", new: "Received", contacted: "Contacted", active: "Active", waiting: "Waiting for details", completed: "Completed", cancelled: "Cancelled", production: "In production", in_production: "In production", waiting_client: "Waiting for details", review: "Ready for review", quote_ready: "Quote ready" };
 var attentionStatuses = /* @__PURE__ */ new Set(["waiting", "waiting_client", "review", "quote_ready"]);
 var terminal = /* @__PURE__ */ new Set(["completed", "cancelled"]);
 var state = (r) => attentionStatuses.has(r.status) ? r.status : r.productionStatus || r.status;
 var workStatus = (r) => statusKeys[state(r)] || String(state(r) || "").replaceAll("_", " ");
-function workRows(drafts, work) {
+function workRows(drafts, work, context = {}) {
   const attention = drafts.filter((d) => !d.reviewed && d.state !== "archived").map((d) => ({
     ...d,
     kind: "menu",
@@ -198,7 +273,7 @@ function workRows(drafts, work) {
   const overdue = (r) => due(r) < Date.now();
   attention.sort((a, b) => Number(overdue(b)) - Number(overdue(a)) || Number(b.blocking) - Number(a.blocking) || (due(a) === due(b) ? 0 : due(a) - due(b)) || a.id.localeCompare(b.id));
   const progress = work.requests.filter((r) => !attentionStatuses.has(state(r)) && !terminal.has(state(r))).map((r) => ({ ...r, kind: "request" }));
-  return { attention, progress, services: work.services };
+  return { attention, progress: rankServicesForBusiness(progress, context), services: rankServicesForBusiness(work.services, context) };
 }
 function renderWorkRow(record, { ui, esc: esc3, link: link2 }) {
   const menu = record.kind === "menu";
@@ -216,8 +291,9 @@ function renderRequestForm({ host, lang: lang2, esc: esc3, me: me2, workspace: w
     tr: ["Hizmet iste", "Hizmet", "Telefon", "Ne yapmam\u0131z\u0131 istersiniz?", "Talebi g\xF6nder", "\u0130ptal"],
     ar: ["\u0627\u0637\u0644\u0628 \u062E\u062F\u0645\u0629", "\u0627\u0644\u062E\u062F\u0645\u0629", "\u0631\u0642\u0645 \u0627\u0644\u0647\u0627\u062A\u0641", "\u0645\u0627 \u0627\u0644\u0630\u064A \u062A\u0648\u062F \u0623\u0646 \u0646\u0646\u062C\u0632\u0647\u061F", "\u0625\u0631\u0633\u0627\u0644 \u0627\u0644\u0637\u0644\u0628", "\u0625\u0644\u063A\u0627\u0621"]
   }[lang2];
+  const rankedOptions = rankServicesForBusiness(serviceOptions.map((name) => ({ name })), { profile: workspace2.profile, missions: workspace2.missions }).map((item) => item.name);
   host.innerHTML = `<section class="panel"><h2>${labels3[0]}</h2><form data-hub-request>
-  <label class="field">${labels3[1]}<select name="service">${serviceOptions.map((value) => `<option ${service === value ? "selected" : ""}>${esc3(value)}</option>`).join("")}</select></label>
+  <label class="field">${labels3[1]}<select name="service">${rankedOptions.map((value) => `<option ${service === value ? "selected" : ""}>${esc3(value)}</option>`).join("")}</select></label>
   <label class="field">${labels3[2]}<input name="phone" type="tel" maxlength="50" autocomplete="tel" required></label>
   <label class="field">${labels3[3]}<textarea name="message" rows="4" maxlength="1700" required>${esc3(draft2.slice(0, 1700))}</textarea></label>
   <p role="alert"></p><button class="primary">${labels3[4]}</button> <a class="secondary" href="${esc3(back)}">${labels3[5]}</a>
@@ -254,40 +330,6 @@ function renderRequestForm({ host, lang: lang2, esc: esc3, me: me2, workspace: w
       submit.disabled = false;
     }
   };
-}
-
-// src/hub/service-cards.js
-var translations = {
-  en: { view: "View details", billing: "Billing", renewal: "Next billing", status: "Status", noRenewal: "Billing date not available" },
-  fr: { view: "Voir les d\xE9tails", billing: "Facturation", renewal: "Prochaine facture", status: "Statut", noRenewal: "Date indisponible" },
-  tr: { view: "Ayr\u0131nt\u0131lar\u0131 g\xF6r", billing: "Faturalama", renewal: "Sonraki fatura", status: "Durum", noRenewal: "Fatura tarihi mevcut de\u011Fil" },
-  ar: { view: "\u0639\u0631\u0636 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644", billing: "\u0627\u0644\u0641\u0648\u062A\u0631\u0629", renewal: "\u0627\u0644\u0641\u0627\u062A\u0648\u0631\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629", status: "\u0627\u0644\u062D\u0627\u0644\u0629", noRenewal: "\u0644\u0627 \u064A\u062A\u0648\u0641\u0631 \u062A\u0627\u0631\u064A\u062E \u0627\u0644\u0641\u0648\u062A\u0631\u0629" }
-};
-var categories = [
-  { pattern: /email|mail|e-posta|courriel/i, kind: "email", symbol: "@" },
-  { pattern: /whatsapp|message|automation|chatbot/i, kind: "automation", symbol: "AI" },
-  { pattern: /qr|menu|menü/i, kind: "menu", symbol: "QR" },
-  { pattern: /hosting|domain|security|ssl/i, kind: "infrastructure", symbol: "DNS" },
-  { pattern: /seo|ads|google|review|marketing/i, kind: "marketing", symbol: "\u2197" },
-  { pattern: /nfc|card/i, kind: "card", symbol: "NFC" },
-  { pattern: /video|photo|brand|design|graphic/i, kind: "creative", symbol: "\u2726" },
-  { pattern: /web|website|site/i, kind: "website", symbol: "WWW" }
-];
-var classify = (name) => categories.find((item) => item.pattern.test(String(name || ""))) || { kind: "service", symbol: "\u2726" };
-function renderOwnedServiceCard(record, { esc: esc3, href, lang: lang2 = "en" }) {
-  const labels3 = translations[lang2] || translations.en;
-  const title = String(record.name || "Service");
-  const category = classify(title);
-  const state2 = String(record.status || "unknown");
-  const billing = typeof record.renewalDate === "string" && /^\d{4}-\d{2}-\d{2}/.test(record.renewalDate) ? record.renewalDate.slice(0, 10) : null;
-  const active = state2.toLowerCase() === "active";
-  return `<article class="hub-service-card" data-service-kind="${category.kind}">
-  <div class="hub-service-preview" aria-hidden="true"><span class="hub-service-mark">${esc3(category.symbol)}</span></div>
-  <div class="hub-service-card-body"><div class="hub-service-card-heading"><h3>${esc3(title)}</h3><span class="hub-service-status ${active ? "is-active" : ""}">${esc3(state2)}</span></div>
-  <div class="hub-service-facts"><span>${esc3(labels3.renewal)}</span><strong>${esc3(billing || labels3.noRenewal)}</strong></div>
-  <div class="hub-service-card-actions"><a class="hub-service-primary" href="${esc3(href)}">${esc3(labels3.view)} <span aria-hidden="true">\u2197</span></a>
-  <a class="hub-service-secondary" href="/account">${esc3(labels3.billing)}</a></div></div>
- </article>`;
 }
 
 // src/hub/onboarding.js
@@ -1777,7 +1819,7 @@ async function workSnapshot() {
       throw error;
     })
   ]);
-  return workRows(menus.drafts, work);
+  return workRows(menus.drafts, work, { profile: workspace.profile, missions: workspace.missions });
 }
 function buildCard(ui) {
   const canBuild = !workspace || ["profile:write", "roadmap:write"].every((permission) => workspace.permissions.includes(permission));

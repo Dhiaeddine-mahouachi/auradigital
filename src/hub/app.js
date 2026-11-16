@@ -251,7 +251,7 @@ async function workSnapshot(){
   api(endpoint('work')),
   api(endpoint('menu-drafts')).catch(error=>{if(error.status===503)return {drafts:[]};throw error;}),
  ]);
- return workRows(menus.drafts,work);
+ return workRows(menus.drafts,work,{profile:workspace.profile,missions:workspace.missions});
 }
 function buildCard(ui){
  const canBuild=!workspace||['profile:write','roadmap:write'].every(permission=>workspace.permissions.includes(permission));
