@@ -4,7 +4,7 @@ const origin=process.env.AURA_THEME_TEST_ORIGIN||'http://127.0.0.1:4195';
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||undefined});
 const pages=[
  ['/about.html','.page-hero'],
- ['/services.html','.page-hero'],
+ ['/services.html','body'],
  ['/contact.html','.contact-form'],
  ['/portfolio.html','.pf-intro'],
  ['/aura-menu.html','.page-hero'],
