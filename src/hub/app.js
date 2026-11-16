@@ -204,7 +204,7 @@ function renderShell(){
   data-page="${p}" ${mobile?`data-mobile-page="${p}"`:''} ${active===p?'aria-current="page"':''}>
   ${hubIcon(p)}<span>${esc((p==='services'?serviceLabels[lang][0]:labels[p]||l[p]||t(p)))}</span></a>`;
  const title=page==='services'?serviceLabels[lang][0]:page==='journey'?commandLabels(lang).vision:labels[page]||l[page]||t(page);
- app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell"><aside class="sidebar" id="sidebar">
+ app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell ${page==='services'?'service-shell':''}"><aside class="sidebar" id="sidebar">
  <a href="${esc(link('home'))}" class="wordmark command-wordmark"><svg viewBox="0 0 32 29" width="34" height="31" aria-hidden="true" fill="currentColor"><path d="M15.9 1.2a3.4 3.4 0 0 1 2.9 1.8L32 27.8l-9.2-4.1L15.9 10l-5.4 10.5 8.4-2.3 3 5.5L0 29 13 3a3.3 3.3 0 0 1 2.9-1.8Z"/></svg>AuraHub</a>
  <nav aria-label="AuraHub">${navigation.map(p=>navItem(p)).join('')}</nav></aside>
  <div class="workspace"><header class="topbar growth-topbar hub-topbar">
@@ -324,7 +324,7 @@ async function myWork(){
  if(page==='services'&&!service){
   host.innerHTML='<p role="status">…</p>';
   const {records}=await api(endpoint('work'));
-  if(host.isConnected)renderServices({host,records:records||[],lang,esc,link});
+  if(host.isConnected)renderServices({host,records:records||[],lang,esc,link,canRequest:workspace.permissions.includes('roadmap:write')});
   return;
  }
  const {attention,progress,services,requests}=await workSnapshot();

@@ -12,7 +12,7 @@ const statuses={
  ready_for_review:'attention', revisions_requested:'progress', blocked:'progress',
  completed:'delivered', delivered:'delivered', active:'active',
 };
-const group=record=>statuses[record.status];
+const group=record=>Object.hasOwn(statuses,record.status)?statuses[record.status]:undefined;
 const icons={
  email:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
  web:'<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/>',
@@ -21,12 +21,38 @@ const icons={
  hosting:'<rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h2m-2 11h2"/>',
  general:'<path d="m12 2 9 5v10l-9 5-9-5V7zm0 10 9-5m-9 5-9-5m9 5v10"/>',
 };
-function icon(name) {
- const kind=[
-  [/e.?mail|mailbox/i,'email'],[/menu/i,'menu'],[/whatsapp|automation|chat/i,'chat'],
-  [/hosting|domain/i,'hosting'],[/web/i,'web'],
- ].find(([pattern])=>pattern.test(name))?.[1]||'general';
- return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[kind]}</svg>`;
+const examples=[
+ {kind:'web',service:'Web Design',en:'Website',fr:'Site web',tr:'Web sitesi',ar:'موقع إلكتروني'},
+ {kind:'email',service:'Business Email',en:'Business Email',fr:'E-mail professionnel',tr:'İş e-postası',ar:'بريد الأعمال'},
+ {kind:'menu',service:'AuraMenu',en:'QR Menu',fr:'Menu QR',tr:'QR menü',ar:'قائمة QR'},
+ {kind:'chat',service:'AI & Automation',en:'WhatsApp Automation',fr:'Automatisation WhatsApp',tr:'WhatsApp otomasyonu',ar:'أتمتة واتساب'},
+ {kind:'brand',service:'Branding',en:'Branding',fr:'Identité visuelle',tr:'Marka kimliği',ar:'الهوية البصرية'},
+ {kind:'hosting',service:'Hosting / Security',en:'Hosting & Domain',fr:'Hébergement et domaine',tr:'Hosting ve alan adı',ar:'الاستضافة والنطاق'},
+];
+const previewCopy={
+ en:['Service examples','Request this service','Illustration','Mailbox','New message','Welcome!','How can we help?'],
+ fr:['Exemples de services','Demander ce service','Illustration','Boîte mail','Nouveau message','Bienvenue !','Comment vous aider ?'],
+ tr:['Hizmet örnekleri','Bu hizmeti iste','Örnek görsel','Posta kutusu','Yeni mesaj','Hoş geldiniz!','Nasıl yardımcı olabiliriz?'],
+ ar:['أمثلة على الخدمات','اطلب هذه الخدمة','رسم توضيحي','صندوق البريد','رسالة جديدة','أهلاً بك!','كيف يمكننا مساعدتك؟'],
+};
+const serviceKind=name=>[
+ [/e.?mail|mailbox/i,'email'],[/menu/i,'menu'],[/whatsapp|automation|chat/i,'chat'],
+ [/hosting|domain/i,'hosting'],[/brand|design identity/i,'brand'],[/web/i,'web'],
+].find(([pattern])=>pattern.test(name))?.[1]||'general';
+function icon(kind) {
+ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[kind]||icons.general}</svg>`;
+}
+function serviceArt(kind,lang){
+ const [, ,label,mailbox,message,welcome,help]=previewCopy[lang];
+ const artwork={
+  web:'<div class="service-laptop"><img src="/project-fifty.png" alt="" loading="lazy"></div>',
+  email:`<div class="service-mail-window"><small>${mailbox}</small><strong>${message}</strong><span>contact@yourbusiness.com</span><i></i><i></i></div>${icon('email')}`,
+  menu:'<div class="service-menu-stand">'+icon('menu')+'</div><img class="service-menu-phone" src="/qr-menu-phone.svg" alt="" loading="lazy">',
+  chat:`<div class="service-chat-phone"><span>${welcome}</span><span>${help}</span></div>${icon('chat')}`,
+  brand:'<div class="service-brand-kit"><div></div><span></span><span></span><span>Aa</span></div>',
+  hosting:'<div class="service-rack"><i></i><i></i><i></i></div><div class="service-domain">yourbusiness.com</div>',
+ };
+ return `<div class="service-art service-art--${kind}"><span class="service-art-label">${label}</span><div class="service-artwork" aria-hidden="true">${artwork[kind]||icon(kind)}</div></div>`;
 }
 export function serviceDate(value,lang,fallback) {
  if(!value)return fallback;
@@ -47,15 +73,25 @@ function facts(record,lang,labels,esc){
 export function serviceSummary(records,labels,esc) {
  return `<dl class="service-summary">${filters.map((filter,index)=>`<div><dt>${esc(labels[index+2])}</dt><dd>${filter==='all'?records.length:records.filter(record=>group(record)===filter).length}</dd></div>`).join('')}</dl>`;
 }
-export function renderServices({host,records,lang,esc,link}){
+export function renderServices({host,records,lang,esc,link,canRequest}){
  const labels=serviceLabels[lang]||serviceLabels.en;
- host.innerHTML=`<p class="service-intro">${labels[1]}</p>${serviceSummary(records,labels,esc)}
- <div class="service-filters" role="group" aria-label="${labels[0]}">${filters.map((filter,index)=>`<button type="button" data-service-filter="${filter}" aria-controls="service-grid" aria-pressed="${filter==='all'}">${labels[index+2]}</button>`).join('')}</div>
- <div class="service-grid" id="service-grid">${records.map(record=>`<article class="service-card" data-service-group="${group(record)||'other'}">
- <header><h2>${esc(record.name)}</h2><span class="service-state">${esc(serviceStatus(record,labels))}</span></header>
- <div class="service-art">${icon(record.name)}</div>${facts(record,lang,labels,esc)}
- <a class="growth-secondary" href="${esc(link('services',{serviceRecord:record.key}))}">${labels[8]} <span aria-hidden="true">↗</span></a>
- </article>`).join('')}</div><p class="hub-empty" role="status" data-service-empty ${records.length?'hidden':''}>${labels[7]}</p>`;
+ const [examplesTitle,requestLabel]=previewCopy[lang];
+ const headers=(kind,name)=>`<header><span class="service-icon">${icon(kind)}</span><h2>${esc(name)}</h2></header>`;
+ host.innerHTML=`<p class="service-intro">${labels[1]}</p>
+ ${records.length?`<div class="service-filters" role="group" aria-label="${labels[0]}">${filters.map((filter,index)=>`<button type="button" data-service-filter="${filter}" aria-controls="service-grid" aria-pressed="${filter==='all'}">${labels[index+2]} <span>${filter==='all'?records.length:records.filter(record=>group(record)===filter).length}</span></button>`).join('')}</div>
+ <div class="service-grid" id="service-grid">${records.map(record=>{
+  const kind=serviceKind(record.name);
+  return `<article class="service-card" data-service-group="${group(record)||'other'}">
+   ${serviceArt(kind,lang)}<span class="service-state">${esc(serviceStatus(record,labels))}</span>
+   <div class="service-card-body">${headers(kind,record.name)}${facts(record,lang,labels,esc)}
+   <a class="growth-primary" href="${esc(link('services',{serviceRecord:record.key}))}">${labels[8]} <span aria-hidden="true">↗</span></a></div>
+   </article>`;
+ }).join('')}</div><p class="hub-empty" role="status" data-service-empty hidden>${labels[7]}</p>`:`<h2 class="service-example-title">${examplesTitle}</h2>
+ <div class="service-grid">${examples.map(example=>`<article class="service-card">
+  ${serviceArt(example.kind,lang)}<div class="service-card-body">${headers(example.kind,example[lang])}
+  ${canRequest?`<a class="growth-secondary" href="${esc(link('requests',{new:'1',service:example.service}))}">${requestLabel} <span aria-hidden="true">↗</span></a>`:''}</div>
+ </article>`).join('')}</div>`}`;
+ if(!records.length)return;
  host.querySelector('.service-filters').onclick=event=>{
   const button=event.target.closest('[data-service-filter]');
   if(!button)return;
@@ -72,7 +108,7 @@ export function renderServices({host,records,lang,esc,link}){
 export function renderServiceDetails({host,record,lang,esc,link,askLabel}){
  const labels=serviceLabels[lang]||serviceLabels.en;
  host.innerHTML=`<article class="service-card service-detail"><header><h2>${esc(record.name)}</h2><span class="service-state">${esc(serviceStatus(record,labels))}</span></header>
- <div class="service-art">${icon(record.name)}</div>${facts(record,lang,labels,esc)}
+ ${serviceArt(serviceKind(record.name),lang)}${facts(record,lang,labels,esc)}
  <dl class="service-facts"><div><dt>${labels[14]}</dt><dd>${esc(serviceDate(record.createdAt,lang,labels[10]))}</dd></div></dl>
  <div class="actions"><a class="growth-secondary" href="${esc(link('services'))}">${labels[0]}</a>
  ${askLabel?`<a class="growth-primary" href="${esc(link('assistant',{serviceRecord:record.key}))}">${esc(askLabel)}</a>`:''}</div></article>`;

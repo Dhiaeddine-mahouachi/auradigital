@@ -102,6 +102,12 @@ try {
  await nav(desktop,'requests');
  await desktop.locator('.hub-work-row').filter({hasText:'AuraMenu'}).waitFor();
 
+ await nav(desktop,'services');
+ await heading(desktop,'Service examples').waitFor();
+ assert.equal(await desktop.locator('.service-card .service-art').count(),6);
+ await desktop.locator('.service-card').filter({has:heading(desktop,'Business Email')})
+  .getByRole('link',{name:'Request this service'}).click();
+ assert.equal(await desktop.locator('[name=service]').inputValue(),'Business Email');
  await nav(desktop,'home');
  await desktop.getByRole('link',{name:'Continue setup'}).waitFor();
  const second=await pageAt({viewport:{width:1320,height:960}});
@@ -112,10 +118,10 @@ try {
  await nav(second,'services');
  await heading(second,'Website hosting').waitFor();
  await heading(second,'Website').waitFor();
- await button(second,'Active').focus();
+ await second.locator('[data-service-filter=active]').focus();
  await second.keyboard.press('Enter');
  assert.equal(await second.locator('.service-card:visible').count(),1);
- await button(second,'All').click();
+ await second.locator('[data-service-filter=all]').click();
  assert.equal(await second.locator('.service-card:visible').count(),2);
  await screenshot(second,'AuraHub-My-Services');
  await second.locator('.service-card').filter({has:heading(second,'Website')}).getByRole('link',{name:'Open details'}).click();

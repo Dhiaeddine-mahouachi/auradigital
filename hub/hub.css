@@ -591,3 +591,42 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 .service-detail{max-width:650px}
 @media(max-width:1120px){.service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.service-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.service-grid{grid-template-columns:1fr}}
+.service-shell{background:radial-gradient(ellipse at 57% 6%,#161a17,#0b0f10 60%)}
+.service-shell .sidebar,.service-shell .hub-topbar{background:#111515}
+.service-shell .sidebar .nav-item.active{background:#eaff33;color:#171a0a}
+.service-example-title{margin-block:16px 12px;font-size:1rem}
+.service-filters button span{margin-inline-start:4px;padding:2px 6px;border-radius:10px;background:#ffffff15}
+.service-filters button[aria-pressed=true] span{background:#0002}
+.service-grid .service-card{position:relative;padding:0;gap:0;overflow:hidden;background:linear-gradient(145deg,#1a1f1d,#101414);align-content:start}
+.service-card-body{display:grid;gap:13px;padding:0 15px 15px;position:relative;margin-block-start:-12px}
+.service-card-body header{align-items:center;justify-content:start}
+.service-card-body .growth-primary,.service-card-body .growth-secondary{justify-self:start}
+.service-icon{display:grid;place-items:center;flex:none;width:35px;height:35px;border-radius:9px;background:#282d12;color:#eaff33}
+.service-icon svg{width:22px;height:22px}
+.service-grid .service-state{position:absolute;inset-block-start:12px;inset-inline-end:12px;z-index:1}
+.service-grid [data-service-group=active] .service-state,.service-grid [data-service-group=delivered] .service-state{background:#103327;color:#a9ffd4}
+.service-card-body .service-facts{border-block-start:1px solid #ffffff18;padding-block-start:10px}
+.service-art{position:relative;isolation:isolate;min-height:164px;border:0;border-radius:0;overflow:hidden;background:radial-gradient(ellipse at 52% 69%,#515917,#1a2115 40%,#101414 72%)}
+.service-art::after{content:'';position:absolute;inset:55% 0 0;background:linear-gradient(transparent,#101414)}
+.service-art-label{position:absolute;z-index:1;inset-block-start:12px;inset-inline-start:12px;font-size:.68rem;color:#d6dccd;background:#1118;padding:3px 7px;border-radius:8px}
+.service-artwork{position:relative;display:grid;place-items:center;width:85%;height:164px;direction:ltr}
+.service-laptop{width:72%;max-width:280px;transform:perspective(480px) rotateY(-11deg) rotate(-5deg);border:5px solid #444946;border-radius:10px;background:#121514;box-shadow:0 0 28px #cbe90035}
+.service-laptop::after{content:'';position:absolute;inset:auto -10% -8px;height:7px;border-radius:3px 3px 50% 50%;background:linear-gradient(#a5aaa5,#262c29)}
+.service-laptop img{display:block;width:100%;height:100px;object-fit:cover;object-position:top;border-radius:4px}
+.service-mail-window{display:grid;gap:8px;width:73%;max-width:255px;justify-self:end;transform:rotate(-8deg);padding:11px 13px;border-radius:12px;border:1px solid #74796c;background:linear-gradient(#303535,#101414);color:#edf2e9;font-size:.78rem;box-shadow:0 0 24px #cbe90030}
+.service-mail-window span{color:#eaff33;overflow-wrap:anywhere}
+.service-mail-window i{height:3px;background:#ffffff24;border-radius:9px}
+.service-art--email svg,.service-art--chat svg{position:absolute;inset-inline-start:4%;inset-block-start:28%;z-index:1}
+.service-menu-stand{transform:rotate(-13deg);padding:12px 6px;border:1px solid #989c75;background:#171a16;border-radius:8px;margin-inline-end:90px}
+.service-menu-phone{position:absolute;inset-inline-end:16%;width:74px;max-height:143px;transform:rotate(13deg);filter:drop-shadow(0 6px 15px #000)}
+.service-art--chat{background:radial-gradient(ellipse at 40% 56%,#135e33,#101414 72%);color:#74ffac}
+.service-chat-phone{width:70%;max-width:205px;justify-self:end;display:grid;gap:7px;border:3px solid #63716a;border-radius:24px;transform:rotate(-8deg);padding:19px 10px;background:#142a22}
+.service-chat-phone span{background:#bcefca;color:#122218;font-size:.72rem;padding:5px 8px;border-radius:7px}
+.service-brand-kit{display:flex;align-items:end;gap:6px;transform:rotate(-5deg)}
+.service-brand-kit div{width:100px;height:88px;background:#0c0d0c url('/auradigital-mark.svg') center/52% no-repeat;border:1px solid #676e5e;border-radius:10px;box-shadow:8px 8px 20px #0007}
+.service-brand-kit span{display:grid;place-items:center;width:27px;height:30px;border-radius:6px;color:#101414;background:#eaff33;font-weight:750}
+.service-brand-kit span:nth-child(3){background:#fff}
+.service-brand-kit span:last-child{background:#333b31;color:#fff}
+.service-rack{margin-inline-end:40%;display:grid;gap:3px;transform:rotate(-8deg)}
+.service-rack i{width:102px;height:23px;border:1px solid #505a38;border-radius:5px;background:radial-gradient(circle at 88% 50%,#eaff33 2px,transparent 3px),linear-gradient(#30332c,#101210);box-shadow:0 0 15px #d8ed2340}
+.service-domain{position:absolute;inset-inline-end:0;max-width:63%;overflow-wrap:anywhere;background:#1c2923;border:1px solid #5a755e;padding:8px 10px;border-radius:8px;color:#dcebdd;font-size:.75rem}

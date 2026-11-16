@@ -24,7 +24,7 @@ export function renderWorkRow(record,{ui,esc,link}) {
   <small>${esc(menu?ui.menuReady:workStatus(record))}</small></span><span class="hub-row-action">${esc(action)} <span aria-hidden="true">↗</span></span></a>`;
 }
 
-const serviceOptions=['Web Design','Website Care','Pricing / Quote','Hosting / Security','Business Email','Spinflow ERP','NFC Card','AuraMenu','AuraWeddings','Ad Management','SEO / Google Maps','AI & Automation','Other'];
+const serviceOptions=['Web Design','Website Care','Pricing / Quote','Hosting / Security','Business Email','Branding','Spinflow ERP','NFC Card','AuraMenu','AuraWeddings','Ad Management','SEO / Google Maps','AI & Automation','Other'];
 export function renderRequestForm({host,lang,esc,me,workspace,service,task,draft,back,submitted}) {
  const ui=hubLabels(lang);
  const labels={
