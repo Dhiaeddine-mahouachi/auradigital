@@ -60,7 +60,8 @@ test("public pages load the shared catalogue without exposing old tiers", () => 
   assert.doesNotMatch(html("services"), /Social Media &amp; Content|1 Sayfa · 5\.000/);
   assert.match(html("index"), /id="command-preview"/);
   assert.match(html("index"), /Build my roadmap/);
-  assert.doesNotMatch(html("index"), /data-pricing-view|pricing\\/ui\\.js|See pricing/);
+  assert.doesNotMatch(html("index"), /data-pricing-view|See pricing/);
+  assert.ok(!html("index").includes("pricing/ui.js"));
 });
 test("contact API stores server-verified pricing and rejects invented prices", async () => {
   const sqlite=new DatabaseSync(":memory:");
