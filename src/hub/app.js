@@ -1,5 +1,5 @@
 import { mountGuide } from './guide-view.js';
-import { currentHubLocation, hubIcon, hubLabels, hubLink, hubStage } from './hub-navigation.js';
+import { currentHubLocation, hubIcon, hubLabels, hubLink, hubStage, hubStageNames } from './hub-navigation.js';
 import { renderRequestForm, renderWorkRow, workRows, workStatus } from './work-view.js';
 import { createOnboarding, renderOnboarding } from './onboarding.js';
 import { blueprintLabels, commandLabels } from './blueprint-copy.js';
@@ -285,7 +285,7 @@ async function home(){
  const complete=!item&&!next&&workspace.missions.every(m=>m.status==='done');
  const note=item?(menu?item.name:workStatus(item)):next?(next.reason||next.description):'';
  const done=workspace.missions.filter(m=>m.status==='done').length;
- const stage=next?[ui.small,ui.systems,ui.scale][hubStage(next.level)]:ui.journey;
+ const stage=next?hubStageNames(lang)[hubStage(next.level)]:ui.journey;
  host.innerHTML=`<section class="hub-hero"><div>
  ${item?`<span class="hub-highlight">${esc(ui.attention)}</span>`:next?`<span class="hub-highlight">${esc(ui.next)}</span>`:''}
  <h2>${esc(hero)}</h2>${note?`<p>${esc(note)}</p>`:''}

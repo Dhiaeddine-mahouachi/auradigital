@@ -469,7 +469,8 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 .hub-row-action{color:var(--hub-accent);text-align:end;font-size:.86rem}
 .hub-empty{margin:0;padding:12px 0}
 .hub-context{grid-template-columns:minmax(0,1fr) auto;margin-block-end:14px}
-.aurahub-shell .vision-path-cards{grid-template-columns:repeat(3,minmax(0,1fr));min-width:0;gap:21px}
+.aurahub-shell .vision-path-cards{grid-template-columns:repeat(5,minmax(154px,1fr));min-width:800px;gap:16px}
+.aurahub-shell .vision-stage-fallback{display:grid;place-items:center;width:min(100%,140px);height:106px;font-size:3rem;background:radial-gradient(circle at 50% 35%,#34532a,#14241e 76%);border:1px solid #506b40;border-radius:22px;box-shadow:inset 0 0 17px #d8ff3520;color:#d8ff35}
 .aurahub-shell .vision-stage-button{background:linear-gradient(150deg,#172722,#0c1916);border-color:var(--hub-border);gap:10px}
 .aurahub-shell .vision-stage-button strong{font-size:clamp(1rem,1.8vw,1.45rem)}
 .aurahub-shell .vision-stage[data-stage-state=active] .vision-stage-button{border-color:var(--hub-accent);box-shadow:0 0 17px #c5ff3655,inset 0 0 13px #d8ff3522}

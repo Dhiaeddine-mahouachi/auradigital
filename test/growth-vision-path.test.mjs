@@ -23,13 +23,15 @@ function render(overrides = {}, selected = missions[1]) {
  });
 }
 
-test('groups five existing mission levels into three customer stages',()=>{
+test('shows five distinct mission levels with correct grouping',()=>{
  const html=render();
- assert.equal((html.match(/class="vision-stage"/g)||[]).length,3);
+ assert.equal((html.match(/class="vision-stage"/g)||[]).length,5);
  assert.match(html,/Create &lt;site&gt; &amp; menu/);
  assert.match(render({},missions[4]),/Review analytics/);
  assert.match(html,/data-node="measurement"/);
- assert.match(html,/Build systems/);
+ assert.match(html,/Visibility/);
+ assert.match(html,/Operations/);
+ assert.match(html,/Scale/);
  assert.match(html,/aria-pressed="true"/);
 });
 
@@ -52,7 +54,7 @@ test('escapes customer mission content and supports all Hub languages',()=>{
    title:mission=>mission.objective,status:mission=>mission.status,
    displayState:mission=>mission.status,selected:missions[1],robot:()=>'<span></span>',
   });
-  assert.equal((rendered.match(/class="vision-stage"/g)||[]).length,3,lang);
+  assert.equal((rendered.match(/class="vision-stage"/g)||[]).length,5,lang);
   assert.match(rendered,/data-node="visibility"/);
  }
 });

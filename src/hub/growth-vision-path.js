@@ -1,4 +1,4 @@
-import { hubLabels, hubStage } from './hub-navigation.js';
+import { hubLabels, hubStage, hubStageNames } from './hub-navigation.js';
 // The Growth Vision path is a presentation of existing customer missions and
 // server-verified Auri milestones. XP is derived, never a client-writable balance.
 const copy = {
@@ -45,7 +45,7 @@ export function renderGrowthVisionPath({workspace,esc,lang='en',title,status,dis
  const ui=copy[lang]||copy.en;
  const hub=hubLabels(lang);
  const missions=workspace.missions||[];
- const stages=[hub.small,hub.systems,hub.scale].map((name,index)=>({
+ const stages=hubStageNames(lang).map((name,index)=>({
   name,missions:missions.filter(m=>hubStage(m.level)===index),
  }));
  const current=stages.findIndex(stage=>stage.missions.some(m=>!m.optional&&!['done','postponed'].includes(m.status)));
@@ -69,7 +69,7 @@ export function renderGrowthVisionPath({workspace,esc,lang='en',title,status,dis
   const state=finished?ui.done:active?hub.current:current<index&&current!==-1?hub.locked:ui.upcoming;
   const content=`<span class="vision-stage-status">${index+1} · ${esc(state)}</span>
     <strong>${esc(item.name)}</strong>
-    <img class="vision-stage-art" src="/hub/stage-${index+1}.webp" alt="" width="140" height="106">
+    ${index<3?`<img class="vision-stage-art" src="/hub/stage-${index+1}.webp" alt="" width="140" height="106">`:`<span class="vision-stage-icon vision-stage-fallback" aria-hidden="true">${index===3?"⚙":"▥"}</span>`}
     <small>${count} / ${total} ${esc(ui.missions.toLowerCase())}</small>`;
   return `<li class="vision-stage" data-stage-state="${finished?'done':active?'active':'upcoming'}">
    ${first?`<button type="button" class="vision-stage-button" data-node="${esc(first.id)}" aria-pressed="${chosen===index}">${content}</button>`:`<div class="vision-stage-button">${content}</div>`}

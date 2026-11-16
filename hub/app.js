@@ -154,7 +154,13 @@ var labels = {
 var keys = ["home", "journey", "assistant", "services", "build", "buildNote", "buildAction", "continue", "next", "attention", "progress", "active", "reviewMenu", "openRequest", "emptyAttention", "emptyProgress", "emptyActive", "welcome", "complete", "return", "context", "small", "systems", "scale", "locked", "current", "unavailable", "menuReady", "reviewed", "requestDetails", "intake"];
 var hubLabels = (lang2) => Object.fromEntries(keys.map((key, index) => [key, (labels[lang2] || labels.en)[index]]));
 var destinations = { home: "", journey: "roadmap", assistant: "auri", services: "work", menuDrafts: "menu-drafts", profile: "profile", settings: "settings", resources: "resources", tasks: "tasks", simulator: "simulator", team: "team", insights: "insights", projects: "projects", websites: "websites", hosting: "hosting", files: "files", reports: "reports", invoices: "invoices", rewards: "rewards", support: "support", onboarding: "onboarding" };
-var hubStage = (level) => Number(level) < 3 ? 0 : Number(level) < 5 ? 1 : 2;
+var hubStage = (level) => Math.max(0, Math.min(4, (Number(level) || 1) - 1));
+var hubStageNames = (lang2) => ({
+  en: ["Foundation", "Visibility", "Conversion", "Operations", "Scale"],
+  fr: ["Fondations", "Visibilit\xE9", "Conversion", "Op\xE9rations", "Croissance"],
+  tr: ["Temel", "G\xF6r\xFCn\xFCrl\xFCk", "D\xF6n\xFC\u015F\xFCm", "Operasyon", "B\xFCy\xFCme"],
+  ar: ["\u0627\u0644\u062A\u0623\u0633\u064A\u0633", "\u0627\u0644\u0638\u0647\u0648\u0631", "\u0627\u0644\u062A\u062D\u0648\u064A\u0644", "\u0627\u0644\u0639\u0645\u0644\u064A\u0627\u062A", "\u0627\u0644\u062A\u0648\u0633\u0639"]
+})[lang2] || ["Foundation", "Visibility", "Conversion", "Operations", "Scale"];
 var hubIcons = {
   home: '<path d="M3 10 12 3l9 7v10H3z M9 20v-7h6v7"/>',
   journey: '<path d="m2 8 10-5 10 5-10 5z M2 12l10 5 10-5 M2 16l10 5 10-5"/>',
@@ -688,7 +694,7 @@ function renderGrowthVisionPath({ workspace: workspace2, esc: esc3, lang: lang2 
   const ui = copy3[lang2] || copy3.en;
   const hub = hubLabels(lang2);
   const missions = workspace2.missions || [];
-  const stages = [hub.small, hub.systems, hub.scale].map((name, index) => ({
+  const stages = hubStageNames(lang2).map((name, index) => ({
     name,
     missions: missions.filter((m) => hubStage(m.level) === index)
   }));
@@ -713,7 +719,7 @@ function renderGrowthVisionPath({ workspace: workspace2, esc: esc3, lang: lang2 
     const state2 = finished ? ui.done : active ? hub.current : current < index && current !== -1 ? hub.locked : ui.upcoming;
     const content2 = `<span class="vision-stage-status">${index + 1} \xB7 ${esc3(state2)}</span>
     <strong>${esc3(item.name)}</strong>
-    <img class="vision-stage-art" src="/hub/stage-${index + 1}.webp" alt="" width="140" height="106">
+    ${index < 3 ? `<img class="vision-stage-art" src="/hub/stage-${index + 1}.webp" alt="" width="140" height="106">` : `<span class="vision-stage-icon vision-stage-fallback" aria-hidden="true">${index === 3 ? "\u2699" : "\u25A5"}</span>`}
     <small>${count} / ${total} ${esc3(ui.missions.toLowerCase())}</small>`;
     return `<li class="vision-stage" data-stage-state="${finished ? "done" : active ? "active" : "upcoming"}">
    ${first ? `<button type="button" class="vision-stage-button" data-node="${esc3(first.id)}" aria-pressed="${chosen === index}">${content2}</button>` : `<div class="vision-stage-button">${content2}</div>`}
@@ -1774,7 +1780,7 @@ async function home() {
   const complete = !item && !next && workspace.missions.every((m) => m.status === "done");
   const note = item ? menu ? item.name : workStatus(item) : next ? next.reason || next.description : "";
   const done = workspace.missions.filter((m) => m.status === "done").length;
-  const stage = next ? [ui.small, ui.systems, ui.scale][hubStage(next.level)] : ui.journey;
+  const stage = next ? hubStageNames(lang)[hubStage(next.level)] : ui.journey;
   host.innerHTML = `<section class="hub-hero"><div>
  ${item ? `<span class="hub-highlight">${esc2(ui.attention)}</span>` : next ? `<span class="hub-highlight">${esc2(ui.next)}</span>` : ""}
  <h2>${esc2(hero)}</h2>${note ? `<p>${esc2(note)}</p>` : ""}
