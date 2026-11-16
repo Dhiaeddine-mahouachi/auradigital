@@ -36,6 +36,6 @@ export function connectAuri(host,scope,labels){
  return watchAuri(scope,phase=>{
   character.dataset.phase=phase;
   if(status)status.textContent=labels[phase]||'';
-  host.querySelector('details')?.toggleAttribute('data-auri-pending',['thinking','working','typing'].includes(phase));
+  host.querySelector('details')?.toggleAttribute('data-auri-pending',['thinking','working','typing','drafting'].includes(phase));
  });
 }

@@ -17,9 +17,9 @@ def material(name, color, roughness, metal=0, emission=0):
     bsdf.inputs['Emission Strength'].default_value = emission
     return mat
 
-ivory = material('Ivory ceramic', (.88, .87, .81), .32, .12)
-graphite = material('Graphite polymer', (.035, .041, .048), .38, .16)
-glass = material('Black glass', (.008, .010, .012), .22, .08)
+ivory = material('Ivory ceramic', (.72, .69, .60), .48, .06)
+graphite = material('Graphite polymer', (.032, .048, .043), .52, .10)
+glass = material('Black glass', (.008, .010, .012), .30, .05)
 trim = material('Brushed titanium', (.22, .24, .25), .31, .53)
 light = material('Acid yellow', (.8, .8, .004), .32, .08, .75)
 hologram = material('Holographic gold', (.42, .56, .018), .32, .25, .3)
@@ -63,7 +63,7 @@ def line(name, start, end, width, mat, parent):
 
 root = group('Auri')
 head = group('Head', (0, 0, 1.62), root)
-shell('Helmet', (0, 0, 0), (1.54, 1.05, 1.12), .49, ivory, head)
+shell('Helmet', (0, 0, 0), (1.54, 1.05, 1.04), .49, ivory, head)
 shell('Faceplate gasket', (0, -.25, .014), (1.37, .73, .87), .35, graphite, head)
 shell('Faceplate', (0, -.337, .015), (1.32, .72, .827), .346, glass, head)
 eyes = group('Eyes', (0, -.702, .045), head)
@@ -72,9 +72,10 @@ for side in (-1, 1):
     oval(f'Ear {side}', (side*.755, .015, 0), (.12, .25, .26), graphite, head)
     oval(f'Ear light {side}', (side*.843, .015, 0), (.047, .185, .192), light, head)
     oval(f'Ear inset {side}', (side*.864, .015, 0), (.036, .155, .163), trim, head)
-antenna = group('Antenna', (.40, .035, .47), head)
-line('Antenna stem', (0,0,0), (.12,0,.29), .024, trim, antenna)
-oval('Antenna tip', (.12,0,.307), (.058,.058,.059), light, antenna)
+oval('Pebble lower shell', (0,-.035,-.31), (.73,.485,.22), graphite, head)
+for side in (-1,1):
+    line(f'Visor accent {side}', (side*.12,-.700,-.275), (side*.49,-.625,-.268), .018, light, head)
+    line(f'Head emblem {side}', (0,-.54,-.365), (side*.068,-.52,-.44), .015, light, head)
 
 body = group('Torso', (0, 0, .86), root)
 oval('Torso shell', (0, .03, -.07), (.49, .34, .47), graphite, body)
@@ -111,8 +112,8 @@ for i, height in enumerate([.045,.085,.126]):
     shell(f'Chart bar {i}', (.49+i*.13,-.524,.659+height/2), (.047,.013,height), .005, light, strategist)
 master = group('MasterKit', (0,0,0), root)
 for side in (-1,1):
-    for i in range(3):
-        line(f'Wing {side} {i}', (side*.32,.268,.76+i*.14), (side*(.73+i*.10),.32,.83+i*.27), .095, hologram, master)
+    oval(f'Master stabilizer {side}', (side*.39,.075,.57), (.127,.21,.20), trim, master)
+    oval(f'Master light {side}', (side*.483,-.03,.57), (.032,.105,.051), light, master)
 oval('Hover core', (0,.014,.433), (.23,.235,.125), light, master)
 
 bpy.ops.export_scene.gltf(filepath='media/auri/auri.glb', export_format='GLB', export_apply=True)
@@ -149,7 +150,7 @@ def hide(obj, hidden):
 
 for level in range(1,8):
     for obj, visible in [(body, level>=2),(feet, 2<=level<7),(legs,3<=level<7),
-                         (arms,level>=3),(antenna,level==2),(builder,level>=4),
+                         (arms,level>=3),(builder,level>=4),
                          (operator,level>=5),(strategist,level==6),(master,level==7)]:
         hide(obj, not visible)
     if level==2:

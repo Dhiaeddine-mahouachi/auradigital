@@ -1,5 +1,5 @@
 import {
- ACESFilmicToneMapping, AmbientLight, DirectionalLight, Group, Mesh, MeshStandardMaterial,
+ ACESFilmicToneMapping, AmbientLight, BoxGeometry, DirectionalLight, Group, Mesh, MeshStandardMaterial,
  OrthographicCamera, PlaneGeometry, Scene, WebGLRenderer,
 } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -43,6 +43,11 @@ export async function mountAuri(host) {
    keys.add(key);
   }
  }
+ const deskSurface=new BoxGeometry(.99,.036,.38);
+ const deskMaterial=new MeshStandardMaterial({color:0x274039,roughness:.72});
+ const desk=new Mesh(deskSurface,deskMaterial);
+ desk.position.set(0,.62,.67);
+ keys.add(desk);
  character.add(keys);
  const canvas=renderer.domElement;
  canvas.setAttribute('aria-hidden','true');
@@ -58,14 +63,13 @@ export async function mountAuri(host) {
   const t=(now-started)/1000;
   const asleep=phase==='idle'&&t>=60;
   const time=preference.matches?0:now/1000;
-  const active=['typing','working'].includes(phase);
-  const happy=['happy','success','evolving'].includes(phase);
+  const active=['typing','working','drafting'].includes(phase);
+  const happy=['happy','success','evolving','draft_ready'].includes(phase);
   for(const [name,show] of Object.entries({
    Torso:level>=2,Feet:level>=2&&level<7,Legs:level>=3,Arms:level>=3,
-   Antenna:level===2,BuilderKit:level>=4,OperatorKit:level>=5,StrategistKit:level===6,MasterKit:level===7,
+   BuilderKit:level>=4,OperatorKit:level>=5,StrategistKit:level===6,MasterKit:level===7,
   }))get(name).visible=show;
-  keys.visible=active&&level>=3;
-  if(active&&level<3)keys.visible=true;
+  keys.visible=active;
   keys.position.y=level===1?.55:0;
   const focus=level===1?1.56:1.17;
   camera.zoom=level===1?1.23:1;
@@ -109,6 +113,8 @@ export async function mountAuri(host) {
   updates.disconnect();
   preference.removeEventListener('change',schedule);
   document.removeEventListener('visibilitychange',schedule);
+  deskSurface.dispose();
+  deskMaterial.dispose();
   keyShape.dispose();
   keySurface.dispose();
   renderer.dispose();

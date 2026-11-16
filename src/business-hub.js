@@ -1,5 +1,6 @@
+import { auriPreferences, saveAuriPreferences } from './auri-preferences.js';
 import { auriProgress } from './auri-progression.js';
-import { explainRoadmap } from './hub-auri.js';
+import { draftFollowUp, explainRoadmap, recentAuriDrafts } from './hub-auri.js';
 import { eligibleMissions } from './roadmap.js';
 import { handleMenuDrafts } from './menu-drafts.js';
 import { ApiError, json, readJson } from './http.js';
@@ -141,8 +142,10 @@ export async function handleBusinessHub(request,env) {
   const profile=JSON.parse(o.profile_json),analysis=diagnose(profile);
   const missions=currentRecommendations(await getMissions(env.DB,org),analysis);
   const perms=o.owner_id===user.id?['profile:write','roadmap:write','simulation:write','team:manage','workspace:read','auri:use']:(await env.DB.prepare(`SELECT p.permission FROM organization_permissions p JOIN organization_members m ON p.role_id=m.role_id WHERE m.organization_id=? AND m.customer_id=? AND NOT EXISTS(SELECT 1 FROM json_each(m.permissions_json) WHERE value=p.permission)`).bind(org,user.id).all()).results.map(p=>p.permission);
-  const auri=await auriProgress(env.DB,org,guard,missions.length>0);
-  return json({auri,organization:{id:o.id,name:o.name,mode:o.mode,version:o.version,owner:o.owner_id===user.id},profile,analysis,missions,permissions:perms,billing});
+  const [auri,auriPreferencesForUser]=await Promise.all([
+   auriProgress(env.DB,org,guard,missions.length>0),auriPreferences(env.DB,org,user),
+  ]);
+  return json({auri,auriPreferences:auriPreferencesForUser,organization:{id:o.id,name:o.name,mode:o.mode,version:o.version,owner:o.owner_id===user.id},profile,analysis,missions,permissions:perms,billing});
  }
  if(section==='profile'&&request.method==='PUT') {
   const guard=await authorize(env.DB,org,user,'profile:write'),b=await readJson(request,16000),profile=validateProfile(b.profile);
@@ -221,12 +224,26 @@ export async function handleBusinessHub(request,env) {
   }
   if(section==='activity'&&request.method==='GET')return json({events:(await env.DB.prepare('SELECT action,target_id,created_at FROM member_access_audit_logs WHERE organization_id=? ORDER BY created_at DESC,id LIMIT 100').bind(org).all()).results});
  }
- if(section==='auri'&&request.method==='POST') {
+ if(section==='auri'&&!item&&request.method==='PATCH') {
+  const guard=await authorize(env.DB,org,user);
+  return json(await saveAuriPreferences(env.DB,org,user,guard,await readJson(request,1200)));
+ }
+ if(section==='auri'&&!item&&request.method==='GET') {
+  const guard=await authorize(env.DB,org,user,'auri:use');
+  return json({drafts:await recentAuriDrafts(env.DB,org,user,guard)});
+ }
+ if(section==='auri'&&!item&&request.method==='POST') {
   const guard=await authorize(env.DB,org,user,'auri:use');const b=await readJson(request,4000);
-  if(!['diagnosis','next_action','simulation','task','guidance'].includes(b.tool))throw new ApiError(400,'Choose an authorized AURI tool.');
+  if(!['diagnosis','next_action','simulation','task','guidance','draft_follow_up'].includes(b.tool))throw new ApiError(400,'Choose an authorized AURI tool.');
   // Deterministic, narrowly scoped tools; no SQL, arbitrary tool names or provider output executes.
   const profile=JSON.parse((await env.DB.prepare('SELECT profile_json FROM organizations WHERE id=?').bind(org).first()).profile_json),analysis=diagnose(profile);
   const missions=currentRecommendations(await getMissions(env.DB,org),analysis),eligible=eligibleMissions(missions,profile);
+  if(b.tool==='draft_follow_up') {
+   if(!['en','tr','fr','ar'].includes(b.lang))throw new ApiError(400,'Choose a supported language.');
+   const draft=await draftFollowUp(env,{org,user,guard,lang:b.lang,profile});
+   if(!draft)throw new ApiError(404,'Workspace unavailable.');
+   return json({draft},201);
+  }
   if(b.tool==='guidance') {
    if(typeof b.question!=='string'||!b.question.trim()||b.question.length>500||!['en','tr','fr','ar'].includes(b.lang))throw new ApiError(400,'Enter a short roadmap question.');
    const issue=b.question.trim();

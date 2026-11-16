@@ -94,7 +94,7 @@ function connectAuri(host, scope, labels2) {
   return watchAuri(scope, (phase) => {
     character.dataset.phase = phase;
     if (status) status.textContent = labels2[phase] || "";
-    host.querySelector("details")?.toggleAttribute("data-auri-pending", ["thinking", "working", "typing"].includes(phase));
+    host.querySelector("details")?.toggleAttribute("data-auri-pending", ["thinking", "working", "typing", "drafting"].includes(phase));
   });
 }
 
@@ -106,8 +106,26 @@ var actions = {
   fr: ["\xC0 l\u2019\xE9coute", "Pr\xE9paration de la r\xE9ponse\u2026", "Cr\xE9ation de votre feuille de route\u2026", "Cr\xE9ation de votre feuille de route\u2026", "R\xE9ponse pr\xEAte", "Objectif v\xE9rifi\xE9", "Feuille de route enregistr\xE9e", "Auri n\u2019a pas pu traiter la demande", "Auri a \xE9volu\xE9"],
   ar: ["\u064A\u0633\u062A\u0645\u0639", "\u062C\u0627\u0631\u064D \u062A\u062C\u0647\u064A\u0632 \u0627\u0644\u0631\u062F\u2026", "\u062C\u0627\u0631\u064D \u0625\u0639\u062F\u0627\u062F \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642\u2026", "\u062C\u0627\u0631\u064D \u0625\u0639\u062F\u0627\u062F \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642\u2026", "\u0627\u0644\u0631\u062F \u062C\u0627\u0647\u0632", "\u062A\u0645 \u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646 \u0627\u0644\u0625\u0646\u062C\u0627\u0632", "\u062A\u0645 \u062D\u0641\u0638 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u062A\u0639\u0630\u0631 \u0639\u0644\u0649 \u0623\u0648\u0631\u064A \u0625\u0643\u0645\u0627\u0644 \u0627\u0644\u0637\u0644\u0628", "\u062A\u0637\u0648\u0651\u0631 \u0623\u0648\u0631\u064A"]
 };
-var auriLabels = (lang2) => Object.fromEntries(states.map((state, i) => [state, actions[lang2][i]]));
+var auriLabels = (lang2) => ({
+  ...Object.fromEntries(states.map((state, i) => [state, actions[lang2][i]])),
+  drafting: auriDraftCopy(lang2).drafting,
+  draft_ready: auriDraftCopy(lang2).ready
+});
 var auriNames = ["Awakening", "Learning", "Helper", "Builder", "Operator", "Strategist", "Aura Master"];
+var controls = {
+  en: ["AI Workspace", "Hide companion", "Show companion", "Companion name", "Ready to help", "Stop voice", "Companion hidden"],
+  tr: ["Yapay Zek\xE2 \xC7al\u0131\u015Fma Alan\u0131", "Asistan\u0131 gizle", "Asistan\u0131 g\xF6ster", "Asistan\u0131n ad\u0131", "Yard\u0131ma haz\u0131r", "Sesi durdur", "Asistan gizli"],
+  fr: ["Espace de travail IA", "Masquer le compagnon", "Afficher le compagnon", "Nom du compagnon", "Pr\xEAt \xE0 aider", "Arr\xEAter la lecture", "Compagnon masqu\xE9"],
+  ar: ["\u0645\u0633\u0627\u062D\u0629 \u0639\u0645\u0644 \u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064A", "\u0625\u062E\u0641\u0627\u0621 \u0627\u0644\u0631\u0641\u064A\u0642", "\u0625\u0638\u0647\u0627\u0631 \u0627\u0644\u0631\u0641\u064A\u0642", "\u0627\u0633\u0645 \u0627\u0644\u0631\u0641\u064A\u0642", "\u062C\u0627\u0647\u0632 \u0644\u0644\u0645\u0633\u0627\u0639\u062F\u0629", "\u0625\u064A\u0642\u0627\u0641 \u0627\u0644\u0635\u0648\u062A", "\u0627\u0644\u0631\u0641\u064A\u0642 \u0645\u062E\u0641\u064A"]
+};
+var auriControls = (lang2) => Object.fromEntries(["workspace", "hide", "show", "name", "ready", "stop", "hidden"].map((key, i) => [key, controls[lang2][i]]));
+var draftCopy = {
+  en: ["Draft customer follow-up", "Preparing a follow-up draft\u2026", "Draft ready to review", "Recent work", "AI draft", "Template draft", "Saved for review"],
+  tr: ["M\xFC\u015Fteri takip mesaj\u0131 tasla\u011F\u0131", "Takip tasla\u011F\u0131 haz\u0131rlan\u0131yor\u2026", "Taslak incelemeye haz\u0131r", "Son \xE7al\u0131\u015Fmalar", "YZ tasla\u011F\u0131", "\u015Eablon tasla\u011F\u0131", "\u0130nceleme i\xE7in kaydedildi"],
+  fr: ["R\xE9diger une relance client", "Pr\xE9paration du brouillon\u2026", "Brouillon \xE0 relire", "Travaux r\xE9cents", "Brouillon IA", "Brouillon \xE0 partir d\u2019un mod\xE8le", "Enregistr\xE9 pour relecture"],
+  ar: ["\u0625\u0646\u0634\u0627\u0621 \u0645\u0633\u0648\u062F\u0629 \u0645\u062A\u0627\u0628\u0639\u0629 \u0644\u0644\u0639\u0645\u064A\u0644", "\u062C\u0627\u0631\u064D \u0625\u0639\u062F\u0627\u062F \u0645\u0633\u0648\u062F\u0629 \u0627\u0644\u0645\u062A\u0627\u0628\u0639\u0629\u2026", "\u0627\u0644\u0645\u0633\u0648\u062F\u0629 \u062C\u0627\u0647\u0632\u0629 \u0644\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u0627\u0644\u0639\u0645\u0644 \u0627\u0644\u0623\u062E\u064A\u0631", "\u0645\u0633\u0648\u062F\u0629 \u0628\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064A", "\u0645\u0633\u0648\u062F\u0629 \u0645\u0646 \u0642\u0627\u0644\u0628", "\u062D\u064F\u0641\u0638\u062A \u0644\u0644\u0645\u0631\u0627\u062C\u0639\u0629"]
+};
+var auriDraftCopy = (lang2) => Object.fromEntries(["create", "drafting", "ready", "history", "ai", "template", "review"].map((key, i) => [key, draftCopy[lang2][i]]));
 
 // src/customer-return.js
 function customerReturnPath(value, fallback) {
@@ -363,8 +381,8 @@ async function renderMenuDrafts({ host, api: api2, endpoint: endpoint2, profile,
       editor();
     });
     async function save(state = "draft") {
-      const controls = [...host.querySelectorAll("#private-menu-editor button")];
-      controls.forEach((b) => b.disabled = true);
+      const controls2 = [...host.querySelectorAll("#private-menu-editor button")];
+      controls2.forEach((b) => b.disabled = true);
       message("Saving\u2026");
       try {
         const value2 = read(), body = { draft: value2, state, ...selected ? { version: selected.version } : {} };
@@ -377,7 +395,7 @@ async function renderMenuDrafts({ host, api: api2, endpoint: endpoint2, profile,
       } catch (error) {
         message(error.status === 409 ? "Draft changed in another session. Download your current draft before reloading the saved copy." : error.message);
       } finally {
-        controls.forEach((b) => b.disabled = false);
+        controls2.forEach((b) => b.disabled = false);
       }
     }
     host.querySelector("#private-menu-save").onclick = () => save("draft");
@@ -532,10 +550,13 @@ var setupScope = "setup";
 var disconnectAuri = () => {
 };
 var auriLevel = () => workspace?.auri?.level || 1;
+var auriPreference = () => workspace?.auriPreferences || { name: "Auri", hidden: false };
+var auriSessions = /* @__PURE__ */ new Map();
+var auriVoice = null;
 var robot = () => auriCharacter(auriLevel(), { posterOnly: true });
 function bindAuri(host, scope) {
   disconnectAuri();
-  disconnectAuri = connectAuri(host, scope, auriLabels(lang));
+  disconnectAuri = connectAuri(host, scope, { idle: auriControls(lang).ready, ...auriLabels(lang) });
 }
 async function finishSetup() {
   await runAuri(setupScope, "working", persistProfile);
@@ -828,7 +849,7 @@ function renderShell() {
   const l = roadmapLabels(lang), growth = ["home", "journey"].includes(page);
   const alerts = workspace.missions.filter((m) => m.priority === 1 && !m.optional && !["done", "postponed"].includes(m.status) && !missionState(m, workspace.missions, workspace.profile).blocked);
   const navItem = (p) => `<button class="nav-item ${page === p ? "active" : ""}" data-page="${p}" ${page === p ? 'aria-current="page"' : ""}>
- <span aria-hidden="true">${{ home: "\u2302", journey: "\u2667", tasks: "\u2611", assistant: "\u2727", services: "\u25C7", resources: "\u25A4", settings: "\u2699" }[p] || "\xB7"}</span>${esc2(l[p] || t(p))}</button>`;
+ <span aria-hidden="true">${{ home: "\u2302", journey: "\u2667", tasks: "\u2611", assistant: "\u2727", services: "\u25C7", resources: "\u25A4", settings: "\u2699" }[p] || "\xB7"}</span>${esc2(p === "assistant" ? auriControls(lang).workspace : l[p] || t(p))}</button>`;
   app.innerHTML = `<div class="shell growth-shell ${growth ? "growth-active" : ""}"><aside class="sidebar" id="sidebar">
  <a href="/" class="wordmark">aura<span>digital.</span></a><label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span>
  <select id="workspace-select" aria-label="${t("businessName")}">${workspaces.map((o) => `<option value="${o.id}" ${o.id === workspace.organization.id ? "selected" : ""}>${esc2(o.id === workspace.organization.id ? workspace.organization.name : o.name)}</option>`).join("")}</select></label>
@@ -843,9 +864,9 @@ function renderShell() {
  ${navItem("journey")}</div></details>
  <details class="growth-account"><summary><span class="avatar">${esc2(me.name.slice(0, 1))}</span><span>${esc2(me.name)}</span></summary>
  <div class="growth-account-menu">${navItem("profile")}${navItem("settings")}${button("logout", "logout", true)}</div></details></header>
- <main id="main" tabindex="-1">${growth ? `<h1 class="sr-only">${l[page]}</h1>` : `<div class="page-heading"><h1>${esc2(l[page] || t(page))}</h1></div>`}
+ <main id="main" tabindex="-1">${growth ? `<h1 class="sr-only">${l[page]}</h1>` : `<div class="page-heading"><h1>${esc2(page === "assistant" ? auriControls(lang).workspace : l[page] || t(page))}</h1></div>`}
  ${!me.verified && authCapabilities.email ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}
- <div id="auri-companion"></div><div id="page-content"></div></main></div></div>`;
+ <div id="page-content"></div></main><div id="auri-companion"></div></div></div>`;
   bindCommon();
   document.querySelectorAll("[data-page]").forEach((b) => b.onclick = () => {
     page = b.dataset.page;
@@ -892,7 +913,7 @@ function renderShell() {
     }
   });
   syncSidebar();
-  renderCompanion();
+  if (page !== "assistant") renderCompanion();
   renderPage().catch((e) => {
     document.querySelector("#page-content").innerHTML = `<section class="panel"><p role="alert">${esc2(e.message)}</p>${button("refresh", "refresh", true)}</section>`;
     document.querySelector('[data-action="refresh"]').onclick = () => loadWorkspace().catch((e2) => toast(e2.message));
@@ -950,6 +971,7 @@ async function renderPage() {
       render();
     };
     document.querySelector('[data-action="new-workspace"]').onclick = () => {
+      stopAuriVoice();
       workspace = null;
       editing = false;
       render();
@@ -1220,71 +1242,200 @@ async function team() {
   document.querySelector("#activity").innerHTML = a.events.map((e) => `<p>${esc2(e.created_at)} \xB7 ${esc2(e.action)}</p>`).join("") || t("empty");
 }
 var rolesForUI = () => ["viewer", "member", "admin"].map((v) => [v, t(v)]);
-function renderCompanion() {
-  const host = document.querySelector("#auri-companion");
+async function updateAuriPreferences(values) {
+  const id = workspace.organization.id;
+  const result2 = await api(endpoint("auri"), "PATCH", { ...auriPreference(), ...values });
+  if (workspace?.organization.id === id) workspace.auriPreferences = result2;
+}
+function stopAuriVoice() {
+  if (!auriVoice) return;
+  speechSynthesis.cancel();
+  const { scope } = auriVoice;
+  auriVoice = null;
+  pulseAuri(scope, "idle");
+}
+function renderCompanion(full = false) {
+  const host = document.querySelector(full ? "#auri-workspace" : "#auri-companion");
+  const preferences = auriPreference(), controls2 = auriControls(lang);
+  if (preferences.hidden && !full) return;
+  const id = workspace.organization.id;
+  if (!auriSessions.has(id)) auriSessions.set(id, { open: false, reply: "", pending: false, error: "" });
+  const session = auriSessions.get(id);
   const level = auriLevel(), canAsk = workspace.permissions.includes("auri:use");
   const { ask: label, focus } = roadmapLabels(lang);
   const next = eligibleMissions(workspace.missions, workspace.profile)[0];
   const readAloud = { en: "Read aloud", tr: "Sesli oku", fr: "Lire \xE0 voix haute", ar: "\u0642\u0631\u0627\u0621\u0629 \u0628\u0635\u0648\u062A \u0639\u0627\u0644\u064D" }[lang];
   const send = { en: "Send", tr: "G\xF6nder", fr: "Envoyer", ar: "\u0625\u0631\u0633\u0627\u0644" }[lang];
-  host.innerHTML = `<details class="auri-companion"><summary>
-  ${auriCharacter(level)}<span><strong>Auri</strong><small>${esc2(t("level"))} ${level} \xB7 ${auriNames[level - 1]}</small></span>
-  <span class="auri-status" role="status" data-auri-status></span>
- </summary><div class="auri-companion-body">
+  const identity = `${auriCharacter(level)}<span><strong>${esc2(preferences.name)}</strong><small>${esc2(t("level"))} ${level} \xB7 ${auriNames[level - 1]}</small></span>
+  <span class="auri-status" role="status" data-auri-status></span>`;
+  const body = `<div class="auri-companion-body">
   ${next ? `<p><strong>${esc2(focus)}</strong> \xB7 ${esc2(cap(next.capability))}</p>` : ""}
-  ${canAsk ? `<form><label><span class="sr-only">${esc2(label)}</span><input name="question" maxlength="500" placeholder="${esc2(label)}" required></label>
-  <button class="primary">${esc2(send)}</button></form><p data-auri-reply role="status"></p>${"speechSynthesis" in window ? `<button type="button" class="secondary" data-auri-voice hidden>${esc2(readAloud)}</button>` : ""}` : ""}
+  ${canAsk ? `<form data-auri-ask><label><span class="sr-only">${esc2(label)}</span><input name="question" maxlength="500" placeholder="${esc2(label)}" required></label>
+  <button class="primary" ${session.pending ? "disabled" : ""}>${esc2(send)}</button></form><p data-auri-reply role="status">${esc2(session.error || session.reply)}</p>
+  ${"speechSynthesis" in window ? `<button type="button" class="secondary" data-auri-voice ${session.reply && !session.error ? "" : "hidden"}>${esc2(readAloud)}</button>
+  <button type="button" class="secondary" data-auri-stop ${auriVoice?.scope === id ? "" : "hidden"}>${esc2(controls2.stop)}</button>` : ""}` : ""}
+  <div class="auri-actions">
   <button type="button" class="secondary" data-auri-roadmap>${esc2(t("journey"))}</button>
- </div></details>`;
-  bindAuri(host, workspace.organization.id);
-  host.querySelector("[data-auri-roadmap]").onclick = () => {
-    page = "journey";
+  ${full ? "" : `<button type="button" class="secondary" data-auri-open-workspace>${esc2(controls2.workspace)}</button>`}
+  <button type="button" class="secondary" data-auri-hide>${esc2(preferences.hidden ? controls2.show : controls2.hide)}</button></div>
+  ${full ? `<form data-auri-name><label>${esc2(controls2.name)}<input name="name" value="${esc2(preferences.name)}" required maxlength="24"></label>
+  <button class="secondary">${esc2(t("save"))}</button></form>` : ""}
+ </div>`;
+  host.innerHTML = full ? `<section class="auri-companion auri-workspace-card"><header>${identity}</header>${body}</section>` : `<details class="auri-companion auri-dock" ${session.open ? "open" : ""}><summary>${identity}</summary>${body}</details>`;
+  bindAuri(host, id);
+  const panel = host.querySelector("details");
+  if (panel) {
+    panel.ontoggle = () => {
+      if (panel.isConnected) session.open = panel.open;
+    };
+    panel.onkeydown = (event) => {
+      if (event.key === "Escape" && panel.open) {
+        panel.open = false;
+        panel.querySelector("summary").focus();
+      }
+    };
+  }
+  function navigate(target) {
+    page = target;
     render();
     document.querySelector("#main").focus();
+  }
+  host.querySelector("[data-auri-roadmap]").onclick = () => navigate("journey");
+  const open = host.querySelector("[data-auri-open-workspace]");
+  if (open) open.onclick = () => navigate("assistant");
+  host.querySelector("[data-auri-hide]").onclick = async (event) => {
+    const trigger = event.currentTarget;
+    trigger.disabled = true;
+    try {
+      await updateAuriPreferences({ hidden: !preferences.hidden });
+      if (workspace?.organization.id !== id) return;
+      stopAuriVoice();
+      session.open = false;
+      if (trigger.isConnected) {
+        render();
+        document.querySelector("#main").focus();
+      }
+    } catch (error) {
+      toast(error.message);
+      trigger.disabled = false;
+    }
   };
-  const form = host.querySelector("form");
+  const rename = host.querySelector("[data-auri-name]");
+  if (rename) rename.onsubmit = async (event) => {
+    event.preventDefault();
+    const submit = rename.querySelector("button");
+    submit.disabled = true;
+    try {
+      await updateAuriPreferences({ name: new FormData(rename).get("name") });
+      if (rename.isConnected) {
+        render();
+        document.querySelector("[data-auri-name] input")?.focus();
+        toast(t("saved"));
+      }
+    } catch (error) {
+      toast(error.message);
+      submit.disabled = false;
+    }
+  };
+  const form = host.querySelector("[data-auri-ask]");
   const voice = host.querySelector("[data-auri-voice]");
-  let spokenReply = "";
+  const stop = host.querySelector("[data-auri-stop]");
   if (voice) voice.onclick = () => {
-    const message = new SpeechSynthesisUtterance(spokenReply);
+    stopAuriVoice();
+    const message = new SpeechSynthesisUtterance(session.reply);
     message.lang = lang;
-    const scope = workspace.organization.id;
-    message.onstart = () => pulseAuri(scope, "speaking", 3500);
-    message.onend = () => pulseAuri(scope, "idle");
-    speechSynthesis.cancel();
+    auriVoice = { scope: id, message };
+    message.onstart = () => pulseAuri(id, "speaking", 3500);
+    message.onend = message.onerror = () => {
+      if (auriVoice?.message !== message) return;
+      auriVoice = null;
+      pulseAuri(id, "idle");
+      document.querySelector("[data-auri-stop]")?.setAttribute("hidden", "");
+    };
+    stop.hidden = false;
     speechSynthesis.speak(message);
+  };
+  if (stop) stop.onclick = () => {
+    stopAuriVoice();
+    stop.hidden = true;
   };
   if (form) form.onsubmit = async (event) => {
     event.preventDefault();
     const submit = form.querySelector("button"), reply = host.querySelector("[data-auri-reply]");
     const question = new FormData(form).get("question").trim();
-    if (!question) return;
-    submit.disabled = true;
+    if (!question || session.pending) return;
+    stopAuriVoice();
+    session.pending = submit.disabled = true;
     if (voice) voice.hidden = true;
-    reply.textContent = "";
+    if (stop) stop.hidden = true;
+    session.reply = session.error = reply.textContent = "";
     try {
-      spokenReply = await askAuri(question);
-      reply.textContent = spokenReply;
-      if (voice) voice.hidden = !spokenReply;
+      session.reply = await askAuri(question);
     } catch (error) {
-      reply.textContent = error.message;
+      session.error = error.message;
     } finally {
-      submit.disabled = false;
+      session.pending = submit.disabled = false;
+      reply.textContent = session.error || session.reply;
+      if (voice) voice.hidden = !session.reply;
+      if (!form.isConnected && workspace?.organization.id === id) renderCompanion(page === "assistant");
     }
   };
 }
 function assistant() {
-  content(`<section class="panel assistant-panel">${robot()}<div><span class="eyebrow">AURI</span><h2>${t("aiRules")}</h2><p>${t("aiNotice")}</p><div class="actions">${button("diagnosis", "diagnosis", true)}${button("recommend", "next-action", true)}</div><div id="auri-response" role="status"></div></div></section>`);
-  for (const [action, tool] of [["diagnosis", "diagnosis"], ["next-action", "next_action"]]) document.querySelector(`[data-action="${action}"]`).onclick = async (e) => {
-    e.target.disabled = true;
+  const canAsk = workspace.permissions.includes("auri:use");
+  const labels2 = auriDraftCopy(lang);
+  content(`<div id="auri-workspace"></div>${canAsk ? `<section class="panel auri-work-log">
+  <div class="actions"><button type="button" class="primary" data-auri-draft>${esc2(labels2.create)}</button>${button("diagnosis", "diagnosis", true)}${button("recommend", "next-action", true)}</div><div data-auri-tools-status role="status"></div>
+  <p role="status" data-draft-status></p>
+  <h2>${esc2(labels2.history)}</h2><div data-auri-drafts></div></section>` : ""}`);
+  renderCompanion(true);
+  if (!canAsk) return;
+  const create = document.querySelector("[data-auri-draft]");
+  const log = document.querySelector("[data-auri-drafts]");
+  const status = document.querySelector("[data-draft-status]");
+  const path = endpoint("auri"), id = workspace.organization.id;
+  const toolsStatus = document.querySelector("[data-auri-tools-status]");
+  for (const [action, tool] of [["diagnosis", "diagnosis"], ["next-action", "next_action"]]) {
+    const trigger = document.querySelector(`[data-action="${action}"]`);
+    trigger.onclick = async () => {
+      trigger.disabled = true;
+      try {
+        const { data } = await runAuri(id, "thinking", () => api(path, "POST", { tool }), "speaking");
+        toolsStatus.textContent = tool === "diagnosis" ? `${t("missing")} \xB7 ${data.missing.map(cap).join(", ") || t("empty")}` : data.nextAction ? cap(data.nextAction.capability) : t("empty");
+      } catch (error) {
+        toolsStatus.textContent = error.message;
+      } finally {
+        trigger.disabled = false;
+      }
+    };
+  }
+  const session = auriSessions.get(id);
+  create.disabled = Boolean(session.draftPending);
+  status.textContent = session.draftError || "";
+  async function readDrafts() {
+    const { drafts } = await api(path);
+    log.innerHTML = drafts.map((draft2) => `<article><strong>${esc2(labels2[draft2.source])}</strong>
+   <time datetime="${new Date(draft2.created_at).toISOString()}">${esc2(new Date(draft2.created_at).toLocaleString(lang))}</time>
+   <p>${esc2(draft2.body)}</p></article>`).join("");
+  }
+  readDrafts().catch((error) => {
+    status.textContent = error.message;
+  });
+  create.onclick = async () => {
+    if (session.draftPending) return;
+    session.draftPending = create.disabled = true;
+    session.draftError = status.textContent = "";
     try {
-      const output = document.querySelector("#auri-response");
-      const r = await runAuri(workspace.organization.id, "thinking", () => api(endpoint("auri"), "POST", { tool }), "speaking");
-      output.innerHTML = tool === "diagnosis" ? `<h3>${t("missing")}</h3><ul>${r.data.missing.map((k) => `<li>${esc2(cap(k))}</li>`).join("")}</ul>` : `<h3>${esc2(r.data.nextAction ? cap(r.data.nextAction.capability) : t("empty"))}</h3><p>${t("why")}</p>`;
-    } catch (e2) {
-      toast(e2.message);
+      await runAuri(id, "drafting", () => api(path, "POST", { tool: "draft_follow_up", lang }), "draft_ready");
+      if (create.isConnected) {
+        await readDrafts();
+        status.textContent = labels2.review;
+      }
+    } catch (error) {
+      session.draftError = status.textContent = error.message;
     } finally {
-      e.target.disabled = false;
+      session.draftPending = create.disabled = false;
+      if (!create.isConnected && page === "assistant" && workspace?.organization.id === id) assistant();
     }
   };
 }
@@ -1293,7 +1444,10 @@ async function loadWorkspace(id = workspace.organization.id) {
   const previous = workspace;
   const next = await api("/api/hub/workspaces/" + id);
   if ((workspaceSwitch || workspace.organization.id) !== id) return;
-  if (workspace.organization.id !== id) selectedMission = null;
+  if (workspace.organization.id !== id) {
+    selectedMission = null;
+    stopAuriVoice();
+  }
   result = null;
   scenarioInputs = null;
   workspace = next;

@@ -15,7 +15,7 @@ Auri evolution reference using Blender. Open Spline's **Open / Import** dialog o
 the GLB into the scene. See [Spline's import documentation](https://docs.spline.design/importing-content/how-to-import-content).
 
 The GLB imports meshes and materials. Levels and motion are applied by the Hub runtime.
-Use groups named Torso, Feet, Legs, Arms, Antenna, BuilderKit, OperatorKit,
+Use groups named Torso, Feet, Legs, Arms, BuilderKit, OperatorKit,
 StrategistKit and MasterKit to configure the seven appearances in Spline.
 
 To rebuild the model and posters, run `blender -b -P scripts/build-auri-model.py` from
@@ -25,10 +25,19 @@ Posters are used on data-saving connections and when WebGL is unavailable. WebGL
 offscreen, in hidden tabs and after a minute of inactivity. The viewer also observes the
 device's reduced-motion preference.
 
+## Hub placement and first task
+
+Overview and other Hub pages have an expandable corner dock. Mobile uses a bottom sheet.
+The dedicated **AI Workspace** is where customers rename their companion, restore a hidden
+dock, ask questions and review their last five saved customer follow-up drafts. Name and
+visibility are per member and workspace. The follow-up action uses the configured model
+when available and otherwise saves a clearly labeled template. Drafts are review-only and
+there is no dispatch action.
+
 ## Verification and progression
 
 Level 1 is shown before the roadmap exists. Saving the first roadmap unlocks level 2.
-Each distinct, verified business capability unlocks one further level, up to level 7.
+Verify foundation, visibility, conversion, operations and measurement in that order to unlock successive forms. Evidence can be recorded in any order. A form unlocks once its own requirement and the preceding requirements are present.
 Changing a task to Done updates the roadmap, while verified progress comes from D1.
 
 An authenticated AuraDigital owner or manager can verify a milestone via
@@ -55,8 +64,8 @@ through its normal interaction shows the evolution or milestone animation.
 1. Run `npm run check`, `npm test`, and `npm run deploy:check`.
 2. Start the local in-memory fixture with `PORT=4173 node scripts/dev-hub.mjs` and run
    `node scripts/test-hub-browser.mjs` with Chromium installed.
-3. Apply D1 migration `0030_auri_milestones.sql` to the production database using the
-   project's authorized Cloudflare workflow before enabling the new Worker build.
-   The migration creates a new table and does not backfill or modify customer records.
+3. Apply D1 migrations `0030_auri_milestones.sql` through `0032_auri_drafts.sql` before
+   enabling the new Worker build. These migrations create tables for verified outcomes,
+   member preferences and saved drafts.
 4. Merge through the established GitHub workflow. Confirm the Cloudflare production
    deployment and smoke-test `/hub`, the same-origin assets, and the workspace API.
