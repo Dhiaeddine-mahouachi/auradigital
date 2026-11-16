@@ -2039,15 +2039,22 @@ async function askAuri(question, missionId, requestId, serviceKey) {
   const { data } = await runAuri(id, "thinking", () => api(endpoint("auri"), "POST", { tool: "guidance", question, lang, ...missionId ? { missionId } : {}, ...requestId ? { requestId } : {} }), "speaking");
   if (workspace?.organization.id !== id) return "";
   if (data.reply) return data.reply;
-  if (/customers|visibility|sales|müşteri|clients|عملاء/i.test(question) && data.priorities?.length) return data.priorities.map((m) => cap(m.capability)).join(" \xB7 ");
+  const fallback = {
+    en: "Auri AI is unavailable. Roadmap guidance",
+    fr: "L\u2019IA d\u2019Auri est indisponible. Conseil de la feuille de route",
+    tr: "Auri yapay zek\xE2s\u0131 kullan\u0131lam\u0131yor. Yol haritas\u0131 \xF6nerisi",
+    ar: "\u0630\u0643\u0627\u0621 \u0623\u0648\u0631\u064A \u063A\u064A\u0631 \u0645\u062A\u0627\u062D. \u0625\u0631\u0634\u0627\u062F \u0645\u0646 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642"
+  }[lang];
+  const guidance = (message) => fallback + " \xB7 " + message;
+  if (/customers|visibility|sales|müşteri|clients|عملاء/i.test(question) && data.priorities?.length) return guidance(data.priorities.map((m) => cap(m.capability)).join(" \xB7 "));
   const task = data.mission || data.nextAction;
-  if (requestId) return hubLabels(lang).requestDetails + " \xB7 " + hubLabels(lang).return;
-  if (!task) return t("empty");
+  if (requestId) return guidance(hubLabels(lang).requestDetails + " \xB7 " + hubLabels(lang).return);
+  if (!task) return guidance(t("empty"));
   const alternate = task.route === "alternative" ? missionAlternative(task.capability) : null;
-  if (alternate) return [alternate.title, alternate.steps].join(" \xB7 ");
+  if (alternate) return guidance([alternate.title, alternate.steps].join(" \xB7 "));
   const guide = missionGuide[task.capability], requirements = missionState(task, workspace.missions, workspace.profile).requirements;
   const action = task.nextAction === "Define scope or record your existing solution." ? guide?.[2] : task.nextAction;
-  return [cap(task.capability), action, requirements.length ? requirements.map(cap).join(", ") : ""].filter(Boolean).join(" \xB7 ");
+  return guidance([cap(task.capability), action, requirements.length ? requirements.map(cap).join(", ") : ""].filter(Boolean).join(" \xB7 "));
 }
 function growthDashboard() {
   disconnectDesk();

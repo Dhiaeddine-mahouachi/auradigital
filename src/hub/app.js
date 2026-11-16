@@ -381,15 +381,22 @@ async function askAuri(question,missionId,requestId,serviceKey) {
  const {data}=await runAuri(id,'thinking',()=>api(endpoint('auri'),'POST',{tool:'guidance',question,lang,...(missionId?{missionId}:{}),...(requestId?{requestId}:{})}),'speaking');
  if(workspace?.organization.id!==id)return '';
  if(data.reply)return data.reply;
- if(/customers|visibility|sales|müşteri|clients|عملاء/i.test(question)&&data.priorities?.length)return data.priorities.map(m=>cap(m.capability)).join(' · ');
+ const fallback=({
+  en:'Auri AI is unavailable. Roadmap guidance',
+  fr:'L’IA d’Auri est indisponible. Conseil de la feuille de route',
+  tr:'Auri yapay zekâsı kullanılamıyor. Yol haritası önerisi',
+  ar:'ذكاء أوري غير متاح. إرشاد من خارطة الطريق',
+ })[lang];
+ const guidance=message=>fallback+' · '+message;
+ if(/customers|visibility|sales|müşteri|clients|عملاء/i.test(question)&&data.priorities?.length)return guidance(data.priorities.map(m=>cap(m.capability)).join(' · '));
  const task=data.mission||data.nextAction;
- if(requestId)return hubLabels(lang).requestDetails+' · '+hubLabels(lang).return;
- if(!task)return t('empty');
+ if(requestId)return guidance(hubLabels(lang).requestDetails+' · '+hubLabels(lang).return);
+ if(!task)return guidance(t('empty'));
  const alternate=task.route==='alternative'?missionAlternative(task.capability):null;
- if(alternate)return [alternate.title,alternate.steps].join(' · ');
+ if(alternate)return guidance([alternate.title,alternate.steps].join(' · '));
  const guide=missionGuide[task.capability],requirements=missionState(task,workspace.missions,workspace.profile).requirements;
  const action=task.nextAction==='Define scope or record your existing solution.'?guide?.[2]:task.nextAction;
- return [cap(task.capability),action,requirements.length?requirements.map(cap).join(', '):''].filter(Boolean).join(' · ');
+ return guidance([cap(task.capability),action,requirements.length?requirements.map(cap).join(', '):''].filter(Boolean).join(' · '));
 }
 function growthDashboard(){
  disconnectDesk();

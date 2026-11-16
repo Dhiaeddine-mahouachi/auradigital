@@ -62,7 +62,7 @@ test('AURI spends from the shared ledger under a per-customer cap and falls back
  const f=await hubFixture(),u=await f.user('owner@test.test'),org=await workspace(f,u),base='/api/hub/workspaces/'+org;
  f.sqlite.exec(await readFile(new URL('../migrations/0005_ai_employee.sql',import.meta.url),'utf8'));
  let calls=0;
- Object.assign(f.env,{HUB_AURI_AI_ENABLED:'true',AI_RATE_LIMITER:f.env.HUB_WRITE_RATE_LIMITER,AI_PROVIDER:'cloudflare',
+ Object.assign(f.env,{AI_RATE_LIMITER:f.env.HUB_WRITE_RATE_LIMITER,AI_PROVIDER:'cloudflare',
   AI_MODEL:'@cf/meta/llama-3.1-8b-instruct-fp8',AI:{async run(model,{messages}){
    calls++;
    const context=JSON.parse(messages[1].content);
@@ -80,4 +80,28 @@ test('AURI spends from the shared ledger under a per-customer cap and falls back
  const ledger=await f.DB.prepare('SELECT calls,reserved_tokens FROM ai_usage').first();
  assert.equal(ledger.calls,10);
  assert(ledger.reserved_tokens>0);
+});
+
+
+test('Ask Auri uses Workers AI when its configured Ollama gateway rejects the request',async t=>{
+ const f=await hubFixture(),u=await f.user('owner@test.test'),org=await workspace(f,u);
+ f.sqlite.exec(await readFile(new URL('../migrations/0005_ai_employee.sql',import.meta.url),'utf8'));
+ const endpoints=[];
+ t.mock.method(globalThis,'fetch',async url=>{
+  endpoints.push(String(url));
+  return new Response(null,{status:401});
+ });
+ Object.assign(f.env,{
+  HUB_OLLAMA_URL:'https://ollama.example.test/api/chat',HUB_OLLAMA_MODEL:'fixture',
+  AI_PROVIDER:'cloudflare',AI_MODEL:'@cf/meta/llama-3.1-8b-instruct-fp8',
+  AI_RATE_LIMITER:f.env.HUB_WRITE_RATE_LIMITER,
+  AI:{async run(){return {response:{reply:'Start with a contact page.'},usage:{prompt_tokens:90,completion_tokens:10}};}},
+ });
+ const response=await f.call('/api/hub/workspaces/'+org+'/auri',u,'POST',{tool:'guidance',question:'Where should I start?',lang:'en'});
+ assert.equal(response.status,200);
+ const result=await response.json();
+ assert.equal(result.mode,'ai');
+ assert.equal(result.data.reply,'Start with a contact page.');
+ assert.deepEqual(endpoints,['https://ollama.example.test/api/chat']);
+ assert.deepEqual({...await f.DB.prepare('SELECT calls,input_tokens FROM ai_usage').first()},{calls:2,input_tokens:90});
 });
