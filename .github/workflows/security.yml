@@ -25,6 +25,9 @@ jobs:
       - run: npm audit --audit-level=high --omit=dev
       - run: npm run check
       - run: npm test
+      - name: Audit landing image delivery from production (diagnostic)
+        continue-on-error: true
+        run: LANDING_LIVE_ORIGIN=https://auradigitalworks.com node scripts/check-landing-images.mjs
       - run: npm run deploy:check
       - name: Install Chromium for customer browser checks
         run: npx playwright install --with-deps chromium
