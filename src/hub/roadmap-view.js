@@ -1,12 +1,13 @@
 import { missionAlternative } from '../mission-routes.js';
 import { blueprintLabels, commandLabels } from './blueprint-copy.js';
 import { eligibleMissions, missionGuide, missionState, roadmapStages } from '../roadmap.js';
+import { renderGrowthVisionPath } from './growth-vision-path.js';
 
 const labels = {
- en:['Dashboard','Roadmap','Tasks','Resources','Welcome back','Roadmap progress','Growth stage','Priority actions','Estimated timeline','Your business growth','Your Business Growth Roadmap','Tree view','Timeline','Current focus','Why it matters','How to do it','Requirements','Do it myself','Get this done with AuraDigital','Ask AURI…','Optional','Blocked','Update my roadmap','Request a service','Start','Mark complete','AURI Assistant','Can AuraDigital help?','Upcoming','Completed','Ask about this task'],
- tr:['Panel','Yol haritası','Görevler','Kaynaklar','Tekrar hoş geldiniz','Yol haritası ilerlemesi','Büyüme aşaması','Öncelikli adımlar','Tahmini süre','İşletmenizin büyümesi','İşletmenizin büyüme yol haritası','Ağaç görünümü','Zaman çizelgesi','Şu anki odak','Neden önemli','Nasıl yapılır','Gereksinimler','Kendim yapacağım','AuraDigital ile yap','AURI’ye sorun…','İsteğe bağlı','Engellendi','Yol haritasını güncelle','Hizmet iste','Başla','Tamamlandı olarak işaretle','AURI Asistanı','AuraDigital yardımcı olabilir mi?','Yaklaşan','Tamamlanan','Bu görevi sor'],
- fr:['Tableau de bord','Feuille de route','Tâches','Ressources','Bon retour','Progression','Étape de croissance','Actions prioritaires','Délai estimé','La croissance de votre entreprise','Votre feuille de route de croissance','Vue en arbre','Chronologie','Priorité actuelle','Pourquoi cette tâche compte','Comment faire','Prérequis','Le faire moi-même','Confier à AuraDigital','Demander à AURI…','Facultatif','Bloqué','Actualiser la feuille de route','Demander un service','Démarrer','Marquer comme terminé','Assistant AURI','AuraDigital peut-il aider ?','À venir','Terminé','Poser une question sur cette tâche'],
- ar:['لوحة التحكم','خارطة الطريق','المهام','الموارد','أهلًا بعودتك','تقدم خارطة الطريق','مرحلة النمو','الإجراءات ذات الأولوية','المدة المقدرة','نمو نشاطك التجاري','خارطة نمو نشاطك التجاري','عرض الشجرة','الجدول الزمني','التركيز الحالي','لماذا يهم','طريقة التنفيذ','المتطلبات','سأنفذها بنفسي','نفّذ مع AuraDigital','اسأل AURI…','اختياري','متوقف','حدّث خارطة الطريق','اطلب خدمة','ابدأ','علّم كمكتمل','مساعد AURI','هل يمكن لـ AuraDigital المساعدة؟','القادم','المكتمل','اسأل عن هذه المهمة'],
+ en:['Dashboard','Roadmap','Tasks','Resources','Welcome back','Roadmap progress','Growth stage','Priority actions','Estimated timeline','Your business growth','Your Business Growth Roadmap','My path','Timeline','Current focus','Why it matters','How to do it','Requirements','Do it myself','Get this done with AuraDigital','Ask AURI…','Optional','Blocked','Update my roadmap','Request a service','Start','Mark complete','AURI Assistant','Can AuraDigital help?','Upcoming','Completed','Ask about this task'],
+ tr:['Panel','Yol haritası','Görevler','Kaynaklar','Tekrar hoş geldiniz','Yol haritası ilerlemesi','Büyüme aşaması','Öncelikli adımlar','Tahmini süre','İşletmenizin büyümesi','İşletmenizin büyüme yol haritası','Yolum','Zaman çizelgesi','Şu anki odak','Neden önemli','Nasıl yapılır','Gereksinimler','Kendim yapacağım','AuraDigital ile yap','AURI’ye sorun…','İsteğe bağlı','Engellendi','Yol haritasını güncelle','Hizmet iste','Başla','Tamamlandı olarak işaretle','AURI Asistanı','AuraDigital yardımcı olabilir mi?','Yaklaşan','Tamamlanan','Bu görevi sor'],
+ fr:['Tableau de bord','Feuille de route','Tâches','Ressources','Bon retour','Progression','Étape de croissance','Actions prioritaires','Délai estimé','La croissance de votre entreprise','Votre feuille de route de croissance','Mon parcours','Chronologie','Priorité actuelle','Pourquoi cette tâche compte','Comment faire','Prérequis','Le faire moi-même','Confier à AuraDigital','Demander à AURI…','Facultatif','Bloqué','Actualiser la feuille de route','Demander un service','Démarrer','Marquer comme terminé','Assistant AURI','AuraDigital peut-il aider ?','À venir','Terminé','Poser une question sur cette tâche'],
+ ar:['لوحة التحكم','خارطة الطريق','المهام','الموارد','أهلًا بعودتك','تقدم خارطة الطريق','مرحلة النمو','الإجراءات ذات الأولوية','المدة المقدرة','نمو نشاطك التجاري','خارطة نمو نشاطك التجاري','مساري','الجدول الزمني','التركيز الحالي','لماذا يهم','طريقة التنفيذ','المتطلبات','سأنفذها بنفسي','نفّذ مع AuraDigital','اسأل AURI…','اختياري','متوقف','حدّث خارطة الطريق','اطلب خدمة','ابدأ','علّم كمكتمل','مساعد AURI','هل يمكن لـ AuraDigital المساعدة؟','القادم','المكتمل','اسأل عن هذه المهمة'],
 };
 export const roadmapLabels = lang => Object.fromEntries([
  'home','journey','tasks','resources','welcome','progress','stage','priority','estimate','root','heading','tree','timeline','focus','why','how','requirements','myself','hire','ask','optional','blocked','refresh','request','start','complete','assistant','help','upcoming','completed','askTask',
@@ -21,10 +22,10 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
  const selected=missions.find(m=>m.id===selectedId)||eligible[0]||missions[0];
  const completion=items=>items.length?Math.round(items.filter(m=>m.status==='done').length/items.length*100):0;
  const progress=completion(missions);
- const stageOf=m=>Math.min(m.level,4);
+ const stageOf=m=>Math.max(1,Math.min(Number(m.level)||1,5));
  const title=m=>m.route==='alternative'?missionAlternative(m.capability)?.title||m.objective:m.objective===m.service?cap(m.capability):m.objective;
  const stages=roadmapStages.map((stage,i)=>({...stage,missions:missions.filter(m=>stageOf(m)===i+1)}));
- const stageName=(stage,i)=>lang==='en'?['Build Foundation','Increase Visibility','Convert More Visitors','Automate & Scale'][i]:t(stage.key);
+ const stageName=(stage,i)=>lang==='en'?['Build Foundation','Increase Visibility','Convert More Visitors','Improve Operations','Measure & Scale'][i]:t(stage.key);
  const currentStage=stages.findIndex(stage=>stage.missions.some(m=>!m.optional&&!['done','postponed'].includes(m.status)));
  const isBlocked=m=>missionState(m,missions,profile).blocked;
  const displayState=m=>({approved:'verified',pending:'review'})[workspace.evidence?.[m.id]]
@@ -34,16 +35,7 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
   <span class="growth-dot" aria-hidden="true">${displayState(m)==='verified'||m.status==='done'?'✓':isBlocked(m)?'·':''}</span>
   <span>${esc(title(m))}<small>${esc(status(m))}${m.optional?' · '+l.optional:''}</small></span>
  </button>`;
- const tree=`<div class="growth-tree">
-  <div class="growth-root"><span aria-hidden="true">✦</span>${l.root}</div>
-  <svg class="growth-lines" viewBox="0 0 800 90" preserveAspectRatio="none" aria-hidden="true">
-   <path pathLength="1" d="M400 0 C390 65 100 6 100 90" /><path pathLength="1" d="M400 0 C395 60 300 10 300 90" />
-   <path pathLength="1" d="M400 0 C405 60 500 10 500 90" /><path pathLength="1" d="M400 0 C410 65 700 6 700 90" />
-  </svg>
-  <div class="growth-branches">${stages.map((stage,i)=>`<section class="growth-branch" data-stage="${i}">
-    <h3><span aria-hidden="true">${stage.icon}</span>${i+1}. ${esc(stageName(stage,i))}<small>${stage.missions.length?completion(stage.missions)+'%':'—'}</small></h3>
-    <div class="growth-nodes">${stage.missions.map(node).join('')||`<p>${esc(t('empty'))}</p>`}</div></section>`).join('')}</div>
- </div>`;
+ const tree=renderGrowthVisionPath({workspace,esc,lang,title,status,displayState,selected,robot});
  const groups=[[l.priority,eligible],[l.upcoming,missions.filter(m=>m.status!=='done'&&!eligible.includes(m))],
   [l.completed,missions.filter(m=>m.status==='done').sort((a,b)=>(b.completedAt||'').localeCompare(a.completedAt||''))]];
  const timeline=`<div class="growth-timeline">${groups.map(([label,items])=>`<section><h3>${label}</h3>${items.map(m=>`<div>${node(m)}
@@ -82,13 +74,9 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
  ${metric('▥',currentStage<0?'—':stageName(stages[currentStage],currentStage),l.stage)}
  ${metric('◎',eligible.filter(m=>m.priority===1&&!m.optional).length,l.priority)}
  ${metric('✓',workspace.auri?.verifiedMilestones||0,ui.verified)}</section>
- ${existingProof}<div class="growth-layout"><section class="growth-card growth-map"><header class="growth-panel-head"><h2>${esc(command.vision)}</h2><div class="growth-tabs">
+ ${existingProof}<div class="growth-layout vision-layout"><section class="growth-card growth-map vision-map"><header class="growth-panel-head"><h2>${esc(command.vision)}</h2><div class="growth-tabs">
  <button type="button" data-view="tree" aria-pressed="${view==='tree'}">${l.tree}</button><button type="button" data-view="timeline" aria-pressed="${view==='timeline'}">${l.timeline}</button>
- </div></header>${view==='tree'?`<div class="command-zoom">
- <button type="button" class="growth-secondary" data-zoom="out" aria-label="${esc(command.zoomOut)}">−</button>
- <button type="button" class="growth-secondary" data-zoom="reset" aria-label="${esc(command.zoomReset)}">100%</button>
- <button type="button" class="growth-secondary" data-zoom="in" aria-label="${esc(command.zoomIn)}">+</button>
- </div><div class="command-map-viewport" tabindex="0" aria-label="${esc(command.vision)}">${tree}</div>`:timeline}
+ </div></header>${view==='tree'?`<div class="command-map-viewport vision-path-viewport" tabindex="0" aria-label="${esc(command.vision)}">${tree}</div>`:timeline}
  ${analysis.missions.some(m=>!missions.some(item=>item.capability===m.id))&&canWrite?`<button type="button" class="growth-secondary" data-refresh>${l.refresh}</button>`:''}</section>
  <aside class="growth-side"><section class="growth-card growth-focus" id="growth-focus" tabindex="-1">${detail}</section>
  <section class="growth-card growth-auri"><header>${robot()}<h2>${l.assistant}</h2></header>
