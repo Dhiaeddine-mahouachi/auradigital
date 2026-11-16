@@ -39,7 +39,8 @@ if(process.env.HUB_OLLAMA_URL&&process.env.HUB_OLLAMA_MODEL){
    if(data.profile.name==='Retry Studio'&&!fixtureFailures.has(data.profile.name)){
     fixtureFailures.add(data.profile.name);result.tasks=[{id:'unknown'}];
    }
-  }else result={reply:'Start by gathering the information customers need. I can help you turn it into a short checklist.'};
+  }else if(data.catalogue)result={reply:'Start by deciding who will update your menu. I can help compare the two digital menu options.',packageIds:['auramenu-self','auramenu-managed']};
+  else result={reply:'Start by gathering the information customers need. I can help you turn it into a short checklist.'};
   return Response.json({message:{content:JSON.stringify(result)},prompt_eval_count:120,eval_count:140});
  };
 }

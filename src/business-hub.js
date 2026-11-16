@@ -1,3 +1,4 @@
+import { hubGuide } from './hub-guide.js';
 import { getHubWork } from './hub-work.js';
 import { prepareHubPlan } from './hub-plan.js';
 import { analyzeOnboarding } from './hub-onboarding.js';
@@ -121,6 +122,7 @@ export async function handleBusinessHub(request,env) {
  const user=await authenticatedCustomer(request,env);if(!user)throw new ApiError(401,'Sign in to your AuraDigital account.');
  const write=!['GET','HEAD'].includes(request.method);
  if(write){if(!sameOrigin(request))throw new ApiError(403,'Forbidden origin.');await limit(request,env,user);}
+ if(path==='/api/hub/onboarding/guide'&&['GET','POST'].includes(request.method))return hubGuide(request,env,user);
  if(path==='/api/hub/onboarding/analyze'&&request.method==='POST')return analyzeOnboarding(request,env,user);
  const menuDraftResponse=await handleMenuDrafts(request,env,user,authorize);
  if(menuDraftResponse)return menuDraftResponse;

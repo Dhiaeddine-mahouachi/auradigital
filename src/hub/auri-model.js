@@ -14,18 +14,19 @@ export async function mountAuri(host) {
  const glb=await model();
  if(!host.isConnected)return;
  const login=host.dataset.variant==='login';
+ const enhanced=login||host.dataset.variant==='guide';
  const renderer=new WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
  renderer.toneMapping=ACESFilmicToneMapping;
- renderer.toneMappingExposure=login?1.22:1.4;
+ renderer.toneMappingExposure=enhanced?1.22:1.4;
  const scene=new Scene();
  const camera=new OrthographicCamera(-1.34,1.34,1.34,-1.34,.1,40);
  const modelRoot=new Group();
  const character=glb.scene.clone();
  modelRoot.add(character);
- scene.add(modelRoot,new AmbientLight(0xf1f2ec,login?.62:1.35));
+ scene.add(modelRoot,new AmbientLight(0xf1f2ec,enhanced?.62:1.35));
  for(const [color,intensity,position] of [
-  [0xffeed8,3,[-3,5,4]],[0xcfe3ff,1.25,[4,1,3]],[0xe1e100,login?2.1:1.2,[1,4,-3]],
+  [0xffeed8,3,[-3,5,4]],[0xcfe3ff,1.25,[4,1,3]],[0xe1e100,enhanced?2.1:1.2,[1,4,-3]],
  ]){
   const lamp=new DirectionalLight(color,intensity);
   lamp.position.set(...position);
@@ -79,7 +80,8 @@ export async function mountAuri(host) {
   camera.lookAt(0,focus,0);
   camera.updateProjectionMatrix();
   const settle=login?Math.min(1,Math.max(0,motionDuration-time)):1;
-  const pulse=preference.matches?0:Math.sin(time*2)*settle;
+  const idleGuide=host.dataset.variant==='guide'&&phase==='idle';
+  const pulse=preference.matches||idleGuide?0:Math.sin(time*2)*settle;
   const wave=login&&!preference.matches?Math.max(0,1-Math.abs(time-1.7)/1.45):0;
   modelRoot.position.y=.028*pulse+(happy&&!preference.matches?.15*Math.abs(Math.sin(t*6))*Math.max(0,1-t/2):0);
   modelRoot.rotation.y=phase==='evolving'&&!preference.matches?.32*Math.sin(Math.min(1,t/1.4)*Math.PI):.035*pulse;
@@ -94,7 +96,7 @@ export async function mountAuri(host) {
   right.rotation.z=happy?.28:wave*(.25+.2*Math.sin(time*12));
   if(phase==='error')eyes.scale.y=.64;
   renderer.render(scene,camera);
-  if(!preference.matches&&!asleep&&(!login||t<motionDuration))raf=requestAnimationFrame(render);
+  if(!preference.matches&&!asleep&&!idleGuide&&(!login||t<motionDuration))raf=requestAnimationFrame(render);
  }
  function schedule(){if(!raf&&visible&&!document.hidden&&!disposed)raf=requestAnimationFrame(render);}
  const resize=new ResizeObserver(()=>{

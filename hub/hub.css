@@ -550,3 +550,18 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 @media(max-width:560px){
  .command-gate .auth-intro .auri[data-variant=login]{display:grid;width:112px}
 }
+
+.hub-guide{width:min(100%,800px);margin:20px auto 0;padding:clamp(15px,3vw,26px);background:#18231e;border:1px solid #486052;border-radius:18px;text-align:start;color:#f5f7f5}
+.hub-guide h2{margin:0 0 8px}.hub-guide p,.hub-guide small{color:#c9d7ce}
+.hub-guide a{color:#d8ff35}.hub-guide summary{min-height:28px}
+.hub-guide-prompts{display:flex;gap:8px;flex-wrap:wrap;margin-block:12px}
+.hub-guide form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.hub-guide input{width:100%;min-height:44px;border:1px solid #65796d;border-radius:9px;background:#101a16;color:#fff;padding:10px 12px}
+.hub-guide .primary{background:#d8ff35;color:#10180b}
+.hub-guide .secondary{background:#22322a;border-color:#637568;color:#f5f7f5;font-size:.82rem}
+.hub-guide-turns{max-height:330px;overflow-y:auto;overscroll-behavior:contain}
+.hub-guide-turns article{background:#101a16;border-radius:12px;padding:12px;margin-block-end:10px;overflow-wrap:anywhere}
+.hub-guide-turns p{margin:5px 0 0}
+.hub-guide-status:not(:empty){margin:8px 0}
+.hub-guide-status:empty{margin:0}
+.auri-setup .hub-guide{margin-block-end:32px}

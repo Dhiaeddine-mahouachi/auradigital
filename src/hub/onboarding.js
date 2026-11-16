@@ -15,7 +15,7 @@ export function createOnboarding() {
  return { phase: 'entry', text: '', values: {}, facts: {}, answered: new Set(), requestId: crypto.randomUUID() };
 }
 
-export function renderOnboarding({ app, state, lang, t, esc, header, robot, bind, analyze, complete, save=()=>{} }) {
+export function renderOnboarding({ app, state, lang, t, esc, header, robot, bind, analyze, complete, guide, save=()=>{} }) {
  const [title, intro, placeholder, analyzeLabel, manual, attach, website, nameQuestion, industryQuestion, cityQuestion, goalQuestion, next, skip, review, create, creating, urlHint, fileHint, noFacts, analyzing, converse] = copy[lang];
  const { values, facts, answered } = state;
  const label = key => t(key === 'name' ? 'businessName' : key === 'industryDetails' ? 'services' : key);
@@ -49,14 +49,15 @@ export function renderOnboarding({ app, state, lang, t, esc, header, robot, bind
  ${question !== 'name' ? `<button type="button" class="secondary" data-setup="skip">${esc(skip)}</button>` : ''}
  <button type="button" class="secondary" data-setup="entry">${esc(converse)}</button>`}
  <p role="status" data-setup-status>${esc(state.message || '')}</p><p role="alert"></p>
- </form></main>`;
+ </form><div data-onboarding-guide></div></main>`;
  bind();
+ guide?.(app.querySelector('[data-onboarding-guide]'));
  const form = app.querySelector('.auri-setup-form');
  const alert = form.querySelector('[role="alert"]');
  const status = form.querySelector('[data-setup-status]');
  const rerender = () => {
   save(state);
-  renderOnboarding({ app, state, lang, t, esc, header, robot, bind, analyze, complete, save });
+  renderOnboarding({ app, state, lang, t, esc, header, robot, bind, analyze, complete, guide, save });
   app.querySelector('.auri-setup-form input:not([type="file"]), .auri-setup-form textarea, .auri-setup-form select')?.focus();
  };
  const composer = form.elements.businessText;
@@ -111,9 +112,8 @@ export function renderOnboarding({ app, state, lang, t, esc, header, robot, bind
  } else {
   form.querySelector('[data-setup="entry"]')?.addEventListener('click', () => {
    record();
-   state.phase = 'entry';
-   state.message = '';
-   rerender();
+   save(state);
+   app.querySelector('[data-onboarding-guide] input')?.focus();
   });
   form.querySelector('[data-setup="skip"]')?.addEventListener('click', () => {
    answered.add(question);

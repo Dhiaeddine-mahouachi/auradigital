@@ -1,3 +1,149 @@
+// src/hub/auri-controller.js
+var channels = /* @__PURE__ */ new Map();
+var subscribers = /* @__PURE__ */ new Set();
+function channel(scope) {
+  if (!channels.has(scope)) channels.set(scope, { active: /* @__PURE__ */ new Map(), outcome: "idle", timer: null });
+  return channels.get(scope);
+}
+function notify(scope) {
+  const state2 = channel(scope);
+  const phase = [...state2.active.values()].at(-1)?.phase || state2.outcome;
+  for (const subscriber of subscribers) subscriber(scope, phase);
+}
+function watchAuri(scope, listener) {
+  const subscriber = (key, phase) => {
+    if (key === scope) listener(phase);
+  };
+  subscribers.add(subscriber);
+  notify(scope);
+  return () => subscribers.delete(subscriber);
+}
+function pulseAuri(scope, phase, duration = 1800) {
+  const state2 = channel(scope);
+  clearTimeout(state2.timer);
+  state2.outcome = phase;
+  notify(scope);
+  state2.timer = setTimeout(() => {
+    state2.outcome = "idle";
+    notify(scope);
+    if (!state2.active.size) channels.delete(scope);
+  }, duration);
+}
+async function runAuri(scope, phase, operation, success = "success") {
+  const state2 = channel(scope);
+  const token = /* @__PURE__ */ Symbol();
+  const job = { phase, completed: false };
+  const latest = () => [...state2.active.keys()].at(-1) === token;
+  state2.active.set(token, job);
+  clearTimeout(state2.timer);
+  state2.outcome = "idle";
+  const typing = phase === "working" ? setTimeout(() => {
+    if (!job.completed) {
+      job.phase = "typing";
+      notify(scope);
+    }
+  }, 420) : null;
+  notify(scope);
+  try {
+    const result2 = await operation();
+    if (latest()) pulseAuri(scope, success);
+    return result2;
+  } catch (error) {
+    if (latest()) pulseAuri(scope, "error");
+    throw error;
+  } finally {
+    job.completed = true;
+    clearTimeout(typing);
+    state2.active.delete(token);
+    notify(scope);
+    if (!state2.active.size && state2.outcome === "idle") channels.delete(scope);
+  }
+}
+
+// src/hub/guide-view.js
+var strings = {
+  en: ["Talk to Auri", "Hi, I\u2019m Auri. Tell me about your business and I\u2019ll suggest what to do first. Ask me what AuraDigital can help with or compare published prices.", "What should I do first?", "What can you help with?", "What does a digital menu cost?", "Ask Auri a question", "Send", "Auri is thinking\u2026", "Browse all published prices", "Read reply aloud", "Contact AuraDigital for a custom quote", "One-time", "Monthly", "Annual", "Annual hosting", "Couldn\u2019t load prices. Try again."],
+  fr: ["Parler \xE0 Auri", "Bonjour, je suis Auri. D\xE9crivez votre activit\xE9 pour trouver votre prochaine \xE9tape ou comparer les tarifs publi\xE9s.", "Par quoi commencer ?", "Comment peux-tu m\u2019aider ?", "Combien co\xFBte un menu num\xE9rique ?", "Posez une question \xE0 Auri", "Envoyer", "Auri r\xE9fl\xE9chit\u2026", "Voir tous les tarifs publi\xE9s", "Lire la r\xE9ponse \xE0 voix haute", "Contacter AuraDigital pour un devis", "Unique", "Mensuel", "Annuel", "H\xE9bergement annuel", "Impossible de charger les tarifs. R\xE9essayez."],
+  tr: ["Auri ile konu\u015F", "Merhaba, ben Auri. \u0130\u015Fletmenizi anlat\u0131n, ilk ad\u0131m\u0131 bulal\u0131m. Hizmetleri ve yay\u0131mlanan fiyatlar\u0131 sorabilirsiniz.", "\u0130lk olarak ne yapmal\u0131y\u0131m?", "Nas\u0131l yard\u0131mc\u0131 olabilirsin?", "Dijital men\xFC fiyat\u0131 nedir?", "Auri\u2019ye soru sorun", "G\xF6nder", "Auri d\xFC\u015F\xFCn\xFCyor\u2026", "Yay\u0131mlanan t\xFCm fiyatlar\u0131 g\xF6r", "Yan\u0131t\u0131 sesli oku", "\xD6zel teklif i\xE7in AuraDigital\u2019e ula\u015F\u0131n", "Tek seferlik", "Ayl\u0131k", "Y\u0131ll\u0131k", "Y\u0131ll\u0131k bar\u0131nd\u0131rma", "Fiyatlar y\xFCklenemedi. Tekrar deneyin."],
+  ar: ["\u062A\u062D\u062F\u062B \u0645\u0639 \u0623\u0648\u0631\u064A", "\u0645\u0631\u062D\u0628\u064B\u0627\u060C \u0623\u0646\u0627 \u0623\u0648\u0631\u064A. \u0623\u062E\u0628\u0631\u0646\u064A \u0639\u0646 \u0646\u0634\u0627\u0637\u0643 \u0644\u0623\u0642\u062A\u0631\u062D \u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u0623\u0648\u0644\u0649. \u0627\u0633\u0623\u0644\u0646\u064A \u0639\u0646 \u062E\u062F\u0645\u0627\u062A AuraDigital \u0623\u0648 \u0642\u0627\u0631\u0646 \u0627\u0644\u0623\u0633\u0639\u0627\u0631 \u0627\u0644\u0645\u0646\u0634\u0648\u0631\u0629.", "\u0645\u0627 \u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u0623\u0648\u0644\u0649\u061F", "\u0628\u0645\u0627\u0630\u0627 \u064A\u0645\u0643\u0646\u0643 \u0645\u0633\u0627\u0639\u062F\u062A\u064A\u061F", "\u0643\u0645 \u0633\u0639\u0631 \u0627\u0644\u0642\u0627\u0626\u0645\u0629 \u0627\u0644\u0631\u0642\u0645\u064A\u0629\u061F", "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A", "\u0625\u0631\u0633\u0627\u0644", "\u0623\u0648\u0631\u064A \u064A\u0641\u0643\u0631\u2026", "\u062A\u0635\u0641\u062D \u0643\u0644 \u0627\u0644\u0623\u0633\u0639\u0627\u0631 \u0627\u0644\u0645\u0646\u0634\u0648\u0631\u0629", "\u0627\u0642\u0631\u0623 \u0627\u0644\u0631\u062F \u0628\u0635\u0648\u062A \u0639\u0627\u0644\u064D", "\u062A\u0648\u0627\u0635\u0644 \u0645\u0639 AuraDigital \u0644\u0637\u0644\u0628 \u0639\u0631\u0636 \u062E\u0627\u0635", "\u0645\u0631\u0629 \u0648\u0627\u062D\u062F\u0629", "\u0634\u0647\u0631\u064A\u064B\u0627", "\u0633\u0646\u0648\u064A\u064B\u0627", "\u0627\u0644\u0627\u0633\u062A\u0636\u0627\u0641\u0629 \u0627\u0644\u0633\u0646\u0648\u064A\u0629", "\u062A\u0639\u0630\u0631 \u062A\u062D\u0645\u064A\u0644 \u0627\u0644\u0623\u0633\u0639\u0627\u0631. \u062D\u0627\u0648\u0644 \u0645\u062C\u062F\u062F\u064B\u0627."]
+};
+var path = "/api/hub/onboarding/guide";
+function mountGuide(host, { lang: lang2, esc: esc3, api: api2, turns, scope, context = () => ({}) }) {
+  if (!host) return;
+  const [title, intro, first, help, price, placeholder, send, thinking, browse, read, contact, once, month, year, hosting, unavailable] = strings[lang2] || strings.en;
+  const money = (price2, currency) => new Intl.NumberFormat(lang2, { style: "currency", currency }).format(price2);
+  const qualifiers = { en: ["From", "Request a quote"], fr: ["D\xE8s", "Demander un devis"], tr: ["Ba\u015Flang\u0131\xE7", "Teklif iste"], ar: ["\u0627\u0628\u062A\u062F\u0627\u0621\u064B \u0645\u0646", "\u0627\u0637\u0644\u0628 \u0639\u0631\u0636 \u0633\u0639\u0631"] }[lang2] || ["From", "Request a quote"];
+  const priceLabel = (value, currency, from) => Number.isFinite(value) ? (from ? qualifiers[0] + " " : "") + money(value, currency) : qualifiers[1];
+  const rows = ({ packages, currency }) => packages.map((item) => `<li><strong>${esc3(item.name)}</strong> \xB7 ${esc3(priceLabel(item.price, currency, item.from))} <small>${esc3({ once, month, year }[item.billing] || once)}${item.annualHosting ? ` \xB7 ${esc3(hosting)} ${esc3(priceLabel(item.annualHosting, currency, item.hostingFrom))}` : ""}${item.availability ? ` \xB7 ${esc3(item.availability.replaceAll("-", " "))}` : ""}</small></li>`).join("");
+  host.innerHTML = `<section class="hub-guide"><h2>${esc3(title)}</h2><p>${esc3(intro)}</p>
+ <div class="hub-guide-prompts">${[first, help, price].map((question) => `<button type="button" class="secondary">${esc3(question)}</button>`).join("")}</div>
+ <div class="hub-guide-turns"></div>
+ <form><input name="question" required maxlength="700" aria-label="${esc3(placeholder)}" placeholder="${esc3(placeholder)}"><button class="primary">${esc3(send)}</button></form>
+ <p class="hub-guide-status" role="status" aria-live="polite"></p>
+ ${"speechSynthesis" in window ? `<button class="secondary" type="button" data-guide-read hidden>${esc3(read)}</button>` : ""}
+ <details><summary>${esc3(browse)}</summary><ul data-guide-prices></ul></details><a href="/contact">${esc3(contact)}</a></section>`;
+  const form = host.querySelector("form");
+  const input = form.elements.question, submit = form.querySelector("button"), status = host.querySelector("[role=status]");
+  const voice = host.querySelector("[data-guide-read]");
+  const output = host.querySelector(".hub-guide-turns");
+  const paint = () => {
+    output.innerHTML = turns.map((turn) => `<article><strong>${esc3(turn.question)}</strong><p>${esc3(turn.reply)}</p>${turn.packages.length ? `<ul>${rows(turn)}</ul>` : ""}</article>`).join("");
+    output.scrollTop = output.scrollHeight;
+    if (voice) voice.hidden = !turns.length;
+  };
+  paint();
+  if (voice) voice.onclick = () => {
+    const last = turns.at(-1);
+    const priceText = last.packages.map((item) => item.name + " " + priceLabel(item.price, last.currency, item.from) + " " + ({ once, month, year }[item.billing] || once));
+    const speech = new SpeechSynthesisUtterance([last.reply, ...priceText].join(". "));
+    speech.lang = lang2;
+    speech.onstart = () => pulseAuri(scope, "speaking", 3e3);
+    speech.onend = speech.onerror = () => pulseAuri(scope, "idle", 0);
+    speechSynthesis.cancel();
+    speechSynthesis.speak(speech);
+  };
+  for (const button2 of host.querySelectorAll(".hub-guide-prompts button")) {
+    button2.onclick = () => {
+      input.value = button2.textContent;
+      form.requestSubmit();
+    };
+  }
+  form.onsubmit = async (event) => {
+    event.preventDefault();
+    const question = input.value.trim();
+    if (!question || submit.disabled) return;
+    submit.disabled = true;
+    status.classList.remove("sr-only");
+    status.textContent = thinking;
+    try {
+      const answer = await runAuri(scope, "thinking", () => api2(path, "POST", { question, lang: lang2, history: turns.slice(-6).map(({ question: question2, reply }) => ({ question: question2, reply })), context: context() }));
+      turns.push({ question, ...answer });
+      if (turns.length > 10) turns.shift();
+      if (!host.isConnected) return;
+      paint();
+      if (input.value.trim() === question) input.value = "";
+      status.classList.add("sr-only");
+      status.textContent = answer.reply;
+    } catch (error) {
+      status.textContent = error.message;
+    } finally {
+      submit.disabled = false;
+    }
+  };
+  const catalogue = host.querySelector("details"), prices = host.querySelector("[data-guide-prices]");
+  let loaded = false;
+  catalogue.ontoggle = async () => {
+    if (!catalogue.open || loaded) return;
+    loaded = true;
+    try {
+      prices.innerHTML = rows(await api2(path));
+    } catch {
+      prices.innerHTML = `<li>${esc3(unavailable)}</li>`;
+      loaded = false;
+    }
+  };
+}
+
 // src/hub/hub-navigation.js
 var labels = {
   en: ["Home", "Roadmap", "Ask Auri", "My Work", "Build your roadmap", "Tell Auri about your business to get your first step.", "Build my roadmap", "Continue setup", "Next on your roadmap", "Needs your attention", "In progress", "Active services", "Review your menu", "Open request", "No items need your attention.", "No work in progress.", "No active services yet.", "Welcome to", "Roadmap complete", "Return to record", "Helping with", "Start small", "Build systems", "Scale with AI", "Locked", "Current stage", "Record unavailable", "Menu draft ready for review", "Mark reviewed", "Request details", "Tell me about your business."],
@@ -104,68 +250,6 @@ function renderRequestForm({ host, lang: lang2, esc: esc3, me: me2, workspace: w
   };
 }
 
-// src/hub/auri-controller.js
-var channels = /* @__PURE__ */ new Map();
-var subscribers = /* @__PURE__ */ new Set();
-function channel(scope) {
-  if (!channels.has(scope)) channels.set(scope, { active: /* @__PURE__ */ new Map(), outcome: "idle", timer: null });
-  return channels.get(scope);
-}
-function notify(scope) {
-  const state2 = channel(scope);
-  const phase = [...state2.active.values()].at(-1)?.phase || state2.outcome;
-  for (const subscriber of subscribers) subscriber(scope, phase);
-}
-function watchAuri(scope, listener) {
-  const subscriber = (key, phase) => {
-    if (key === scope) listener(phase);
-  };
-  subscribers.add(subscriber);
-  notify(scope);
-  return () => subscribers.delete(subscriber);
-}
-function pulseAuri(scope, phase, duration = 1800) {
-  const state2 = channel(scope);
-  clearTimeout(state2.timer);
-  state2.outcome = phase;
-  notify(scope);
-  state2.timer = setTimeout(() => {
-    state2.outcome = "idle";
-    notify(scope);
-    if (!state2.active.size) channels.delete(scope);
-  }, duration);
-}
-async function runAuri(scope, phase, operation, success = "success") {
-  const state2 = channel(scope);
-  const token = /* @__PURE__ */ Symbol();
-  const job = { phase, completed: false };
-  const latest = () => [...state2.active.keys()].at(-1) === token;
-  state2.active.set(token, job);
-  clearTimeout(state2.timer);
-  state2.outcome = "idle";
-  const typing = phase === "working" ? setTimeout(() => {
-    if (!job.completed) {
-      job.phase = "typing";
-      notify(scope);
-    }
-  }, 420) : null;
-  notify(scope);
-  try {
-    const result2 = await operation();
-    if (latest()) pulseAuri(scope, success);
-    return result2;
-  } catch (error) {
-    if (latest()) pulseAuri(scope, "error");
-    throw error;
-  } finally {
-    job.completed = true;
-    clearTimeout(typing);
-    state2.active.delete(token);
-    notify(scope);
-    if (!state2.active.size && state2.outcome === "idle") channels.delete(scope);
-  }
-}
-
 // src/hub/onboarding.js
 var fields = ["name", "industry", "city", "country", "website", "goals", "industryDetails", "tools", "acquisition"];
 var industries = ["restaurant", "services", "ecommerce", "real_estate", "other"];
@@ -180,7 +264,7 @@ var copy = {
 function createOnboarding() {
   return { phase: "entry", text: "", values: {}, facts: {}, answered: /* @__PURE__ */ new Set(), requestId: crypto.randomUUID() };
 }
-function renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: esc3, header, robot: robot2, bind, analyze, complete, save = () => {
+function renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: esc3, header, robot: robot2, bind, analyze, complete, guide, save = () => {
 } }) {
   const [title, intro, placeholder, analyzeLabel, manual, attach, website, nameQuestion, industryQuestion, cityQuestion, goalQuestion, next, skip, review, create, creating, urlHint, fileHint, noFacts, analyzing, converse] = copy[lang2];
   const { values, facts, answered } = state2;
@@ -213,14 +297,15 @@ function renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: e
  ${question !== "name" ? `<button type="button" class="secondary" data-setup="skip">${esc3(skip)}</button>` : ""}
  <button type="button" class="secondary" data-setup="entry">${esc3(converse)}</button>`}
  <p role="status" data-setup-status>${esc3(state2.message || "")}</p><p role="alert"></p>
- </form></main>`;
+ </form><div data-onboarding-guide></div></main>`;
   bind();
+  guide?.(app2.querySelector("[data-onboarding-guide]"));
   const form = app2.querySelector(".auri-setup-form");
   const alert = form.querySelector('[role="alert"]');
   const status = form.querySelector("[data-setup-status]");
   const rerender = () => {
     save(state2);
-    renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: esc3, header, robot: robot2, bind, analyze, complete, save });
+    renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: esc3, header, robot: robot2, bind, analyze, complete, guide, save });
     app2.querySelector('.auri-setup-form input:not([type="file"]), .auri-setup-form textarea, .auri-setup-form select')?.focus();
   };
   const composer = form.elements.businessText;
@@ -284,9 +369,8 @@ function renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: e
   } else {
     form.querySelector('[data-setup="entry"]')?.addEventListener("click", () => {
       record();
-      state2.phase = "entry";
-      state2.message = "";
-      rerender();
+      save(state2);
+      app2.querySelector("[data-onboarding-guide] input")?.focus();
     });
     form.querySelector('[data-setup="skip"]')?.addEventListener("click", () => {
       answered.add(question);
@@ -433,7 +517,7 @@ var AuriCharacter = class extends HTMLElement {
 customElements.define("auri-character", AuriCharacter);
 var auriCharacter = (level = 1, { posterOnly = false, variant } = {}) => {
   const value = Number.isInteger(level) && level >= 1 && level <= 7 ? level : 1;
-  return `<auri-character class="auri" aria-hidden="true" ${variant === "login" ? 'data-variant="login"' : ""} level="${value}" ${posterOnly ? "poster-only" : ""}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
+  return `<auri-character class="auri" aria-hidden="true" ${["login", "guide"].includes(variant) ? `data-variant="${variant}"` : ""} level="${value}" ${posterOnly ? "poster-only" : ""}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
 };
 function connectAuri(host, scope, labels3) {
   const status = host.querySelector("[data-auri-status]");
@@ -1172,6 +1256,13 @@ var auriSessions = /* @__PURE__ */ new Map();
 var auriVoice = null;
 var setupAuriName = "";
 var setupDeferred = [];
+var guideCharacter = () => auriCharacter(3, { variant: "guide" });
+var guideThreads = /* @__PURE__ */ new Map();
+function guideAt(host, scope, context) {
+  const key = me.id + ":" + (workspace?.organization.id || "new");
+  if (!guideThreads.has(key)) guideThreads.set(key, []);
+  mountGuide(host, { lang, esc: esc2, api, turns: guideThreads.get(key), scope, context });
+}
 var robot = () => auriCharacter(auriLevel(), { posterOnly: true });
 function bindAuri(host, scope) {
   disconnectAuri();
@@ -1196,8 +1287,8 @@ async function generateRoadmap() {
     await loadWorkspace(id);
   });
 }
-async function api(path, method = "GET", body) {
-  const response = await fetch(path, { method, credentials: "same-origin", headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : void 0 });
+async function api(path2, method = "GET", body) {
+  const response = await fetch(path2, { method, credentials: "same-origin", headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : void 0 });
   const data = await response.json().catch(() => ({ error: t("error") }));
   if (!response.ok) {
     const error = new Error(data.error || t("error"));
@@ -1266,7 +1357,8 @@ function openFirstLogin() {
     lang,
     t,
     esc: esc2,
-    robot,
+    robot: guideCharacter,
+    guide: (host) => guideAt(host, setupScope, () => firstLogin?.values),
     header: `<header class="gate-header command-gate-header"><a href="${esc2(link("home"))}" class="wordmark">AuraHub</a>${languageControl()}</header>`,
     bind: () => {
       bindCommon();
@@ -1340,7 +1432,7 @@ async function renderGate() {
     return;
   }
   const signup = route === "signup", forgot = route === "forgot", reset = route === "reset";
-  const loginCharacter = !signup && !forgot && !reset ? auriCharacter(3, { variant: "login" }) : robot();
+  const loginCharacter = !forgot && !reset ? auriCharacter(3, { variant: "login" }) : robot();
   gateFrame(`<section class="auth-intro"><p class="eyebrow">Aura Command</p><h1>${t("welcome")}</h1><p>${t("tag")}</p>${loginCharacter}</section><section class="panel auth-panel"><h2>${t(reset ? "reset" : forgot ? "forgot" : signup ? "signup" : "signIn")}</h2><form id="auth-form">${signup ? field("name", "name", "", "text", 'required minlength="2" maxlength="100" autocomplete="name"') : ""}${reset ? "" : field("email", "email", "", "email", 'required maxlength="254" autocomplete="email"')}${forgot ? "" : field("password", reset ? "newPassword" : "password", "", "password", "required " + (signup || reset ? 'minlength="12" ' : "") + 'maxlength="72" autocomplete="' + (signup || reset ? "new-password" : "current-password") + '"')}${signup ? `<label class="check"><input type="checkbox" name="terms" required>${t("terms")}</label>` : ""}<p class="form-error" role="alert"></p><button class="primary">${t(reset ? "reset" : forgot ? "continue" : signup ? "signup" : "signIn")}</button></form>${!forgot && !reset ? `${authCapabilities.google ? `<hr><label class="check"><input id="google-terms" type="checkbox">${t("terms")}</label>${button("google", "google", true)}` : ""}<div class="auth-links"><a href="/hub/${signup ? "login" : "signup"}${authQuery}">${t(signup ? "signIn" : "signup")}</a>${authCapabilities.email ? `<a href="/hub/forgot${authQuery}">${t("forgot")}</a>` : ""}</div>` : `<a href="/hub/login${authQuery}">${t("signIn")}</a>`}</section>`);
   document.querySelector("#auth-form").onsubmit = async (e) => {
     e.preventDefault();
@@ -1649,8 +1741,14 @@ async function workSnapshot() {
 }
 function buildCard(ui) {
   const canBuild = !workspace || ["profile:write", "roadmap:write"].every((permission) => workspace.permissions.includes(permission));
-  return `<section class="hub-hero hub-welcome">${robot()}<h2>${esc2(ui.build)}</h2>
- <p>${esc2(ui.buildNote)}</p>${canBuild ? `<a class="growth-primary" href="${esc2(link("onboarding"))}">${esc2(ui.buildAction)} <span aria-hidden="true">\u2192</span></a>` : ""}</section>`;
+  return `<section class="hub-hero hub-welcome">${guideCharacter()}<h2>${esc2(ui.build)}</h2>
+ <p>${esc2(ui.buildNote)}</p>${canBuild ? `<a class="growth-primary" href="${esc2(link("onboarding"))}">${esc2(ui.buildAction)} <span aria-hidden="true">\u2192</span></a>` : ""}</section><div data-home-guide></div>`;
+}
+function renderBuildCard(ui) {
+  content(buildCard(ui));
+  const scope = workspace?.organization.id || setupScope;
+  bindAuri(document.querySelector(".hub-welcome"), scope);
+  guideAt(document.querySelector("[data-home-guide]"), scope, () => workspace?.profile);
 }
 function nextMission() {
   return eligibleMissions(workspace.missions, workspace.profile).find((m) => workspace.evidence?.[m.id] !== "pending");
@@ -1663,7 +1761,7 @@ var missionTitle = (m) => m.objective === m.service ? cap(m.capability) : m.obje
 async function home() {
   const ui = hubLabels(lang), host = document.querySelector("#page-content");
   if (!workspace?.missions.length) {
-    content(buildCard(ui));
+    renderBuildCard(ui);
     return;
   }
   const next = nextMission();
@@ -1721,9 +1819,9 @@ async function renderPage() {
   const label = hubLabels(lang);
   if (page === "invoices") return content(`<section class="panel"><a class="primary" href="/account">${esc2(t("orders"))}</a></section>`);
   if (page === "home") return home();
-  if (!workspace) return content(buildCard(label));
+  if (!workspace) return renderBuildCard(label);
   if (page === "services") return myWork();
-  if ((page === "journey" || page === "onboarding") && !workspace.missions.length) return content(buildCard(label));
+  if ((page === "journey" || page === "onboarding") && !workspace.missions.length) return renderBuildCard(label);
   if (page === "onboarding") {
     navigate("journey", {}, true);
     return;
@@ -2257,14 +2355,14 @@ async function assistant() {
   const create = document.querySelector("[data-auri-draft]");
   const log = document.querySelector("[data-auri-drafts]");
   const status = document.querySelector("[data-draft-status]");
-  const path = endpoint("auri");
+  const path2 = endpoint("auri");
   const toolsStatus = document.querySelector("[data-auri-tools-status]");
   for (const [action, tool] of [["diagnosis", "diagnosis"], ["next-action", "next_action"]]) {
     const trigger = document.querySelector(`[data-action="${action}"]`);
     trigger.onclick = async () => {
       trigger.disabled = true;
       try {
-        const { data } = await runAuri(id, "thinking", () => api(path, "POST", { tool }), "speaking");
+        const { data } = await runAuri(id, "thinking", () => api(path2, "POST", { tool }), "speaking");
         toolsStatus.textContent = tool === "diagnosis" ? `${t("missing")} \xB7 ${data.missing.map(cap).join(", ") || t("empty")}` : data.nextAction ? cap(data.nextAction.capability) : t("empty");
       } catch (error) {
         toolsStatus.textContent = error.message;
@@ -2277,7 +2375,7 @@ async function assistant() {
   create.disabled = Boolean(session.draftPending);
   status.textContent = session.draftError || "";
   async function readDrafts() {
-    const { drafts } = await api(path);
+    const { drafts } = await api(path2);
     log.innerHTML = drafts.map((draft2) => `<article><strong>${esc2(labels3[draft2.source])}</strong>
    <time datetime="${new Date(draft2.created_at).toISOString()}">${esc2(new Date(draft2.created_at).toLocaleString(lang))}</time>
    <p>${esc2(draft2.body)}</p></article>`).join("");
@@ -2290,7 +2388,7 @@ async function assistant() {
     session.draftPending = create.disabled = true;
     session.draftError = status.textContent = "";
     try {
-      await runAuri(id, "drafting", () => api(path, "POST", { tool: "draft_follow_up", lang }), "draft_ready");
+      await runAuri(id, "drafting", () => api(path2, "POST", { tool: "draft_follow_up", lang }), "draft_ready");
       if (create.isConnected) {
         await readDrafts();
         status.textContent = labels3.review;
