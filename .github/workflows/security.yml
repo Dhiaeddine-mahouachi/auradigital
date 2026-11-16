@@ -41,6 +41,13 @@ jobs:
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4191/ > /dev/null
           LANDING_ORIGIN=http://127.0.0.1:4191 node scripts/test-landing-images-browser.mjs
+      - name: Test Portfolio scroll animation and imagery on desktop and mobile
+        run: |
+          python3 -m http.server 4192 --bind 127.0.0.1 > /tmp/portfolio-preview.log 2>&1 &
+          portfolio_server_pid=$!
+          trap 'kill "$portfolio_server_pid" 2>/dev/null || true' EXIT
+          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4192/portfolio.html > /dev/null
+          PORTFOLIO_TEST_ORIGIN=http://127.0.0.1:4192 node scripts/test-portfolio-browser.mjs
       - name: Test private draft customer interactions
         run: |
           PORT=5173 node scripts/dev-hub.mjs > /tmp/hub-menu-qa.log 2>&1 &
@@ -60,6 +67,14 @@ jobs:
         with:
           name: private-menu-draft-screenshots
           path: test-output/menu-drafts-*.png
+          if-no-files-found: ignore
+
+      - name: Preserve Portfolio screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aura-portfolio-screenshots
+          path: test-output/portfolio-*.png
           if-no-files-found: ignore
 
       - name: Preserve Aura Command screenshots

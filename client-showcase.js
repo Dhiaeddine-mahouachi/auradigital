@@ -1,73 +1,94 @@
+/* AuraDigital portfolio: scroll-synced, progressively enhanced, motion-accessible. */
 (() => {
+  'use strict';
   const root = document.querySelector('.client-showcase');
   if (!root) return;
-
   const stages = [...root.querySelectorAll('[data-work-stage]')];
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let frame = 0;
-
+  const current = root.querySelector('[data-work-current]');
+  const people = [...document.querySelectorAll('.portfolio-person')];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+  let frame = 0;
+  if (!stages.length) return;
 
-  function reset() {
-    stages.forEach((stage) => {
+  function resetCards() {
+    for (const stage of stages) {
       const card = stage.querySelector('.client-work-card');
-      const media = stage.querySelector('.client-work-media img');
-      if (card) {
-        card.style.transform = '';
-        card.style.opacity = '';
-      }
-      if (media) media.style.removeProperty('--media-y');
-    });
-  }
-
-  function update() {
-    frame = 0;
-
-    if (reduceMotion.matches || window.innerWidth <= 760) {
-      reset();
-      return;
+      const image = stage.querySelector('.client-work-media img');
+      if (card) { card.style.transform = ''; card.style.opacity = ''; }
+      if (image) image.style.removeProperty('--media-y');
     }
+  }
 
-    const vh = window.innerHeight;
-
-    stages.forEach((stage) => {
-      const card = stage.querySelector('.client-work-card');
-      const media = stage.querySelector('.client-work-media img');
-      if (!card || !media) return;
-
+  function render() {
+    frame = 0;
+    const viewport = innerHeight || 1;
+    const animated = !reduced.matches && innerWidth > 760;
+    let nearest = 0;
+    let distance = Infinity;
+    stages.forEach((stage, i) => {
       const rect = stage.getBoundingClientRect();
-      const progress = clamp((vh * 0.82 - rect.top) / (rect.height + vh * 0.18));
-      const entrance = clamp((vh * 0.96 - rect.top) / (vh * 0.42));
-      const exit = clamp((-rect.top + vh * 0.02) / (rect.height * 0.62));
-
-      const scale = 0.965 + entrance * 0.035 - exit * 0.018;
-      const opacity = 0.58 + entrance * 0.42 - exit * 0.12;
-      const mediaY = (progress - 0.5) * 42;
-
-      card.style.transform = `scale(${scale.toFixed(4)})`;
+      const activeDistance = Math.abs((rect.top + Math.min(rect.height, viewport) * .48) - viewport * .54);
+      if (activeDistance < distance) { distance = activeDistance; nearest = i; }
+      if (!animated) return;
+      const card = stage.querySelector('.client-work-card');
+      const image = stage.querySelector('.client-work-media img');
+      if (!card || !image) return;
+      const entrance = clamp((viewport * .98 - rect.top) / (viewport * .45));
+      const departure = clamp((viewport * .1 - rect.bottom) / (viewport * .48));
+      const progress = clamp((viewport * .85 - rect.top) / (rect.height + viewport * .1));
+      const y = (1 - entrance) * 58 - departure * 34;
+      const scale = .945 + entrance * .055 - departure * .025;
+      const opacity = .60 + entrance * .40 - departure * .23;
+      card.style.transform = 'translate3d(0,' + y.toFixed(2) + 'px,0) scale(' + scale.toFixed(4) + ')';
       card.style.opacity = opacity.toFixed(3);
-      media.style.setProperty('--media-y', `${mediaY.toFixed(1)}px`);
+      image.style.setProperty('--media-y', ((progress - .5) * 32).toFixed(1) + 'px');
     });
+    if (!animated) resetCards();
+    if (current) current.textContent = String(nearest + 1).padStart(2, '0');
   }
 
-  function requestUpdate() {
-    if (!frame) frame = requestAnimationFrame(update);
+  function schedule() {
+    if (!frame) frame = requestAnimationFrame(render);
   }
+  addEventListener('scroll', schedule, { passive:true });
+  addEventListener('resize', schedule, { passive:true });
+  reduced.addEventListener?.('change', () => {
+    if (reduced.matches) document.body.classList.remove('portfolio-motion-ready');
+    schedule();
+  });
 
-  window.addEventListener('scroll', requestUpdate, { passive: true });
-  window.addEventListener('resize', requestUpdate, { passive: true });
-  reduceMotion.addEventListener?.('change', requestUpdate);
+  // The page stays legible even when third-party illustration hosts are unavailable.
+  document.querySelectorAll('.client-work-media img, .portfolio-person-photo img').forEach(image => {
+    const unavailable = () => {
+      const wrapper = image.parentElement;
+      image.hidden = true;
+      if (wrapper) {
+        wrapper.classList.add('portfolio-media-unavailable');
+        if (!wrapper.querySelector('.portfolio-media-fallback')) {
+          const replacement = document.createElement('span');
+          replacement.className = 'portfolio-media-fallback';
+          replacement.textContent = image.closest('.client-work-stage')
+            ? 'Project preview temporarily unavailable'
+            : 'Business photography temporarily unavailable';
+          wrapper.appendChild(replacement);
+        }
+      }
+    };
+    image.addEventListener('error', unavailable, { once:true });
+    if (image.complete && !image.naturalWidth) unavailable();
+  });
 
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        root.classList.toggle('is-active', entries.some((entry) => entry.isIntersecting));
-        requestUpdate();
-      },
-      { rootMargin: '15% 0px 15% 0px' }
-    );
-    observer.observe(root);
+  if ('IntersectionObserver' in window && !reduced.matches) {
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    }, { threshold:.12 });
+    people.forEach(item => observer.observe(item));
+    document.body.classList.add('portfolio-motion-ready');
   }
-
-  update();
+  render();
 })();
