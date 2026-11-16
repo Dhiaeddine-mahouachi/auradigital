@@ -276,3 +276,29 @@ auri-character[data-rendered] img{visibility:hidden}
  .growth-shell .workspace{padding-block-end:54px}
 }
 .skip:not(:focus){clip-path:inset(50%)}
+
+/* Use the same entrance for sign-in, recovery, and onboarding. */
+body:has(.command-gate-header){background:#111411;color:#f7f8f2}
+.command-gate-header{background:#111411;border-color:#343d34}
+.command-gate-header .wordmark{color:#f7f8f2;font-size:1.45rem}
+.command-gate-header .wordmark span{color:#d8ff35}
+.command-gate,.command-setup{
+ --white:#1b201c;--ink:#f7f8f2;--muted:#b5c0b2;--line:#343d34;--green:#d8ff35;--deep:#181d11;
+}
+.command-gate .auth-intro{position:relative;padding:clamp(22px,4vw,52px);border:1px solid var(--line);border-radius:24px;background:#1b201c}
+.command-gate .auth-intro .eyebrow,.command-setup .setup-heading .eyebrow{color:#d8ff35}
+.command-gate .auth-intro .auri{display:grid;margin-inline:auto;width:min(230px,80%);height:auto}
+.command-gate .auth-panel{margin-block-end:0}
+.command-gate :is(.field input,.secondary),.command-setup :is(.field input,.field select,.field textarea,.secondary),.command-gate-header .language select{
+ color:#f7f8f2;background:#252b25;border-color:#485648;
+}
+.command-gate .primary,.command-setup .primary{background:#d8ff35;color:#171900}
+.command-gate .primary:hover,.command-setup .primary:hover{background:#e5ff72}
+.command-gate .form-error,.command-setup .form-error{color:#f5a1a1}
+@media(max-width:560px){
+ .command-gate .auth-intro{padding:18px}
+ .command-gate .auth-intro h1{font-size:1.65rem;margin-block-end:8px}
+ .command-gate .auth-intro p{margin-block-end:8px}
+ .command-gate .auth-intro .auri{display:none}
+ .command-gate .auth-panel{margin-block-start:14px}
+}
