@@ -6,11 +6,12 @@ import { resolve } from 'node:path';
 
 const html=await readFile('index.html','utf8');
 const imageMatches=[
-  ...html.matchAll(/<img\\b[^>]*?\\bsrc=["']([^"']+)["']/gi),
-  ...html.matchAll(/<a\\b[^>]*?\\bhref=["']([^"']+\\.(?:png|jpe?g|webp|svg)(?:\\?[^"']*)?)["']/gi),
+  ...html.matchAll(/<img\b[^>]*?\bsrc=["']([^"']+)["']/gi),
+  ...html.matchAll(/<a\b[^>]*?\bhref=["']([^"']+\.(?:png|jpe?g|webp|svg)(?:\?[^"']*)?)["']/gi),
 ];
 const paths=[...new Set(imageMatches.map(m=>m[1].split('?')[0]).filter(x=>x.startsWith('/')||(!x.startsWith('http')&&!x.startsWith('data:'))))];
 let failures=0;
+if(paths.length<10){console.error('Asset discovery failed: expected at least 10 landing image sources, found',paths.length);process.exitCode=1;failures++;}
 function checkHeader(path,bytes){
   if(path.endsWith('.png'))return bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]));
   if(path.endsWith('.webp'))return bytes.toString('ascii',0,4)==='RIFF'&&bytes.toString('ascii',8,12)==='WEBP';
