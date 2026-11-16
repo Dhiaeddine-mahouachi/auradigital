@@ -20,10 +20,10 @@ const card = (p,note="",label="Choose Package") => '<article class="aura-price-c
 const grid = (items,extra="") => '<div class="aura-price-card-grid">'+items.map(p=>card(p,extra)).join("")+'</div>';
 const services = [
   ["Web Design & Development","launch","/websites","Business websites, landing pages and web applications."],
-  ["Google & Meta Ads","basic-ads","#advertising","Campaign setup, conversion tracking and management."],
+  ["Google & Meta Ads","basic-ads","/contact?service=pricing&plan=basic-ads","Campaign setup, conversion tracking and management."],
   ["Website Care","essential-care","/packages","Website maintenance, uptime checks and defined monthly updates."],
-  ["Hosting & Security","standard-infra","#infrastructure","Domain, DNS, SSL, hosting and baseline protection."],
-  ["Business Email","business-email","#infrastructure","Business mailbox setup; provider subscriptions are separate."],
+  ["Hosting & Security","standard-infra","/contact?service=pricing&plan=standard-infra","Domain, DNS, SSL, hosting and baseline protection."],
+  ["Business Email","business-email","/contact?service=pricing&plan=business-email","Business mailbox setup; provider subscriptions are separate."],
   ["ERP & systems","spinflow-start","/spinflow","Cloud SaaS and scoped custom ERP for business operations."],
   ["SEO & Google Maps",null,"/contact?service=SEO","Local visibility and on-page SEO."],
   ["AI & Automation",null,"/contact?service=AI%20%26%20Automation","Lead routing and workflow automation."],
@@ -34,17 +34,34 @@ const services = [
 const home = [
   ["Websites & Development","/websites"],
   ["Website Management","/packages"],
-  ["Hosting & Security","/services#infrastructure"],
-  ["Advertising & Growth","/services#advertising"],
+  ["Hosting & Security","/contact?service=pricing&plan=standard-infra"],
+  ["Advertising & Growth","/contact?service=pricing&plan=basic-ads"],
   ["Business Systems & ERP","/spinflow"],
   ["Dashboards & Automation","/websites#web-addons"],
 ];
-const serviceCard = ([name,id,url,description]) => {
+const serviceIconPaths = {
+  "web": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 9h18M7 6.5h.01M10 6.5h.01\"/>",
+  "ads": "<path d=\"m4 10 15-5v14L4 14v-4Z\"/><path d=\"m7 15 2 6h4l-3-5\"/>",
+  "care": "<path d=\"M12 3 4.5 6v5.5c0 5 3 8 7.5 9.5 4.5-1.5 7.5-4.5 7.5-9.5V6L12 3Z\"/><path d=\"m9 12 2 2 4-4\"/>",
+  "hosting": "<rect x=\"4\" y=\"3\" width=\"16\" height=\"8\" rx=\"2\"/><rect x=\"4\" y=\"13\" width=\"16\" height=\"8\" rx=\"2\"/><path d=\"M8 7h.01M8 17h.01M12 7h5M12 17h5\"/>",
+  "email": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"m3 7 9 6 9-6\"/>",
+  "erp": "<rect x=\"3\" y=\"3\" width=\"8\" height=\"8\" rx=\"1\"/><rect x=\"13\" y=\"3\" width=\"8\" height=\"8\" rx=\"1\"/><rect x=\"3\" y=\"13\" width=\"8\" height=\"8\" rx=\"1\"/><rect x=\"13\" y=\"13\" width=\"8\" height=\"8\" rx=\"1\"/>",
+  "seo": "<circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-4-4M8 12l2-2 2 1 3-3\"/>",
+  "ai": "<rect x=\"5\" y=\"7\" width=\"14\" height=\"13\" rx=\"3\"/><path d=\"M12 3v4M9 3h6M9 13h.01M15 13h.01M9 17h6\"/>",
+  "brand": "<path d=\"m12 2 2.7 7.3L22 12l-7.3 2.7L12 22l-2.7-7.3L2 12l7.3-2.7L12 2Z\"/>",
+  "nfc": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M8 10v4m3-5a5 5 0 0 1 0 6m3-8a8 8 0 0 1 0 10\"/>",
+  "weddings": "<path d=\"M20.8 4.6a5.3 5.3 0 0 0-7.5 0L12 5.9l-1.3-1.3a5.3 5.3 0 0 0-7.5 7.5L12 21l8.8-8.9a5.3 5.3 0 0 0 0-7.5Z\"/>"
+};
+const serviceIcon = key => '<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">'+(serviceIconPaths[key]||serviceIconPaths.web)+'</svg>';
+const serviceCard = ([name,id,url,description],index) => {
   const item=id?getItem(id):null;
-  return '<article class="service-card"><div><h3>'+escape(name)+'</h3><p>'+escape(description)+'</p>'+
-  '<p class="aura-price-service">'+(item?price(item):'Request Quote')+'</p>'+
+  const icon=serviceIcon(["web","ads","care","hosting","email","erp","seo","ai","brand","nfc","weddings"][index]||"web");
+  return '<article class="service-card reveal in"><div class="service-card-content">'+
+  '<div class="service-icon">'+icon+'</div><h3>'+escape(name)+'</h3>'+
+  '<p class="service-description">'+escape(description)+'</p>'+
+  '<div class="service-card-bottom"><p class="aura-price-service">'+(item?price(item):'Request Quote')+'</p>'+
   (id==="spinflow-start"?'<p class="aura-price-footnote">Custom ERP: '+price(getItem("erp-essential"))+'</p>':'')+
-  '<a class="service-link" href="'+escape(url)+'">Explore ↗</a></div></article>';
+  '<a class="service-link" href="'+escape(url)+'">Explore <span aria-hidden="true">↗</span></a></div></div></article>';
 };
 const infraRows = catalogue.infrastructure.map(p=>'<article><div><strong>'+escape(p.name)+'</strong>'+
     '<small>'+escape((p.features||[]).join(" · "))+'</small></div><div><b>'+price(p)+'</b>'+
