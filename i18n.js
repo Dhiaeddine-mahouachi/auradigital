@@ -1414,6 +1414,7 @@
     ["NFC kartlarını ara…", "Search NFC cards…", "ابحث عن بطاقات NFC…"],
     ["Alışveriş sepetini aç", "Open shopping cart", "افتح سلة التسوق"]
   );
+  rows.push(...[["Bir sonraki adımı birlikte atalım.","Let's build what's next.","لنبدأ الخطوة التالية معًا."],["İşletmeniz, öncelikleriniz ve net bir plan.","Your business, your priorities, one clear plan.","نشاطك وأولوياتك في خطة واضحة."],["İşletmenize","Made for","مصمّم"],["tam","your kind","خصيصًا"],["uygun.","of business.","لنشاطك."],["Fikirden uygulamaya.","From idea to action.","من الفكرة إلى التنفيذ."],["Tek bir süreçte.","All in one flow.","كل ذلك في مسار واحد."],["Siz isteyin.","You ask.","أنت تطلب."],["Biz hayata geçirelim.","We make it happen.","ونحن ننفّذ."],["Gerçek deneyimi keşfedin:","See the real","ألقِ نظرة على"],["Öncesi ve","Before &","قبل"],["sonrası.","after.","وبعد."],["Bir sonraki adımınızı","Make your next","اجعل خطوتك التالية"],["değerli kılın.","move count.","ذات أثر."],["Restoranınızı birlikte büyütelim.","Let's grow your restaurant.","لننمِّ مطعمك معًا."],["Auri ile konuşun.","Talk to Auri.","تحدّث مع Auri."],["Yol haritanızı oluşturun.","Get your roadmap.","احصل على خريطة طريقك."],["Hayata geçirin ve takip edin.","Build and track.","نفّذ وتابع تقدّمك."],["Web sitenizi yayına alın","Launch your website","أطلق موقعك الإلكتروني"],["İşletmeniz için profesyonel bir web sitesi.","A professional home for your business.","حضور رقمي احترافي لنشاطك."],["AuraMenu’yu kurun","Set up AuraMenu","أعِدّ AuraMenu"],["Web sitesi oluşturun","Create a website","أنشئ موقعًا إلكترونيًا"],["WhatsApp’ı bağlayın","Connect WhatsApp","اربط WhatsApp"],["Önerilen ilk adım","Suggested first","الخطوة الأولى المقترحة"],["Sonraki","Next","التالي"],["Daha sonra","Later","لاحقًا"],["TEK İŞLETME. BİRBİRİNE BAĞLI YEDİ HİZMET.","ONE BUSINESS. SEVEN CONNECTED SERVICES.","نشاط واحد وسبع خدمات مترابطة."],["Sizin","Yours","لك"],["Kullanacağınız ürünün gerçek ekranları. Yol haritasını, hizmet takibini, talepleri ve Auri’yi keşfedin.","Real screens from the product you will use. Explore the roadmap, service tracking, requests and Auri.","شاشات حقيقية من المنتج الذي ستستخدمه. استكشف خريطة الطريق وتتبع الخدمات والطلبات وAuri."],["Bir sonraki adımınızı keşfedin","Discover your next move","اكتشف خطوتك التالية"],["Talep ettiğiniz işi takip edin","Track the work you requested","تابع الأعمال التي طلبتها"],["İlgi bekleyen işleri görün","Know what needs your attention","اعرف ما يحتاج إلى اهتمامك"],["Auri çalışma alanınızın bir parçası","Auri is part of your workspace","Auri جزء من مساحة عملك"],["AuraHub’ı aç ↗","Open AuraHub ↗","افتح AuraHub ↗"],["Kendi yol haritamı oluştur","Build my actual roadmap","أنشئ خريطة الطريق الخاصة بي"],["Önemli olanı hayata geçirin.","Build what matters.","نفّذ ما يهم نشاطك."],["Büyümeye devam edin.","Keep growing.","وواصل النمو."],["Hizmetlerimiz","Our services","خدماتنا"],["Tek stüdyo, tüm bağlantılar.","One studio. Every connection.","استوديو واحد يربط كل شيء."],["Tek dijital iş ortağı","One digital partner","شريك رقمي واحد"],["Portföy","Portfolio","أعمالنا"],["Çalışmalarımız","Our work","أعمالنا"],["İşletme merkezi","Business Hub","مركز الأعمال"],["EKRANLARIN ARKASINDAKİ HİKÂYELER","THE STORIES BEHIND THE SCREENS","القصص وراء الشاشات"],["Web Tasarımı ve Geliştirme","Web Design & Development","تصميم وتطوير المواقع"],["Barındırma ve Güvenlik","Hosting & Security","الاستضافة والأمان"],["Kurumsal E-posta","Business Email","البريد الإلكتروني للأعمال"],["Yapay Zekâ ve Otomasyon","AI & Automation","الذكاء الاصطناعي والأتمتة"],["Keşfet","Explore","استكشف"],["Web Sitesi Bakımı","Website Care","صيانة الموقع"],["Aylık web sitesi desteği","Monthly website support","دعم شهري للموقع"],["SEO ve Google Haritalar","SEO & Google Maps","تحسين محركات البحث وخرائط Google"],["Dijital Büyüme Stüdyosu · İstanbul","Digital Growth Studio · Istanbul","استوديو النمو الرقمي · إسطنبول"],["Strateji · Yaratıcılık · Teknoloji · Büyüme","Strategy · Creative · Technology · Growth","الاستراتيجية · الإبداع · التقنية · النمو"],["Mağazaya geç","Skip to shop","انتقل إلى المتجر"],["Mağaza yükleniyor…","Loading your next connection…","جارٍ تحميل المتجر…"],["NFC Kartvizitler","NFC Business Cards","بطاقات أعمال بتقنية NFC"]]);
   const supported = ["tr", "en", "ar"];
   const maps = Object.fromEntries(supported.map(lang => [lang, new Map()]));
   const normalize = text => text.trim().replace(/\s+/gu, " ");
@@ -1432,9 +1433,10 @@
   const attrOriginals = new WeakMap();
   const online = { tr: new Map(), ar: new Map() };
   const pending = { tr: new Set(), ar: new Set() };
-  const omitted = "script,style,template,noscript,code,[translate=no],[contenteditable],textarea,[data-w-copy],.lang-menu,.lang-current-label";
-  const attrs = ["placeholder", "aria-label", "aria-description", "alt", "title"];
+  const omitted = "script,style,template,noscript,code,[translate=no],[contenteditable],[data-w-copy],.lang-menu,.lang-current-label";
+  const attrs = ["placeholder", "aria-label", "aria-description", "aria-valuetext", "alt", "title"];
   let sourceManifest;
+  const prepared = new Map();
   let phrases = new Set();
   let queued = false;
   let active = "en";
@@ -1471,7 +1473,7 @@
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     let node;
     while ((node = walker.nextNode())) {
-      if (!node.nodeValue.trim() || node.parentElement?.closest(omitted)) continue;
+      if (!node.nodeValue.trim() || node.parentElement?.closest(omitted + ",textarea")) continue;
       const rec = translateRecord(originals.get(node), node.nodeValue);
       const source = rec.source;
       const translated = mapped(source.trim(), active);
@@ -1531,13 +1533,22 @@
         if (!response.ok) throw new Error("Missing public translation sources");
         return response.json();
       }).then(entries => new Set(entries)).catch(error => { sourceManifest = undefined; throw error; });
-      const allowed = await sourceManifest;
+      if (!prepared.has(lang)) {
+        prepared.set(lang, fetch("/site-translation-" + lang + ".json?v=1")
+          .then(response => response.ok ? response.json() : {})
+          .then(entries => {
+            for (const [key, value] of Object.entries(entries)) online[lang].set(key, value);
+            if (active === lang) schedulePage();
+          })
+          .catch(() => prepared.delete(lang)));
+      }
+      const [allowed] = await Promise.all([sourceManifest, prepared.get(lang)]);
       if (active !== lang) return;
       const waiting = pending[lang];
       const keys = wanted.filter(key => allowed.has(key) && !online[lang].has(key) && !waiting.has(key));
       keys.forEach(key => waiting.add(key));
-      for (let index = 0; index < keys.length; index += 24) {
-        const batch = keys.slice(index, index + 24);
+      for (let index = 0; index < keys.length; index += 12) {
+        const batch = keys.slice(index, index + 12);
         try {
           const response = await fetch("/api/site-translation", {
             method: "POST",
@@ -1569,13 +1580,13 @@
       const href = link.getAttribute("href");
       if (!href || href.startsWith("#")) return;
       try {
-        const url = new URL(href, location.href);
+        const url = new URL(link.href);
         if (url.origin !== location.origin || !/^https?:$/u.test(url.protocol) ||
             /^\/(?:api|media|assets)\//u.test(url.pathname) || /\.(?!html?$)[a-z0-9]{2,5}$/iu.test(url.pathname)) return;
         if (active === "en") url.searchParams.delete("lang");
         else if (url.searchParams.get("lang") !== active) url.searchParams.set("lang", active);
         else return;
-        const current = new URL(href, location.href);
+        const current = new URL(link.href);
         if (current.href !== url.href) link.setAttribute("href", url.pathname + url.search + url.hash);
       } catch {
         // Ignore invalid and non-navigation hrefs.

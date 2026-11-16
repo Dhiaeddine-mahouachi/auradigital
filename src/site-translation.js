@@ -4,7 +4,6 @@ import { json, readJson } from './http.js';
 const allowed = new Set(publicCopy);
 const target = { tr: 'turkish', ar: 'arabic' };
 const model = '@cf/meta/m2m100-1.2b';
-const inFlight = new Map();
 
 async function cachedTranslation(text, lang, origin, env, ctx) {
   const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
@@ -14,25 +13,21 @@ async function cachedTranslation(text, lang, origin, env, ctx) {
   const cached = await cache?.match(cacheKey);
   if (cached) return cached.text();
 
-  const id = lang + ':' + key;
-  if (!inFlight.has(id)) {
-    const job = (async () => {
-      const result = await env.AI.run(model, {
-        text,
-        source_lang: /[ğışİĞŞ]/u.test(text) ? 'turkish' : 'english',
-        target_lang: target[lang],
-      });
-      const value = result?.translated_text?.trim();
-      if (!value || value.length > text.length * 5 + 50) return null;
-      if (value === text) return null;
-      if (cache) ctx.waitUntil(cache.put(cacheKey, new Response(value, {
-        headers: { 'Cache-Control': 'public, max-age=2592000' },
-      })).catch(() => {}));
-      return value;
-    })().catch(() => null).finally(() => inFlight.delete(id));
-    inFlight.set(id, job);
+  try {
+    const result = await env.AI.run(model, {
+      text,
+      source_lang: /[ğışİĞŞ]/u.test(text) ? 'turkish' : 'english',
+      target_lang: target[lang],
+    });
+    const value = result?.translated_text?.trim();
+    if (!value || value === text || value.length > text.length * 5 + 50) return null;
+    if (cache) ctx.waitUntil(cache.put(cacheKey, new Response(value, {
+      headers: { 'Cache-Control': 'public, max-age=2592000' },
+    })).catch(() => {}));
+    return value;
+  } catch {
+    return null;
   }
-  return inFlight.get(id);
 }
 
 export async function translateSiteCopy(request, env, ctx) {
@@ -42,7 +37,7 @@ export async function translateSiteCopy(request, env, ctx) {
     return json({ error: 'Invalid origin.' }, 403);
   }
   const { lang, phrases } = await readJson(request, 14000);
-  if (!Object.hasOwn(target, lang) || !Array.isArray(phrases) || !phrases.length || phrases.length > 36 ||
+  if (!Object.hasOwn(target, lang) || !Array.isArray(phrases) || !phrases.length || phrases.length > 12 ||
       phrases.some(phrase => typeof phrase !== 'string' || !allowed.has(phrase))) {
     return json({ error: 'Only published AuraDigital copy can be translated.' }, 400);
   }
