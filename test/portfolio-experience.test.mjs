@@ -50,3 +50,17 @@ test('portfolio layout works on mobile and respects reduced motion',()=>{
  assert.match(js,/IntersectionObserver/);
  assert.match(js,/pf-media-unavailable/);
 });
+
+
+test('Emerald Gloss palette preserves the real stories and supports reduced motion',()=>{
+ const gloss=source('portfolio-emerald-gloss.css');
+ assert.match(html,/portfolio-emerald-gloss\\.css\\?v=20261116-1/);
+ assert.match(gloss,/\\.pf-intro\\{/);
+ assert.match(gloss,/\\.pf-moment\\{/);
+ assert.match(gloss,/\\.pf-outro\\{/);
+ assert.match(gloss,/#dfff4d/i);
+ assert.match(gloss,/@media\\(prefers-reduced-motion:reduce\\)/);
+ assert.doesNotMatch(gloss,/#eef0e7|#e9ede3|background:#dfff4d;color:#182214/i);
+ assert.equal((html.match(/class="pf-story pf-story--/g)||[]).length,2);
+ assert.equal((html.match(/src="\\/media\\/landing\\/hub-/g)||[]).length,3);
+});
