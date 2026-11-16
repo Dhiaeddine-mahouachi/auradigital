@@ -206,3 +206,11 @@ details{border-color:var(--line)}
  .growth-milestone{grid-template-columns:35px minmax(0,1fr);gap:6px}
  .growth-stage-track{margin-inline-start:17px}
 }
+
+
+/* Accessible, opt-in voice dictation in the existing Roadmap AURI input. */
+.growth-auri .growth-voice{display:inline-grid;place-items:center;flex:none;min-width:42px;min-height:42px;background:#252525;border:1px solid #555;border-radius:10px;color:#eee;font-size:1rem}
+.growth-auri .growth-voice[hidden]{display:none}
+.growth-auri .growth-voice:hover,.growth-auri .growth-voice.listening{background:#353515;border-color:#e1e100;color:#e1e100}
+.growth-auri form{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.growth-auri form input{flex:1;min-width:130px}
