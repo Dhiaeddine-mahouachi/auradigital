@@ -48,6 +48,40 @@
     });
   }
 
+  // Recover first-party media on network/cache errors; don't leave broken icons.
+  function recoverImage(img) {
+    if (img.dataset.auraImageState === 'unavailable') return;
+    const fallback = img.dataset.fallbackSrc;
+    if (fallback && img.dataset.auraImageState !== 'fallback') {
+      img.dataset.auraImageState = 'fallback';
+      img.loading = 'eager';
+      img.src = fallback;
+      return;
+    }
+    img.dataset.auraImageState = 'unavailable';
+    const slot = img.closest('.hx-real-image, .hx-showcase-image');
+    if (!slot) { img.hidden = true; return; }
+    slot.classList.add('hx-image-unavailable');
+    if (!slot.querySelector('.hx-image-unavailable-message')) {
+      const message = document.createElement('span');
+      message.className = 'hx-image-unavailable-message';
+      message.textContent = 'Preview temporarily unavailable';
+      message.setAttribute('role', 'status');
+      slot.appendChild(message);
+    }
+    img.hidden = true;
+  }
+  document.querySelectorAll('body[data-page="home"] img').forEach(img => {
+    img.addEventListener('error', () => recoverImage(img));
+    if (img.complete && img.naturalWidth === 0) recoverImage(img);
+  });
+  function loadActivePanelImage(panel) {
+    const image = panel?.querySelector('img');
+    if (!image) return;
+    image.loading = 'eager';
+    if (image.complete && image.naturalWidth === 0) recoverImage(image);
+  }
+
   const featureButtons = Array.from(document.querySelectorAll('[data-hub-feature]'));
   const featurePanels = Array.from(document.querySelectorAll('[data-hub-panel]'));
   const crumb = document.querySelector('[data-hub-breadcrumb]');
@@ -60,9 +94,10 @@
       button.tabIndex = active ? 0 : -1;
       if (active && focus) button.focus();
     });
-    featurePanels.forEach(panel => { panel.hidden = panel.dataset.hubPanel !== key; });
+    featurePanels.forEach(panel => { const active=panel.dataset.hubPanel === key; panel.hidden = !active; if (active) loadActivePanelImage(panel); });
     if (crumb) crumb.textContent = names[key];
   }
+  loadActivePanelImage(featurePanels.find(panel => !panel.hidden));
   featureButtons.forEach((button,index) => {
     button.addEventListener('click',()=>selectFeature(button.dataset.hubFeature));
     button.addEventListener('keydown', event => {
