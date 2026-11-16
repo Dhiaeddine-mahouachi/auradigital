@@ -31,6 +31,13 @@ jobs:
       - run: npm run deploy:check
       - name: Install Chromium for customer browser checks
         run: npx playwright install --with-deps chromium
+      - name: Test luminous public design on eight pages at desktop and mobile widths
+        run: |
+          python3 -m http.server 4194 --bind 127.0.0.1 > /tmp/aura-luminous-preview.log 2>&1 &
+          light_server_pid=$!
+          trap 'kill "$light_server_pid" 2>/dev/null || true' EXIT
+          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4194/index.html > /dev/null
+          PUBLIC_PALETTE_ORIGIN=http://127.0.0.1:4194 node scripts/test-public-luminous-browser.mjs
       - name: Audit live desktop and mobile landing imagery (diagnostic)
         continue-on-error: true
         run: LANDING_ORIGIN=https://auradigitalworks.com node scripts/test-landing-images-browser.mjs
@@ -74,6 +81,14 @@ jobs:
         with:
           name: private-menu-draft-screenshots
           path: test-output/menu-drafts-*.png
+          if-no-files-found: ignore
+
+      - name: Preserve luminous public design screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aura-luminous-public-screenshots
+          path: test-output/luminous-*.png
           if-no-files-found: ignore
 
       - name: Preserve Before and After screenshots
