@@ -106,3 +106,111 @@
 .growth-topbar .avatar{background:#34735c;color:#fff}
 .growth-branch h3 small{color:#daf0e6}
 @media(max-width:390px){.growth-topbar .secondary.menu-button{padding-inline:5px}.growth-greeting strong{font-size:.84rem}}
+
+
+/* Aura OS — Command Center dark design system. Scoped to the existing Hub.
+   Retains all onboarding, roadmap, account and service behaviors. */
+:root {
+  color-scheme: dark;
+  --green:#e1e100;
+  --deep:#111108;
+  --lime:#e1e100;
+  --bg:#080808;
+  --ink:#f5f5f5;
+  --muted:#b4b4b4;
+  --line:#353535;
+  --white:#171717;
+  background:var(--bg);
+}
+body{background:var(--bg);color:var(--ink)}
+a{color:var(--lime)}
+:focus-visible{outline:3px solid var(--lime);outline-offset:3px}
+.wordmark{color:var(--ink)}
+.wordmark span{color:var(--lime);font-weight:650}
+.primary,.lime{background:var(--lime);border-color:var(--lime);color:#101010}
+.primary:hover,.lime:hover{background:#f2f275;border-color:#f2f275;color:#101010}
+.secondary{background:#232323;border-color:#505050;color:var(--ink)}
+.secondary:hover{background:#333333;color:#fff}
+.panel,.auth-panel,.profile-panel{background:#171717;border-color:var(--line);box-shadow:none;color:var(--ink)}
+.mode-card{background:#171717;border-color:#444;color:#f5f5f5}
+.mode-card.dark{background:linear-gradient(140deg,#22220d,#111111);border-color:#747429}
+.mode-card p,.mode-card.dark p{color:#b9b9b9}
+.mode-card:hover{box-shadow:0 8px 32px #0008;border-color:#999932}
+.field input,.field select,.field textarea,.language select,.workspace-picker select{
+  background:#212121;border-color:#505050;color:#f5f5f5
+}
+.field input::placeholder,.field textarea::placeholder{color:#a3a3a3}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--lime)}
+fieldset{border-color:var(--line)}
+.check input{accent-color:var(--lime)}
+.gate-header,.topbar{background:#101010;border-color:var(--line)}
+.sidebar{background:#101010;border-color:var(--line)}
+.sidebar-caption,.nav-group>p{color:#b2b2b2}
+.nav-item{color:#c7c7c7}
+.nav-item:hover{background:#252525;color:#fff}
+.nav-item.active{background:#2b2b0f;color:var(--lime)}
+.nav-item.active:after{background:var(--lime)}
+.sidebar-bottom{border-color:var(--line)}
+.avatar,.level-number{background:#303013;color:var(--lime)}
+.breadcrumb,.breadcrumb span{color:#aaa}
+.overview-hero{
+ background:radial-gradient(ellipse at 98% 2%,#414115 0,transparent 48%),linear-gradient(115deg,#121212,#1d1d16);
+ border-color:#41412b;color:#fff
+}
+.overview-hero .eyebrow,.overview-hero h2 span{color:#e1e100}
+.overview-hero p{color:#c4c4c4}
+.hero-robot{background:radial-gradient(ellipse,#e1e10020,transparent 70%)}
+.hero-robot>span{color:var(--lime)}
+.metric strong,.price{color:var(--ink)}
+.metric progress{accent-color:var(--lime)}
+.chips>span,.pill{background:#2e2e17;color:#eded9a}
+.chips.muted>span{background:#2b2b2b;color:#ccc}
+.simulator-tease{background:#1a1a13}
+.verification,.warning{background:#302d1b;border-color:#666033;color:#f1e8b2}
+.verification p{color:#f1e8b2}
+.level-number{color:#e1e100}
+.team-intro .price{color:var(--lime)}
+#notice{background:#2b2b0e;color:#fff;border:1px solid #929238}
+.growth-card,.growth-node,.growth-root,.growth-branch,.growth-timeline section{
+  color:var(--ink);border-color:var(--line)
+}
+.growth-node[aria-pressed="true"]{border-color:var(--lime)}
+.growth-dot{border-color:var(--lime)}
+table th,table td{border-color:var(--line)}
+thead th,tbody th{color:#b4b4b4}
+details{border-color:var(--line)}
+:where(button,a){transition:background-color .16s ease,border-color .16s ease,color .16s ease}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+
+/* Numbered roadmap progress: compact and readable on all viewports. */
+.growth-numbered{display:grid;gap:16px}
+.growth-timeline-stage{background:#191919;border:1px solid #353535;border-radius:16px;padding:20px;min-width:0}
+.growth-stage-heading{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.growth-stage-heading h3{margin:0;color:#f5f5f5;font-size:1rem}
+.growth-stage-heading small{display:block;margin-top:4px;color:#b4b4b4}
+.growth-stage-number{display:grid;place-items:center;flex:none;min-width:44px;height:44px;padding:0 8px;border:1px solid #64642a;background:#29290d;color:#e1e100;border-radius:12px;font-size:1.05rem;font-weight:700}
+.growth-stage-percent{margin-inline-start:auto;color:#e1e100;font-variant-numeric:tabular-nums;font-weight:650}
+.growth-stage-track{display:grid;gap:11px;padding-inline-start:10px;border-inline-start:2px solid #43431f;margin-inline-start:21px}
+.growth-milestone{display:grid;grid-template-columns:42px minmax(0,1fr);gap:10px;align-items:center;min-width:0}
+.growth-milestone-index{font-size:.74rem;color:#e1e100;font-weight:700;font-variant-numeric:tabular-nums}
+.growth-milestone .growth-node{width:100%;min-width:0;text-align:start}
+.growth-milestone time,.growth-milestone-blocked{grid-column:2;font-size:.72rem;color:#aaa}
+.growth-milestone[data-milestone-status="done"] .growth-milestone-index{color:#b6cd79}
+@media(max-width:640px){
+ .growth-timeline-stage{padding:15px}
+ .growth-stage-heading{gap:10px}
+ .growth-stage-number{min-width:36px;height:36px}
+ .growth-milestone{grid-template-columns:35px minmax(0,1fr);gap:6px}
+ .growth-stage-track{margin-inline-start:17px}
+}
+
+
+/* Accessible, opt-in voice dictation in the existing Roadmap AURI input. */
+.growth-auri .growth-voice{display:inline-grid;place-items:center;flex:none;min-width:42px;min-height:42px;background:#252525;border:1px solid #555;border-radius:10px;color:#eee;font-size:1rem}
+.growth-auri .growth-voice[hidden]{display:none}
+.growth-auri .growth-voice:hover,.growth-auri .growth-voice.listening{background:#353515;border-color:#e1e100;color:#e1e100}
+.growth-auri form{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.growth-auri form input{flex:1;min-width:130px}

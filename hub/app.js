@@ -110,14 +110,22 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
     <h3><span aria-hidden="true">${stage.icon}</span>${i + 1}. ${esc3(stageName(stage, i))}<small>${stage.missions.length ? completion(stage.missions) + "%" : "\u2014"}</small></h3>
     <div class="growth-nodes">${stage.missions.map(node).join("") || `<p>${esc3(t2("empty"))}</p>`}</div></section>`).join("")}</div>
  </div>`;
-  const groups = [
-    [l.priority, eligible],
-    [l.upcoming, missions.filter((m) => m.status !== "done" && !eligible.includes(m))],
-    [l.completed, missions.filter((m) => m.status === "done").sort((a, b) => (b.completedAt || "").localeCompare(a.completedAt || ""))]
-  ];
-  const timeline = `<div class="growth-timeline">${groups.map(([label, items]) => `<section><h3>${label}</h3>${items.map((m) => `<div>${node(m)}
-  ${m.completedAt ? `<time datetime="${esc3(m.completedAt)}">${esc3(new Date(m.completedAt).toLocaleDateString(lang2))}</time>` : ""}
-  ${m.dependencies?.length ? `<small>${l.requirements} \xB7 ${esc3(m.dependencies.map(cap2).join(", "))}</small>` : ""}</div>`).join("") || `<p>${esc3(t2("empty"))}</p>`}</section>`).join("")}</div>`;
+  const timeline = `<div class="growth-timeline growth-numbered" role="list" aria-label="${esc3(l.timeline)}">
+  ${stages.map((stage, i) => `<section class="growth-timeline-stage" role="listitem" data-stage="${i + 1}">
+   <header class="growth-stage-heading"><span class="growth-stage-number">${String(i + 1).padStart(2, "0")}</span>
+    <div><h3>${esc3(stageName(stage, i))}</h3><small>${stage.missions.filter((m) => m.status === "done").length} / ${stage.missions.length} \xB7 ${l.completed}</small></div>
+    <span class="growth-stage-percent">${stage.missions.length ? completion(stage.missions) + "%" : "\u2014"}</span>
+   </header>
+   <div class="growth-stage-track">
+    ${stage.missions.map((m, j) => `<div class="growth-milestone" data-milestone-status="${esc3(m.status)}">
+      <span class="growth-milestone-index" aria-hidden="true">${i + 1}.${j + 1}</span>
+      ${node(m)}
+      ${m.completedAt ? `<time datetime="${esc3(m.completedAt)}">${esc3(new Date(m.completedAt).toLocaleDateString(lang2))}</time>` : ""}
+      ${isBlocked(m) ? `<small class="growth-milestone-blocked">${l.requirements} \xB7 ${esc3(missionState(m, missions, profile).requirements.map(cap2).join(", "))}</small>` : ""}
+     </div>`).join("") || `<p>${esc3(t2("empty"))}</p>`}
+   </div>
+  </section>`).join("")}
+ </div>`;
   const metric = (icon, value, label) => `<article class="growth-card growth-metric"><span class="growth-metric-icon" aria-hidden="true">${icon}</span><div><strong>${esc3(value)}</strong><span>${label}</span></div></article>`;
   const detail = selected ? taskDetails(selected) : `<p>${esc3(t2("empty"))}</p>`;
   host.innerHTML = `<section class="growth-metrics" aria-label="${l.progress}">
@@ -131,7 +139,7 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
  ${analysis.missions.some((m) => !missions.some((item) => item.capability === m.id)) && canWrite ? `<button type="button" class="growth-secondary" data-refresh>${l.refresh}</button>` : ""}</section>
  <aside class="growth-side"><section class="growth-card growth-focus" id="growth-focus" tabindex="-1">${detail}</section>
  <section class="growth-card growth-auri"><header>${robot2()}<h2>${l.assistant}</h2></header>
- <div class="growth-answer" role="status"></div>${canAsk ? `<form><input name="question" aria-label="${l.ask}" placeholder="${l.ask}" maxlength="500" required><button class="growth-primary" aria-label="${l.ask}">\u27A4</button></form>` : ""}</section></aside></div>`;
+ <div class="growth-answer" role="status"></div>${canAsk ? `<form><input name="question" aria-label="${l.ask}" placeholder="${l.ask}" maxlength="500" required><button class="growth-voice" type="button" data-voice aria-label="Dictate your question" title="Dictate your question" hidden>\u{1F399}</button><button class="growth-primary" aria-label="${l.ask}">\u27A4</button></form>` : ""}</section></aside></div>`;
   function taskDetails(m) {
     const guide = missionGuide[m.capability];
     const reason = m.reason?.startsWith("This capability has not been reported") ? guide?.[1] : m.reason;
@@ -171,6 +179,50 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
   });
   host.querySelector("[data-status-change]")?.addEventListener("change", (event) => onSave(selected, event.target));
   host.querySelector("[data-ask-task]")?.addEventListener("click", () => ask("", selected.id));
+  const VoiceRecognition = globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition;
+  const voiceButton = host.querySelector("[data-voice]");
+  if (voiceButton && VoiceRecognition && canAsk) {
+    voiceButton.hidden = false;
+    const language = { en: "en-US", tr: "tr-TR", fr: "fr-FR", ar: "ar-SA" }[lang2] || "en-US";
+    let listening = false, recognition = null;
+    voiceButton.addEventListener("click", () => {
+      if (listening) {
+        recognition?.stop();
+        return;
+      }
+      recognition = new VoiceRecognition();
+      recognition.lang = language;
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.onresult = (event) => {
+        const transcript = event.results?.[0]?.[0]?.transcript?.trim();
+        if (!transcript) return;
+        const input = host.querySelector('.growth-auri input[name="question"]');
+        if (input) {
+          input.value = (input.value + " " + transcript).trim().slice(0, 500);
+          input.focus();
+        }
+      };
+      recognition.onerror = (event) => {
+        const response = host.querySelector(".growth-answer");
+        if (response) response.textContent = event.error === "not-allowed" ? "Microphone permission was denied." : "Voice input unavailable. You can type your question.";
+      };
+      recognition.onend = () => {
+        listening = false;
+        voiceButton.setAttribute("aria-pressed", "false");
+        voiceButton.classList.remove("listening");
+      };
+      try {
+        recognition.start();
+        listening = true;
+        voiceButton.setAttribute("aria-pressed", "true");
+        voiceButton.classList.add("listening");
+      } catch {
+        listening = false;
+        voiceButton.setAttribute("aria-pressed", "false");
+      }
+    });
+  }
   host.querySelector(".growth-auri form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.currentTarget, submit = form.querySelector("button");
