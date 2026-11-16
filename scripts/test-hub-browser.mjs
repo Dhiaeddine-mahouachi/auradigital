@@ -26,6 +26,22 @@ try {
  await desktop.locator('[name=goals]').fill('Increase sales');
  await desktop.locator('#profile-form button[type=submit]').click();
  await desktop.locator('.growth-root').waitFor();
+ const companion=desktop.locator('.auri-companion');
+ await companion.locator('summary').click();
+ assert.match(await companion.locator('summary').innerText(),/Level 2/);
+ const avatar=companion.locator('auri-character');
+ await desktop.waitForFunction(()=>document.querySelector('.auri-companion img')?.naturalWidth>0);
+ await desktop.route('**/api/hub/workspaces/*/auri',async route=>{
+  await new Promise(resolve=>setTimeout(resolve,350));
+  await route.continue();
+ },{times:1});
+ await companion.locator('[name=question]').fill('What should I do next?');
+ await companion.locator('form button').click();
+ await desktop.waitForFunction(()=>document.querySelector('.auri-companion auri-character')?.dataset.phase==='thinking');
+ await desktop.waitForFunction(()=>document.querySelector('[data-auri-reply]')?.textContent.length>5);
+ assert.equal(await avatar.getAttribute('level'),'2');
+ await companion.locator('summary').click();
+
  assert.equal(await desktop.locator('[data-stage]').count(),4);
  const website=desktop.locator('[data-node]').filter({hasText:/website/i}).first();
  await website.click();

@@ -1,3 +1,4 @@
+import { auriProgress } from './auri-progression.js';
 import { explainRoadmap } from './hub-auri.js';
 import { eligibleMissions } from './roadmap.js';
 import { handleMenuDrafts } from './menu-drafts.js';
@@ -140,7 +141,8 @@ export async function handleBusinessHub(request,env) {
   const profile=JSON.parse(o.profile_json),analysis=diagnose(profile);
   const missions=currentRecommendations(await getMissions(env.DB,org),analysis);
   const perms=o.owner_id===user.id?['profile:write','roadmap:write','simulation:write','team:manage','workspace:read','auri:use']:(await env.DB.prepare(`SELECT p.permission FROM organization_permissions p JOIN organization_members m ON p.role_id=m.role_id WHERE m.organization_id=? AND m.customer_id=? AND NOT EXISTS(SELECT 1 FROM json_each(m.permissions_json) WHERE value=p.permission)`).bind(org,user.id).all()).results.map(p=>p.permission);
-  return json({organization:{id:o.id,name:o.name,mode:o.mode,version:o.version,owner:o.owner_id===user.id},profile,analysis,missions,permissions:perms,billing});
+  const auri=await auriProgress(env.DB,org,guard,missions.length>0);
+  return json({auri,organization:{id:o.id,name:o.name,mode:o.mode,version:o.version,owner:o.owner_id===user.id},profile,analysis,missions,permissions:perms,billing});
  }
  if(section==='profile'&&request.method==='PUT') {
   const guard=await authorize(env.DB,org,user,'profile:write'),b=await readJson(request,16000),profile=validateProfile(b.profile);

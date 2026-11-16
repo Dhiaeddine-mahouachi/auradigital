@@ -1,3 +1,114 @@
+// src/hub/auri-controller.js
+var channels = /* @__PURE__ */ new Map();
+var subscribers = /* @__PURE__ */ new Set();
+function channel(scope) {
+  if (!channels.has(scope)) channels.set(scope, { active: /* @__PURE__ */ new Map(), outcome: "idle", timer: null });
+  return channels.get(scope);
+}
+function notify(scope) {
+  const state = channel(scope);
+  const phase = [...state.active.values()].at(-1)?.phase || state.outcome;
+  for (const subscriber of subscribers) subscriber(scope, phase);
+}
+function watchAuri(scope, listener) {
+  const subscriber = (key, phase) => {
+    if (key === scope) listener(phase);
+  };
+  subscribers.add(subscriber);
+  notify(scope);
+  return () => subscribers.delete(subscriber);
+}
+function pulseAuri(scope, phase, duration = 1800) {
+  const state = channel(scope);
+  clearTimeout(state.timer);
+  state.outcome = phase;
+  notify(scope);
+  state.timer = setTimeout(() => {
+    state.outcome = "idle";
+    notify(scope);
+    if (!state.active.size) channels.delete(scope);
+  }, duration);
+}
+async function runAuri(scope, phase, operation, success = "success") {
+  const state = channel(scope);
+  const token = /* @__PURE__ */ Symbol();
+  const job = { phase, completed: false };
+  const latest = () => [...state.active.keys()].at(-1) === token;
+  state.active.set(token, job);
+  clearTimeout(state.timer);
+  state.outcome = "idle";
+  const typing = phase === "working" ? setTimeout(() => {
+    if (!job.completed) {
+      job.phase = "typing";
+      notify(scope);
+    }
+  }, 420) : null;
+  notify(scope);
+  try {
+    const result2 = await operation();
+    if (latest()) pulseAuri(scope, success);
+    return result2;
+  } catch (error) {
+    if (latest()) pulseAuri(scope, "error");
+    throw error;
+  } finally {
+    job.completed = true;
+    clearTimeout(typing);
+    state.active.delete(token);
+    notify(scope);
+    if (!state.active.size && state.outcome === "idle") channels.delete(scope);
+  }
+}
+
+// src/hub/auri-companion.js
+var lowBandwidth = () => navigator.connection?.saveData || ["slow-2g", "2g"].includes(navigator.connection?.effectiveType);
+var AuriCharacter = class extends HTMLElement {
+  connectedCallback() {
+    if (this.hasAttribute("poster-only") || lowBandwidth() || !("IntersectionObserver" in window) || !window.WebGL2RenderingContext) return;
+    this.observer = new IntersectionObserver(async ([entry]) => {
+      if (!entry.isIntersecting) return;
+      this.observer.disconnect();
+      try {
+        const { mountAuri } = await import("/media/auri/viewer.js");
+        if (this.isConnected) this.disposeModel = await mountAuri(this);
+      } catch {
+      }
+    }, { rootMargin: "100px" });
+    this.observer.observe(this);
+  }
+  disconnectedCallback() {
+    this.observer?.disconnect();
+    this.disposeModel?.();
+  }
+};
+customElements.define("auri-character", AuriCharacter);
+var auriCharacter = (level = 1, { posterOnly = false } = {}) => {
+  const value = Number.isInteger(level) && level >= 1 && level <= 7 ? level : 1;
+  return `<auri-character class="auri" aria-hidden="true" level="${value}" ${posterOnly ? "poster-only" : ""}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
+};
+function connectAuri(host, scope, labels2) {
+  const status = host.querySelector("[data-auri-status]");
+  const character = host.querySelector("auri-character");
+  if (!character) return () => {
+  };
+  return watchAuri(scope, (phase) => {
+    character.dataset.phase = phase;
+    if (status) status.textContent = labels2[phase] || "";
+    host.querySelector("details")?.toggleAttribute("data-auri-pending", ["thinking", "working", "typing"].includes(phase));
+  });
+}
+
+// src/hub/auri-copy.js
+var states = ["listening", "thinking", "working", "typing", "speaking", "happy", "success", "error", "evolving"];
+var actions = {
+  en: ["Listening", "Preparing a reply\u2026", "Building your roadmap\u2026", "Building your roadmap\u2026", "Reply ready", "Milestone verified", "Roadmap saved", "Auri could not finish the request", "Auri evolved"],
+  tr: ["Dinliyor", "Yan\u0131t haz\u0131rlan\u0131yor\u2026", "Yol haritas\u0131 haz\u0131rlan\u0131yor\u2026", "Yol haritas\u0131 haz\u0131rlan\u0131yor\u2026", "Yan\u0131t haz\u0131r", "Hedef do\u011Fruland\u0131", "Yol haritas\u0131 kaydedildi", "Auri iste\u011Fi tamamlayamad\u0131", "Auri geli\u015Fti"],
+  fr: ["\xC0 l\u2019\xE9coute", "Pr\xE9paration de la r\xE9ponse\u2026", "Cr\xE9ation de votre feuille de route\u2026", "Cr\xE9ation de votre feuille de route\u2026", "R\xE9ponse pr\xEAte", "Objectif v\xE9rifi\xE9", "Feuille de route enregistr\xE9e", "Auri n\u2019a pas pu traiter la demande", "Auri a \xE9volu\xE9"],
+  ar: ["\u064A\u0633\u062A\u0645\u0639", "\u062C\u0627\u0631\u064D \u062A\u062C\u0647\u064A\u0632 \u0627\u0644\u0631\u062F\u2026", "\u062C\u0627\u0631\u064D \u0625\u0639\u062F\u0627\u062F \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642\u2026", "\u062C\u0627\u0631\u064D \u0625\u0639\u062F\u0627\u062F \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642\u2026", "\u0627\u0644\u0631\u062F \u062C\u0627\u0647\u0632", "\u062A\u0645 \u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646 \u0627\u0644\u0625\u0646\u062C\u0627\u0632", "\u062A\u0645 \u062D\u0641\u0638 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u062A\u0639\u0630\u0631 \u0639\u0644\u0649 \u0623\u0648\u0631\u064A \u0625\u0643\u0645\u0627\u0644 \u0627\u0644\u0637\u0644\u0628", "\u062A\u0637\u0648\u0651\u0631 \u0623\u0648\u0631\u064A"]
+};
+var auriLabels = (lang2) => Object.fromEntries(states.map((state, i) => [state, actions[lang2][i]]));
+var auriNames = ["Awakening", "Learning", "Helper", "Builder", "Operator", "Strategist", "Aura Master"];
+
 // src/customer-return.js
 function customerReturnPath(value, fallback) {
   return ["/hub", "/account", "/shop/checkout"].includes(value) || typeof value === "string" && /^\/shop\/orders\/[a-f0-9-]{36}$/.test(value) ? value : fallback;
@@ -417,7 +528,29 @@ var toast = (message) => {
   notice.classList.add("visible");
   setTimeout(() => notice.classList.remove("visible"), 7e3);
 };
-var robot = () => `<svg class="auri" viewBox="0 0 160 170" role="img" aria-label="AURI"><defs><linearGradient id="metal" x2="1" y2="1"><stop stop-color="#fffef9"/><stop offset="1" stop-color="#bfc7bf"/></linearGradient></defs><ellipse cx="80" cy="157" rx="43" ry="6" fill="#003d2b" opacity=".12"/><path d="M47 125Q42 91 80 91T113 125L108 145H52Z" fill="url(#metal)"/><rect x="23" y="29" width="114" height="78" rx="33" fill="url(#metal)"/><rect x="32" y="38" width="96" height="60" rx="26" fill="#0f241c"/><g fill="#e1e100" class="eyes"><rect x="49" y="58" width="18" height="19" rx="8"/><rect x="93" y="58" width="18" height="19" rx="8"/></g><path d="M72 85Q80 90 88 85" fill="none" stroke="#e1e100" stroke-width="2" stroke-linecap="round"/><path d="M80 29V18" stroke="#a7b7ad" stroke-width="5"/><circle cx="80" cy="13" r="5" fill="#e1e100"/><path d="M36 113L25 134M124 113L135 134" stroke="#d4dbd1" stroke-width="15" stroke-linecap="round"/><circle cx="80" cy="124" r="7" fill="#003d2b"/></svg>`;
+var setupScope = "setup";
+var disconnectAuri = () => {
+};
+var auriLevel = () => workspace?.auri?.level || 1;
+var robot = () => auriCharacter(auriLevel(), { posterOnly: true });
+function bindAuri(host, scope) {
+  disconnectAuri();
+  disconnectAuri = connectAuri(host, scope, auriLabels(lang));
+}
+async function finishSetup() {
+  await runAuri(setupScope, "working", persistProfile);
+  editing = false;
+  page = "home";
+  await loadWorkspace();
+  pulseAuri(workspace.organization.id, "success");
+}
+async function generateRoadmap() {
+  const id = workspace.organization.id;
+  await runAuri(id, "working", async () => {
+    await api(endpoint("missions"), "POST", {});
+    await loadWorkspace(id);
+  });
+}
 async function api(path, method = "GET", body) {
   const response = await fetch(path, { method, credentials: "same-origin", headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : void 0 });
   const data = await response.json().catch(() => ({ error: t("error") }));
@@ -447,6 +580,7 @@ function bindCommon() {
   });
 }
 function render() {
+  disconnectAuri();
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   app.setAttribute("aria-busy", "false");
@@ -559,7 +693,7 @@ function renderSetup() {
   }
   const choosing = !editing;
   const setupKeys = workspace ? profileKeys : ["name", "industry", "goals", "budget", "currency", "website", "capabilities"];
-  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div><form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+  app.innerHTML = `<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t("brand")}</p><h1>${choosing ? t("welcome") : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div>${mode === "auri" ? `<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>` : ""}<form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
   bindCommon();
   document.querySelectorAll("[data-mode]").forEach((b) => b.onclick = () => {
     mode = b.dataset.mode;
@@ -569,6 +703,11 @@ function renderSetup() {
   });
   if (choosing) return;
   const form = document.querySelector("#profile-form");
+  const avatar = document.querySelector(".auri-onboarding");
+  if (avatar) {
+    bindAuri(avatar, setupScope);
+    pulseAuri(setupScope, "listening", 950);
+  }
   const collect = () => {
     const data = new FormData(form);
     for (const k of profileKeys) {
@@ -603,10 +742,7 @@ function renderSetup() {
         step++;
         render();
       } else {
-        await persistProfile();
-        editing = false;
-        page = "home";
-        await loadWorkspace();
+        await finishSetup();
       }
     } catch (error) {
       form.querySelector('[role="alert"]').textContent = error.message;
@@ -630,10 +766,7 @@ function renderSetup() {
     try {
       if (workspace && draft.name.trim()) await persistProfile();
       if (delta > 0 && step === setupKeys.length - 1) {
-        await persistProfile();
-        editing = false;
-        page = "home";
-        await loadWorkspace();
+        await finishSetup();
         return;
       }
       step = Math.max(0, step + delta);
@@ -712,7 +845,7 @@ function renderShell() {
  <div class="growth-account-menu">${navItem("profile")}${navItem("settings")}${button("logout", "logout", true)}</div></details></header>
  <main id="main" tabindex="-1">${growth ? `<h1 class="sr-only">${l[page]}</h1>` : `<div class="page-heading"><h1>${esc2(l[page] || t(page))}</h1></div>`}
  ${!me.verified && authCapabilities.email ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}
- <div id="page-content"></div></main></div></div>`;
+ <div id="auri-companion"></div><div id="page-content"></div></main></div></div>`;
   bindCommon();
   document.querySelectorAll("[data-page]").forEach((b) => b.onclick = () => {
     page = b.dataset.page;
@@ -759,6 +892,7 @@ function renderShell() {
     }
   });
   syncSidebar();
+  renderCompanion();
   renderPage().catch((e) => {
     document.querySelector("#page-content").innerHTML = `<section class="panel"><p role="alert">${esc2(e.message)}</p>${button("refresh", "refresh", true)}</section>`;
     document.querySelector('[data-action="refresh"]').onclick = () => loadWorkspace().catch((e2) => toast(e2.message));
@@ -826,7 +960,9 @@ async function renderPage() {
   content(`<section class="panel quiet-panel"><span class="eyebrow">${reports ? "NOT CONNECTED" : service ? "SERVICE CATALOGUE" : "INTEGRATION PENDING"}</span><h2>${t(page)}</h2><p>${t(service ? "serviceNote" : support ? "supportText" : reports ? "reportNote" : "unavailable")}</p><a class="primary" href="${service ? "/services" : "/contact"}">${t(service ? "openServices" : "contact")} \u2197</a></section>`);
 }
 async function askAuri(question, missionId) {
-  const { data } = await api(endpoint("auri"), "POST", missionId ? { tool: "task", missionId } : { tool: "guidance", question, lang });
+  const id = workspace.organization.id;
+  const { data } = await runAuri(id, "thinking", () => api(endpoint("auri"), "POST", missionId ? { tool: "task", missionId } : { tool: "guidance", question, lang }), "speaking");
+  if (workspace?.organization.id !== id) return "";
   if (data.reply) return data.reply;
   if (/customers|visibility|sales|müşteri|clients|عملاء/i.test(question) && data.priorities?.length) return data.priorities.map((m) => cap(m.capability)).join(" \xB7 ");
   const task = data.mission || data.nextAction;
@@ -888,9 +1024,7 @@ function growthDashboard() {
     async onGenerate(event) {
       event.target.disabled = true;
       try {
-        const id = workspace.organization.id;
-        await api(endpoint("missions"), "POST", {});
-        await loadWorkspace(id);
+        await generateRoadmap();
       } catch (error) {
         event.target.disabled = false;
         toast(error.message);
@@ -905,11 +1039,10 @@ function journey() {
   document.querySelector('[data-action="generate"]').onclick = async (e) => {
     e.target.disabled = true;
     try {
-      const id = workspace.organization.id;
-      await api(endpoint("missions"), "POST", {});
-      await loadWorkspace(id);
-    } catch (e2) {
-      toast(e2.message);
+      await generateRoadmap();
+    } catch (error) {
+      e.target.disabled = false;
+      toast(error.message);
     }
   };
   document.querySelectorAll("[data-mission]").forEach((card) => {
@@ -1087,13 +1220,67 @@ async function team() {
   document.querySelector("#activity").innerHTML = a.events.map((e) => `<p>${esc2(e.created_at)} \xB7 ${esc2(e.action)}</p>`).join("") || t("empty");
 }
 var rolesForUI = () => ["viewer", "member", "admin"].map((v) => [v, t(v)]);
+function renderCompanion() {
+  const host = document.querySelector("#auri-companion");
+  const level = auriLevel(), canAsk = workspace.permissions.includes("auri:use");
+  const { ask: label, focus } = roadmapLabels(lang);
+  const next = eligibleMissions(workspace.missions, workspace.profile)[0];
+  const readAloud = { en: "Read aloud", tr: "Sesli oku", fr: "Lire \xE0 voix haute", ar: "\u0642\u0631\u0627\u0621\u0629 \u0628\u0635\u0648\u062A \u0639\u0627\u0644\u064D" }[lang];
+  const send = { en: "Send", tr: "G\xF6nder", fr: "Envoyer", ar: "\u0625\u0631\u0633\u0627\u0644" }[lang];
+  host.innerHTML = `<details class="auri-companion"><summary>
+  ${auriCharacter(level)}<span><strong>Auri</strong><small>${esc2(t("level"))} ${level} \xB7 ${auriNames[level - 1]}</small></span>
+  <span class="auri-status" role="status" data-auri-status></span>
+ </summary><div class="auri-companion-body">
+  ${next ? `<p><strong>${esc2(focus)}</strong> \xB7 ${esc2(cap(next.capability))}</p>` : ""}
+  ${canAsk ? `<form><label><span class="sr-only">${esc2(label)}</span><input name="question" maxlength="500" placeholder="${esc2(label)}" required></label>
+  <button class="primary">${esc2(send)}</button></form><p data-auri-reply role="status"></p>${"speechSynthesis" in window ? `<button type="button" class="secondary" data-auri-voice hidden>${esc2(readAloud)}</button>` : ""}` : ""}
+  <button type="button" class="secondary" data-auri-roadmap>${esc2(t("journey"))}</button>
+ </div></details>`;
+  bindAuri(host, workspace.organization.id);
+  host.querySelector("[data-auri-roadmap]").onclick = () => {
+    page = "journey";
+    render();
+    document.querySelector("#main").focus();
+  };
+  const form = host.querySelector("form");
+  const voice = host.querySelector("[data-auri-voice]");
+  let spokenReply = "";
+  if (voice) voice.onclick = () => {
+    const message = new SpeechSynthesisUtterance(spokenReply);
+    message.lang = lang;
+    const scope = workspace.organization.id;
+    message.onstart = () => pulseAuri(scope, "speaking", 3500);
+    message.onend = () => pulseAuri(scope, "idle");
+    speechSynthesis.cancel();
+    speechSynthesis.speak(message);
+  };
+  if (form) form.onsubmit = async (event) => {
+    event.preventDefault();
+    const submit = form.querySelector("button"), reply = host.querySelector("[data-auri-reply]");
+    const question = new FormData(form).get("question").trim();
+    if (!question) return;
+    submit.disabled = true;
+    if (voice) voice.hidden = true;
+    reply.textContent = "";
+    try {
+      spokenReply = await askAuri(question);
+      reply.textContent = spokenReply;
+      if (voice) voice.hidden = !spokenReply;
+    } catch (error) {
+      reply.textContent = error.message;
+    } finally {
+      submit.disabled = false;
+    }
+  };
+}
 function assistant() {
   content(`<section class="panel assistant-panel">${robot()}<div><span class="eyebrow">AURI</span><h2>${t("aiRules")}</h2><p>${t("aiNotice")}</p><div class="actions">${button("diagnosis", "diagnosis", true)}${button("recommend", "next-action", true)}</div><div id="auri-response" role="status"></div></div></section>`);
   for (const [action, tool] of [["diagnosis", "diagnosis"], ["next-action", "next_action"]]) document.querySelector(`[data-action="${action}"]`).onclick = async (e) => {
     e.target.disabled = true;
     try {
-      const r = await api(endpoint("auri"), "POST", { tool });
-      document.querySelector("#auri-response").innerHTML = tool === "diagnosis" ? `<h3>${t("missing")}</h3><ul>${r.data.missing.map((k) => `<li>${esc2(cap(k))}</li>`).join("")}</ul>` : `<h3>${esc2(r.data.nextAction ? cap(r.data.nextAction.capability) : t("empty"))}</h3><p>${t("why")}</p>`;
+      const output = document.querySelector("#auri-response");
+      const r = await runAuri(workspace.organization.id, "thinking", () => api(endpoint("auri"), "POST", { tool }), "speaking");
+      output.innerHTML = tool === "diagnosis" ? `<h3>${t("missing")}</h3><ul>${r.data.missing.map((k) => `<li>${esc2(cap(k))}</li>`).join("")}</ul>` : `<h3>${esc2(r.data.nextAction ? cap(r.data.nextAction.capability) : t("empty"))}</h3><p>${t("why")}</p>`;
     } catch (e2) {
       toast(e2.message);
     } finally {
@@ -1103,6 +1290,7 @@ function assistant() {
 }
 async function loadWorkspace(id = workspace.organization.id) {
   if (workspaceSwitch && id !== workspaceSwitch) return;
+  const previous = workspace;
   const next = await api("/api/hub/workspaces/" + id);
   if ((workspaceSwitch || workspace.organization.id) !== id) return;
   if (workspace.organization.id !== id) selectedMission = null;
@@ -1110,6 +1298,9 @@ async function loadWorkspace(id = workspace.organization.id) {
   scenarioInputs = null;
   workspace = next;
   render();
+  if (previous.organization.id === id && next.auri?.verifiedMilestones > previous.auri?.verifiedMilestones) {
+    pulseAuri(id, next.auri.level > previous.auri.level ? "evolving" : "happy", 2400);
+  }
 }
 async function load() {
   try {

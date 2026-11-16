@@ -10,3 +10,5 @@ worker-configuration.d.ts
 .DS_Store
 
 test-output/
+
+media/auri/viewer.js

@@ -1,6 +1,9 @@
+import { auriCharacter, connectAuri } from './auri-companion.js';
+import { pulseAuri, runAuri } from './auri-controller.js';
+import { auriLabels, auriNames } from './auri-copy.js';
 import { customerReturnPath } from '../customer-return.js';
 import { renderRoadmap, roadmapLabels } from './roadmap-view.js';
-import { missionGuide, missionState } from '../roadmap.js';
+import { eligibleMissions, missionGuide, missionState } from '../roadmap.js';
 import { renderMenuDrafts } from './menu-drafts.js';
 import { copy, capabilityNames } from './i18n.js';
 import { simulate, capabilities } from '../growth-engine.js';
@@ -20,7 +23,28 @@ function resumeShop(){
 if(flowToken)history.replaceState(null,'',location.pathname+location.search);
 const t=k=>k==='menuDrafts'?({en:'Menu drafts',ar:'مسودات القوائم',tr:'Menü taslakları',fr:'Brouillons de menus'})[lang]:copy[lang][k]||copy.en[k]||k,cap=k=>capabilityNames[lang][k]||capabilities.find(c=>c.id===k)?.service||k;
 const toast=message=>{notice.textContent=message;notice.classList.add('visible');setTimeout(()=>notice.classList.remove('visible'),7000);};
-const robot=()=>`<svg class="auri" viewBox="0 0 160 170" role="img" aria-label="AURI"><defs><linearGradient id="metal" x2="1" y2="1"><stop stop-color="#fffef9"/><stop offset="1" stop-color="#bfc7bf"/></linearGradient></defs><ellipse cx="80" cy="157" rx="43" ry="6" fill="#003d2b" opacity=".12"/><path d="M47 125Q42 91 80 91T113 125L108 145H52Z" fill="url(#metal)"/><rect x="23" y="29" width="114" height="78" rx="33" fill="url(#metal)"/><rect x="32" y="38" width="96" height="60" rx="26" fill="#0f241c"/><g fill="#e1e100" class="eyes"><rect x="49" y="58" width="18" height="19" rx="8"/><rect x="93" y="58" width="18" height="19" rx="8"/></g><path d="M72 85Q80 90 88 85" fill="none" stroke="#e1e100" stroke-width="2" stroke-linecap="round"/><path d="M80 29V18" stroke="#a7b7ad" stroke-width="5"/><circle cx="80" cy="13" r="5" fill="#e1e100"/><path d="M36 113L25 134M124 113L135 134" stroke="#d4dbd1" stroke-width="15" stroke-linecap="round"/><circle cx="80" cy="124" r="7" fill="#003d2b"/></svg>`;
+const setupScope='setup';
+let disconnectAuri=()=>{};
+const auriLevel=()=>workspace?.auri?.level||1;
+const robot=()=>auriCharacter(auriLevel(),{posterOnly:true});
+function bindAuri(host,scope){
+ disconnectAuri();
+ disconnectAuri=connectAuri(host,scope,auriLabels(lang));
+}
+async function finishSetup(){
+ await runAuri(setupScope,'working',persistProfile);
+ editing=false;
+ page='home';
+ await loadWorkspace();
+ pulseAuri(workspace.organization.id,'success');
+}
+async function generateRoadmap(){
+ const id=workspace.organization.id;
+ await runAuri(id,'working',async()=>{
+  await api(endpoint('missions'),'POST',{});
+  await loadWorkspace(id);
+ });
+}
 async function api(path,method='GET',body) {const response=await fetch(path,{method,credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});const data=await response.json().catch(()=>({error:t('error')}));if(!response.ok){const error=new Error(data.error||t('error'));error.status=response.status;throw error;}return data;}
 const endpoint=s=>'/api/hub/workspaces/'+workspace.organization.id+(s?'/'+s:'');
 const button=(label,action,secondary=false,disabled=false)=>`<button type="button" data-action="${action}" class="${secondary?'secondary':'primary'}" ${disabled?'disabled':''}>${esc(t(label))}</button>`;
@@ -28,7 +52,7 @@ function field(key,label,value='',type='text',extra='') {return `<label class="f
 const select=(key,label,options,value)=>`<label class="field">${esc(t(label))}<select name="${key}">${options.map(([v,l])=>`<option value="${esc(v)}" ${v===value?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
 function languageControl(){return `<label class="language"><span class="sr-only">Language</span><select id="language" aria-label="Language">${[['en','EN · English'],['ar','AR · العربية'],['fr','FR · Français'],['tr','TR · Türkçe']].map(([v,l])=>`<option value="${v}" ${lang===v?'selected':''}>${l}</option>`).join('')}</select></label>`;}
 function bindCommon(){document.querySelector('#language')?.addEventListener('change',async e=>{clearTimeout(saveTimer);if(editing&&workspace)await persistProfile();lang=e.target.value;localStorage.setItem('aura-hub-language',lang);render();});}
-function render(){document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';app.setAttribute('aria-busy','false');if(!me||['verify','reset','forgot','invitation'].includes(route)){renderGate();return;}if(!workspace||editing){renderSetup();return;}renderShell();}
+function render(){disconnectAuri();document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';app.setAttribute('aria-busy','false');if(!me||['verify','reset','forgot','invitation'].includes(route)){renderGate();return;}if(!workspace||editing){renderSetup();return;}renderShell();}
 function gateFrame(content){app.innerHTML=`<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main id="main" class="gate">${content}</main>`;bindCommon();}
 async function renderGate(){
  if(route==='invitation'&&me){gateFrame(`<section class="panel">${robot()}<h1>${t('inviteAccept')}</h1><div id="invitation-content" role="status">…</div></section>`);try{const data=await api('/api/hub/invitations/preview','POST',{token:flowToken}),i=data.invitation;document.querySelector('#invitation-content').innerHTML=`<h2>${esc(i.business)}</h2><p>${esc(i.email)} · ${esc(t(i.role))}</p><p>${esc(i.message)}</p><p>${t('permissions')}: ${esc(i.permissions.join(', '))}</p><p>${esc(new Date(i.expiresAt*1000).toLocaleString(lang))}</p><p class="warning">${t('blocked')}</p><form id="accept-invitation"><label class="check"><input type="checkbox" name="consent" required>${t('recurringConsent')}</label><button class="primary">${t('inviteAccept')}</button></form>`;document.querySelector('#accept-invitation').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/hub/invitations/accept','POST',{token:flowToken,acceptInvitation:true,acceptRecurring:true,consentVersion:'seat-5-usd-month-v1'});flowToken='';toast(t('awaiting'));document.querySelector('#invitation-content').textContent=t('blocked');}catch(e){toast(e.message);}};}catch(e){document.querySelector('#invitation-content').textContent=e.message;document.querySelector('#invitation-content').append(Object.assign(document.createElement('a'),{href:'/hub/settings',textContent:t('settings')}));}return;}
@@ -52,16 +76,18 @@ function renderSetup(){
  if(!editing){draft=workspace?structuredClone(workspace.profile):emptyProfile();mode=workspace?.organization.mode||'myself';}
  const choosing=!editing;
  const setupKeys=workspace?profileKeys:['name','industry','goals','budget','currency','website','capabilities'];
- app.innerHTML=`<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t('brand')}</p><h1>${choosing?t('welcome'):esc(draft.name||t('profile'))}</h1><p>${choosing?t('choose'):t(mode==='auri'?'auriText':'myselfText')}</p></div>${choosing?`<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">↗</span><h2>${t('myself')}</h2><p>${t('myselfText')}</p><span>${t('continue')} →</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t('auri')}</h2><p>${t('auriText')}</p><span>${t('continue')} →</span></button></div>`:`<section class="panel profile-panel"><div class="panel-bar"><span>${mode==='auri'?`AURI · ${step+1}/${setupKeys.length}`:t('profile')}</span><span id="save-state" role="status"></span>${button('switchMode','switch-mode',true)}</div><form id="profile-form" class="${mode==='auri'?'guided':'form-grid'}">${(mode==='auri'?[setupKeys[step]]:setupKeys).map(profileField).join('')}<div class="actions full">${mode==='auri'?button('back','back-step',true,step===0)+button('skip','skip-step',true,step===0):''}<button class="primary" type="submit">${t(mode==='auri'&&step<setupKeys.length-1?'continue':'save')}</button>${workspace?button('home','leave-setup',true):''}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+ app.innerHTML=`<header class="gate-header"><a href="/" class="wordmark">aura<span>digital</span></a>${languageControl()}</header><main class="setup" id="main"><div class="setup-heading"><p class="eyebrow">${t('brand')}</p><h1>${choosing?t('welcome'):esc(draft.name||t('profile'))}</h1><p>${choosing?t('choose'):t(mode==='auri'?'auriText':'myselfText')}</p></div>${choosing?`<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">↗</span><h2>${t('myself')}</h2><p>${t('myselfText')}</p><span>${t('continue')} →</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t('auri')}</h2><p>${t('auriText')}</p><span>${t('continue')} →</span></button></div>`:`<section class="panel profile-panel"><div class="panel-bar"><span>${mode==='auri'?`AURI · ${step+1}/${setupKeys.length}`:t('profile')}</span><span id="save-state" role="status"></span>${button('switchMode','switch-mode',true)}</div>${mode==='auri'?`<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>`:''}<form id="profile-form" class="${mode==='auri'?'guided':'form-grid'}">${(mode==='auri'?[setupKeys[step]]:setupKeys).map(profileField).join('')}<div class="actions full">${mode==='auri'?button('back','back-step',true,step===0)+button('skip','skip-step',true,step===0):''}<button class="primary" type="submit">${t(mode==='auri'&&step<setupKeys.length-1?'continue':'save')}</button>${workspace?button('home','leave-setup',true):''}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
  bindCommon();document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;editing=true;step=0;render();});
  if(choosing)return;
  const form=document.querySelector('#profile-form');
+ const avatar=document.querySelector('.auri-onboarding');
+ if(avatar){bindAuri(avatar,setupScope);pulseAuri(setupScope,'listening',950);}
  const collect=()=>{const data=new FormData(form);for(const k of profileKeys){if(k==='capabilities'){if(form.querySelector('[name="capabilities"]'))draft.capabilities=data.getAll(k);}else if(data.has(k))draft[k]=k==='budget'?(data.get(k)===''?null:Number(data.get(k))):data.get(k);}};
  form.addEventListener('input',()=>{collect();if(!workspace)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{persistProfile().catch(e=>toast(e.message));},1000);});
  form.addEventListener('change',e=>{collect();if(e.target.name==='industry'&&mode==='myself'){clearTimeout(saveTimer);(workspace?persistProfile():Promise.resolve()).then(render).catch(e=>toast(e.message));}});
- form.onsubmit=async e=>{e.preventDefault();collect();clearTimeout(saveTimer);const b=form.querySelector('[type="submit"]');b.disabled=true;try{if(mode==='auri'&&step<setupKeys.length-1){step++;render();}else{await persistProfile();editing=false;page='home';await loadWorkspace();}}catch(error){form.querySelector('[role="alert"]').textContent=error.message;b.disabled=false;}};
+ form.onsubmit=async e=>{e.preventDefault();collect();clearTimeout(saveTimer);const b=form.querySelector('[type="submit"]');b.disabled=true;try{if(mode==='auri'&&step<setupKeys.length-1){step++;render();}else{await finishSetup();}}catch(error){form.querySelector('[role="alert"]').textContent=error.message;b.disabled=false;}};
  document.querySelector('[data-action="switch-mode"]').onclick=async()=>{collect();clearTimeout(saveTimer);mode=mode==='auri'?'myself':'auri';try{if(workspace&&draft.name.trim())await persistProfile();render();}catch(e){toast(e.message);}};
- for(const [action,delta]of [['back-step',-1],['skip-step',1]])document.querySelector(`[data-action="${action}"]`)?.addEventListener('click',async()=>{collect();clearTimeout(saveTimer);try{if(workspace&&draft.name.trim())await persistProfile();if(delta>0&&step===setupKeys.length-1){await persistProfile();editing=false;page='home';await loadWorkspace();return;}step=Math.max(0,step+delta);render();}catch(e){toast(e.message);}});
+ for(const [action,delta]of [['back-step',-1],['skip-step',1]])document.querySelector(`[data-action="${action}"]`)?.addEventListener('click',async()=>{collect();clearTimeout(saveTimer);try{if(workspace&&draft.name.trim())await persistProfile();if(delta>0&&step===setupKeys.length-1){await finishSetup();return;}step=Math.max(0,step+delta);render();}catch(e){toast(e.message);}});
  document.querySelector('[data-action="leave-setup"]')?.addEventListener('click',async()=>{collect();clearTimeout(saveTimer);try{await persistProfile();editing=false;await loadWorkspace();}catch(e){toast(e.message);}});
 }
 function persistProfile(){
@@ -102,7 +128,7 @@ function renderShell(){
  <div class="growth-account-menu">${navItem('profile')}${navItem('settings')}${button('logout','logout',true)}</div></details></header>
  <main id="main" tabindex="-1">${growth?`<h1 class="sr-only">${l[page]}</h1>`:`<div class="page-heading"><h1>${esc(l[page]||t(page))}</h1></div>`}
  ${!me.verified&&authCapabilities.email?`<aside class="verification"><p>${t('verifyLater')}</p>${button('sendVerification','send-verification',true)}</aside>`:''}
- <div id="page-content"></div></main></div></div>`;
+ <div id="auri-companion"></div><div id="page-content"></div></main></div></div>`;
  bindCommon();document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{page=b.dataset.page;document.body.classList.remove('menu-open');render();document.querySelector('#main').focus();});
  document.querySelector('#toggle-menu').onclick=e=>{const open=document.body.classList.toggle('menu-open');e.target.setAttribute('aria-expanded',String(open));syncSidebar();};
  document.querySelector('#workspace-select').onchange=async e=>{
@@ -116,6 +142,7 @@ function renderShell(){
  document.querySelector('[data-action="logout"]').onclick=async()=>{try{await api('/api/customer/logout','POST',{});location.assign('/hub/login');}catch(e){toast(e.message);}};
  document.querySelector('[data-action="send-verification"]')?.addEventListener('click',async e=>{e.target.disabled=true;try{await api('/api/customer/send-verification','POST',{});toast(t('saved'));}catch(e){toast(e.message);}finally{e.target.disabled=false;}});
  syncSidebar();
+ renderCompanion();
  renderPage().catch(e=>{document.querySelector('#page-content').innerHTML=`<section class="panel"><p role="alert">${esc(e.message)}</p>${button('refresh','refresh',true)}</section>`;document.querySelector('[data-action="refresh"]').onclick=()=>loadWorkspace().catch(e=>toast(e.message));});
 }
 const content=html=>{document.querySelector('#page-content').innerHTML=html;};
@@ -139,7 +166,9 @@ async function renderPage(){
  content(`<section class="panel quiet-panel"><span class="eyebrow">${reports?'NOT CONNECTED':service?'SERVICE CATALOGUE':'INTEGRATION PENDING'}</span><h2>${t(page)}</h2><p>${t(service?'serviceNote':support?'supportText':reports?'reportNote':'unavailable')}</p><a class="primary" href="${service?'/services':'/contact'}">${t(service?'openServices':'contact')} ↗</a></section>`);
 }
 async function askAuri(question,missionId) {
- const {data}=await api(endpoint('auri'),'POST',missionId?{tool:'task',missionId}:{tool:'guidance',question,lang});
+ const id=workspace.organization.id;
+ const {data}=await runAuri(id,'thinking',()=>api(endpoint('auri'),'POST',missionId?{tool:'task',missionId}:{tool:'guidance',question,lang}),'speaking');
+ if(workspace?.organization.id!==id)return '';
  if(data.reply)return data.reply;
  if(/customers|visibility|sales|müşteri|clients|عملاء/i.test(question)&&data.priorities?.length)return data.priorities.map(m=>cap(m.capability)).join(' · ');
  const task=data.mission||data.nextAction;
@@ -165,7 +194,7 @@ function growthDashboard(){
   },
   async onGenerate(event){
    event.target.disabled=true;
-   try{const id=workspace.organization.id;await api(endpoint('missions'),'POST',{});await loadWorkspace(id);}
+   try{await generateRoadmap();}
    catch(error){event.target.disabled=false;toast(error.message);}
   },
   onAsk:askAuri,
@@ -174,7 +203,7 @@ function growthDashboard(){
 function journey(){
  const write=workspace.permissions.includes('roadmap:write');
  content(`<div class="panel-bar"><p>${t('noPurchase')}</p>${button('createJourney','generate',false,!write)}</div><div class="journey-levels">${[1,2,3,4,5].map(l=>`<section class="journey-level"><div class="level-heading"><span class="level-number">0${l}</span><div><span class="eyebrow">${t('level')} ${l}</span><h2>${t(['foundation','visibility','conversion','automation','scale'][l-1])}</h2></div></div>${workspace.missions.filter(m=>m.level===l).map(m=>`<article class="panel mission" data-mission="${m.id}"><div class="panel-bar"><h3>${esc((m.objective===m.service?cap(m.capability):m.objective))}</h3><span class="pill">${t(m.status)}</span></div><p>${m.description.startsWith('Establish ')?t('why'):esc(m.description)}</p><p>${t('benefit')}</p><div class="mission-meta"><span>${t('quote')}</span><span>${t('priority')}: ${t(m.priority===1?'high':m.priority===2?'medium':'low')}</span>${m.dependencies?.length?`<span>↳ ${esc(m.dependencies.map(cap).join(', '))}</span>`:''}</div><div class="actions">${select('status','status',['planned','in_progress','done','postponed'].map(v=>[v,t(v)]),m.status)}${button('up','up',true,!write)}${button('down','down',true,!write)}${button('edit','edit',true,!write)}</div><p>${m.nextAction==='Define scope or record your existing solution.'?t('nextAction')+': '+t('quote'):esc(m.nextAction)}</p></article>`).join('')||`<p class="empty-level">${t('empty')}</p>`}</section>`).join('')}</div>`);
- document.querySelector('[data-action="generate"]').onclick=async e=>{e.target.disabled=true;try{const id=workspace.organization.id;await api(endpoint('missions'),'POST',{});await loadWorkspace(id);}catch(e){toast(e.message);}};
+ document.querySelector('[data-action="generate"]').onclick=async e=>{e.target.disabled=true;try{await generateRoadmap();}catch(error){e.target.disabled=false;toast(error.message);}};
  document.querySelectorAll('[data-mission]').forEach(card=>{
   const m=workspace.missions.find(m=>m.id===card.dataset.mission),save=async patch=>{try{const id=workspace.organization.id;await api(endpoint('missions/'+m.id),'PATCH',{version:m.version,status:m.status,position:m.position,...patch});await loadWorkspace(id);}catch(e){toast(e.message);}};
   card.querySelector('select').disabled=!write;card.querySelector('select').onchange=e=>save({status:e.target.value});
@@ -210,13 +239,68 @@ async function team(){
  const a=await api(endpoint('activity'));document.querySelector('#activity').innerHTML=a.events.map(e=>`<p>${esc(e.created_at)} · ${esc(e.action)}</p>`).join('')||t('empty');
 }
 const rolesForUI=()=>['viewer','member','admin'].map(v=>[v,t(v)]);
-function assistant(){content(`<section class="panel assistant-panel">${robot()}<div><span class="eyebrow">AURI</span><h2>${t('aiRules')}</h2><p>${t('aiNotice')}</p><div class="actions">${button('diagnosis','diagnosis',true)}${button('recommend','next-action',true)}</div><div id="auri-response" role="status"></div></div></section>`);for(const [action,tool]of [['diagnosis','diagnosis'],['next-action','next_action']])document.querySelector(`[data-action="${action}"]`).onclick=async e=>{e.target.disabled=true;try{const r=await api(endpoint('auri'),'POST',{tool});document.querySelector('#auri-response').innerHTML=tool==='diagnosis'?`<h3>${t('missing')}</h3><ul>${r.data.missing.map(k=>`<li>${esc(cap(k))}</li>`).join('')}</ul>`:`<h3>${esc(r.data.nextAction?cap(r.data.nextAction.capability):t('empty'))}</h3><p>${t('why')}</p>`;}catch(e){toast(e.message);}finally{e.target.disabled=false;}};}
+function renderCompanion(){
+ const host=document.querySelector('#auri-companion');
+ const level=auriLevel(), canAsk=workspace.permissions.includes('auri:use');
+ const {ask:label,focus}=roadmapLabels(lang);
+ const next=eligibleMissions(workspace.missions,workspace.profile)[0];
+ const readAloud=({en:'Read aloud',tr:'Sesli oku',fr:'Lire à voix haute',ar:'قراءة بصوت عالٍ'})[lang];
+ const send=({en:'Send',tr:'Gönder',fr:'Envoyer',ar:'إرسال'})[lang];
+ host.innerHTML=`<details class="auri-companion"><summary>
+  ${auriCharacter(level)}<span><strong>Auri</strong><small>${esc(t('level'))} ${level} · ${auriNames[level-1]}</small></span>
+  <span class="auri-status" role="status" data-auri-status></span>
+ </summary><div class="auri-companion-body">
+  ${next?`<p><strong>${esc(focus)}</strong> · ${esc(cap(next.capability))}</p>`: ''}
+  ${canAsk?`<form><label><span class="sr-only">${esc(label)}</span><input name="question" maxlength="500" placeholder="${esc(label)}" required></label>
+  <button class="primary">${esc(send)}</button></form><p data-auri-reply role="status"></p>${'speechSynthesis' in window?`<button type="button" class="secondary" data-auri-voice hidden>${esc(readAloud)}</button>`:''}`:''}
+  <button type="button" class="secondary" data-auri-roadmap>${esc(t('journey'))}</button>
+ </div></details>`;
+ bindAuri(host,workspace.organization.id);
+ host.querySelector('[data-auri-roadmap]').onclick=()=>{
+  page='journey';
+  render();
+  document.querySelector('#main').focus();
+ };
+ const form=host.querySelector('form');
+ const voice=host.querySelector('[data-auri-voice]');
+ let spokenReply='';
+ if(voice)voice.onclick=()=>{
+  const message=new SpeechSynthesisUtterance(spokenReply);
+  message.lang=lang;
+  const scope=workspace.organization.id;
+  message.onstart=()=>pulseAuri(scope,'speaking',3500);
+  message.onend=()=>pulseAuri(scope,'idle');
+  speechSynthesis.cancel();
+  speechSynthesis.speak(message);
+ };
+ if(form)form.onsubmit=async event=>{
+  event.preventDefault();
+  const submit=form.querySelector('button'), reply=host.querySelector('[data-auri-reply]');
+  const question=new FormData(form).get('question').trim();
+  if(!question)return;
+  submit.disabled=true;
+  if(voice)voice.hidden=true;
+  reply.textContent='';
+  try{
+   spokenReply=await askAuri(question);
+   reply.textContent=spokenReply;
+   if(voice)voice.hidden=!spokenReply;
+  }
+  catch(error){reply.textContent=error.message;}
+  finally{submit.disabled=false;}
+ };
+}
+function assistant(){content(`<section class="panel assistant-panel">${robot()}<div><span class="eyebrow">AURI</span><h2>${t('aiRules')}</h2><p>${t('aiNotice')}</p><div class="actions">${button('diagnosis','diagnosis',true)}${button('recommend','next-action',true)}</div><div id="auri-response" role="status"></div></div></section>`);for(const [action,tool]of [['diagnosis','diagnosis'],['next-action','next_action']])document.querySelector(`[data-action="${action}"]`).onclick=async e=>{e.target.disabled=true;try{const output=document.querySelector('#auri-response');const r=await runAuri(workspace.organization.id,'thinking',()=>api(endpoint('auri'),'POST',{tool}),'speaking');output.innerHTML=tool==='diagnosis'?`<h3>${t('missing')}</h3><ul>${r.data.missing.map(k=>`<li>${esc(cap(k))}</li>`).join('')}</ul>`:`<h3>${esc(r.data.nextAction?cap(r.data.nextAction.capability):t('empty'))}</h3><p>${t('why')}</p>`;}catch(e){toast(e.message);}finally{e.target.disabled=false;}};}
 async function loadWorkspace(id=workspace.organization.id){
  if(workspaceSwitch&&id!==workspaceSwitch)return;
+ const previous=workspace;
  const next=await api('/api/hub/workspaces/'+id);
  if((workspaceSwitch||workspace.organization.id)!==id)return;
  if(workspace.organization.id!==id)selectedMission=null;
  result=null;scenarioInputs=null;workspace=next;render();
+ if(previous.organization.id===id&&next.auri?.verifiedMilestones>previous.auri?.verifiedMilestones){
+  pulseAuri(id,next.auri.level>previous.auri.level?'evolving':'happy',2400);
+ }
 }
 async function load(){try{const data=await api('/api/hub/workspaces');me=data.user;if(['login','signup'].includes(route)&&resumeShop())return;workspaces=data.workspaces;if(workspaces.length){const selected=workspace&&workspaces.find(w=>w.id===workspace.organization.id);workspace=await api('/api/hub/workspaces/'+(selected?.id||workspaces[0].id));}if(route==='settings'){page='settings';route='';}if(route==='signup'||route==='login')route='';render();}catch(e){if(e.status===401){me=null;render();}else{gateFrame(`<section class="panel"><h1>${t('brand')}</h1><p role="alert">${esc(e.message)}</p><a href="/account">${t('openAccount')}</a></section>`);}}}
 async function start(){

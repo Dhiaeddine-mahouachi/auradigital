@@ -106,3 +106,29 @@
 .growth-topbar .avatar{background:#34735c;color:#fff}
 .growth-branch h3 small{color:#daf0e6}
 @media(max-width:390px){.growth-topbar .secondary.menu-button{padding-inline:5px}.growth-greeting strong{font-size:.84rem}}
+
+/* Auri sits in the Hub content flow so it never covers navigation or controls. */
+auri-character{display:inline-grid;place-items:center;aspect-ratio:1;animation:none}
+auri-character img,auri-character canvas{grid-area:1/1;width:100%;height:100%;object-fit:contain}
+auri-character[data-rendered] img{visibility:hidden}
+.auri-companion{background:#101214;color:#fafaf7;border-radius:18px;border:1px solid #383c38;margin:0 0 14px}
+.auri-companion summary{display:flex;align-items:center;gap:12px;min-height:64px;padding:4px 14px;cursor:pointer;list-style:none}
+.auri-companion summary::-webkit-details-marker{display:none}
+.auri-companion summary::after{content:"+";font-size:1.3rem;margin-inline-start:auto;color:#e1e100}
+.auri-companion[open] summary::after{content:"−"}
+.auri-companion summary:focus-visible{outline:2px solid #e1e100;outline-offset:3px;border-radius:12px}
+.auri-companion summary .auri{flex:0 0 58px;width:58px}
+.auri-companion summary strong,.auri-companion small{display:block}
+.auri-companion small{color:#d2d5d2}
+.auri-companion .auri-status{color:#e1e100;font-size:.81rem}
+.auri-companion-body{padding:0 16px 16px}
+.auri-companion form{display:flex;flex-wrap:wrap;gap:8px}
+.auri-companion label{flex:1 1 180px}
+.auri-companion input{width:100%;color:#fafaf7;background:#1b1e20;border-color:#6a706a}
+.auri-companion .primary{background:#e1e100;color:#101214}
+.auri-companion [data-auri-reply]:empty{display:none}
+.auri-companion [data-auri-roadmap]{margin-block-start:8px}
+.auri-onboarding{display:flex;align-items:center;gap:12px;color:#14211b}
+.auri-onboarding .auri{width:100px}
+@media (max-width:480px){.auri-companion summary{gap:8px;padding-inline:8px}.auri-companion summary .auri{width:46px;flex-basis:46px}}
+.auri-companion[data-auri-pending] summary{border-inline-start:3px solid #e1e100}

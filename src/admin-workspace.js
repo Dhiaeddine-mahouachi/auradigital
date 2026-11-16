@@ -1,3 +1,4 @@
+import { verifyAuriMilestone } from "./auri-progression.js";
 import { json, readJson } from "./http.js";
 import { getAuthenticatedAdmin, sameOrigin } from "./security.js";
 
@@ -97,6 +98,12 @@ export async function handleAdminWorkspace(request, env) {
   if (["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) {
     if (!sameOrigin(request)) return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
     if (admin.role === "viewer") return json({ error: "This account has read-only access." }, 403, { "Cache-Control": "no-store" });
+  }
+
+  if (url.pathname === "/api/admin/workspace/auri-milestones" && request.method === "POST") {
+    if (env.GROWTH_OS_ENABLED !== "true") return json({ error: "Business Hub unavailable." }, 404);
+    const { status, error } = await verifyAuriMilestone(env.DB, admin, await readJson(request, 1500));
+    return json(error ? { error } : { verified: true }, status, { "Cache-Control": "no-store" });
   }
 
   if (imageMatch && request.method === "DELETE") {
