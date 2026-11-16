@@ -179,7 +179,10 @@ try {
 
  // A signed-out deep link is retained through the shared account flow.
  await desktop.locator('.growth-account summary').click();
- await desktop.locator('[data-action=logout]').click();
+ await Promise.all([
+  desktop.waitForURL('**/hub/login'),
+  desktop.locator('[data-action=logout]').click(),
+ ]);
  await desktop.goto(requestUrl);
  await desktop.locator('[name=email]').fill(email);
  await desktop.locator('[name=password]').fill('Saffron-lake-0142!');
