@@ -1,6 +1,6 @@
 # AuraHub redesign
 
-Growth Vision retains five distinct levels (Foundation, Visibility, Conversion, Operations, Scale) while preserving verified XP and existing mission IDs. The signed-in Hub uses Home at `/hub`, Growth Vision at `/hub/roadmap`, Ask Auri at `/hub/auri`, and My Work at `/hub/work`. The Hub keeps workspace and record IDs in the URL. Menu drafts use `/hub/menu-drafts`; intake uses `/hub/onboarding`. Existing account, invitation, and settings entry points remain in place.
+Growth Vision retains five distinct levels (Foundation, Visibility, Conversion, Operations, Scale) while preserving verified XP and existing mission IDs. The signed-in Hub uses Home at `/hub`, Growth Vision at `/hub/roadmap`, Ask Auri at `/hub/auri`, and My Services at `/hub/work` (the existing route is retained for backward compatibility). The Hub keeps workspace and record IDs in the URL. Menu drafts use `/hub/menu-drafts`; intake uses `/hub/onboarding`. Existing account, invitation, and settings entry points remain in place.
 
 ## Staging configuration
 
