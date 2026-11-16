@@ -1,3 +1,57 @@
+// src/hub/service-ranking.js
+var categories = [
+  { pattern: /whatsapp/i, kind: "whatsapp", symbol: "WA", capabilities: ["whatsapp"] },
+  { pattern: /qr|menu|menü/i, kind: "menu", symbol: "QR", capabilities: ["menu"] },
+  { pattern: /google\s*(maps?|business)|business\s*discovery|local\s*listing/i, kind: "discovery", symbol: "MAP", capabilities: ["discovery"] },
+  { pattern: /review|rating|avis|yorum/i, kind: "reviews", symbol: "\u2605", capabilities: ["reviews"] },
+  { pattern: /google\s*ads|search\s*advert|ad\s*management|campaign|publicit/i, kind: "ads", symbol: "ADS", capabilities: ["ads"] },
+  { pattern: /seo|search\s*optim/i, kind: "seo", symbol: "SEO", capabilities: ["seo"] },
+  { pattern: /e-?mail|e-posta|courriel|mailbox/i, kind: "email", symbol: "@", capabilities: ["email"] },
+  { pattern: /crm|customer\s*management|lead\s*management|pipeline/i, kind: "crm", symbol: "CRM", capabilities: ["crm", "leads"] },
+  { pattern: /hosting|domain|security|ssl|website\s*care|maintenance/i, kind: "infrastructure", symbol: "DNS", capabilities: ["domain", "hosting"] },
+  { pattern: /automat|chatbot|ai\s*assistant|workflow|spinflow/i, kind: "automation", symbol: "AI", capabilities: ["automation", "followups"] },
+  { pattern: /nfc|smart\s*card/i, kind: "card", symbol: "NFC", capabilities: ["branding"] },
+  { pattern: /web|website|site|e-?commerce|online\s*shop/i, kind: "website", symbol: "WEB", capabilities: ["website"] },
+  { pattern: /brand|logo|video|photo|design|graphic/i, kind: "creative", symbol: "\u2726", capabilities: ["branding"] }
+];
+var classify = (name) => categories.find((x) => x.pattern.test(String(name || ""))) || { kind: "service", symbol: "\u2726", capabilities: [] };
+var baseImportance = { website: 100, infrastructure: 90, email: 85, discovery: 80, whatsapp: 70, seo: 68, crm: 65, reviews: 60, automation: 55, ads: 50, menu: 35, card: 25, creative: 20, service: 10 };
+var sectorBoost = {
+  restaurant: { menu: 90, discovery: 35, reviews: 25, whatsapp: 23 },
+  real_estate: { crm: 75, website: 30, whatsapp: 30, ads: 27 },
+  ecommerce: { website: 35, crm: 30, ads: 30, reviews: 30, whatsapp: 25 },
+  services: { email: 20, crm: 20, website: 15, discovery: 15 }
+};
+var validDate = (value) => {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}(?:$|[T ])/.test(value)) return null;
+  const short = value.slice(0, 10);
+  const date = Date.parse(short + "T00:00:00Z");
+  return Number.isFinite(date) && new Date(date).toISOString().slice(0, 10) === short ? date : null;
+};
+function rankServicesForBusiness(records, { profile = {}, missions = [], now = Date.now() } = {}) {
+  const sector = String(profile.industry || "").toLowerCase();
+  const text = [profile.goals, profile.difficulties].filter(Boolean).join(" ").toLowerCase();
+  const focus = new Set((Array.isArray(missions) ? missions : []).filter((m) => !m.optional && !["done", "postponed", "cancelled"].includes(m.status)).filter((m) => Number(m.priority) === 1 || ["in_progress", "active"].includes(m.status)).map((m) => m.capability || m.id));
+  const score = (record) => {
+    const { kind, capabilities: capabilities2 } = classify(record.name);
+    let value = (baseImportance[kind] || 10) + (sectorBoost[sector]?.[kind] || 0);
+    if (capabilities2.some((c) => focus.has(c))) value += 80;
+    if (/reservation|booking|menu/.test(text) && kind === "menu") value += 30;
+    if (/leads|sales|clients|customer|booking|appointment/.test(text) && ["crm", "whatsapp", "website"].includes(kind)) value += 20;
+    if (/automat|manual|time|efficien|repetit/.test(text) && ["automation", "whatsapp"].includes(kind)) value += 35;
+    if (/visib|traffic|search|find|local/.test(text) && ["discovery", "seo", "ads"].includes(kind)) value += 30;
+    const status = String(record.status || "").toLowerCase();
+    if (["waiting", "waiting_client", "needs_action", "review", "quote_ready"].includes(status)) value += 1e3;
+    else if (["in_progress", "production"].includes(status)) value += 70;
+    const deadline = validDate(record.dueDate);
+    if (deadline !== null && deadline < now + 864e5 * 14) value += deadline < now ? 500 : 260;
+    const renewal = validDate(record.renewalDate);
+    if (renewal !== null && renewal < now + 864e5 * 14) value += renewal < now ? 420 : 230;
+    return value;
+  };
+  return [...records].sort((a, b) => score(b) - score(a) || String(a.name || "").localeCompare(String(b.name || "")) || String(a.id || "").localeCompare(String(b.id || "")));
+}
+
 // src/hub/service-deliverables.js
 var deliverables = {
   web: {
@@ -94,9 +148,12 @@ var detailCopy = {
   tr: ["Hizmetleri ke\u015Ffet", "\u0130\xE7eri\u011Fi g\xF6r", "Neler alacaks\u0131n\u0131z", "Kapsam, fiyat ve teslim s\xFCresi teklifinizde kesinle\u015Fir.", "Bu hizmeti istemek i\xE7in yol haritan\u0131z\u0131 ba\u015Flat\u0131n."],
   ar: ["\u0627\u0633\u062A\u0643\u0634\u0641 \u0627\u0644\u062E\u062F\u0645\u0627\u062A", "\u0627\u0637\u0651\u0644\u0639 \u0639\u0644\u0649 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644", "\u0645\u0627 \u0627\u0644\u0630\u064A \u0633\u062A\u062D\u0635\u0644 \u0639\u0644\u064A\u0647", "\u064A\u0624\u0643\u062F \u0639\u0631\u0636 \u0627\u0644\u0633\u0639\u0631 \u0627\u0644\u0646\u0637\u0627\u0642 \u0648\u0627\u0644\u0633\u0639\u0631 \u0648\u0645\u0648\u0639\u062F \u0627\u0644\u062A\u0633\u0644\u064A\u0645.", "\u0627\u0628\u062F\u0623 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642 \u0644\u0637\u0644\u0628 \u0647\u0630\u0647 \u0627\u0644\u062E\u062F\u0645\u0629."]
 };
-function serviceShortcuts(lang2, esc3, link2) {
+function rankedExamples(profile, missions) {
+  return rankServicesForBusiness(examples.map((example) => ({ ...example, name: example.en })), { profile, missions });
+}
+function serviceShortcuts(lang2, esc3, link2, { profile, missions } = {}) {
   return `<section class="hub-service-shortcuts"><header><h2>${detailCopy[lang2][0]}</h2><a href="${esc3(link2("services"))}">${esc3(serviceLabels[lang2][0])} \u2192</a></header>
- <div class="hub-service-links">${examples.map((example) => `<a href="${esc3(link2("services", { offer: example.kind }))}"><span class="service-icon">${icon(example.kind)}</span><span>${esc3(example[lang2])}</span><span aria-hidden="true">\u2197</span></a>`).join("")}</div></section>`;
+ <div class="hub-service-links">${rankedExamples(profile, missions).map((example) => `<a href="${esc3(link2("services", { offer: example.kind }))}"><span class="service-icon">${icon(example.kind)}</span><span>${esc3(example[lang2])}</span><span aria-hidden="true">\u2197</span></a>`).join("")}</div></section>`;
 }
 function scopeMarkup(kind, lang2) {
   const scope = deliverables[kind]?.[lang2];
@@ -154,13 +211,13 @@ function facts(record, lang2, labels3, esc3) {
 function serviceSummary(records, labels3, esc3) {
   return `<dl class="service-summary">${filters.map((filter, index) => `<div><dt>${esc3(labels3[index + 2])}</dt><dd>${filter === "all" ? records.length : records.filter((record) => group(record) === filter).length}</dd></div>`).join("")}</dl>`;
 }
-function renderServices({ host, records, lang: lang2, esc: esc3, link: link2 }) {
+function renderServices({ host, records, lang: lang2, esc: esc3, link: link2, profile, missions }) {
   const labels3 = serviceLabels[lang2] || serviceLabels.en;
   const [examplesTitle] = previewCopy[lang2];
   const headers = (kind, name) => `<header><span class="service-icon">${icon(kind)}</span><h2>${esc3(name)}</h2></header>`;
   host.innerHTML = `<p class="service-intro">${labels3[1]}</p>
  ${records.length ? `<div class="service-filters" role="group" aria-label="${labels3[0]}">${filters.map((filter, index) => `<button type="button" data-service-filter="${filter}" aria-controls="service-grid" aria-pressed="${filter === "all"}">${labels3[index + 2]} <span>${filter === "all" ? records.length : records.filter((record) => group(record) === filter).length}</span></button>`).join("")}</div>
- <div class="service-grid" id="service-grid">${records.map((record) => {
+ <div class="service-grid" id="service-grid">${rankServicesForBusiness(records, { profile, missions }).map((record) => {
     const kind = serviceKind(record.name);
     return `<article class="service-card" data-service-group="${group(record) || "other"}">
    ${serviceArt(kind, lang2)}<span class="service-state">${esc3(serviceStatus(record, labels3))}</span>
@@ -168,7 +225,7 @@ function renderServices({ host, records, lang: lang2, esc: esc3, link: link2 }) 
    <a class="growth-primary service-card-link" href="${esc3(link2("services", { serviceRecord: record.key }))}">${labels3[8]} <span aria-hidden="true">\u2197</span></a></div>
    </article>`;
   }).join("")}</div><p class="hub-empty" role="status" data-service-empty hidden>${labels3[7]}</p>` : ""}<h2 class="service-example-title">${examplesTitle}</h2>
- <div class="service-grid service-catalogue">${examples.map((example) => `<article class="service-card">
+ <div class="service-grid service-catalogue">${rankedExamples(profile, missions).map((example) => `<article class="service-card">
   ${serviceArt(example.kind, lang2)}<div class="service-card-body">${headers(example.kind, example[lang2])}
   <a class="growth-secondary service-card-link" href="${esc3(link2("services", { offer: example.kind }))}">${detailCopy[lang2][1]} <span aria-hidden="true">\u2197</span></a></div>
  </article>`).join("")}</div>`;
@@ -353,7 +410,13 @@ var keys = ["home", "journey", "assistant", "services", "build", "buildNote", "b
 var requests = { en: "Requests", fr: "Demandes", tr: "Talepler", ar: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A" };
 var hubLabels = (lang2) => ({ ...Object.fromEntries(keys.map((key, index) => [key, (labels[lang2] || labels.en)[index]])), requests: requests[lang2] || requests.en });
 var destinations = { home: "", journey: "roadmap", assistant: "auri", services: "work", requests: "requests", menuDrafts: "menu-drafts", profile: "profile", settings: "settings", resources: "resources", tasks: "tasks", simulator: "simulator", team: "team", insights: "insights", projects: "projects", websites: "websites", hosting: "hosting", files: "files", reports: "reports", invoices: "invoices", rewards: "rewards", support: "support", onboarding: "onboarding" };
-var hubStage = (level) => Number(level) < 3 ? 0 : Number(level) < 5 ? 1 : 2;
+var hubStage = (level) => Math.max(0, Math.min(4, (Number(level) || 1) - 1));
+var hubStageNames = (lang2) => ({
+  en: ["Foundation", "Visibility", "Conversion", "Operations", "Scale"],
+  fr: ["Fondations", "Visibilit\xE9", "Conversion", "Op\xE9rations", "Croissance"],
+  tr: ["Temel", "G\xF6r\xFCn\xFCrl\xFCk", "D\xF6n\xFC\u015F\xFCm", "Operasyon", "B\xFCy\xFCme"],
+  ar: ["\u0627\u0644\u062A\u0623\u0633\u064A\u0633", "\u0627\u0644\u0638\u0647\u0648\u0631", "\u0627\u0644\u062A\u062D\u0648\u064A\u0644", "\u0627\u0644\u0639\u0645\u0644\u064A\u0627\u062A", "\u0627\u0644\u062A\u0648\u0633\u0639"]
+})[lang2] || ["Foundation", "Visibility", "Conversion", "Operations", "Scale"];
 var hubIcons = {
   home: '<path d="M3 10 12 3l9 7v10H3z M9 20v-7h6v7"/>',
   journey: '<path d="m2 8 10-5 10 5-10 5z M2 12l10 5 10-5 M2 16l10 5 10-5"/>',
@@ -887,7 +950,7 @@ function renderGrowthVisionPath({ workspace: workspace2, esc: esc3, lang: lang2 
   const ui = copy3[lang2] || copy3.en;
   const hub = hubLabels(lang2);
   const missions = workspace2.missions || [];
-  const stages = [hub.small, hub.systems, hub.scale].map((name, index) => ({
+  const stages = hubStageNames(lang2).map((name, index) => ({
     name,
     missions: missions.filter((m) => hubStage(m.level) === index)
   }));
@@ -912,7 +975,7 @@ function renderGrowthVisionPath({ workspace: workspace2, esc: esc3, lang: lang2 
     const state2 = finished ? ui.done : active ? hub.current : current < index && current !== -1 ? hub.locked : ui.upcoming;
     const content2 = `<span class="vision-stage-status">${index + 1} \xB7 ${esc3(state2)}</span>
     <strong>${esc3(item.name)}</strong>
-    <img class="vision-stage-art" src="/hub/stage-${index + 1}.webp" alt="" width="140" height="106">
+    ${index < 3 ? `<img class="vision-stage-art" src="/hub/stage-${index + 1}.webp" alt="" width="140" height="106">` : `<span class="vision-stage-icon vision-stage-fallback" aria-hidden="true">${index === 3 ? "\u2699" : "\u25A5"}</span>`}
     <small>${count} / ${total} ${esc3(ui.missions.toLowerCase())}</small>`;
     return `<li class="vision-stage" data-stage-state="${finished ? "done" : active ? "active" : "upcoming"}">
    ${first ? `<button type="button" class="vision-stage-button" data-node="${esc3(first.id)}" aria-pressed="${chosen === index}">${content2}</button>` : `<div class="vision-stage-button">${content2}</div>`}
@@ -1975,7 +2038,7 @@ async function home() {
   const label = item ? menu ? ui.reviewMenu : ui.openRequest : next ? ui.continue : ui.journey;
   const note = item ? menu ? item.name : workStatus(item) : next ? next.reason || next.description : "";
   const done = workspace.missions.filter((m) => m.status === "done").length;
-  const stage = next ? [ui.small, ui.systems, ui.scale][hubStage(next.level)] : ui.journey;
+  const stage = next ? hubStageNames(lang)[hubStage(next.level)] : ui.journey;
   host.innerHTML = `<section class="hub-hero"><div>
  ${item ? `<span class="hub-highlight">${esc2(ui.attention)}</span>` : next ? `<span class="hub-highlight">${esc2(ui.next)}</span>` : ""}
  <h2>${esc2(hero)}</h2>${note ? `<p>${esc2(note)}</p>` : ""}
@@ -1987,7 +2050,7 @@ async function home() {
  <progress class="hub-roadmap-progress" value="${done}" max="${workspace.missions.length}" aria-label="${esc2(roadmapLabels(lang).completed)}"></progress></span><span aria-hidden="true">\u203A</span></a>
  ${item && next ? `<a class="hub-work-row" href="${esc2(link("journey", { task: next.id }))}"><span class="hub-row-icon">${hubIcon("journey")}</span><span><strong>${esc2(ui.next)}</strong><small>${esc2(missionTitle(next))}</small></span><span aria-hidden="true">\u203A</span></a>` : ""}
   ${progress.slice(0, 2).map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")}</div>
- ${serviceShortcuts(lang, esc2, link)}</div>`;
+ ${serviceShortcuts(lang, esc2, link, { profile: workspace.profile, missions: workspace.missions })}</div>`;
   bindAuri(host, workspace.organization.id);
 }
 async function myWork() {
@@ -2019,7 +2082,7 @@ async function myWork() {
   if (page === "services" && !service) {
     host.innerHTML = '<p role="status">\u2026</p>';
     const { records } = await api(endpoint("work"));
-    if (host.isConnected) renderServices({ host, records: records || [], lang, esc: esc2, link });
+    if (host.isConnected) renderServices({ host, records: records || [], lang, esc: esc2, link, profile: workspace.profile, missions: workspace.missions });
     return;
   }
   const { attention, progress, services, requests: requests2 } = await workSnapshot();

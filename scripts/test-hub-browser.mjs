@@ -63,7 +63,7 @@ try {
  await button(desktop,'Build my roadmap').click();
  await desktop.waitForURL('**/hub/roadmap?workspace=*');
  await heading(desktop,'Growth Vision').waitFor();
- assert.equal(await desktop.locator('.vision-stage').count(),3);
+ assert.equal(await desktop.locator('.vision-stage').count(),5);
  await desktop.locator('#growth-focus h2').filter({hasText:'Prepare your digital menu'}).waitFor();
  const org=new URL(desktop.url()).searchParams.get('workspace');
  await desktop.locator('.vision-task').filter({hasText:'Prepare your digital menu'}).click();
@@ -158,7 +158,7 @@ try {
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  await screenshot(mobile,'aura-command-service-mobile');
  await mobile.locator('.command-bottom-nav [data-page=journey]').click();
- assert.equal(await mobile.locator('.vision-stage').count(),3);
+ assert.equal(await mobile.locator('.vision-stage').count(),5);
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  assert(await mobile.locator('.command-bottom-nav').evaluate(node=>node.clientHeight<80));
  await screenshot(mobile,'AuraHub-Mobile-Roadmap');

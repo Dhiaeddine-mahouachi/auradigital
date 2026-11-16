@@ -1,3 +1,4 @@
+import { rankServicesForBusiness } from './service-ranking.js';
 import { deliverables } from './service-deliverables.js';
 
 export const serviceLabels={
@@ -43,9 +44,12 @@ const detailCopy={
  tr:['Hizmetleri keşfet','İçeriği gör','Neler alacaksınız','Kapsam, fiyat ve teslim süresi teklifinizde kesinleşir.','Bu hizmeti istemek için yol haritanızı başlatın.'],
  ar:['استكشف الخدمات','اطّلع على التفاصيل','ما الذي ستحصل عليه','يؤكد عرض السعر النطاق والسعر وموعد التسليم.','ابدأ خارطة الطريق لطلب هذه الخدمة.'],
 };
-export function serviceShortcuts(lang,esc,link){
+function rankedExamples(profile,missions){
+ return rankServicesForBusiness(examples.map(example=>({...example,name:example.en})),{profile,missions});
+}
+export function serviceShortcuts(lang,esc,link,{profile,missions}={}){
  return `<section class="hub-service-shortcuts"><header><h2>${detailCopy[lang][0]}</h2><a href="${esc(link('services'))}">${esc(serviceLabels[lang][0])} →</a></header>
- <div class="hub-service-links">${examples.map(example=>`<a href="${esc(link('services',{offer:example.kind}))}"><span class="service-icon">${icon(example.kind)}</span><span>${esc(example[lang])}</span><span aria-hidden="true">↗</span></a>`).join('')}</div></section>`;
+ <div class="hub-service-links">${rankedExamples(profile,missions).map(example=>`<a href="${esc(link('services',{offer:example.kind}))}"><span class="service-icon">${icon(example.kind)}</span><span>${esc(example[lang])}</span><span aria-hidden="true">↗</span></a>`).join('')}</div></section>`;
 }
 function scopeMarkup(kind,lang){
  const scope=deliverables[kind]?.[lang];
@@ -101,13 +105,13 @@ function facts(record,lang,labels,esc){
 export function serviceSummary(records,labels,esc) {
  return `<dl class="service-summary">${filters.map((filter,index)=>`<div><dt>${esc(labels[index+2])}</dt><dd>${filter==='all'?records.length:records.filter(record=>group(record)===filter).length}</dd></div>`).join('')}</dl>`;
 }
-export function renderServices({host,records,lang,esc,link}){
+export function renderServices({host,records,lang,esc,link,profile,missions}){
  const labels=serviceLabels[lang]||serviceLabels.en;
  const [examplesTitle]=previewCopy[lang];
  const headers=(kind,name)=>`<header><span class="service-icon">${icon(kind)}</span><h2>${esc(name)}</h2></header>`;
  host.innerHTML=`<p class="service-intro">${labels[1]}</p>
  ${records.length?`<div class="service-filters" role="group" aria-label="${labels[0]}">${filters.map((filter,index)=>`<button type="button" data-service-filter="${filter}" aria-controls="service-grid" aria-pressed="${filter==='all'}">${labels[index+2]} <span>${filter==='all'?records.length:records.filter(record=>group(record)===filter).length}</span></button>`).join('')}</div>
- <div class="service-grid" id="service-grid">${records.map(record=>{
+ <div class="service-grid" id="service-grid">${rankServicesForBusiness(records,{profile,missions}).map(record=>{
   const kind=serviceKind(record.name);
   return `<article class="service-card" data-service-group="${group(record)||'other'}">
    ${serviceArt(kind,lang)}<span class="service-state">${esc(serviceStatus(record,labels))}</span>
@@ -115,7 +119,7 @@ export function renderServices({host,records,lang,esc,link}){
    <a class="growth-primary service-card-link" href="${esc(link('services',{serviceRecord:record.key}))}">${labels[8]} <span aria-hidden="true">↗</span></a></div>
    </article>`;
  }).join('')}</div><p class="hub-empty" role="status" data-service-empty hidden>${labels[7]}</p>`:''}<h2 class="service-example-title">${examplesTitle}</h2>
- <div class="service-grid service-catalogue">${examples.map(example=>`<article class="service-card">
+ <div class="service-grid service-catalogue">${rankedExamples(profile,missions).map(example=>`<article class="service-card">
   ${serviceArt(example.kind,lang)}<div class="service-card-body">${headers(example.kind,example[lang])}
   <a class="growth-secondary service-card-link" href="${esc(link('services',{offer:example.kind}))}">${detailCopy[lang][1]} <span aria-hidden="true">↗</span></a></div>
  </article>`).join('')}</div>`;
