@@ -83,7 +83,9 @@ test('private drafts, strict permissions, optimistic publication, audit and rest
 test('manual selector persistence and single-engine frontend wiring are present',()=>{
  const ui=readFileSync(new URL('../pricing/ui.js',import.meta.url),'utf8');
  assert.doesNotMatch(ui,/aura-region-selector|auraPricingRegion|function regionSelector/);assert.match(ui,/aura:pricingchange/);
- for(const page of ['index','websites','services','packages','spinflow','contact','aura-menu','nfc','qr-menu'])assert.match(readFileSync(new URL('../'+page+'.html',import.meta.url),'utf8'),/pricing\/ui.js/);
+ for(const page of ['websites','services','packages','spinflow','contact','aura-menu','nfc','qr-menu'])assert.match(readFileSync(new URL('../'+page+'.html',import.meta.url),'utf8'),/pricing\/ui.js/);
+ const home=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+ assert.match(home,/href="\/hub"/);assert.doesNotMatch(home,/data-pricing-view|pricing\/ui\.js/);
 });
 test('live worker routes return Tunisian prices and deterministic regional chatbot answers',async()=>{
  const {default:app}=await import('../src/worker-entry.js');
