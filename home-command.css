@@ -1,0 +1,76 @@
+/* AuraDigital homepage 2026: isolated layout; shared header/footer remain intact */
+body[data-page="home"]{background:#0b0d0a;color:#f6f7ee}
+body[data-page="home"] main{overflow:hidden}
+.aura-home{--lime:#e1e100;--paper:#f3f4e9;--muted:#b2b9a9;--line:rgba(225,225,0,.18);font-family:inherit}
+.aura-home *{box-sizing:border-box}
+.aura-home .ah-wrap{width:min(1360px,calc(100% - 64px));margin-inline:auto}
+.aura-home .ah-kicker{color:var(--lime);font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;font-weight:750}
+.aura-home h1,.aura-home h2,.aura-home h3,.aura-home p{margin:0}
+.aura-home h1{font-size:clamp(3.5rem,7.3vw,8rem);line-height:.97;letter-spacing:-.075em;max-width:1050px;font-weight:750;color:#fff}
+.aura-home h2{font-size:clamp(2.35rem,4.7vw,5.3rem);line-height:1.02;letter-spacing:-.065em;color:#fff;max-width:950px}
+.aura-home h3{font-size:clamp(1.3rem,2vw,1.9rem);letter-spacing:-.035em;line-height:1.22;color:var(--paper)}
+.aura-home p{color:var(--muted);line-height:1.65;font-size:clamp(.98rem,1.3vw,1.12rem)}
+.aura-home .ah-accent{color:var(--lime)}
+.aura-home .ah-button{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:15px 24px;border:1px solid var(--lime);border-radius:9px;background:var(--lime);color:#12140b!important;text-decoration:none;font-size:.98rem;font-weight:800;gap:22px;transition:background .2s,transform .2s}
+.aura-home .ah-button:hover{background:#f3f56c;transform:translateY(-2px)}
+.aura-home .ah-button--quiet{background:transparent;color:var(--paper)!important;border-color:rgba(240,243,224,.32)}
+.aura-home .ah-button--quiet:hover{background:rgba(255,255,255,.07)}
+.aura-home a:focus-visible{outline:3px solid var(--lime);outline-offset:4px}
+.aura-home .ah-hero{position:relative;min-height:690px;display:flex;align-items:center;padding:clamp(130px,14vw,210px) 0 110px;background:radial-gradient(ellipse at 87% 33%,rgba(195,201,35,.13),transparent 38%),#0b0d0a}
+.aura-home .ah-hero::after{content:"";position:absolute;right:-10%;top:10%;height:700px;width:700px;border:1px solid rgba(225,225,0,.09);border-radius:50%;pointer-events:none}
+.aura-home .ah-hero-copy{position:relative;z-index:1}
+.aura-home .ah-hero h1{margin:26px 0}
+.aura-home .ah-lede{max-width:660px}
+.aura-home .ah-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+.aura-home .ah-support{margin-top:21px;font-size:.83rem;color:#939d90}
+.aura-home .ah-section{padding:clamp(80px,10vw,144px) 0;border-top:1px solid rgba(255,255,255,.08)}
+.aura-home .ah-section-head{display:flex;flex-direction:column;gap:21px;margin-bottom:48px}
+.aura-home .ah-section-head p{max-width:660px}
+.aura-home .ah-demo{padding-top:20px}
+.aura-home .ah-workspace{border:1px solid var(--line);border-radius:22px;background:#161b13;overflow:hidden;box-shadow:0 38px 95px rgba(0,0,0,.28)}
+.aura-home .ah-workspace-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 28px;border-bottom:1px solid rgba(255,255,255,.09);font-size:.9rem}
+.aura-home .ah-brand{font-weight:800;letter-spacing:-.03em;color:#f1f6e4}
+.aura-home .ah-brand span{color:var(--lime)}
+.aura-home .ah-preview-tag{color:#b7c2a7;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase}
+.aura-home .ah-workspace-content{display:grid;grid-template-columns:220px minmax(0,1fr)}
+.aura-home .ah-workspace-nav{padding:32px 22px;border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:10px}
+.aura-home .ah-workspace-nav span{padding:13px 15px;border-radius:8px;color:#a9b19f;font-size:.86rem}
+.aura-home .ah-workspace-nav .selected{color:var(--lime);background:rgba(225,225,0,.09)}
+.aura-home .ah-workspace-main{padding:clamp(24px,4vw,55px)}
+.aura-home .ah-workspace-main h3{font-size:clamp(1.45rem,2.7vw,2.5rem);margin:0 0 10px}
+.aura-home .ah-progress-head{display:flex;justify-content:space-between;color:#cad4c2;font-size:.8rem;margin:32px 0 12px}
+.aura-home .ah-progress-track{height:7px;background:#3a4235;border-radius:12px;overflow:hidden}
+.aura-home .ah-progress-track span{display:block;width:25%;height:100%;background:var(--lime)}
+.aura-home .ah-roadmap{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:34px 0}
+.aura-home .ah-step{position:relative;min-height:148px;padding:22px 15px;background:#222a1f;border:1px solid #394334;border-radius:13px}
+.aura-home .ah-step:first-child{border-color:var(--lime)}
+.aura-home .ah-number{display:block;font-size:1.35rem;font-weight:800;color:var(--lime);margin-bottom:18px}
+.aura-home .ah-step strong{display:block;font-size:.92rem;color:#f3f6e7}
+.aura-home .ah-step small{display:block;margin-top:6px;color:#aab4a4;line-height:1.4}
+.aura-home .ah-assistant{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 23px;background:#303a2b;border-radius:12px;color:#fff}
+.aura-home .ah-assistant p{font-size:.89rem}
+.aura-home .ah-assistant a{color:var(--lime);white-space:nowrap;font-weight:750;text-decoration:none}
+.aura-home .ah-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.aura-home .ah-card{display:flex;flex-direction:column;gap:26px;min-height:240px;padding:30px 26px;background:#161b13;border:1px solid rgba(255,255,255,.1);border-radius:15px;text-decoration:none;transition:background .2s,border-color .2s}
+.aura-home a.ah-card:hover{background:#222b1d;border-color:var(--lime)}
+.aura-home .ah-card .ah-card-num{color:var(--lime);font-weight:800;font-size:.8rem}
+.aura-home .ah-card p{font-size:.91rem}
+.aura-home .ah-card-arrow{margin-top:auto;color:var(--lime);font-size:1.5rem}
+.aura-home .ah-process{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
+.aura-home .ah-process-item{border-top:2px solid var(--lime);padding:28px 0}
+.aura-home .ah-process-item strong{font-size:1.4rem;color:var(--lime)}
+.aura-home .ah-process-item h3{margin:24px 0 12px}
+.aura-home .ah-process-item p{font-size:.94rem}
+.aura-home .ah-split{display:grid;grid-template-columns:1fr 1fr;gap:8vw;align-items:center}
+.aura-home .ah-bullets{display:grid;gap:16px;margin:30px 0 0;padding:0;list-style:none}
+.aura-home .ah-bullets li{padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.1);color:#d1d9cc}
+.aura-home .ah-bullets li::before{content:"✦";color:var(--lime);margin-right:12px}
+.aura-home .ah-proof{padding:40px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(135deg,#222b1b,#10140f)}
+.aura-home .ah-proof h3{margin:10px 0 22px}
+.aura-home .ah-final{padding:120px 0 140px;background:radial-gradient(ellipse at center,rgba(225,225,0,.12),transparent 55%),#0d100b;text-align:center}
+.aura-home .ah-final h2,.aura-home .ah-final p{margin-left:auto;margin-right:auto}
+.aura-home .ah-final p{max-width:650px;margin-top:20px}
+.aura-home .ah-final .ah-actions{justify-content:center}
+@media(max-width:950px){.aura-home .ah-grid,.aura-home .ah-process{grid-template-columns:repeat(2,minmax(0,1fr))}.aura-home .ah-workspace-content{grid-template-columns:1fr}.aura-home .ah-workspace-nav{display:none}.aura-home .ah-split{grid-template-columns:1fr;gap:36px}}
+@media(max-width:600px){.aura-home .ah-wrap{width:calc(100% - 36px)}.aura-home .ah-hero{min-height:auto;padding:135px 0 85px}.aura-home h1{font-size:clamp(3.15rem,13vw,5.4rem)}.aura-home .ah-actions{flex-direction:column}.aura-home .ah-actions a{width:100%}.aura-home .ah-section{padding:75px 0}.aura-home .ah-section-head{margin-bottom:30px}.aura-home .ah-grid{grid-template-columns:1fr}.aura-home .ah-process{grid-template-columns:1fr;gap:0}.aura-home .ah-card{min-height:190px}.aura-home .ah-workspace-bar{padding:18px}.aura-home .ah-workspace-main{padding:20px}.aura-home .ah-roadmap{grid-template-columns:repeat(2,minmax(0,1fr))}.aura-home .ah-step{min-height:133px;padding:16px 12px}.aura-home .ah-assistant{align-items:flex-start;flex-direction:column}.aura-home .ah-proof{padding:27px}.aura-home .ah-final{padding:90px 0 105px}}
+@media(prefers-reduced-motion:reduce){.aura-home .ah-button,.aura-home .ah-card{transition:none}}
