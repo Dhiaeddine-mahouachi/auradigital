@@ -56,7 +56,7 @@ export async function mountAuri(host) {
  const preference=matchMedia('(prefers-reduced-motion: reduce)');
  let raf=0,visible=true,disposed=false;
  let lastPhase='',started=performance.now();
- const motionDuration=4.5;
+
  let targetX=0,targetY=0,gazeX=0,gazeY=0;
  let lastPointer=0;
  const clamp=value=>Math.max(-1,Math.min(1,value));
@@ -76,8 +76,7 @@ export async function mountAuri(host) {
   const phase=host.dataset.phase||'idle';
   if(phase!==lastPhase){lastPhase=phase;started=now;}
   const t=(now-started)/1000;
-  const asleep=phase==='idle'&&t>=60;
-  const time=preference.matches?0:login?Math.min(t,motionDuration):now/1000;
+  const time=preference.matches?0:now/1000;
   const active=['typing','working','drafting'].includes(phase);
   const happy=['happy','success','evolving','draft_ready'].includes(phase);
   for(const [name,show] of Object.entries({
@@ -91,20 +90,18 @@ export async function mountAuri(host) {
   camera.position.set(2,focus+1.16,6.8);
   camera.lookAt(0,focus,0);
   camera.updateProjectionMatrix();
-  const settle=login?Math.min(1,Math.max(0,motionDuration-time)):1;
-  const idleGuide=host.dataset.variant==='guide'&&phase==='idle';
   const tracking=lastPointer>0&&now-lastPointer<1800;
   gazeX=preference.matches?0:gazeX+((tracking?targetX:0)-gazeX)*.14;
   gazeY=preference.matches?0:gazeY+((tracking?targetY:0)-gazeY)*.14;
-  const pulse=preference.matches||idleGuide?0:Math.sin(time*2)*settle;
-  const wave=login&&!preference.matches?Math.max(0,1-Math.abs(time-1.7)/1.45):0;
+  const pulse=preference.matches?0:Math.sin(time*2);
+  const wave=login&&!preference.matches?Math.max(0,1-Math.abs(t-1.7)/1.45):0;
   modelRoot.position.y=.028*pulse+(happy&&!preference.matches?.15*Math.abs(Math.sin(t*6))*Math.max(0,1-t/2):0);
   modelRoot.rotation.y=phase==='evolving'&&!preference.matches?.32*Math.sin(Math.min(1,t/1.4)*Math.PI):.035*pulse;
   head.rotation.z=phase==='thinking'?-.14:phase==='error'?.1:.026*pulse;
   head.rotation.y=(phase==='listening'?-.17:.04*pulse)+.27*gazeX;
   head.rotation.x=-.17*gazeY;
   const blink=time>0&&time%4.2>4.04;
-  eyes.scale.y=phase==='sleeping'||asleep?.23:blink?.14:happy?.73:1+.08*pulse;
+  eyes.scale.y=phase==='sleeping'?.23:blink?.14:happy?.73:1+.08*pulse;
   const tap=preference.matches?0:.19*Math.sin(time*13);
   left.rotation.x=active?-.95+tap:phase==='speaking'?-.38+.16*pulse:happy?-.55:0;
   right.rotation.x=active?-.95-tap:happy?-1.5:-1.65*wave;
@@ -112,7 +109,7 @@ export async function mountAuri(host) {
   right.rotation.z=happy?.28:wave*(.25+.2*Math.sin(time*12));
   if(phase==='error')eyes.scale.y=.64;
   renderer.render(scene,camera);
-  if(!preference.matches&&(tracking||Math.abs(gazeX)+Math.abs(gazeY)>.004||(!asleep&&!idleGuide&&(!login||t<motionDuration))))raf=requestAnimationFrame(render);
+  if(!preference.matches)raf=requestAnimationFrame(render);
  }
  function schedule(){if(!raf&&visible&&!document.hidden&&!disposed)raf=requestAnimationFrame(render);}
  const resize=new ResizeObserver(()=>{

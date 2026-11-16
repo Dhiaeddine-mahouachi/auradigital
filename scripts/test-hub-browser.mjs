@@ -183,6 +183,15 @@ try {
  assert.equal(await mobile.locator('html').getAttribute('dir'),'rtl');
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
 
+ await desktop.locator('.growth-account summary').click();
+ await desktop.locator('.growth-account').getByRole('link',{name:'Settings'}).click();
+ await heading(desktop,'Account').waitFor();
+ await desktop.getByText('Change password',{exact:true}).click();
+ assert(await desktop.locator('[name=currentPassword]').isVisible());
+ await desktop.getByText('Change email',{exact:true}).click();
+ await desktop.getByText('Email confirmation is currently unavailable.',{exact:true}).waitFor();
+ await screenshot(desktop,'aura-command-settings');
+
  // A signed-out deep link is retained through the shared account flow.
  await desktop.locator('.growth-account summary').click();
  await Promise.all([

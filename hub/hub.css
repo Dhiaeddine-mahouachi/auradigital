@@ -706,3 +706,26 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 #growth-focus .task-options{margin-block-start:8px;border-block-start:1px solid #ffffff25}
 #growth-focus .task-options .growth-diy{padding-block:8px}
 @media(max-width:420px){#growth-focus .growth-focus-top{flex-wrap:wrap}}
+
+/* Account controls and useful empty states */
+.hub-brand-logo{width:34px;height:34px;object-fit:contain;border-radius:8px;flex:none}
+.aurahub-shell .command-wordmark,.command-gate-header .wordmark{display:inline-flex;align-items:center;gap:9px}
+.aurahub-shell .wordmark>span,.command-gate-header .wordmark>span{color:#f4f7ec}
+.aurahub-shell .command-wordmark .hub-brand-logo{filter:none}
+@media(max-width:800px){.aurahub-shell .hub-mobile-brand{display:inline-flex;align-items:center;gap:7px}.aurahub-shell .hub-mobile-brand .hub-brand-logo{width:25px;height:25px}}
+.hub-settings-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+.hub-settings-side{display:grid;gap:16px}
+.hub-settings-grid .panel{margin:0}
+.hub-settings-grid h2{margin:0 0 15px;font-size:1.12rem}
+.hub-account-address{display:flex;justify-content:space-between;align-items:start;gap:10px;flex-wrap:wrap;margin-block:0 16px;overflow-wrap:anywhere}
+.hub-account-address span{color:#cadd76;font-size:.8rem}
+.hub-settings-form{border-block-start:1px solid #ffffff22}
+.hub-settings-form summary{font-weight:700;font-size:.91rem}
+.hub-settings-form form{margin-block:12px}
+.hub-settings-link,.hub-settings-links>a{color:#e4f2be;text-decoration:none}
+.hub-settings-links{display:grid;gap:10px;justify-items:start}
+.hub-settings-feedback:empty{display:none}
+.hub-page-start{display:flex;gap:16px;align-items:start;background:linear-gradient(130deg,#1f2b1e,#151e18)}
+.hub-page-start h2{margin:0 0 8px}
+.hub-page-start .growth-secondary{margin-inline-start:5px}
+@media(max-width:760px){.hub-settings-grid{grid-template-columns:1fr}}

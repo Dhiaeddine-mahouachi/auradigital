@@ -1,3 +1,56 @@
+// src/hub/settings-view.js
+var settingsCopy = {
+  en: ["Account", "Change password", "Current password", "New password", "Change email", "New email", "Send confirmation links", "Confirm from both inboxes.", "Email confirmation is currently unavailable.", "Preferences", "Workspace", "Password changed. Sign in again.", "Links sent. Confirm from both inboxes.", "Confirm email change", "Confirmation saved. Open the link from your other inbox.", "Email updated. Sign in with the new address.", "Forgot your password?"],
+  fr: ["Compte", "Modifier le mot de passe", "Mot de passe actuel", "Nouveau mot de passe", "Modifier l\u2019adresse e-mail", "Nouvelle adresse e-mail", "Envoyer les liens", "Confirmez depuis les deux bo\xEEtes.", "La confirmation par e-mail est indisponible.", "Pr\xE9f\xE9rences", "Espace de travail", "Mot de passe chang\xE9. Reconnectez-vous.", "Liens envoy\xE9s. Confirmez depuis les deux bo\xEEtes.", "Confirmer le changement d\u2019e-mail", "Confirmation enregistr\xE9e. Ouvrez le lien envoy\xE9 \xE0 l\u2019autre adresse.", "Adresse modifi\xE9e. Connectez-vous avec la nouvelle adresse.", "Mot de passe oubli\xE9 ?"],
+  tr: ["Hesap", "\u015Eifreyi de\u011Fi\u015Ftir", "Mevcut \u015Fifre", "Yeni \u015Fifre", "E-postay\u0131 de\u011Fi\u015Ftir", "Yeni e-posta", "Onay ba\u011Flant\u0131lar\u0131n\u0131 g\xF6nder", "Her iki posta kutusundan da onaylay\u0131n.", "E-posta onay\u0131 \u015Fu anda kullan\u0131lam\u0131yor.", "Tercihler", "\xC7al\u0131\u015Fma alan\u0131", "\u015Eifre de\u011Fi\u015Ftirildi. Tekrar giri\u015F yap\u0131n.", "Ba\u011Flant\u0131lar g\xF6nderildi. Her iki posta kutusundan onaylay\u0131n.", "E-posta de\u011Fi\u015Fikli\u011Fini onayla", "Onay kaydedildi. Di\u011Fer posta kutusundaki ba\u011Flant\u0131y\u0131 a\xE7\u0131n.", "E-posta g\xFCncellendi. Yeni adresle giri\u015F yap\u0131n.", "\u015Eifrenizi mi unuttunuz?"],
+  ar: ["\u0627\u0644\u062D\u0633\u0627\u0628", "\u063A\u064A\u0651\u0631 \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631", "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u0627\u0644\u062D\u0627\u0644\u064A\u0629", "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u0627\u0644\u062C\u062F\u064A\u062F\u0629", "\u063A\u064A\u0651\u0631 \u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A", "\u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u062C\u062F\u064A\u062F", "\u0623\u0631\u0633\u0644 \u0631\u0648\u0627\u0628\u0637 \u0627\u0644\u062A\u0623\u0643\u064A\u062F", "\u0623\u0643\u0651\u062F \u0645\u0646 \u0635\u0646\u062F\u0648\u0642\u064E\u064A \u0627\u0644\u0628\u0631\u064A\u062F.", "\u062A\u0623\u0643\u064A\u062F \u0627\u0644\u0628\u0631\u064A\u062F \u063A\u064A\u0631 \u0645\u062A\u0627\u062D \u062D\u0627\u0644\u064A\u064B\u0627.", "\u0627\u0644\u062A\u0641\u0636\u064A\u0644\u0627\u062A", "\u0645\u0633\u0627\u062D\u0629 \u0627\u0644\u0639\u0645\u0644", "\u062A\u063A\u064A\u0651\u0631\u062A \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631. \u0633\u062C\u0651\u0644 \u0627\u0644\u062F\u062E\u0648\u0644 \u0645\u062C\u062F\u062F\u064B\u0627.", "\u0623\u064F\u0631\u0633\u0644\u062A \u0627\u0644\u0631\u0648\u0627\u0628\u0637. \u0623\u0643\u0651\u062F \u0645\u0646 \u0635\u0646\u062F\u0648\u0642\u064E\u064A \u0627\u0644\u0628\u0631\u064A\u062F.", "\u0623\u0643\u0651\u062F \u062A\u063A\u064A\u064A\u0631 \u0627\u0644\u0628\u0631\u064A\u062F", "\u062A\u0645 \u0627\u0644\u062D\u0641\u0638. \u0627\u0641\u062A\u062D \u0627\u0644\u0631\u0627\u0628\u0637 \u0641\u064A \u0635\u0646\u062F\u0648\u0642 \u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u0622\u062E\u0631.", "\u062A\u0645 \u062A\u063A\u064A\u064A\u0631 \u0627\u0644\u0628\u0631\u064A\u062F. \u0633\u062C\u0651\u0644 \u0627\u0644\u062F\u062E\u0648\u0644 \u0628\u0627\u0644\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u062C\u062F\u064A\u062F.", "\u0646\u0633\u064A\u062A \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631\u061F"]
+};
+var accountSettingsCopy = (lang2) => settingsCopy[lang2] || settingsCopy.en;
+function renderAccountSettings({ host, user, lang: lang2, esc: esc3, t: t2, api: api2, link: link2, workspace: workspace2, canEmail, canLinkGoogle, onNewWorkspace, onSignIn, onLanguage }) {
+  const [account, password, current, newPassword, email, newEmail, send, confirmBoth, unavailable, preferences, space, passwordSaved, linksSent, , , , forgot] = accountSettingsCopy(lang2);
+  const currentField = `<label class="field">${current}<input name="currentPassword" type="password" required maxlength="200" autocomplete="current-password"></label>`;
+  host.innerHTML = `<div class="hub-settings-grid">
+ <section class="panel hub-settings-account"><h2>${account}</h2><div class="hub-account-address"><strong>${esc3(user.email)}</strong><span>${esc3(t2(user.verified ? "verified" : "verify"))}</span></div>
+ <details class="hub-settings-form"><summary>${password}</summary>
+ <form data-account-change="password">${currentField}<label class="field">${newPassword}<input name="password" type="password" required minlength="12" maxlength="72" autocomplete="new-password"></label><button type="submit" class="growth-primary">${password}</button></form>
+ ${canEmail ? `<a class="hub-settings-link" href="/hub/forgot">${forgot}</a>` : ""}</details>
+ <details class="hub-settings-form"><summary>${email}</summary>
+ ${canEmail ? `<p>${confirmBoth}</p><form data-account-change="email">${currentField}<label class="field">${newEmail}<input name="email" type="email" required maxlength="254" autocomplete="email"></label><button type="submit" class="growth-primary">${send}</button></form>` : `<p>${unavailable}</p>`}</details>
+ ${canLinkGoogle ? `<a class="growth-secondary" href="/api/customer/google/start?acceptTerms=true">${esc3(t2("linkGoogle"))}</a>` : ""}
+ <p class="hub-settings-feedback" role="status"></p></section>
+ <div class="hub-settings-side"><section class="panel"><h2>${preferences}</h2><label class="field">${{ en: "Language", fr: "Langue", tr: "Dil", ar: "\u0627\u0644\u0644\u063A\u0629" }[lang2]}
+ <select data-settings-language>${[["en", "English"], ["fr", "Fran\xE7ais"], ["tr", "T\xFCrk\xE7e"], ["ar", "\u0627\u0644\u0639\u0631\u0628\u064A\u0629"]].map(([value, label]) => `<option value="${value}" ${value === lang2 ? "selected" : ""}>${label}</option>`).join("")}</select></label><div class="hub-settings-links">
+ ${workspace2 ? `<a href="${esc3(link2("assistant"))}">${esc3(t2("auri"))} \u2197</a>` : ""}<a href="/account">${esc3(t2("orders"))} \u2197</a></div></section>
+ <section class="panel"><h2>${space}</h2><div class="hub-settings-links">
+ ${workspace2 ? `<a href="${esc3(link2("profile"))}">${esc3(t2("profile"))} \u2197</a><a href="${esc3(link2("team"))}">${esc3(t2("team"))} \u2197</a>` : ""}
+ <button type="button" class="growth-secondary" data-add-workspace>${esc3(t2("newWorkspace"))}</button></div></section></div></div>`;
+  const feedback = host.querySelector("[role=status]");
+  host.querySelector("[data-add-workspace]").onclick = onNewWorkspace;
+  host.querySelector("[data-settings-language]").onchange = (event) => onLanguage(event.target.value);
+  for (const form of host.querySelectorAll("[data-account-change]")) {
+    form.onsubmit = async (event) => {
+      event.preventDefault();
+      const action = form.dataset.accountChange, submit = form.querySelector("button");
+      if (submit.disabled) return;
+      submit.disabled = true;
+      feedback.textContent = "";
+      try {
+        await api2("/api/customer/change-" + action, "POST", Object.fromEntries(new FormData(form)));
+        form.reset();
+        if (action === "password") {
+          onSignIn(passwordSaved);
+          return;
+        }
+        feedback.textContent = linksSent;
+      } catch (error) {
+        feedback.textContent = error.message;
+      } finally {
+        submit.disabled = false;
+      }
+    };
+  }
+}
+
 // src/hub/service-ranking.js
 var categories = [
   { pattern: /whatsapp/i, kind: "whatsapp", symbol: "WA", capabilities: ["whatsapp"] },
@@ -767,7 +820,7 @@ var AuriCharacter = class extends HTMLElement {
       if (!entry.isIntersecting) return;
       this.observer.disconnect();
       try {
-        const { mountAuri } = await import("/media/auri/viewer.js");
+        const { mountAuri } = await import("/media/auri/viewer.js?v=idle-motion-2");
         if (this.isConnected) this.disposeModel = await mountAuri(this);
       } catch {
       }
@@ -1531,6 +1584,7 @@ function guideAt(host, scope, context) {
   if (!guideThreads.has(key)) guideThreads.set(key, []);
   mountGuide(host, { lang, esc: esc2, api, turns: guideThreads.get(key), scope, context });
 }
+var brandMarkup = '<img class="hub-brand-logo" src="/auradigital-mark-20260928.png" alt="" width="34" height="34"><span>AuraDigital</span>';
 var robot = () => auriCharacter(auriLevel(), { posterOnly: true });
 function bindAuri(host, scope) {
   disconnectAuri();
@@ -1589,7 +1643,7 @@ function render() {
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   app.setAttribute("aria-busy", "false");
-  if (!me || ["verify", "reset", "forgot", "invitation"].includes(route)) {
+  if (!me || ["verify", "reset", "forgot", "invitation", "confirm-email"].includes(route)) {
     renderGate();
     return;
   }
@@ -1627,7 +1681,7 @@ function openFirstLogin() {
     esc: esc2,
     robot: guideCharacter,
     guide: (host) => guideAt(host, setupScope, () => firstLogin?.values),
-    header: `<header class="gate-header command-gate-header"><a href="${esc2(link("home"))}" class="wordmark">AuraHub</a>${languageControl()}</header>`,
+    header: `<header class="gate-header command-gate-header"><a href="${esc2(link("home"))}" class="wordmark">${brandMarkup}</a>${languageControl()}</header>`,
     bind: () => {
       bindCommon();
       bindAuri(document.querySelector(".auri-setup-character"), setupScope);
@@ -1657,7 +1711,7 @@ function openFirstLogin() {
   });
 }
 function gateFrame(content2) {
-  app.innerHTML = `<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">Aura <span>Command</span></a>${languageControl()}</header><main id="main" class="gate command-gate">${content2}</main>`;
+  app.innerHTML = `<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">${brandMarkup}</a>${languageControl()}</header><main id="main" class="gate command-gate">${content2}</main>`;
   bindCommon();
 }
 async function renderGate() {
@@ -1681,6 +1735,23 @@ async function renderGate() {
       document.querySelector("#invitation-content").textContent = e.message;
       document.querySelector("#invitation-content").append(Object.assign(document.createElement("a"), { href: "/hub/settings", textContent: t("settings") }));
     }
+    return;
+  }
+  if (route === "confirm-email") {
+    const copy5 = accountSettingsCopy(lang);
+    gateFrame(`<section class="panel"><h1>${copy5[13]}</h1><p role="status" data-confirm-result></p>${button("confirm", "confirm-email")}<a href="/hub/login">${esc2(t("signIn"))}</a></section>`);
+    const action = document.querySelector("[data-action=confirm-email]"), status = document.querySelector("[data-confirm-result]");
+    action.onclick = async () => {
+      action.disabled = true;
+      try {
+        const result2 = await api("/api/customer/confirm-email-change", "POST", { token: flowToken });
+        flowToken = "";
+        status.textContent = copy5[result2.complete ? 15 : 14];
+      } catch (error) {
+        status.textContent = error.message;
+        action.disabled = false;
+      }
+    };
     return;
   }
   if (route === "verify") {
@@ -1765,7 +1836,7 @@ function renderSetup() {
   }
   const choosing = !editing;
   const setupKeys = workspace ? profileKeys : mode === "auri" ? ["name", "industry", "industryDetails", "goals", "capabilities", "auriName", "roadmapPreview"] : ["name", "industry", "goals", "budget", "currency", "website", "capabilities"];
-  app.innerHTML = `<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">Aura <span>Command</span></a>${languageControl()}</header><main class="setup command-setup" id="main"><div class="setup-heading"><p class="eyebrow">Aura Command</p><h1>${choosing ? commandLabels(lang).onboarding : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div>${mode === "auri" ? `<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>` : ""}<form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+  app.innerHTML = `<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">${brandMarkup}</a>${languageControl()}</header><main class="setup command-setup" id="main"><div class="setup-heading"><p class="eyebrow">Aura Command</p><h1>${choosing ? commandLabels(lang).onboarding : esc2(draft.name || t("profile"))}</h1><p>${choosing ? t("choose") : t(mode === "auri" ? "auriText" : "myselfText")}</p></div>${choosing ? `<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">\u2197</span><h2>${t("myself")}</h2><p>${t("myselfText")}</p><span>${t("continue")} \u2192</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t("auri")}</h2><p>${t("auriText")}</p><span>${t("continue")} \u2192</span></button></div>` : `<section class="panel profile-panel"><div class="panel-bar"><span>${mode === "auri" ? `AURI \xB7 ${step + 1}/${setupKeys.length}` : t("profile")}</span><span id="save-state" role="status"></span>${button("switchMode", "switch-mode", true)}</div>${mode === "auri" ? `<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>` : ""}<form id="profile-form" class="${mode === "auri" ? "guided" : "form-grid"}">${(mode === "auri" ? [setupKeys[step]] : setupKeys).map(profileField).join("")}<div class="actions full">${mode === "auri" ? button("back", "back-step", true, step === 0) + button("skip", "skip-step", true, step === 0) : ""}<button class="primary" type="submit">${t(mode === "auri" && step < setupKeys.length - 1 ? "continue" : "save")}</button>${workspace ? button("home", "leave-setup", true) : ""}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
   bindCommon();
   document.querySelectorAll("[data-mode]").forEach((b) => b.onclick = () => {
     mode = b.dataset.mode;
@@ -1926,15 +1997,15 @@ function renderShell() {
   ${hubIcon(p)}<span>${esc2(p === "services" ? serviceLabels[lang][0] : labels3[p] || l[p] || t(p))}</span></a>`;
   const title = page === "services" ? serviceLabels[lang][0] : page === "journey" ? commandLabels(lang).vision : labels3[page] || l[page] || t(page);
   app.innerHTML = `<div class="shell growth-shell growth-active aurahub-shell ${page === "services" ? "service-shell" : ""}"><aside class="sidebar" id="sidebar">
- <a href="${esc2(link("home"))}" class="wordmark command-wordmark"><svg viewBox="0 0 32 29" width="34" height="31" aria-hidden="true" fill="currentColor"><path d="M15.9 1.2a3.4 3.4 0 0 1 2.9 1.8L32 27.8l-9.2-4.1L15.9 10l-5.4 10.5 8.4-2.3 3 5.5L0 29 13 3a3.3 3.3 0 0 1 2.9-1.8Z"/></svg>AuraHub</a>
+ <a href="${esc2(link("home"))}" class="wordmark command-wordmark">${brandMarkup}</a>
  <nav aria-label="AuraHub">${navigation.map((p) => navItem(p)).join("")}</nav></aside>
  <div class="workspace"><header class="topbar growth-topbar hub-topbar">
- <a class="hub-mobile-brand wordmark" href="${esc2(link("home"))}">AuraHub</a>
+ <a class="hub-mobile-brand wordmark" href="${esc2(link("home"))}">${brandMarkup}</a>
  ${workspace ? `<label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span>
  <select id="workspace-select" aria-label="${t("businessName")}">${workspaces.map((o) => `<option value="${esc2(o.id)}" ${o.id === workspace.organization.id ? "selected" : ""}>${esc2(o.id === workspace.organization.id ? workspace.organization.name : o.name)}</option>`).join("")}</select></label>` : ""}
  <details class="growth-account"><summary aria-label="${esc2(t("profile"))}">${hubIcon("profile")}</summary>
  <div class="growth-account-menu"><strong>${esc2(me.name)}</strong>${languageControl()}
- ${workspace ? navItem("profile") + navItem("settings") + navItem("invoices") : ""}${button("logout", "logout", true)}</div></details></header>
+ ${navItem("settings")}${workspace ? navItem("profile") + navItem("invoices") : ""}${button("logout", "logout", true)}</div></details></header>
  <main id="main" tabindex="-1"><div class="page-heading"><h1>${page === "home" && (!workspace || !workspace.missions.length) ? `${esc2(labels3.welcome)} <span>AuraHub</span>` : page === "journey" && lang === "en" ? "Growth <span>Vision</span>" : esc2(title)}</h1>
  ${["services", "requests"].includes(page) && workspace?.permissions.includes("roadmap:write") && !query.has("new") ? `<a class="growth-secondary" href="${esc2(requestLink())}">\uFF0B ${esc2(l.request)}</a>` : ""}</div>
  ${!me.verified && authCapabilities.email ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}
@@ -1987,7 +2058,7 @@ app.addEventListener("click", (event) => {
   const anchor = event.target.closest("a[href]");
   if (!me || !anchor || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || anchor.target || anchor.origin !== location.origin) return;
   const slug = anchor.pathname.split("/")[2] || "";
-  if (!anchor.pathname.startsWith("/hub") || ["login", "signup", "verify", "forgot", "reset", "invitation"].includes(slug)) return;
+  if (!anchor.pathname.startsWith("/hub") || ["login", "signup", "verify", "forgot", "reset", "invitation", "confirm-email"].includes(slug)) return;
   const targetWorkspace = new URL(anchor.href).searchParams.get("workspace");
   if (targetWorkspace && targetWorkspace !== workspace?.organization.id) return;
   event.preventDefault();
@@ -2100,6 +2171,13 @@ async function myWork() {
     return;
   }
   const section = (name, empty, rows) => `<section class="hub-work-section"><h2>${esc2(name)}</h2>${rows || `<p class="hub-empty">${esc2(empty)}</p>`}</section>`;
+  if (!attention.length && !requests2.length) {
+    host.innerHTML = `<section class="panel hub-page-start"><span class="hub-row-icon">${hubIcon("services")}</span><div><h2>${esc2(ui.requests)}</h2>
+  <p>${esc2({ en: "Your requests will appear here.", fr: "Vos demandes appara\xEEtront ici.", tr: "Talepleriniz burada g\xF6r\xFCnecek.", ar: "\u0633\u062A\u0638\u0647\u0631 \u0637\u0644\u0628\u0627\u062A\u0643 \u0647\u0646\u0627." }[lang])}</p>
+  <a class="growth-primary" href="${esc2(link("services"))}">${esc2(serviceLabels[lang][0])} \u2192</a>
+  <a class="growth-secondary" href="${esc2(link("menuDrafts"))}">${esc2(t("menuDrafts"))}</a></div></section>${serviceShortcuts(lang, esc2, link, { profile: workspace.profile, missions: workspace.missions })}`;
+    return;
+  }
   const displayed = new Set([...attention, ...progress].map((record) => record.id));
   const history2 = requests2.filter((record) => !displayed.has(record.id));
   host.innerHTML = section(ui.attention, ui.emptyAttention, attention.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + section(ui.progress, ui.emptyProgress, progress.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + (history2.length ? section(hubLabels(lang).requests, "", history2.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) : "") + `<a href="${esc2(link("menuDrafts"))}" class="growth-secondary">${esc2(t("menuDrafts"))}</a>`;
@@ -2125,6 +2203,33 @@ async function renderPage() {
     } else renderServices({ host, records: [], lang, esc: esc2, link });
     return;
   }
+  if (page === "settings") return renderAccountSettings({
+    host: document.querySelector("#page-content"),
+    user: me,
+    lang,
+    esc: esc2,
+    t,
+    api,
+    link,
+    workspace,
+    canEmail: authCapabilities.email,
+    canLinkGoogle: me.verified && authCapabilities.google,
+    onSignIn: () => location.assign("/hub/login"),
+    onLanguage: (value) => {
+      lang = value;
+      localStorage.setItem("aura-hub-language", lang);
+      render();
+    },
+    onNewWorkspace: () => {
+      stopAuriVoice();
+      workspace = null;
+      editing = true;
+      draft = emptyProfile();
+      mode = "myself";
+      step = 0;
+      renderSetup();
+    }
+  });
   if (!workspace) return renderBuildCard(label);
   if (page === "services" || page === "requests") return myWork();
   if ((page === "journey" || page === "onboarding") && !workspace.missions.length) return renderBuildCard(label);
@@ -2165,25 +2270,19 @@ async function renderPage() {
   if (page === "simulator") return simulator();
   if (page === "team") return team();
   if (page === "assistant") return assistant();
-  if (page === "settings") {
-    content(`<section class="panel"><h2>${t("security")}</h2><p>${esc2(me.email)} \xB7 ${me.verified ? t("verified") : t("verify")}</p>${authCapabilities.email ? `<a class="secondary" href="/hub/forgot">${t("reset")}</a>` : ""}${me.verified && authCapabilities.google ? `<p><a class="secondary" href="/api/customer/google/start?acceptTerms=true">${t("linkGoogle")}</a></p>` : ""}<hr>${button("profile", "open-profile", true)}${button("auri", "open-auri-settings", true)}${button("team", "open-team", true)}${button("resources", "open-resources", true)}${button("newWorkspace", "new-workspace", true)}</section>`);
-    document.querySelector('[data-action="open-profile"]').onclick = () => navigate("profile");
-    document.querySelector('[data-action="open-auri-settings"]').onclick = () => navigate("assistant");
-    document.querySelector('[data-action="open-resources"]').onclick = () => navigate("resources");
-    document.querySelector('[data-action="open-team"]').onclick = () => navigate("team");
-    document.querySelector('[data-action="new-workspace"]').onclick = () => {
-      stopAuriVoice();
-      workspace = null;
-      editing = true;
-      draft = emptyProfile();
-      mode = "myself";
-      step = 0;
-      renderSetup();
-    };
+  const shortcuts = { projects: ["requests", label.requests], websites: ["services", serviceLabels[lang][0], { offer: "web" }], hosting: ["services", serviceLabels[lang][0], { offer: "hosting" }], files: ["services", serviceLabels[lang][0]], reports: ["insights", t("simulator")], rewards: ["journey", commandLabels(lang).vision] };
+  const shortcut = shortcuts[page];
+  if (shortcut) {
+    const [destination, name, params] = shortcut;
+    content(`<section class="panel hub-page-start"><span class="hub-row-icon">${hubIcon(destination)}</span><div>
+  <h2>${esc2(name)}</h2><a class="growth-primary" href="${esc2(link(destination, params))}">${esc2(name)} \u2192</a></div></section>
+  ${["projects", "websites", "hosting", "files"].includes(page) ? serviceShortcuts(lang, esc2, link, { profile: workspace.profile, missions: workspace.missions }) : ""}`);
     return;
   }
-  const service = page === "services", support = page === "support", reports = ["reports", "rewards"].includes(page);
-  content(`<section class="panel quiet-panel"><span class="eyebrow">${reports ? "NOT CONNECTED" : service ? "SERVICE CATALOGUE" : "INTEGRATION PENDING"}</span><h2>${t(page)}</h2><p>${t(service ? "serviceNote" : support ? "supportText" : reports ? "reportNote" : "unavailable")}</p><a class="primary" href="${service ? "/services" : "/contact"}">${t(service ? "openServices" : "contact")} \u2197</a></section>`);
+  content(`<section class="panel hub-page-start"><span class="hub-row-icon">${hubIcon("assistant")}</span><div>
+ <h2>${esc2(t("contact"))}</h2><p>${esc2(t("supportText"))}</p>
+ ${workspace.permissions.includes("auri:use") ? `<a class="growth-primary" href="${esc2(link("assistant"))}">${esc2(label.assistant)} \u2197</a>` : ""}
+ <a class="growth-secondary" href="/contact">${esc2(t("contact"))}</a></div></section>`);
 }
 async function askAuri(question, missionId, requestId, serviceKey, offer) {
   const id = workspace.organization.id;
@@ -2777,7 +2876,7 @@ async function load() {
   }
 }
 async function start() {
-  if (["verify", "reset", "forgot"].includes(route)) {
+  if (["verify", "reset", "forgot", "confirm-email"].includes(route)) {
     render();
     return;
   }
