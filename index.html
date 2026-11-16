@@ -14,8 +14,8 @@
     <link rel="stylesheet" href="style.css?v=direct-design-20261004" />
     <link rel="stylesheet" href="responsive.css?v=direct-design-20261004" />
     <link rel="stylesheet" href="cinematic.css?v=direct-design-20261004" />
-    <link rel="stylesheet" href="home-command.css?v=20261116-v2" />
-    <link rel="stylesheet" href="home-experience.css?v=visual-workflow-1" />
+    <link rel="stylesheet" href="home-command.css?v=shared-auri-1" />
+    <link rel="stylesheet" href="home-experience.css?v=shared-auri-1" />
     <link rel="stylesheet" href="home-real-hub.css?v=20261116" />
     
 
@@ -54,7 +54,7 @@
           </div>
         </div>
         <div class="ac-auri-float" aria-label="Auri assistant illustrated suggestion">
-          <div class="ac-auri-portrait" data-landing-auri level="3" data-variant="guide"><img src="/media/auri/level-1.webp" alt="" loading="eager" width="116" height="116"></div>
+          <auri-character class="ac-auri-portrait" aria-hidden="true" level="3" data-variant="guide"><img src="/media/auri/level-3.webp" alt="" width="256" height="256" loading="eager" decoding="async"></auri-character>
           <div class="ac-auri-bubble"><span><b class="ac-dot"></b> AURI / YOUR AI PARTNER</span><p data-demo-reply>We can start with your website. I'll help you plan what it needs.</p><a href="/hub">Talk to Auri <span aria-hidden="true">↗</span></a></div>
         </div>
         <div class="ac-stage-caption">01 — PLAN IT <span>02 — BUILD IT</span> 03 — GROW IT</div>
@@ -84,7 +84,7 @@
       <div class="hx-persona-preview">
         <div class="hx-window-head"><span><img src="/auradigital-mark-20260928.png" width="21" height="21" alt="">AuraHub <span class="hx-dot-separator">/</span> Growth Vision</span><span class="hx-preview-tag">INTERACTIVE EXAMPLE</span></div>
         <div class="hx-persona-dashboard">
-          <div class="hx-persona-overview"><div><span class="hx-overline">AURI'S SUGGESTED PLAN</span><h3 data-persona-heading>Let's grow your restaurant.</h3><p data-persona-description>Start with your online menu, then make it easier for guests to find and contact you.</p></div><img src="/media/auri/level-1.webp" width="94" height="94" alt="Auri assistant, illustrated"></div>
+          <div class="hx-persona-overview"><div><span class="hx-overline">AURI'S SUGGESTED PLAN</span><h3 data-persona-heading>Let's grow your restaurant.</h3><p data-persona-description>Start with your online menu, then make it easier for guests to find and contact you.</p></div><auri-character class="hx-persona-portrait" aria-hidden="true" level="3"><img src="/media/auri/level-3.webp" alt="" width="256" height="256" loading="lazy" decoding="async"></auri-character></div>
           <div class="hx-roadmap-label"><span>YOUR ROADMAP</span><span>Example steps · adjust any time</span></div>
           <div class="hx-roadmap-steps" role="list">
             <div class="hx-roadmap-step is-current" role="listitem"><span>01</span><strong data-persona-step="0">Set up AuraMenu</strong><small>Suggested first</small></div>
@@ -113,7 +113,7 @@
       <a class="ac-btn ac-btn--primary" href="/hub">Start with Auri <span aria-hidden="true">↗</span></a>
     </div>
     <div class="ac-chat-showcase">
-      <div class="ac-chat-header"><span class="ac-chat-identity"><img src="/media/auri/level-1.webp" alt="" loading="lazy" width="56" height="56"><span><b>Auri</b><small>Your business co-pilot</small></span></span><span class="ac-chat-live"><i></i> PRODUCT PREVIEW</span></div>
+      <div class="ac-chat-header"><span class="ac-chat-identity"><auri-character class="ac-chat-portrait" aria-hidden="true" level="1"><img src="/media/auri/level-1.webp" alt="" width="256" height="256" loading="lazy" decoding="async"></auri-character><span><b>Auri</b><small>Your business co-pilot</small></span></span><span class="ac-chat-live"><i></i> PRODUCT PREVIEW</span></div>
       <div class="ac-conversation" aria-live="polite"><div class="ac-chat-line ac-chat-line--user" data-scenario-user>I want to launch my business online.</div><div class="ac-chat-line ac-chat-line--auri"><span class="ac-chat-mini">✦</span><span data-scenario-answer>Let's start with the essentials: a website, a business email, and a way for customers to reach you. I'll organize the steps in your roadmap.</span></div></div>
       <div class="ac-example-header">TRY AN EXAMPLE</div>
       <div class="ac-scenarios" aria-label="Explore Auri example requests"><button type="button" class="is-selected" aria-pressed="true" data-scenario="launch">Launch a business</button><button type="button" aria-pressed="false" data-scenario="customers">Find customers</button><button type="button" aria-pressed="false" data-scenario="automate">Automate replies</button></div>
@@ -162,7 +162,7 @@
     </div>
     <div class="hx-compare-pane hx-compare-after" data-image-slot="after" aria-hidden="true">
      <div class="hx-after-board">
-      <div class="hx-after-top"><img src="/media/auri/level-1.webp" alt="" width="35" height="35"><span>AuraHub <small>Corner Café</small></span><b>● Workspace</b></div>
+      <div class="hx-after-top"><auri-character class="hx-after-portrait" aria-hidden="true" level="1"><img src="/media/auri/level-1.webp" alt="" width="256" height="256" loading="lazy" decoding="async"></auri-character><span>AuraHub <small>Corner Café</small></span><b>● Workspace</b></div>
       <div class="hx-after-modules">
        <div class="hx-module hx-module--menu"><span>QR menu</span><img src="/qr-menu-phone.svg" alt="" width="65" height="92"><b>✓ Shareable</b></div>
        <div class="hx-module hx-module--chat"><span>WhatsApp</span><i>Menu link?</i><i>Here it is ↗</i><b>✓ Reply ready</b></div>
@@ -203,6 +203,7 @@
     
     
   <script defer src="home-command.js?v=20261116-v2"></script>
-    <script defer src="home-experience.js?v=system-preview-2"></script>
+    <script defer src="home-experience.js?v=shared-auri-1"></script>
+    <script type="module" src="/media/auri/character.js?v=shared-cursor-1"></script>
   </body>
 </html>

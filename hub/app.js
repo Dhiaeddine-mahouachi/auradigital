@@ -51,6 +51,85 @@ function renderAccountSettings({ host, user, lang: lang2, esc: esc3, t: t2, api:
   }
 }
 
+// src/hub/auri-controller.js
+var channels = /* @__PURE__ */ new Map();
+var subscribers = /* @__PURE__ */ new Set();
+function channel(scope) {
+  if (!channels.has(scope)) channels.set(scope, { active: /* @__PURE__ */ new Map(), outcome: "idle", timer: null });
+  return channels.get(scope);
+}
+function notify(scope) {
+  const state2 = channel(scope);
+  const phase = [...state2.active.values()].at(-1)?.phase || state2.outcome;
+  for (const subscriber of subscribers) subscriber(scope, phase);
+}
+function watchAuri(scope, listener) {
+  const subscriber = (key, phase) => {
+    if (key === scope) listener(phase);
+  };
+  subscribers.add(subscriber);
+  notify(scope);
+  return () => subscribers.delete(subscriber);
+}
+function pulseAuri(scope, phase, duration = 1800) {
+  const state2 = channel(scope);
+  clearTimeout(state2.timer);
+  state2.outcome = phase;
+  notify(scope);
+  state2.timer = setTimeout(() => {
+    state2.outcome = "idle";
+    notify(scope);
+    if (!state2.active.size) channels.delete(scope);
+  }, duration);
+}
+async function runAuri(scope, phase, operation, success = "success") {
+  const state2 = channel(scope);
+  const token = /* @__PURE__ */ Symbol();
+  const job = { phase, completed: false };
+  const latest = () => [...state2.active.keys()].at(-1) === token;
+  state2.active.set(token, job);
+  clearTimeout(state2.timer);
+  state2.outcome = "idle";
+  const typing = phase === "working" ? setTimeout(() => {
+    if (!job.completed) {
+      job.phase = "typing";
+      notify(scope);
+    }
+  }, 420) : null;
+  notify(scope);
+  try {
+    const result2 = await operation();
+    if (latest()) pulseAuri(scope, success);
+    return result2;
+  } catch (error) {
+    if (latest()) pulseAuri(scope, "error");
+    throw error;
+  } finally {
+    job.completed = true;
+    clearTimeout(typing);
+    state2.active.delete(token);
+    notify(scope);
+    if (!state2.active.size && state2.outcome === "idle") channels.delete(scope);
+  }
+}
+
+// src/hub/auri-companion.js
+var auriCharacter = (level = 1, { variant } = {}) => {
+  const value = Number.isInteger(level) && level >= 1 && level <= 7 ? level : 1;
+  return `<auri-character class="auri" aria-hidden="true" ${["login", "guide"].includes(variant) ? `data-variant="${variant}"` : ""} level="${value}"><img alt="" width="256" height="256" loading="lazy" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
+};
+function connectAuri(host, scope, labels3) {
+  const status = host.querySelector("[data-auri-status]");
+  const character = host.querySelector("auri-character");
+  if (!character) return () => {
+  };
+  return watchAuri(scope, (phase) => {
+    character.dataset.phase = phase;
+    if (status) status.textContent = labels3[phase] || "";
+    host.querySelector("details")?.toggleAttribute("data-auri-pending", ["thinking", "working", "typing", "drafting"].includes(phase));
+  });
+}
+
 // src/hub/service-ranking.js
 var categories = [
   { pattern: /whatsapp/i, kind: "whatsapp", symbol: "WA", capabilities: ["whatsapp"] },
@@ -223,7 +302,7 @@ function renderServiceOffer({ host, offer, lang: lang2, esc: esc3, link: link2, 
  <div class="service-offer-copy"><span class="service-icon">${icon(offer)}</span><h2>${esc3(example[lang2])}</h2>
  <p>${deliverables[offer][lang2][0]}</p>${scopeMarkup(offer, lang2)}
  <div class="growth-actions offer-actions">
- ${askLabel ? `<a class="growth-primary service-ask-auri" href="${esc3(link2("assistant", { offer }))}"><img src="/media/auri/level-1.webp" alt="" width="25" height="25" loading="lazy">${esc3(askLabel)} <span aria-hidden="true">\u2197</span></a>` : ""}
+ ${askLabel ? `<a class="growth-primary service-ask-auri" href="${esc3(link2("assistant", { offer }))}">${auriCharacter()}${esc3(askLabel)} <span aria-hidden="true">\u2197</span></a>` : ""}
  ${canRequest ? `<a class="${askLabel ? "growth-secondary" : "growth-primary"}" href="${esc3(link2("requests", { new: "1", service: example.service }))}">${previewCopy[lang2][1]} \u2192</a>` : canSetUp ? `<a class="growth-primary" href="${esc3(link2("onboarding"))}">${detailCopy[lang2][4]}</a>` : ""}</div></div></article>`;
   return true;
 }
@@ -308,68 +387,6 @@ function renderServiceDetails({ host, record, lang: lang2, esc: esc3, link: link
  <div class="actions"><a class="growth-secondary" href="${esc3(link2("services"))}">${labels3[0]}</a>
  ${deliverables[serviceKind(record.name)] ? `<a class="growth-secondary" href="${esc3(link2("services", { offer: serviceKind(record.name) }))}">${detailCopy[lang2][1]}</a>` : ""}
  ${askLabel ? `<a class="growth-primary" href="${esc3(link2("assistant", { serviceRecord: record.key }))}">${esc3(askLabel)}</a>` : ""}</div></article>`;
-}
-
-// src/hub/auri-controller.js
-var channels = /* @__PURE__ */ new Map();
-var subscribers = /* @__PURE__ */ new Set();
-function channel(scope) {
-  if (!channels.has(scope)) channels.set(scope, { active: /* @__PURE__ */ new Map(), outcome: "idle", timer: null });
-  return channels.get(scope);
-}
-function notify(scope) {
-  const state2 = channel(scope);
-  const phase = [...state2.active.values()].at(-1)?.phase || state2.outcome;
-  for (const subscriber of subscribers) subscriber(scope, phase);
-}
-function watchAuri(scope, listener) {
-  const subscriber = (key, phase) => {
-    if (key === scope) listener(phase);
-  };
-  subscribers.add(subscriber);
-  notify(scope);
-  return () => subscribers.delete(subscriber);
-}
-function pulseAuri(scope, phase, duration = 1800) {
-  const state2 = channel(scope);
-  clearTimeout(state2.timer);
-  state2.outcome = phase;
-  notify(scope);
-  state2.timer = setTimeout(() => {
-    state2.outcome = "idle";
-    notify(scope);
-    if (!state2.active.size) channels.delete(scope);
-  }, duration);
-}
-async function runAuri(scope, phase, operation, success = "success") {
-  const state2 = channel(scope);
-  const token = /* @__PURE__ */ Symbol();
-  const job = { phase, completed: false };
-  const latest = () => [...state2.active.keys()].at(-1) === token;
-  state2.active.set(token, job);
-  clearTimeout(state2.timer);
-  state2.outcome = "idle";
-  const typing = phase === "working" ? setTimeout(() => {
-    if (!job.completed) {
-      job.phase = "typing";
-      notify(scope);
-    }
-  }, 420) : null;
-  notify(scope);
-  try {
-    const result2 = await operation();
-    if (latest()) pulseAuri(scope, success);
-    return result2;
-  } catch (error) {
-    if (latest()) pulseAuri(scope, "error");
-    throw error;
-  } finally {
-    job.completed = true;
-    clearTimeout(typing);
-    state2.active.delete(token);
-    notify(scope);
-    if (!state2.active.size && state2.outcome === "idle") channels.delete(scope);
-  }
 }
 
 // src/hub/guide-view.js
@@ -810,44 +827,6 @@ var missionOutcome = (capability) => goalByCapability[capability] || null;
 function missionAlternative(capability) {
   const option = alternatives[missionOutcome(capability)];
   return option ? { title: option[0], steps: option[1] } : null;
-}
-
-// src/hub/auri-companion.js
-var lowBandwidth = () => navigator.connection?.saveData || ["slow-2g", "2g"].includes(navigator.connection?.effectiveType);
-var AuriCharacter = class extends HTMLElement {
-  connectedCallback() {
-    if (this.hasAttribute("poster-only") || lowBandwidth() || !("IntersectionObserver" in window) || !window.WebGL2RenderingContext) return;
-    this.observer = new IntersectionObserver(async ([entry]) => {
-      if (!entry.isIntersecting) return;
-      this.observer.disconnect();
-      try {
-        const { mountAuri } = await import("/media/auri/viewer.js?v=idle-motion-2");
-        if (this.isConnected) this.disposeModel = await mountAuri(this);
-      } catch {
-      }
-    }, { rootMargin: "100px" });
-    this.observer.observe(this);
-  }
-  disconnectedCallback() {
-    this.observer?.disconnect();
-    this.disposeModel?.();
-  }
-};
-customElements.define("auri-character", AuriCharacter);
-var auriCharacter = (level = 1, { posterOnly = false, variant } = {}) => {
-  const value = Number.isInteger(level) && level >= 1 && level <= 7 ? level : 1;
-  return `<auri-character class="auri" aria-hidden="true" ${["login", "guide"].includes(variant) ? `data-variant="${variant}"` : ""} level="${value}" ${posterOnly ? "poster-only" : ""}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
-};
-function connectAuri(host, scope, labels3) {
-  const status = host.querySelector("[data-auri-status]");
-  const character = host.querySelector("auri-character");
-  if (!character) return () => {
-  };
-  return watchAuri(scope, (phase) => {
-    character.dataset.phase = phase;
-    if (status) status.textContent = labels3[phase] || "";
-    host.querySelector("details")?.toggleAttribute("data-auri-pending", ["thinking", "working", "typing", "drafting"].includes(phase));
-  });
 }
 
 // src/hub/auri-copy.js
@@ -1591,7 +1570,7 @@ function guideAt(host, scope, context) {
   mountGuide(host, { lang, esc: esc2, api, turns: guideThreads.get(key), scope, context });
 }
 var brandMarkup = '<img class="hub-brand-logo" src="/auradigital-mark-20260928.png" alt="" width="34" height="34"><span>AuraDigital</span>';
-var robot = () => auriCharacter(auriLevel(), { posterOnly: true });
+var robot = () => auriCharacter(auriLevel());
 function bindAuri(host, scope) {
   disconnectAuri();
   disconnectAuri = connectAuri(host, scope, { idle: auriControls(lang).ready, ...auriLabels(lang) });
@@ -2636,7 +2615,7 @@ function renderCompanion(full = false) {
     tr: "Bu hizmet i\u015Fletmeme nas\u0131l yard\u0131mc\u0131 olur?",
     ar: "\u0643\u064A\u0641 \u0633\u062A\u0633\u0627\u0639\u062F \u0647\u0630\u0647 \u0627\u0644\u062E\u062F\u0645\u0629 \u0646\u0634\u0627\u0637\u064A\u061F"
   }[lang] : "";
-  const identity = `${auriCharacter(level, { posterOnly: page === "home" && !matchMedia("(max-width:800px)").matches })}<span><strong>${esc2(preferences.name)}</strong><small>${esc2(t("level"))} ${level} \xB7 ${auriNames[level - 1]}</small></span>
+  const identity = `${auriCharacter(level)}<span><strong>${esc2(preferences.name)}</strong><small>${esc2(t("level"))} ${level} \xB7 ${auriNames[level - 1]}</small></span>
   <span class="auri-status" role="status" data-auri-status></span>`;
   const body = `<div class="auri-companion-body">
   ${next && !missionId && !requestId && !serviceKey && !offer ? `<p><strong>${esc2(focus)}</strong> \xB7 ${esc2(cap(next.capability))}</p>` : ""}

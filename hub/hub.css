@@ -109,7 +109,9 @@
 
 /* Auri sits in the Hub content flow so it never covers navigation or controls. */
 auri-character{display:inline-grid;place-items:center;aspect-ratio:1;animation:none}
-auri-character img,auri-character canvas{grid-area:1/1;width:100%;height:100%;object-fit:contain}
+auri-character>img,auri-character>canvas{grid-area:1/1;width:100%;height:100%;object-fit:contain;pointer-events:none}
+auri-character>img{transform:translate(var(--auri-look,0px,0px));transition:transform .18s ease-out}
+@media(prefers-reduced-motion:reduce){auri-character>img{transform:none;transition:none}}
 auri-character[data-rendered] img{visibility:hidden}
 .auri-companion{background:#101214;color:#fafaf7;border-radius:18px;border:1px solid #383c38;margin:0 0 14px}
 .auri-companion summary{display:flex;align-items:center;gap:12px;min-height:64px;padding:4px 14px;cursor:pointer;list-style:none}
@@ -551,14 +553,6 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
  background:radial-gradient(ellipse,#060906b3 20%,transparent 70%);
  filter:blur(4px);
 }
-.auth-intro .auri[data-variant=login]:not([data-rendered]) img{
- animation:auri-login-greet 4s ease-in-out both;
-}
-@keyframes auri-login-greet{
- 0%,100%{transform:translateY(0) rotate(0)}
- 30%{transform:translateY(-5px) rotate(-3deg)}
- 65%{transform:translateY(-2px) rotate(2deg)}
-}
 @media(max-width:560px){
  .command-gate .auth-intro .auri[data-variant=login]{display:grid;width:112px}
 }
@@ -744,7 +738,7 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 
 /* Small visual cues for service help and first requests */
 .offer-actions .service-ask-auri{gap:8px;padding-inline:9px 12px}
-.service-ask-auri img{width:25px;height:25px;object-fit:contain;border-radius:6px;background:#192219}
+.service-ask-auri .auri{width:25px;height:25px;border-radius:6px;background:#192219}
 .hub-requests-empty{align-items:center}
 .hub-requests-empty>img{width:clamp(52px,10vw,80px);height:auto;flex:none;border-radius:16px;border:1px solid #566840;background:radial-gradient(ellipse,#3a4924,#18231b 74%)}
 .hub-home-grid .hub-service-links>a{min-height:58px;background:linear-gradient(145deg,#212b21,#171e19)}

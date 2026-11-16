@@ -10,9 +10,9 @@ const model=()=>asset??=new GLTFLoader().loadAsync('/media/auri/auri.glb').catch
  throw error;
 });
 
-export async function mountAuri(host) {
+export async function mountAuri(host, signal) {
  const glb=await model();
- if(!host.isConnected)return;
+ if(signal?.aborted||!host.isConnected)return;
  const login=host.dataset.variant==='login';
  const enhanced=login||host.dataset.variant==='guide';
  const renderer=new WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});
@@ -58,17 +58,15 @@ export async function mountAuri(host) {
  let lastPhase='',started=performance.now();
 
  let targetX=0,targetY=0,gazeX=0,gazeY=0;
- let lastPointer=0;
  const clamp=value=>Math.max(-1,Math.min(1,value));
  function followPointer(event){
   if(event.pointerType!=='mouse'||preference.matches||!visible||document.hidden)return;
   const bounds=host.getBoundingClientRect();
   targetX=clamp((event.clientX-bounds.left-bounds.width/2)/Math.max(220,bounds.width));
   targetY=clamp((event.clientY-bounds.top-bounds.height/2)/Math.max(220,bounds.height));
-  lastPointer=performance.now();
   schedule();
  }
- function resetGaze(){targetX=targetY=lastPointer=0;schedule();}
+ function resetGaze(){targetX=targetY=0;schedule();}
  function render(now=performance.now()) {
   raf=0;
   if(!visible||document.hidden||disposed)return;
@@ -90,9 +88,8 @@ export async function mountAuri(host) {
   camera.position.set(2,focus+1.16,6.8);
   camera.lookAt(0,focus,0);
   camera.updateProjectionMatrix();
-  const tracking=lastPointer>0&&now-lastPointer<1800;
-  gazeX=preference.matches?0:gazeX+((tracking?targetX:0)-gazeX)*.14;
-  gazeY=preference.matches?0:gazeY+((tracking?targetY:0)-gazeY)*.14;
+  gazeX=preference.matches?0:gazeX+(targetX-gazeX)*.14;
+  gazeY=preference.matches?0:gazeY+(targetY-gazeY)*.14;
   const pulse=preference.matches?0:Math.sin(time*2);
   const wave=login&&!preference.matches?Math.max(0,1-Math.abs(t-1.7)/1.45):0;
   modelRoot.position.y=.028*pulse+(happy&&!preference.matches?.15*Math.abs(Math.sin(t*6))*Math.max(0,1-t/2):0);
@@ -119,7 +116,11 @@ export async function mountAuri(host) {
  });
  const visibility=new IntersectionObserver(([entry])=>{
   visible=entry.isIntersecting;
-  if(!visible&&raf){cancelAnimationFrame(raf);raf=0;}
+  if(!visible){
+   targetX=targetY=0;
+   cancelAnimationFrame(raf);
+   raf=0;
+  }
   schedule();
  });
  const updates=new MutationObserver(schedule);
@@ -133,6 +134,8 @@ export async function mountAuri(host) {
   preference.removeEventListener('change',schedule);
   document.removeEventListener('visibilitychange',schedule);
   window.removeEventListener('pointermove',followPointer);
+  window.removeEventListener('blur',resetGaze);
+  canvas.removeEventListener('webglcontextlost',dispose);
   document.documentElement.removeEventListener('pointerleave',resetGaze);
   deskSurface.dispose();
   deskMaterial.dispose();
@@ -152,6 +155,7 @@ export async function mountAuri(host) {
  preference.addEventListener('change',schedule);
  document.addEventListener('visibilitychange',schedule);
  window.addEventListener('pointermove',followPointer,{passive:true});
+ window.addEventListener('blur',resetGaze);
  document.documentElement.addEventListener('pointerleave',resetGaze);
  return dispose;
 }

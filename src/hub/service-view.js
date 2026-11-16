@@ -1,3 +1,4 @@
+import { auriCharacter } from './auri-companion.js';
 import { rankServicesForBusiness } from './service-ranking.js';
 import { deliverables } from './service-deliverables.js';
 
@@ -66,7 +67,7 @@ export function renderServiceOffer({host,offer,lang,esc,link,canRequest,canSetUp
  <div class="service-offer-copy"><span class="service-icon">${icon(offer)}</span><h2>${esc(example[lang])}</h2>
  <p>${deliverables[offer][lang][0]}</p>${scopeMarkup(offer,lang)}
  <div class="growth-actions offer-actions">
- ${askLabel?`<a class="growth-primary service-ask-auri" href="${esc(link('assistant',{offer}))}"><img src="/media/auri/level-1.webp" alt="" width="25" height="25" loading="lazy">${esc(askLabel)} <span aria-hidden="true">↗</span></a>`:''}
+ ${askLabel?`<a class="growth-primary service-ask-auri" href="${esc(link('assistant',{offer}))}">${auriCharacter()}${esc(askLabel)} <span aria-hidden="true">↗</span></a>`:''}
  ${canRequest?`<a class="${askLabel?'growth-secondary':'growth-primary'}" href="${esc(link('requests',{new:'1',service:example.service}))}">${previewCopy[lang][1]} →</a>`:
   canSetUp?`<a class="growth-primary" href="${esc(link('onboarding'))}">${detailCopy[lang][4]}</a>`:''}</div></div></article>`;
  return true;

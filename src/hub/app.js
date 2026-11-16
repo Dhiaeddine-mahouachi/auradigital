@@ -45,7 +45,7 @@ function guideAt(host,scope,context){
  mountGuide(host,{lang,esc,api,turns:guideThreads.get(key),scope,context});
 }
 const brandMarkup='<img class="hub-brand-logo" src="/auradigital-mark-20260928.png" alt="" width="34" height="34"><span>AuraDigital</span>';
-const robot=()=>auriCharacter(auriLevel(),{posterOnly:true});
+const robot=()=>auriCharacter(auriLevel());
 function bindAuri(host,scope){
  disconnectAuri();
  disconnectAuri=connectAuri(host,scope,{idle:auriControls(lang).ready,...auriLabels(lang)});
@@ -580,7 +580,7 @@ function renderCompanion(full=false){
   ar:'كيف ستساعد هذه الخدمة نشاطي؟',
  }[lang]:'';
 
- const identity=`${auriCharacter(level,{posterOnly:page==='home'&&!matchMedia('(max-width:800px)').matches})}<span><strong>${esc(preferences.name)}</strong><small>${esc(t('level'))} ${level} · ${auriNames[level-1]}</small></span>
+ const identity=`${auriCharacter(level)}<span><strong>${esc(preferences.name)}</strong><small>${esc(t('level'))} ${level} · ${auriNames[level-1]}</small></span>
   <span class="auri-status" role="status" data-auri-status></span>`;
  const body=`<div class="auri-companion-body">
   ${next&&!missionId&&!requestId&&!serviceKey&&!offer?`<p><strong>${esc(focus)}</strong> · ${esc(cap(next.capability))}</p>`:''}
