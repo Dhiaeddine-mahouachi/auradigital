@@ -31,3 +31,6 @@
  .aura-home .hx-real-image img{border-radius:7px}
 }
 @media(prefers-reduced-motion:reduce){.aura-home .hx-real-hub-tabs button{transition:none}}
+
+.aura-home .hx-fullshot-link{display:block;cursor:zoom-in;border-radius:12px}
+.aura-home .hx-fullshot-link:focus-visible{outline:2px solid #eaff33;outline-offset:3px}
