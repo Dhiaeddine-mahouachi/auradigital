@@ -139,7 +139,7 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
  ${analysis.missions.some((m) => !missions.some((item) => item.capability === m.id)) && canWrite ? `<button type="button" class="growth-secondary" data-refresh>${l.refresh}</button>` : ""}</section>
  <aside class="growth-side"><section class="growth-card growth-focus" id="growth-focus" tabindex="-1">${detail}</section>
  <section class="growth-card growth-auri"><header>${robot2()}<h2>${l.assistant}</h2></header>
- <div class="growth-answer" role="status"></div>${canAsk ? `<form><input name="question" aria-label="${l.ask}" placeholder="${l.ask}" maxlength="500" required><button class="growth-primary" aria-label="${l.ask}">\u27A4</button></form>` : ""}</section></aside></div>`;
+ <div class="growth-answer" role="status"></div>${canAsk ? `<form><input name="question" aria-label="${l.ask}" placeholder="${l.ask}" maxlength="500" required><button class="growth-voice" type="button" data-voice aria-label="Dictate your question" title="Dictate your question" hidden>\u{1F399}</button><button class="growth-primary" aria-label="${l.ask}">\u27A4</button></form>` : ""}</section></aside></div>`;
   function taskDetails(m) {
     const guide = missionGuide[m.capability];
     const reason = m.reason?.startsWith("This capability has not been reported") ? guide?.[1] : m.reason;
@@ -179,6 +179,50 @@ function renderRoadmap({ host, workspace: workspace2, t: t2, esc: esc3, cap: cap
   });
   host.querySelector("[data-status-change]")?.addEventListener("change", (event) => onSave(selected, event.target));
   host.querySelector("[data-ask-task]")?.addEventListener("click", () => ask("", selected.id));
+  const VoiceRecognition = globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition;
+  const voiceButton = host.querySelector("[data-voice]");
+  if (voiceButton && VoiceRecognition && canAsk) {
+    voiceButton.hidden = false;
+    const language = { en: "en-US", tr: "tr-TR", fr: "fr-FR", ar: "ar-SA" }[lang2] || "en-US";
+    let listening = false, recognition = null;
+    voiceButton.addEventListener("click", () => {
+      if (listening) {
+        recognition?.stop();
+        return;
+      }
+      recognition = new VoiceRecognition();
+      recognition.lang = language;
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.onresult = (event) => {
+        const transcript = event.results?.[0]?.[0]?.transcript?.trim();
+        if (!transcript) return;
+        const input = host.querySelector('.growth-auri input[name="question"]');
+        if (input) {
+          input.value = (input.value + " " + transcript).trim().slice(0, 500);
+          input.focus();
+        }
+      };
+      recognition.onerror = (event) => {
+        const response = host.querySelector(".growth-answer");
+        if (response) response.textContent = event.error === "not-allowed" ? "Microphone permission was denied." : "Voice input unavailable. You can type your question.";
+      };
+      recognition.onend = () => {
+        listening = false;
+        voiceButton.setAttribute("aria-pressed", "false");
+        voiceButton.classList.remove("listening");
+      };
+      try {
+        recognition.start();
+        listening = true;
+        voiceButton.setAttribute("aria-pressed", "true");
+        voiceButton.classList.add("listening");
+      } catch {
+        listening = false;
+        voiceButton.setAttribute("aria-pressed", "false");
+      }
+    });
+  }
   host.querySelector(".growth-auri form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.currentTarget, submit = form.querySelector("button");
