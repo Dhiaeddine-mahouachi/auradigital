@@ -19,7 +19,7 @@ The public landing page is the introduction to the **same product** that custome
 
 ### 00. Hero / software introduction
 - Kicker: `AURADIGITAL / THE BUSINESS GROWTH OS`
-- Headline: **Meet your business's next chapter.**
+- Headline: **Meet Auri. Build what's next.**
 - Body: `Meet Auri, build a plan for your business, launch the right digital tools, and track everything in your own AuraHub.`
 - Primary CTA: **Build my roadmap** → `/hub/signup`.
 - Secondary: **Explore the system** → `#see-it`.
