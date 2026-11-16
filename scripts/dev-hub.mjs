@@ -12,8 +12,8 @@ import { secureResponse } from '../src/security-policy.js';
 const f=await hubFixture();
 f.sqlite.exec(await readFile(new URL('../migrations/0005_ai_employee.sql',import.meta.url),'utf8'));
 f.sqlite.exec(`CREATE TABLE clients (id INTEGER PRIMARY KEY, name TEXT, company TEXT, email TEXT, phone TEXT, service TEXT, status TEXT, notes TEXT);
- CREATE TABLE subscriptions (id INTEGER PRIMARY KEY, client_id INTEGER, plan TEXT, status TEXT);
- CREATE TABLE orders (id INTEGER PRIMARY KEY, client_id INTEGER, status TEXT, due_date TEXT);`);
+ CREATE TABLE subscriptions (id INTEGER PRIMARY KEY, client_id INTEGER, plan TEXT, status TEXT, next_billing_date TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+ CREATE TABLE orders (id INTEGER PRIMARY KEY, client_id INTEGER, type TEXT, status TEXT, due_date TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP);`);
 f.env.AI_RATE_LIMITER={async limit(){return {success:true};}};
 if(process.env.HUB_OLLAMA_URL&&process.env.HUB_OLLAMA_MODEL){
  Object.assign(f.env,{HUB_OLLAMA_URL:process.env.HUB_OLLAMA_URL,HUB_OLLAMA_MODEL:process.env.HUB_OLLAMA_MODEL,HUB_OLLAMA_TOKEN:process.env.HUB_OLLAMA_TOKEN});
@@ -62,7 +62,7 @@ const qaReceipt=await qaContact.json();
 if(!qaContact.ok)throw new Error('Local CRM seed failed: '+qaReceipt.error);
 const qaClient=await f.DB.prepare('SELECT client_id FROM request_receipts WHERE request_id=?').bind(qaReceipt.requestId).first();
 await f.DB.batch([
- f.DB.prepare("INSERT INTO orders(client_id,status) VALUES (?,'in_production')").bind(qaClient.client_id),
+ f.DB.prepare("INSERT INTO orders(client_id,type,status,due_date) VALUES (?,'Website','in_production','2026-12-02')").bind(qaClient.client_id),
  f.DB.prepare("INSERT INTO subscriptions(client_id,plan,status) VALUES (?,'Website hosting','active')").bind(qaClient.client_id),
 ]);
 const server=createServer(async(req,res)=>{try{

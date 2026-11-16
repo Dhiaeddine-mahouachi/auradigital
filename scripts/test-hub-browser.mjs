@@ -29,7 +29,7 @@ try {
  await desktop.locator('[name=terms]').check();
  await desktop.locator('#auth-form button').click();
  await heading(desktop,'Build your roadmap').waitFor();
- assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Home','Roadmap','Ask Auri','My Work']);
+ assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Home','Roadmap','My Services','Requests','Ask Auri']);
  assert(await desktop.locator('.sidebar [data-page=journey]').evaluate(node=>node.clientHeight<66));
  await screenshot(desktop,'AuraHub-New-Home');
  await button(desktop,'What does a digital menu cost?').click();
@@ -99,7 +99,7 @@ try {
  await desktop.getByText('Helping with · AuraMenu').waitFor();
  await desktop.getByRole('link',{name:'Return to record'}).click();
  assert.equal(desktop.url(),requestUrl);
- await nav(desktop,'services');
+ await nav(desktop,'requests');
  await desktop.locator('.hub-work-row').filter({hasText:'AuraMenu'}).waitFor();
 
  await nav(desktop,'home');
@@ -110,9 +110,17 @@ try {
  const otherId=new URL(await second.locator('.sidebar nav a').first().getAttribute('href'),base).searchParams.get('workspace');
  await screenshot(second,'AuraHub-Returning-Home');
  await nav(second,'services');
- await second.locator('.hub-work-row').filter({hasText:'Website hosting'}).waitFor();
- await second.locator('.hub-work-row').filter({hasText:'In production'}).waitFor();
- await screenshot(second,'AuraHub-My-Work');
+ await heading(second,'Website hosting').waitFor();
+ await heading(second,'Website').waitFor();
+ await button(second,'Active').focus();
+ await second.keyboard.press('Enter');
+ assert.equal(await second.locator('.service-card:visible').count(),1);
+ await button(second,'All').click();
+ assert.equal(await second.locator('.service-card:visible').count(),2);
+ await screenshot(second,'AuraHub-My-Services');
+ await second.locator('.service-card').filter({has:heading(second,'Website')}).getByRole('link',{name:'Open details'}).click();
+ await second.locator('.service-detail').getByText('Dec 2, 2026').waitFor();
+ await screenshot(second,'AuraHub-Website-Details');
  await nav(second,'home');
  const reviewLink=second.getByRole('link',{name:'Review your menu',exact:true});
  await reviewLink.click();

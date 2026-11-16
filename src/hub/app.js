@@ -1,3 +1,4 @@
+import { renderServices, renderServiceDetails, serviceLabels, serviceSummary, serviceDate, serviceStatus } from './service-view.js';
 import { mountGuide } from './guide-view.js';
 import { currentHubLocation, hubIcon, hubLabels, hubLink, hubStage } from './hub-navigation.js';
 import { renderRequestForm, renderWorkRow, workRows, workStatus } from './work-view.js';
@@ -178,11 +179,11 @@ function persistProfile(){
 }
 let roadmapView='tree',selectedMission=null,workspaceSwitch=null;
 const requestDrafts=new Map();
-const navigation=['home','journey','assistant','services'];
+const navigation=['home','journey','services','requests','assistant'];
 const pageGroup={tasks:'journey',menuDrafts:'services',projects:'services',websites:'services',hosting:'services'};
 const moreNavigation=['profile','simulator','menuDrafts','projects','websites','hosting','files','reports','invoices','rewards','team','support'];
 const link=(target,params)=>hubLink(target,workspace?.organization.id,params);
-const requestLink=(service='',task='')=>link('services',{new:'1',service,task});
+const requestLink=(service='',task='')=>link('requests',{new:'1',service,task});
 let query=new URLSearchParams(location.search);
 function syncLocation(){
  ({page,query}=currentHubLocation());
@@ -201,8 +202,8 @@ function renderShell(){
  const active=(pageGroup[page]||page);
  const navItem=(p,mobile=false)=>`<a class="nav-item ${active===p?'active':''}" href="${esc(link(p))}"
   data-page="${p}" ${mobile?`data-mobile-page="${p}"`:''} ${active===p?'aria-current="page"':''}>
-  ${hubIcon(p)}<span>${esc(labels[p]||l[p]||t(p))}</span></a>`;
- const title=page==='journey'?commandLabels(lang).vision:labels[page]||l[page]||t(page);
+  ${hubIcon(p)}<span>${esc((p==='services'?serviceLabels[lang][0]:labels[p]||l[p]||t(p)))}</span></a>`;
+ const title=page==='services'?serviceLabels[lang][0]:page==='journey'?commandLabels(lang).vision:labels[page]||l[page]||t(page);
  app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell"><aside class="sidebar" id="sidebar">
  <a href="${esc(link('home'))}" class="wordmark command-wordmark"><svg viewBox="0 0 32 29" width="34" height="31" aria-hidden="true" fill="currentColor"><path d="M15.9 1.2a3.4 3.4 0 0 1 2.9 1.8L32 27.8l-9.2-4.1L15.9 10l-5.4 10.5 8.4-2.3 3 5.5L0 29 13 3a3.3 3.3 0 0 1 2.9-1.8Z"/></svg>AuraHub</a>
  <nav aria-label="AuraHub">${navigation.map(p=>navItem(p)).join('')}</nav></aside>
@@ -215,7 +216,7 @@ function renderShell(){
  ${workspace?navItem('profile')+navItem('settings')+navItem('invoices'):''}${button('logout','logout',true)}</div></details></header>
  <main id="main" tabindex="-1"><div class="page-heading"><h1>${page==='home'&&(!workspace||!workspace.missions.length)
   ?`${esc(labels.welcome)} <span>AuraHub</span>`:page==='journey'&&lang==='en'?'Growth <span>Vision</span>':esc(title)}</h1>
- ${page==='services'&&workspace?.permissions.includes('roadmap:write')&&!query.has('new')?`<a class="growth-secondary" href="${esc(requestLink())}">＋ ${esc(l.request)}</a>`:''}</div>
+ ${['services','requests'].includes(page)&&workspace?.permissions.includes('roadmap:write')&&!query.has('new')?`<a class="growth-secondary" href="${esc(requestLink())}">＋ ${esc(l.request)}</a>`:''}</div>
  ${!me.verified&&authCapabilities.email?`<aside class="verification"><p>${t('verifyLater')}</p>${button('sendVerification','send-verification',true)}</aside>`:''}
  <div id="page-content"></div></main>
  <nav class="command-bottom-nav" aria-label="AuraHub">${navigation.map(p=>navItem(p,true)).join('')}</nav>
@@ -276,11 +277,11 @@ async function home(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content');
  if(!workspace?.missions.length){renderBuildCard(ui);return;}
  const next=nextMission();
- const {attention,progress}=await workSnapshot();
+ const {attention,progress,records}=await workSnapshot();
  if(!host.isConnected)return;
  const item=attention[0],menu=item?.kind==='menu';
  const hero=(menu?ui.menuReady:item?.name)|| (next?missionTitle(next):workspace.missions.every(m=>m.status==='done')?ui.complete:ui.journey);
- const destination=item?link(menu?'menuDrafts':'services',menu?{draft:item.id}:{request:item.id}):link('journey',{task:next?.id});
+ const destination=item?link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id}):link('journey',{task:next?.id});
  const label=item?(menu?ui.reviewMenu:ui.openRequest):next?ui.continue:ui.journey;
  const complete=!item&&!next&&workspace.missions.every(m=>m.status==='done');
  const note=item?(menu?item.name:workStatus(item)):next?(next.reason||next.description):'';
@@ -291,6 +292,7 @@ async function home(){
  <h2>${esc(hero)}</h2>${note?`<p>${esc(note)}</p>`:''}
  <a class="growth-primary" href="${esc(destination)}">${esc(label)} <span aria-hidden="true">→</span></a>${complete?` <a class="growth-secondary" href="${esc(link('services'))}">${esc(ui.services)}</a>`:''}</div>
  <div class="hub-hero-art">${menu?menuArtwork(item):robot()}</div></section>
+ ${serviceSummary(records,serviceLabels[lang],esc)}
  <div class="hub-work-rows">
  <a class="hub-work-row" href="${esc(link('journey'))}"><span class="hub-row-icon">${hubIcon('journey')}</span><span><strong>${esc(ui.journey)}</strong><small>${esc(stage)} · ${done} / ${workspace.missions.length} ${esc(roadmapLabels(lang).completed)}</small></span><span aria-hidden="true">›</span></a>
  ${item&&next?`<a class="hub-work-row" href="${esc(link('journey',{task:next.id}))}"><span class="hub-row-icon">${hubIcon('journey')}</span><span><strong>${esc(ui.next)}</strong><small>${esc(missionTitle(next))}</small></span><span aria-hidden="true">›</span></a>`:''}
@@ -300,7 +302,14 @@ async function myWork(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content'),id=workspace.organization.id;
  const task=workspace.missions.find(m=>m.id===query.get('task'));
  if(query.has('new')&&workspace.permissions.includes('roadmap:write')){
-  return renderRequestForm({host,lang,esc,me,workspace,service:query.get('service'),task:task?missionTitle(task):'',draft:requestDrafts.get(id)||'',back:link('services'),submitted:request=>{requestDrafts.delete(id);navigate('services',{request},true);}});
+  return renderRequestForm({host,lang,esc,me,workspace,service:query.get('service'),task:task?missionTitle(task):'',draft:requestDrafts.get(id)||'',back:link('requests'),submitted:request=>{requestDrafts.delete(id);navigate('requests',{request},true);}});
+ }
+ const serviceRecord=query.get('serviceRecord');
+ if(serviceRecord&&page==='services'){
+  host.innerHTML='<p role="status">…</p>';
+  const record=await api(endpoint('work/'+encodeURIComponent(serviceRecord)));
+  if(host.isConnected)renderServiceDetails({host,record,lang,esc,link,askLabel:workspace.permissions.includes('auri:use')?ui.assistant:null});
+  return;
  }
  const request=query.get('request');
  const service=query.get('active');
@@ -312,7 +321,13 @@ async function myWork(){
   ${workspace.permissions.includes('auri:use')?`<a class="secondary" href="${esc(link('assistant',{request}))}">${esc(ui.assistant)}</a>`:''}</section>`;
   return;
  }
- const {attention,progress,services}=await workSnapshot();
+ if(page==='services'&&!service){
+  host.innerHTML='<p role="status">…</p>';
+  const {records}=await api(endpoint('work'));
+  if(host.isConnected)renderServices({host,records:records||[],lang,esc,link});
+  return;
+ }
+ const {attention,progress,services,requests}=await workSnapshot();
  if(!host.isConnected||workspace.organization.id!==id)return;
  if(service){
   const record=services.find(item=>String(item.id)===service);
@@ -321,9 +336,11 @@ async function myWork(){
   return;
  }
  const section=(name,empty,rows)=>`<section class="hub-work-section"><h2>${esc(name)}</h2>${rows||`<p class="hub-empty">${esc(empty)}</p>`}</section>`;
+ const displayed=new Set([...attention,...progress].map(record=>record.id));
+ const history=requests.filter(record=>!displayed.has(record.id));
  host.innerHTML=section(ui.attention,ui.emptyAttention,attention.map(record=>renderWorkRow(record,{ui,esc,link})).join(''))
   +section(ui.progress,ui.emptyProgress,progress.map(record=>renderWorkRow(record,{ui,esc,link})).join(''))
-  +section(ui.active,ui.emptyActive,services.map(record=>`<a class="hub-work-row" href="${esc(link('services',{active:record.id}))}"><span class="hub-row-icon">${hubIcon('services')}</span><span><strong>${esc(record.name)}</strong><small>${esc(workStatus(record))}</small></span><span aria-hidden="true">›</span></a>`).join(''))
+  +(history.length?section(hubLabels(lang).requests,'',history.map(record=>renderWorkRow(record,{ui,esc,link})).join('')):'')
   +`<a href="${esc(link('menuDrafts'))}" class="growth-secondary">${esc(t('menuDrafts'))}</a>`;
 }
 async function renderPage(){
@@ -331,7 +348,7 @@ async function renderPage(){
  if(page==='invoices')return content(`<section class="panel"><a class="primary" href="/account">${esc(t('orders'))}</a></section>`);
  if(page==='home')return home();
  if(!workspace)return renderBuildCard(label);
- if(page==='services')return myWork();
+ if(page==='services'||page==='requests')return myWork();
  if((page==='journey'||page==='onboarding')&&!workspace.missions.length)return renderBuildCard(label);
  if(page==='onboarding'){navigate('journey',{},true);return;}
  if(page==='profile'&&!workspace.permissions.includes('profile:write')){content(`<section class="panel"><h2>${esc(workspace.profile.name)}</h2><p>${t('readOnly')}</p><p>${esc(workspace.profile.goals)}</p></section>`);return;}
@@ -353,8 +370,14 @@ async function renderPage(){
  const service=page==='services',support=page==='support',reports=['reports','rewards'].includes(page);
  content(`<section class="panel quiet-panel"><span class="eyebrow">${reports?'NOT CONNECTED':service?'SERVICE CATALOGUE':'INTEGRATION PENDING'}</span><h2>${t(page)}</h2><p>${t(service?'serviceNote':support?'supportText':reports?'reportNote':'unavailable')}</p><a class="primary" href="${service?'/services':'/contact'}">${t(service?'openServices':'contact')} ↗</a></section>`);
 }
-async function askAuri(question,missionId,requestId) {
+async function askAuri(question,missionId,requestId,serviceKey) {
  const id=workspace.organization.id;
+ if(serviceKey){
+  const {data:{service}}=await runAuri(id,'thinking',()=>api(endpoint('auri'),'POST',{tool:'service_status',serviceKey}),'speaking');
+  const labels=serviceLabels[lang];
+  const renewal=service.kind==='subscription';
+  return `${service.name} · ${serviceStatus(service,labels)}. ${labels[renewal?13:11]} · ${serviceDate(renewal?service.renewalDate:service.dueDate,lang,labels[12])}.`;
+ }
  const {data}=await runAuri(id,'thinking',()=>api(endpoint('auri'),'POST',{tool:'guidance',question,lang,...(missionId?{missionId}:{}),...(requestId?{requestId}:{})}),'speaking');
  if(workspace?.organization.id!==id)return '';
  if(data.reply)return data.reply;
@@ -476,8 +499,8 @@ function renderCompanion(full=false){
  if(preferences.hidden&&!full)return;
  const id=workspace.organization.id;
  if(!auriSessions.has(id))auriSessions.set(id,{open:false,reply:'',pending:false,error:''});
- const missionId=query.get('task'),requestId=query.get('request');
- const sessionKey=[id,missionId,requestId].filter(Boolean).join(':');
+ const missionId=query.get('task'),requestId=query.get('request'),serviceKey=query.get('serviceRecord');
+ const sessionKey=[id,missionId,requestId,serviceKey].filter(Boolean).join(':');
  if(!auriSessions.has(sessionKey))auriSessions.set(sessionKey,{open:false,reply:'',pending:false,error:''});
  const session=auriSessions.get(sessionKey);
  session.turns??=[];
@@ -490,7 +513,7 @@ function renderCompanion(full=false){
  const identity=`${auriCharacter(level,{posterOnly:page==='home'&&!matchMedia('(max-width:800px)').matches})}<span><strong>${esc(preferences.name)}</strong><small>${esc(t('level'))} ${level} · ${auriNames[level-1]}</small></span>
   <span class="auri-status" role="status" data-auri-status></span>`;
  const body=`<div class="auri-companion-body">
-  ${next&&!missionId&&!requestId?`<p><strong>${esc(focus)}</strong> · ${esc(cap(next.capability))}</p>`:''}
+  ${next&&!missionId&&!requestId&&!serviceKey?`<p><strong>${esc(focus)}</strong> · ${esc(cap(next.capability))}</p>`:''}
   ${canAsk?`<div data-auri-transcript>${transcript()}</div><form data-auri-ask><label><span class="sr-only">${esc(label)}</span><input name="question" maxlength="500" placeholder="${esc(label)}" required></label>
   <button class="primary" ${session.pending?'disabled':''}>${esc(send)}</button></form><p data-auri-reply role="status" class="${session.error?'':'sr-only'}">${esc(session.error)}</p>
   ${'speechSynthesis' in window?`<button type="button" class="secondary" data-auri-voice ${session.reply&&!session.error?'':'hidden'}>${esc(readAloud)}</button>
@@ -575,7 +598,7 @@ function renderCompanion(full=false){
   if(stop)stop.hidden=true;
   session.reply=session.error=reply.textContent='';
   try{
-   session.reply=await askAuri(question,missionId,requestId);
+   session.reply=await askAuri(question,missionId,requestId,serviceKey);
    if(session.reply){
     session.turns.push({question,reply:session.reply});
     if(session.turns.length>20)session.turns.shift();
@@ -596,12 +619,12 @@ function renderCompanion(full=false){
 async function assistant(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content');
  const id=workspace.organization.id;
- const missionId=query.get('task'),requestId=query.get('request');
+ const missionId=query.get('task'),requestId=query.get('request'),serviceKey=query.get('serviceRecord');
  const mission=missionId?workspace.missions.find(m=>m.id===missionId):null;
  if(missionId&&!mission)throw new Error(ui.unavailable);
- const record=requestId?await api(endpoint('work/'+encodeURIComponent(requestId))):null;
+ const record=requestId||serviceKey?await api(endpoint('work/'+encodeURIComponent(requestId||serviceKey))):null;
  if(!host.isConnected)return;
- const returnLink=mission?link('journey',{task:mission.id}):record?link('services',{request:record.id}):null;
+ const returnLink=mission?link('journey',{task:mission.id}):serviceKey?link('services',{serviceRecord:serviceKey}):record?link('requests',{request:record.id}):null;
 
  const canAsk=workspace.permissions.includes('auri:use');
  const labels=auriDraftCopy(lang);

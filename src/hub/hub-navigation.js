@@ -5,8 +5,9 @@ const labels={
  ar:['الرئيسية','خارطة الطريق','اسأل أوري','أعمالي','أنشئ خارطة طريقك','أخبر أوري عن نشاطك لتحصل على خطوتك الأولى.','أنشئ خارطة طريقي','تابع الإعداد','خطوتك التالية','يتطلب انتباهك','قيد التنفيذ','الخدمات النشطة','راجع قائمتك','افتح الطلب','لا توجد عناصر تتطلب انتباهك.','لا توجد أعمال قيد التنفيذ.','لا توجد خدمات نشطة بعد.','مرحبًا بك في','اكتملت خارطة الطريق','العودة إلى السجل','المساعدة في','ابدأ بخطوات بسيطة','ابنِ أنظمة','توسّع بالذكاء الاصطناعي','مغلق','المرحلة الحالية','السجل غير متاح','مسودة القائمة جاهزة للمراجعة','تمت المراجعة','تفاصيل الطلب','أخبرني عن نشاطك التجاري.'],
 };
 const keys=['home','journey','assistant','services','build','buildNote','buildAction','continue','next','attention','progress','active','reviewMenu','openRequest','emptyAttention','emptyProgress','emptyActive','welcome','complete','return','context','small','systems','scale','locked','current','unavailable','menuReady','reviewed','requestDetails','intake'];
-export const hubLabels=lang=>Object.fromEntries(keys.map((key,index)=>[key,(labels[lang]||labels.en)[index]]));
-export const destinations={home:'',journey:'roadmap',assistant:'auri',services:'work',menuDrafts:'menu-drafts',profile:'profile',settings:'settings',resources:'resources',tasks:'tasks',simulator:'simulator',team:'team',insights:'insights',projects:'projects',websites:'websites',hosting:'hosting',files:'files',reports:'reports',invoices:'invoices',rewards:'rewards',support:'support',onboarding:'onboarding'};
+const requests={en:'Requests',fr:'Demandes',tr:'Talepler',ar:'الطلبات'};
+export const hubLabels=lang=>({...Object.fromEntries(keys.map((key,index)=>[key,(labels[lang]||labels.en)[index]])),requests:requests[lang]||requests.en});
+export const destinations={home:'',journey:'roadmap',assistant:'auri',services:'work',requests:'requests',menuDrafts:'menu-drafts',profile:'profile',settings:'settings',resources:'resources',tasks:'tasks',simulator:'simulator',team:'team',insights:'insights',projects:'projects',websites:'websites',hosting:'hosting',files:'files',reports:'reports',invoices:'invoices',rewards:'rewards',support:'support',onboarding:'onboarding'};
 export const hubStage=level=>Number(level)<3?0:Number(level)<5?1:2;
 export const hubIcons={
  home:'<path d="M3 10 12 3l9 7v10H3z M9 20v-7h6v7"/>',
