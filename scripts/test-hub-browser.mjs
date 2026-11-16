@@ -186,7 +186,7 @@ try {
  await desktop.locator('.growth-account summary').click();
  await desktop.locator('.growth-account').getByRole('link',{name:'Settings'}).click();
  await heading(desktop,'Account').waitFor();
- await desktop.getByText('Change password',{exact:true}).click();
+ await desktop.locator('summary').getByText('Change password',{exact:true}).click();
  assert(await desktop.locator('[name=currentPassword]').isVisible());
  await desktop.getByText('Change email',{exact:true}).click();
  await desktop.getByText('Email confirmation is currently unavailable.',{exact:true}).waitFor();
