@@ -64,3 +64,30 @@ test('the additive work migration preserves legacy mission IDs and menu drafts',
  await fixture.call(menuPath,actor,'PUT',{version:menu.version,state:'preview',draft:menu.draft});
  assert.equal((await (await fixture.call(menuPath,actor)).json()).menu.reviewed,false);
 });
+
+test('personalized roadmap can use configured Cloudflare AI when Ollama is not configured',async()=>{
+ const fixture=await hubFixture();
+ fixture.sqlite.exec(await readFile(new URL('../migrations/0005_ai_employee.sql',import.meta.url),'utf8'));
+ const actor=await fixture.user('cloudflare-aura@example.test',true);
+ let calls=0;
+ Object.assign(fixture.env,{
+  AI_PROVIDER:'cloudflare',AI_MODEL:'@cf/meta/llama-3.1-8b-instruct-fp8',
+  AI_RATE_LIMITER:{async limit(){return {success:true};}},
+  AI:{async run(_model,input){
+   calls++;
+   const data=JSON.parse(input.messages.at(-1).content);
+   assert.equal(data.profile.name,'Cloudflare Coffee');
+   return {response:JSON.stringify({reply:'OK',summary:'A coffee shop in Istanbul',goal:'Attract local visitors',first:'menu',
+    tasks:[{id:'menu',title:'Prepare your cafe menu',reason:'Let customers browse your offerings.',action:'Add items and prices.'}]
+   }),usage:{prompt_tokens:100,completion_tokens:80}};
+  }},
+ });
+ const body={requestId:crypto.randomUUID(),mode:'auri',personalized:true,lang:'en',profile:profile('Cloudflare Coffee')};
+ const created=await fixture.call('/api/hub/workspaces',actor,'POST',body);
+ assert.equal(created.status,201,await created.clone().text());
+ assert.equal(calls,1);
+ const workspace=await (await fixture.call('/api/hub/workspaces/'+body.requestId,actor)).json();
+ assert.equal(workspace.missions[0].capability,'menu');
+ assert.equal(workspace.missions[0].planGoal,'Attract local visitors');
+ assert.equal(workspace.auri.verifiedMilestones,0);
+});

@@ -29,7 +29,7 @@ try {
  await desktop.locator('[name=terms]').check();
  await desktop.locator('#auth-form button').click();
  await heading(desktop,'Build your roadmap').waitFor();
- assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Home','Roadmap','Ask Auri','My Work']);
+ assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Home','Roadmap','Ask Auri','My Services']);
  assert(await desktop.locator('.sidebar [data-page=journey]').evaluate(node=>node.clientHeight<66));
  await screenshot(desktop,'AuraHub-New-Home');
  await button(desktop,'What does a digital menu cost?').click();
@@ -63,7 +63,7 @@ try {
  await button(desktop,'Build my roadmap').click();
  await desktop.waitForURL('**/hub/roadmap?workspace=*');
  await heading(desktop,'Growth Vision').waitFor();
- assert.equal(await desktop.locator('.vision-stage').count(),3);
+ assert.equal(await desktop.locator('.vision-stage').count(),5);
  await desktop.locator('#growth-focus h2').filter({hasText:'Prepare your digital menu'}).waitFor();
  const org=new URL(desktop.url()).searchParams.get('workspace');
  await desktop.locator('.vision-task').filter({hasText:'Prepare your digital menu'}).click();
@@ -110,7 +110,7 @@ try {
  const otherId=new URL(await second.locator('.sidebar nav a').first().getAttribute('href'),base).searchParams.get('workspace');
  await screenshot(second,'AuraHub-Returning-Home');
  await nav(second,'services');
- await second.locator('.hub-work-row').filter({hasText:'Website hosting'}).waitFor();
+ await second.locator('.hub-service-card').filter({hasText:'Website hosting'}).waitFor();
  await second.locator('.hub-work-row').filter({hasText:'In production'}).waitFor();
  await screenshot(second,'AuraHub-My-Work');
  await nav(second,'home');
@@ -134,7 +134,7 @@ try {
  const mobile=await pageAt({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
  await mobile.goto(base+'/__qa/start');
  await mobile.locator('.command-bottom-nav [data-page=journey]').click();
- assert.equal(await mobile.locator('.vision-stage').count(),3);
+ assert.equal(await mobile.locator('.vision-stage').count(),5);
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  assert(await mobile.locator('.command-bottom-nav').evaluate(node=>node.clientHeight<80));
  await screenshot(mobile,'AuraHub-Mobile-Roadmap');
@@ -156,10 +156,13 @@ try {
  // A signed-out deep link is retained through the shared account flow.
  await desktop.locator('.growth-account summary').click();
  await desktop.locator('[data-action=logout]').click();
+ await desktop.waitForURL('**/hub/login');
  await desktop.goto(requestUrl);
+ await desktop.locator('[name=email]').waitFor();
  await desktop.locator('[name=email]').fill(email);
  await desktop.locator('[name=password]').fill('Saffron-lake-0142!');
  await desktop.locator('#auth-form button').click();
+
  await heading(desktop,'AuraMenu').waitFor();
  assert.equal(desktop.url(),requestUrl);
  assert.deepEqual(errors,[]);

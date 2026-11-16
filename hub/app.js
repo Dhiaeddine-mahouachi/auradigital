@@ -146,15 +146,21 @@ function mountGuide(host, { lang: lang2, esc: esc3, api: api2, turns, scope, con
 
 // src/hub/hub-navigation.js
 var labels = {
-  en: ["Home", "Roadmap", "Ask Auri", "My Work", "Build your roadmap", "Tell Auri about your business to get your first step.", "Build my roadmap", "Continue setup", "Next on your roadmap", "Needs your attention", "In progress", "Active services", "Review your menu", "Open request", "No items need your attention.", "No work in progress.", "No active services yet.", "Welcome to", "Roadmap complete", "Return to record", "Helping with", "Start small", "Build systems", "Scale with AI", "Locked", "Current stage", "Record unavailable", "Menu draft ready for review", "Mark reviewed", "Request details", "Tell me about your business."],
-  fr: ["Accueil", "Feuille de route", "Demander \xE0 Auri", "Mon activit\xE9", "Cr\xE9ez votre feuille de route", "Pr\xE9sentez votre activit\xE9 \xE0 Auri pour obtenir votre premi\xE8re \xE9tape.", "Cr\xE9er ma feuille de route", "Poursuivre", "Prochaine \xE9tape", "\xC0 examiner", "En cours", "Services actifs", "Examiner votre menu", "Ouvrir la demande", "Aucun \xE9l\xE9ment \xE0 examiner.", "Aucun travail en cours.", "Aucun service actif pour le moment.", "Bienvenue dans", "Feuille de route termin\xE9e", "Revenir au dossier", "Aide pour", "Commencer simplement", "Structurer votre activit\xE9", "Se d\xE9velopper avec l\u2019IA", "Verrouill\xE9", "\xC9tape actuelle", "Dossier indisponible", "Brouillon du menu \xE0 examiner", "Marquer comme examin\xE9", "D\xE9tails de la demande", "Pr\xE9sentez-moi votre activit\xE9."],
-  tr: ["Ana sayfa", "Yol haritas\u0131", "Auri\u2019ye sor", "\u0130\u015Flerim", "Yol haritan\u0131z\u0131 olu\u015Fturun", "\u0130lk ad\u0131m\u0131n\u0131z\u0131 \xF6\u011Frenmek i\xE7in Auri\u2019ye i\u015Fletmenizi anlat\u0131n.", "Yol haritam\u0131 olu\u015Ftur", "Kuruluma devam et", "S\u0131radaki ad\u0131m", "\u0130\u015Flem bekleyenler", "Devam edenler", "Aktif hizmetler", "Men\xFCn\xFCz\xFC inceleyin", "Talebi a\xE7", "\u0130\u015Flem bekleyen \xF6\u011Fe yok.", "Devam eden i\u015F yok.", "Hen\xFCz aktif hizmet yok.", "Ho\u015F geldiniz", "Yol haritas\u0131 tamamland\u0131", "Kayda d\xF6n", "Yard\u0131m konusu", "K\xFC\xE7\xFCk ba\u015Flay\u0131n", "Sistem kurun", "Yapay zek\xE2 ile b\xFCy\xFCy\xFCn", "Kilitli", "Ge\xE7erli a\u015Fama", "Kay\u0131t kullan\u0131lam\u0131yor", "Men\xFC tasla\u011F\u0131 incelemeye haz\u0131r", "\u0130ncelendi olarak i\u015Faretle", "Talep ayr\u0131nt\u0131lar\u0131", "Bana i\u015Fletmenizi anlat\u0131n."],
-  ar: ["\u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629", "\u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A", "\u0623\u0639\u0645\u0627\u0644\u064A", "\u0623\u0646\u0634\u0626 \u062E\u0627\u0631\u0637\u0629 \u0637\u0631\u064A\u0642\u0643", "\u0623\u062E\u0628\u0631 \u0623\u0648\u0631\u064A \u0639\u0646 \u0646\u0634\u0627\u0637\u0643 \u0644\u062A\u062D\u0635\u0644 \u0639\u0644\u0649 \u062E\u0637\u0648\u062A\u0643 \u0627\u0644\u0623\u0648\u0644\u0649.", "\u0623\u0646\u0634\u0626 \u062E\u0627\u0631\u0637\u0629 \u0637\u0631\u064A\u0642\u064A", "\u062A\u0627\u0628\u0639 \u0627\u0644\u0625\u0639\u062F\u0627\u062F", "\u062E\u0637\u0648\u062A\u0643 \u0627\u0644\u062A\u0627\u0644\u064A\u0629", "\u064A\u062A\u0637\u0644\u0628 \u0627\u0646\u062A\u0628\u0627\u0647\u0643", "\u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", "\u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0627\u0644\u0646\u0634\u0637\u0629", "\u0631\u0627\u062C\u0639 \u0642\u0627\u0626\u0645\u062A\u0643", "\u0627\u0641\u062A\u062D \u0627\u0644\u0637\u0644\u0628", "\u0644\u0627 \u062A\u0648\u062C\u062F \u0639\u0646\u0627\u0635\u0631 \u062A\u062A\u0637\u0644\u0628 \u0627\u0646\u062A\u0628\u0627\u0647\u0643.", "\u0644\u0627 \u062A\u0648\u062C\u062F \u0623\u0639\u0645\u0627\u0644 \u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630.", "\u0644\u0627 \u062A\u0648\u062C\u062F \u062E\u062F\u0645\u0627\u062A \u0646\u0634\u0637\u0629 \u0628\u0639\u062F.", "\u0645\u0631\u062D\u0628\u064B\u0627 \u0628\u0643 \u0641\u064A", "\u0627\u0643\u062A\u0645\u0644\u062A \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u0627\u0644\u0639\u0648\u062F\u0629 \u0625\u0644\u0649 \u0627\u0644\u0633\u062C\u0644", "\u0627\u0644\u0645\u0633\u0627\u0639\u062F\u0629 \u0641\u064A", "\u0627\u0628\u062F\u0623 \u0628\u062E\u0637\u0648\u0627\u062A \u0628\u0633\u064A\u0637\u0629", "\u0627\u0628\u0646\u0650 \u0623\u0646\u0638\u0645\u0629", "\u062A\u0648\u0633\u0651\u0639 \u0628\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064A", "\u0645\u063A\u0644\u0642", "\u0627\u0644\u0645\u0631\u062D\u0644\u0629 \u0627\u0644\u062D\u0627\u0644\u064A\u0629", "\u0627\u0644\u0633\u062C\u0644 \u063A\u064A\u0631 \u0645\u062A\u0627\u062D", "\u0645\u0633\u0648\u062F\u0629 \u0627\u0644\u0642\u0627\u0626\u0645\u0629 \u062C\u0627\u0647\u0632\u0629 \u0644\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u062A\u0645\u062A \u0627\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u062A\u0641\u0627\u0635\u064A\u0644 \u0627\u0644\u0637\u0644\u0628", "\u0623\u062E\u0628\u0631\u0646\u064A \u0639\u0646 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A."]
+  en: ["Home", "Roadmap", "Ask Auri", "My Services", "Build your roadmap", "Tell Auri about your business to get your first step.", "Build my roadmap", "Continue setup", "Next on your roadmap", "Needs your attention", "In progress", "Active services", "Review your menu", "Open request", "No items need your attention.", "No work in progress.", "No active services yet.", "Welcome to", "Roadmap complete", "Return to record", "Helping with", "Start small", "Build systems", "Scale with AI", "Locked", "Current stage", "Record unavailable", "Menu draft ready for review", "Mark reviewed", "Request details", "Tell me about your business."],
+  fr: ["Accueil", "Feuille de route", "Demander \xE0 Auri", "Mes services", "Cr\xE9ez votre feuille de route", "Pr\xE9sentez votre activit\xE9 \xE0 Auri pour obtenir votre premi\xE8re \xE9tape.", "Cr\xE9er ma feuille de route", "Poursuivre", "Prochaine \xE9tape", "\xC0 examiner", "En cours", "Services actifs", "Examiner votre menu", "Ouvrir la demande", "Aucun \xE9l\xE9ment \xE0 examiner.", "Aucun travail en cours.", "Aucun service actif pour le moment.", "Bienvenue dans", "Feuille de route termin\xE9e", "Revenir au dossier", "Aide pour", "Commencer simplement", "Structurer votre activit\xE9", "Se d\xE9velopper avec l\u2019IA", "Verrouill\xE9", "\xC9tape actuelle", "Dossier indisponible", "Brouillon du menu \xE0 examiner", "Marquer comme examin\xE9", "D\xE9tails de la demande", "Pr\xE9sentez-moi votre activit\xE9."],
+  tr: ["Ana sayfa", "Yol haritas\u0131", "Auri\u2019ye sor", "Hizmetlerim", "Yol haritan\u0131z\u0131 olu\u015Fturun", "\u0130lk ad\u0131m\u0131n\u0131z\u0131 \xF6\u011Frenmek i\xE7in Auri\u2019ye i\u015Fletmenizi anlat\u0131n.", "Yol haritam\u0131 olu\u015Ftur", "Kuruluma devam et", "S\u0131radaki ad\u0131m", "\u0130\u015Flem bekleyenler", "Devam edenler", "Aktif hizmetler", "Men\xFCn\xFCz\xFC inceleyin", "Talebi a\xE7", "\u0130\u015Flem bekleyen \xF6\u011Fe yok.", "Devam eden i\u015F yok.", "Hen\xFCz aktif hizmet yok.", "Ho\u015F geldiniz", "Yol haritas\u0131 tamamland\u0131", "Kayda d\xF6n", "Yard\u0131m konusu", "K\xFC\xE7\xFCk ba\u015Flay\u0131n", "Sistem kurun", "Yapay zek\xE2 ile b\xFCy\xFCy\xFCn", "Kilitli", "Ge\xE7erli a\u015Fama", "Kay\u0131t kullan\u0131lam\u0131yor", "Men\xFC tasla\u011F\u0131 incelemeye haz\u0131r", "\u0130ncelendi olarak i\u015Faretle", "Talep ayr\u0131nt\u0131lar\u0131", "Bana i\u015Fletmenizi anlat\u0131n."],
+  ar: ["\u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629", "\u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A", "\u062E\u062F\u0645\u0627\u062A\u064A", "\u0623\u0646\u0634\u0626 \u062E\u0627\u0631\u0637\u0629 \u0637\u0631\u064A\u0642\u0643", "\u0623\u062E\u0628\u0631 \u0623\u0648\u0631\u064A \u0639\u0646 \u0646\u0634\u0627\u0637\u0643 \u0644\u062A\u062D\u0635\u0644 \u0639\u0644\u0649 \u062E\u0637\u0648\u062A\u0643 \u0627\u0644\u0623\u0648\u0644\u0649.", "\u0623\u0646\u0634\u0626 \u062E\u0627\u0631\u0637\u0629 \u0637\u0631\u064A\u0642\u064A", "\u062A\u0627\u0628\u0639 \u0627\u0644\u0625\u0639\u062F\u0627\u062F", "\u062E\u0637\u0648\u062A\u0643 \u0627\u0644\u062A\u0627\u0644\u064A\u0629", "\u064A\u062A\u0637\u0644\u0628 \u0627\u0646\u062A\u0628\u0627\u0647\u0643", "\u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", "\u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0627\u0644\u0646\u0634\u0637\u0629", "\u0631\u0627\u062C\u0639 \u0642\u0627\u0626\u0645\u062A\u0643", "\u0627\u0641\u062A\u062D \u0627\u0644\u0637\u0644\u0628", "\u0644\u0627 \u062A\u0648\u062C\u062F \u0639\u0646\u0627\u0635\u0631 \u062A\u062A\u0637\u0644\u0628 \u0627\u0646\u062A\u0628\u0627\u0647\u0643.", "\u0644\u0627 \u062A\u0648\u062C\u062F \u0623\u0639\u0645\u0627\u0644 \u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630.", "\u0644\u0627 \u062A\u0648\u062C\u062F \u062E\u062F\u0645\u0627\u062A \u0646\u0634\u0637\u0629 \u0628\u0639\u062F.", "\u0645\u0631\u062D\u0628\u064B\u0627 \u0628\u0643 \u0641\u064A", "\u0627\u0643\u062A\u0645\u0644\u062A \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642", "\u0627\u0644\u0639\u0648\u062F\u0629 \u0625\u0644\u0649 \u0627\u0644\u0633\u062C\u0644", "\u0627\u0644\u0645\u0633\u0627\u0639\u062F\u0629 \u0641\u064A", "\u0627\u0628\u062F\u0623 \u0628\u062E\u0637\u0648\u0627\u062A \u0628\u0633\u064A\u0637\u0629", "\u0627\u0628\u0646\u0650 \u0623\u0646\u0638\u0645\u0629", "\u062A\u0648\u0633\u0651\u0639 \u0628\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064A", "\u0645\u063A\u0644\u0642", "\u0627\u0644\u0645\u0631\u062D\u0644\u0629 \u0627\u0644\u062D\u0627\u0644\u064A\u0629", "\u0627\u0644\u0633\u062C\u0644 \u063A\u064A\u0631 \u0645\u062A\u0627\u062D", "\u0645\u0633\u0648\u062F\u0629 \u0627\u0644\u0642\u0627\u0626\u0645\u0629 \u062C\u0627\u0647\u0632\u0629 \u0644\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u062A\u0645\u062A \u0627\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u062A\u0641\u0627\u0635\u064A\u0644 \u0627\u0644\u0637\u0644\u0628", "\u0623\u062E\u0628\u0631\u0646\u064A \u0639\u0646 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A."]
 };
 var keys = ["home", "journey", "assistant", "services", "build", "buildNote", "buildAction", "continue", "next", "attention", "progress", "active", "reviewMenu", "openRequest", "emptyAttention", "emptyProgress", "emptyActive", "welcome", "complete", "return", "context", "small", "systems", "scale", "locked", "current", "unavailable", "menuReady", "reviewed", "requestDetails", "intake"];
 var hubLabels = (lang2) => Object.fromEntries(keys.map((key, index) => [key, (labels[lang2] || labels.en)[index]]));
 var destinations = { home: "", journey: "roadmap", assistant: "auri", services: "work", menuDrafts: "menu-drafts", profile: "profile", settings: "settings", resources: "resources", tasks: "tasks", simulator: "simulator", team: "team", insights: "insights", projects: "projects", websites: "websites", hosting: "hosting", files: "files", reports: "reports", invoices: "invoices", rewards: "rewards", support: "support", onboarding: "onboarding" };
-var hubStage = (level) => Number(level) < 3 ? 0 : Number(level) < 5 ? 1 : 2;
+var hubStage = (level) => Math.max(0, Math.min(4, (Number(level) || 1) - 1));
+var hubStageNames = (lang2) => ({
+  en: ["Foundation", "Visibility", "Conversion", "Operations", "Scale"],
+  fr: ["Fondations", "Visibilit\xE9", "Conversion", "Op\xE9rations", "Croissance"],
+  tr: ["Temel", "G\xF6r\xFCn\xFCrl\xFCk", "D\xF6n\xFC\u015F\xFCm", "Operasyon", "B\xFCy\xFCme"],
+  ar: ["\u0627\u0644\u062A\u0623\u0633\u064A\u0633", "\u0627\u0644\u0638\u0647\u0648\u0631", "\u0627\u0644\u062A\u062D\u0648\u064A\u0644", "\u0627\u0644\u0639\u0645\u0644\u064A\u0627\u062A", "\u0627\u0644\u062A\u0648\u0633\u0639"]
+})[lang2] || ["Foundation", "Visibility", "Conversion", "Operations", "Scale"];
 var hubIcons = {
   home: '<path d="M3 10 12 3l9 7v10H3z M9 20v-7h6v7"/>',
   journey: '<path d="m2 8 10-5 10 5-10 5z M2 12l10 5 10-5 M2 16l10 5 10-5"/>',
@@ -174,13 +180,88 @@ function hubLink(page2, workspace2, params = {}) {
   return "/hub" + (destinations[page2] ? "/" + destinations[page2] : "") + (query2.size ? "?" + query2 : "");
 }
 
+// src/hub/service-cards.js
+var translations = {
+  en: { open: "Open", renewal: "Renews", benefits: { website: "Your online home", infrastructure: "Keep your site online", email: "Professional communication", menu: "Share your menu", whatsapp: "Reply to customers", crm: "Manage leads", discovery: "Help customers find you", ads: "Reach new customers", seo: "Improve search visibility", reviews: "Build customer trust", automation: "Save repetitive work", card: "Share contact details", creative: "Show your business", service: "Manage your service" } },
+  fr: { open: "Ouvrir", renewal: "Renouvellement", benefits: { website: "Votre vitrine en ligne", infrastructure: "Gardez votre site actif", email: "Communication professionnelle", menu: "Partagez votre menu", whatsapp: "R\xE9pondez aux clients", crm: "Suivez vos prospects", discovery: "Soyez plus visible", ads: "Touchez de nouveaux clients", seo: "Visibilit\xE9 sur Google", reviews: "Inspirez confiance", automation: "Automatisez les t\xE2ches", card: "Partagez vos contacts", creative: "Pr\xE9sentez votre activit\xE9", service: "G\xE9rez votre service" } },
+  tr: { open: "A\xE7", renewal: "Yenileme", benefits: { website: "Dijital vitrininiz", infrastructure: "Siteniz yay\u0131nda kals\u0131n", email: "Profesyonel ileti\u015Fim", menu: "Men\xFCn\xFCz\xFC payla\u015F\u0131n", whatsapp: "M\xFC\u015Fterileri yan\u0131tlay\u0131n", crm: "Potansiyel m\xFC\u015Fterileri y\xF6netin", discovery: "Kolay bulunabilin", ads: "Yeni m\xFC\u015Fterilere ula\u015F\u0131n", seo: "Aramada g\xF6r\xFCn\xFCr olun", reviews: "G\xFCven olu\u015Fturun", automation: "Tekrarlanan i\u015Fleri azalt\u0131n", card: "\u0130leti\u015Fim bilgilerini payla\u015F\u0131n", creative: "\u0130\u015Fletmenizi tan\u0131t\u0131n", service: "Hizmetinizi y\xF6netin" } },
+  ar: { open: "\u0641\u062A\u062D", renewal: "\u0627\u0644\u062A\u062C\u062F\u064A\u062F", benefits: { website: "\u0648\u0627\u062C\u0647\u0629 \u0639\u0645\u0644\u0643 \u0627\u0644\u0631\u0642\u0645\u064A\u0629", infrastructure: "\u0623\u0628\u0642 \u0645\u0648\u0642\u0639\u0643 \u0645\u062A\u0627\u062D\u064B\u0627", email: "\u062A\u0648\u0627\u0635\u0644 \u0627\u062D\u062A\u0631\u0627\u0641\u064A", menu: "\u0634\u0627\u0631\u0643 \u0642\u0627\u0626\u0645\u062A\u0643", whatsapp: "\u0631\u062F \u0639\u0644\u0649 \u0627\u0644\u0639\u0645\u0644\u0627\u0621", crm: "\u0646\u0638\u0645 \u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0627\u0644\u0645\u062D\u062A\u0645\u0644\u064A\u0646", discovery: "\u0633\u0647\u0651\u0644 \u0627\u0644\u0639\u062B\u0648\u0631 \u0639\u0644\u064A\u0643", ads: "\u0627\u062C\u0630\u0628 \u0639\u0645\u0644\u0627\u0621 \u062C\u062F\u062F", seo: "\u0627\u0638\u0647\u0631 \u0641\u064A \u0627\u0644\u0628\u062D\u062B", reviews: "\u0639\u0632\u0632 \u062B\u0642\u0629 \u0627\u0644\u0639\u0645\u0644\u0627\u0621", automation: "\u0648\u0641\u0631 \u0648\u0642\u062A \u0627\u0644\u0645\u0647\u0627\u0645", card: "\u0634\u0627\u0631\u0643 \u0628\u064A\u0627\u0646\u0627\u062A \u0627\u0644\u062A\u0648\u0627\u0635\u0644", creative: "\u0627\u0639\u0631\u0636 \u0646\u0634\u0627\u0637\u0643", service: "\u0623\u062F\u0631 \u062E\u062F\u0645\u062A\u0643" } }
+};
+var categories = [
+  { pattern: /whatsapp/i, kind: "whatsapp", symbol: "WA", capabilities: ["whatsapp"] },
+  { pattern: /qr|menu|menü/i, kind: "menu", symbol: "QR", capabilities: ["menu"] },
+  { pattern: /google\s*(maps?|business)|business\s*discovery|local\s*listing/i, kind: "discovery", symbol: "MAP", capabilities: ["discovery"] },
+  { pattern: /review|rating|avis|yorum/i, kind: "reviews", symbol: "\u2605", capabilities: ["reviews"] },
+  { pattern: /google\s*ads|search\s*advert|ad\s*management|campaign|publicit/i, kind: "ads", symbol: "ADS", capabilities: ["ads"] },
+  { pattern: /seo|search\s*optim/i, kind: "seo", symbol: "SEO", capabilities: ["seo"] },
+  { pattern: /e-?mail|e-posta|courriel|mailbox/i, kind: "email", symbol: "@", capabilities: ["email"] },
+  { pattern: /crm|customer\s*management|lead\s*management|pipeline/i, kind: "crm", symbol: "CRM", capabilities: ["crm", "leads"] },
+  { pattern: /hosting|domain|security|ssl|website\s*care|maintenance/i, kind: "infrastructure", symbol: "DNS", capabilities: ["domain", "hosting"] },
+  { pattern: /automat|chatbot|ai\s*assistant|workflow|spinflow/i, kind: "automation", symbol: "AI", capabilities: ["automation", "followups"] },
+  { pattern: /nfc|smart\s*card/i, kind: "card", symbol: "NFC", capabilities: ["branding"] },
+  { pattern: /web|website|site|e-?commerce|online\s*shop/i, kind: "website", symbol: "WEB", capabilities: ["website"] },
+  { pattern: /brand|logo|video|photo|design|graphic/i, kind: "creative", symbol: "\u2726", capabilities: ["branding"] }
+];
+var classify = (name) => categories.find((x) => x.pattern.test(String(name || ""))) || { kind: "service", symbol: "\u2726", capabilities: [] };
+var baseImportance = { website: 100, infrastructure: 90, email: 85, discovery: 80, whatsapp: 70, seo: 68, crm: 65, reviews: 60, automation: 55, ads: 50, menu: 35, card: 25, creative: 20, service: 10 };
+var sectorBoost = {
+  restaurant: { menu: 90, discovery: 35, reviews: 25, whatsapp: 23 },
+  real_estate: { crm: 75, website: 30, whatsapp: 30, ads: 27 },
+  ecommerce: { website: 35, crm: 30, ads: 30, reviews: 30, whatsapp: 25 },
+  services: { email: 20, crm: 20, website: 15, discovery: 15 }
+};
+var validDate = (value) => {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}(?:$|[T ])/.test(value)) return null;
+  const short = value.slice(0, 10);
+  const date = Date.parse(short + "T00:00:00Z");
+  return Number.isFinite(date) && new Date(date).toISOString().slice(0, 10) === short ? date : null;
+};
+function rankServicesForBusiness(records, { profile = {}, missions = [], now = Date.now() } = {}) {
+  const sector = String(profile.industry || "").toLowerCase();
+  const text = [profile.goals, profile.difficulties].filter(Boolean).join(" ").toLowerCase();
+  const focus = new Set((Array.isArray(missions) ? missions : []).filter((m) => !m.optional && !["done", "postponed", "cancelled"].includes(m.status)).filter((m) => Number(m.priority) === 1 || ["in_progress", "active"].includes(m.status)).map((m) => m.capability || m.id));
+  const score = (record) => {
+    const { kind, capabilities: capabilities2 } = classify(record.name);
+    let value = (baseImportance[kind] || 10) + (sectorBoost[sector]?.[kind] || 0);
+    if (capabilities2.some((c) => focus.has(c))) value += 80;
+    if (/reservation|booking|menu/.test(text) && kind === "menu") value += 30;
+    if (/leads|sales|clients|customer|booking|appointment/.test(text) && ["crm", "whatsapp", "website"].includes(kind)) value += 20;
+    if (/automat|manual|time|efficien|repetit/.test(text) && ["automation", "whatsapp"].includes(kind)) value += 35;
+    if (/visib|traffic|search|find|local/.test(text) && ["discovery", "seo", "ads"].includes(kind)) value += 30;
+    const status = String(record.status || "").toLowerCase();
+    if (["waiting", "waiting_client", "needs_action", "review", "quote_ready"].includes(status)) value += 1e3;
+    else if (["in_progress", "production"].includes(status)) value += 70;
+    const deadline = validDate(record.dueDate);
+    if (deadline !== null && deadline < now + 864e5 * 14) value += deadline < now ? 500 : 260;
+    const renewal = validDate(record.renewalDate);
+    if (renewal !== null && renewal < now + 864e5 * 14) value += renewal < now ? 420 : 230;
+    return value;
+  };
+  return [...records].sort((a, b) => score(b) - score(a) || String(a.name || "").localeCompare(String(b.name || "")) || String(a.id || "").localeCompare(String(b.id || "")));
+}
+function renderOwnedServiceCard(record, { esc: esc3, href, lang: lang2 = "en" }) {
+  const labels3 = translations[lang2] || translations.en;
+  const category = classify(record.name);
+  const active = String(record.status || "").toLowerCase() === "active";
+  const renewal = validDate(record.renewalDate) !== null ? record.renewalDate.slice(0, 10) : null;
+  return `<article class="hub-service-card hub-service-compact" data-service-kind="${category.kind}">
+  <div class="hub-service-preview" aria-hidden="true"><span class="hub-service-mark">${esc3(category.symbol)}</span></div>
+  <div class="hub-service-card-body">
+   <div class="hub-service-card-heading"><h3>${esc3(record.name || "Service")}</h3><span class="hub-service-status ${active ? "is-active" : ""}">${esc3(record.status || "Pending")}</span></div>
+   <p class="hub-service-benefit">${esc3(labels3.benefits[category.kind] || labels3.benefits.service)}</p>
+   ${renewal ? `<p class="hub-service-renewal">${esc3(labels3.renewal)} \xB7 ${esc3(renewal)}</p>` : ""}
+   <a class="hub-service-primary" href="${esc3(href)}">${esc3(labels3.open)} <span aria-hidden="true">\u2197</span></a>
+  </div>
+ </article>`;
+}
+
 // src/hub/work-view.js
 var statusKeys = { lead: "Received", new: "Received", contacted: "Contacted", active: "Active", waiting: "Waiting for details", completed: "Completed", cancelled: "Cancelled", production: "In production", in_production: "In production", waiting_client: "Waiting for details", review: "Ready for review", quote_ready: "Quote ready" };
 var attentionStatuses = /* @__PURE__ */ new Set(["waiting", "waiting_client", "review", "quote_ready"]);
 var terminal = /* @__PURE__ */ new Set(["completed", "cancelled"]);
 var state = (r) => attentionStatuses.has(r.status) ? r.status : r.productionStatus || r.status;
 var workStatus = (r) => statusKeys[state(r)] || String(state(r) || "").replaceAll("_", " ");
-function workRows(drafts, work) {
+function workRows(drafts, work, context = {}) {
   const attention = drafts.filter((d) => !d.reviewed && d.state !== "archived").map((d) => ({
     ...d,
     kind: "menu",
@@ -192,7 +273,7 @@ function workRows(drafts, work) {
   const overdue = (r) => due(r) < Date.now();
   attention.sort((a, b) => Number(overdue(b)) - Number(overdue(a)) || Number(b.blocking) - Number(a.blocking) || (due(a) === due(b) ? 0 : due(a) - due(b)) || a.id.localeCompare(b.id));
   const progress = work.requests.filter((r) => !attentionStatuses.has(state(r)) && !terminal.has(state(r))).map((r) => ({ ...r, kind: "request" }));
-  return { attention, progress, services: work.services };
+  return { attention, progress: rankServicesForBusiness(progress, context), services: rankServicesForBusiness(work.services, context) };
 }
 function renderWorkRow(record, { ui, esc: esc3, link: link2 }) {
   const menu = record.kind === "menu";
@@ -210,8 +291,9 @@ function renderRequestForm({ host, lang: lang2, esc: esc3, me: me2, workspace: w
     tr: ["Hizmet iste", "Hizmet", "Telefon", "Ne yapmam\u0131z\u0131 istersiniz?", "Talebi g\xF6nder", "\u0130ptal"],
     ar: ["\u0627\u0637\u0644\u0628 \u062E\u062F\u0645\u0629", "\u0627\u0644\u062E\u062F\u0645\u0629", "\u0631\u0642\u0645 \u0627\u0644\u0647\u0627\u062A\u0641", "\u0645\u0627 \u0627\u0644\u0630\u064A \u062A\u0648\u062F \u0623\u0646 \u0646\u0646\u062C\u0632\u0647\u061F", "\u0625\u0631\u0633\u0627\u0644 \u0627\u0644\u0637\u0644\u0628", "\u0625\u0644\u063A\u0627\u0621"]
   }[lang2];
+  const rankedOptions = rankServicesForBusiness(serviceOptions.map((name) => ({ name })), { profile: workspace2.profile, missions: workspace2.missions }).map((item) => item.name);
   host.innerHTML = `<section class="panel"><h2>${labels3[0]}</h2><form data-hub-request>
-  <label class="field">${labels3[1]}<select name="service">${serviceOptions.map((value) => `<option ${service === value ? "selected" : ""}>${esc3(value)}</option>`).join("")}</select></label>
+  <label class="field">${labels3[1]}<select name="service">${rankedOptions.map((value) => `<option ${service === value ? "selected" : ""}>${esc3(value)}</option>`).join("")}</select></label>
   <label class="field">${labels3[2]}<input name="phone" type="tel" maxlength="50" autocomplete="tel" required></label>
   <label class="field">${labels3[3]}<textarea name="message" rows="4" maxlength="1700" required>${esc3(draft2.slice(0, 1700))}</textarea></label>
   <p role="alert"></p><button class="primary">${labels3[4]}</button> <a class="secondary" href="${esc3(back)}">${labels3[5]}</a>
@@ -688,7 +770,7 @@ function renderGrowthVisionPath({ workspace: workspace2, esc: esc3, lang: lang2 
   const ui = copy3[lang2] || copy3.en;
   const hub = hubLabels(lang2);
   const missions = workspace2.missions || [];
-  const stages = [hub.small, hub.systems, hub.scale].map((name, index) => ({
+  const stages = hubStageNames(lang2).map((name, index) => ({
     name,
     missions: missions.filter((m) => hubStage(m.level) === index)
   }));
@@ -713,7 +795,7 @@ function renderGrowthVisionPath({ workspace: workspace2, esc: esc3, lang: lang2 
     const state2 = finished ? ui.done : active ? hub.current : current < index && current !== -1 ? hub.locked : ui.upcoming;
     const content2 = `<span class="vision-stage-status">${index + 1} \xB7 ${esc3(state2)}</span>
     <strong>${esc3(item.name)}</strong>
-    <img class="vision-stage-art" src="/hub/stage-${index + 1}.webp" alt="" width="140" height="106">
+    ${index < 3 ? `<img class="vision-stage-art" src="/hub/stage-${index + 1}.webp" alt="" width="140" height="106">` : `<span class="vision-stage-icon vision-stage-fallback" aria-hidden="true">${index === 3 ? "\u2699" : "\u25A5"}</span>`}
     <small>${count} / ${total} ${esc3(ui.missions.toLowerCase())}</small>`;
     return `<li class="vision-stage" data-stage-state="${finished ? "done" : active ? "active" : "upcoming"}">
    ${first ? `<button type="button" class="vision-stage-button" data-node="${esc3(first.id)}" aria-pressed="${chosen === index}">${content2}</button>` : `<div class="vision-stage-button">${content2}</div>`}
@@ -1737,7 +1819,7 @@ async function workSnapshot() {
       throw error;
     })
   ]);
-  return workRows(menus.drafts, work);
+  return workRows(menus.drafts, work, { profile: workspace.profile, missions: workspace.missions });
 }
 function buildCard(ui) {
   const canBuild = !workspace || ["profile:write", "roadmap:write"].every((permission) => workspace.permissions.includes(permission));
@@ -1774,7 +1856,7 @@ async function home() {
   const complete = !item && !next && workspace.missions.every((m) => m.status === "done");
   const note = item ? menu ? item.name : workStatus(item) : next ? next.reason || next.description : "";
   const done = workspace.missions.filter((m) => m.status === "done").length;
-  const stage = next ? [ui.small, ui.systems, ui.scale][hubStage(next.level)] : ui.journey;
+  const stage = next ? hubStageNames(lang)[hubStage(next.level)] : ui.journey;
   host.innerHTML = `<section class="hub-hero"><div>
  ${item ? `<span class="hub-highlight">${esc2(ui.attention)}</span>` : next ? `<span class="hub-highlight">${esc2(ui.next)}</span>` : ""}
  <h2>${esc2(hero)}</h2>${note ? `<p>${esc2(note)}</p>` : ""}
@@ -1809,11 +1891,11 @@ async function myWork() {
   if (service) {
     const record = services.find((item) => String(item.id) === service);
     if (!record) throw new Error(ui.unavailable);
-    host.innerHTML = `<section class="panel"><h2>${esc2(record.name)}</h2><p>${esc2(ui.active)}</p><a class="secondary" href="${esc2(link("services"))}">${esc2(ui.services)}</a></section>`;
+    host.innerHTML = `<section class="panel"><h2>${esc2(record.name)}</h2><p>${esc2(workStatus(record))}</p>${record.renewalDate ? `<p>${esc2(record.renewalDate)}</p>` : ""}<a class="secondary" href="/account">${esc2(t("orders"))}</a> <a class="secondary" href="${esc2(link("services"))}">${esc2(ui.services)}</a></section>`;
     return;
   }
   const section = (name, empty, rows) => `<section class="hub-work-section"><h2>${esc2(name)}</h2>${rows || `<p class="hub-empty">${esc2(empty)}</p>`}</section>`;
-  host.innerHTML = section(ui.attention, ui.emptyAttention, attention.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + section(ui.progress, ui.emptyProgress, progress.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + section(ui.active, ui.emptyActive, services.map((record) => `<a class="hub-work-row" href="${esc2(link("services", { active: record.id }))}"><span class="hub-row-icon">${hubIcon("services")}</span><span><strong>${esc2(record.name)}</strong><small>${esc2(workStatus(record))}</small></span><span aria-hidden="true">\u203A</span></a>`).join("")) + `<a href="${esc2(link("menuDrafts"))}" class="growth-secondary">${esc2(t("menuDrafts"))}</a>`;
+  host.innerHTML = section(ui.attention, ui.emptyAttention, attention.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + section(ui.progress, ui.emptyProgress, progress.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + section(ui.active, ui.emptyActive, services.length ? `<div class="hub-services-grid">${services.map((record) => renderOwnedServiceCard(record, { esc: esc2, href: link("services", { active: record.id }), lang })).join("")}</div>` : "") + `<a href="${esc2(link("menuDrafts"))}" class="growth-secondary">${esc2(t("menuDrafts"))}</a>`;
 }
 async function renderPage() {
   const label = hubLabels(lang);

@@ -18,7 +18,7 @@ export async function getHubWork(env,org,guard,id) {
  }
  let services=[];
  if(['request_receipts','hub_contact_requests','subscriptions'].every(has)){
-  services=(await db.prepare(`SELECT s.id,s.plan AS name,s.status FROM hub_contact_requests h
+  services=(await db.prepare(`SELECT DISTINCT s.id,s.plan AS name,s.status,s.next_billing_date AS renewalDate FROM hub_contact_requests h
    JOIN request_receipts r ON r.request_id=h.request_id JOIN subscriptions s ON s.client_id=r.client_id
    WHERE h.organization_id=? AND s.status='active' AND ${guard.sql} ORDER BY s.id DESC LIMIT 100`).bind(org,...guard.args).all()).results;
  }

@@ -469,7 +469,8 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 .hub-row-action{color:var(--hub-accent);text-align:end;font-size:.86rem}
 .hub-empty{margin:0;padding:12px 0}
 .hub-context{grid-template-columns:minmax(0,1fr) auto;margin-block-end:14px}
-.aurahub-shell .vision-path-cards{grid-template-columns:repeat(3,minmax(0,1fr));min-width:0;gap:21px}
+.aurahub-shell .vision-path-cards{grid-template-columns:repeat(5,minmax(154px,1fr));min-width:800px;gap:16px}
+.aurahub-shell .vision-stage-fallback{display:grid;place-items:center;width:min(100%,140px);height:106px;font-size:3rem;background:radial-gradient(circle at 50% 35%,#34532a,#14241e 76%);border:1px solid #506b40;border-radius:22px;box-shadow:inset 0 0 17px #d8ff3520;color:#d8ff35}
 .aurahub-shell .vision-stage-button{background:linear-gradient(150deg,#172722,#0c1916);border-color:var(--hub-border);gap:10px}
 .aurahub-shell .vision-stage-button strong{font-size:clamp(1rem,1.8vw,1.45rem)}
 .aurahub-shell .vision-stage[data-stage-state=active] .vision-stage-button{border-color:var(--hub-accent);box-shadow:0 0 17px #c5ff3655,inset 0 0 13px #d8ff3522}
@@ -565,3 +566,38 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 .hub-guide-status:not(:empty){margin:8px 0}
 .hub-guide-status:empty{margin:0}
 .auri-setup .hub-guide{margin-block-end:32px}
+
+/* Universal owned-service cards: data-backed, no invented deliverables or payments. */
+.hub-services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:16px;margin-block-start:16px}
+.hub-service-card{min-width:0;border:1px solid var(--hub-border);border-radius:20px;overflow:hidden;background:linear-gradient(150deg,#1b2b25,#101b18);color:var(--hub-text)}
+.hub-service-preview{height:138px;display:grid;place-items:center;background:radial-gradient(circle at 50% 55%,#3b522a,#12251e 62%,#0e1917 100%);border-block-end:1px solid var(--hub-border)}
+.hub-service-card[data-service-kind=email] .hub-service-preview{background:radial-gradient(circle,#304937,#13231e 75%)}
+.hub-service-card[data-service-kind=menu] .hub-service-preview{background:radial-gradient(circle,#36472e,#121e18 75%)}
+.hub-service-mark{display:grid;place-items:center;min-width:87px;height:73px;border-radius:20px;padding:0 10px;border:1px solid #7ba34e;box-shadow:0 0 26px #c8ff3640;color:var(--hub-accent);font-size:1.55rem;font-weight:800;letter-spacing:-.04em}
+.hub-service-card-body{padding:16px;display:grid;gap:16px}
+.hub-service-card-heading{display:flex;gap:8px;justify-content:space-between;align-items:start}
+.hub-service-card-heading h3{margin:0;font-size:1.06rem;line-height:1.35;overflow-wrap:anywhere}
+.hub-service-status{flex-shrink:0;border:1px solid #6b6755;border-radius:999px;padding:4px 9px;color:#dbd3b9;font-size:.68rem;font-weight:700;text-transform:capitalize}
+.hub-service-status.is-active{color:#d9ff91;border-color:#5d8d49}
+.hub-service-facts{display:flex;align-items:start;justify-content:space-between;gap:10px;font-size:.78rem}
+.hub-service-facts span{color:var(--hub-label)}
+.hub-service-facts strong{text-align:end;font-weight:600;overflow-wrap:anywhere}
+.hub-service-card-actions{display:flex;flex-wrap:wrap;gap:8px}
+.hub-service-primary,.hub-service-secondary{padding:10px 12px;border-radius:10px;font-size:.78rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.hub-service-primary{background:var(--hub-accent);color:#13200a}
+.hub-service-secondary{border:1px solid var(--hub-border);color:var(--hub-text)}
+.hub-service-primary:focus-visible,.hub-service-secondary:focus-visible{outline:3px solid var(--hub-accent);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.hub-service-primary,.hub-service-secondary{transition:none}}
+
+/* Short, visual service cards: one action and only verified metadata. */
+.hub-service-compact{display:grid;grid-template-columns:90px minmax(0,1fr);min-height:132px}
+.hub-service-compact .hub-service-preview{height:auto;min-height:132px;border-block-end:0;border-inline-end:1px solid var(--hub-border)}
+.hub-service-compact .hub-service-mark{min-width:52px;height:52px;padding:0 6px;border-radius:14px;font-size:1.04rem;letter-spacing:-.04em}
+.hub-service-compact .hub-service-card-body{padding:12px;gap:7px;align-content:center}
+.hub-service-compact .hub-service-card-heading{align-items:start;flex-wrap:wrap;gap:5px}
+.hub-service-compact .hub-service-card-heading h3{font-size:clamp(.9rem,1.3vw,1.03rem)}
+.hub-service-compact .hub-service-status{font-size:.64rem;padding:3px 8px}
+.hub-service-benefit,.hub-service-renewal{font-size:.76rem;color:var(--hub-label);margin:0;line-height:1.4;overflow-wrap:anywhere}
+.hub-service-renewal{color:var(--hub-text)}
+.hub-service-compact .hub-service-primary{justify-self:start;padding:7px 11px;border-radius:9px;font-size:.76rem}
+@media(max-width:410px){.hub-service-compact{grid-template-columns:76px minmax(0,1fr)}.hub-service-compact .hub-service-preview{min-height:126px}.hub-service-compact .hub-service-card-body{padding:10px}}

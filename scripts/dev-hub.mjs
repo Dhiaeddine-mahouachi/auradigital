@@ -12,7 +12,7 @@ import { secureResponse } from '../src/security-policy.js';
 const f=await hubFixture();
 f.sqlite.exec(await readFile(new URL('../migrations/0005_ai_employee.sql',import.meta.url),'utf8'));
 f.sqlite.exec(`CREATE TABLE clients (id INTEGER PRIMARY KEY, name TEXT, company TEXT, email TEXT, phone TEXT, service TEXT, status TEXT, notes TEXT);
- CREATE TABLE subscriptions (id INTEGER PRIMARY KEY, client_id INTEGER, plan TEXT, status TEXT);
+ CREATE TABLE subscriptions (id INTEGER PRIMARY KEY, client_id INTEGER, plan TEXT, status TEXT, next_billing_date TEXT);
  CREATE TABLE orders (id INTEGER PRIMARY KEY, client_id INTEGER, status TEXT, due_date TEXT);`);
 f.env.AI_RATE_LIMITER={async limit(){return {success:true};}};
 if(process.env.HUB_OLLAMA_URL&&process.env.HUB_OLLAMA_MODEL){

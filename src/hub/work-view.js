@@ -1,11 +1,12 @@
 import { hubIcon, hubLabels } from './hub-navigation.js';
+import { rankServicesForBusiness } from './service-cards.js';
 
 const statusKeys={lead:'Received',new:'Received',contacted:'Contacted',active:'Active',waiting:'Waiting for details',completed:'Completed',cancelled:'Cancelled',production:'In production',in_production:'In production',waiting_client:'Waiting for details',review:'Ready for review',quote_ready:'Quote ready'};
 const attentionStatuses=new Set(['waiting','waiting_client','review','quote_ready']);
 const terminal=new Set(['completed','cancelled']);
 const state=r=>attentionStatuses.has(r.status)?r.status:r.productionStatus||r.status;
 export const workStatus=r=>statusKeys[state(r)]||String(state(r)||'').replaceAll('_',' ');
-export function workRows(drafts,work) {
+export function workRows(drafts,work,context={}) {
  const attention=drafts.filter(d=>!d.reviewed&&d.state!=='archived').map(d=>({
   ...d,kind:'menu',name:d.draft.fields.businessName||'AuraMenu',blocking:d.state==='preview',
  }));
@@ -14,7 +15,7 @@ export function workRows(drafts,work) {
  const overdue=r=>due(r)<Date.now();
  attention.sort((a,b)=>Number(overdue(b))-Number(overdue(a))||Number(b.blocking)-Number(a.blocking)||(due(a)===due(b)?0:due(a)-due(b))||a.id.localeCompare(b.id));
  const progress=work.requests.filter(r=>!attentionStatuses.has(state(r))&&!terminal.has(state(r))).map(r=>({...r,kind:'request'}));
- return {attention,progress,services:work.services};
+ return {attention,progress:rankServicesForBusiness(progress,context),services:rankServicesForBusiness(work.services,context)};
 }
 export function renderWorkRow(record,{ui,esc,link}) {
  const menu=record.kind==='menu';
@@ -33,8 +34,9 @@ export function renderRequestForm({host,lang,esc,me,workspace,service,task,draft
   tr:['Hizmet iste','Hizmet','Telefon','Ne yapmamızı istersiniz?','Talebi gönder','İptal'],
   ar:['اطلب خدمة','الخدمة','رقم الهاتف','ما الذي تود أن ننجزه؟','إرسال الطلب','إلغاء'],
  }[lang];
+ const rankedOptions=rankServicesForBusiness(serviceOptions.map(name=>({name})),{profile:workspace.profile,missions:workspace.missions}).map(item=>item.name);
  host.innerHTML=`<section class="panel"><h2>${labels[0]}</h2><form data-hub-request>
-  <label class="field">${labels[1]}<select name="service">${serviceOptions.map(value=>`<option ${service===value?'selected':''}>${esc(value)}</option>`).join('')}</select></label>
+  <label class="field">${labels[1]}<select name="service">${rankedOptions.map(value=>`<option ${service===value?'selected':''}>${esc(value)}</option>`).join('')}</select></label>
   <label class="field">${labels[2]}<input name="phone" type="tel" maxlength="50" autocomplete="tel" required></label>
   <label class="field">${labels[3]}<textarea name="message" rows="4" maxlength="1700" required>${esc(draft.slice(0,1700))}</textarea></label>
   <p role="alert"></p><button class="primary">${labels[4]}</button> <a class="secondary" href="${esc(back)}">${labels[5]}</a>
