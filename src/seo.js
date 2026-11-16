@@ -8,8 +8,8 @@ const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
 const PAGE_SEO = {
   "/": {
     "lang": "en",
-    "title": "Digital Agency Istanbul | Websites, Ads & QR Menus | AuraDigital",
-    "description": "AuraDigital is an Istanbul-based digital growth studio for websites, Google and Meta advertising, SEO, NFC cards and QR menus.",
+    "title": "Aura Command | AI-Powered Business Growth — AuraDigital",
+    "description": "Build an AI-guided business growth roadmap with Aura Command. Plan, launch, automate and manage your digital services in one connected AuraDigital workspace.",
     "type": "WebPage"
   },
   "/services": {
