@@ -92,6 +92,40 @@
     await renderWorkspace();
   }
 
+  async function renderEvidence(host) {
+    const path = "/api/admin/workspace/mission-evidence";
+    try {
+      const { evidence, canReview } = await api(path);
+      if (!host.isConnected) return;
+      host.querySelector("[data-evidence-list]").innerHTML = evidence.map(entry => `
+        <article class="workspace-note">
+          <strong>${esc(entry.business)} · ${esc(entry.mission_title)}</strong>
+          <p>${esc(entry.outcome)} · ${esc(prettyDate(entry.created_at))}</p>
+          <p class="workspace-note-body">${esc(entry.proof)}</p>
+          ${canReview ? `<div class="workspace-note-actions">
+            <button type="button" class="btn btn-dark btn-sm" data-review="approved" data-id="${esc(entry.id)}">Approve evidence</button>
+            <button type="button" class="btn btn-light btn-sm" data-review="rejected" data-id="${esc(entry.id)}">Request new evidence</button>
+          </div>` : ""}
+        </article>`).join("") || "<p>No evidence is waiting for review.</p>";
+      host.querySelectorAll("[data-review]").forEach(button => {
+        button.onclick = async () => {
+          const buttons = button.parentElement.querySelectorAll("button");
+          buttons.forEach(control => { control.disabled = true; });
+          try {
+            await api(path, { method: "PATCH", body: JSON.stringify({ id: button.dataset.id, status: button.dataset.review }) });
+            await renderEvidence(host);
+          } catch (error) {
+            host.querySelector("[data-evidence-notice]").textContent = error.message;
+            buttons.forEach(control => { control.disabled = false; });
+          }
+        };
+      });
+    } catch (error) {
+      if (error.status === 404) host.hidden = true;
+      else host.querySelector("[data-evidence-notice]").textContent = error.message;
+    }
+  }
+
   async function renderWorkspace() {
     const data = await api("/api/admin/workspace/notes");
     const notes = Array.isArray(data.notes) ? data.notes : [];
@@ -120,6 +154,10 @@
         <div><span class="workspace-kicker">YOUR PRIVATE SPACE</span><h2>Notes, ideas & visual references</h2><p>Keep client reminders, ideas, screenshots and references inside your AuraDigital admin.</p></div>
         <div class="workspace-mini-stats"><div><strong>${notes.length}</strong><span>notes</span></div><div><strong>${imageCount}</strong><span>images</span></div></div>
       </div>
+      <section id="missionEvidence" class="panel">
+        <div class="panel-head"><h2>Roadmap evidence</h2></div>
+        <p role="status" data-evidence-notice></p><div class="workspace-grid" data-evidence-list></div>
+      </section>
       <div class="workspace-layout">
         <section class="panel workspace-compose">
           <div class="panel-head"><div><h2 id="workspaceFormTitle">New note</h2><p>Saved privately in your AuraDigital database.</p></div><span class="status">Private</span></div>
@@ -143,6 +181,7 @@
     document.querySelectorAll("[data-workspace-delete]").forEach(button => button.addEventListener("click", () => deleteNote(button.dataset.workspaceDelete)));
     document.querySelectorAll("[data-workspace-image]").forEach(button => button.addEventListener("click", () => deleteImage(button.dataset.workspaceImage)));
     applyReadOnlyUi();
+    void renderEvidence($("missionEvidence"));
   }
 
   openView = async function(view) {

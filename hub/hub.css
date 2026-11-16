@@ -159,3 +159,11 @@ auri-character[data-rendered] img{visibility:hidden}
 .auri-work-log article{border-top:1px solid var(--line);padding-block:14px}
 .auri-work-log time{margin-inline-start:10px;color:var(--muted);font-size:.85rem}
 .auri-work-log article p{white-space:pre-wrap;overflow-wrap:anywhere}
+.mission-evidence{display:grid;gap:8px;margin-block:10px}
+.mission-evidence button{justify-self:start}
+.mission-proof-status{margin-block:12px 0;font-weight:600}
+.hub-next-mission{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:18px 22px;margin-block-end:16px}
+.hub-next-mission h2,.hub-next-mission p{margin:0}
+.hub-next-mission p{font-size:.8rem}
+.hub-existing-proof{margin-block-end:16px;padding:12px 18px}
+.hub-existing-proof form{max-inline-size:560px}

@@ -79,3 +79,63 @@ test('Auri saves the member’s name, visibility and review-only drafts within t
  assert.equal((await call(path+'/auri',stranger)).status,404);
  assert.deepEqual((await (await call(path+'/auri',owner)).json()).drafts,[draft]);
 });
+
+test('A manual alternative preserves the outcome and only staff review awards credit',async()=>{
+ const {call,DB,env,user}=await hubFixture();
+ const {handleAdminWorkspace}=await import('../src/admin-workspace.js');
+ const {createSession}=await import('../src/security.js');
+ const owner=await user('owner@example.test');
+ const other=await user('other@example.test');
+ const {id}=await (await call('/api/hub/workspaces',owner,'POST',{mode:'auri',profile:profile()})).json();
+ const path='/api/hub/workspaces/'+id;
+ const read=async()=>(await call(path,owner)).json();
+ const original=(await read()).missions.find(m=>m.capability==='menu');
+ assert.ok(original);
+ const route=path+'/mission-route/'+original.id,proof=path+'/mission-evidence/'+original.id;
+ assert.equal((await call(route,owner,'PATCH',{version:original.version,route:'alternative'})).status,200);
+ const manual=(await read()).missions.find(m=>m.id===original.id);
+ assert.equal(manual.route,'alternative');
+ assert.equal(manual.capability,'menu');
+ const body={version:manual.version,proof:'Restaurant’s existing reservation workflow and follow-up checklist.'};
+ assert.equal((await call(proof,other,'POST',body)).status,404);
+ const response=await call(proof,owner,'POST',body);
+ assert.equal(response.status,201);
+ const evidence=await response.json();
+ assert.equal((await read()).evidence[original.id],'pending');
+ assert.equal((await read()).auri.verifiedMilestones,0);
+ assert.equal((await call(proof,owner,'POST',body)).status,409);
+ assert.equal((await call(route,owner,'PATCH',{version:manual.version,route:'original'})).status,409);
+ await DB.prepare("INSERT INTO admin_users(id,username,display_name,password_hash,role) VALUES('reviewer','reviewer','Reviewer','!test','manager')").run();
+ const cookie='__Host-aura_admin='+await createSession(DB,'reviewer');
+ const endpoint='https://aura.test/api/admin/workspace/mission-evidence';
+ const reviewBody=JSON.stringify({id:evidence.id,status:'approved'});
+ const review=()=>handleAdminWorkspace(new Request(endpoint,{method:'PATCH',headers:{Cookie:cookie,Origin:'https://aura.test','Content-Type':'application/json'},body:reviewBody}),env);
+ assert.equal((await review()).status,200);
+ await assert.rejects(review(),error=>error.status===409);
+ const updated=await read();
+ assert.equal(updated.evidence[original.id],'approved');
+ assert.equal(updated.auri.verifiedMilestones,1);
+ assert.equal(updated.auri.level,2); // Conversion cannot skip foundation and visibility.
+ assert.equal(JSON.stringify(updated).includes(body.proof),false);
+});
+
+test('Existing website evidence can enter review without creating a purchase requirement',async()=>{
+ const {call,user}=await hubFixture();
+ const owner=await user('owner@example.test');
+ const {id}=await (await call('/api/hub/workspaces',owner,'POST',{
+  mode:'auri',profile:{...profile(),industry:'real_estate',website:'https://example.com'},
+  deferredMissions:['email'],
+ })).json();
+ const path='/api/hub/workspaces/'+id;
+ const read=async()=>(await call(path,owner)).json();
+ const before=await read();
+ assert.equal(before.missions.find(m=>m.capability==='email').status,'postponed');
+ assert.equal(before.missions.some(m=>m.capability==='website'),false);
+ const result=await call(path+'/existing-evidence',owner,'POST',{capability:'website',proof:'Published property listing website with live enquiry form.'});
+ assert.equal(result.status,201);
+ const {missionId}=await result.json();
+ const after=await read();
+ assert.equal(after.missions.find(m=>m.id===missionId).status,'postponed');
+ assert.equal(after.evidence[missionId],'pending');
+ assert.equal(after.auri.verifiedMilestones,0);
+});

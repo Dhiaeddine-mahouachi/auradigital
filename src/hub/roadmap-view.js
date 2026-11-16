@@ -1,3 +1,5 @@
+import { missionAlternative } from '../mission-routes.js';
+import { blueprintLabels } from './blueprint-copy.js';
 import { eligibleMissions, missionGuide, missionState, roadmapStages } from '../roadmap.js';
 
 const labels = {
@@ -10,8 +12,8 @@ export const roadmapLabels = lang => Object.fromEntries([
  'home','journey','tasks','resources','welcome','progress','stage','priority','estimate','root','heading','tree','timeline','focus','why','how','requirements','myself','hire','ask','optional','blocked','refresh','request','start','complete','assistant','help','upcoming','completed','askTask',
 ].map((key,i)=>[key,labels[lang][i]]));
 
-export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selectedId, onSelect, onView, onSave, onEdit, onGenerate, onAsk, robot, requestLink}) {
- const l=roadmapLabels(lang);
+export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selectedId, overview=false, onSelect, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, robot, requestLink}) {
+ const l=roadmapLabels(lang), ui=blueprintLabels(lang);
  const {missions,profile,analysis,permissions}=workspace;
  const canWrite=permissions.includes('roadmap:write');
  const canAsk=permissions.includes('auri:use');
@@ -20,7 +22,7 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
  const completion=items=>items.length?Math.round(items.filter(m=>m.status==='done').length/items.length*100):0;
  const progress=completion(missions);
  const stageOf=m=>Math.min(m.level,4);
- const title=m=>m.objective===m.service?cap(m.capability):m.objective;
+ const title=m=>m.route==='alternative'?missionAlternative(m.capability)?.title||m.objective:m.objective===m.service?cap(m.capability):m.objective;
  const stages=roadmapStages.map((stage,i)=>({...stage,missions:missions.filter(m=>stageOf(m)===i+1)}));
  const stageName=(stage,i)=>lang==='en'?['Build Foundation','Increase Visibility','Convert More Visitors','Automate & Scale'][i]:t(stage.key);
  const currentStage=stages.findIndex(stage=>stage.missions.some(m=>!m.optional&&!['done','postponed'].includes(m.status)));
@@ -46,13 +48,22 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
   ${m.completedAt?`<time datetime="${esc(m.completedAt)}">${esc(new Date(m.completedAt).toLocaleDateString(lang))}</time>`:''}
   ${m.dependencies?.length?`<small>${l.requirements} · ${esc(m.dependencies.map(cap).join(', '))}</small>`:''}</div>`).join('')||`<p>${esc(t('empty'))}</p>`}</section>`).join('')}</div>`;
  const metric=(icon,value,label)=>`<article class="growth-card growth-metric"><span class="growth-metric-icon" aria-hidden="true">${icon}</span><div><strong>${esc(value)}</strong><span>${label}</span></div></article>`;
+ const existing=[...new Set([...(profile.capabilities||[]),...(profile.website?['website']:[])])]
+  .filter(id=>missionAlternative(id)&&!missions.some(m=>m.capability===id));
+ const existingProof=canWrite&&existing.length?`<details class="growth-card hub-existing-proof"><summary>${esc(ui.proof)}</summary>
+  <form data-existing-evidence class="mission-evidence"><label class="field">${esc(t('capabilities'))}
+   <select name="capability">${existing.map(id=>`<option value="${esc(id)}">${esc(cap(id))}</option>`).join('')}</select></label>
+   <label class="field">${esc(ui.proofLabel)}<textarea name="proof" required minlength="10" maxlength="1000" rows="2"></textarea></label>
+   <button class="growth-secondary">${esc(ui.submit)}</button></form></details>`:'';
  const detail=selected?taskDetails(selected):`<p>${esc(t('empty'))}</p>`;
- host.innerHTML=`<section class="growth-metrics" aria-label="${l.progress}">
+ host.innerHTML=`${overview&&eligible[0]?`<section class="growth-card hub-next-mission">
+  <div><p>${esc(ui.next)}</p><h2>${esc(title(eligible[0]))}</h2></div><button class="growth-primary" type="button" data-next-mission>${esc(l.focus)}</button>
+ </section>`:''}<section class="growth-metrics" aria-label="${l.progress}">
  <article class="growth-card growth-metric"><span class="growth-ring" style="--progress:${progress}%">${missions.length?progress+'%':'—'}</span><div><strong>${l.progress}</strong><span>${missions.filter(m=>m.status==='done').length} / ${missions.length} · ${l.completed}</span></div></article>
  ${metric('▥',currentStage<0?'—':stageName(stages[currentStage],currentStage),l.stage)}
  ${metric('◎',eligible.filter(m=>m.priority===1&&!m.optional).length,l.priority)}
- ${metric('▦','—',l.estimate)}</section>
- <div class="growth-layout"><section class="growth-card growth-map"><header class="growth-panel-head"><h2>${l.heading}</h2><div class="growth-tabs">
+ ${metric('✓',workspace.auri?.verifiedMilestones||0,ui.verified)}</section>
+ ${existingProof}<div class="growth-layout"><section class="growth-card growth-map"><header class="growth-panel-head"><h2>${l.heading}</h2><div class="growth-tabs">
  <button type="button" data-view="tree" aria-pressed="${view==='tree'}">${l.tree}</button><button type="button" data-view="timeline" aria-pressed="${view==='timeline'}">${l.timeline}</button>
  </div></header>${view==='tree'?tree:timeline}
  ${analysis.missions.some(m=>!missions.some(item=>item.capability===m.id))&&canWrite?`<button type="button" class="growth-secondary" data-refresh>${l.refresh}</button>`:''}</section>
@@ -60,23 +71,34 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
  <section class="growth-card growth-auri"><header>${robot()}<h2>${l.assistant}</h2></header>
  <div class="growth-answer" role="status"></div>${canAsk?`<form><input name="question" aria-label="${l.ask}" placeholder="${l.ask}" maxlength="500" required><button class="growth-primary" aria-label="${l.ask}">➤</button></form>`:''}</section></aside></div>`;
  function taskDetails(m) {
-  const guide=missionGuide[m.capability];
+  const alternate=m.route==='alternative'?missionAlternative(m.capability):null;
+  const guide=alternate?null:missionGuide[m.capability];
+  const proof=workspace.evidence?.[m.id];
   const reason=m.reason?.startsWith('This capability has not been reported')?guide?.[1]:m.reason;
-  const action=m.nextAction==='Define scope or record your existing solution.'?guide?.[2]:m.nextAction;
+  const action=alternate?.steps||(m.nextAction==='Define scope or record your existing solution.'?guide?.[2]:m.nextAction);
   const {requirements,blocked}=missionState(m,missions,profile);
   const row=(label,body)=>`<div class="growth-detail-row"><h3>${label}</h3><p>${esc(body)}</p></div>`;
   return `<div class="growth-focus-top"><span>${l.focus}</span><small>${esc(status(m))}${m.optional?' · '+l.optional:''}</small></div>
    <h2>${esc(title(m))}</h2>
-   ${m.description!==reason&&!m.description.startsWith('Establish ')?`<p>${esc(m.description)}</p>`:''}
-   ${row(l.why,reason||m.description)}
-   ${row(l.requirements,m.dependencies?.length?m.dependencies.map(cap).join(', '):'—')}
+   ${!alternate&&m.description!==reason&&!m.description.startsWith('Establish ')?`<p>${esc(m.description)}</p>`:''}
+   ${alternate?'':row(l.why,reason||m.description)}
+   ${!alternate&&m.dependencies?.length?row(l.requirements,m.dependencies.map(cap).join(', ')):''}
    ${guide?.[0]?row(l.help,guide[0]+' · '+t('quote')):''}
    <details class="growth-diy" open><summary>${l.myself}</summary>${row(l.how,action)}
    ${blocked?`<p>${l.blocked} · ${esc(requirements.map(cap).join(', '))}</p>`:''}</details>
    <div class="growth-actions">
    ${guide?.[0]?`<a class="growth-primary" href="${esc(requestLink(guide[0],title(m)))}">${l.hire} →</a>`:''}
    ${canWrite?`<button class="growth-secondary" data-quick-status="${m.status==='done'?'planned':blocked?'in_progress':'done'}">${m.status==='done'?esc(t('planned')):blocked?l.start:l.complete}</button><label><span class="sr-only">${esc(t('status'))}</span><select data-status-change>${['planned','in_progress','done','postponed'].map(value=>`<option value="${value}" ${m.status===value?'selected':''}>${esc(t(value))}</option>`).join('')}</select></label><button class="growth-secondary" data-edit>${esc(t('edit'))}</button>`:''}
-   ${canAsk?`<button class="growth-secondary" data-ask-task>${l.askTask}</button>`:''}</div>`;
+   ${canAsk?`<button class="growth-secondary" data-ask-task>${l.askTask}</button>`:''}</div>
+   ${proof?`<p class="mission-proof-status" role="status">${esc(ui[proof])}</p>`:''}
+   ${canWrite&&missionAlternative(m.capability)?`<div class="growth-actions">
+    ${proof==='pending'||m.status==='done'?'':alternate?`<button type="button" class="growth-secondary" data-route="original">${esc(ui.original)}</button>`:`<button type="button" class="growth-secondary" data-route="alternative">${esc(ui.irrelevant)}</button>`}
+    ${m.status==='done'||m.status==='postponed'?'':`<button type="button" class="growth-secondary" data-quick-status="postponed">${esc(ui.later)}</button>`}
+   </div>${!alternate&&m.status!=='done'&&proof!=='pending'?`<details class="growth-diy"><summary>${esc(ui.alternative)}</summary>
+    <p>${esc(missionAlternative(m.capability).steps)}</p><button type="button" class="growth-secondary" data-route="alternative">${esc(t('continue'))}</button></details>`:''}
+${proof==='pending'||proof==='approved'?'':`<details class="growth-diy"><summary>${esc(ui.proof)}</summary>
+    <form data-evidence class="mission-evidence"><label class="field">${esc(ui.proofLabel)}<textarea name="proof" required minlength="10" maxlength="1000" rows="3"></textarea></label>
+    <button class="growth-secondary">${esc(ui.submit)}</button></form></details>`}`:''}`;
  }
  async function ask(question,missionId) {
   const response=host.querySelector('.growth-answer');
@@ -88,10 +110,20 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
  host.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>onView(button.dataset.view));
  host.querySelector('[data-refresh]')?.addEventListener('click',onGenerate);
  host.querySelector('[data-edit]')?.addEventListener('click',()=>onEdit(selected));
- host.querySelector('[data-quick-status]')?.addEventListener('click',event=>{
+ for(const button of host.querySelectorAll('[data-quick-status]'))button.addEventListener('click',event=>{
   const input=host.querySelector('[data-status-change]');
   input.value=event.currentTarget.dataset.quickStatus;
   onSave(selected,input);
+ });
+ for(const button of host.querySelectorAll('[data-route]'))button.addEventListener('click',event=>onRoute(selected,event.currentTarget));
+ host.querySelector('[data-next-mission]')?.addEventListener('click',()=>onSelect(eligible[0].id,true));
+ host.querySelector('[data-existing-evidence]')?.addEventListener('submit',event=>{
+  event.preventDefault();
+  onExistingEvidence(event.currentTarget);
+ });
+ host.querySelector('[data-evidence]')?.addEventListener('submit',event=>{
+  event.preventDefault();
+  onEvidence(selected,event.currentTarget);
  });
  host.querySelector('[data-status-change]')?.addEventListener('change',event=>onSave(selected,event.target));
  host.querySelector('[data-ask-task]')?.addEventListener('click',()=>ask('',selected.id));

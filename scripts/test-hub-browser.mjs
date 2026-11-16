@@ -61,6 +61,16 @@ try {
  const website=desktop.locator('[data-node]').filter({hasText:/website/i}).first();
  await website.click();
  await desktop.locator('#growth-focus h2').filter({hasText:/website/i}).waitFor();
+ assert.equal(await desktop.locator('.sidebar nav [data-page]').count(),6);
+ await desktop.locator('#growth-focus').getByRole('button',{name:'Not relevant',exact:true}).click();
+ await desktop.locator('#growth-focus h2').filter({hasText:'Use an existing discovery channel'}).waitFor();
+ await desktop.locator('#growth-focus').getByRole('button',{name:'Use the original route'}).click();
+ await desktop.locator('#growth-focus h2').filter({hasText:/website/i}).waitFor();
+ await desktop.locator('#growth-focus').getByText('I already have this',{exact:true}).click();
+ await desktop.locator('#growth-focus [data-evidence] textarea').fill('A published landing page and working contact form.');
+ await desktop.locator('#growth-focus [data-evidence] button').click();
+ await desktop.locator('#growth-focus .mission-proof-status').filter({hasText:'Under review'}).waitFor();
+
  await desktop.locator('[data-status-change]').selectOption('done');
  await desktop.locator('.growth-ring').filter({hasNotText:'0%'}).waitFor();
  await desktop.locator('[data-view=timeline]').click();

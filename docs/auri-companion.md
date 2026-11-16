@@ -34,6 +34,18 @@ visibility are per member and workspace. The follow-up action uses the configure
 when available and otherwise saves a clearly labeled template. Drafts are review-only and
 there is no dispatch action.
 
+## Hub onboarding and roadmap routes
+
+The primary navigation groups Overview, Roadmap, AI Workspace, Marketplace, Insights and
+Settings. Guided onboarding collects business context, lets members name Auri and
+previews up to three eligible starting missions. Deferring a suggestion keeps it on the roadmap.
+
+Customers can use an equivalent manual route, defer a mission, or submit a reference or
+description of existing work from the Roadmap. Assets already declared in the business profile can enter review directly. Alternative routes keep the same outcome
+and do not require the original service's prerequisites. Evidence stays pending until
+AuraDigital staff review it under **Notes & Images → Roadmap evidence**. The operator's
+decision and any new outcome credit are written in one D1 batch.
+
 ## Verification and progression
 
 Level 1 is shown before the roadmap exists. Saving the first roadmap unlocks level 2.
@@ -64,8 +76,8 @@ through its normal interaction shows the evolution or milestone animation.
 1. Run `npm run check`, `npm test`, and `npm run deploy:check`.
 2. Start the local in-memory fixture with `PORT=4173 node scripts/dev-hub.mjs` and run
    `node scripts/test-hub-browser.mjs` with Chromium installed.
-3. Apply D1 migrations `0030_auri_milestones.sql` through `0032_auri_drafts.sql` before
+3. Apply D1 migrations `0030_auri_milestones.sql` through `0033_mission_evidence.sql` before
    enabling the new Worker build. These migrations create tables for verified outcomes,
-   member preferences and saved drafts.
+   member preferences, saved drafts and evidence reviews.
 4. Merge through the established GitHub workflow. Confirm the Cloudflare production
    deployment and smoke-test `/hub`, the same-origin assets, and the workspace API.
