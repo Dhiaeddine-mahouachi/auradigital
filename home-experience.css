@@ -237,3 +237,7 @@ body[data-page="home"]{background:#0b1010}
  .aura-home .hx-menu-image>.hx-menu-live{right:14%;width:33%;border-radius:17px}
  .aura-home .hx-menu-caption{font-size:.72rem;bottom:9px;padding:8px}
 }
+
+/* Account for the fixed public navigation when jumping to a Hub preview section. */
+.aura-home :is(.hx-section,.ac-section,#see-it,#product-examples,#inside-the-hub,#experience){scroll-margin-top:112px}
+@media(max-width:680px){.aura-home :is(.hx-section,.ac-section,#see-it,#product-examples,#inside-the-hub,#experience){scroll-margin-top:93px}}
