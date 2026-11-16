@@ -13,18 +13,19 @@ const model=()=>asset??=new GLTFLoader().loadAsync('/media/auri/auri.glb').catch
 export async function mountAuri(host) {
  const glb=await model();
  if(!host.isConnected)return;
+ const login=host.dataset.variant==='login';
  const renderer=new WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
  renderer.toneMapping=ACESFilmicToneMapping;
- renderer.toneMappingExposure=1.4;
+ renderer.toneMappingExposure=login?1.22:1.4;
  const scene=new Scene();
  const camera=new OrthographicCamera(-1.34,1.34,1.34,-1.34,.1,40);
  const modelRoot=new Group();
  const character=glb.scene.clone();
  modelRoot.add(character);
- scene.add(modelRoot,new AmbientLight(0xf1f2ec,1.35));
+ scene.add(modelRoot,new AmbientLight(0xf1f2ec,login?.62:1.35));
  for(const [color,intensity,position] of [
-  [0xffeed8,3,[-3,5,4]],[0xcfe3ff,1.25,[4,1,3]],[0xe1e100,1.2,[1,4,-3]],
+  [0xffeed8,3,[-3,5,4]],[0xcfe3ff,1.25,[4,1,3]],[0xe1e100,login?2.1:1.2,[1,4,-3]],
  ]){
   const lamp=new DirectionalLight(color,intensity);
   lamp.position.set(...position);
@@ -54,6 +55,7 @@ export async function mountAuri(host) {
  const preference=matchMedia('(prefers-reduced-motion: reduce)');
  let raf=0,visible=true,disposed=false;
  let lastPhase='',started=performance.now();
+ const motionDuration=4.5;
  function render(now=performance.now()) {
   raf=0;
   if(!visible||document.hidden||disposed)return;
@@ -62,7 +64,7 @@ export async function mountAuri(host) {
   if(phase!==lastPhase){lastPhase=phase;started=now;}
   const t=(now-started)/1000;
   const asleep=phase==='idle'&&t>=60;
-  const time=preference.matches?0:now/1000;
+  const time=preference.matches?0:login?Math.min(t,motionDuration):now/1000;
   const active=['typing','working','drafting'].includes(phase);
   const happy=['happy','success','evolving','draft_ready'].includes(phase);
   for(const [name,show] of Object.entries({
@@ -76,7 +78,9 @@ export async function mountAuri(host) {
   camera.position.set(2,focus+1.16,6.8);
   camera.lookAt(0,focus,0);
   camera.updateProjectionMatrix();
-  const pulse=preference.matches?0:Math.sin(time*2);
+  const settle=login?Math.min(1,Math.max(0,motionDuration-time)):1;
+  const pulse=preference.matches?0:Math.sin(time*2)*settle;
+  const wave=login&&!preference.matches?Math.max(0,1-Math.abs(time-1.7)/1.45):0;
   modelRoot.position.y=.028*pulse+(happy&&!preference.matches?.15*Math.abs(Math.sin(t*6))*Math.max(0,1-t/2):0);
   modelRoot.rotation.y=phase==='evolving'&&!preference.matches?.32*Math.sin(Math.min(1,t/1.4)*Math.PI):.035*pulse;
   head.rotation.z=phase==='thinking'?-.14:phase==='error'?.1:.026*pulse;
@@ -85,12 +89,12 @@ export async function mountAuri(host) {
   eyes.scale.y=phase==='sleeping'||asleep?.23:blink?.14:happy?.73:1+.08*pulse;
   const tap=preference.matches?0:.19*Math.sin(time*13);
   left.rotation.x=active?-.95+tap:phase==='speaking'?-.38+.16*pulse:happy?-.55:0;
-  right.rotation.x=active?-.95-tap:happy?-1.5:0;
+  right.rotation.x=active?-.95-tap:happy?-1.5:-1.65*wave;
   left.rotation.z=happy?-.22:0;
-  right.rotation.z=happy?.28:0;
+  right.rotation.z=happy?.28:wave*(.25+.2*Math.sin(time*12));
   if(phase==='error')eyes.scale.y=.64;
   renderer.render(scene,camera);
-  if(!preference.matches&&!asleep)raf=requestAnimationFrame(render);
+  if(!preference.matches&&!asleep&&(!login||t<motionDuration))raf=requestAnimationFrame(render);
  }
  function schedule(){if(!raf&&visible&&!document.hidden&&!disposed)raf=requestAnimationFrame(render);}
  const resize=new ResizeObserver(()=>{

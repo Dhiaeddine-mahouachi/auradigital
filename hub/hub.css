@@ -529,3 +529,24 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
  .hub-menu-device{min-height:140px;padding:17px 5px 8px;border-radius:16px}
  .hub-menu-device strong,.hub-menu-device small{font-size:.63rem}
 }
+
+.command-gate .auth-intro .auri[data-variant=login]{
+ position:relative;isolation:isolate;width:min(245px,85%);height:auto;
+ background:radial-gradient(ellipse at 50% 55%,#a4ce3029 0,transparent 65%);
+}
+.auth-intro .auri[data-variant=login]::before{
+ content:'';position:absolute;z-index:-1;inset:73% 20% 12%;border-radius:50%;
+ background:radial-gradient(ellipse,#060906b3 20%,transparent 70%);
+ filter:blur(4px);
+}
+.auth-intro .auri[data-variant=login]:not([data-rendered]) img{
+ animation:auri-login-greet 4s ease-in-out both;
+}
+@keyframes auri-login-greet{
+ 0%,100%{transform:translateY(0) rotate(0)}
+ 30%{transform:translateY(-5px) rotate(-3deg)}
+ 65%{transform:translateY(-2px) rotate(2deg)}
+}
+@media(max-width:560px){
+ .command-gate .auth-intro .auri[data-variant=login]{display:grid;width:112px}
+}

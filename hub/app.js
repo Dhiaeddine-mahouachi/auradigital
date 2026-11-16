@@ -431,9 +431,9 @@ var AuriCharacter = class extends HTMLElement {
   }
 };
 customElements.define("auri-character", AuriCharacter);
-var auriCharacter = (level = 1, { posterOnly = false } = {}) => {
+var auriCharacter = (level = 1, { posterOnly = false, variant } = {}) => {
   const value = Number.isInteger(level) && level >= 1 && level <= 7 ? level : 1;
-  return `<auri-character class="auri" aria-hidden="true" level="${value}" ${posterOnly ? "poster-only" : ""}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
+  return `<auri-character class="auri" aria-hidden="true" ${variant === "login" ? 'data-variant="login"' : ""} level="${value}" ${posterOnly ? "poster-only" : ""}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
 };
 function connectAuri(host, scope, labels3) {
   const status = host.querySelector("[data-auri-status]");
@@ -1340,7 +1340,8 @@ async function renderGate() {
     return;
   }
   const signup = route === "signup", forgot = route === "forgot", reset = route === "reset";
-  gateFrame(`<section class="auth-intro"><p class="eyebrow">Aura Command</p><h1>${t("welcome")}</h1><p>${t("tag")}</p>${robot()}</section><section class="panel auth-panel"><h2>${t(reset ? "reset" : forgot ? "forgot" : signup ? "signup" : "signIn")}</h2><form id="auth-form">${signup ? field("name", "name", "", "text", 'required minlength="2" maxlength="100" autocomplete="name"') : ""}${reset ? "" : field("email", "email", "", "email", 'required maxlength="254" autocomplete="email"')}${forgot ? "" : field("password", reset ? "newPassword" : "password", "", "password", "required " + (signup || reset ? 'minlength="12" ' : "") + 'maxlength="72" autocomplete="' + (signup || reset ? "new-password" : "current-password") + '"')}${signup ? `<label class="check"><input type="checkbox" name="terms" required>${t("terms")}</label>` : ""}<p class="form-error" role="alert"></p><button class="primary">${t(reset ? "reset" : forgot ? "continue" : signup ? "signup" : "signIn")}</button></form>${!forgot && !reset ? `${authCapabilities.google ? `<hr><label class="check"><input id="google-terms" type="checkbox">${t("terms")}</label>${button("google", "google", true)}` : ""}<div class="auth-links"><a href="/hub/${signup ? "login" : "signup"}${authQuery}">${t(signup ? "signIn" : "signup")}</a>${authCapabilities.email ? `<a href="/hub/forgot${authQuery}">${t("forgot")}</a>` : ""}</div>` : `<a href="/hub/login${authQuery}">${t("signIn")}</a>`}</section>`);
+  const loginCharacter = !signup && !forgot && !reset ? auriCharacter(3, { variant: "login" }) : robot();
+  gateFrame(`<section class="auth-intro"><p class="eyebrow">Aura Command</p><h1>${t("welcome")}</h1><p>${t("tag")}</p>${loginCharacter}</section><section class="panel auth-panel"><h2>${t(reset ? "reset" : forgot ? "forgot" : signup ? "signup" : "signIn")}</h2><form id="auth-form">${signup ? field("name", "name", "", "text", 'required minlength="2" maxlength="100" autocomplete="name"') : ""}${reset ? "" : field("email", "email", "", "email", 'required maxlength="254" autocomplete="email"')}${forgot ? "" : field("password", reset ? "newPassword" : "password", "", "password", "required " + (signup || reset ? 'minlength="12" ' : "") + 'maxlength="72" autocomplete="' + (signup || reset ? "new-password" : "current-password") + '"')}${signup ? `<label class="check"><input type="checkbox" name="terms" required>${t("terms")}</label>` : ""}<p class="form-error" role="alert"></p><button class="primary">${t(reset ? "reset" : forgot ? "continue" : signup ? "signup" : "signIn")}</button></form>${!forgot && !reset ? `${authCapabilities.google ? `<hr><label class="check"><input id="google-terms" type="checkbox">${t("terms")}</label>${button("google", "google", true)}` : ""}<div class="auth-links"><a href="/hub/${signup ? "login" : "signup"}${authQuery}">${t(signup ? "signIn" : "signup")}</a>${authCapabilities.email ? `<a href="/hub/forgot${authQuery}">${t("forgot")}</a>` : ""}</div>` : `<a href="/hub/login${authQuery}">${t("signIn")}</a>`}</section>`);
   document.querySelector("#auth-form").onsubmit = async (e) => {
     e.preventDefault();
     const form = e.target, b = form.querySelector("button"), data = new FormData(form);

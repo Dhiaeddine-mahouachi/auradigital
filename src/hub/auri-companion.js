@@ -24,9 +24,9 @@ class AuriCharacter extends HTMLElement {
 }
 customElements.define('auri-character',AuriCharacter);
 
-export const auriCharacter=(level=1,{posterOnly=false}={})=>{
+export const auriCharacter=(level=1,{posterOnly=false,variant}={})=>{
  const value=Number.isInteger(level)&&level>=1&&level<=7?level:1;
- return `<auri-character class="auri" aria-hidden="true" level="${value}" ${posterOnly?'poster-only':''}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
+ return `<auri-character class="auri" aria-hidden="true" ${variant==='login'?'data-variant="login"':''} level="${value}" ${posterOnly?'poster-only':''}><img alt="" width="256" height="256" decoding="async" src="/media/auri/level-${value}.webp"></auri-character>`;
 };
 
 export function connectAuri(host,scope,labels){
