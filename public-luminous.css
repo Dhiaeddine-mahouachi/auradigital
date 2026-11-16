@@ -93,8 +93,7 @@ body[data-page="home"] .aura-home .hx-persona .hx-section-head h2 {
 body[data-page="home"] .aura-home .hx-persona .hx-section-head h2 em {
   color:#257d65;
 }
-body[data-page="home"] .aura-home .hx-persona .hx-kicker,
-body[data-page="home"] .aura-home .hx-persona .hx-overline {
+body[data-page="home"] .aura-home .hx-persona .hx-kicker {
   color:#317d64;
 }
 body[data-page="home"] .aura-home .hx-persona .hx-section-head>p,
@@ -359,11 +358,31 @@ body[data-page="services"] .service-card:nth-child(3n) {
   border-color:rgba(227,199,148,.28);
 }
 /* Supporting pages: more colorful depth without changing their component contracts. */
-body.cinematic-enabled:is([data-page="about"],[data-page="websites"],[data-page="contact"],[data-page="packages"],[data-page="auramenu"]) .page-hero {
+body.cinematic-enabled:is([data-page="about"],[data-page="websites"],[data-page="contact"]) .page-hero {
   background:
     radial-gradient(ellipse 51% 77% at 87% 22%,rgba(127,214,193,.18),transparent 78%),
     radial-gradient(ellipse 43% 65% at 2% 95%,rgba(138,177,232,.13),transparent 76%),
     linear-gradient(141deg,#10251c,#132925 60%,#102126);
+}
+/* AuraMenu and Packages were designed with dark copy on light heroes; retain that contrast. */
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero {
+  background:
+    radial-gradient(ellipse 57% 75% at 88% 17%,rgba(132,215,184,.34),transparent 74%),
+    radial-gradient(ellipse 40% 65% at 8% 92%,rgba(246,208,154,.28),transparent 75%),
+    linear-gradient(140deg,#f8f9eb,#edf5e9 60%,#e8f3ee);
+  color:#173b2b;
+  border-color:rgba(37,91,64,.18);
+}
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero p,
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero .crumb,
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero .crumb a {
+  color:#466a55;
+}
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero .display {
+  color:#18372a;
+}
+body.cinematic-enabled:is([data-page="packages"],[data-page="auramenu"]) .page-hero .eyebrow {
+  color:#39765b;
 }
 body.cinematic-enabled:is([data-page="about"],[data-page="websites"],[data-page="contact"]) .section.alt {
   background:linear-gradient(142deg,#153428,#1b3338);
