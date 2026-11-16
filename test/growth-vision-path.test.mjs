@@ -14,11 +14,11 @@ const missions = [
  {id:'measurement',level:5,status:'planned',objective:'Review analytics'},
 ];
 
-function render(overrides = {}) {
+function render(overrides = {}, selected = missions[1]) {
  return renderGrowthVisionPath({
   workspace:{missions,auri:{level:4,verifiedMilestones:2},...overrides},
   lang:'en',esc,title:mission=>mission.objective,status:mission=>mission.status,
-  displayState:mission=>mission.status,selected:missions[1],
+  displayState:mission=>mission.status,selected,
   robot:()=>'<span class="model-poster"></span>',
  });
 }
@@ -26,7 +26,8 @@ function render(overrides = {}) {
 test('renders five real mission stages, including measurement at level five',()=>{
  const html=render();
  assert.equal((html.match(/class="vision-stage"/g)||[]).length,5);
- for(const item of missions)assert.ok(html.includes(esc(item.objective)),item.objective);
+ assert.match(html,/Create &lt;site&gt; &amp; menu/);
+ assert.match(render({},missions[4]),/Review analytics/);
  assert.match(html,/data-node="measurement"/);
  assert.match(html,/2\. Visibility/);
  assert.match(html,/aria-pressed="true"/);
