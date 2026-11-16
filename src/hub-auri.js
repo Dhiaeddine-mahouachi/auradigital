@@ -1,13 +1,16 @@
+import { auriProvider } from './hub-plan.js';
 import { generate, tariff } from './ai-provider.js';
 import { missionGuide } from './roadmap.js';
 
-export async function explainRoadmap(env,{org,user,guard,issue,lang,profile,missions,draft=false}) {
- if(env.HUB_AURI_AI_ENABLED!=='true'||!env.AI_RATE_LIMITER?.limit)return null;
+export async function explainRoadmap(env,{org,user,guard,issue,context:recordContext,lang,profile,missions,draft=false}) {
+ env=auriProvider(env);
+ if((env.AI_PROVIDER!=='ollama'&&env.HUB_AURI_AI_ENABLED!=='true')||!env.AI_RATE_LIMITER?.limit)return null;
  try {
   if(!(await env.AI_RATE_LIMITER.limit({key:'hub-auri:'+user.id})).success)return null;
   const db=env.DB,day=new Date().toISOString().slice(0,10),rates=tariff(env);
   const dailyLimit=Math.min(Number(env.AI_DAILY_TOKEN_LIMIT)||500000,Math.floor((Number(env.AI_DAILY_BUDGET_USD)||1)*1e6/rates.max));
   const context={
+   record:recordContext,
    language:lang,
    industry:profile.industry,
    budget:profile.budget==null?'not reported':{amount:profile.budget,currency:profile.currency},

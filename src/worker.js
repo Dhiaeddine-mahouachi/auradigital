@@ -1,3 +1,5 @@
+import { authenticatedCustomer } from './customer-accounts.ts';
+import { authorize } from './business-hub.js';
 import { pricingFor, checkQuoteVersion } from './global-pricing.js';
 import { ensureRequestDelivery, requestFingerprint, outboxStatements, deliverRequestEmails } from "./request-delivery.js";
 import { MENU_PLANS, ensureMenuBilling, menuBilling, menuBillingInsert, activateMenuBilling, menuEntitlement } from "./menu-billing.js";
@@ -102,12 +104,21 @@ function nfcColor(value, fallback) {
 }
 
 
-async function createContactRequest(request, db, env, ctx) {
+export async function createContactRequest(request, db, env, ctx) {
   if (!sameOrigin(request)) {
     return json({ error: "Invalid request origin." }, 403, { "Cache-Control": "no-store" });
   }
 
   const body = await readJson(request, CONTACT_BODY_BYTES);
+  const org=body.workspaceId;
+  let workspaceGuard;
+  if(org!==undefined){
+    if(env.GROWTH_OS_ENABLED!=='true')throw new ApiError(404,'Workspace unavailable.');
+    const user=await authenticatedCustomer(request,env);
+    if(!user)throw new ApiError(401,'Sign in to submit this request.');
+    workspaceGuard=await authorize(db,org,user,'roadmap:write');
+    if(typeof body.email!=='string'||body.email.trim().toLowerCase()!==user.email.toLowerCase())throw new ApiError(400,'Use your signed-in email.');
+  }
   const name = qsClean(body.name, 120);
   const email = qsClean(body.email, 160).toLowerCase();
   const phone = qsClean(body.phone, 50);
@@ -176,7 +187,7 @@ async function createContactRequest(request, db, env, ctx) {
 
   if (body.website) return json({ error: "Invalid request." }, 400);
   await ensureRequestDelivery(db);
-  const fingerprint = await requestFingerprint([name,email,phone,service,message,body.pricingSelection || null]);
+  const fingerprint = await requestFingerprint([name,email,phone,service,message,body.pricingSelection || null,...(org?[org]:[])]);
   const suppliedKey = request.headers.get("Idempotency-Key");
   if (suppliedKey && !/^[a-zA-Z0-9-]{16,80}$/.test(suppliedKey)) return json({error:"Invalid submission key."},400);
   // Old clients also receive content-based deduplication for the current UTC day.
@@ -212,6 +223,8 @@ async function createContactRequest(request, db, env, ctx) {
       db.prepare("INSERT INTO request_receipts(key,fingerprint,request_id,created_at) VALUES(?,?,?,?)").bind(key,fingerprint,requestId,submittedAt),
       db.prepare("INSERT INTO clients (name, company, email, phone, service, status, notes) VALUES (?, '', ?, ?, ?, 'lead', ?)").bind(name,email,phone,service,notes),
       db.prepare("UPDATE request_receipts SET client_id=last_insert_rowid() WHERE key=?").bind(key),
+      ...(workspaceGuard?[db.prepare(`INSERT INTO hub_contact_requests(request_id,organization_id)
+        VALUES (?,(SELECT id FROM organizations WHERE id=? AND ${workspaceGuard.sql}))`).bind(requestId,org,...workspaceGuard.args)]:[]),
       ...outboxStatements(db,notification),
     ]);
     if (saved.some(result => result.success === false)) throw new Error("request_save_failed");

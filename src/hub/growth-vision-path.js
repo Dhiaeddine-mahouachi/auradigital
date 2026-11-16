@@ -1,3 +1,4 @@
+import { hubLabels, hubStage } from './hub-navigation.js';
 // The Growth Vision path is a presentation of existing customer missions and
 // server-verified Auri milestones. XP is derived, never a client-writable balance.
 const copy = {
@@ -38,15 +39,17 @@ const copy = {
   names:['التأسيس','الظهور','التحويل','العمليات','التوسع'],
  },
 };
-const icons=['◇','◎','↗','⚙','▥'];
 const rewards=[100,180,260,340,420];
 
 export function renderGrowthVisionPath({workspace,esc,lang='en',title,status,displayState,selected,robot}) {
  const ui=copy[lang]||copy.en;
+ const hub=hubLabels(lang);
  const missions=workspace.missions||[];
- const stages=ui.names.map((name,i)=>({name,description:ui.descriptions[i],icon:icons[i],
-  reward:rewards[i],missions:missions.filter(m=>Number(m.level)===i+1)}));
- const chosen=selected?Math.max(0,Math.min(4,Number(selected.level)-1)):Math.max(0,stages.findIndex(stage=>stage.missions.some(m=>m.status!=='done')));
+ const stages=[hub.small,hub.systems,hub.scale].map((name,index)=>({
+  name,missions:missions.filter(m=>hubStage(m.level)===index),
+ }));
+ const current=stages.findIndex(stage=>stage.missions.some(m=>!m.optional&&!['done','postponed'].includes(m.status)));
+ const chosen=selected?hubStage(selected.level):Math.max(current,0);
  const stage=stages[chosen];
  const auriLevel=Math.max(1,Math.min(7,Number(workspace.auri?.level)||1));
  const verified=Math.max(0,Math.min(5,Number(workspace.auri?.verifiedMilestones)||0));
@@ -54,27 +57,27 @@ export function renderGrowthVisionPath({workspace,esc,lang='en',title,status,dis
  const maxXp=rewards.reduce((sum,value)=>sum+value,0);
  const complete=stageMissions=>stageMissions.filter(m=>m.status==='done').length;
  const missionRow=m=>`<button class="vision-task" type="button" data-node="${esc(m.id)}" data-display-state="${esc(displayState(m))}" aria-pressed="${selected?.id===m.id}">
-  <span class="vision-task-icon" aria-hidden="true">${m.status==='done'?'✓':m.status==='in_progress'?'◉':'○'}</span>
-  <span class="vision-task-name">${esc(title(m))}</span>
-  <span class="vision-task-status">${esc(status(m))}</span>
+  <span class="vision-task-icon" aria-hidden="true">${m.status==='done'?'✓':'○'}</span>
+  <span class="vision-task-name">${esc(title(m))}<small>${esc(m.reason||m.description||'')}</small></span>
+  <span class="vision-task-status">${esc(status(m))} <span aria-hidden="true">↗</span></span>
  </button>`;
  const stageCard=(item,index)=>{
   const count=complete(item.missions),total=item.missions.length;
   const finished=total>0&&count===total;
-  const active=chosen===index;
-  const first=item.missions.find(m=>m.status!=='done')||item.missions[0];
-  const state=finished?ui.done:active?ui.active:ui.upcoming;
-  const content=`<span class="vision-stage-icon" aria-hidden="true">${item.icon}</span>
-    <strong>${index+1}. ${esc(item.name)}</strong>
-    <span class="vision-stage-status">${esc(state)}</span>
+  const active=current===index;
+  const first=item.missions.find(m=>!m.optional&&!['done','postponed'].includes(m.status))||item.missions[0];
+  const state=finished?ui.done:active?hub.current:current<index&&current!==-1?hub.locked:ui.upcoming;
+  const content=`<span class="vision-stage-status">${index+1} · ${esc(state)}</span>
+    <strong>${esc(item.name)}</strong>
+    <img class="vision-stage-art" src="/hub/stage-${index+1}.webp" alt="" width="140" height="106">
     <small>${count} / ${total} ${esc(ui.missions.toLowerCase())}</small>`;
   return `<li class="vision-stage" data-stage-state="${finished?'done':active?'active':'upcoming'}">
-   ${first?`<button type="button" class="vision-stage-button" data-node="${esc(first.id)}" aria-pressed="${active}">${content}</button>`:`<div class="vision-stage-button" aria-disabled="true">${content}</div>`}
+   ${first?`<button type="button" class="vision-stage-button" data-node="${esc(first.id)}" aria-pressed="${chosen===index}">${content}</button>`:`<div class="vision-stage-button">${content}</div>`}
   </li>`;
  };
  return `<div class="growth-path" aria-label="${esc(ui.progress)}">
   <header class="vision-heading">
-   <div><p class="vision-kicker">AURADIGITAL · GROWTH VISION</p><h2>${esc(ui.subtitle)}</h2></div>
+   <div><h2>${esc(missions.find(m=>m.planGoal)?.planGoal||ui.subtitle)}</h2></div>
    <section class="vision-xp" aria-label="${esc(ui.xp)}">
     <div class="vision-xp-head"><strong>✦ ${esc(ui.xp)}</strong><span>${xp} / ${maxXp} XP</span></div>
     <div class="vision-xp-track" role="progressbar" aria-valuenow="${xp}" aria-valuemin="0" aria-valuemax="${maxXp}" aria-label="${esc(ui.xp)}"><span style="width:${(xp/maxXp*100).toFixed(1)}%"></span></div>
@@ -84,9 +87,8 @@ export function renderGrowthVisionPath({workspace,esc,lang='en',title,status,dis
   <div class="vision-path-scroll"><ol class="vision-path-cards" aria-label="${esc(ui.progress)}">${stages.map(stageCard).join('')}</ol></div>
   <div class="vision-selected">
    <section class="vision-tasks" aria-label="${esc(ui.missions)}">
-    <div class="vision-level-heading"><div><span class="vision-kicker">${esc(ui.stage)} · ${chosen+1} / 5</span>
-     <h3>${esc(stage.name)}</h3><p>${esc(stage.description)}</p></div>
-     <span class="vision-reward">✦ +${stage.reward} XP<small>${esc(ui.reward)}</small></span></div>
+    <div class="vision-level-heading"><div>
+     <h3>${esc(stage.name)}</h3></div></div>
     <div class="vision-task-list">${stage.missions.map(missionRow).join('')||`<p class="vision-empty">${esc(ui.empty)}</p>`}</div>
     <p class="vision-note">${esc(ui.next)}</p>
    </section>

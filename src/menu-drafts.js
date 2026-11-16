@@ -45,7 +45,7 @@ export function validateMenuDraft(value) {
   return { fields, categories };
 }
 function result(row) {
-  return { id: row.id, organizationId: row.organization_id, state: row.state, draft: JSON.parse(row.data_json), version: row.version, createdAt: row.created_at, updatedAt: row.updated_at };
+  return { id: row.id, organizationId: row.organization_id, state: row.state, draft: JSON.parse(row.data_json), version: row.version, createdAt: row.created_at, updatedAt: row.updated_at, reviewed: row.reviewed_version === row.version };
 }
 function audit(db,org,user,action,id) {
   // changes() is the preceding draft mutation in the same atomic D1 batch.
@@ -59,14 +59,27 @@ export async function handleMenuDrafts(request,env,user,authorize) {
   const [,org,id] = match;
   const write = !['GET','HEAD'].includes(request.method);
   const guard = await authorize(env.DB,org,user,write ? 'roadmap:write' : 'workspace:read');
+  const reviews=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='hub_menu_reviews'").first();
+  const reviewedColumn=reviews?'(SELECT version FROM hub_menu_reviews WHERE draft_id=menu_drafts.id)':'NULL';
   if (request.method === 'GET') {
     if (!id) {
-      const rows = await env.DB.prepare(`SELECT id,organization_id,state,data_json,version,created_at,updated_at FROM menu_drafts WHERE organization_id=? AND ${guard.sql} ORDER BY updated_at DESC,id LIMIT 10`).bind(org,...guard.args).all();
+      const rows = await env.DB.prepare(`SELECT id,organization_id,state,data_json,version,created_at,updated_at,${reviewedColumn} AS reviewed_version FROM menu_drafts WHERE organization_id=? AND ${guard.sql} ORDER BY updated_at DESC,id LIMIT 10`).bind(org,...guard.args).all();
       return json({ drafts: rows.results.map(result) });
     }
-    const row = await env.DB.prepare(`SELECT * FROM menu_drafts WHERE id=? AND organization_id=? AND ${guard.sql}`).bind(id,org,...guard.args).first();
+    const row = await env.DB.prepare(`SELECT *, ${reviewedColumn} AS reviewed_version FROM menu_drafts WHERE id=? AND organization_id=? AND ${guard.sql}`).bind(id,org,...guard.args).first();
     if (!row) throw new ApiError(404,'Draft not found.');
     return json({ menu: result(row) });
+  }
+  if (id && request.method==='PATCH') {
+    if(!reviews)throw new ApiError(503,'Draft review is temporarily unavailable.');
+    await requireVerified(env.DB,user);
+    const {version}=await readJson(request,1024);
+    if(!Number.isSafeInteger(version)||version<1)throw new ApiError(400,'A draft version is required.');
+    const saved=await env.DB.prepare(`INSERT INTO hub_menu_reviews(draft_id,version)
+      SELECT id,version FROM menu_drafts WHERE id=? AND organization_id=? AND version=? AND state<>'archived' AND ${guard.sql}
+      ON CONFLICT(draft_id) DO UPDATE SET version=excluded.version`).bind(id,org,version,...guard.args).run();
+    if(!saved.meta.changes)throw new ApiError(409,'This draft changed. Reopen it before reviewing.');
+    return json({reviewed:true});
   }
   if (!['POST','PUT'].includes(request.method) || (id ? request.method !== 'PUT' : request.method !== 'POST')) throw new ApiError(405,'Method not allowed.',{Allow:id?'GET, PUT':'GET, POST'});
   await requireVerified(env.DB,user);
@@ -82,7 +95,7 @@ export async function handleMenuDrafts(request,env,user,authorize) {
   const mutations = await env.DB.batch([mutation,audit(env.DB,org,user,id?'menu_draft_updated':'menu_draft_created',draftId)]);
   if (!mutations[0].meta.changes) throw new ApiError(409,id?'Draft changed, is unavailable or access was revoked. Reload before saving.':'Draft limit reached or access revoked. Archive/export old work; ask support before adding more.');
   // Refetch with current authorization so revoked access cannot disclose saved data.
-  const row = await env.DB.prepare(`SELECT * FROM menu_drafts WHERE id=? AND organization_id=? AND ${guard.sql}`).bind(draftId,org,...guard.args).first();
+  const row = await env.DB.prepare(`SELECT *, ${reviewedColumn} AS reviewed_version FROM menu_drafts WHERE id=? AND organization_id=? AND ${guard.sql}`).bind(draftId,org,...guard.args).first();
   if (!row) throw new ApiError(404,'Workspace access changed.');
   return json({menu:result(row)},id?200:201);
 }

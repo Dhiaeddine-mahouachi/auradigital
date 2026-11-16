@@ -13,12 +13,12 @@ export const roadmapLabels = lang => Object.fromEntries([
  'home','journey','tasks','resources','welcome','progress','stage','priority','estimate','root','heading','tree','timeline','focus','why','how','requirements','myself','hire','ask','optional','blocked','refresh','request','start','complete','assistant','help','upcoming','completed','askTask',
 ].map((key,i)=>[key,labels[lang][i]]));
 
-export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selectedId, overview=false, auriDesk='', evolutionNames=[], onSelect, onContinue, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, robot, requestLink}) {
+export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selectedId, overview=false, auriDesk='', evolutionNames=[], onSelect, onContinue, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, onAskTask, robot, requestLink}) {
  const l=roadmapLabels(lang), ui=blueprintLabels(lang), command=commandLabels(lang);
  const {missions,profile,analysis,permissions}=workspace;
  const canWrite=permissions.includes('roadmap:write');
  const canAsk=permissions.includes('auri:use');
- const eligible=eligibleMissions(missions,profile);
+ const eligible=eligibleMissions(missions,profile).filter(m=>workspace.evidence?.[m.id]!=='pending');
  const selected=missions.find(m=>m.id===selectedId)||eligible[0]||missions[0];
  const completion=items=>items.length?Math.round(items.filter(m=>m.status==='done').length/items.length*100):0;
  const progress=completion(missions);
@@ -74,13 +74,12 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
  ${metric('▥',currentStage<0?'—':stageName(stages[currentStage],currentStage),l.stage)}
  ${metric('◎',eligible.filter(m=>m.priority===1&&!m.optional).length,l.priority)}
  ${metric('✓',workspace.auri?.verifiedMilestones||0,ui.verified)}</section>`:''}
- ${existingProof}<div class="growth-layout vision-layout"><section class="growth-card growth-map vision-map"><header class="growth-panel-head"><h2>${esc(command.vision)}</h2><div class="growth-tabs">
+ ${existingProof}<div class="growth-layout vision-layout"><section class="growth-card growth-map vision-map"><header class="growth-panel-head"><div class="growth-tabs">
  <button type="button" data-view="tree" aria-pressed="${view==='tree'}">${l.tree}</button><button type="button" data-view="timeline" aria-pressed="${view==='timeline'}">${l.timeline}</button>
  </div></header>${view==='tree'?`<div class="command-map-viewport vision-path-viewport" tabindex="0" aria-label="${esc(command.vision)}">${tree}</div>`:timeline}
- ${analysis.missions.some(m=>!missions.some(item=>item.capability===m.id))&&canWrite?`<button type="button" class="growth-secondary" data-refresh>${l.refresh}</button>`:''}</section>
+ ${!missions.some(item=>item.planOrder!==undefined)&&analysis.missions.some(m=>!missions.some(item=>item.capability===m.id))&&canWrite?`<button type="button" class="growth-secondary" data-refresh>${l.refresh}</button>`:''}</section>
  <aside class="growth-side"><section class="growth-card growth-focus" id="growth-focus" tabindex="-1">${detail}</section>
- <section class="growth-card growth-auri"><header>${robot()}<h2>${l.assistant}</h2></header>
- <div class="growth-answer" role="status"></div>${canAsk?`<form><input name="question" aria-label="${l.ask}" placeholder="${l.ask}" maxlength="500" required><button class="growth-primary" aria-label="${l.ask}">➤</button></form>`:''}</section></aside></div>`;
+</aside></div>`;
  function taskDetails(m) {
   const alternate=m.route==='alternative'?missionAlternative(m.capability):null;
   const guide=alternate?null:missionGuide[m.capability];
@@ -98,7 +97,7 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
    <details class="growth-diy" open><summary>${l.myself}</summary>${row(l.how,action)}
    ${blocked?`<p>${l.blocked} · ${esc(requirements.map(cap).join(', '))}</p>`:''}</details>
    <div class="growth-actions">
-   ${guide?.[0]?`<a class="growth-primary" href="${esc(requestLink(guide[0],title(m)))}">${l.hire} →</a>`:''}
+   ${guide?.[0]?`<a class="growth-primary" href="${esc(requestLink(guide[0],m.id))}">${l.hire} →</a>`:''}
    ${canWrite?`<button class="growth-secondary" data-quick-status="${m.status==='done'?'planned':blocked?'in_progress':'done'}">${m.status==='done'?esc(t('planned')):blocked?l.start:l.complete}</button><label><span class="sr-only">${esc(t('status'))}</span><select data-status-change>${['planned','in_progress','done','postponed'].map(value=>`<option value="${value}" ${m.status===value?'selected':''}>${esc(t(value))}</option>`).join('')}</select></label><button class="growth-secondary" data-edit>${esc(t('edit'))}</button>`:''}
    ${canAsk?`<button class="growth-secondary" data-ask-task>${l.askTask}</button>`:''}</div>
    ${proof?`<p class="mission-proof-status" role="status">${esc(ui[proof])}</p>`:''}
@@ -110,12 +109,6 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
 ${proof==='pending'||proof==='approved'?'':`<details class="growth-diy"><summary>${esc(ui.proof)}</summary>
     <form data-evidence class="mission-evidence"><label class="field">${esc(ui.proofLabel)}<textarea name="proof" required minlength="10" maxlength="1000" rows="3"></textarea></label>
     <button class="growth-secondary">${esc(ui.submit)}</button></form></details>`}`:''}`;
- }
- async function ask(question,missionId) {
-  const response=host.querySelector('.growth-answer');
-  response.textContent='…';
-  try { response.textContent=await onAsk(question,missionId); }
-  catch(error) { response.textContent=error.message; }
  }
  host.querySelectorAll('[data-node]').forEach(button=>button.onclick=()=>onSelect(button.dataset.node));
  host.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>onView(button.dataset.view));
@@ -166,12 +159,5 @@ ${proof==='pending'||proof==='approved'?'':`<details class="growth-diy"><summary
   onEvidence(selected,event.currentTarget);
  });
  host.querySelector('[data-status-change]')?.addEventListener('change',event=>onSave(selected,event.target));
- host.querySelector('[data-ask-task]')?.addEventListener('click',()=>ask('',selected.id));
- host.querySelector('.growth-auri form')?.addEventListener('submit',async event=>{
-  event.preventDefault();
-  const form=event.currentTarget,submit=form.querySelector('button');
-  submit.disabled=true;
-  try { await ask(new FormData(form).get('question')); }
-  finally { submit.disabled=false; }
- });
+ host.querySelector('[data-ask-task]')?.addEventListener('click',()=>onAskTask(selected));
 }

@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),args:['--no-sandbox']});
 async function openMenuDrafts(page) {
- await page.getByRole('button',{name:'Marketplace',exact:true}).click();
- await page.getByRole('button',{name:'Menu drafts',exact:true}).click();
+ await page.locator('.sidebar').getByRole('link',{name:'My Work',exact:true}).click();
+ await page.getByRole('link',{name:'Menu drafts',exact:true}).click();
 }
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];page.on('pageerror',error=>errors.push(error.message));
@@ -16,10 +16,10 @@ try{
  await page.locator('[data-add-draft-product]').click();
  await page.locator('[data-product-name]').fill('Cheeseburger');await page.locator('[data-product-price]').fill('250');
  await page.locator('#private-menu-save').click();
- await page.getByText('Saved privately. No payment or publication occurred.',{exact:true}).waitFor();
+ await page.waitForURL('**/hub/menu-drafts?*draft=*');
  await page.waitForFunction(()=>document.querySelector('#private-menu-list')?.value);
  const id=await page.locator('#private-menu-list').inputValue();assert(id);
- await page.reload({waitUntil:'domcontentloaded'});await openMenuDrafts(page);
+ await page.reload({waitUntil:'domcontentloaded'});
  await page.locator('#private-menu-list option[value="'+id+'"]').waitFor({state:'attached'});
  await page.locator('#private-menu-list').selectOption(id);
  await page.locator('[data-product-name]').waitFor();

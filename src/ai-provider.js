@@ -42,7 +42,7 @@ export function tariff(env) {
 
 async function attempt(env,messages,timeout,engine) {
   const model=env.AI_MODEL;
-  if(!model||!['cloudflare','compatible'].includes(env.AI_PROVIDER)) throw new ApiError(503,'AI provider is not configured.');
+  if(!model||!['cloudflare','compatible','ollama'].includes(env.AI_PROVIDER)) throw new ApiError(503,'AI provider is not configured.');
   let raw;
   if(env.AI_PROVIDER==='cloudflare') {
     if(!env.AI?.run) throw new ApiError(503,'AI binding unavailable.');
@@ -51,6 +51,17 @@ async function attempt(env,messages,timeout,engine) {
     // for JSON in the prompt and validate locally instead of forcing JSON mode.
     const format=model==='@cf/meta/llama-3.1-8b-instruct-fp8'?{}:{response_format:{type:'json_object'}};
     try { raw=await Promise.race([env.AI.run(model,{messages,max_tokens:700,temperature:0.2,...format}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new ApiError(504,'AI timed out.')),timeout);})]); } finally { clearTimeout(timer); }
+  } else if(env.AI_PROVIDER==='ollama') {
+    let endpoint;
+    try {endpoint=new URL(env.AI_BASE_URL);}catch{throw new ApiError(503,'AI endpoint unavailable.');}
+    if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password)throw new ApiError(503,'AI endpoint unavailable.');
+    const response=await fetch(endpoint,{method:'POST',redirect:'error',headers:{
+      'Content-Type':'application/json',...(env.AI_API_KEY?{Authorization:`Bearer ${env.AI_API_KEY}`}:{}),
+    },body:JSON.stringify({model,messages,stream:false,format:'json',options:{temperature:0.2,num_predict:1800}}),signal:AbortSignal.timeout(timeout)});
+    if(!response.ok){const error=new ApiError(response.status,'AI provider unavailable.');error.providerStatus=response.status;throw error;}
+    const {readJson}=await import('./http.js');
+    const data=await readJson(response,64000);
+    raw={response:data.message?.content,usage:{prompt_tokens:data.prompt_eval_count,completion_tokens:data.eval_count}};
   } else {
     let endpoint;
     try {endpoint=new URL(env.AI_BASE_URL);}catch{throw new ApiError(503,'AI endpoint unavailable.');}
