@@ -1,94 +1,48 @@
-/* AuraDigital portfolio: scroll-synced, progressively enhanced, motion-accessible. */
+/* Portfolio: progressive editorial reveal and safe image fallbacks.
+   All content and project links remain visible if JavaScript is unavailable. */
 (() => {
   'use strict';
-  const root = document.querySelector('.client-showcase');
+  const root = document.querySelector('body[data-page="portfolio"] .pf-page');
   if (!root) return;
-  const stages = [...root.querySelectorAll('[data-work-stage]')];
-  const current = root.querySelector('[data-work-current]');
-  const people = [...document.querySelectorAll('.portfolio-person')];
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
-  let frame = 0;
-  if (!stages.length) return;
 
-  function resetCards() {
-    for (const stage of stages) {
-      const card = stage.querySelector('.client-work-card');
-      const image = stage.querySelector('.client-work-media img');
-      if (card) { card.style.transform = ''; card.style.opacity = ''; }
-      if (image) image.style.removeProperty('--media-y');
-    }
-  }
-
-  function render() {
-    frame = 0;
-    const viewport = innerHeight || 1;
-    const animated = !reduced.matches && innerWidth > 760;
-    let nearest = 0;
-    let distance = Infinity;
-    stages.forEach((stage, i) => {
-      const rect = stage.getBoundingClientRect();
-      const activeDistance = Math.abs((rect.top + Math.min(rect.height, viewport) * .48) - viewport * .54);
-      if (activeDistance < distance) { distance = activeDistance; nearest = i; }
-      if (!animated) return;
-      const card = stage.querySelector('.client-work-card');
-      const image = stage.querySelector('.client-work-media img');
-      if (!card || !image) return;
-      const entrance = clamp((viewport * .98 - rect.top) / (viewport * .45));
-      const departure = clamp((viewport * .1 - rect.bottom) / (viewport * .48));
-      const progress = clamp((viewport * .85 - rect.top) / (rect.height + viewport * .1));
-      const y = (1 - entrance) * 58 - departure * 34;
-      const scale = .945 + entrance * .055 - departure * .025;
-      const opacity = .60 + entrance * .40 - departure * .23;
-      card.style.transform = 'translate3d(0,' + y.toFixed(2) + 'px,0) scale(' + scale.toFixed(4) + ')';
-      card.style.opacity = opacity.toFixed(3);
-      image.style.setProperty('--media-y', ((progress - .5) * 32).toFixed(1) + 'px');
-    });
-    if (!animated) resetCards();
-    if (current) current.textContent = String(nearest + 1).padStart(2, '0');
-  }
-
-  function schedule() {
-    if (!frame) frame = requestAnimationFrame(render);
-  }
-  addEventListener('scroll', schedule, { passive:true });
-  addEventListener('resize', schedule, { passive:true });
-  reduced.addEventListener?.('change', () => {
-    if (reduced.matches) document.body.classList.remove('portfolio-motion-ready');
-    schedule();
-  });
-
-  // The page stays legible even when third-party illustration hosts are unavailable.
-  document.querySelectorAll('.client-work-media img, .portfolio-person-photo img').forEach(image => {
-    const unavailable = () => {
-      const wrapper = image.parentElement;
-      image.hidden = true;
-      if (wrapper) {
-        wrapper.classList.add('portfolio-media-unavailable');
-        if (!wrapper.querySelector('.portfolio-media-fallback')) {
-          const replacement = document.createElement('span');
-          replacement.className = 'portfolio-media-fallback';
-          replacement.textContent = image.closest('.client-work-stage')
-            ? 'Project preview temporarily unavailable'
-            : 'Business photography temporarily unavailable';
-          wrapper.appendChild(replacement);
-        }
-      }
-    };
-    image.addEventListener('error', unavailable, { once:true });
-    if (image.complete && !image.naturalWidth) unavailable();
-  });
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const items = [...root.querySelectorAll('[data-pf-reveal]')];
 
   if ('IntersectionObserver' in window && !reduced.matches) {
     const observer = new IntersectionObserver(entries => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
-        entry.target.classList.add('is-visible');
+        entry.target.classList.add('pf-in-view');
         observer.unobserve(entry.target);
       }
-    }, { threshold:.12 });
-    people.forEach(item => observer.observe(item));
-    document.body.classList.add('portfolio-motion-ready');
+    }, { threshold: 0.04, rootMargin: '0px 0px -24px 0px' });
+    items.forEach(item => observer.observe(item));
+    root.classList.add('pf-reveal-ready');
+    reduced.addEventListener?.('change', () => {
+      if (reduced.matches) {
+        root.classList.remove('pf-reveal-ready');
+        observer.disconnect();
+      }
+    });
   }
-  render();
+
+  // Project previews are local. Editorial photos may fail because of blockers:
+  // show a readable fallback rather than leaving a broken photograph.
+  for (const img of root.querySelectorAll('img')) {
+    const unavailable = () => {
+      if (img.dataset.pfImageFailed === 'true') return;
+      img.dataset.pfImageFailed = 'true';
+      const wrap = img.closest('figure, .pf-product-image');
+      if (!wrap) return;
+      wrap.classList.add('pf-media-unavailable');
+      const label = document.createElement('span');
+      label.className = 'pf-media-fallback';
+      label.textContent = img.closest('.pf-product') ? 'Product preview unavailable'
+        : img.src.includes('unsplash.com') ? 'Editorial photograph unavailable'
+        : 'Project photograph unavailable';
+      wrap.appendChild(label);
+    };
+    img.addEventListener('error', unavailable, { once: true });
+    if (img.complete && img.naturalWidth === 0) unavailable();
+  }
 })();
