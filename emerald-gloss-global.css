@@ -93,3 +93,6 @@ body[data-page="auraweddings"] .aw-personalizer :is(input,select,textarea)::plac
 
 /* Minimal static shine; no animation or interfering glass overlays. */
 @media(prefers-reduced-motion:reduce){body.shop-page .shop-product-stage,.aurahub-shell .panel,body.cinematic-enabled .service-card{animation:none!important;transition:none!important}}
+
+/* The Hub must stay emerald even while its JavaScript shell is loading. */
+body:has(#app){min-height:100svh;background:radial-gradient(ellipse at 75% 7%,rgba(137,204,155,.17),transparent 50%),linear-gradient(135deg,#0d1c14,#1b3929 58%,#0a1c11);color:var(--eg-ink)}
