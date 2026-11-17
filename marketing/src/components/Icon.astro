@@ -1,0 +1,8 @@
+---
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const { name } = Astro.props;
+const svg = readFileSync(require.resolve('lucide-static/icons/' + name + '.svg'), 'utf8');
+---
+<span class="icon" aria-hidden="true" set:html={svg} />

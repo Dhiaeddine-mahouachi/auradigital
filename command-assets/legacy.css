@@ -1,0 +1,7 @@
+body[data-command-chrome]{font-family:var(--ac-body)}
+body[data-command-chrome] :is(h1,h2,h3,.brand-name){font-family:var(--ac-display)}
+body[data-command-chrome] :is(#siteHeader .nav,#siteFooter){background:#101414;color:#f6f5ef;border-color:#3a4845}
+body[data-command-chrome] #siteHeader .nav-cta{background:#e6ff3d;color:#101414;border-color:#e6ff3d}
+body[data-command-chrome] #siteHeader .nav-cta:hover{filter:brightness(1.08)}
+body[data-command-chrome] #siteHeader :focus-visible,
+body[data-command-chrome] #siteFooter :focus-visible{outline:2px solid #e6ff3d;outline-offset:3px}

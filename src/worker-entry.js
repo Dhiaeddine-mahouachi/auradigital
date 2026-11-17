@@ -11,6 +11,7 @@ import { handleAuraMenuDashboard } from './auramenu-dashboard.js';
 import { handleAuraPopsAdmin } from './aurapops-admin.js';
 import { handleAdminWorkspace } from './admin-workspace.js';
 import { serveEmployeePortal } from './employee-portal.js';
+import { serveCommandMarketing } from './command-marketing.js';
 import { permanentSeoRedirect, serveSeoAsset } from './seo.js';
 import { handleAiEmployee, cleanupAiData } from './ai-employee.js';
 
@@ -76,6 +77,9 @@ const router = {
     if (workspaceResponse) return workspaceResponse;
     const dashboardResponse = await handleAuraMenuDashboard(request, env);
     if (dashboardResponse) return dashboardResponse;
+
+    const commandPage = await serveCommandMarketing(request, env);
+    if (commandPage) return commandPage;
 
     const seoAssetResponse = await serveSeoAsset(request, env);
     if (seoAssetResponse) return seoAssetResponse;

@@ -9,9 +9,9 @@ const paths=[
  'index.html','about.html','services.html','websites.html','contact.html','packages.html',
  'portfolio.html','aura-menu.html','nfc.html','qr-menu.html','aurapops.html',
  'aurapops-showcase.html','aura-weddings.html','spinflow.html',
- 'nfc-builder.html','nfc-status.html','404.html','shop/index.html','hub/index.html'
+ 'nfc-builder.html','nfc-status.html','404.html','shop/index.html'
 ];
-test('all first-party page entry points load the shared Emerald Gloss theme after their own CSS',()=>{
+test('legacy page entry points load the shared Emerald Gloss theme after their own CSS',()=>{
  for(const path of paths){
   const html=load(path);
   const match=html.match(/<link[^>]+href="\/emerald-gloss-global\.css\?v=20261116-sitewide-1"/g)||[];
@@ -28,4 +28,11 @@ test('Emerald Gloss covers shop, Hub, builder, weddings marketing and public pag
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert(!css.includes('canvas{'), 'Do not recolor any QR canvas');
  assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length,'Theme CSS braces should be balanced');
+});
+
+test('AuraHub and Aura Command use the same design tokens',()=>{
+ const hub=load('hub/index.html'),layout=load('marketing/src/components/Layout.astro');
+ assert.match(hub,/\/command-assets\/tokens\.css/);
+ assert.match(layout,/\/command-assets\/tokens\.css/);
+ assert.match(load('hub/hub.css'),/--hub-canvas:var\(--ac-ink\)/);
 });

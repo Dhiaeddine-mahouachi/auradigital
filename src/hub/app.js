@@ -1,3 +1,4 @@
+import { bindShellTools, shellCopy, shellTools } from './shell-tools.js';
 import { accountSettingsCopy, renderAccountSettings } from './settings-view.js';
 import { renderServices, renderServiceOffer, serviceOffer, serviceShortcuts, renderServiceDetails, serviceLabels, serviceSummary, serviceDate, serviceStatus } from './service-view.js';
 import { mountGuide } from './guide-view.js';
@@ -149,7 +150,7 @@ async function renderGate(){
  if(route==='verify'){gateFrame(`<section class="panel">${robot()}<h1>${t('verify')}</h1><p id="verification-result" role="status"></p>${button('confirm','verify')}<a href="/hub">${t('brand')}</a></section>`);document.querySelector('[data-action="verify"]').onclick=async e=>{const confirmButton=e.target;confirmButton.disabled=true;try{await api('/api/customer/verify','POST',{token:flowToken});flowToken='';document.querySelector('#verification-result').textContent=t('verified');}catch(error){document.querySelector('#verification-result').textContent=error.message;confirmButton.disabled=false;}};return;}
  const signup=route==='signup',forgot=route==='forgot',reset=route==='reset';
  const loginCharacter=!forgot&&!reset?auriCharacter(3,{variant:'login'}):robot();
- gateFrame(`<section class="auth-intro"><p class="eyebrow">Aura Command</p><h1>${t('welcome')}</h1><p>${t('tag')}</p>${loginCharacter}</section><section class="panel auth-panel"><h2>${t(reset?'reset':forgot?'forgot':signup?'signup':'signIn')}</h2><form id="auth-form">${signup?field('name','name','','text','required minlength="2" maxlength="100" autocomplete="name"'):''}${reset?'':field('email','email','','email','required maxlength="254" autocomplete="email"')}${forgot?'':field('password',reset?'newPassword':'password','','password','required '+(signup||reset?'minlength="12" ':'')+'maxlength="72" autocomplete="'+(signup||reset?'new-password':'current-password')+'"')}${signup?`<label class="check"><input type="checkbox" name="terms" required>${t('terms')}</label>`:''}<p class="form-error" role="alert"></p><button class="primary">${t(reset?'reset':forgot?'continue':signup?'signup':'signIn')}</button></form>${!forgot&&!reset?`${authCapabilities.google?`<hr><label class="check"><input id="google-terms" type="checkbox">${t('terms')}</label>${button('google','google',true)}`:''}<div class="auth-links"><a href="/hub/${signup?'login':'signup'}${authQuery}">${t(signup?'signIn':'signup')}</a>${authCapabilities.email?`<a href="/hub/forgot${authQuery}">${t('forgot')}</a>`:''}</div>`:`<a href="/hub/login${authQuery}">${t('signIn')}</a>`}</section>`);
+ gateFrame(`<section class="auth-intro"><p class="eyebrow">Aura Command</p><h1>${t('welcome')}</h1><p>${esc(shellCopy(lang)[10])}</p>${loginCharacter}</section><section class="panel auth-panel"><h2>${t(reset?'reset':forgot?'forgot':signup?'signup':'signIn')}</h2><form id="auth-form">${signup?field('name','name','','text','required minlength="2" maxlength="100" autocomplete="name"'):''}${reset?'':field('email','email','','email','required maxlength="254" autocomplete="email"')}${forgot?'':field('password',reset?'newPassword':'password','','password','required '+(signup||reset?'minlength="12" ':'')+'maxlength="72" autocomplete="'+(signup||reset?'new-password':'current-password')+'"')}${signup?`<label class="check"><input type="checkbox" name="terms" required>${t('terms')}</label>`:''}<p class="form-error" role="alert"></p><button class="primary">${t(reset?'reset':forgot?'continue':signup?'signup':'signIn')}</button></form>${!forgot&&!reset?`${authCapabilities.google?`<hr><label class="check"><input id="google-terms" type="checkbox">${t('terms')}</label>${button('google','google',true)}`:''}<div class="auth-links"><a href="/hub/${signup?'login':'signup'}${authQuery}">${t(signup?'signIn':'signup')}</a>${authCapabilities.email?`<a href="/hub/forgot${authQuery}">${t('forgot')}</a>`:''}</div>`:`<a href="/hub/login${authQuery}">${t('signIn')}</a>`}</section>`);
  document.querySelector('#auth-form').onsubmit=async e=>{e.preventDefault();const form=e.target,b=form.querySelector('button'),data=new FormData(form);b.disabled=true;try{if(forgot){const r=await api('/api/customer/forgot-password','POST',{email:data.get('email')});toast(t('resetSent'));}else if(reset){await api('/api/customer/reset-password','POST',{token:flowToken,password:data.get('password')});location.assign('/hub/login'+authQuery);}else{await api('/api/customer/'+(signup?'register':'login'),'POST',{name:data.get('name'),email:data.get('email'),password:data.get('password'),acceptTerms:data.has('terms')});if(route!=='invitation'&&resumeShop())return;route=route==='invitation'?'invitation':'';await load();}}catch(error){form.querySelector('[role="alert"]').textContent=error.message;}finally{b.disabled=false;}};
  document.querySelector('[data-action="google"]')?.addEventListener('click',()=>{if(!document.querySelector('#google-terms').checked){toast(t('terms'));return;}if(route==='invitation'){toast(t('googleInvite'));}location.assign('/api/customer/google/start?'+new URLSearchParams({acceptTerms:'true',...(returnPath?{next:returnPath}:{})}));});
 }
@@ -203,7 +204,8 @@ function persistProfile(){
 }
 let roadmapView='tree',selectedMission=null,workspaceSwitch=null;
 const requestDrafts=new Map();
-const navigation=['home','journey','services','requests','assistant'];
+const navigation=['journey','services','requests','assistant','settings'];
+let requestView='list';
 const pageGroup={tasks:'journey',menuDrafts:'services',projects:'services',websites:'services',hosting:'services'};
 const moreNavigation=['profile','simulator','menuDrafts','projects','websites','hosting','files','reports','invoices','rewards','team','support'];
 const link=(target,params)=>hubLink(target,workspace?.organization.id,params);
@@ -224,9 +226,11 @@ function renderShell(){
  window.scrollTo({top:0,left:0,behavior:'instant'});
  const labels=hubLabels(lang), l=roadmapLabels(lang);
  const active=(pageGroup[page]||page);
+ const shellLabels=shellCopy(lang);
+ const navLabel=p=>p==='journey'?commandLabels(lang).vision:p==='services'?serviceLabels[lang][0]:labels[p]||l[p]||t(p);
  const navItem=(p,mobile=false)=>`<a class="nav-item ${active===p?'active':''}" href="${esc(link(p))}"
   data-page="${p}" ${mobile?`data-mobile-page="${p}"`:''} ${active===p?'aria-current="page"':''}>
-  ${hubIcon(p)}<span>${esc((p==='services'?serviceLabels[lang][0]:labels[p]||l[p]||t(p)))}</span></a>`;
+  ${hubIcon(p)}<span>${esc(navLabel(p))}</span></a>`;
  const title=page==='services'?serviceLabels[lang][0]:page==='journey'?commandLabels(lang).vision:labels[page]||l[page]||t(page);
  app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell ${page==='services'?'service-shell':''}"><aside class="sidebar" id="sidebar">
  <a href="${esc(link('home'))}" class="wordmark command-wordmark">${brandMarkup}</a>
@@ -235,17 +239,20 @@ function renderShell(){
  <a class="hub-mobile-brand wordmark" href="${esc(link('home'))}">${brandMarkup}</a>
  ${workspace?`<label class="field workspace-picker"><span class="sr-only">${t('businessName')}</span>
  <select id="workspace-select" aria-label="${t('businessName')}">${workspaces.map(o=>`<option value="${esc(o.id)}" ${o.id===workspace.organization.id?'selected':''}>${esc(o.id===workspace.organization.id?workspace.organization.name:o.name)}</option>`).join('')}</select></label>`:''}
- <details class="growth-account"><summary aria-label="${esc(t('profile'))}">${hubIcon('profile')}</summary>
+ ${shellTools(shellLabels,esc)}<details class="growth-account"><summary aria-label="${esc(t('profile'))}">${hubIcon('profile')}</summary>
  <div class="growth-account-menu"><strong>${esc(me.name)}</strong>${languageControl()}
  ${navItem('settings')}${workspace?navItem('profile')+navItem('invoices'):''}${button('logout','logout',true)}</div></details></header>
  <main id="main" tabindex="-1"><div class="page-heading"><h1>${page==='home'&&(!workspace||!workspace.missions.length)
   ?`${esc(labels.welcome)} <span>AuraHub</span>`:page==='journey'&&lang==='en'?'Growth <span>Vision</span>':esc(title)}</h1>
  ${['services','requests'].includes(page)&&workspace?.permissions.includes('roadmap:write')&&!query.has('new')?`<a class="growth-secondary" href="${esc(requestLink())}">＋ ${esc(l.request)}</a>`:''}</div>
  ${!me.verified&&authCapabilities.email?`<aside class="verification"><p>${t('verifyLater')}</p>${button('sendVerification','send-verification',true)}</aside>`:''}
- <div id="page-content"></div></main>
+ <div id="page-content"><div class="hub-skeleton" aria-hidden="true"></div></div></main>
  <nav class="command-bottom-nav" aria-label="AuraHub">${navigation.map(p=>navItem(p,true)).join('')}</nav>
  </div></div>`;
  bindCommon();
+ bindShellTools({labels:shellLabels,navItem,pages:['home',...navigation,'profile','team','invoices','support'].map(p=>[p,navLabel(p)]),
+  loadAttention:async()=>workspace?(await workSnapshot()).attention:[],
+  renderAttention:record=>renderWorkRow(record,{ui:labels,esc,link}),esc,empty:labels.emptyAttention});
  document.querySelector('#workspace-select')?.addEventListener('change',async e=>{
   const select=e.target,id=select.value;
   select.disabled=true;workspaceSwitch=id;
@@ -345,8 +352,10 @@ async function myWork(){
  if(request){
   const record=await api(endpoint('work/'+encodeURIComponent(request)));
   if(!host.isConnected)return;
-  host.innerHTML=`<section class="panel"><h2>${esc(record.name)}</h2><p>${esc(workStatus(record))}</p><p>${esc(record.id)}</p>
-  <a class="secondary" href="${esc(link('services'))}">${esc(ui.services)}</a>
+  const copy=shellCopy(lang);
+  host.innerHTML=`<section class="panel"><h2>${esc(record.name)}</h2><p>${esc(record.id)}</p>
+  <h3>${esc(copy[8])}</h3><ol class="hub-status-line"><li aria-current="step"><small>${esc(copy[9])}</small><strong>${esc(workStatus(record))}</strong></li></ol>
+  <a class="secondary" href="${esc(link('requests'))}">${esc(ui.requests)}</a>
   ${workspace.permissions.includes('auri:use')?`<a class="secondary" href="${esc(link('assistant',{request}))}">${esc(ui.assistant)}</a>`:''}</section>`;
   return;
  }
@@ -374,10 +383,20 @@ async function myWork(){
  }
  const displayed=new Set([...attention,...progress].map(record=>record.id));
  const history=requests.filter(record=>!displayed.has(record.id));
- host.innerHTML=section(ui.attention,ui.emptyAttention,attention.map(record=>renderWorkRow(record,{ui,esc,link})).join(''))
-  +section(ui.progress,ui.emptyProgress,progress.map(record=>renderWorkRow(record,{ui,esc,link})).join(''))
-  +(history.length?section(hubLabels(lang).requests,'',history.map(record=>renderWorkRow(record,{ui,esc,link})).join('')):'')
-  +`<a href="${esc(link('menuDrafts'))}" class="growth-secondary">${esc(t('menuDrafts'))}</a>`;
+ const copy=shellCopy(lang);
+ const rows=records=>records.map(record=>renderWorkRow(record,{ui,esc,link})).join('');
+ host.innerHTML=`<div class="hub-request-controls" aria-label="${esc(ui.requests)}">
+  ${['list','board'].map((view,index)=>`<button type="button" class="secondary" data-request-view="${view}" aria-pressed="${view===requestView}">${esc(copy[6+index])}</button>`).join('')}
+  </div><div class="hub-request-columns" data-view="${requestView}">${section(ui.attention,ui.emptyAttention,rows(attention))}
+  ${section(ui.progress,ui.emptyProgress,rows(progress))}
+  ${history.length?section(ui.requests,'',rows(history)):''}</div>
+  <a href="${esc(link('menuDrafts'))}" class="growth-secondary">${esc(t('menuDrafts'))}</a>`;
+ const viewButtons=host.querySelectorAll('[data-request-view]');
+ for(const button of viewButtons)button.addEventListener('click',()=>{
+  requestView=button.dataset.requestView;
+  host.querySelector('.hub-request-columns').dataset.view=requestView;
+  for(const item of viewButtons)item.setAttribute('aria-pressed',String(item===button));
+ });
 }
 async function renderPage(){
  const label=hubLabels(lang);

@@ -201,6 +201,11 @@ export async function serveSeoAsset(request, env) {
         element.setAttribute("lang", meta.lang);
       },
     })
+    .on("body", {
+      element(element) {
+        if (!['/','/services','/about','/contact'].includes(pathname)) element.setAttribute('data-command-chrome', '');
+      },
+    })
     .on("title", {
       element(element) {
         element.setInnerContent(meta.title);
@@ -226,6 +231,9 @@ export async function serveSeoAsset(request, env) {
     .on("head", {
       element(element) {
         element.append(buildHeadMarkup(meta, canonical, schema), { html: true });
+        if (!['/','/services','/about','/contact'].includes(pathname)) {
+          element.append('<link rel="stylesheet" href="/command-assets/tokens.css"><link rel="stylesheet" href="/command-assets/fonts.css"><link rel="stylesheet" href="/command-assets/legacy.css">', { html: true });
+        }
       },
     });
 

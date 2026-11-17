@@ -38,6 +38,18 @@
       "!/admin/*",
       "/home",
       "/services",
+      "/services/*",
+      "/industries",
+      "/industries/*",
+      "/product",
+      "/auri",
+      "/pricing",
+      "/how-it-works",
+      "/resources",
+      "/privacy",
+      "/terms",
+      "/cookies",
+      "/404",
       "/websites",
       "/spinflow",
       "/hizmetler",
@@ -180,7 +192,7 @@
     "AI_RECOVERY_TOKEN_ALLOWANCE": "250000"
   },
   "build": {
-    "command": "node scripts/build-ai-index.mjs && node scripts/build-shop.mjs && node scripts/build-hub.mjs"
+    "command": "node scripts/build-ai-index.mjs && node scripts/build-shop.mjs && node scripts/build-hub.mjs && node scripts/build-marketing.mjs"
   },
   "triggers": {
     "crons": [

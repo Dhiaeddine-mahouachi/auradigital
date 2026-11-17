@@ -1,0 +1,6 @@
+---
+const { level=1, class: className='', eager=false } = Astro.props;
+---
+<div class:list={['auri-art',className]}>
+  <img src={'/media/auri/level-'+level+'.webp'} alt={'Auri, level '+level} width="256" height="256" loading={eager?'eager':'lazy'} decoding="async"/>
+</div>

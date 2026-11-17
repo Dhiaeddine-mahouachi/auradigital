@@ -1,0 +1,6 @@
+---
+import Icon from './Icon.astro';
+import { roadmap } from '../content.mjs';
+const { href = roadmap, variant = 'primary', icon = 'arrow-up-right' } = Astro.props;
+---
+<a href={href} class:list={['btn', 'btn-'+variant]}><slot>Build my roadmap</slot>{icon && <Icon name={icon} />}</a>

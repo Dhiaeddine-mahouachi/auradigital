@@ -1,0 +1,13 @@
+---
+import PageHero from './PageHero.astro';
+import Icon from './Icon.astro';
+import ServiceCard from './ServiceCard.astro';
+import {services} from '../content.mjs';
+const {industry:i}=Astro.props;
+---
+<PageHero label={i.name} title={i.headline} description={i.pain} split>
+  <article class="frame"><div class="frame-bar"><strong>{i.name}</strong><span>Illustrative roadmap</span></div><div class="sample-window"><span class="icon-tile"><Icon name={i.icon}/></span><ol class="timeline">{i.steps.map(step=><li><strong>{step}</strong></li>)}</ol></div></article>
+</PageHero>
+<section class="section wrap grid2"><div class="section-head"><h2>Where Auri would start.</h2><p>{i.pain}</p></div><blockquote class="quote">{i.ask}</blockquote></section>
+<section class="section wrap"><div class="section-head"><h2>Services for your next step.</h2></div><div class="grid3">{i.recommended.map(slug=><ServiceCard service={services.find(s=>s.slug===slug)}/>)}</div></section>
+<section class="section wrap grid2"><div class="section-head"><h2>What this could look like.</h2><p>Illustrative business scenario</p></div><article class="card"><p>{i.result}</p><p class="mt-3">Verified case results: [PLACEHOLDER]</p></article></section>

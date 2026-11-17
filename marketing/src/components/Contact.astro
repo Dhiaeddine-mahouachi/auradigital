@@ -1,0 +1,31 @@
+---
+import PageHero from './PageHero.astro';
+import Button from './Button.astro';
+import { services } from '../content.mjs';
+---
+<PageHero label="Contact" title="Talk through what you need." description="Ask about a service, tell us what you want to build or request a call with the team."/>
+<section class="section wrap grid2">
+  <div class="section-head">
+    <h2>Get in touch</h2>
+    <p>AuraDigital works from Istanbul, Türkiye.</p>
+    <div class="actions"><Button href="https://wa.me/905385507674" variant="outline" icon="messages-square">WhatsApp</Button><Button href="mailto:info@auradigitalworks.com" variant="outline" icon="mail">Email the team</Button></div>
+    <p>Booking calendar and published response time: [PLACEHOLDER]</p>
+  </div>
+  <div class="card">
+    <div id="pricing-selection" data-pricing-selection></div>
+    <form data-contact-form id="contactForm" class="contact-form">
+      <h3 class="mb-0">Tell us about your project</h3>
+      <div hidden aria-hidden="true"><input name="website" aria-label="Website" tabindex="-1" autocomplete="off"/></div>
+      <label>Name <input name="name" autocomplete="name" minlength="2" maxlength="100" required/></label>
+      <label>Email <input name="email" type="email" autocomplete="email" maxlength="160" required/></label>
+      <label>Phone or WhatsApp <input name="phone" type="tel" autocomplete="tel" maxlength="40" required/></label>
+      <label>What can we help with? <select name="service" id="service" required><option value="">Choose a service</option>{services.map(s=><option value={s.slug}>{s.name}</option>)}{['Pricing / Quote','AuraWeddings','NFC Card','Website Care','Spinflow ERP','Ad Management','Web Design','AI & Automation','SEO / Google Maps'].map(label=><option value={label}>{label}</option>)}<option value="Book a call">Book a call</option><option value="Other">Other</option></select></label>
+      <label>Your message <textarea name="message" rows="5" minlength="10" maxlength="2000" required></textarea></label>
+      <button class="btn btn-outline" data-contact-submit type="submit">Send message</button>
+      <p role="status" data-contact-status aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+<link rel="stylesheet" href="/pricing/pricing.css"/>
+<script is:inline src="/script.js" defer></script>
+<script is:inline type="module" src="/pricing/ui.js"></script>

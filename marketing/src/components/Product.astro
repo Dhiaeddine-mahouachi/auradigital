@@ -1,0 +1,20 @@
+---
+import PageHero from './PageHero.astro';
+import Icon from './Icon.astro';
+import Button from './Button.astro';
+import Auri from './Auri.astro';
+const stages=[['Discover','Tell Auri where your business is now and what you want to improve.'],['Build','Put the essentials in place, from a website to a menu or mailbox.'],['Grow','Help more customers find you and follow up with them.'],['Scale','Make the day-to-day work easier to run as demand grows.']];
+---
+<PageHero label="Aura Command" title="Plan it. Build it. Grow it." description="Get a roadmap from Auri, choose where you want help and follow the work in AuraHub." split><Auri class="auri-spotlight frame" eager/></PageHero>
+<section class="section wrap" data-reveal>
+  <div class="section-head"><h2>See where you are going.</h2><p>Four steps from understanding your business to running it at a larger scale.</p></div>
+  <div class="services-grid">{stages.map(([stage,copy],i)=><article class="card"><span class="icon-tile"><Icon name={['search','hammer','trending-up','layers'][i]}/></span><h3 class="mt-4">{stage}</h3><p>{copy}</p></article>)}</div>
+</section>
+<section class="section wrap grid2">
+  <div class="section-head"><h2>Turn your roadmap into missions.</h2><p>Break larger goals into work you can finish and track. Where evidence is required, add it for review and see verified milestones in Growth Vision.</p><div><Button href="/hub" variant="outline">Open AuraHub</Button></div></div>
+  <div class="card"><Auri level={3} class="max-w-40 mx-auto"/><h3>Watch Auri evolve with your progress</h3><p>Explore the level reached in your workspace and the milestones you can tackle next.</p></div>
+</section>
+<section class="section wrap grid2">
+  <article class="card"><h3>Bring in the team when you’re ready.</h3><p>Send a request with your goals and materials. The team confirms scope and delivers the work after approval.</p><Button href="/how-it-works" variant="ghost">See the handoff</Button></article>
+  <article class="card"><h3>Connect the tools you use.</h3><p>Plan WhatsApp replies, a Google Business Profile, domain email and hosting. Setup and access depend on the service you choose.</p><Button href="/privacy" variant="ghost">Read about data handling</Button></article>
+</section>

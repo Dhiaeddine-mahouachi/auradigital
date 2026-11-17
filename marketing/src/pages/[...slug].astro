@@ -1,0 +1,86 @@
+---
+import Layout from '../components/Layout.astro';
+import Home from '../components/Home.astro';
+import Product from '../components/Product.astro';
+import MeetAuri from '../components/MeetAuri.astro';
+import PageHero from '../components/PageHero.astro';
+import Pricing from '../components/Pricing.astro';
+import Contact from '../components/Contact.astro';
+import Industry from '../components/Industry.astro';
+import ResourceLibrary from '../components/ResourceLibrary.astro';
+import ServiceDetail from '../components/ServiceDetail.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import Auri from '../components/Auri.astro';
+import {faqs,industries,journey,services} from '../content.mjs';
+import {general,legal,pagePaths} from '../pages.mjs';
+
+export function getStaticPaths(){
+  return pagePaths.map(path=>({params:{slug:path==='/'?undefined:path.slice(1)}}));
+}
+const slug=Astro.params.slug;
+const key=slug||'home';
+const path=slug?'/'+slug:'/';
+const service=services.find(s=>path==='/services/'+s.slug);
+const industry=industries.find(i=>path==='/industries/'+i.slug);
+const [title,description]=general[key]||[service?.name||industry.name,service?.detail||industry.pain];
+const legalSections=legal[key];
+const schema=[];
+if(service)schema.push({'@type':'Service',name:service.name,description,url:'https://auradigitalworks.com'+path,provider:{'@id':'https://auradigitalworks.com/#organization'}});
+if(['home','product'].includes(key))schema.push({'@type':'Product',name:'Aura Command',description,brand:{'@id':'https://auradigitalworks.com/#organization'}});
+if(key==='home')schema.push({'@type':'FAQPage',mainEntity:faqs.map(([name,text])=>({'@type':'Question',name,acceptedAnswer:{'@type':'Answer',text}}))});
+const goals=['All services',...new Set(services.map(s=>s.goal))];
+---
+<Layout {title} {description} {path} {schema} noindex={Boolean(legalSections)||key==='404'}>
+  {key==='home'&&<Home/>}
+  {key==='product'&&<Product/>}
+  {key==='auri'&&<MeetAuri/>}
+  {key==='pricing'&&<Pricing/>}
+  {key==='contact'&&<Contact/>}
+  {key==='resources'&&<ResourceLibrary/>}
+  {service&&<ServiceDetail {service}/>}
+  {industry&&<Industry {industry}/>}
+  {key==='services'&&<>
+    <PageHero label="Services" title="Build the next thing your business needs." description={description}/>
+    <section class="section wrap" id="service-offerings" data-service-directory>
+      <div class="section-head"><h2>Explore by goal.</h2></div>
+      <div class="filters" aria-label="Service goal">{goals.map((goal,i)=><button type="button" data-goal={goal} aria-pressed={i===0?'true':'false'}>{goal}</button>)}</div>
+      <div class="services-grid bento">{services.map(service=><ServiceCard {service}/>)}</div>
+      <p class="sr-only" role="status" data-service-count></p>
+    </section>
+  </>}
+  {key==='industries'&&<>
+    <PageHero label="Industries" title="A plan that fits your business." description={description}/>
+    <section class="section wrap"><div class="grid2">{industries.map(i=><a class="card" href={'/industries/'+i.slug}><div class="card-top"><span class="icon-tile"><Icon name={i.icon}/></span><Icon name="arrow-up-right"/></div><h3 class="mt-4">{i.name}</h3><p>{i.headline}</p></a>)}</div></section>
+  </>}
+  {key==='how-it-works'&&<>
+    <PageHero label="How it works" title="Know what happens next." description={description}/>
+    <section class="section wrap grid2"><div class="section-head story-head"><h2>From idea to delivery.</h2><p>Review the timing with the team when you agree on your scope.</p></div><ol class="timeline">{journey.map(([step,copy,duration])=><li data-reveal><article class="card"><small>{duration}</small><h3 class="mt-3">{step}</h3><p>{copy}</p></article></li>)}</ol></section>
+  </>}
+  {key==='about'&&<>
+    <PageHero label="About AuraDigital" title="Give small businesses a way forward." description="We’re an independent digital studio in Istanbul. We built Aura Command to make it easier to choose, request and manage the work your business needs." split><Auri class="auri-spotlight frame" eager/></PageHero>
+    <section class="section wrap"><div class="section-head"><h2>How we work</h2></div><div class="grid3">{[
+      ['Start with your goals','We look at what will help your business next and what you already have.'],
+      ['Make the scope clear','You review the work, costs and timing before you commit.'],
+      ['Stay in touch through delivery','Follow updates, approve drafts and keep handover details in AuraHub.']
+    ].map(([name,copy])=><article class="card"><h3>{name}</h3><p>{copy}</p></article>)}</div></section>
+    <section class="section wrap grid2"><div class="section-head"><h2>Meet the people behind AuraDigital.</h2><p>Auri helps you plan. Our team takes care of the agreed hands-on work.</p><div><Button href="/contact" variant="outline">Contact the team</Button></div></div><article class="card"><h3>Dhia Mahouachi</h3><p>Founder, AuraDigital</p><p class="mt-3">Additional team profiles and verified business figures: [PLACEHOLDER]</p></article></section>
+  </>}
+  {legalSections&&<>
+    <PageHero label="Legal" {title} description="Last updated: [PLACEHOLDER]" action={false}/>
+    <section class="section wrap legal">
+      <nav aria-label="Contents"><strong>On this page</strong>{legalSections.map(([heading],i)=><a href={'#topic-'+i}>{heading}</a>)}</nav>
+      <div>{legalSections.map(([heading,copy],i)=><section class="prose-section" id={'topic-'+i}><h2>{heading}</h2><p>{copy}</p></section>)}</div>
+    </section>
+  </>}
+  {key==='404'&&<>
+    <PageHero label="404" title="That page moved on." description="Search the resource library or head back to AuraDigital." split action={false}>
+      <Auri class="auri-spotlight frame" eager/>
+      <div slot="extra" class="grid gap-4">
+        <form action="/resources" class="actions"><input type="search" name="q" aria-label="Search guides" placeholder="Search guides"/><button class="btn btn-outline">Search</button></form>
+        <div class="actions"><Button href="/" variant="ghost">Back to home</Button><Button href="/services" variant="ghost">Explore services</Button></div>
+      </div>
+    </PageHero>
+  </>}
+</Layout>
