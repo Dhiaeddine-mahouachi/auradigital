@@ -147,3 +147,15 @@ thead{background:var(--ac-raised)}tbody tr:last-child>*{border:none}
 @keyframes scan{0%,100%{transform:translateY(0);opacity:0}25%,75%{opacity:1}50%{transform:translateY(22px)}}
 .map-example{min-height:120px;border-radius:16px;display:grid;place-items:center;background:repeating-linear-gradient(33deg,transparent 0 22px,var(--ac-line) 24px 26px,transparent 28px 42px),repeating-linear-gradient(135deg,var(--ac-raised) 0 24px,var(--ac-line) 25px 27px,var(--ac-raised) 29px 50px)}
 .map-example .icon{padding:8px;width:40px;height:40px;background:var(--ac-accent);color:#101414;border-radius:50%}
+
+.hero-auri{display:grid;place-items:center;flex:none;width:clamp(70px,10vw,132px);aspect-ratio:1;background:radial-gradient(circle,#b5d53728,transparent 70%)}
+.hero-auri>img,.hero-auri>canvas{grid-area:1/1;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.hero-auri>img{transform:translate(var(--auri-look,0px,0px));transition:transform .18s ease-out}
+.hero-auri[data-rendered]>img{visibility:hidden}
+.walkthrough-video{max-width:960px;margin-inline:auto}
+.walkthrough-video video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#101414}
+.walkthrough-steps{list-style:none;padding:0;margin-block:24px}
+.walkthrough-steps img{width:100%;height:auto;background:#101414}
+.walkthrough-step{padding:16px}
+.walkthrough-step h3{margin-block-end:8px}
+@media(min-width:1150px){.walkthrough-steps{grid-template-columns:repeat(4,minmax(0,1fr))}}

@@ -1,8 +1,7 @@
 ---
-import {services,industries,faqs,journey} from '../content.mjs';
+import {services,industries,faqs} from '../content.mjs';
 import Icon from './Icon.astro';
 import Button from './Button.astro';
-import Auri from './Auri.astro';
 import FAQ from './FAQ.astro';
 import ServiceCard from './ServiceCard.astro';
 import Tabs from './Tabs.astro';
@@ -13,6 +12,7 @@ const screens=[
   ['Ask Auri','auri','Talk through your next step'],
 ];
 ---
+<script is:inline type="module" src="/media/auri/character.js?v=shared-cursor-1"></script>
 <section class="hero wrap">
   <div class="hero-copy">
     <p class="kicker"><Icon name="sparkles"/> Aura Command</p>
@@ -28,7 +28,12 @@ const screens=[
         <div class="preview-title"><span class="micro">Example workspace</span><h2>Your growth roadmap</h2></div>
         <div class="preview-progress" aria-label="Two of five stages underway">{['Foundation','Visibility','Conversion','Operations','Scale'].map(stage=><span>{stage}</span>)}</div>
         <div class="preview-task"><span class="micro">Recommended next</span><h3>Launch your website</h3><p>Give customers one place to find you.</p></div>
-        <div class="preview-chat"><Auri eager/><p><strong>Auri</strong><br/>I can help you plan what your website needs.</p></div>
+        <div class="preview-chat">
+          <auri-character class="hero-auri" aria-hidden="true" level="3" data-variant="guide">
+            <img src="/media/auri/level-3.webp" width="256" height="256" alt="" decoding="async"/>
+          </auri-character>
+          <p><strong>Auri</strong><br/>I can help you plan what your website needs.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -48,11 +53,27 @@ const screens=[
     </section>)}
   </div>
 </section>
-<section id="how-it-works" class="section wrap grid2">
-  <div class="section-head story-head"><h2>From a conversation to a plan.</h2><p>Tell Auri what matters. Choose what to build. Follow the work as it moves.</p><div><Button href="/how-it-works" variant="outline">See the full journey</Button></div></div>
-  <div class="grid gap-4">
-    {[journey[0],journey[1],['Build and track','Request what you need, approve the scope and follow progress in AuraHub.']].map(([title,copy],i)=><article class="card" data-reveal><div class="icon-tile"><Icon name={['messages-square','route','layout-dashboard'][i]}/></div><h3 class="mt-4">{title}</h3><p>{copy}</p></article>)}
-  </div>
+<section id="how-it-works" class="section wrap">
+  <div class="section-head"><h2>See how to get started.</h2><p>A 24-second walkthrough using real AuraHub screens from a demo workspace.</p></div>
+  <figure class="frame walkthrough-video">
+    <video controls playsinline preload="none" width="960" height="540" poster="/command-assets/hub-walkthrough-poster.webp" aria-label="AuraHub quick-start walkthrough" aria-describedby="walkthrough-summary">
+      <source src="/command-assets/hub-walkthrough.mp4" type="video/mp4"/>
+      <a href="/command-assets/hub-walkthrough.mp4">Download the walkthrough video</a>
+    </video>
+    <figcaption class="frame-bar" id="walkthrough-summary">Silent walkthrough with steps on screen. Follow the same steps below.</figcaption>
+  </figure>
+  <ol class="step-grid walkthrough-steps">
+    {[
+      ['Ask Auri','auri','Open Ask Auri and tell it what you want to improve.'],
+      ['Review Growth Vision','growth-vision','Open your roadmap, choose a stage and review your recommended mission.'],
+      ['Choose a service','my-services','Open My Services to explore what’s available and request help.'],
+      ['Track your request','requests','Open Requests to see what’s in progress and what needs your attention.'],
+    ].map(([title,file,copy])=><li class="frame">
+      <img src={'/command-assets/hub-'+file+'.webp'} width="1200" height="900" loading="lazy" decoding="async" alt={title+' screen in AuraHub'}/>
+      <div class="walkthrough-step"><h3>{title}</h3><p>{copy}</p></div>
+    </li>)}
+  </ol>
+  <Button href="/how-it-works" variant="outline">See the full journey</Button>
 </section>
 <section class="section wrap">
   <div class="section-head"><h2>Pick the services that fit your next step.</h2><p>Start with one. See each request and delivery in the same workspace.</p></div>
@@ -62,7 +83,7 @@ const screens=[
   <div class="section-head"><h2>See inside AuraHub.</h2><p>Real product screens from the AuraHub workspace.</p></div>
   <Tabs id="screens" label="AuraHub screens" labels={screens.map(screen=>screen[0])}/>
   {screens.map(([title,file,alt],i)=><figure role="tabpanel" id={'screens-panel-'+i} aria-labelledby={'screens-tab-'+i} tabindex="0" hidden={i!==0} class="frame">
-    <figcaption class="frame-bar"><strong>{title}</strong><span>Real product screen</span></figcaption><img class="real-shot" src={'/command-assets/hub-'+file+'.webp'} width="1440" height="900" loading="lazy" decoding="async" alt={alt}/>
+    <figcaption class="frame-bar"><strong>{title}</strong><span>Real product screen</span></figcaption><img class="real-shot" src={'/command-assets/hub-'+file+'.webp'} width="1200" height="900" loading="lazy" decoding="async" alt={alt}/>
   </figure>)}
 </section>
 <section class="section wrap" data-reveal>
