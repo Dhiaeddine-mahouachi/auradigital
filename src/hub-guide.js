@@ -54,7 +54,7 @@ export async function hubGuide(request, env, user) {
    const generated=await generate(provider,messages);
    billedUsage=generated.usage;
    const {result}=generated;
-   if(/(?:[$€₺£]|\\b(?:TRY|USD|EUR|TND|GBP)\\b|\\d[\\d,.]*\\s*(?:lira|dollars?|euros?|TL)\\b)/i.test(result.reply))throw new Error('Price quoted outside package cards');
+   if(/(?:[$€₺£]|\b(?:TRY|USD|EUR|TND|GBP)\b|\d[\d,.]*\s*(?:lira|dollars?|euros?|TL)\b)/i.test(result.reply))throw new Error('Price quoted outside package cards');
    const ids=Array.isArray(result.packageIds)?[...new Set(result.packageIds)].slice(0,3):[];
    return json({reply:clean(result.reply,800),currency,packages:ids.map(id=>packages.find(item=>item.id===id)).filter(Boolean)},200,{'Cache-Control':'private, no-store'});
   }catch(error){
