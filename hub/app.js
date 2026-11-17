@@ -391,85 +391,288 @@ function renderServiceDetails({ host, record, lang: lang2, esc: esc3, link: link
 
 // src/hub/guide-view.js
 var strings = {
-  en: ["Talk to Auri", "Hi, I\u2019m Auri. Tell me about your business and I\u2019ll suggest what to do first. Ask me what AuraDigital can help with or compare published prices.", "What should I do first?", "What can you help with?", "What does a digital menu cost?", "Ask Auri a question", "Send", "Auri is thinking\u2026", "Browse all published prices", "Read reply aloud", "Contact AuraDigital for a custom quote", "One-time", "Monthly", "Annual", "Annual hosting", "Couldn\u2019t load prices. Try again."],
-  fr: ["Parler \xE0 Auri", "Bonjour, je suis Auri. D\xE9crivez votre activit\xE9 pour trouver votre prochaine \xE9tape ou comparer les tarifs publi\xE9s.", "Par quoi commencer ?", "Comment peux-tu m\u2019aider ?", "Combien co\xFBte un menu num\xE9rique ?", "Posez une question \xE0 Auri", "Envoyer", "Auri r\xE9fl\xE9chit\u2026", "Voir tous les tarifs publi\xE9s", "Lire la r\xE9ponse \xE0 voix haute", "Contacter AuraDigital pour un devis", "Unique", "Mensuel", "Annuel", "H\xE9bergement annuel", "Impossible de charger les tarifs. R\xE9essayez."],
-  tr: ["Auri ile konu\u015F", "Merhaba, ben Auri. \u0130\u015Fletmenizi anlat\u0131n, ilk ad\u0131m\u0131 bulal\u0131m. Hizmetleri ve yay\u0131mlanan fiyatlar\u0131 sorabilirsiniz.", "\u0130lk olarak ne yapmal\u0131y\u0131m?", "Nas\u0131l yard\u0131mc\u0131 olabilirsin?", "Dijital men\xFC fiyat\u0131 nedir?", "Auri\u2019ye soru sorun", "G\xF6nder", "Auri d\xFC\u015F\xFCn\xFCyor\u2026", "Yay\u0131mlanan t\xFCm fiyatlar\u0131 g\xF6r", "Yan\u0131t\u0131 sesli oku", "\xD6zel teklif i\xE7in AuraDigital\u2019e ula\u015F\u0131n", "Tek seferlik", "Ayl\u0131k", "Y\u0131ll\u0131k", "Y\u0131ll\u0131k bar\u0131nd\u0131rma", "Fiyatlar y\xFCklenemedi. Tekrar deneyin."],
-  ar: ["\u062A\u062D\u062F\u062B \u0645\u0639 \u0623\u0648\u0631\u064A", "\u0645\u0631\u062D\u0628\u064B\u0627\u060C \u0623\u0646\u0627 \u0623\u0648\u0631\u064A. \u0623\u062E\u0628\u0631\u0646\u064A \u0639\u0646 \u0646\u0634\u0627\u0637\u0643 \u0644\u0623\u0642\u062A\u0631\u062D \u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u0623\u0648\u0644\u0649. \u0627\u0633\u0623\u0644\u0646\u064A \u0639\u0646 \u062E\u062F\u0645\u0627\u062A AuraDigital \u0623\u0648 \u0642\u0627\u0631\u0646 \u0627\u0644\u0623\u0633\u0639\u0627\u0631 \u0627\u0644\u0645\u0646\u0634\u0648\u0631\u0629.", "\u0645\u0627 \u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u0623\u0648\u0644\u0649\u061F", "\u0628\u0645\u0627\u0630\u0627 \u064A\u0645\u0643\u0646\u0643 \u0645\u0633\u0627\u0639\u062F\u062A\u064A\u061F", "\u0643\u0645 \u0633\u0639\u0631 \u0627\u0644\u0642\u0627\u0626\u0645\u0629 \u0627\u0644\u0631\u0642\u0645\u064A\u0629\u061F", "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A", "\u0625\u0631\u0633\u0627\u0644", "\u0623\u0648\u0631\u064A \u064A\u0641\u0643\u0631\u2026", "\u062A\u0635\u0641\u062D \u0643\u0644 \u0627\u0644\u0623\u0633\u0639\u0627\u0631 \u0627\u0644\u0645\u0646\u0634\u0648\u0631\u0629", "\u0627\u0642\u0631\u0623 \u0627\u0644\u0631\u062F \u0628\u0635\u0648\u062A \u0639\u0627\u0644\u064D", "\u062A\u0648\u0627\u0635\u0644 \u0645\u0639 AuraDigital \u0644\u0637\u0644\u0628 \u0639\u0631\u0636 \u062E\u0627\u0635", "\u0645\u0631\u0629 \u0648\u0627\u062D\u062F\u0629", "\u0634\u0647\u0631\u064A\u064B\u0627", "\u0633\u0646\u0648\u064A\u064B\u0627", "\u0627\u0644\u0627\u0633\u062A\u0636\u0627\u0641\u0629 \u0627\u0644\u0633\u0646\u0648\u064A\u0629", "\u062A\u0639\u0630\u0631 \u062A\u062D\u0645\u064A\u0644 \u0627\u0644\u0623\u0633\u0639\u0627\u0631. \u062D\u0627\u0648\u0644 \u0645\u062C\u062F\u062F\u064B\u0627."]
+  en: ["Talk to Auri", "Hi, I\u2019m Auri. Tell me about your business and I\u2019ll suggest what to do first. Ask me what AuraDigital can help with or compare published prices.", "What should I do first?", "What can you help with?", "What does a digital menu cost?", "Ask Auri a question", "Send", "Auri is thinking\u2026", "Browse all published prices", "Read reply aloud", "Contact AuraDigital for a custom quote", "One-time", "Monthly", "Annual", "Annual hosting", "Couldn\u2019t load prices. Try again.", "Stop reading"],
+  fr: ["Parler \xE0 Auri", "Bonjour, je suis Auri. D\xE9crivez votre activit\xE9 pour trouver votre prochaine \xE9tape ou comparer les tarifs publi\xE9s.", "Par quoi commencer ?", "Comment peux-tu m\u2019aider ?", "Combien co\xFBte un menu num\xE9rique ?", "Posez une question \xE0 Auri", "Envoyer", "Auri r\xE9fl\xE9chit\u2026", "Voir tous les tarifs publi\xE9s", "Lire la r\xE9ponse \xE0 voix haute", "Contacter AuraDigital pour un devis", "Unique", "Mensuel", "Annuel", "H\xE9bergement annuel", "Impossible de charger les tarifs. R\xE9essayez.", "Arr\xEAter la lecture"],
+  tr: ["Auri ile konu\u015F", "Merhaba, ben Auri. \u0130\u015Fletmenizi anlat\u0131n, ilk ad\u0131m\u0131 bulal\u0131m. Hizmetleri ve yay\u0131mlanan fiyatlar\u0131 sorabilirsiniz.", "\u0130lk olarak ne yapmal\u0131y\u0131m?", "Nas\u0131l yard\u0131mc\u0131 olabilirsin?", "Dijital men\xFC fiyat\u0131 nedir?", "Auri\u2019ye soru sorun", "G\xF6nder", "Auri d\xFC\u015F\xFCn\xFCyor\u2026", "Yay\u0131mlanan t\xFCm fiyatlar\u0131 g\xF6r", "Yan\u0131t\u0131 sesli oku", "\xD6zel teklif i\xE7in AuraDigital\u2019e ula\u015F\u0131n", "Tek seferlik", "Ayl\u0131k", "Y\u0131ll\u0131k", "Y\u0131ll\u0131k bar\u0131nd\u0131rma", "Fiyatlar y\xFCklenemedi. Tekrar deneyin.", "Okumay\u0131 durdur"],
+  ar: ["\u062A\u062D\u062F\u062B \u0645\u0639 \u0623\u0648\u0631\u064A", "\u0645\u0631\u062D\u0628\u064B\u0627\u060C \u0623\u0646\u0627 \u0623\u0648\u0631\u064A. \u0623\u062E\u0628\u0631\u0646\u064A \u0639\u0646 \u0646\u0634\u0627\u0637\u0643 \u0644\u0623\u0642\u062A\u0631\u062D \u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u0623\u0648\u0644\u0649. \u0627\u0633\u0623\u0644\u0646\u064A \u0639\u0646 \u062E\u062F\u0645\u0627\u062A AuraDigital \u0623\u0648 \u0642\u0627\u0631\u0646 \u0627\u0644\u0623\u0633\u0639\u0627\u0631 \u0627\u0644\u0645\u0646\u0634\u0648\u0631\u0629.", "\u0645\u0627 \u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u0623\u0648\u0644\u0649\u061F", "\u0628\u0645\u0627\u0630\u0627 \u064A\u0645\u0643\u0646\u0643 \u0645\u0633\u0627\u0639\u062F\u062A\u064A\u061F", "\u0643\u0645 \u0633\u0639\u0631 \u0627\u0644\u0642\u0627\u0626\u0645\u0629 \u0627\u0644\u0631\u0642\u0645\u064A\u0629\u061F", "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A", "\u0625\u0631\u0633\u0627\u0644", "\u0623\u0648\u0631\u064A \u064A\u0641\u0643\u0631\u2026", "\u062A\u0635\u0641\u062D \u0643\u0644 \u0627\u0644\u0623\u0633\u0639\u0627\u0631 \u0627\u0644\u0645\u0646\u0634\u0648\u0631\u0629", "\u0627\u0642\u0631\u0623 \u0627\u0644\u0631\u062F \u0628\u0635\u0648\u062A \u0639\u0627\u0644\u064D", "\u062A\u0648\u0627\u0635\u0644 \u0645\u0639 AuraDigital \u0644\u0637\u0644\u0628 \u0639\u0631\u0636 \u062E\u0627\u0635", "\u0645\u0631\u0629 \u0648\u0627\u062D\u062F\u0629", "\u0634\u0647\u0631\u064A\u064B\u0627", "\u0633\u0646\u0648\u064A\u064B\u0627", "\u0627\u0644\u0627\u0633\u062A\u0636\u0627\u0641\u0629 \u0627\u0644\u0633\u0646\u0648\u064A\u0629", "\u062A\u0639\u0630\u0631 \u062A\u062D\u0645\u064A\u0644 \u0627\u0644\u0623\u0633\u0639\u0627\u0631. \u062D\u0627\u0648\u0644 \u0645\u062C\u062F\u062F\u064B\u0627.", "\u0625\u064A\u0642\u0627\u0641 \u0627\u0644\u0642\u0631\u0627\u0621\u0629"]
 };
-var path = "/api/hub/onboarding/guide";
-function mountGuide(host, { lang: lang2, esc: esc3, api: api2, turns, scope, context = () => ({}) }) {
+var memoryCopy = {
+  en: ["Saved conversations", "New conversation", "Delete conversation", "Delete this conversation and memories still linked to it?", "What Auri remembers", "Saved after your approval. Keep passwords, payment details and access keys out of chat.", "Private to me", "Shared with this business", "Suggested", "Goal", "Preference", "Business fact", "Approve", "Save", "Delete memory", "No saved memories yet.", "Welcome back, {name}.", "Next step on your roadmap", "This step is open on your saved roadmap.", "Untitled conversation", "Couldn\u2019t open the conversation.", "Delete this memory?"],
+  fr: ["Conversations enregistr\xE9es", "Nouvelle conversation", "Supprimer la conversation", "Supprimer cette conversation et les souvenirs qui lui sont encore associ\xE9s ?", "Ce dont Auri se souvient", "Enregistrement apr\xE8s votre accord. Ne saisissez ni mots de passe, ni donn\xE9es de paiement, ni cl\xE9s d\u2019acc\xE8s.", "Priv\xE9", "Partag\xE9 avec cette entreprise", "Suggestion", "Objectif", "Pr\xE9f\xE9rence", "Fait sur l\u2019entreprise", "Approuver", "Enregistrer", "Supprimer le souvenir", "Aucun souvenir enregistr\xE9.", "Bon retour, {name}.", "Prochaine \xE9tape de votre feuille de route", "Cette \xE9tape reste ouverte dans votre feuille de route.", "Conversation sans titre", "Impossible d\u2019ouvrir la conversation.", "Supprimer ce souvenir ?"],
+  tr: ["Kay\u0131tl\u0131 konu\u015Fmalar", "Yeni konu\u015Fma", "Konu\u015Fmay\u0131 sil", "Konu\u015Fma ve ona ba\u011Fl\u0131 bilgiler silinsin mi?", "Auri\u2019nin hat\u0131rlad\u0131klar\u0131", "Onay\u0131n\u0131zla kaydedilir. \u015Eifre, \xF6deme ve eri\u015Fim bilgilerini sohbette payla\u015Fmay\u0131n.", "Yaln\u0131zca ben", "Bu i\u015Fletmeyle payla\u015F\u0131lan", "\xD6neri", "Hedef", "Tercih", "\u0130\u015Fletme bilgisi", "Onayla", "Kaydet", "An\u0131y\u0131 sil", "Hen\xFCz kay\u0131tl\u0131 bilgi yok.", "Tekrar ho\u015F geldiniz, {name}.", "Yol haritan\u0131zdaki sonraki ad\u0131m", "Bu ad\u0131m kay\u0131tl\u0131 yol haritan\u0131zda a\xE7\u0131k.", "Ba\u015Fl\u0131ks\u0131z konu\u015Fma", "Konu\u015Fma a\xE7\u0131lamad\u0131.", "Bu bilgi silinsin mi?"],
+  ar: ["\u0627\u0644\u0645\u062D\u0627\u062F\u062B\u0627\u062A \u0627\u0644\u0645\u062D\u0641\u0648\u0638\u0629", "\u0645\u062D\u0627\u062F\u062B\u0629 \u062C\u062F\u064A\u062F\u0629", "\u062D\u0630\u0641 \u0627\u0644\u0645\u062D\u0627\u062F\u062B\u0629", "\u0647\u0644 \u062A\u0631\u064A\u062F \u062D\u0630\u0641 \u0627\u0644\u0645\u062D\u0627\u062F\u062B\u0629 \u0648\u0627\u0644\u0645\u0639\u0644\u0648\u0645\u0627\u062A \u0627\u0644\u062A\u064A \u0644\u0627 \u062A\u0632\u0627\u0644 \u0645\u0631\u062A\u0628\u0637\u0629 \u0628\u0647\u0627\u061F", "\u0645\u0627 \u064A\u062A\u0630\u0643\u0631\u0647 \u0623\u0648\u0631\u064A", "\u062A\u064F\u062D\u0641\u0638 \u0627\u0644\u0645\u0639\u0644\u0648\u0645\u0627\u062A \u0628\u0639\u062F \u0645\u0648\u0627\u0641\u0642\u062A\u0643. \u062A\u062C\u0646\u0628 \u0645\u0634\u0627\u0631\u0643\u0629 \u0643\u0644\u0645\u0627\u062A \u0627\u0644\u0645\u0631\u0648\u0631 \u0648\u0628\u064A\u0627\u0646\u0627\u062A \u0627\u0644\u062F\u0641\u0639 \u0648\u0645\u0641\u0627\u062A\u064A\u062D \u0627\u0644\u0648\u0635\u0648\u0644.", "\u062E\u0627\u0635 \u0628\u064A", "\u0645\u0634\u062A\u0631\u0643 \u0645\u0639 \u0627\u0644\u0646\u0634\u0627\u0637 \u0627\u0644\u062A\u062C\u0627\u0631\u064A", "\u0627\u0642\u062A\u0631\u0627\u062D", "\u0647\u062F\u0641", "\u062A\u0641\u0636\u064A\u0644", "\u0645\u0639\u0644\u0648\u0645\u0629 \u0639\u0646 \u0627\u0644\u0646\u0634\u0627\u0637", "\u0645\u0648\u0627\u0641\u0642\u0629", "\u062D\u0641\u0638", "\u062D\u0630\u0641 \u0627\u0644\u0645\u0639\u0644\u0648\u0645\u0629", "\u0644\u0627 \u062A\u0648\u062C\u062F \u0645\u0639\u0644\u0648\u0645\u0627\u062A \u0645\u062D\u0641\u0648\u0638\u0629 \u0628\u0639\u062F.", "\u0623\u0647\u0644\u064B\u0627 \u0628\u0639\u0648\u062F\u062A\u0643\u060C {name}.", "\u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629 \u0641\u064A \u062E\u0627\u0631\u0637\u0629 \u0637\u0631\u064A\u0642\u0643", "\u0644\u0627 \u062A\u0632\u0627\u0644 \u0647\u0630\u0647 \u0627\u0644\u062E\u0637\u0648\u0629 \u0645\u0641\u062A\u0648\u062D\u0629 \u0641\u064A \u062E\u0627\u0631\u0637\u0629 \u0637\u0631\u064A\u0642\u0643 \u0627\u0644\u0645\u062D\u0641\u0648\u0638\u0629.", "\u0645\u062D\u0627\u062F\u062B\u0629 \u0628\u0644\u0627 \u0639\u0646\u0648\u0627\u0646", "\u062A\u0639\u0630\u0631 \u0641\u062A\u062D \u0627\u0644\u0645\u062D\u0627\u062F\u062B\u0629.", "\u0647\u0644 \u062A\u0631\u064A\u062F \u062D\u0630\u0641 \u0647\u0630\u0647 \u0627\u0644\u0645\u0639\u0644\u0648\u0645\u0629\u061F"]
+};
+var onboardingPath = "/api/hub/onboarding/guide";
+function mountGuide(host, {
+  lang: lang2,
+  esc: esc3,
+  api: api2,
+  scope,
+  context = () => ({}),
+  workspaceId,
+  owner,
+  focus = {},
+  businessName,
+  next,
+  questionSeed = "",
+  initialId,
+  onSelect,
+  onReply,
+  onVoice
+}) {
   if (!host) return;
-  const [title, intro, first, help, price, placeholder, send, thinking, browse, read, contact, once, month, year, hosting, unavailable] = strings[lang2] || strings.en;
+  const path = workspaceId ? `/api/hub/workspaces/${workspaceId}/auri-chat` : onboardingPath;
+  const chats = path + "/conversations", memoryPath = path + "/memories";
+  const [
+    saved,
+    newChat,
+    deleteChat,
+    confirmChat,
+    remember,
+    memoryNote,
+    privateLabel,
+    sharedLabel,
+    suggested,
+    goal,
+    preference,
+    fact,
+    approve,
+    save,
+    deleteMemory,
+    empty,
+    welcome,
+    nextLabel,
+    nextReason,
+    untitled,
+    openError,
+    confirmMemory
+  ] = memoryCopy[lang2] || memoryCopy.en;
+  const kindLabels = { goal, preference, business_fact: fact };
+  let turns = [], activeId = null, catalogue = null, isBusy = false;
+  const [title, intro, first, help, price, placeholder, send, thinking, browse, read, contact, once, month, year, hosting, unavailable, stopReading] = strings[lang2] || strings.en;
   const money = (price2, currency) => new Intl.NumberFormat(lang2, { style: "currency", currency }).format(price2);
   const qualifiers = { en: ["From", "Request a quote"], fr: ["D\xE8s", "Demander un devis"], tr: ["Ba\u015Flang\u0131\xE7", "Teklif iste"], ar: ["\u0627\u0628\u062A\u062F\u0627\u0621\u064B \u0645\u0646", "\u0627\u0637\u0644\u0628 \u0639\u0631\u0636 \u0633\u0639\u0631"] }[lang2] || ["From", "Request a quote"];
   const priceLabel = (value, currency, from) => Number.isFinite(value) ? (from ? qualifiers[0] + " " : "") + money(value, currency) : qualifiers[1];
   const rows = ({ packages, currency }) => packages.map((item) => `<li><strong>${esc3(item.name)}</strong> \xB7 ${esc3(priceLabel(item.price, currency, item.from))} <small>${esc3({ once, month, year }[item.billing] || once)}${item.annualHosting ? ` \xB7 ${esc3(hosting)} ${esc3(priceLabel(item.annualHosting, currency, item.hostingFrom))}` : ""}${item.availability ? ` \xB7 ${esc3(item.availability.replaceAll("-", " "))}` : ""}</small></li>`).join("");
-  host.innerHTML = `<section class="hub-guide"><h2>${esc3(title)}</h2><p>${esc3(intro)}</p>
+  host.innerHTML = `<section class="hub-guide${workspaceId ? " hub-guide-workspace" : ""}">
+ ${workspaceId ? "" : `<h2>${esc3(title)}</h2><p>${esc3(intro)}</p>`}
+ <p data-guide-welcome hidden></p>
+ ${next ? `<p><strong>${esc3(nextLabel)}</strong> \xB7 <a href="${esc3(next.href)}">${esc3(next.name)}</a><br><small>${esc3(nextReason)}${next.reason ? " " + esc3(next.reason) : ""}</small></p>` : ""}
+ <div class="hub-guide-history">
+  <label>${esc3(saved)} <select data-guide-conversations></select></label>
+  <button class="secondary" type="button" data-guide-new>${esc3(newChat)}</button>
+  <button class="secondary" type="button" data-guide-delete>${esc3(deleteChat)}</button>
+ </div>
  <div class="hub-guide-prompts">${[first, help, price].map((question) => `<button type="button" class="secondary">${esc3(question)}</button>`).join("")}</div>
- <div class="hub-guide-turns"></div>
- <form><input name="question" required maxlength="700" aria-label="${esc3(placeholder)}" placeholder="${esc3(placeholder)}"><button class="primary">${esc3(send)}</button></form>
- <p class="hub-guide-status" role="status" aria-live="polite"></p>
- ${"speechSynthesis" in window ? `<button class="secondary" type="button" data-guide-read hidden>${esc3(read)}</button>` : ""}
- <details><summary>${esc3(browse)}</summary><ul data-guide-prices></ul></details><a href="/contact">${esc3(contact)}</a></section>`;
-  const form = host.querySelector("form");
+ <div class="hub-guide-turns" data-auri-transcript></div>
+ <form data-auri-ask><input name="question" required maxlength="700" aria-label="${esc3(placeholder)}" placeholder="${esc3(placeholder)}" value="${esc3(questionSeed)}"><button class="primary">${esc3(send)}</button></form>
+ <p class="hub-guide-status" role="status" aria-live="polite" data-auri-reply></p>
+ ${"speechSynthesis" in window ? `<button class="secondary" type="button" data-guide-read hidden>${esc3(read)}</button> <button class="secondary" type="button" data-guide-stop hidden>${esc3(stopReading)}</button>` : ""}
+ <details data-guide-catalogue><summary>${esc3(browse)}</summary><ul data-guide-prices></ul></details><a href="/contact">${esc3(contact)}</a>
+ <details data-guide-memory><summary>${esc3(remember)}</summary><p>${esc3(memoryNote)}</p><div data-guide-memory-list></div></details>
+ </section>`;
+  const form = host.querySelector("[data-auri-ask]");
   const input = form.elements.question, submit = form.querySelector("button"), status = host.querySelector("[role=status]");
-  const voice = host.querySelector("[data-guide-read]");
+  const voice = host.querySelector("[data-guide-read]"), stop = host.querySelector("[data-guide-stop]");
   const output = host.querySelector(".hub-guide-turns");
+  const picker = host.querySelector("[data-guide-conversations]");
+  const start2 = host.querySelector("[data-guide-new]"), remove = host.querySelector("[data-guide-delete]");
+  const welcomeBack = host.querySelector("[data-guide-welcome]");
+  const memory = host.querySelector("[data-guide-memory]"), memoryList = host.querySelector("[data-guide-memory-list]");
+  const prices = host.querySelector("[data-guide-prices]");
+  const actionButtons = [...host.querySelectorAll(".hub-guide-prompts button")];
   const paint = () => {
-    output.innerHTML = turns.map((turn) => `<article><strong>${esc3(turn.question)}</strong><p>${esc3(turn.reply)}</p>${turn.packages.length ? `<ul>${rows(turn)}</ul>` : ""}</article>`).join("");
+    output.innerHTML = turns.map((turn) => `<article><strong>${esc3(turn.question)}</strong><p>${esc3(turn.reply)}</p>${turn.packages?.length ? `<ul>${rows(turn)}</ul>` : ""}</article>`).join("");
     output.scrollTop = output.scrollHeight;
     if (voice) voice.hidden = !turns.length;
   };
-  paint();
+  function busy(value) {
+    isBusy = value;
+    submit.disabled = start2.disabled = value;
+    picker.disabled = value || !picker.options.length;
+    remove.disabled = value || !activeId;
+    for (const button2 of actionButtons) button2.disabled = value;
+  }
+  let catalogueRequest;
+  function getCatalogue() {
+    catalogueRequest ??= api2(path).then((data) => catalogue = data).catch((error) => {
+      catalogueRequest = null;
+      throw error;
+    });
+    return catalogueRequest;
+  }
+  async function listChats() {
+    const { conversations } = await api2(chats);
+    picker.replaceChildren(...conversations.map((chat) => new Option(chat.title || untitled, chat.id)));
+    welcomeBack.hidden = !businessName || !conversations.some((chat) => chat.title);
+    if (!welcomeBack.hidden) welcomeBack.textContent = welcome.replace("{name}", businessName);
+    return conversations;
+  }
+  function select2(id) {
+    activeId = id;
+    picker.value = id || "";
+    if (host.isConnected) onSelect?.(id);
+  }
+  async function openChat(id) {
+    const chat = id ? await api2(chats + "/" + id) : { turns: [] };
+    select2(id);
+    turns = chat.turns;
+    if (turns.some((turn) => turn.packageIds.length)) {
+      try {
+        await getCatalogue();
+      } catch {
+      }
+    }
+    if (catalogue) turns = turns.map((turn) => ({ ...turn, currency: catalogue.currency, packages: catalogue.packages.filter((item) => turn.packageIds.includes(item.id)) }));
+    paint();
+    if (host.isConnected) onReply?.(turns.at(-1)?.reply || "");
+  }
+  async function change(operation) {
+    if (isBusy) return;
+    busy(true);
+    status.classList.remove("sr-only");
+    status.textContent = "";
+    try {
+      await operation();
+    } catch (error) {
+      status.textContent = error.message || openError;
+    } finally {
+      busy(false);
+    }
+  }
+  change(async () => {
+    const chats2 = await listChats();
+    await openChat(chats2.find((chat) => chat.id === initialId)?.id || chats2[0]?.id || null);
+  });
+  picker.onchange = () => change(async () => {
+    try {
+      await openChat(picker.value);
+    } catch (error) {
+      picker.value = activeId || "";
+      throw error;
+    }
+  });
+  start2.onclick = () => change(async () => {
+    const { id } = await api2(chats, "POST", {});
+    await listChats();
+    await openChat(id);
+    input.focus();
+  });
+  remove.onclick = () => {
+    if (confirm(confirmChat)) change(async () => {
+      await api2(chats + "/" + activeId, "DELETE");
+      select2(null);
+      turns = [];
+      paint();
+      const remaining = await listChats();
+      await openChat(remaining[0]?.id || null);
+      if (memory.open) await listMemories();
+    });
+  };
   if (voice) voice.onclick = () => {
     const last = turns.at(-1);
-    const priceText = last.packages.map((item) => item.name + " " + priceLabel(item.price, last.currency, item.from) + " " + ({ once, month, year }[item.billing] || once));
+    const priceText = (last.packages || []).map((item) => item.name + " " + priceLabel(item.price, last.currency, item.from) + " " + ({ once, month, year }[item.billing] || once));
     const speech = new SpeechSynthesisUtterance([last.reply, ...priceText].join(". "));
     speech.lang = lang2;
     speech.onstart = () => pulseAuri(scope, "speaking", 3e3);
-    speech.onend = speech.onerror = () => pulseAuri(scope, "idle", 0);
+    speech.onend = speech.onerror = () => {
+      stop.hidden = true;
+      onVoice?.(null);
+      pulseAuri(scope, "idle", 0);
+    };
     speechSynthesis.cancel();
+    stop.hidden = false;
+    onVoice?.(speech);
     speechSynthesis.speak(speech);
   };
-  for (const button2 of host.querySelectorAll(".hub-guide-prompts button")) {
-    button2.onclick = () => {
-      input.value = button2.textContent;
-      form.requestSubmit();
-    };
-  }
-  form.onsubmit = async (event) => {
+  if (stop) stop.onclick = () => {
+    speechSynthesis.cancel();
+    stop.hidden = true;
+    onVoice?.(null);
+    pulseAuri(scope, "idle", 0);
+  };
+  for (const button2 of actionButtons) button2.onclick = () => {
+    input.value = button2.textContent;
+    form.requestSubmit();
+  };
+  form.onsubmit = (event) => {
     event.preventDefault();
     const question = input.value.trim();
-    if (!question || submit.disabled) return;
-    submit.disabled = true;
-    status.classList.remove("sr-only");
-    status.textContent = thinking;
-    try {
-      const answer = await runAuri(scope, "thinking", () => api2(path, "POST", { question, lang: lang2, history: turns.slice(-6).map(({ question: question2, reply }) => ({ question: question2, reply })), context: context() }));
-      turns.push({ question, ...answer });
-      if (turns.length > 10) turns.shift();
+    if (!question) return;
+    change(async () => {
+      if (stop && !stop.hidden) stop.click();
+      status.textContent = thinking;
+      let answer;
+      try {
+        answer = await runAuri(scope, "thinking", () => api2(path, "POST", {
+          question,
+          lang: lang2,
+          ...focus,
+          ...activeId ? { conversationId: activeId } : {},
+          ...!workspaceId ? { context: context() } : {}
+        }), workspaceId ? "speaking" : void 0);
+      } catch (error) {
+        if (error.status === 409 && activeId && host.isConnected) {
+          const available = await listChats();
+          await openChat(available.find((chat) => chat.id === activeId)?.id || available[0]?.id || null);
+        }
+        throw error;
+      }
       if (!host.isConnected) return;
+      select2(answer.conversationId);
+      turns = [...turns, answer].slice(-8);
       paint();
+      onReply?.(answer.reply);
       if (input.value.trim() === question) input.value = "";
       status.classList.add("sr-only");
       status.textContent = answer.reply;
-    } catch (error) {
-      status.textContent = error.message;
-    } finally {
-      submit.disabled = false;
-    }
+      await listChats();
+      picker.value = activeId;
+      if (memory.open) await listMemories();
+    });
   };
-  const catalogue = host.querySelector("details"), prices = host.querySelector("[data-guide-prices]");
-  let loaded = false;
-  catalogue.ontoggle = async () => {
-    if (!catalogue.open || loaded) return;
-    loaded = true;
+  host.querySelector("[data-guide-catalogue]").ontoggle = async (event) => {
+    if (!event.currentTarget.open) return;
     try {
-      prices.innerHTML = rows(await api2(path));
+      prices.innerHTML = rows(await getCatalogue());
     } catch {
       prices.innerHTML = `<li>${esc3(unavailable)}</li>`;
-      loaded = false;
     }
+  };
+  async function listMemories() {
+    const { memories } = await api2(memoryPath);
+    memoryList.innerHTML = memories.map((item) => {
+      const scopeLabel = item.scope === "shared" ? sharedLabel : privateLabel;
+      if (item.scope === "shared" && !owner) return `<article><strong>${esc3(kindLabels[item.kind])}</strong> \xB7 ${esc3(scopeLabel)}<p>${esc3(item.value)}</p></article>`;
+      return `<form class="hub-guide-memory-form" data-memory-id="${esc3(item.id)}">
+    <label>${esc3(item.status === "suggested" ? suggested : scopeLabel)} <input name="value" value="${esc3(item.value)}" required maxlength="240"></label>
+    <label><span class="sr-only">${esc3(kindLabels[item.kind])}</span><select name="kind">${Object.entries(kindLabels).map(([kind, label]) => `<option value="${kind}" ${kind === item.kind ? "selected" : ""}>${esc3(label)}</option>`).join("")}</select></label>
+    ${owner ? `<label><select name="scope" aria-label="${esc3(scopeLabel)}"><option value="private">${esc3(privateLabel)}</option><option value="shared" ${item.scope === "shared" ? "selected" : ""}>${esc3(sharedLabel)}</option></select></label>` : ""}
+    <button class="secondary">${esc3(item.status === "suggested" ? approve : save)}</button>
+    <button type="button" class="secondary" data-remove-memory>${esc3(deleteMemory)}</button>
+   </form>`;
+    }).join("") || `<p>${esc3(empty)}</p>`;
+    for (const edit of memoryList.querySelectorAll("[data-memory-id]")) {
+      const endpoint2 = memoryPath + "/" + edit.dataset.memoryId;
+      edit.onsubmit = (event) => {
+        event.preventDefault();
+        change(async () => {
+          await api2(endpoint2, "PATCH", Object.fromEntries(new FormData(edit)));
+          await listMemories();
+        });
+      };
+      edit.querySelector("[data-remove-memory]").onclick = () => {
+        if (confirm(confirmMemory)) change(async () => {
+          await api2(endpoint2, "DELETE");
+          await listMemories();
+        });
+      };
+    }
+  }
+  memory.ontoggle = () => {
+    if (memory.open) listMemories().catch((error) => {
+      memoryList.textContent = error.message;
+    });
   };
 }
 
@@ -795,40 +998,6 @@ var commandCopy = {
 };
 var commandLabels = (lang2) => Object.fromEntries(["vision", "continue", "zoomIn", "zoomOut", "zoomReset", "recommended", "available", "selfDone", "solutions", "tools", "performance", "connect", "priorities", "onboarding"].map((key, i) => [key, commandCopy[lang2][i]]));
 
-// src/mission-routes.js
-var goalByCapability = {
-  domain: "foundation",
-  email: "foundation",
-  branding: "foundation",
-  hosting: "foundation",
-  website: "visibility",
-  seo: "visibility",
-  discovery: "visibility",
-  ads: "visibility",
-  reviews: "visibility",
-  leads: "conversion",
-  whatsapp: "conversion",
-  conversion: "conversion",
-  menu: "conversion",
-  crm: "operations",
-  automation: "operations",
-  followups: "operations",
-  analytics: "measurement",
-  retention: "measurement"
-};
-var alternatives = {
-  foundation: ["Document goals and responsibilities", "Write down the offer, audience, priority and who owns the next step."],
-  visibility: ["Use an existing discovery channel", "Publish accurate business information and a contact action in a directory, portfolio, storefront or referral channel your audience uses."],
-  conversion: ["Use an existing customer intake channel", "Make the next step clear through a booking, enquiry, ordering or support channel. Test one customer request from start to finish."],
-  operations: ["Run a repeatable manual workflow", "Record the handoff, owner and follow-up in a shared checklist or tracker. Test it on a typical request."],
-  measurement: ["Review one useful business metric", "Record a baseline, review it after an improvement, and document what you will change next."]
-};
-var missionOutcome = (capability) => goalByCapability[capability] || null;
-function missionAlternative(capability) {
-  const option = alternatives[missionOutcome(capability)];
-  return option ? { title: option[0], steps: option[1] } : null;
-}
-
 // src/hub/auri-copy.js
 var states = ["listening", "thinking", "working", "typing", "speaking", "happy", "success", "error", "evolving"];
 var actions = {
@@ -862,6 +1031,40 @@ var auriDraftCopy = (lang2) => Object.fromEntries(["create", "drafting", "ready"
 function customerReturnPath(value, fallback) {
   if (typeof value === "string" && value.length <= 2048 && /^\/hub(?:\/(?:roadmap|auri|work|requests|menu-drafts|onboarding|profile|settings|tasks|invoices|team|resources|simulator))?(?:\?[^#\r\n]*)?$/.test(value)) return value;
   return ["/hub", "/account", "/shop/checkout"].includes(value) || typeof value === "string" && /^\/shop\/orders\/[a-f0-9-]{36}$/.test(value) ? value : fallback;
+}
+
+// src/mission-routes.js
+var goalByCapability = {
+  domain: "foundation",
+  email: "foundation",
+  branding: "foundation",
+  hosting: "foundation",
+  website: "visibility",
+  seo: "visibility",
+  discovery: "visibility",
+  ads: "visibility",
+  reviews: "visibility",
+  leads: "conversion",
+  whatsapp: "conversion",
+  conversion: "conversion",
+  menu: "conversion",
+  crm: "operations",
+  automation: "operations",
+  followups: "operations",
+  analytics: "measurement",
+  retention: "measurement"
+};
+var alternatives = {
+  foundation: ["Document goals and responsibilities", "Write down the offer, audience, priority and who owns the next step."],
+  visibility: ["Use an existing discovery channel", "Publish accurate business information and a contact action in a directory, portfolio, storefront or referral channel your audience uses."],
+  conversion: ["Use an existing customer intake channel", "Make the next step clear through a booking, enquiry, ordering or support channel. Test one customer request from start to finish."],
+  operations: ["Run a repeatable manual workflow", "Record the handoff, owner and follow-up in a shared checklist or tracker. Test it on a typical request."],
+  measurement: ["Review one useful business metric", "Record a baseline, review it after an improvement, and document what you will change next."]
+};
+var missionOutcome = (capability) => goalByCapability[capability] || null;
+function missionAlternative(capability) {
+  const option = alternatives[missionOutcome(capability)];
+  return option ? { title: option[0], steps: option[1] } : null;
 }
 
 // src/roadmap.js
@@ -1572,11 +1775,24 @@ var auriVoice = null;
 var setupAuriName = "";
 var setupDeferred = [];
 var guideCharacter = () => auriCharacter(3, { variant: "guide" });
-var guideThreads = /* @__PURE__ */ new Map();
+var onboardingChatId = null;
 function guideAt(host, scope, context) {
-  const key = me.id + ":" + (workspace?.organization.id || "new");
-  if (!guideThreads.has(key)) guideThreads.set(key, []);
-  mountGuide(host, { lang, esc: esc2, api, turns: guideThreads.get(key), scope, context });
+  const current = workspace;
+  if (current && !current.permissions.includes("auri:use")) return;
+  mountGuide(host, {
+    lang,
+    esc: esc2,
+    api,
+    scope,
+    context,
+    workspaceId: current?.organization.id,
+    owner: current?.organization.owner,
+    businessName: current?.profile.name,
+    initialId: current ? null : onboardingChatId,
+    onSelect: (id) => {
+      if (!current) onboardingChatId = id;
+    }
+  });
 }
 var brandMarkup = '<img class="hub-brand-logo" src="/auradigital-mark-20260928.png" alt="" width="34" height="34"><span>AuraDigital</span>';
 var robot = () => auriCharacter(auriLevel());
@@ -1603,8 +1819,8 @@ async function generateRoadmap() {
     await loadWorkspace(id);
   });
 }
-async function api(path2, method = "GET", body) {
-  const response = await fetch(path2, { method, credentials: "same-origin", headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : void 0 });
+async function api(path, method = "GET", body) {
+  const response = await fetch(path, { method, credentials: "same-origin", headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : void 0 });
   const data = await response.json().catch(() => ({ error: t("error") }));
   if (!response.ok) {
     const error = new Error(data.error || t("error"));
@@ -1690,9 +1906,10 @@ function openFirstLogin() {
     complete: async (values, requestId) => {
       const profile = { ...emptyProfile(), ...values };
       const source = firstLogin.text.trim();
-      const created = workspace ? await api(endpoint("missions"), "POST", { personalized: true, profile, lang, source }) : await api("/api/hub/workspaces", "POST", { profile, mode: "auri", requestId, personalized: true, lang, source });
+      const created = workspace ? await api(endpoint("missions"), "POST", { personalized: true, profile, lang, source }) : await api("/api/hub/workspaces", "POST", { profile, mode: "auri", requestId, personalized: true, lang, source, ...onboardingChatId ? { auriConversationId: onboardingChatId } : {} });
       const next = await api("/api/hub/workspaces/" + created.id);
       workspace = next;
+      onboardingChatId = null;
       if (!workspaces.some((org) => org.id === created.id)) workspaces.push({ ...next.organization });
       try {
         sessionStorage.removeItem(key);
@@ -2278,35 +2495,6 @@ async function renderPage() {
  ${workspace.permissions.includes("auri:use") ? `<a class="growth-primary" href="${esc2(link("assistant"))}">${esc2(label.assistant)} \u2197</a>` : ""}
  <a class="growth-secondary" href="/contact">${esc2(t("contact"))}</a></div></section>`);
 }
-async function askAuri(question, missionId, requestId, serviceKey, offer) {
-  const id = workspace.organization.id;
-  if (serviceKey) {
-    const { data: { service } } = await runAuri(id, "thinking", () => api(endpoint("auri"), "POST", { tool: "service_status", serviceKey }), "speaking");
-    const labels3 = serviceLabels[lang];
-    const renewal = service.kind === "subscription";
-    return `${service.name} \xB7 ${serviceStatus(service, labels3)}. ${labels3[renewal ? 13 : 11]} \xB7 ${serviceDate(renewal ? service.renewalDate : service.dueDate, lang, labels3[12])}.`;
-  }
-  const { data } = await runAuri(id, "thinking", () => api(endpoint("auri"), "POST", { tool: "guidance", question, lang, ...missionId ? { missionId } : {}, ...requestId ? { requestId } : {}, ...offer ? { offer } : {} }), "speaking");
-  if (workspace?.organization.id !== id) return "";
-  if (data.reply) return data.reply;
-  const fallback = {
-    en: "Auri AI is unavailable. Roadmap guidance",
-    fr: "L\u2019IA d\u2019Auri est indisponible. Conseil de la feuille de route",
-    tr: "Auri yapay zek\xE2s\u0131 kullan\u0131lam\u0131yor. Yol haritas\u0131 \xF6nerisi",
-    ar: "\u0630\u0643\u0627\u0621 \u0623\u0648\u0631\u064A \u063A\u064A\u0631 \u0645\u062A\u0627\u062D. \u0625\u0631\u0634\u0627\u062F \u0645\u0646 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0637\u0631\u064A\u0642"
-  }[lang];
-  const guidance = (message) => fallback + " \xB7 " + message;
-  if (data.offerGuidance) return guidance(data.offerGuidance);
-  if (/customers|visibility|sales|müşteri|clients|عملاء/i.test(question) && data.priorities?.length) return guidance(data.priorities.map((m) => cap(m.capability)).join(" \xB7 "));
-  const task = data.mission || data.nextAction;
-  if (requestId) return guidance(hubLabels(lang).requestDetails + " \xB7 " + hubLabels(lang).return);
-  if (!task) return guidance(t("empty"));
-  const alternate = task.route === "alternative" ? missionAlternative(task.capability) : null;
-  if (alternate) return guidance([alternate.title, alternate.steps].join(" \xB7 "));
-  const guide = missionGuide[task.capability], requirements = missionState(task, workspace.missions, workspace.profile).requirements;
-  const action = task.nextAction === "Define scope or record your existing solution." ? guide?.[2] : task.nextAction;
-  return guidance([cap(task.capability), action, requirements.length ? requirements.map(cap).join(", ") : ""].filter(Boolean).join(" \xB7 "));
-}
 function growthDashboard() {
   disconnectDesk();
   const host = document.querySelector("#page-content");
@@ -2601,24 +2789,16 @@ function stopAuriVoice() {
   auriVoice = null;
   pulseAuri(scope, "idle");
 }
-function renderCompanion(full = false) {
-  const host = document.querySelector(full ? "#auri-workspace" : "#auri-companion");
+function renderCompanion() {
+  const host = document.querySelector("#auri-workspace");
   const preferences = auriPreference(), controls2 = auriControls(lang);
-  if (preferences.hidden && !full) return;
   const id = workspace.organization.id;
-  if (!auriSessions.has(id)) auriSessions.set(id, { open: false, reply: "", pending: false, error: "" });
+  if (!auriSessions.has(id)) auriSessions.set(id, {});
   const missionId = query.get("task"), requestId = query.get("request"), serviceKey = query.get("serviceRecord"), offer = query.get("offer");
-  const sessionKey = [id, missionId, requestId, serviceKey, offer].filter(Boolean).join(":");
-  if (!auriSessions.has(sessionKey)) auriSessions.set(sessionKey, { open: false, reply: "", pending: false, error: "" });
-  const session = auriSessions.get(sessionKey);
-  session.turns ??= [];
-  const transcript = () => session.turns.map((turn) => `<article class="auri-chat-turn"><strong>${esc2(turn.question)}</strong><p>${esc2(turn.reply)}</p></article>`).join("");
+  const session = { reply: "" };
   const level = auriLevel(), canAsk = workspace.permissions.includes("auri:use");
-  const { ask: label, focus } = roadmapLabels(lang);
-  const next = eligibleMissions(workspace.missions, workspace.profile)[0];
-  const readAloud = { en: "Read aloud", tr: "Sesli oku", fr: "Lire \xE0 voix haute", ar: "\u0642\u0631\u0627\u0621\u0629 \u0628\u0635\u0648\u062A \u0639\u0627\u0644\u064D" }[lang];
-  const send = { en: "Send", tr: "G\xF6nder", fr: "Envoyer", ar: "\u0625\u0631\u0633\u0627\u0644" }[lang];
-  const suggested = offer && !session.turns.length ? {
+  const next = nextMission();
+  const suggested = offer ? {
     en: "How would this help my business?",
     fr: "Comment ce service aiderait-il mon entreprise ?",
     tr: "Bu hizmet i\u015Fletmeme nas\u0131l yard\u0131mc\u0131 olur?",
@@ -2627,32 +2807,34 @@ function renderCompanion(full = false) {
   const identity = `${auriCharacter(level)}<span><strong>${esc2(preferences.name)}</strong><small>${esc2(t("level"))} ${level} \xB7 ${auriNames[level - 1]}</small></span>
   <span class="auri-status" role="status" data-auri-status></span>`;
   const body = `<div class="auri-companion-body">
-  ${next && !missionId && !requestId && !serviceKey && !offer ? `<p><strong>${esc2(focus)}</strong> \xB7 ${esc2(cap(next.capability))}</p>` : ""}
-  ${canAsk ? `<div data-auri-transcript>${transcript()}</div><form data-auri-ask><label><span class="sr-only">${esc2(label)}</span><input name="question" maxlength="500" value="${esc2(suggested)}" placeholder="${esc2(label)}" required></label>
-  <button class="primary" ${session.pending ? "disabled" : ""}>${esc2(send)}</button></form><p data-auri-reply role="status" class="${session.error ? "" : "sr-only"}">${esc2(session.error)}</p>
-  ${"speechSynthesis" in window ? `<button type="button" class="secondary" data-auri-voice ${session.reply && !session.error ? "" : "hidden"}>${esc2(readAloud)}</button>
-  <button type="button" class="secondary" data-auri-stop ${auriVoice?.scope === id ? "" : "hidden"}>${esc2(controls2.stop)}</button>` : ""}` : ""}
+  ${canAsk ? "<div data-workspace-guide></div>" : ""}
   <div class="auri-actions">
   <button type="button" class="secondary" data-auri-roadmap>${esc2(t("journey"))}</button>
   ${canAsk && workspace.permissions.includes("roadmap:write") ? `<button type="button" class="secondary" data-auri-request>${esc2(roadmapLabels(lang).request)}</button>` : ""}
   <button type="button" class="secondary" data-auri-hide>${esc2(preferences.hidden ? controls2.show : controls2.hide)}</button></div>
-  ${full ? `<details class="hub-auri-settings"><summary>${esc2(t("settings"))}</summary><form data-auri-name><label>${esc2(controls2.name)}<input name="name" value="${esc2(preferences.name)}" required maxlength="24"></label>
-  <button class="secondary">${esc2(t("save"))}</button></form></details>` : ""}
+  <details class="hub-auri-settings"><summary>${esc2(t("settings"))}</summary><form data-auri-name><label>${esc2(controls2.name)}<input name="name" value="${esc2(preferences.name)}" required maxlength="24"></label>
+  <button class="secondary">${esc2(t("save"))}</button></form></details>
  </div>`;
-  host.innerHTML = full ? `<section class="auri-companion auri-workspace-card"><header>${identity}</header>${body}</section>` : `<details class="auri-companion auri-dock" ${session.open ? "open" : ""}><summary>${identity}</summary>${body}</details>`;
+  host.innerHTML = `<section class="auri-companion auri-workspace-card"><header>${identity}</header>${body}</section>`;
   bindAuri(host, id);
-  const panel = host.querySelector("details");
-  if (panel) {
-    panel.ontoggle = () => {
-      if (panel.isConnected) session.open = panel.open;
-    };
-    panel.onkeydown = (event) => {
-      if (event.key === "Escape" && panel.open) {
-        panel.open = false;
-        panel.querySelector("summary").focus();
-      }
-    };
-  }
+  mountGuide(host.querySelector("[data-workspace-guide]"), {
+    lang,
+    esc: esc2,
+    api,
+    scope: id,
+    workspaceId: id,
+    owner: workspace.organization.owner,
+    businessName: workspace.profile.name,
+    questionSeed: suggested,
+    focus: Object.fromEntries(Object.entries({ missionId, requestId, serviceKey, offer }).filter(([, value]) => value)),
+    next: next ? { name: missionTitle(next), reason: lang === "en" ? next.reason : "", href: link("journey", { task: next.id }) } : null,
+    onVoice: (message) => {
+      auriVoice = message ? { scope: id, message } : null;
+    },
+    onReply: (reply) => {
+      session.reply = reply;
+    }
+  });
   function navigate2(target) {
     window.history.pushState(null, "", link(target));
     syncLocation();
@@ -2676,7 +2858,6 @@ function renderCompanion(full = false) {
       await updateAuriPreferences({ hidden: !preferences.hidden });
       if (workspace?.organization.id !== id) return;
       stopAuriVoice();
-      session.open = false;
       if (trigger.isConnected) {
         render();
         document.querySelector("#main").focus();
@@ -2703,56 +2884,6 @@ function renderCompanion(full = false) {
       submit.disabled = false;
     }
   };
-  const form = host.querySelector("[data-auri-ask]");
-  const voice = host.querySelector("[data-auri-voice]");
-  const stop = host.querySelector("[data-auri-stop]");
-  if (voice) voice.onclick = () => {
-    stopAuriVoice();
-    const message = new SpeechSynthesisUtterance(session.reply);
-    message.lang = lang;
-    auriVoice = { scope: id, message };
-    message.onstart = () => pulseAuri(id, "speaking", 3500);
-    message.onend = message.onerror = () => {
-      if (auriVoice?.message !== message) return;
-      auriVoice = null;
-      pulseAuri(id, "idle");
-      document.querySelector("[data-auri-stop]")?.setAttribute("hidden", "");
-    };
-    stop.hidden = false;
-    speechSynthesis.speak(message);
-  };
-  if (stop) stop.onclick = () => {
-    stopAuriVoice();
-    stop.hidden = true;
-  };
-  if (form) form.onsubmit = async (event) => {
-    event.preventDefault();
-    const submit = form.querySelector("button"), reply = host.querySelector("[data-auri-reply]");
-    const question = new FormData(form).get("question").trim();
-    if (!question || session.pending) return;
-    stopAuriVoice();
-    session.pending = submit.disabled = true;
-    if (voice) voice.hidden = true;
-    if (stop) stop.hidden = true;
-    session.reply = session.error = reply.textContent = "";
-    try {
-      session.reply = await askAuri(question, missionId, requestId, serviceKey, offer);
-      if (session.reply) {
-        session.turns.push({ question, reply: session.reply });
-        if (session.turns.length > 20) session.turns.shift();
-        host.querySelector("[data-auri-transcript]").innerHTML = transcript();
-        form.elements.question.value = "";
-      }
-    } catch (error) {
-      session.error = error.message;
-    } finally {
-      session.pending = submit.disabled = false;
-      reply.textContent = session.error || session.reply;
-      reply.classList.toggle("sr-only", !session.error);
-      if (voice) voice.hidden = !session.reply;
-      if (!form.isConnected && workspace?.organization.id === id && page === "assistant") renderCompanion(true);
-    }
-  };
 }
 async function assistant() {
   const ui = hubLabels(lang), host = document.querySelector("#page-content");
@@ -2770,19 +2901,19 @@ async function assistant() {
   <div class="actions"><button type="button" class="primary" data-auri-draft>${esc2(labels3.create)}</button>${button("diagnosis", "diagnosis", true)}${button("recommend", "next-action", true)}</div><div data-auri-tools-status role="status"></div>
   <p role="status" data-draft-status></p>
   <h2>${esc2(labels3.history)}</h2><div data-auri-drafts></div></section>` : ""}`);
-  renderCompanion(true);
+  renderCompanion();
   if (!canAsk) return;
   const create = document.querySelector("[data-auri-draft]");
   const log = document.querySelector("[data-auri-drafts]");
   const status = document.querySelector("[data-draft-status]");
-  const path2 = endpoint("auri");
+  const path = endpoint("auri");
   const toolsStatus = document.querySelector("[data-auri-tools-status]");
   for (const [action, tool] of [["diagnosis", "diagnosis"], ["next-action", "next_action"]]) {
     const trigger = document.querySelector(`[data-action="${action}"]`);
     trigger.onclick = async () => {
       trigger.disabled = true;
       try {
-        const { data } = await runAuri(id, "thinking", () => api(path2, "POST", { tool }), "speaking");
+        const { data } = await runAuri(id, "thinking", () => api(path, "POST", { tool }), "speaking");
         toolsStatus.textContent = tool === "diagnosis" ? `${t("missing")} \xB7 ${data.missing.map(cap).join(", ") || t("empty")}` : data.nextAction ? cap(data.nextAction.capability) : t("empty");
       } catch (error) {
         toolsStatus.textContent = error.message;
@@ -2795,7 +2926,7 @@ async function assistant() {
   create.disabled = Boolean(session.draftPending);
   status.textContent = session.draftError || "";
   async function readDrafts() {
-    const { drafts } = await api(path2);
+    const { drafts } = await api(path);
     log.innerHTML = drafts.map((draft2) => `<article><strong>${esc2(labels3[draft2.source])}</strong>
    <time datetime="${new Date(draft2.created_at).toISOString()}">${esc2(new Date(draft2.created_at).toLocaleString(lang))}</time>
    <p>${esc2(draft2.body)}</p></article>`).join("");
@@ -2808,7 +2939,7 @@ async function assistant() {
     session.draftPending = create.disabled = true;
     session.draftError = status.textContent = "";
     try {
-      await runAuri(id, "drafting", () => api(path2, "POST", { tool: "draft_follow_up", lang }), "draft_ready");
+      await runAuri(id, "drafting", () => api(path, "POST", { tool: "draft_follow_up", lang }), "draft_ready");
       if (create.isConnected) {
         await readDrafts();
         status.textContent = labels3.review;
