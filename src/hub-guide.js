@@ -17,8 +17,15 @@ export async function hubGuide(request, env, user) {
  const lang=LANGUAGES.includes(body.lang)?body.lang:'en';
  const question=redact(clean(body.question,700));
  if(!question)throw new ApiError(400,'Enter a question for Auri.');
- const provider=auriProvider(env);
- if(provider.AI_PROVIDER!=='ollama'||!env.AI_RATE_LIMITER?.limit)throw new ApiError(503,TEXT[lang].fallback);
+ // Prefer the Hub's Ollama gateway, but keep the configured Workers AI
+ // binding available when Ollama is absent or temporarily unreachable.
+ const primary=auriProvider(env);
+ const workersAIReady=env.AI_PROVIDER==='cloudflare'&&Boolean(env.AI_MODEL)&&typeof env.AI?.run==='function';
+ const providers=[
+  ...(primary.AI_PROVIDER==='ollama'&&primary.AI_BASE_URL&&primary.AI_MODEL?[primary]:[]),
+  ...(workersAIReady?[env]:[]),
+ ];
+ if(!providers.length||!env.AI_RATE_LIMITER?.limit)throw new ApiError(503,TEXT[lang].fallback);
  if(!(await env.AI_RATE_LIMITER.limit({key:'hub-guide:'+user.id})).success)throw new ApiError(429,TEXT[lang].limit);
  const history=Array.isArray(body.history)?body.history.slice(-6).map(turn=>({
   question:redact(clean(turn?.question,700)),reply:redact(clean(turn?.reply,800)),
@@ -30,17 +37,33 @@ export async function hubGuide(request, env, user) {
  ];
  const day=new Date().toISOString().slice(0,10);
  const reserve=2*(new TextEncoder().encode(messages.map(m=>m.content).join('')).length+2200);
- const daily=Math.min(Number(env.AI_DAILY_TOKEN_LIMIT)||500000,Math.floor((Number(env.AI_DAILY_BUDGET_USD)||1)*1e6/tariff(provider).max));
- const [,allocated]=await env.DB.batch([
-  env.DB.prepare('INSERT INTO ai_usage(day) VALUES(?) ON CONFLICT(day) DO NOTHING').bind(day),
-  env.DB.prepare('UPDATE ai_usage SET reserved_tokens=reserved_tokens+?,calls=calls+1 WHERE day=? AND reserved_tokens+?<=?').bind(reserve,day,reserve,daily),
- ]);
- if(!allocated.meta.changes)throw new ApiError(503,TEXT[lang].limit);
- try{
-  const {result,usage}=await generate(provider,messages);
-  await env.DB.prepare('UPDATE ai_usage SET input_tokens=input_tokens+?,output_tokens=output_tokens+? WHERE day=?').bind(usage.input,usage.output,day).run();
-  if(/(?:[$€₺£]|\b(?:TRY|USD|EUR|TND|GBP)\b|\d[\d,.]*\s*(?:lira|dollars?|euros?|TL)\b)/i.test(result.reply))throw new Error('Price quoted outside package cards');
-  const ids=Array.isArray(result.packageIds)?[...new Set(result.packageIds)].slice(0,3):[];
-  return json({reply:clean(result.reply,800),currency,packages:ids.map(id=>packages.find(item=>item.id===id)).filter(Boolean)},200,{'Cache-Control':'private, no-store'});
- }catch{throw new ApiError(503,TEXT[lang].fallback);}
+ // Reserve each provider attempt independently, so a failed Ollama call
+ // never bypasses the configured daily budget when Workers AI takes over.
+ for(const provider of providers){
+  let daily;
+  try{
+   daily=Math.min(Number(env.AI_DAILY_TOKEN_LIMIT)||500000,Math.floor((Number(env.AI_DAILY_BUDGET_USD)||1)*1e6/tariff(provider).max));
+  }catch{continue;}
+  const [,allocated]=await env.DB.batch([
+   env.DB.prepare('INSERT INTO ai_usage(day) VALUES(?) ON CONFLICT(day) DO NOTHING').bind(day),
+   env.DB.prepare('UPDATE ai_usage SET reserved_tokens=reserved_tokens+?,calls=calls+1 WHERE day=? AND reserved_tokens+?<=?').bind(reserve,day,reserve,daily),
+  ]);
+  if(!allocated.meta.changes)continue;
+  let billedUsage;
+  try{
+   const generated=await generate(provider,messages);
+   billedUsage=generated.usage;
+   const {result}=generated;
+   if(/(?:[$€₺£]|\b(?:TRY|USD|EUR|TND|GBP)\b|\d[\d,.]*\s*(?:lira|dollars?|euros?|TL)\b)/i.test(result.reply))throw new Error('Price quoted outside package cards');
+   const ids=Array.isArray(result.packageIds)?[...new Set(result.packageIds)].slice(0,3):[];
+   return json({reply:clean(result.reply,800),currency,packages:ids.map(id=>packages.find(item=>item.id===id)).filter(Boolean)},200,{'Cache-Control':'private, no-store'});
+  }catch(error){
+   // Account for an upstream attempt even when the final model reply fails
+   // validation. Do not expose provider errors or unverified prices.
+   billedUsage=error.billedUsage||billedUsage;
+  }finally{
+   if(billedUsage)await env.DB.prepare('UPDATE ai_usage SET input_tokens=input_tokens+?,output_tokens=output_tokens+? WHERE day=?').bind(billedUsage.input||0,billedUsage.output||0,day).run();
+  }
+ }
+ throw new ApiError(503,TEXT[lang].fallback);
 }
