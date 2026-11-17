@@ -1,0 +1,21 @@
+---
+import Icon from './Icon.astro';
+const {service:s}=Astro.props;
+---
+<figure class="frame">
+  <figcaption class="frame-bar"><strong>{s.visual}</strong><span>{s.slug==='auramenu'?'Real menu capture':'Illustrative example'}</span></figcaption>
+  {s.slug==='auramenu'?<div class="menu-demo">
+    <div class="phone-frame"><img src="/command-assets/auramenu-real.webp" width="360" height="540" alt="Published AuraMenu layout shown on a phone" decoding="async"/></div>
+    <div class="menu-demo-copy"><span class="icon-tile"><Icon name="qr-code"/></span><h3>Open the menu</h3><p>Guests scan a table code to see the latest dishes and prices.</p></div>
+  </div>:s.asset?<><img src={s.asset} width="960" height="540" class="device-shot" decoding="async" alt={s.visual}/>
+    <div class="frame-bar"><span>Designed for mobile</span><span>Search-ready structure</span></div></>:
+    <div class="sample-window">
+      <span class="icon-tile"><Icon name={s.icon}/></span>
+      {s.slug==='ai-whatsapp'&&<><p class="quote">Customer · Are you open on Sunday?</p><p class="quote">Prepared reply · Yes, we’re open from 10:00 to 18:00.</p></>}
+      {s.slug==='maps-seo'&&<><div class="map-example" aria-hidden="true"><Icon name="map-pin"/></div><h3>Your business on Maps</h3><p>Opening hours · Directions · Website</p><span class="pill info">Example listing preview</span></>}
+      {s.slug==='business-email'&&<><h3>Inbox</h3><p dir="ltr">hello@yourbusiness.com</p><span class="pill info">New inquiry · Availability next week</span></>}
+      {s.slug==='hosting-security'&&<><h3>Website status</h3><span class="pill success">SSL active</span><span class="pill">Renewal tracked</span></>}
+      {s.slug==='brand-creative'&&<><h3>Studio North</h3><p>Visual identity board</p><div class="brand-samples" aria-label="Acid yellow, off-white and graphite palette"><i></i><i></i><i></i></div></>}
+    </div>
+  }
+</figure>

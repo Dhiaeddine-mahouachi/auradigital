@@ -1,0 +1,9 @@
+---
+import Icon from './Icon.astro';
+const { service } = Astro.props;
+---
+<a class="service-card card" href={'/services/'+service.slug} data-service-goal={service.goal}>
+  <div class="card-top"><span class="icon-tile"><Icon name={service.icon}/></span><Icon name="arrow-up-right"/></div>
+  <div><h3>{service.name}</h3><p>{service.headline}</p></div>
+  <span class="service-price" data-price-id={service.price}>Request a quote</span>
+</a>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://auradigitalworks.com/</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://auradigitalworks.com/</loc></url>
   <url><loc>https://auradigitalworks.com/websites</loc><lastmod>2026-10-13</lastmod></url>
   <url><loc>https://auradigitalworks.com/spinflow</loc><lastmod>2026-10-13</lastmod></url>
-  <url><loc>https://auradigitalworks.com/services</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://auradigitalworks.com/services</loc></url>
   <url><loc>https://auradigitalworks.com/portfolio</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://auradigitalworks.com/aura-menu</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://auradigitalworks.com/aura-weddings</loc><lastmod>2026-09-29</lastmod></url>
@@ -12,6 +12,23 @@
   <url><loc>https://auradigitalworks.com/nfc-studio</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://auradigitalworks.com/qr-menu</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://auradigitalworks.com/packages</loc><lastmod>2026-09-29</lastmod></url>
-  <url><loc>https://auradigitalworks.com/about</loc><lastmod>2026-09-29</lastmod></url>
-  <url><loc>https://auradigitalworks.com/contact</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://auradigitalworks.com/about</loc></url>
+  <url><loc>https://auradigitalworks.com/contact</loc></url>
+  <url><loc>https://auradigitalworks.com/product</loc></url>
+  <url><loc>https://auradigitalworks.com/auri</loc></url>
+  <url><loc>https://auradigitalworks.com/industries</loc></url>
+  <url><loc>https://auradigitalworks.com/pricing</loc></url>
+  <url><loc>https://auradigitalworks.com/how-it-works</loc></url>
+  <url><loc>https://auradigitalworks.com/resources</loc></url>
+  <url><loc>https://auradigitalworks.com/services/website</loc></url>
+  <url><loc>https://auradigitalworks.com/services/auramenu</loc></url>
+  <url><loc>https://auradigitalworks.com/services/ai-whatsapp</loc></url>
+  <url><loc>https://auradigitalworks.com/services/maps-seo</loc></url>
+  <url><loc>https://auradigitalworks.com/services/business-email</loc></url>
+  <url><loc>https://auradigitalworks.com/services/hosting-security</loc></url>
+  <url><loc>https://auradigitalworks.com/services/brand-creative</loc></url>
+  <url><loc>https://auradigitalworks.com/industries/restaurants-cafes</loc></url>
+  <url><loc>https://auradigitalworks.com/industries/local-services</loc></url>
+  <url><loc>https://auradigitalworks.com/industries/retail-shops</loc></url>
+  <url><loc>https://auradigitalworks.com/industries/creators-freelancers</loc></url>
 </urlset>

@@ -1,0 +1,10 @@
+---
+import Icon from './Icon.astro';
+const { items, title = 'Frequently asked questions' } = Astro.props;
+---
+<section class="section wrap" data-reveal>
+  <div class="section-head"><h2>{title}</h2></div>
+  <div class="accordion">
+    {items.map(([question,answer]) => <details data-help-item><summary>{question}<Icon name="plus" /></summary><p>{answer}</p></details>)}
+  </div>
+</section>

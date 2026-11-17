@@ -1,3 +1,4 @@
+const exportLabel={en:'Export this workspace',fr:'Exporter cet espace',tr:'Bu çalışma alanını dışa aktar',ar:'صدّر مساحة العمل هذه'};
 const settingsCopy={
  en:['Account','Change password','Current password','New password','Change email','New email','Send confirmation links','Confirm from both inboxes.','Email confirmation is currently unavailable.','Preferences','Workspace','Password changed. Sign in again.','Links sent. Confirm from both inboxes.','Confirm email change','Confirmation saved. Open the link from your other inbox.','Email updated. Sign in with the new address.','Forgot your password?'],
  fr:['Compte','Modifier le mot de passe','Mot de passe actuel','Nouveau mot de passe','Modifier l’adresse e-mail','Nouvelle adresse e-mail','Envoyer les liens','Confirmez depuis les deux boîtes.','La confirmation par e-mail est indisponible.','Préférences','Espace de travail','Mot de passe changé. Reconnectez-vous.','Liens envoyés. Confirmez depuis les deux boîtes.','Confirmer le changement d’e-mail','Confirmation enregistrée. Ouvrez le lien envoyé à l’autre adresse.','Adresse modifiée. Connectez-vous avec la nouvelle adresse.','Mot de passe oublié ?'],
@@ -21,10 +22,19 @@ export function renderAccountSettings({host,user,lang,esc,t,api,link,workspace,c
  <select data-settings-language>${[['en','English'],['fr','Français'],['tr','Türkçe'],['ar','العربية']].map(([value,label])=>`<option value="${value}" ${value===lang?'selected':''}>${label}</option>`).join('')}</select></label><div class="hub-settings-links">
  ${workspace?`<a href="${esc(link('assistant'))}">${esc(t('auri'))} ↗</a>`:''}<a href="/account">${esc(t('orders'))} ↗</a></div></section>
  <section class="panel"><h2>${space}</h2><div class="hub-settings-links">
- ${workspace?`<a href="${esc(link('profile'))}">${esc(t('profile'))} ↗</a><a href="${esc(link('team'))}">${esc(t('team'))} ↗</a>`:''}
+ ${workspace?`<a href="${esc(link('profile'))}">${esc(t('profile'))} ↗</a><a href="${esc(link('team'))}">${esc(t('team'))} ↗</a><a href="${esc(link('invoices'))}">${esc(t('invoices'))} ↗</a><button type="button" class="growth-secondary" data-export-workspace>${esc(exportLabel[lang]||exportLabel.en)}</button>`:''}
  <button type="button" class="growth-secondary" data-add-workspace>${esc(t('newWorkspace'))}</button></div></section></div></div>`;
  const feedback=host.querySelector('[role=status]');
  host.querySelector('[data-add-workspace]').onclick=onNewWorkspace;
+ host.querySelector('[data-export-workspace]')?.addEventListener('click',()=>{
+  const data={name:workspace.organization.name, profile:workspace.profile, missions:workspace.missions};
+  const file=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  const download=document.createElement('a');
+  download.href=file;
+  download.download='aurahub-workspace.json';
+  download.click();
+  setTimeout(()=>URL.revokeObjectURL(file),1000);
+ });
  host.querySelector('[data-settings-language]').onchange=event=>onLanguage(event.target.value);
  for(const form of host.querySelectorAll('[data-account-change]')){
   form.onsubmit=async event=>{

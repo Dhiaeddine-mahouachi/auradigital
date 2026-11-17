@@ -40,3 +40,7 @@ security/siem/**
 docs/**
 
 test-output/**
+
+marketing/**
+astro.config.mjs
+command-assets/OFL-*.txt

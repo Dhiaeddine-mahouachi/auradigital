@@ -16,6 +16,11 @@ export const hubStageNames=lang=>({
  ar:['التأسيس','الظهور','التحويل','العمليات','التوسع'],
 }[lang]||['Foundation','Visibility','Conversion','Operations','Scale']);
 export const hubIcons={
+ search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',
+ bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0"/>',
+ close:'<path d="m18 6-12 12M6 6l12 12"/>',
+ settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3m0-14-3 3m-8 8-3 3"/>',
+ requests:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 11h6m-6 5h6"/>',
  home:'<path d="M3 10 12 3l9 7v10H3z M9 20v-7h6v7"/>',
  journey:'<path d="m2 8 10-5 10 5-10 5z M2 12l10 5 10-5 M2 16l10 5 10-5"/>',
  assistant:'<path d="M4 4h16a2 2 0 0 1 2 2v10H10l-6 4v-4H2V6a2 2 0 0 1 2-2z M7 10h1m3 0h1m3 0h1"/>',

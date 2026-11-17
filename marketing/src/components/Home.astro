@@ -1,0 +1,96 @@
+---
+import {services,industries,faqs,journey} from '../content.mjs';
+import Icon from './Icon.astro';
+import Button from './Button.astro';
+import Auri from './Auri.astro';
+import FAQ from './FAQ.astro';
+import ServiceCard from './ServiceCard.astro';
+import Tabs from './Tabs.astro';
+const screens=[
+  ['Growth Vision','growth-vision','See your roadmap and recommended actions'],
+  ['My Services','my-services','See active services and what you can add'],
+  ['Requests','requests','Track work and review drafts'],
+  ['Ask Auri','auri','Talk through your next step'],
+];
+---
+<section class="hero wrap">
+  <div class="hero-copy">
+    <p class="kicker"><Icon name="sparkles"/> Aura Command</p>
+    <h1>Meet Auri.<span>Build what’s next.</span></h1>
+    <p class="lede">Get a growth roadmap for your business, launch the right services and track the work in AuraHub.</p>
+    <div class="actions"><Button/><Button href="#how-it-works" variant="outline" icon="arrow-down">See how it works</Button></div>
+  </div>
+  <div class="frame preview" aria-label="Illustrative AuraHub preview">
+    <div class="frame-bar"><strong>AuraHub / Growth Vision</strong><span>Illustrative preview</span></div>
+    <div class="preview-inner">
+      <div class="preview-nav" aria-hidden="true">{['route','layout-grid','clipboard-list','messages-square','settings'].map(name=><Icon name={name}/>)}</div>
+      <div class="preview-content">
+        <div class="preview-title"><span class="micro">Example workspace</span><h2>Your growth roadmap</h2></div>
+        <div class="preview-progress" aria-label="Two of five stages underway">{['Foundation','Visibility','Conversion','Operations','Scale'].map(stage=><span>{stage}</span>)}</div>
+        <div class="preview-task"><span class="micro">Recommended next</span><h3>Launch your website</h3><p>Give customers one place to find you.</p></div>
+        <div class="preview-chat"><Auri eager/><p><strong>Auri</strong><br/>I can help you plan what your website needs.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="trust wrap" aria-label="What you get">
+  {[
+    ['route','A plan built around your goals'],['users','Human delivery team'],['layout-grid','One shared workspace'],['list-checks','Scope before you approve']
+  ].map(([icon,label])=><span><Icon name={icon}/>{label}</span>)}
+</div>
+<section class="section wrap" data-reveal>
+  <div class="section-head"><h2>Start with your kind of business.</h2><p>Try a sample roadmap and see which services Auri would suggest first.</p></div>
+  <Tabs id="industry" label="Business type" labels={industries.map(i=>i.name)}/>
+  <div class="panel tab-stage">
+    {industries.map((industry,i)=><section role="tabpanel" id={'industry-panel-'+i} aria-labelledby={'industry-tab-'+i} tabindex="0" hidden={i!==0} class="scenario">
+      <div><span class="micro">Illustrative roadmap</span><h3>{industry.headline}</h3><blockquote class="quote">{industry.ask}</blockquote><div class="tag-row">{industry.recommended.map(slug=><a class="pill" href={'/services/'+slug}>{services.find(s=>s.slug===slug).name}</a>)}</div></div>
+      <div><ol class="timeline">{industry.steps.map(step=><li><strong>{step}</strong></li>)}</ol><Button href={'/industries/'+industry.slug} variant="ghost">Explore this industry</Button></div>
+    </section>)}
+  </div>
+</section>
+<section id="how-it-works" class="section wrap grid2">
+  <div class="section-head story-head"><h2>From a conversation to a plan.</h2><p>Tell Auri what matters. Choose what to build. Follow the work as it moves.</p><div><Button href="/how-it-works" variant="outline">See the full journey</Button></div></div>
+  <div class="grid gap-4">
+    {[journey[0],journey[1],['Build and track','Request what you need, approve the scope and follow progress in AuraHub.']].map(([title,copy],i)=><article class="card" data-reveal><div class="icon-tile"><Icon name={['messages-square','route','layout-dashboard'][i]}/></div><h3 class="mt-4">{title}</h3><p>{copy}</p></article>)}
+  </div>
+</section>
+<section class="section wrap">
+  <div class="section-head"><h2>Pick the services that fit your next step.</h2><p>Start with one. See each request and delivery in the same workspace.</p></div>
+  <div class="services-grid bento" data-stagger>{services.map(service=><ServiceCard service={service}/>)}</div>
+</section>
+<section class="section wrap" data-reveal>
+  <div class="section-head"><h2>See inside AuraHub.</h2><p>Real product screens from the AuraHub workspace.</p></div>
+  <Tabs id="screens" label="AuraHub screens" labels={screens.map(screen=>screen[0])}/>
+  {screens.map(([title,file,alt],i)=><figure role="tabpanel" id={'screens-panel-'+i} aria-labelledby={'screens-tab-'+i} tabindex="0" hidden={i!==0} class="frame">
+    <figcaption class="frame-bar"><strong>{title}</strong><span>Real product screen</span></figcaption><img class="real-shot" src={'/command-assets/hub-'+file+'.webp'} width="1440" height="900" loading="lazy" decoding="async" alt={alt}/>
+  </figure>)}
+</section>
+<section class="section wrap" data-reveal>
+  <div class="section-head"><h2>From scattered tools to one workspace.</h2><p>Drag the slider to compare two ways of managing the same work.</p></div>
+  <div class="comparison frame" id="comparison" aria-hidden="true">
+    <div class="comparison-face"><span class="micro">Before</span><h3>Find the files.</h3><p>Messages<br/>Spreadsheets<br/>Separate tools</p></div>
+    <div class="comparison-face after"><span class="micro">After</span><h3>See what’s next.</h3><p>One roadmap<br/>Clear approvals<br/>Shared updates</p></div>
+  </div>
+  <label class="range">Illustrative before-and-after comparison<input type="range" min="0" max="100" value="50" data-compare aria-label="Reveal AuraHub comparison" aria-describedby="comparison-summary"/></label>
+  <p id="comparison-summary">Before: messages, spreadsheets and separate tools. After: one roadmap, clear approvals and shared updates.</p>
+</section>
+<section class="section wrap">
+  <div class="section-head"><h2>AI for the plan. People for the work.</h2></div>
+  <div class="grid2">
+    <article class="card"><span class="icon-tile"><Icon name="sparkles"/></span><h3 class="mt-4">Auri helps you decide</h3><p>Talk through your goals, order your next steps and prepare a request.</p><Button href="/auri" variant="ghost">Meet Auri</Button></article>
+    <article class="card"><span class="icon-tile"><Icon name="users"/></span><h3 class="mt-4">The team helps you deliver</h3><p>Review the details with real people who can build, test and hand over the work.</p><Button href="/about" variant="ghost">Meet AuraDigital</Button></article>
+  </div>
+</section>
+<section class="section wrap" data-reveal>
+  <div class="section-head"><h2>See what the work looks like.</h2><p>Browse two public portfolio examples.</p></div>
+  <div class="grid2">
+    <article class="frame"><img src="/command-assets/project-mutlu.webp" class="device-shot" width="960" height="540" loading="lazy" decoding="async" alt="Mutlu Nakliyat website"/><div class="card"><h3>Mutlu Nakliyat</h3><p>A service website that gives customers a place to understand the offer and make an inquiry.</p><Button href="/portfolio" variant="ghost">View the portfolio</Button></div></article>
+    <article class="frame"><img src="/command-assets/project-gateaux.webp" class="device-shot" width="960" height="540" loading="lazy" decoding="async" alt="Les Gâteaux Raisonnables website"/><div class="card"><h3>Les Gâteaux Raisonnables</h3><p>A storefront that presents the brand and makes it easier to discover its products.</p><Button href="/portfolio" variant="ghost">View the portfolio</Button></div></article>
+  </div>
+  <p class="mt-6">Customer testimonials and measured results: [PLACEHOLDER]</p>
+</section>
+<section class="section wrap grid2" data-reveal>
+  <div class="section-head"><h2>Start with a free roadmap.</h2><p>Pay for the services you choose after you’ve reviewed the scope.</p></div>
+  <div><Button href="/pricing" variant="outline">See pricing</Button></div>
+</section>
+<FAQ items={faqs}/>

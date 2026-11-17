@@ -33,6 +33,12 @@ if (header) {
       "",
     )}<a class="mobile-account-link" href="/account/login">My account</a></div><div class="lang-switcher"><button class="lang-current" type="button" aria-label="Language" aria-expanded="false"><span class="lang-globe">◎</span><span class="lang-current-label">EN</span><span class="lang-chevron">⌄</span></button><div class="lang-menu"><button type="button" data-lang="tr"><span>🇹🇷</span> Türkçe</button><button type="button" data-lang="en"><span>🇬🇧</span> English</button><button type="button" data-lang="ar"><span>🇸🇦</span> العربية</button></div></div><a class="nav-cta" href="/contact">Let's Talk <span>↗</span></a><a class="nav-account" href="/account/login">Sign in</a><button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button></div>`;
 }
+if (header && document.body.hasAttribute('data-command-chrome')) {
+  const cta = header.querySelector('.nav-cta');
+  cta.href = '/hub/signup';
+  cta.textContent = 'Build my roadmap';
+  header.querySelector('.nav-account').href = '/hub/login';
+}
 if (page === "shop" && header) {
   const nav = header.querySelector(".nav");
   const links = header.querySelector(".nav-links");

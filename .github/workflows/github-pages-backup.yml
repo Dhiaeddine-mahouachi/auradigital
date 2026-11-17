@@ -35,13 +35,13 @@ jobs:
           excluded_dirs = {
               ".git", ".github", "node_modules",
               "migrations", "scripts", "security", "soc-worker",
-              "src", "test", "tools"
+              "src", "test", "tools", "marketing"
           }
           excluded_files = {
               ".assetsignore", ".cloudflare-deploy-trigger", ".gitignore",
               "_headers", "_redirects", "README.txt", "SECURITY.md",
               "SECURITY_AUDIT.md", "package.json", "package-lock.json",
-              "wrangler.jsonc"
+              "wrangler.jsonc", "astro.config.mjs"
           }
 
           if out.exists():

@@ -11,8 +11,7 @@ const pages=[
  ['/aura-weddings.html','.aw-ivory'],
  ['/nfc-builder.html','.form-card'],
  ['/nfc-status.html','.status-card'],
- ['/shop/','.shop-page'],
- ['/hub/','body']
+ ['/shop/','.shop-page']
 ];
 try{
  for(const [path,selector] of pages){
@@ -35,5 +34,5 @@ try{
   assert(bg.background.includes('gradient'),path+' lost dark gradient on '+selector);
   await page.close();
  }
- console.log('Emerald Gloss styling verified on all 10 representative page types.');
+ console.log('Emerald Gloss styling verified on all nine representative page types.');
 }finally{await browser.close()}

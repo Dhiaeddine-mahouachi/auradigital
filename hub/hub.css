@@ -743,3 +743,52 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 .hub-requests-empty>img{width:clamp(52px,10vw,80px);height:auto;flex:none;border-radius:16px;border:1px solid #566840;background:radial-gradient(ellipse,#3a4924,#18231b 74%)}
 .hub-home-grid .hub-service-links>a{min-height:58px;background:linear-gradient(145deg,#212b21,#171e19)}
 .hub-home-grid .hub-service-links>a:hover,.hub-home-grid .hub-service-links>a:focus-visible{background:#283520}
+
+/* Aura Command tokens shared with the marketing pages. */
+:root{font-family:var(--ac-body);background:var(--ac-ink);color:var(--ac-text)}
+h1,h2,h3,.wordmark{font-family:var(--ac-display)}
+:focus-visible{outline-color:var(--ac-focus)}
+.aurahub-shell,.command-gate,.command-setup{
+ --hub-canvas:var(--ac-ink);--hub-surface:var(--ac-surface);--hub-raised:var(--ac-raised);
+ --hub-border:var(--ac-line);--hub-label:var(--ac-muted);--hub-text:var(--ac-text);--hub-accent:var(--ac-active);
+ --white:var(--ac-surface);--ink:var(--ac-text);--muted:var(--ac-muted);--line:var(--ac-line);
+ color:var(--ac-text);background:var(--ac-ink)
+}
+body:has(.command-gate-header),.command-gate-header,.command-gate .auth-intro{color:var(--ac-text);background:var(--ac-ink);border-color:var(--ac-line)}
+.command-gate-header .wordmark>span,.aurahub-shell .hub-mobile-brand>span{color:var(--ac-text)}
+.command-gate .auth-intro{background:radial-gradient(ellipse at 50% 85%,#65752e2c,transparent 65%),var(--ac-surface)}
+.command-gate .auth-intro .eyebrow,.command-setup .setup-heading .eyebrow{color:var(--ac-active)}
+.command-gate .auth-panel,.command-gate :is(.field input,.secondary),.command-gate-header .language select{color:var(--ac-text);background:var(--ac-surface);border-color:var(--ac-line)}
+.command-gate .form-error,.command-setup .form-error{color:var(--ac-error)}
+.aurahub-shell .sidebar,.aurahub-shell .command-bottom-nav{
+ --hub-accent:#e6ff3d;--hub-text:#f6f5ef;--hub-label:#b1bcba;--hub-raised:#232a29;
+ color:var(--hub-text);background:#101414;border-color:#3a4845
+}
+.aurahub-shell .sidebar .nav-item[aria-current],.aurahub-shell .command-bottom-nav .nav-item[aria-current]{background:#293124;color:#e6ff3d;border-color:#68773b}
+.aurahub-shell .hub-topbar,.aurahub-shell .workspace-picker select,.aurahub-shell .growth-account-menu{background:var(--ac-surface);color:var(--ac-text);border-color:var(--ac-line)}
+.aurahub-shell :is(.hub-hero,.hub-welcome,.hub-work-row,.hub-context,.growth-map){background:var(--ac-surface);color:var(--ac-text);border-color:var(--ac-line)}
+.aurahub-shell .hub-row-icon{background:var(--ac-raised);color:var(--ac-active)}
+.aurahub-shell .hub-highlight,.aurahub-shell .growth-panel-head h2,.aurahub-shell .growth-focus h2{color:var(--ac-text)}
+.aurahub-shell :is(.primary,.growth-primary),.command-gate .primary,.command-setup .primary{background:var(--ac-accent);color:#101414;border-color:var(--ac-accent)}
+.command-gate .panel,.aurahub-shell .panel{border-radius:var(--ac-radius)}
+.aurahub-shell :is(.growth-secondary,.secondary,[data-auri-ask] input){color:var(--ac-text);background:var(--ac-raised);border-color:var(--ac-line)}
+.hub-tools{display:flex;gap:6px;align-items:center}
+.hub-tool{color:inherit;background:transparent;border:1px solid var(--ac-line);border-radius:10px;width:44px;height:44px;display:grid;place-items:center}
+.hub-tool svg{width:20px;height:20px}
+.hub-dialog{margin:auto;width:min(100% - 28px,590px);max-height:min(75dvh,680px);overflow:auto;border:1px solid var(--ac-line);border-radius:var(--ac-radius);background:var(--ac-surface);color:var(--ac-text);padding:24px;box-shadow:var(--ac-shadow)}
+.hub-dialog::backdrop{background:#101414ba}
+.hub-dialog header{display:flex;justify-content:space-between;gap:16px;align-items:start;margin-block-end:16px}
+.hub-dialog header h2{margin:0}
+.hub-dialog :is(.field input,.nav-item){background:var(--ac-raised);color:var(--ac-text);border-color:var(--ac-line);border-radius:10px}
+.hub-request-controls{display:flex;gap:8px}
+.hub-request-controls [aria-pressed=true]{border-color:var(--ac-active);color:var(--ac-active)}
+.hub-request-columns[data-view=board]{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:16px}
+.hub-request-columns[data-view=board] section{padding:16px;border:1px solid var(--ac-line);border-radius:var(--ac-radius)}
+.hub-request-columns[data-view=board] .hub-work-row{grid-template-columns:auto minmax(0,1fr);padding:12px;margin-block-start:10px}
+.hub-request-columns[data-view=board] .hub-row-action{grid-column:2;text-align:start}
+.hub-status-line{padding-inline-start:1.3em;list-style:disc;margin-block:12px 24px}
+.hub-status-line small{display:block;color:var(--ac-muted)}
+.hub-skeleton{min-height:160px;border:1px solid var(--ac-line);border-radius:var(--ac-radius);background:var(--ac-raised);animation:hub-loading .8s ease-in-out infinite alternate}
+@keyframes hub-loading{from{opacity:.55}to{opacity:1}}
+@media(max-width:800px){.aurahub-shell .hub-topbar{gap:5px}.aurahub-shell .workspace-picker{max-inline-size:min(31vw,180px)}.aurahub-shell .nav-item span{font-size:inherit}.hub-tools{gap:3px}}
+@media(max-width:420px){.aurahub-shell .hub-mobile-brand span{display:none}.aurahub-shell .hub-mobile-brand{padding:0}.aurahub-shell .workspace-picker select{padding-inline:6px}.aurahub-shell .hub-topbar .hub-tool{width:42px}}

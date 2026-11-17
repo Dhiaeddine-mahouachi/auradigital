@@ -1,0 +1,13 @@
+---
+import PageHero from './PageHero.astro';
+import FAQ from './FAQ.astro';
+import {resources,faqs} from '../content.mjs';
+---
+<PageHero label="Resources" title="Find answers for your next step." description="Short guides to websites, menus, search and automation, plus answers about Aura Command."/>
+<section class="section wrap" data-library>
+  <label class="contact-form mb-6">Search guides and help<input type="search" data-resource-search placeholder="Try menus or website"/></label>
+  <div class="filters" aria-label="Guide category">{['All',...resources.map(resource=>resource.category)].map((label,i)=><button type="button" data-resource-category={label} aria-pressed={i===0?'true':'false'}>{label}</button>)}</div>
+  <div class="grid2">{resources.map((resource,i)=><article class="card" data-resource={resource.category}>{i===0&&<span class="pill">Featured guide</span>}<h3 class="mt-3">{resource.title}</h3><p>{resource.intro}</p><details class="mt-3"><summary>Read the guide</summary><p class="mt-2">{resource.body}</p></details></article>)}</div>
+  <p class="mt-4" data-resource-empty aria-live="polite" hidden>No guides or help articles match your search.</p>
+  <FAQ items={faqs} title="Help center"/>
+</section>
