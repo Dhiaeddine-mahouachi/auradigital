@@ -16,10 +16,18 @@ export function d1(sqlite) {
     }
 
     async all() {
+      return this.select();
+    }
+
+    select() {
       return { results: sqlite.prepare(this.sql).all(...this.args) };
     }
 
     async run() {
+      return this.execute();
+    }
+
+    execute() {
       const result = sqlite.prepare(this.sql).run(...this.args);
       return {
         success: true,
@@ -30,9 +38,9 @@ export function d1(sqlite) {
       };
     }
 
-    async batchResult() {
-      if (/^\s*(SELECT|WITH|PRAGMA)\b/i.test(this.sql)) return this.all();
-      return this.run();
+    batchResult() {
+      if (/^\s*(SELECT|WITH|PRAGMA)\b/i.test(this.sql)) return this.select();
+      return this.execute();
     }
   }
 
@@ -42,7 +50,7 @@ export function d1(sqlite) {
       sqlite.exec("BEGIN");
       try {
         const results = [];
-        for (const statement of statements) results.push(await statement.batchResult());
+        for (const statement of statements) results.push(statement.batchResult());
         sqlite.exec("COMMIT");
         return results;
       } catch (error) {

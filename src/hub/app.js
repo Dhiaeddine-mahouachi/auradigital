@@ -1,17 +1,16 @@
 import { accountSettingsCopy, renderAccountSettings } from './settings-view.js';
-import { renderServices, renderServiceOffer, serviceOffer, serviceShortcuts, renderServiceDetails, serviceLabels, serviceSummary, serviceDate, serviceStatus } from './service-view.js';
+import { renderServices, renderServiceOffer, serviceOffer, serviceShortcuts, renderServiceDetails, serviceLabels, serviceSummary } from './service-view.js';
 import { mountGuide } from './guide-view.js';
 import { currentHubLocation, hubIcon, hubLabels, hubLink, hubStage, hubStageNames } from './hub-navigation.js';
 import { renderRequestForm, renderWorkRow, workRows, workStatus } from './work-view.js';
 import { createOnboarding, renderOnboarding } from './onboarding.js';
 import { blueprintLabels, commandLabels } from './blueprint-copy.js';
-import { missionAlternative } from '../mission-routes.js';
 import { auriCharacter, connectAuri } from './auri-companion.js';
 import { pulseAuri, runAuri } from './auri-controller.js';
 import { auriControls, auriDraftCopy, auriLabels, auriNames } from './auri-copy.js';
 import { customerReturnPath } from '../customer-return.js';
 import { renderRoadmap, roadmapLabels } from './roadmap-view.js';
-import { eligibleMissions, missionGuide, missionState } from '../roadmap.js';
+import { eligibleMissions, missionGuide } from '../roadmap.js';
 import { renderMenuDrafts } from './menu-drafts.js';
 import { copy, capabilityNames } from './i18n.js';
 import { simulate, capabilities, diagnose } from '../growth-engine.js';
@@ -46,11 +45,13 @@ const auriPreference=()=>workspace?.auriPreferences||{name:'Auri',hidden:false};
 const auriSessions=new Map();
 let auriVoice=null,setupAuriName='',setupDeferred=[];
 const guideCharacter=()=>auriCharacter(3,{variant:'guide'});
-const guideThreads=new Map();
+let onboardingChatId=null;
 function guideAt(host,scope,context){
- const key=me.id+':'+(workspace?.organization.id||'new');
- if(!guideThreads.has(key))guideThreads.set(key,[]);
- mountGuide(host,{lang,esc,api,turns:guideThreads.get(key),scope,context});
+ const current=workspace;
+ if(current&&!current.permissions.includes('auri:use'))return;
+ mountGuide(host,{lang,esc,api,scope,context,workspaceId:current?.organization.id,
+  owner:current?.organization.owner,businessName:current?.profile.name,initialId:current?null:onboardingChatId,
+  onSelect:id=>{if(!current)onboardingChatId=id;}});
 }
 const brandMarkup='<img class="hub-brand-logo" src="/auradigital-mark-20260928.png" alt="" width="34" height="34"><span>AuraDigital</span>';
 const robot=()=>auriCharacter(auriLevel());
@@ -118,9 +119,10 @@ function openFirstLogin(){
    const source=firstLogin.text.trim();
    const created=workspace
     ?await api(endpoint('missions'),'POST',{personalized:true,profile,lang,source})
-    :await api('/api/hub/workspaces','POST',{profile,mode:'auri',requestId,personalized:true,lang,source});
+    :await api('/api/hub/workspaces','POST',{profile,mode:'auri',requestId,personalized:true,lang,source,...(onboardingChatId?{auriConversationId:onboardingChatId}:{})});
    const next=await api('/api/hub/workspaces/'+created.id);
    workspace=next;
+   onboardingChatId=null;
    if(!workspaces.some(org=>org.id===created.id))workspaces.push({...next.organization});
    try{sessionStorage.removeItem(key);}catch{}
    firstLogin=null;
@@ -433,35 +435,6 @@ async function renderPage(){
  ${workspace.permissions.includes('auri:use')?`<a class="growth-primary" href="${esc(link('assistant'))}">${esc(label.assistant)} ↗</a>`:''}
  <a class="growth-secondary" href="/contact">${esc(t('contact'))}</a></div></section>`);
 }
-async function askAuri(question,missionId,requestId,serviceKey,offer) {
- const id=workspace.organization.id;
- if(serviceKey){
-  const {data:{service}}=await runAuri(id,'thinking',()=>api(endpoint('auri'),'POST',{tool:'service_status',serviceKey}),'speaking');
-  const labels=serviceLabels[lang];
-  const renewal=service.kind==='subscription';
-  return `${service.name} · ${serviceStatus(service,labels)}. ${labels[renewal?13:11]} · ${serviceDate(renewal?service.renewalDate:service.dueDate,lang,labels[12])}.`;
- }
- const {data}=await runAuri(id,'thinking',()=>api(endpoint('auri'),'POST',{tool:'guidance',question,lang,...(missionId?{missionId}:{}),...(requestId?{requestId}:{}),...(offer?{offer}:{})}),'speaking');
- if(workspace?.organization.id!==id)return '';
- if(data.reply)return data.reply;
- const fallback=({
-  en:'Auri AI is unavailable. Roadmap guidance',
-  fr:'L’IA d’Auri est indisponible. Conseil de la feuille de route',
-  tr:'Auri yapay zekâsı kullanılamıyor. Yol haritası önerisi',
-  ar:'ذكاء أوري غير متاح. إرشاد من خارطة الطريق',
- })[lang];
- const guidance=message=>fallback+' · '+message;
- if(data.offerGuidance)return guidance(data.offerGuidance);
- if(/customers|visibility|sales|müşteri|clients|عملاء/i.test(question)&&data.priorities?.length)return guidance(data.priorities.map(m=>cap(m.capability)).join(' · '));
- const task=data.mission||data.nextAction;
- if(requestId)return guidance(hubLabels(lang).requestDetails+' · '+hubLabels(lang).return);
- if(!task)return guidance(t('empty'));
- const alternate=task.route==='alternative'?missionAlternative(task.capability):null;
- if(alternate)return guidance([alternate.title,alternate.steps].join(' · '));
- const guide=missionGuide[task.capability],requirements=missionState(task,workspace.missions,workspace.profile).requirements;
- const action=task.nextAction==='Define scope or record your existing solution.'?guide?.[2]:task.nextAction;
- return guidance([cap(task.capability),action,requirements.length?requirements.map(cap).join(', '):''].filter(Boolean).join(' · '));
-}
 function growthDashboard(){
  disconnectDesk();
  const host=document.querySelector('#page-content');
@@ -564,24 +537,16 @@ function stopAuriVoice() {
  pulseAuri(scope,'idle');
 }
 
-function renderCompanion(full=false){
- const host=document.querySelector(full?'#auri-workspace':'#auri-companion');
+function renderCompanion(){
+ const host=document.querySelector('#auri-workspace');
  const preferences=auriPreference(), controls=auriControls(lang);
- if(preferences.hidden&&!full)return;
  const id=workspace.organization.id;
- if(!auriSessions.has(id))auriSessions.set(id,{open:false,reply:'',pending:false,error:''});
+ if(!auriSessions.has(id))auriSessions.set(id,{});
  const missionId=query.get('task'),requestId=query.get('request'),serviceKey=query.get('serviceRecord'),offer=query.get('offer');
- const sessionKey=[id,missionId,requestId,serviceKey,offer].filter(Boolean).join(':');
- if(!auriSessions.has(sessionKey))auriSessions.set(sessionKey,{open:false,reply:'',pending:false,error:''});
- const session=auriSessions.get(sessionKey);
- session.turns??=[];
- const transcript=()=>session.turns.map(turn=>`<article class="auri-chat-turn"><strong>${esc(turn.question)}</strong><p>${esc(turn.reply)}</p></article>`).join('');
+ const session={reply:''};
  const level=auriLevel(), canAsk=workspace.permissions.includes('auri:use');
- const {ask:label,focus}=roadmapLabels(lang);
- const next=eligibleMissions(workspace.missions,workspace.profile)[0];
- const readAloud=({en:'Read aloud',tr:'Sesli oku',fr:'Lire à voix haute',ar:'قراءة بصوت عالٍ'})[lang];
- const send=({en:'Send',tr:'Gönder',fr:'Envoyer',ar:'إرسال'})[lang];
- const suggested=offer&&!session.turns.length?{
+ const next=nextMission();
+ const suggested=offer?{
   en:'How would this help my business?',
   fr:'Comment ce service aiderait-il mon entreprise ?',
   tr:'Bu hizmet işletmeme nasıl yardımcı olur?',
@@ -591,28 +556,22 @@ function renderCompanion(full=false){
  const identity=`${auriCharacter(level)}<span><strong>${esc(preferences.name)}</strong><small>${esc(t('level'))} ${level} · ${auriNames[level-1]}</small></span>
   <span class="auri-status" role="status" data-auri-status></span>`;
  const body=`<div class="auri-companion-body">
-  ${next&&!missionId&&!requestId&&!serviceKey&&!offer?`<p><strong>${esc(focus)}</strong> · ${esc(cap(next.capability))}</p>`:''}
-  ${canAsk?`<div data-auri-transcript>${transcript()}</div><form data-auri-ask><label><span class="sr-only">${esc(label)}</span><input name="question" maxlength="500" value="${esc(suggested)}" placeholder="${esc(label)}" required></label>
-  <button class="primary" ${session.pending?'disabled':''}>${esc(send)}</button></form><p data-auri-reply role="status" class="${session.error?'':'sr-only'}">${esc(session.error)}</p>
-  ${'speechSynthesis' in window?`<button type="button" class="secondary" data-auri-voice ${session.reply&&!session.error?'':'hidden'}>${esc(readAloud)}</button>
-  <button type="button" class="secondary" data-auri-stop ${auriVoice?.scope===id?'':'hidden'}>${esc(controls.stop)}</button>`:''}`:''}
+  ${canAsk?'<div data-workspace-guide></div>':''}
   <div class="auri-actions">
   <button type="button" class="secondary" data-auri-roadmap>${esc(t('journey'))}</button>
   ${canAsk&&workspace.permissions.includes('roadmap:write')?`<button type="button" class="secondary" data-auri-request>${esc(roadmapLabels(lang).request)}</button>`:''}
   <button type="button" class="secondary" data-auri-hide>${esc(preferences.hidden?controls.show:controls.hide)}</button></div>
-  ${full?`<details class="hub-auri-settings"><summary>${esc(t('settings'))}</summary><form data-auri-name><label>${esc(controls.name)}<input name="name" value="${esc(preferences.name)}" required maxlength="24"></label>
-  <button class="secondary">${esc(t('save'))}</button></form></details>`:''}
+  <details class="hub-auri-settings"><summary>${esc(t('settings'))}</summary><form data-auri-name><label>${esc(controls.name)}<input name="name" value="${esc(preferences.name)}" required maxlength="24"></label>
+  <button class="secondary">${esc(t('save'))}</button></form></details>
  </div>`;
- host.innerHTML=full?`<section class="auri-companion auri-workspace-card"><header>${identity}</header>${body}</section>`:
-  `<details class="auri-companion auri-dock" ${session.open?'open':''}><summary>${identity}</summary>${body}</details>`;
+ host.innerHTML=`<section class="auri-companion auri-workspace-card"><header>${identity}</header>${body}</section>`;
  bindAuri(host,id);
- const panel=host.querySelector('details');
- if(panel){
-  panel.ontoggle=()=>{if(panel.isConnected)session.open=panel.open;};
-  panel.onkeydown=event=>{
-   if(event.key==='Escape'&&panel.open){panel.open=false;panel.querySelector('summary').focus();}
-  };
- }
+ mountGuide(host.querySelector('[data-workspace-guide]'),{lang,esc,api,scope:id,workspaceId:id,
+  owner:workspace.organization.owner,businessName:workspace.profile.name,questionSeed:suggested,
+  focus:Object.fromEntries(Object.entries({missionId,requestId,serviceKey,offer}).filter(([,value])=>value)),
+  next:next?{name:missionTitle(next),reason:lang==='en'?next.reason:'',href:link('journey',{task:next.id})}:null,
+  onVoice:message=>{auriVoice=message?{scope:id,message}:null;},
+  onReply:reply=>{session.reply=reply;}});
  function navigate(target){
   window.history.pushState(null,'',link(target));syncLocation();render();
   document.querySelector('#main').focus();
@@ -632,7 +591,6 @@ function renderCompanion(full=false){
    await updateAuriPreferences({hidden:!preferences.hidden});
    if(workspace?.organization.id!==id)return;
    stopAuriVoice();
-   session.open=false;
    if(trigger.isConnected){render();document.querySelector('#main').focus();}
   }catch(error){toast(error.message);trigger.disabled=false;}
  };
@@ -646,53 +604,7 @@ function renderCompanion(full=false){
    if(rename.isConnected){render();document.querySelector('[data-auri-name] input')?.focus();toast(t('saved'));}
   }catch(error){toast(error.message);submit.disabled=false;}
  };
- const form=host.querySelector('[data-auri-ask]');
- const voice=host.querySelector('[data-auri-voice]');
- const stop=host.querySelector('[data-auri-stop]');
- if(voice)voice.onclick=()=>{
-  stopAuriVoice();
-  const message=new SpeechSynthesisUtterance(session.reply);
-  message.lang=lang;
-  auriVoice={scope:id,message};
-  message.onstart=()=>pulseAuri(id,'speaking',3500);
-  message.onend=message.onerror=()=>{
-   if(auriVoice?.message!==message)return;
-   auriVoice=null;
-   pulseAuri(id,'idle');
-   document.querySelector('[data-auri-stop]')?.setAttribute('hidden','');
-  };
-  stop.hidden=false;
-  speechSynthesis.speak(message);
- };
- if(stop)stop.onclick=()=>{stopAuriVoice();stop.hidden=true;};
- if(form)form.onsubmit=async event=>{
-  event.preventDefault();
-  const submit=form.querySelector('button'), reply=host.querySelector('[data-auri-reply]');
-  const question=new FormData(form).get('question').trim();
-  if(!question||session.pending)return;
-  stopAuriVoice();
-  session.pending=submit.disabled=true;
-  if(voice)voice.hidden=true;
-  if(stop)stop.hidden=true;
-  session.reply=session.error=reply.textContent='';
-  try{
-   session.reply=await askAuri(question,missionId,requestId,serviceKey,offer);
-   if(session.reply){
-    session.turns.push({question,reply:session.reply});
-    if(session.turns.length>20)session.turns.shift();
-    host.querySelector('[data-auri-transcript]').innerHTML=transcript();
-    form.elements.question.value='';
-   }
-  }
-  catch(error){session.error=error.message;}
-  finally{
-   session.pending=submit.disabled=false;
-   reply.textContent=session.error||session.reply;
-   reply.classList.toggle('sr-only',!session.error);
-   if(voice)voice.hidden=!session.reply;
-   if(!form.isConnected&&workspace?.organization.id===id&&page==='assistant')renderCompanion(true);
-  }
- };
+
 }
 async function assistant(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content');
@@ -711,7 +623,7 @@ async function assistant(){
   <div class="actions"><button type="button" class="primary" data-auri-draft>${esc(labels.create)}</button>${button('diagnosis','diagnosis',true)}${button('recommend','next-action',true)}</div><div data-auri-tools-status role="status"></div>
   <p role="status" data-draft-status></p>
   <h2>${esc(labels.history)}</h2><div data-auri-drafts></div></section>`:''}`);
- renderCompanion(true);
+ renderCompanion();
  if(!canAsk)return;
  const create=document.querySelector('[data-auri-draft]');
  const log=document.querySelector('[data-auri-drafts]');

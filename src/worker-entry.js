@@ -1,4 +1,5 @@
 import { translateSiteCopy } from './site-translation.js';
+import { cleanupAuriMemory } from './auri-memory.js';
 import { handleBusinessHub } from './business-hub.js';
 import { handleCustomerIdentity } from './customer-identity.js';
 import { handleGlobalPricing } from './global-pricing.js';
@@ -87,6 +88,7 @@ const router = {
 export default {
   async scheduled(controller, env, ctx) {
     if (controller.cron === "0 3 * * *") ctx.waitUntil(cleanupAiData(env));
+    if (controller.cron === "0 3 * * *" && env.GROWTH_OS_ENABLED === "true") ctx.waitUntil(cleanupAuriMemory(env));
     ctx.waitUntil(deliverRequestEmails(env));
   },
   async fetch(request, env, ctx) {

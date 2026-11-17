@@ -743,3 +743,12 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 .hub-requests-empty>img{width:clamp(52px,10vw,80px);height:auto;flex:none;border-radius:16px;border:1px solid #566840;background:radial-gradient(ellipse,#3a4924,#18231b 74%)}
 .hub-home-grid .hub-service-links>a{min-height:58px;background:linear-gradient(145deg,#212b21,#171e19)}
 .hub-home-grid .hub-service-links>a:hover,.hub-home-grid .hub-service-links>a:focus-visible{background:#283520}
+
+.hub-guide-workspace{width:100%;margin:0;background:transparent;border:0;padding:0}
+.hub-guide-history,.hub-guide .hub-guide-memory-form{display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin-block:10px}
+.hub-guide-history label,.hub-guide-memory-form label:first-child{flex:1 1 14rem;min-width:0}
+.hub-guide-history select{display:block;width:100%}
+.hub-guide select{color:#f5f7f5;background:#101a16;border:1px solid #65796d;border-radius:9px;min-height:40px;padding:6px 8px}
+.hub-guide-memory-form label:first-child input{display:block}
+.hub-guide [data-guide-memory]{margin-block-start:12px}
+.hub-guide [data-guide-memory-list] article{margin-block:8px}

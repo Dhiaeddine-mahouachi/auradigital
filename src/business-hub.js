@@ -1,5 +1,6 @@
 import { deliverables } from './hub/service-deliverables.js';
 import { hubGuide } from './hub-guide.js';
+import { auriId, auriMemoryStore, auriText, handleAuriMemory, linkOnboardingChat } from './auri-memory.js';
 import { getHubWork } from './hub-work.js';
 import { prepareHubPlan } from './hub-plan.js';
 import { analyzeOnboarding } from './hub-onboarding.js';
@@ -8,7 +9,8 @@ import { changeMissionRoute, submitMissionEvidence, workspaceEvidence } from './
 import { auriPreferences, saveAuriPreferences } from './auri-preferences.js';
 import { auriProgress } from './auri-progression.js';
 import { draftFollowUp, explainRoadmap, recentAuriDrafts } from './hub-auri.js';
-import { eligibleMissions } from './roadmap.js';
+import { eligibleMissions, missionGuide, missionState } from './roadmap.js';
+import { missionAlternative } from './mission-routes.js';
 import { handleMenuDrafts } from './menu-drafts.js';
 import { ApiError, json, readJson } from './http.js';
 import { authenticatedCustomer, tokenHash } from './customer-accounts.ts';
@@ -39,8 +41,8 @@ export async function authorize(db,org,user,permission='workspace:read') {
  return guard;
 }
 function audit(db,org,user,action,target=null) {return db.prepare('INSERT INTO member_access_audit_logs(id,organization_id,actor_id,action,target_id) VALUES(?,?,?,?,?)').bind(crypto.randomUUID(),org,user.id,action,target);}
-async function getMissions(db,org) {
- const {results}=await db.prepare('SELECT id,capability,data_json,status,position,version FROM business_missions WHERE organization_id=? ORDER BY position,id').bind(org).all();
+async function getMissions(db,org,guard={sql:'1',args:[]}) {
+ const {results}=await db.prepare(`SELECT id,capability,data_json,status,position,version FROM business_missions WHERE organization_id=? AND ${guard.sql} ORDER BY position,id`).bind(org,...guard.args).all();
  return results.map(({data_json,...m})=>({...JSON.parse(data_json),...m}));
 }
 function currentRecommendations(missions,analysis) {
@@ -49,6 +51,38 @@ function currentRecommendations(missions,analysis) {
   const current=suggestions.get(m.capability);
   return current&&m.planOrder===undefined?{...m,priority:current.priority,optional:current.optional}:m;
  });
+}
+async function auriBusinessContext(env,org,guard,body) {
+ const db=env.DB;
+ const business=await db.prepare(`SELECT profile_json FROM organizations WHERE id=? AND ${guard.sql}`).bind(org,...guard.args).first();
+ if(!business)throw new ApiError(404,'Workspace unavailable.');
+ const profile=JSON.parse(business.profile_json);
+ const missions=currentRecommendations(await getMissions(db,org,guard),diagnose(profile));
+ const eligible=eligibleMissions(missions,profile);
+ const work=await getHubWork(env,org,guard);
+ const selected=body.missionId?missions.find(m=>m.id===body.missionId):null;
+ if(body.missionId&&!selected)throw new ApiError(404,'Mission not found.');
+ const request=body.requestId?await getHubWork(env,org,guard,body.requestId):null;
+ if(body.serviceKey&&!/^(?:order|subscription)-[1-9]\d{0,18}$/.test(body.serviceKey))throw new ApiError(400,'Choose a valid service.');
+ const service=body.serviceKey?await getHubWork(env,org,guard,null,body.serviceKey):null;
+ if(body.offer&&!Object.hasOwn(deliverables,body.offer))throw new ApiError(400,'Choose a valid service.');
+ const missionData=m=>({
+  capability:m.capability,objective:auriText(m.objective,110),status:m.status,
+  nextAction:auriText((m.route==='alternative'&&missionAlternative(m.capability)?.steps)||
+   (m.nextAction==='Define scope or record your existing solution.'?missionGuide[m.capability]?.[2]:m.nextAction),200),
+  remainingRequirements:missionState(m,missions,profile).requirements,
+ });
+ const workData=r=>({name:auriText(r.name,95),status:auriText(r.productionStatus||r.status,50),
+  dueDate:auriText(r.dueDate,20),renewalDate:auriText(r.renewalDate,20)});
+ return {
+  profile:Object.fromEntries(['name','industry','city','stage','goals','tools','industryDetails'].map(key=>[key,auriText(profile[key],260)])),
+  roadmap:missions.slice(0,25).map(missionData),
+  progress:{done:missions.filter(m=>m.status==='done').length,total:missions.length},
+  next:eligible[0]?missionData(eligible[0]):null,
+  services:[...work.services,...work.records].slice(0,12).map(workData),
+  focus:selected?missionData(selected):request?workData(request):service?workData(service):null,
+  offer:body.offer?{id:body.offer,outcome:deliverables[body.offer][body.lang]?.[0],deliverables:deliverables[body.offer][body.lang]?.slice(1).map(item=>auriText(item,140))}:null,
+ };
 }
 function missionInserts(db,org,missions,condition,args,deferred=[]) {
  return missions.map(mission=>db.prepare(`INSERT INTO business_missions(id,organization_id,capability,data_json,status,position)
@@ -123,7 +157,23 @@ export async function handleBusinessHub(request,env) {
  const user=await authenticatedCustomer(request,env);if(!user)throw new ApiError(401,'Sign in to your AuraDigital account.');
  const write=!['GET','HEAD'].includes(request.method);
  if(write){if(!sameOrigin(request))throw new ApiError(403,'Forbidden origin.');await limit(request,env,user);}
- if(path==='/api/hub/onboarding/guide'&&['GET','POST'].includes(request.method))return hubGuide(request,env,user);
+ const auriRoute=/^\/api\/hub\/(onboarding\/guide|workspaces\/([a-f0-9-]{36})\/auri-chat)(?:\/(conversations|memories)(?:\/([^/]+))?)?$/.exec(path);
+ if(auriRoute){
+  const [, ,org=null,kind,item]=auriRoute;
+  const guard={sql:'1',args:[]};
+  let isOwner=false;
+  if(org){
+   const read=await authorize(env.DB,org,user);
+   const use=await authorize(env.DB,org,user,'auri:use');
+   guard.sql=`${read.sql} AND ${use.sql}`;
+   guard.args=[...read.args,...use.args];
+   isOwner=Boolean(await env.DB.prepare('SELECT id FROM organizations WHERE id=? AND owner_id=?').bind(org,user.id).first());
+  }
+  const store=auriMemoryStore(env.DB,user,org,guard,isOwner);
+  if(kind)return handleAuriMemory(request,store,item,kind);
+  if(!['GET','POST'].includes(request.method))throw new ApiError(405,'Method not allowed.');
+  return hubGuide(request,env,user,store,org?body=>auriBusinessContext(env,org,guard,body):null);
+ }
  if(path==='/api/hub/onboarding/analyze'&&request.method==='POST')return analyzeOnboarding(request,env,user);
  const menuDraftResponse=await handleMenuDrafts(request,env,user,authorize);
  if(menuDraftResponse)return menuDraftResponse;
@@ -138,6 +188,8 @@ export async function handleBusinessHub(request,env) {
   const body=await readJson(request,36000),profile=validateProfile(body.profile);
   if(body.requestId!==undefined&&!uuid(body.requestId))throw new ApiError(400,'Invalid setup request.');
   const id=body.requestId??crypto.randomUUID();
+  const chatId=body.auriConversationId;
+  if(chatId!==undefined&&!auriId(chatId))throw new ApiError(400,'Invalid onboarding conversation.');
   if(!['myself','auri'].includes(body.mode))throw new ApiError(400,'Choose an onboarding mode.');
   const profileJson=JSON.stringify(profile);
   const personalized=body.mode==='auri'&&body.personalized===true;
@@ -148,13 +200,22 @@ export async function handleBusinessHub(request,env) {
    if(saved.profile_json===profileJson&&saved.mode===body.mode)return json({id});
    throw new ApiError(409,'This setup was already saved. Reload the Hub to open it.');
   }
+  if(chatId&&!await auriMemoryStore(env.DB,user,null,{sql:'1',args:[]}).conversation(chatId)){
+   throw new ApiError(404,'Auri onboarding conversation not found.');
+  }
   if(personalized&&(!body.requestId||!['en','fr','tr','ar'].includes(body.lang)))throw new ApiError(400,'Invalid Auri setup.');
   const suggested=personalized?await prepareHubPlan(env,user,profile,body.lang,body.source):diagnose(profile).missions;
   const deferred=body.deferredMissions??[];
   if(!Array.isArray(deferred)||deferred.length>3||deferred.some(id=>!suggested.some(m=>m.id===id)))throw new ApiError(400,'Choose which suggested missions to do later.');
 
   const [result]=await env.DB.batch([
-   env.DB.prepare('INSERT INTO organizations(id,owner_id,name,profile_json,mode) SELECT ?,?,?,?,? WHERE (SELECT count(*) FROM organizations WHERE owner_id=?)<10 AND (?=0 OR NOT EXISTS(SELECT 1 FROM organizations WHERE owner_id=?)) ON CONFLICT(id) DO NOTHING').bind(id,user.id,profile.name,profileJson,body.mode,user.id,body.requestId?1:0,user.id),
+   env.DB.prepare(`INSERT INTO organizations(id,owner_id,name,profile_json,mode)
+    SELECT ?,?,?,?,? WHERE (SELECT count(*) FROM organizations WHERE owner_id=?)<10
+    AND (?=0 OR NOT EXISTS(SELECT 1 FROM organizations WHERE owner_id=?))
+    AND (? IS NULL OR EXISTS(SELECT 1 FROM auri_conversations WHERE id=? AND customer_id=?
+     AND organization_id IS NULL AND updated_at>datetime('now','-90 days')))
+    ON CONFLICT(id) DO NOTHING`).bind(id,user.id,profile.name,profileJson,body.mode,user.id,body.requestId?1:0,user.id,chatId??null,chatId??null,user.id),
+   ...(chatId?[linkOnboardingChat(env.DB,user,id,chatId)]:[]),
    ...(personalized?[personalizedInserts(env.DB,id,suggested)]:
     missionInserts(env.DB,id,suggested,'EXISTS(SELECT 1 FROM organizations WHERE id=? AND owner_id=? AND version=1 AND profile_json=?)',[id,user.id,profileJson],deferred)),
   ]);
