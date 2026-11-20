@@ -144,7 +144,7 @@
       search.value=globalSearch.value;
       globalSearch.oninput=()=>{if(!document.body.contains(root))return;search.value=globalSearch.value;filter();};
     }
-    root.querySelectorAll("[data-open],[data-destination]").forEach(button=>button.addEventListener("click",()=>go(button.dataset.open||button.dataset.destination)));
+    root.querySelectorAll("[data-open]").forEach(button=>button.addEventListener("click",()=>go(button.dataset.open||button.dataset.destination)));
     filter();
   }
   function metric(label,number,icon,desc) {
@@ -158,9 +158,9 @@
     return rows.slice(0,5).map(row=>`<div class="cc-activity"><span class="cc-activity-symbol">${requestInfo[row.type].symbol}</span><div><strong>${escapeHtml(row.business)}</strong><small>${escapeHtml(requestInfo[row.type].label)} · ${escapeHtml(row.status)} · ${escapeHtml(showDate(row.createdAt))}</small></div></div>`).join("");
   }
   const actions = [
-    ["＋","Add Client","clients"],
+    ["＋","Manage Clients","clients"],
     ["▣","View Orders","requests"],
-    ["▤","Create Invoice","invoices"],
+    ["▤","Invoices","invoices"],
     ["◈","Edit Services","services"],
     ["♙","Manage Team","team"],
     ["✦","AI Employee","ai"]
