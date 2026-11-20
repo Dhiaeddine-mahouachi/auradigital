@@ -67,5 +67,16 @@ test("owner creates a new isolated employee workspace in one action and can revi
   assert.equal(session.passwordChangeRequired,true);
   const audit=await handleManagedEmployeeAdmin(request("/api/admin/managed-employees","GET",null,ownerCookie),env);
   assert.ok((await audit.json()).logs.some(e=>e.portal===body.employee.portal&&e.action==="login_succeeded"));
+  const reset=await handleManagedEmployeeAdmin(request("/api/admin/managed-employees/"+body.employee.id,"PATCH",{action:"reset-password"},ownerCookie),env);
+  assert.equal(reset.status,200);
+  const resetValue=await reset.json();
+  assert.notEqual(resetValue.temporaryPassword,body.temporaryPassword);
+  assert.equal((await handleManagedEmployeeApi(request("/api/employee/"+body.employee.portal+"/session"),env)).status,200);
+  const disabled=await handleManagedEmployeeAdmin(request("/api/admin/managed-employees/"+body.employee.id,"PATCH",{action:"deactivate"},ownerCookie),env);
+  assert.equal(disabled.status,200);
+  assert.equal((await serveManagedEmployeePortal(request(base),env)).status,404);
+  assert.equal((await handleManagedEmployeeApi(request("/api/employee/"+body.employee.portal+"/session"),env)).status,404);
+  const restored=await handleManagedEmployeeAdmin(request("/api/admin/managed-employees/"+body.employee.id,"PATCH",{action:"activate"},ownerCookie),env);
+  assert.equal(restored.status,200);
   sqlite.close();
 });
