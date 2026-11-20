@@ -32,11 +32,15 @@ function validateNoError(page) {
 async function openGroup(page,group,mobile) {
   if (mobile) await page.locator('#mobileNav').selectOption(group);
   else await page.locator('#sideNav [data-view="'+group+'"]').click();
+  await page.waitForFunction(expected=>location.hash==='#'+expected,group);
   await page.locator('#content .cc-section-grid, #content .cc-request-links').first().waitFor();
+  assert.ok((await page.locator('#content').innerText()).includes(group==='catalog'?'Services & Pricing':group==='settingsgroup'?'Settings & Workspace':'Projects & Orders'),'Requested group did not render: '+group);
+
 }
 async function clickCard(page,name,group,mobile) {
   await openGroup(page,group,mobile);
   const card=page.locator('#content button[data-destination="'+name+'"]');
+  await card.waitFor({state:'visible',timeout:6000}).catch(async()=>{ throw new Error('Missing '+name+' card, current path '+page.url()+'\n'+(await page.locator('#content').innerText())); });
   assert.equal(await card.isDisabled(),false, name+' was disabled');
   await card.click();
   await page.waitForFunction(view=>location.hash==='#'+view,name);
@@ -70,6 +74,14 @@ try {
     await page.locator('#content .cc-request-links').waitFor();
     await page.locator('#content .cc-link[data-destination="auramenu"]').click();
     await page.waitForFunction(()=>location.hash==='#auramenu');
+    await validateNoError(page);
+    // Browser Back/Forward must restore page state, not just the fragment.
+    await page.goBack();
+    await page.waitForFunction(()=>location.hash==='#requests');
+    await page.locator('#content .cc-request-links').waitFor();
+    await page.goForward();
+    await page.waitForFunction(()=>location.hash==='#auramenu');
+    await page.locator('#content').getByText('AuraMenu customer requests').waitFor();
     await validateNoError(page);
 
     if(role==='owner') {
