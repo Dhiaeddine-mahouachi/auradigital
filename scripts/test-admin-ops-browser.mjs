@@ -46,6 +46,12 @@ try {
   await page.goto(origin+"/admin/index.html",{waitUntil:"domcontentloaded"});
   await page.locator("#dashboardView:not(.hidden)").waitFor();
   await page.locator("#content .cc-request-panel").waitFor();
+  if(role==="owner"){
+    await page.locator('#content .cc-action[data-destination="staff"]').click();
+    await page.locator("#staff-create:not([hidden])").waitFor();
+    await page.goBack();
+    await page.locator("#content .cc-request-panel").waitFor();
+  }
   await page.locator('#sideNav [data-view="operations"]').click();
   await page.locator("#content h2").filter({hasText:"Sales Pipeline"}).first().waitFor();
   assert.ok((await page.locator("#content").innerText()).includes("Test Café"));
