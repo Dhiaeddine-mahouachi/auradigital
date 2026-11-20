@@ -158,3 +158,28 @@ export async function handleOperations(request,env){
  }catch(error){return bad(error.message||"Operation failed.");}
  return bad("Not found.",404);
 }
+
+export async function handleEmployeeTasks(request,env,employee){
+ const path=new URL(request.url).pathname;
+ const match=path.match(/\/tasks(?:\/([a-f0-9-]+))?$/i);
+ if(!match)return null;
+ await ensure(env.DB);
+ if(request.method==="GET"&&!match[1]){
+  const data=await env.DB.prepare("SELECT t.id,t.title,t.priority,t.status,t.due_date,t.created_at,c.company FROM ops_tasks t LEFT JOIN clients c ON c.id=t.client_id WHERE t.employee_id=? ORDER BY CASE WHEN t.status='done' THEN 1 ELSE 0 END,t.due_date IS NULL,t.due_date ASC LIMIT 200").bind(employee.id).all();
+  return respond({tasks:rows(data)});
+ }
+ if(request.method==="PATCH"&&match[1]){
+  if(!sameOrigin(request))return bad("Invalid request origin.",403);
+  const body=await readJson(request,2048);
+  if(!taskStates.has(body.status))return bad("Invalid task status.");
+  const task=await env.DB.prepare("SELECT id FROM ops_tasks WHERE id=? AND employee_id=?").bind(match[1],employee.id).first();
+  if(!task)return bad("Task not found.",404);
+  await env.DB.batch([
+   env.DB.prepare("UPDATE ops_tasks SET status=?,updated_at=datetime('now') WHERE id=? AND employee_id=?").bind(body.status,task.id,employee.id),
+   env.DB.prepare("INSERT INTO employee_audit_log(id,employee_user_id,actor_snapshot,action,target_id) VALUES (?,?,?,?,?)").bind(uid(),employee.id,employee.portal_slug,"task_"+body.status,task.id),
+   env.DB.prepare("INSERT INTO ops_events(id,actor,action,resource,target_id) VALUES (?,?,?,?,?)").bind(uid(),"employee:"+employee.portal_slug,"task_"+body.status,"task",task.id)
+  ]);
+  return respond({ok:true});
+ }
+ return bad("Method not allowed.",405);
+}
