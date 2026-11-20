@@ -57,7 +57,8 @@ try {
   assert.ok((await page.locator("#content").innerText()).includes("Test Café"));
   for(const label of ["Team Tasks","Quotations","Request Assignments","Reminders","Auri Insights"]){
     await page.getByRole("button",{name:label,exact:true}).click();
-    assert.ok((await page.locator("#content").innerText()).includes(label==="Reminders"?"Alerts & Renewals":label==="Quotations"?"Quotation Drafts":label==="Auri Insights"?"Where attention is needed":label==="Request Assignments"?"Request ownership":"Assigned Tasks"));
+    const expected=label==="Reminders"?"Alerts & Renewals":label==="Quotations"?"Quotation Drafts":label==="Auri Insights"?"Where attention is needed":label==="Request Assignments"?"Request ownership":"Assigned Tasks";
+    await page.waitForFunction(text=>document.querySelector("#ops-stage")?.innerText.includes(text),expected,{timeout:10000});
   }
   await page.locator('#sideNav [data-view="settingsgroup"]').click();
   await page.locator("#content .cc-section-grid").waitFor();
