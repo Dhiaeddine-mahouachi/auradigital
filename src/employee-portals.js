@@ -1,4 +1,5 @@
 import { ApiError, json, readJson } from "./http.js";
+import { handleEmployeeTasks } from "./operations-center.js";
 import {
   getAuthenticatedAdmin,
   hashPassword,
@@ -167,7 +168,180 @@ async function handleEmployeePortalApi(request, env) {
     return json({ error: "Change your temporary password before accessing customer records.", code: "password_change_required" }, 403);
   }
 
-  const clientMatch = url.pathname.match(new RegExp(`^/api/employee/${PORTAL_SLUG}/clients(?:/([a-f0-9-]+))?$`, "i"));
+  const employeeTaskResponse = await handleEmployeeTasks(request,env,employee);
+  if(employeeTaskResponse) return employeeTaskResponse;
+
+  const clientMatch = url.pathname.match(new RegExp(`^/api/employee/${PORTAL_SLUG}/clients(?:/([a-f0-9-]+))?import { ApiError, json, readJson } from "./http.js";
+import { handleEmployeeTasks } from "./operations-center.js";
+import {
+  getAuthenticatedAdmin,
+  hashPassword,
+  needsPasswordUpgrade,
+  upgradePasswordHash,
+  sameOrigin,
+  verifyPassword,
+} from "./security.js";
+
+function makeEmployeePortal(slug, name) {
+const PORTAL_SLUG = slug;
+const PORTAL_NAME = name;
+const COOKIE_NAME = `__Host-aura_employee_${PORTAL_SLUG}`;
+const API_PREFIX = `/api/employee/${PORTAL_SLUG}/`;
+const SESSION_SECONDS = 60 * 60 * 8;
+const LOGIN_BODY_BYTES = 2 * 1024;
+const CLIENT_BODY_BYTES = 12 * 1024;
+const CLIENT_STATUSES = new Set(["lead", "contacted", "active", "waiting", "completed"]);
+const encoder = new TextEncoder();
+
+
+
+async function serveEmployeePortal(request, env) {
+  const url = new URL(request.url);
+  if (url.pathname !== `/${PORTAL_SLUG}` && url.pathname !== `/${PORTAL_SLUG}/`) return null;
+  if (!new Set(["GET", "HEAD"]).has(request.method)) {
+    return new Response("Method not allowed.", {
+      status: 405,
+      headers: { Allow: "GET, HEAD", "Cache-Control": "no-store" },
+    });
+  }
+  if (!env.ASSETS) return new Response("Portal unavailable.", { status: 503 });
+
+  const assetUrl = new URL(`/${PORTAL_SLUG}/index.html`, request.url);
+  const assetResponse = await env.ASSETS.fetch(new Request(assetUrl, {
+    method: request.method,
+    headers: request.headers,
+  }));
+  const headers = new Headers(assetResponse.headers);
+  headers.set("Cache-Control", "no-store, private");
+  headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests");
+  headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=()");
+  headers.set("Referrer-Policy", "no-referrer");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  return new Response(assetResponse.body, {
+    status: assetResponse.status,
+    statusText: assetResponse.statusText,
+    headers,
+  });
+}
+
+async function handleEmployeePortalApi(request, env) {
+  const url = new URL(request.url);
+  if (!url.pathname.startsWith(API_PREFIX)) return null;
+
+  if (url.pathname === `${API_PREFIX}portal` && request.method === "GET") {
+    const employee = await findEmployeeByPortal(env.DB, PORTAL_SLUG);
+    return json({ configured: Boolean(employee), portal: PORTAL_SLUG, displayName: PORTAL_NAME });
+  }
+
+  if (url.pathname === `${API_PREFIX}bootstrap` && request.method === "POST") {
+    requireSameOrigin(request);
+    if (!(await loginAllowed(env, request, "bootstrap"))) return rateLimitResponse();
+    const existing = await findEmployeeByPortal(env.DB, PORTAL_SLUG);
+    if (existing) return json({ error: "This employee portal is already configured." }, 409);
+
+    const owner = await getAuthenticatedAdmin(request, env.DB);
+    if (!owner || owner.role !== "owner") {
+      return json({ error: "Sign in to the main dashboard as the owner before setting the employee password." }, 403);
+    }
+
+    const body = await readJson(request, LOGIN_BODY_BYTES);
+    const password = validateEmployeePassword(body.password);
+    const employeeId = crypto.randomUUID();
+    const passwordHash = await hashPassword(password);
+    await env.DB.prepare(
+      "INSERT INTO employee_users (id, portal_slug, display_name, password_hash, active) VALUES (?, ?, ?, ?, 1)"
+    ).bind(employeeId, PORTAL_SLUG, PORTAL_NAME, passwordHash).run();
+    await employeeAudit(env.DB, employeeId, owner.username, "portal_created", employeeId, request);
+    return json({ configured: true, portal: PORTAL_SLUG, displayName: PORTAL_NAME }, 201);
+  }
+
+  if (url.pathname === `${API_PREFIX}login` && request.method === "POST") {
+    requireSameOrigin(request);
+    if (!(await loginAllowed(env, request, "login"))) return rateLimitResponse();
+    const body = await readJson(request, LOGIN_BODY_BYTES);
+    const employee = await findEmployeeByPortal(env.DB, PORTAL_SLUG);
+    if (!employee) {
+      return json({ error: "This employee portal has not been configured by the owner yet.", code: "not_configured" }, 503);
+    }
+    const passwordChangeRequired = String(employee.password_hash).startsWith("temp:");
+    const actualHash = passwordChangeRequired ? employee.password_hash.slice(5) : employee.password_hash;
+    if (!employee.active || !(await verifyPassword(String(body.password || ""), actualHash))) {
+      await employeeAudit(env.DB, employee.id, PORTAL_SLUG, "login_failed", employee.id, request);
+      return json({ error: "Incorrect password." }, 401);
+    }
+
+    if (!passwordChangeRequired && needsPasswordUpgrade(employee.password_hash, body.password)) {
+      await env.DB.prepare("UPDATE employee_users SET password_hash=? WHERE id=? AND password_hash=?")
+        .bind(await upgradePasswordHash(body.password), employee.id, employee.password_hash).run();
+    }
+    await revokeEmployeeSession(request, env.DB);
+    await env.DB.batch([
+      env.DB.prepare("UPDATE employee_users SET last_login_at = datetime('now'), updated_at = datetime('now') WHERE id = ?").bind(employee.id),
+      env.DB.prepare("DELETE FROM employee_sessions WHERE expires_at <= datetime('now')"),
+    ]);
+    const token = await createEmployeeSession(env.DB, employee.id);
+    await employeeAudit(env.DB, employee.id, PORTAL_SLUG, "login_succeeded", employee.id, request);
+    return json({ authenticated: true, user: publicEmployee(employee), passwordChangeRequired }, 200, {
+      "Set-Cookie": employeeSessionCookie(token),
+    });
+  }
+
+  if (url.pathname === `${API_PREFIX}session` && request.method === "GET") {
+    const [employee, configured] = await Promise.all([
+      getAuthenticatedEmployee(request, env.DB),
+      findEmployeeByPortal(env.DB, PORTAL_SLUG),
+    ]);
+    return json({
+      authenticated: Boolean(employee),
+      configured: Boolean(configured),
+      user: employee ? publicEmployee(employee) : null,
+      passwordChangeRequired: employee ? await needsEmployeePasswordChange(env.DB, employee.id) : false,
+      portal: PORTAL_SLUG,
+    });
+  }
+
+  if (url.pathname === `${API_PREFIX}logout` && request.method === "POST") {
+    requireSameOrigin(request);
+    const employee = await getAuthenticatedEmployee(request, env.DB);
+    await revokeEmployeeSession(request, env.DB);
+    if (employee) await employeeAudit(env.DB, employee.id, employee.portal_slug, "logout", employee.id, request);
+    return json({ authenticated: false }, 200, {
+      "Set-Cookie": employeeSessionCookie("", 0),
+    });
+  }
+
+  const employee = await getAuthenticatedEmployee(request, env.DB);
+  if (!employee) return json({ error: "Unauthorized." }, 401);
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) requireSameOrigin(request);
+
+  if (url.pathname === `${API_PREFIX}change-password` && request.method === "POST") {
+    if (!(await loginAllowed(env, request, "change-password"))) return rateLimitResponse();
+    const body = await readJson(request, LOGIN_BODY_BYTES);
+    const current = await findEmployeeByPortal(env.DB, PORTAL_SLUG);
+    const currentHash = String(current.password_hash).replace(/^temp:/, "");
+    if (!(await verifyPassword(String(body.currentPassword || ""), currentHash))) {
+      return json({ error: "Current password is incorrect." }, 401);
+    }
+    const newPassword = validateEmployeePassword(body.newPassword);
+    if (newPassword === body.currentPassword) {
+      return json({ error: "Choose a different password." }, 400);
+    }
+    await env.DB.batch([
+      env.DB.prepare("UPDATE employee_users SET password_hash=?, updated_at=datetime('now') WHERE id=?").bind(await hashPassword(newPassword), employee.id),
+      env.DB.prepare("DELETE FROM employee_sessions WHERE employee_user_id=?").bind(employee.id),
+    ]);
+    await employeeAudit(env.DB, employee.id, PORTAL_SLUG, "password_changed", employee.id, request);
+    return json({ changed: true }, 200, { "Set-Cookie": employeeSessionCookie("", 0) });
+  }
+  if (await needsEmployeePasswordChange(env.DB, employee.id)) {
+    return json({ error: "Change your temporary password before accessing customer records.", code: "password_change_required" }, 403);
+  }
+
+, "i"));
   if (!clientMatch) return json({ error: "Not found." }, 404);
   const clientId = clientMatch[1] || null;
 
