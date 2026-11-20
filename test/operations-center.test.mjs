@@ -3,7 +3,7 @@ import test from "node:test";
 import {readFile} from "node:fs/promises";
 import {DatabaseSync} from "node:sqlite";
 import {createSession,hashPassword} from "../src/security.js";
-import {handleOperations} from "../src/operations-center.js";
+import {handleOperations,handleEmployeeTasks} from "../src/operations-center.js";
 
 function d1(db){
  class Statement{
@@ -65,6 +65,13 @@ test("owner operations use existing records and require explicit changes",async(
  assert.ok(s.tasks.some(x=>x.id===taskId&&x.employee_id===employeeId));
  assert.equal(s.quotes[0].status,"accepted");
  assert.ok(s.activity.some(x=>x.action==="quote_accepted_task_created"));
+ const employee={id:employeeId,portal_slug:"ala"};
+ const privateList=await handleEmployeeTasks(req("/api/employee/ala/tasks","GET"),env,employee);
+ assert.equal(privateList.status,200);
+ assert.equal((await privateList.json()).tasks.length,2);
+ const changed=await handleEmployeeTasks(req("/api/employee/ala/tasks/"+taskId,"PATCH",{status:"done"}),env,employee);
+ assert.equal(changed.status,200);
+ assert.ok((await db.prepare("SELECT * FROM employee_audit_log WHERE target_id=?").bind(taskId).first()).action==="task_done");
  assert.equal(sqlite.prepare("SELECT count(*) n FROM clients").get().n,1);
  sqlite.close();
 });
