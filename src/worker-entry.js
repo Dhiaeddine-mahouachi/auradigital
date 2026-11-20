@@ -12,6 +12,7 @@ import { handleAuraPopsAdmin } from './aurapops-admin.js';
 import { handleAdminWorkspace } from './admin-workspace.js';
 import { serveEmployeePortal } from './employee-portal.js';
 import { serveAdditionalEmployeePortal } from './employee-portals.js';
+import { serveManagedEmployeePortal, handleManagedEmployeeApi, handleManagedEmployeeAdmin } from './managed-employees.js';
 import { permanentSeoRedirect, serveSeoAsset } from './seo.js';
 import { handleAiEmployee, cleanupAiData } from './ai-employee.js';
 
@@ -67,6 +68,13 @@ const router = {
 
     const seoRedirect = permanentSeoRedirect(request);
     if (seoRedirect) return seoRedirect;
+
+    const managedPortalResponse = await serveManagedEmployeePortal(request, env);
+    if (managedPortalResponse) return managedPortalResponse;
+    const managedApiResponse = await handleManagedEmployeeApi(request, env);
+    if (managedApiResponse) return managedApiResponse;
+    const managedAdminResponse = await handleManagedEmployeeAdmin(request, env);
+    if (managedAdminResponse) return managedAdminResponse;
 
     const additionalEmployeeResponse = await serveAdditionalEmployeePortal(request, env);
     if (additionalEmployeeResponse) return additionalEmployeeResponse;
