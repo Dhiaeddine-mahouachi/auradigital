@@ -45,6 +45,30 @@ export async function handleManagedEmployeeAdmin(request,env){
     await env.DB.prepare("INSERT INTO employee_audit_log(id,employee_user_id,actor_snapshot,action,target_id) VALUES (?,?,?,?,?)").bind(crypto.randomUUID(),id,owner.username,"portal_created",id).run();
     return jsonOut({employee:{id,name,portal:slug,url:"/"+slug},temporaryPassword:tempPassword,passwordChangeRequired:true},201);
   }
+  const match=url.pathname.match(/^\/api\/admin\/managed-employees\/([a-f0-9-]+)$/i);
+  if(match&&request.method==="PATCH"){
+    if(!sameOrigin(request))return fail("Invalid request origin.",403);
+    const row=await env.DB.prepare("SELECT id,portal_slug,display_name,active FROM employee_users WHERE id=?").bind(match[1]).first();
+    if(!row||!row.portal_slug.startsWith("emp-"))return fail("Managed employee not found.",404);
+    const data=await readJson(request,2048);
+    if(!["activate","deactivate","reset-password"].includes(data.action))return fail("Invalid action.");
+    if(data.action==="reset-password"){
+      const temporaryPassword="Aura-"+Array.from(crypto.getRandomValues(new Uint8Array(18))).map(x=>x.toString(16).padStart(2,"0")).join("");
+      await env.DB.batch([
+        env.DB.prepare("UPDATE employee_users SET password_hash=?,updated_at=datetime('now') WHERE id=?").bind("temp:"+await hashPassword(temporaryPassword),row.id),
+        env.DB.prepare("DELETE FROM employee_sessions WHERE employee_user_id=?").bind(row.id),
+        env.DB.prepare("INSERT INTO employee_audit_log(id,employee_user_id,actor_snapshot,action,target_id) VALUES (?,?,?,?,?)").bind(crypto.randomUUID(),row.id,owner.username,"password_reset_by_owner",row.id)
+      ]);
+      return jsonOut({ok:true,temporaryPassword,passwordChangeRequired:true});
+    }
+    const active=data.action==="activate"?1:0;
+    await env.DB.batch([
+      env.DB.prepare("UPDATE employee_users SET active=?,updated_at=datetime('now') WHERE id=?").bind(active,row.id),
+      env.DB.prepare("DELETE FROM employee_sessions WHERE employee_user_id=?").bind(row.id),
+      env.DB.prepare("INSERT INTO employee_audit_log(id,employee_user_id,actor_snapshot,action,target_id) VALUES (?,?,?,?,?)").bind(crypto.randomUUID(),row.id,owner.username,active?"activated_by_owner":"deactivated_by_owner",row.id)
+    ]);
+    return jsonOut({ok:true,active:!!active});
+  }
   return fail("Not found.",404);
 }
 export async function serveManagedEmployeePortal(request,env){
