@@ -17,6 +17,18 @@
   Cache-Control: no-store, private
   X-Robots-Tag: noindex, nofollow, noarchive
 
+/malek*
+  Cache-Control: no-store, private
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/ala*
+  Cache-Control: no-store, private
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/yessin*
+  Cache-Control: no-store, private
+  X-Robots-Tag: noindex, nofollow, noarchive
+
 /nfc-status*
   Cache-Control: no-store, private
   X-Robots-Tag: noindex, nofollow

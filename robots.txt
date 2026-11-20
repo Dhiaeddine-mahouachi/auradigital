@@ -4,6 +4,9 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 Disallow: /qusai/
+Disallow: /malek/
+Disallow: /ala/
+Disallow: /yessin/
 Disallow: /restaurants/dashboard/
 
 Sitemap: https://auradigitalworks.com/sitemap.xml

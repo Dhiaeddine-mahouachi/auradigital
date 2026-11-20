@@ -10,6 +10,7 @@ import { checkResendHealth } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
 import { securityEvent } from "./security-policy.js";
 import { handleEmployeePortalApi } from "./employee-portal.js";
+import { handleAdditionalEmployeeApi } from "./employee-portals.js";
 import {
   ADMIN_ROLES,
   SESSION_SECONDS,
@@ -1027,6 +1028,8 @@ export default {
       await ensureSchema(env.DB);
 
       if (url.pathname.startsWith("/api/employee/")) {
+        const additionalEmployeeResponse = await handleAdditionalEmployeeApi(request, env);
+        if (additionalEmployeeResponse) return additionalEmployeeResponse;
         return await handleEmployeePortalApi(request, env);
       }
 
@@ -1504,6 +1507,14 @@ async function ensureSchema(db) {
       db.prepare("CREATE INDEX IF NOT EXISTS idx_employee_clients_owner_followup ON employee_clients(employee_user_id, next_follow_up)"),
       db.prepare("CREATE TABLE IF NOT EXISTS employee_audit_log (id TEXT PRIMARY KEY NOT NULL, employee_user_id TEXT, actor_snapshot TEXT NOT NULL, action TEXT NOT NULL, target_id TEXT NOT NULL DEFAULT '', request_id TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), FOREIGN KEY (employee_user_id) REFERENCES employee_users(id) ON DELETE SET NULL)"),
       db.prepare("CREATE INDEX IF NOT EXISTS idx_employee_audit_created ON employee_audit_log(created_at DESC)"),
+    ]);
+
+    // Seed only missing employee accounts. Existing accounts and rotated passwords are never overwritten.
+    // The temporary hashes cannot access client data until the employee chooses a strong new password.
+    await db.batch([
+      db.prepare("INSERT OR IGNORE INTO employee_users (id, portal_slug, display_name, password_hash, active) VALUES (?, ?, ?, ?, 1)").bind("emp-malek-20261120", "malek", "Malek", "temp:$2a$12$pxcNHIY4I4dDen4xJwJKsOCKNRMPxUth9yYskObNWCY6/CeGJggCG"),
+      db.prepare("INSERT OR IGNORE INTO employee_users (id, portal_slug, display_name, password_hash, active) VALUES (?, ?, ?, ?, 1)").bind("emp-ala-20261120", "ala", "Ala", "temp:$2a$12$k1ArgJaitcF7S1NUwjkRL.JrwzjtoE8.jqcrIjnfqmlnHNifAt6SK"),
+      db.prepare("INSERT OR IGNORE INTO employee_users (id, portal_slug, display_name, password_hash, active) VALUES (?, ?, ?, ?, 1)").bind("emp-yessin-20261120", "yessin", "Yessin", "temp:$2a$12$qFX2tOQX5RwlQOKYweH0DOa9uBRK0/iDygnqU8ErXraMMHWpc6Y8K"),
     ]);
 
     await db.batch([
