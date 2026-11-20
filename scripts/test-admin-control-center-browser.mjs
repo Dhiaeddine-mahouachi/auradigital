@@ -81,7 +81,11 @@ try {
       }
       await openGroup(page,'catalog',mobile);
       await page.locator('#content .cc-section-card[data-destination="global-pricing"]').click();
-      assert.ok((await page.locator('#content').innerText()).includes('Save draft'),'Global Pricing controls missing');
+      try {
+        await page.getByRole('button',{name:'Save draft',exact:true}).waitFor({timeout:15000});
+      } catch (error) {
+        throw new Error('Global Pricing controls missing: '+(await page.locator('#content').innerText()));
+      }
     } else {
       await openGroup(page,'catalog',mobile);
       assert.equal(await page.locator('#content button[data-destination="global-pricing"]').count(),0,'Viewer must not see restricted global pricing');
