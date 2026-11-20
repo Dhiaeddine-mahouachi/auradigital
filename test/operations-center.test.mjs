@@ -7,11 +7,11 @@ import {handleOperations} from "../src/operations-center.js";
 
 function d1(db){
  class Statement{
-  constructor(text){this.text=text;this.stmt=db.prepare(text);this.values=[];}
+  constructor(text){this.text=text;this.values=[];}
   bind(...values){this.values=values;return this;}
-  async first(){return this.stmt.get(...this.values)||null;}
-  async all(){return {results:this.stmt.all(...this.values)};}
-  async run(){this.stmt.run(...this.values);return {success:true};}
+  async first(){return db.prepare(this.text).get(...this.values)||null;}
+  async all(){return {results:db.prepare(this.text).all(...this.values)};}
+  async run(){db.prepare(this.text).run(...this.values);return {success:true};}
   async exec(){return /^\s*(SELECT|WITH)\b/i.test(this.text)?this.all():this.run();}
  }
  return {prepare:sql=>new Statement(sql),async batch(statements){
