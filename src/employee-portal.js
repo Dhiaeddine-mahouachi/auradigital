@@ -1,4 +1,5 @@
 import { ApiError, json, readJson } from "./http.js";
+import { handleEmployeeTasks } from "./operations-center.js";
 import {
   getAuthenticatedAdmin,
   hashPassword,
@@ -136,6 +137,9 @@ export async function handleEmployeePortalApi(request, env) {
   const employee = await getAuthenticatedEmployee(request, env.DB);
   if (!employee) return json({ error: "Unauthorized." }, 401);
   if (["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) requireSameOrigin(request);
+
+  const employeeTaskResponse = await handleEmployeeTasks(request,env,employee);
+  if(employeeTaskResponse) return employeeTaskResponse;
 
   const clientMatch = url.pathname.match(/^\/api\/employee\/clients(?:\/([a-f0-9-]+))?$/i);
   if (!clientMatch) return json({ error: "Not found." }, 404);

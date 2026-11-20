@@ -1,4 +1,5 @@
 import { ApiError, json, readJson } from "./http.js";
+import { handleEmployeeTasks } from "./operations-center.js";
 import {
   getAuthenticatedAdmin,
   hashPassword,
@@ -166,6 +167,9 @@ async function handleEmployeePortalApi(request, env) {
   if (await needsEmployeePasswordChange(env.DB, employee.id)) {
     return json({ error: "Change your temporary password before accessing customer records.", code: "password_change_required" }, 403);
   }
+
+  const employeeTaskResponse = await handleEmployeeTasks(request,env,employee);
+  if(employeeTaskResponse) return employeeTaskResponse;
 
   const clientMatch = url.pathname.match(new RegExp(`^/api/employee/${PORTAL_SLUG}/clients(?:/([a-f0-9-]+))?$`, "i"));
   if (!clientMatch) return json({ error: "Not found." }, 404);
@@ -528,3 +532,6 @@ export async function handleAdditionalEmployeeApi(request, env) {
   const match = new URL(request.url).pathname.match(/^\/api\/employee\/(malek|ala|yessin)\//);
   return match ? PORTALS[match[1]].handleEmployeePortalApi(request, env) : null;
 }
+
+// Dynamically provisioned workspaces reuse the existing audited employee backend.
+export function managedEmployeePortal(slug,name) { return makeEmployeePortal(slug,name); }

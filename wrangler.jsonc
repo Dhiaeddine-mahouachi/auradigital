@@ -35,6 +35,7 @@
       "/ala/",
       "/yessin",
       "/yessin/",
+      "/emp-*",
       "/restaurants/dashboard",
       "/_next/*",
       "/assets/*",
