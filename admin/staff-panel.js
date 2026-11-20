@@ -19,7 +19,9 @@ async function render({root,api,user}){
    "<span class='cc-section-icon'>♙</span><strong>"+esc(e.name)+"</strong>"+
    "<small>"+(e.configured?(e.active?"Active":"Inactive"):"Not configured")+" · "+Number(e.clients||0)+" clients · "+Number(e.followUps||0)+" follow-ups</small>"+
    "<small>Last login: "+esc(dt(e.lastLogin))+"</small>"+
-   "<a class='cc-open' href='/"+encodeURIComponent(e.portal)+"' target='_blank' rel='noopener noreferrer'>Open dashboard ↗</a></article>").join("");
+   "<a class='cc-open' href='/"+encodeURIComponent(e.portal)+"' target='_blank' rel='noopener noreferrer'>Open dashboard ↗</a>"+
+   (e.managed?"<div style='display:flex;gap:6px;flex-wrap:wrap'><button type='button' class='cc-open' data-staff-reset='"+esc(e.id)+"'>Reset password</button><button type='button' class='cc-open' data-staff-action='"+esc(e.id)+"' data-action='"+(e.active?"deactivate":"activate")+"'>"+(e.active?"Deactivate":"Activate")+"</button></div>":"")+
+   "</article>").join("");
  const options=profiles.map(e=>"<option value='"+esc(e.portal)+"'>"+esc(e.name)+"</option>").join("");
  root.innerHTML="<div class='cc-welcome cc-welcome--compact'><div><span class='cc-eyebrow'>TEAM WORKSPACES</span><h2>Employee Dashboards</h2><p>Create accounts and review employee work.</p></div><button type='button' id='staff-add' class='cc-primary'>+ Add Employee Dashboard</button></div>"+
   "<section class='cc-panel' id='staff-create' hidden><h2>Create a private employee dashboard</h2><p>A strong temporary password is generated automatically and must be changed at first login.</p>"+
@@ -45,6 +47,25 @@ async function render({root,api,user}){
  const create=root.querySelector("#staff-create");
  root.querySelector("#staff-add").addEventListener("click",()=>{create.hidden=false;create.querySelector("input").focus();});
  root.querySelector("#staff-cancel").addEventListener("click",()=>{create.hidden=true;});
+ root.querySelectorAll("[data-staff-action],[data-staff-reset]").forEach(button=>button.addEventListener("click",async()=>{
+   const action=button.dataset.action||"reset-password";
+   const id=button.dataset.staffAction||button.dataset.staffReset;
+   if(!confirm(action==="reset-password"?"Generate a new temporary password and revoke active sessions?":"Confirm "+action+" for this managed employee?"))return;
+   button.disabled=true;
+   try{
+     const outcome=await api("/api/admin/managed-employees/"+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({action})});
+     if(action==="reset-password"){
+       const pass=outcome.temporaryPassword;
+       const result=root.querySelector("#staff-created");
+       const section=root.querySelector("#staff-create");
+       section.hidden=false;result.hidden=false;
+       result.innerHTML="<div class='cc-load-warning'><strong>New one-time password</strong><p>Give this securely to the employee. Existing sessions have been revoked.</p><label>Password<input id='staff-reset-pass' type='text' readonly value='"+esc(pass)+"'></label><button type='button' id='staff-reset-copy' class='cc-open'>Copy password</button></div>";
+       result.querySelector("#staff-reset-copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(pass);}catch{result.querySelector("#staff-reset-pass").select();}});
+       section.scrollIntoView({behavior:"smooth",block:"center"});
+     }else await render({root,api,user});
+   }catch(error){alert(error.message||"Could not update employee.");}
+   finally{button.disabled=false;}
+ }));
  root.querySelector("#staff-create-form").addEventListener("submit",async event=>{
    event.preventDefault();
    const form=event.currentTarget,button=form.querySelector("[type=submit]"),error=root.querySelector("#staff-create-error"),result=root.querySelector("#staff-created");
