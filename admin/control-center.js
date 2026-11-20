@@ -144,14 +144,20 @@
       search.value=globalSearch.value;
       globalSearch.oninput=()=>{if(!document.body.contains(root))return;search.value=globalSearch.value;filter();};
     }
-    root.querySelectorAll("[data-open]").forEach(button=>button.addEventListener("click",()=>go(button.dataset.open||button.dataset.destination)));
     filter();
   }
   function metric(label,number,icon,desc) {
     return `<article class="cc-metric"><span class="cc-metric-icon">${icon}</span><span class="cc-metric-label">${escapeHtml(label)}</span><strong>${escapeHtml(number)}</strong><small>${escapeHtml(desc)}</small></article>`;
   }
+  // Use one binding path for every dashboard navigation button. Previously only
+  // .cc-action and .cc-link were connected, leaving pricing/settings cards,
+  // the hero CTA, request View all, and Auri shortcuts unresponsive.
   function quickActions(go,root) {
-    root.querySelectorAll(".cc-action[data-destination],.cc-link[data-destination]").forEach(button=>button.addEventListener("click",()=>go(button.dataset.destination)));
+    root.querySelectorAll('button[data-destination],button[data-open]').forEach(button=>{
+      const destination = button.dataset.destination || button.dataset.open;
+      if (!destination) return;
+      button.addEventListener('click', () => go(destination));
+    });
   }
   function activity(rows) {
     if(!rows.length) return `<p class="cc-empty">No recent request activity.</p>`;
@@ -212,7 +218,11 @@
       return;
     }
     const options = sections[view]||[];
-    const accessible=options.filter(([id])=>(id!=="team"&&id!=="audit")||user?.role==="owner");
+    const accessible=options.filter(([id])=>{
+      if (["team","audit"].includes(id) && user?.role!=="owner") return false;
+      if (id==="global-pricing" && !["owner","manager"].includes(user?.role)) return false;
+      return true;
+    });
     const names={finance:["Finance","Manage payments, invoices, expenses and recurring services."],catalog:["Services & Pricing","Control your current offers and all existing price settings."],settingsgroup:["Settings & Workspace","Your team, access control and internal tools."]};
     const [title,subtitle]=names[view]||["Management","Choose a section"];
     root.innerHTML=`<div class="cc-welcome cc-welcome--compact"><div><span class="cc-eyebrow">MANAGEMENT</span><h2>${title}</h2><p>${subtitle}</p></div></div>

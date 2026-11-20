@@ -72,7 +72,7 @@
       $("mobileNav").value = active;
       document.querySelectorAll("#sideNav [data-view]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
     }
-    function applyReadOnlyUi(){if(canWrite())return;document.querySelectorAll("#content button").forEach(button=>{if(!button.matches("[data-nfc-details],[data-menu-details],[data-destination],[data-open],[data-filter]")){button.disabled=true;button.title="Read-only account"}})}
+    function applyReadOnlyUi(){if(canWrite())return;document.querySelectorAll("#content button").forEach(button=>{if(!(button.closest(".cc-root")&&button.matches("[data-destination],[data-open],[data-filter]"))&&!button.matches("[data-nfc-details],[data-menu-details]")){button.disabled=true;button.title="Read-only account"}})}
 
     async function checkSession(){try{const session=await api("/api/admin/session");if(session.authenticated){state.user=session.user;return showDashboard()}}catch(_){}state.user=null;$("loginView").classList.remove("hidden");$("dashboardView").classList.add("hidden")}
     async function showDashboard(){$("loginView").classList.add("hidden");$("dashboardView").classList.remove("hidden");$("currentUser").innerHTML=`<strong>${esc(state.user?.displayName||state.user?.username||"")}</strong><span>${esc(state.user?.role||"")}</span>`;buildNav();const requested=location.hash.slice(1);await openView(visibleNav().some(([id])=>id===requested)?requested:"overview")}
@@ -277,4 +277,12 @@ async function updateQuickSite(id,patch){
     $("loginForm").addEventListener("submit",async event=>{event.preventDefault();$("loginBtn").disabled=true;$("loginNotice").className="notice";$("loginNotice").textContent="Signing in…";try{const result=await api("/api/admin/login",{method:"POST",body:JSON.stringify({username:$("username").value,password:$("password").value})});state.user=result.user;$("password").value="";$("loginNotice").textContent="";await showDashboard()}catch(error){$("loginNotice").className="notice error";$("loginNotice").textContent=error.message}finally{$("loginBtn").disabled=false}});
     $("logoutBtn").addEventListener("click",async()=>{await api("/api/admin/logout",{method:"POST"}).catch(()=>{});location.reload()});
     $("mobileNav").addEventListener("change",event=>openView(event.target.value));$("modalClose").addEventListener("click",closeModal);$("modalForm").addEventListener("submit",saveEditor);$("modal").addEventListener("click",event=>{if(event.target===$("modal"))closeModal()});
+    window.addEventListener("hashchange", () => {
+      if (!state.user) return;
+      const requested = location.hash.slice(1) || "overview";
+      if (requested === state.view) return;
+      // Resolve via the current (possibly wrapped) navigation function so
+      // specialized CRM, AuraPops, and workspace routes remain operational.
+      void openView(requested);
+    });
     checkSession();
