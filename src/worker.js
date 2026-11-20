@@ -1509,6 +1509,14 @@ async function ensureSchema(db) {
       db.prepare("CREATE INDEX IF NOT EXISTS idx_employee_audit_created ON employee_audit_log(created_at DESC)"),
     ]);
 
+    // Seed only missing employee accounts. Existing accounts and rotated passwords are never overwritten.
+    // The temporary hashes cannot access client data until the employee chooses a strong new password.
+    await db.batch([
+      db.prepare("INSERT OR IGNORE INTO employee_users (id, portal_slug, display_name, password_hash, active) VALUES (?, ?, ?, ?, 1)").bind("emp-malek-20261120", "malek", "Malek", "temp:$2a$12$pxcNHIY4I4dDen4xJwJKsOCKNRMPxUth9yYskObNWCY6/CeGJggCG"),
+      db.prepare("INSERT OR IGNORE INTO employee_users (id, portal_slug, display_name, password_hash, active) VALUES (?, ?, ?, ?, 1)").bind("emp-ala-20261120", "ala", "Ala", "temp:$2a$12$k1ArgJaitcF7S1NUwjkRL.JrwzjtoE8.jqcrIjnfqmlnHNifAt6SK"),
+      db.prepare("INSERT OR IGNORE INTO employee_users (id, portal_slug, display_name, password_hash, active) VALUES (?, ?, ?, ?, 1)").bind("emp-yessin-20261120", "yessin", "Yessin", "temp:$2a$12$qFX2tOQX5RwlQOKYweH0DOa9uBRK0/iDygnqU8ErXraMMHWpc6Y8K"),
+    ]);
+
     await db.batch([
       settingSeed(db, "nfc_price", "700"),
       settingSeed(db, "auramenu_self_price", "1599"),
