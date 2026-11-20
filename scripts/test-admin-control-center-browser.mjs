@@ -40,6 +40,7 @@ async function clickCard(page,name,group,mobile) {
   assert.equal(await card.isDisabled(),false, name+' was disabled');
   await card.click();
   await page.waitForFunction(view=>location.hash==='#'+view,name);
+  await page.locator('#content h2').first().waitFor({timeout:10000});
   await validateNoError(page);
 }
 try {
