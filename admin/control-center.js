@@ -183,7 +183,7 @@
       ["Unpaid Invoices",summary?.unpaidInvoices,"▥","Awaiting payment"],
       ["Recurring / Month",summary?formatMoney(summary.recurringRevenue):null,"₺","Tracked monthly revenue"]
     ];
-    root.innerHTML = `<div class="cc-welcome"><div><span class="cc-eyebrow">AURADIGITAL CONTROL CENTER</span><h2>Good to see you, ${escapeHtml(displayName)} <span>👋</span></h2><p>Manage requests, customers and operations in one place.</p></div><button class="cc-primary" data-destination="requests">View all requests <span>↗</span></button></div>
+    root.innerHTML = `<div class="cc-welcome cc-welcome--hero"><div class="cc-hero-copy"><span class="cc-eyebrow">AURADIGITAL CONTROL CENTER</span><h2>AuraDigital <em>Control</em></h2><p>Welcome, ${escapeHtml(displayName)}. Manage your requests, team and growth — all in one place.</p><button class="cc-primary" data-destination="requests">View all requests <span>↗</span></button></div><img class="cc-banner-auri" src="/media/landing/hub-auri.png" alt="Auri, AuraDigital assistant" loading="lazy"></div>
       <div class="cc-metrics">${cards.map(([label,value,icon,desc])=>metric(label,value===null||value===undefined?"—":String(value),icon,desc)).join("")}</div>
       ${requests.failed.length?`<p class="cc-load-warning" role="status">Some request services could not be loaded: ${escapeHtml(requests.failed.join(", "))}. Your saved data has not been changed.</p>`:""}
       <div class="cc-dashboard-grid">
