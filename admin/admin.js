@@ -72,7 +72,7 @@
       $("mobileNav").value = active;
       document.querySelectorAll("#sideNav [data-view]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
     }
-    function applyReadOnlyUi(){if(canWrite())return;document.querySelectorAll("#content button").forEach(button=>{if(!button.matches("[data-nfc-details],[data-menu-details],[data-destination],[data-open],[data-filter]")){button.disabled=true;button.title="Read-only account"}})}
+    function applyReadOnlyUi(){if(canWrite())return;document.querySelectorAll("#content button").forEach(button=>{if(!(button.closest(".cc-root")&&button.matches("[data-destination],[data-open],[data-filter]"))&&!button.matches("[data-nfc-details],[data-menu-details]")){button.disabled=true;button.title="Read-only account"}})}
 
     async function checkSession(){try{const session=await api("/api/admin/session");if(session.authenticated){state.user=session.user;return showDashboard()}}catch(_){}state.user=null;$("loginView").classList.remove("hidden");$("dashboardView").classList.add("hidden")}
     async function showDashboard(){$("loginView").classList.add("hidden");$("dashboardView").classList.remove("hidden");$("currentUser").innerHTML=`<strong>${esc(state.user?.displayName||state.user?.username||"")}</strong><span>${esc(state.user?.role||"")}</span>`;buildNav();const requested=location.hash.slice(1);await openView(visibleNav().some(([id])=>id===requested)?requested:"overview")}
