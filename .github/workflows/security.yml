@@ -31,6 +31,13 @@ jobs:
       - run: npm run deploy:check
       - name: Install Chromium for customer browser checks
         run: npx playwright install --with-deps chromium
+      - name: Test admin pricing, settings, and requests navigation without database writes
+        run: |
+          python3 -m http.server 4196 --bind 127.0.0.1 > /tmp/aura-admin-navigation.log 2>&1 &
+          admin_test_pid=$!
+          trap 'kill "$admin_test_pid" 2>/dev/null || true' EXIT
+          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4196/admin/index.html > /dev/null
+          ADMIN_CONTROL_TEST_ORIGIN=http://127.0.0.1:4196 node scripts/test-admin-control-center-browser.mjs
       - name: Test luminous public design on eight pages at desktop and mobile widths
         run: |
           python3 -m http.server 4194 --bind 127.0.0.1 > /tmp/aura-luminous-preview.log 2>&1 &
