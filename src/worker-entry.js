@@ -10,6 +10,7 @@ import app from './worker.js';
 import { handleAuraMenuDashboard } from './auramenu-dashboard.js';
 import { handleAuraPopsAdmin } from './aurapops-admin.js';
 import { handleAdminWorkspace } from './admin-workspace.js';
+import { handleOperations } from './operations-center.js';
 import { serveEmployeePortal } from './employee-portal.js';
 import { serveAdditionalEmployeePortal } from './employee-portals.js';
 import { serveManagedEmployeePortal, handleManagedEmployeeApi, handleManagedEmployeeAdmin } from './managed-employees.js';
@@ -75,6 +76,8 @@ const router = {
     if (managedApiResponse) return managedApiResponse;
     const managedAdminResponse = await handleManagedEmployeeAdmin(request, env);
     if (managedAdminResponse) return managedAdminResponse;
+    const opsResponse = await handleOperations(request,env);
+    if (opsResponse) return opsResponse;
 
     const additionalEmployeeResponse = await serveAdditionalEmployeePortal(request, env);
     if (additionalEmployeeResponse) return additionalEmployeeResponse;
