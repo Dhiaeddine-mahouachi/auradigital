@@ -3,6 +3,21 @@
       ["clients","Clients"],["orders","NFC / QR Orders"],["invoices","Invoices"],["subscriptions","Subscriptions"],["expenses","Expenses"],["analytics","Analytics"],["ai","AI Employee"],["team","Team & Access","owner"],["audit","Security Log","owner"]
     ];
 
+    // Grouped primary navigation; legacy routes remain available and unchanged.
+    NAV.push(["requests","Projects & Orders"],["finance","Finance"],["catalog","Services & Pricing"],["settingsgroup","Settings"]);
+    const MAIN_NAV = [
+      ["overview","▦","Dashboard"],["clients","♙","CRM"],
+      ["requests","▣","Projects & Orders"],["finance","◫","Finance"],
+      ["ai","✦","Auri AI"],["catalog","◈","Services & Pricing"],
+      ["settingsgroup","⚙","Settings"]
+    ];
+    const SUB_NAV = {
+      requests:["nfc","auramenu","quicksite","aurapops","orders","menuaccess"],
+      finance:["invoices","subscriptions","expenses","analytics"],
+      catalog:["global-pricing","pricing","packages","services","portfolio","shop"],
+      settingsgroup:["team","audit","workspace"]
+    };
+    const primaryView = view => Object.keys(SUB_NAV).find(key=>SUB_NAV[key].includes(view)) || view;
     const RESOURCE = {
       packages:{title:"Packages",subtitle:"Edit the monthly and weekly packages shown on the public website.",columns:[["name","Package"],["monthly_price","Monthly","money"],["weekly_price","Weekly","money"],["active","Visible","bool"]],fields:[
         ["name","Name","text",true],["description","Description","textarea",true],["monthly_price","Monthly price (TL)","number",true],["weekly_price","Weekly price (TL)","number",true],["features","Features — one per line","list",false],["featured","Featured package","checkbox",false],["active","Visible on website","checkbox",false],["sort_order","Order","number",false]
@@ -49,21 +64,26 @@
     }
 
     function buildNav(){
-      const nav=visibleNav();
-      $("sideNav").innerHTML=nav.map(([id,label])=>`<button class="nav-item${id===state.view?" active":""}" data-view="${id}">${esc(label)}</button>`).join("");
-      $("mobileNav").innerHTML=nav.map(([id,label])=>`<option value="${id}">${esc(label)}</option>`).join("");
-      $("mobileNav").value=state.view;
-      document.querySelectorAll("[data-view]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
+      const access = new Set(visibleNav().map(([id])=>id));
+      const nav = MAIN_NAV.filter(([id])=>access.has(id));
+      const active = primaryView(state.view);
+      $("sideNav").innerHTML = nav.map(([id,icon,label])=>`<button class="nav-item${id===active?" active":""}" data-view="${id}"><span aria-hidden="true" style="display:inline-grid;place-items:center;min-width:20px;font-size:18px">${esc(icon)}</span><span>${esc(label)}</span></button>`).join("");
+      $("mobileNav").innerHTML = nav.map(([id,,label])=>`<option value="${id}">${esc(label)}</option>`).join("");
+      $("mobileNav").value = active;
+      document.querySelectorAll("#sideNav [data-view]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
     }
-    function applyReadOnlyUi(){if(canWrite())return;document.querySelectorAll("#content button").forEach(button=>{if(!button.matches("[data-nfc-details],[data-menu-details]")){button.disabled=true;button.title="Read-only account"}})}
+    function applyReadOnlyUi(){if(canWrite())return;document.querySelectorAll("#content button").forEach(button=>{if(!button.matches("[data-nfc-details],[data-menu-details],[data-destination],[data-open],[data-filter]")){button.disabled=true;button.title="Read-only account"}})}
 
     async function checkSession(){try{const session=await api("/api/admin/session");if(session.authenticated){state.user=session.user;return showDashboard()}}catch(_){}state.user=null;$("loginView").classList.remove("hidden");$("dashboardView").classList.add("hidden")}
     async function showDashboard(){$("loginView").classList.add("hidden");$("dashboardView").classList.remove("hidden");$("currentUser").innerHTML=`<strong>${esc(state.user?.displayName||state.user?.username||"")}</strong><span>${esc(state.user?.role||"")}</span>`;buildNav();const requested=location.hash.slice(1);await openView(visibleNav().some(([id])=>id===requested)?requested:"overview")}
 
     async function openView(view){if(!visibleNav().some(([id])=>id===view))view="overview";state.view=view;location.hash=view==="overview"?"":view;buildNav();const meta=RESOURCE[view];$("pageTitle").textContent=meta?.title||({"global-pricing":"Global Pricing",overview:"Overview",nfc:"NFC Design Requests",auramenu:"AuraMenu Requests",quicksite:"QuickSite Requests",pricing:"Pricing",analytics:"Analytics",team:"Team & Access",audit:"Security Log"}[view]||view);$("pageSubtitle").textContent=meta?.subtitle||({overview:"Your business at a glance.",nfc:"Review colors and card details, confirm payment, then approve production.",auramenu:"Verify payment, review the requested menu and approve publishing.",quicksite:"Review customer websites, confirm payment and approve publishing.",pricing:"Control all public starting prices from one place.",analytics:"Privacy-friendly aggregate website traffic for the last 30 days.",team:"Individual accounts, roles and revocable access.",audit:"Recent administrator sign-ins and data changes."}[view]||"");$("content").innerHTML='<section class="panel"><p>Loading…</p></section>';
-      try{if(view==="overview")await renderOverview();else if(view==="nfc")await renderNfc();else if(view==="auramenu")await renderAuraMenu();else if(view==="quicksite")await renderQuickSite();else if(view==="global-pricing")await (await import("./global-pricing.js")).renderGlobalPricing($("content"),api);else if(view==="shop")await (await import("./shop-panel.js")).renderShopPanel($("content"),api);else if(view==="pricing")await renderPricing();else if(view==="ai")await (await import("./ai-panel.js")).renderAiPanel($("content"),api);else if(view==="analytics")await renderAnalytics();else if(view==="team")await renderTeam();else if(view==="audit")await renderAudit();else await renderResource(view);applyReadOnlyUi()}catch(error){if(error.status===401)return checkSession();$("content").innerHTML=`<section class="panel"><div class="notice error">${esc(error.message)}</div></section>`}}
+      try{if(view==="overview")await renderOverview();else if(["requests","finance","catalog","settingsgroup"].includes(view))await window.AuraControl.group({root:$("content"),api,go:openView,view,user:state.user});else if(view==="nfc")await renderNfc();else if(view==="auramenu")await renderAuraMenu();else if(view==="quicksite")await renderQuickSite();else if(view==="global-pricing")await (await import("./global-pricing.js")).renderGlobalPricing($("content"),api);else if(view==="shop")await (await import("./shop-panel.js")).renderShopPanel($("content"),api);else if(view==="pricing")await renderPricing();else if(view==="ai")await (await import("./ai-panel.js")).renderAiPanel($("content"),api);else if(view==="analytics")await renderAnalytics();else if(view==="team")await renderTeam();else if(view==="audit")await renderAudit();else await renderResource(view);applyReadOnlyUi()}catch(error){if(error.status===401)return checkSession();$("content").innerHTML=`<section class="panel"><div class="notice error">${esc(error.message)}</div></section>`}}
 
-    async function renderOverview(){const d=await api("/api/admin/overview");const cards=[["NFC design requests",d.pendingNfcRequests,"warn"],["AuraMenu requests",d.pendingAuraMenus,"warn"],["QuickSite requests",d.pendingQuickSites,"warn"],["Leads",d.leads],["Active clients",d.activeClients],["Open orders",d.openOrders],["Unpaid invoices",d.unpaidInvoices],["Paid revenue",money(d.revenue),"good"],["Expenses",money(d.expenses),"warn"],["Profit",money(d.profit),d.profit>=0?"good":"warn"],["Recurring / month",money(d.recurringRevenue),"good"],["Website views · 30d",d.views30d]];$("content").innerHTML=`<div class="metrics">${cards.map(([label,value,cls=""])=>`<div class="metric ${cls}"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div><section class="panel"><div class="panel-head"><div><h2>Control center is live</h2><p>Website content, customer requests, CRM, orders, billing and KPIs share the same D1 database.</p></div><span class="status">Connected</span></div><p>New NFC, AuraMenu and QuickSite submissions remain red and locked until you confirm payment and approve them.</p></section>`}
+    async function renderOverview(){
+      if(window.AuraControl) return window.AuraControl.overview({root:$("content"),api,go:openView,user:state.user});
+      $("content").innerHTML='<section class="panel"><p>The dashboard interface is unavailable. Reload to try again.</p></section>';
+    }
 
     async function renderPricing(){const data=await api("/api/admin/settings");const map=Object.fromEntries((data.settings||[]).map(item=>[item.key,item.value]));$("content").innerHTML=`<section class="panel"><div class="panel-head"><div><h2>Public starting prices</h2><p>These values are used by the live NFC, QR Menu and website pricing areas.</p></div><span class="status">Live settings</span></div><div class="pricing-form">${PRICE_FIELDS.map(([key,label,help])=>`<label>${esc(label)} (TL)<small>${esc(help)}</small><input type="number" min="0" step="1" data-price-key="${key}" value="${esc(map[key]||0)}" ${canWrite()?"":"disabled"}></label>`).join("")}<div class="wide-actions">${canWrite()?'<button id="savePrices" class="btn btn-dark">Save all prices</button>':'<span class="pill">Read-only access</span>'}<span id="priceNotice" class="notice"></span></div></div></section>`;if(canWrite())$("savePrices").addEventListener("click",savePrices)}
 
