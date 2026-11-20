@@ -167,6 +167,7 @@
   const actions = [
     ["＋","Manage Clients","clients"],
     ["▣","View Orders","requests"],
+    ["▥","Operations Center","operations"],
     ["▤","Invoices","invoices"],
     ["◈","Edit Services","services"],
     ["♙","Manage Team","team"],
