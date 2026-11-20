@@ -277,4 +277,12 @@ async function updateQuickSite(id,patch){
     $("loginForm").addEventListener("submit",async event=>{event.preventDefault();$("loginBtn").disabled=true;$("loginNotice").className="notice";$("loginNotice").textContent="Signing in…";try{const result=await api("/api/admin/login",{method:"POST",body:JSON.stringify({username:$("username").value,password:$("password").value})});state.user=result.user;$("password").value="";$("loginNotice").textContent="";await showDashboard()}catch(error){$("loginNotice").className="notice error";$("loginNotice").textContent=error.message}finally{$("loginBtn").disabled=false}});
     $("logoutBtn").addEventListener("click",async()=>{await api("/api/admin/logout",{method:"POST"}).catch(()=>{});location.reload()});
     $("mobileNav").addEventListener("change",event=>openView(event.target.value));$("modalClose").addEventListener("click",closeModal);$("modalForm").addEventListener("submit",saveEditor);$("modal").addEventListener("click",event=>{if(event.target===$("modal"))closeModal()});
+    window.addEventListener("hashchange", () => {
+      if (!state.user) return;
+      const requested = location.hash.slice(1) || "overview";
+      if (requested === state.view) return;
+      // Resolve via the current (possibly wrapped) navigation function so
+      // specialized CRM, AuraPops, and workspace routes remain operational.
+      void openView(requested);
+    });
     checkSession();
