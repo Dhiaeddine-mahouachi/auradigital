@@ -26,7 +26,8 @@
       ["pricing","Legacy Pricing","Older price settings; retained for compatibility","⌁"]
     ],
     settingsgroup:[
-      ["team","Team & Access","Staff accounts and permission levels","♙"],
+      ["team","Team & Access","Admin accounts and permission levels","♙"],
+      ["staff","Employee Dashboards","Create employee workspaces and inspect activity logs","▣"],
       ["audit","Security Log","Audit activity and access history","♧"],
       ["workspace","Notes & Images","Private notes and visual references","▤"],
       ["menuaccess","Menu Editing Access","Manage paid editing windows","◷"]
@@ -169,6 +170,7 @@
     ["▤","Invoices","invoices"],
     ["◈","Edit Services","services"],
     ["♙","Manage Team","team"],
+    ["＋","Add Employee Dashboard","staff"],
     ["✦","AI Employee","ai"]
   ];
   async function overview({root,api,go,user}) {
@@ -195,7 +197,7 @@
       <div class="cc-dashboard-grid">
         <div class="cc-main-column">${tableBlock(rows.slice(0,12))}</div>
         <div class="cc-side-column">
-          <section class="cc-panel cc-quick-panel"><h2>Quick Actions</h2><div class="cc-actions">${actions.filter(([, ,view])=>view!=="ai"||["owner","manager"].includes(user?.role)).filter(([, ,view])=>view!=="team"||user?.role==="owner").map(([icon,label,view])=>`<button class="cc-action" data-destination="${view}"><span>${icon}</span>${label}</button>`).join("")}</div></section>
+          <section class="cc-panel cc-quick-panel"><h2>Quick Actions</h2><div class="cc-actions">${actions.filter(([, ,view])=>view!=="ai"||["owner","manager"].includes(user?.role)).filter(([, ,view])=>!["team","staff"].includes(view)||user?.role==="owner").map(([icon,label,view])=>`<button class="cc-action" data-destination="${view}"><span>${icon}</span>${label}</button>`).join("")}</div></section>
           <section class="cc-panel cc-activity-panel"><div class="cc-panel-head"><h2>Recent Activity</h2></div>${activity(rows)}</section>
           <section class="cc-auri"><img src="/media/landing/hub-auri.png" alt="Auri assistant" loading="lazy"><div><span>YOUR AI OPERATIONS ASSISTANT</span><h2>Auri</h2><p>Review AI activity and manage approved knowledge.</p><button class="cc-auri-btn" data-destination="${["owner","manager"].includes(user?.role)?"ai":"clients"}">${["owner","manager"].includes(user?.role)?"Open AI Employee":"Open CRM"} ↗</button></div></section>
         </div>
@@ -220,6 +222,7 @@
     const options = sections[view]||[];
     const accessible=options.filter(([id])=>{
       if (["team","audit"].includes(id) && user?.role!=="owner") return false;
+      if (id==="staff" && user?.role!=="owner") return false;
       if (id==="global-pricing" && !["owner","manager"].includes(user?.role)) return false;
       return true;
     });
