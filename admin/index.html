@@ -71,6 +71,7 @@
       .modal-actions{grid-template-columns:1fr}
     }
   </style>
+  <link rel="stylesheet" href="/admin/control-center.css?v=20261120" />
 </head>
 <body>
   <section id="loginView" class="login-wrap">
@@ -78,15 +79,16 @@
   </section>
 
   <div id="dashboardView" class="shell hidden">
-    <aside><div><div class="brand">AURA<span>DIG</span></div><div class="admin-label">Control center</div></div><nav id="sideNav"></nav><div class="aside-foot">AuraDigital Admin v1.0<br>Cloudflare Worker + D1</div></aside>
+    <aside><div><div class="brand">Aura<span>Digital</span></div><div class="admin-label">Control center</div></div><nav id="sideNav"></nav><div class="aside-foot">AuraDigital Control Center<br>All your existing tools, one workspace.</div></aside>
     <main>
-      <div class="topbar"><div><h1 id="pageTitle">Overview</h1><p id="pageSubtitle">Your business at a glance.</p></div><div class="top-actions"><select id="mobileNav" class="mobile-nav" aria-label="Dashboard section"></select><div id="currentUser" class="user-chip"></div><a class="btn btn-light" href="/weddings/studio.html">Wedding studio</a><button id="logoutBtn" class="btn btn-light">Log out</button></div></div>
+      <div class="topbar"><div><h1 id="pageTitle">Overview</h1><p id="pageSubtitle">Your business at a glance.</p></div><div class="top-actions"><input id="cc-global-search" type="search" aria-label="Search dashboard requests" placeholder="Search customers, requests..." autocomplete="off"><select id="mobileNav" class="mobile-nav" aria-label="Dashboard section"></select><div id="currentUser" class="user-chip"></div><button id="logoutBtn" class="btn btn-light">Log out</button></div></div>
       <div id="content"></div>
     </main>
   </div>
 
   <div id="modal" class="modal hidden" aria-hidden="true"><div class="modal-card"><div class="modal-head"><h2 id="modalTitle">Add item</h2><button id="modalClose" class="btn btn-light btn-sm" type="button">Close</button></div><form id="modalForm" class="modal-grid"></form></div></div>
 
+  <script src="/admin/control-center.js?v=20261120"></script>
   <script src="/admin/admin.js"></script>
   <script src="/admin/menu-access-panel.js"></script>
   <script src="/admin/aurapops-panel.js"></script>
