@@ -10,6 +10,7 @@ import { checkResendHealth } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
 import { securityEvent } from "./security-policy.js";
 import { handleEmployeePortalApi } from "./employee-portal.js";
+import { handleAdditionalEmployeeApi } from "./employee-portals.js";
 import {
   ADMIN_ROLES,
   SESSION_SECONDS,
@@ -1027,6 +1028,8 @@ export default {
       await ensureSchema(env.DB);
 
       if (url.pathname.startsWith("/api/employee/")) {
+        const additionalEmployeeResponse = await handleAdditionalEmployeeApi(request, env);
+        if (additionalEmployeeResponse) return additionalEmployeeResponse;
         return await handleEmployeePortalApi(request, env);
       }
 
