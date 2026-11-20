@@ -528,3 +528,6 @@ export async function handleAdditionalEmployeeApi(request, env) {
   const match = new URL(request.url).pathname.match(/^\/api\/employee\/(malek|ala|yessin)\//);
   return match ? PORTALS[match[1]].handleEmployeePortalApi(request, env) : null;
 }
+
+// Managed employee accounts reuse the same isolated login, client and audit implementation.
+export function managedEmployeePortal(slug,name) { return makeEmployeePortal(slug,name); }
