@@ -29,7 +29,7 @@ try {
  await desktop.locator('[name=terms]').check();
  await desktop.locator('#auth-form button[type=submit]').click();
  await heading(desktop,'Build your roadmap').waitFor();
- assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Chat','Roadmap','Ask Auri','My Services','Requests','Orders & billing','Settings']);
+ assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Home','Roadmap','Ask Auri','My Services','Requests','Orders & billing','Settings']);
  assert(await desktop.locator('.sidebar [data-page=journey]').evaluate(node=>node.clientHeight<66));
  await screenshot(desktop,'AuraHub-New-Home');
  await button(desktop,'What does a digital menu cost?').click();
@@ -159,9 +159,7 @@ try {
 
  const mobile=await pageAt({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
  await mobile.goto(base+'/__qa/start');
- await mobile.locator('[data-cx-panel-open]').click();
- await mobile.locator('[data-cx-tab=services]').click();
- await mobile.locator('.hub-service-links').getByRole('link',{name:'Business Email'}).click();
+ await mobile.goto(base+'/hub/work?offer=email');
  await heading(mobile,'What you’ll get').waitFor();
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  await screenshot(mobile,'aura-command-service-mobile');

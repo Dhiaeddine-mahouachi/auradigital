@@ -1,11 +1,11 @@
-// Chat-first AuraHub home: a conversation with Auri on the left and a context
-// panel (Overview, Services, Roadmap, Billing) on the right. Auri summarises
-// the business, opens the right panel for what you ask, and answers free text
-// through the workspace Auri endpoint (which falls back to roadmap guidance).
-import { connectedRows, connectedList, dashCopy, statusPill } from './dashboard-view.js';
-
+// Auri chat: the AuraHub assistant, opened as a side panel from anywhere in
+// the hub. Auri summarises the business, answers about services, roadmap and
+// billing from the customer's data, offers to start work ("Let Auri start"
+// writes the brief for a request to the team), and sends other questions to
+// the workspace Auri endpoint, which falls back to roadmap guidance.
 const COPY = {
   en: {
+    start: 'Let Auri start', startReply: s => `I can take care of “${s}” for you. I’ll write the brief from your business profile and send it to the AuraDigital team for a quote — you just confirm.`, servicesLink: 'Open my services', billingLink: 'Open billing',
     status: 'Your AI guide · online', placeholder: 'Message Auri…', send: 'Send', thinking: 'Auri is thinking…',
     tabs: ['Overview', 'Services', 'Roadmap', 'Billing'], open: 'Open', clear: 'New conversation', panel: 'Details',
     hi: (name, biz) => `Hi ${name}! Here’s where ${biz} stands today:`,
@@ -23,6 +23,7 @@ const COPY = {
     flow: ['Profile', 'Roadmap', 'Requests', 'In production', 'Live'],
   },
   tr: {
+    start: 'Auri başlasın', startReply: s => `“${s}” işini sizin için üstlenebilirim. İşletme profilinizden brifi yazar, teklif için AuraDigital ekibine gönderirim — siz sadece onaylarsınız.`, servicesLink: 'Hizmetlerimi aç', billingLink: 'Ödemeleri aç',
     status: 'Yapay zekâ rehberiniz · çevrimiçi', placeholder: 'Auri’ye yazın…', send: 'Gönder', thinking: 'Auri düşünüyor…',
     tabs: ['Genel', 'Hizmetler', 'Yol haritası', 'Ödemeler'], open: 'Aç', clear: 'Yeni sohbet', panel: 'Ayrıntılar',
     hi: (name, biz) => `Merhaba ${name}! ${biz} bugün burada:`,
@@ -40,6 +41,7 @@ const COPY = {
     flow: ['Profil', 'Yol haritası', 'Talepler', 'Üretimde', 'Yayında'],
   },
   ar: {
+    start: 'دع أوري يبدأ', startReply: s => `أستطيع التكفل بـ«${s}». سأكتب الملخص من ملف نشاطك وأرسله إلى فريق AuraDigital لعرض سعر — عليك التأكيد فقط.`, servicesLink: 'افتح خدماتي', billingLink: 'افتح الفواتير',
     status: 'مرشدك الذكي · متصل', placeholder: 'اكتب لأوري…', send: 'إرسال', thinking: 'أوري يفكر…',
     tabs: ['نظرة عامة', 'الخدمات', 'الخطة', 'الفواتير'], open: 'فتح', clear: 'محادثة جديدة', panel: 'التفاصيل',
     hi: (name, biz) => `مرحبًا ${name}! هذا وضع ${biz} اليوم:`,
@@ -57,6 +59,7 @@ const COPY = {
     flow: ['الملف', 'الخطة', 'الطلبات', 'قيد التنفيذ', 'مباشر'],
   },
   fr: {
+    start: 'Laisser Auri démarrer', startReply: s => `Je peux m’occuper de « ${s} ». Je rédige le brief à partir de votre profil et l’envoie à l’équipe AuraDigital pour un devis — vous n’avez qu’à confirmer.`, servicesLink: 'Ouvrir mes services', billingLink: 'Ouvrir la facturation',
     status: 'Votre guide IA · en ligne', placeholder: 'Écrire à Auri…', send: 'Envoyer', thinking: 'Auri réfléchit…',
     tabs: ['Aperçu', 'Services', 'Feuille de route', 'Facturation'], open: 'Ouvrir', clear: 'Nouvelle conversation', panel: 'Détails',
     hi: (name, biz) => `Bonjour ${name} ! Voici où en est ${biz} :`,
@@ -82,29 +85,39 @@ const INTENTS = {
   billing: /bill|invoice|pay|owe|due|price paid|fatura|ödeme|borç|فاتور|مستحق|دفع|factur|payer|dois/i,
   request: /request|order a|need a|quote|talep|iste|teklif|طلب|عرض سعر|demande|devis/i,
 };
+// Requests Auri can start for the customer, mapped to the request form's services.
+export const SERVICE_IDEAS = [
+  { match: /web ?site|web sitesi|موقع|site web|landing/i, service: 'Web Design', name: { en: 'a website', tr: 'web sitesi', ar: 'موقع إلكتروني', fr: 'un site web' } },
+  { match: /menu|menü|قائمة|qr/i, service: 'AuraMenu', name: { en: 'a QR digital menu', tr: 'QR dijital menü', ar: 'قائمة رقمية QR', fr: 'un menu QR' } },
+  { match: /review|yorum|تقييم|avis|nfc|card|kart|بطاق/i, service: 'NFC Card', name: { en: 'NFC review cards', tr: 'NFC yorum kartları', ar: 'بطاقات تقييم NFC', fr: 'des cartes avis NFC' } },
+  { match: /whats ?app|chatbot|automat|otomasyon|أتمتة|واتساب/i, service: 'AI & Automation', name: { en: 'WhatsApp automation', tr: 'WhatsApp otomasyonu', ar: 'أتمتة واتساب', fr: 'l’automatisation WhatsApp' } },
+  { match: /google|maps|seo|harita|خرائط|référencement/i, service: 'SEO / Google Maps', name: { en: 'Google Maps & SEO', tr: 'Google Haritalar ve SEO', ar: 'خرائط Google وSEO', fr: 'Google Maps et SEO' } },
+  { match: /\bads?\b|reklam|إعلان|publicit|campaign|kampanya/i, service: 'Ad Management', name: { en: 'ad campaigns', tr: 'reklam kampanyaları', ar: 'حملات إعلانية', fr: 'des campagnes pub' } },
+  { match: /logo|brand|marka|هوية|شعار|marque/i, service: 'Branding', name: { en: 'branding', tr: 'marka kimliği', ar: 'الهوية البصرية', fr: 'l’identité de marque' } },
+  { match: /e-?mail|e-posta|بريد/i, service: 'Business Email', name: { en: 'business email', tr: 'kurumsal e-posta', ar: 'بريد الأعمال', fr: 'l’e-mail pro' } },
+  { match: /host|domain|alan ad|استضافة|نطاق|hébergement/i, service: 'Hosting / Security', name: { en: 'hosting & domain', tr: 'barındırma ve alan adı', ar: 'الاستضافة والنطاق', fr: 'l’hébergement' } },
+];
+const START_WORDS = /\b(build|make|create|set ?up|start|get|launch|need|want|do)\b|oluştur|kur|yap|istiyorum|başlat|ابن|أنشئ|أريد|ابدأ|créer|lancer|faire|veux/i;
 const money = (lang, amount) => new Intl.NumberFormat(lang === 'ar' ? 'ar' : lang, { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(Number(amount || 0));
 
-export function renderChatHome({ host, lang, esc, link, me, workspace, snapshot, connected, next, missionTitle, attention, nextAction, askAuri, auriImage, shortcuts = '' }) {
-  const c = chatCopy(lang), d = dashCopy(lang);
+export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askAuri, auriImage, onBrief, initial }) {
+  const c = chatCopy(lang);
   const id = workspace?.organization.id || 'new';
   const storeKey = 'aura-chat:' + id;
+  const { snapshot, connected, next, missionTitle, attention, nextAction } = data;
   const missions = workspace?.missions || [];
   const done = missions.filter(m => m.status === 'done').length;
-  const rows = connectedRows(connected || {}, lang);
   const openCount = (snapshot?.attention?.length || 0) + (snapshot?.progress?.length || 0) + (connected?.requests || []).filter(r => r.status === 'pending').length;
   const liveCount = (snapshot?.services?.length || 0) + (connected?.totals?.live || 0);
   const dueAmount = connected?.totals?.amountDue || 0;
   const canRequest = workspace?.permissions?.includes('roadmap:write');
-
-  // Conversation (kept for this browser tab so moving around the hub keeps it).
   let log = [];
   try { log = JSON.parse(sessionStorage.getItem(storeKey) || '[]'); } catch {}
   const save = () => { try { sessionStorage.setItem(storeKey, JSON.stringify(log.slice(-40))); } catch {} };
   const greeting = () => {
     const lines = [c.hi(String(me.name || '').split(' ')[0], workspace?.organization.name || 'AuraHub')];
     if (attention) lines.push(c.attention(attention.name));
-    if (missions.length) lines.push(c.roadmapLine(done, missions.length, next ? missionTitle(next) : ''));
-    else lines.push(c.noRoadmap);
+    lines.push(missions.length ? c.roadmapLine(done, missions.length, next ? missionTitle(next) : '') : c.noRoadmap);
     if (openCount) lines.push(c.openLine(openCount));
     if (liveCount) lines.push(c.liveLine(liveCount));
     if (dueAmount) lines.push(c.dueLine(money(lang, dueAmount)));
@@ -114,98 +127,47 @@ export function renderChatHome({ host, lang, esc, link, me, workspace, snapshot,
     if (!missions.length && canRequest !== false) actions.push({ label: c.buildAction, href: link('onboarding') });
     return { role: 'auri', text: lines.join('\n'), actions, greeting: true };
   };
-  // The greeting always reflects the business as it is now; the rest of the
-  // conversation is kept.
   log = [greeting(), ...log.filter(m => !m.greeting)];
   save();
 
-  const panelTab = (() => { try { return sessionStorage.getItem('aura-chat-panel') || 'overview'; } catch { return 'overview'; } })();
-  host.innerHTML = `<div class="cx">
-    <section class="cx-chat" aria-label="Auri">
-      <header class="cx-head">
-        <span class="cx-avatar">${auriImage}</span>
-        <span class="cx-head-text"><strong>Auri</strong><small><i class="cx-online" aria-hidden="true"></i>${esc(c.status)}</small></span>
-        <button type="button" class="cx-ghost cx-panel-toggle" data-cx-panel-open aria-controls="cx-panel">${esc(c.panel)}</button>
-        <button type="button" class="cx-ghost" data-cx-clear>${esc(c.clear)}</button>
-      </header>
-      <ol class="cx-log" role="log" aria-live="polite" data-cx-log></ol>
-      <div class="cx-chips" data-cx-chips>${c.chips.map((chip, i) => `<button type="button" class="cx-chip" data-cx-chip="${i}">${esc(chip)}</button>`).join('')}</div>
-      <form class="cx-input" data-cx-form>
-        <label class="sr-only" for="cx-text">${esc(c.placeholder)}</label>
-        <textarea id="cx-text" name="q" rows="1" maxlength="500" placeholder="${esc(c.placeholder)}" autocomplete="off"></textarea>
-        <button type="submit" class="cx-send" aria-label="${esc(c.send)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-      </form>
-    </section>
-    <aside class="cx-panel" id="cx-panel" data-cx-panel>
-      <div class="cx-panel-grab" aria-hidden="true"></div>
-      <div class="cx-tabs" role="tablist">${['overview', 'services', 'roadmap', 'billing'].map((tab, i) => `<button type="button" role="tab" class="cx-tab" data-cx-tab="${tab}" aria-selected="${tab === panelTab}">${esc(c.tabs[i])}</button>`).join('')}<button type="button" class="cx-ghost cx-panel-close" data-cx-panel-close aria-label="✕">✕</button></div>
-      <div class="cx-panel-body" data-cx-body role="tabpanel"></div>
-    </aside>
-  </div>`;
-
-  const logEl = host.querySelector('[data-cx-log]');
-  const bubble = m => `<li class="cx-msg ${m.role === 'me' ? 'cx-me' : 'cx-them'}">${m.role === 'me' ? '' : `<span class="cx-msg-avatar" aria-hidden="true">${auriImage}</span>`}<div class="cx-bubble"><p>${esc(m.text).replace(/\n/g, '<br>')}</p>${(m.actions || []).length ? `<div class="cx-actions">${m.actions.map(a => a.href ? `<a class="cx-action" href="${esc(a.href)}">${esc(a.label)}<span aria-hidden="true"> →</span></a>` : `<button type="button" class="cx-action" data-cx-open="${esc(a.panel)}">${esc(a.label)}</button>`).join('')}</div>` : ''}</div></li>`;
+  host.innerHTML = `<div class="ax-chat">
+    <ol class="ax-log" role="log" aria-live="polite" data-ax-log></ol>
+    <div class="ax-chips">${c.chips.map((chip, i) => `<button type="button" class="ax-chip" data-ax-chip="${i}">${esc(chip)}</button>`).join('')}</div>
+    <form class="ax-input" data-ax-form>
+      <label class="sr-only" for="ax-text">${esc(c.placeholder)}</label>
+      <textarea id="ax-text" name="q" rows="1" maxlength="500" placeholder="${esc(c.placeholder)}" autocomplete="off"></textarea>
+      <button type="submit" class="ax-send" aria-label="${esc(c.send)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </form></div>`;
+  const logEl = host.querySelector('[data-ax-log]');
+  const bubble = m => `<li class="ax-msg ${m.role === 'me' ? 'ax-me' : 'ax-them'}">${m.role === 'me' ? '' : `<span class="ax-msg-avatar" aria-hidden="true">${auriImage}</span>`}<div class="ax-bubble${m.pending ? ' ax-typing' : ''}"><p>${esc(m.text).replace(/\n/g, '<br>')}</p>${(m.actions || []).length ? `<div class="ax-actions">${m.actions.map((a, i) => a.brief ? `<button type="button" class="ax-action ax-action-primary" data-ax-brief="${i}">${esc(a.label)}</button>` : `<a class="ax-action" href="${esc(a.href)}">${esc(a.label)}<span aria-hidden="true"> →</span></a>`).join('')}</div>` : ''}</div></li>`;
   const draw = () => {
     logEl.innerHTML = log.map(bubble).join('');
-    logEl.querySelectorAll('[data-cx-open]').forEach(b => b.addEventListener('click', () => showPanel(b.dataset.cxOpen, true)));
+    logEl.querySelectorAll('[data-ax-brief]').forEach(button => button.addEventListener('click', () => {
+      const msg = log[[...logEl.children].indexOf(button.closest('li'))];
+      const action = msg?.actions?.[Number(button.dataset.axBrief)];
+      if (action?.brief) onBrief?.(action.brief.service, action.brief.text);
+    }));
     logEl.scrollTop = logEl.scrollHeight;
   };
 
-  // Context panel
-  const body = host.querySelector('[data-cx-body]');
-  const panel = host.querySelector('[data-cx-panel]');
-  const listOr = html => html || `<p class="hx-empty">${esc(c.nothing)}</p>`;
-  const panels = {
-    overview: () => {
-      const states = ['done', !missions.length ? 'todo' : done === missions.length ? 'done' : 'active', openCount ? 'active' : 'todo', (snapshot?.progress?.length || 0) ? 'active' : 'todo', liveCount ? 'done' : 'todo'];
-      const targets = [link('profile'), link('journey'), link('requests'), link('services'), link('services')];
-      return `<ol class="cx-flow">${c.flow.map((name, i) => `<li data-state="${states[i]}"><a href="${esc(targets[i])}"><span aria-hidden="true">${states[i] === 'done' ? '✓' : i + 1}</span>${esc(name)}</a></li>`).join('')}</ol>
-        <div class="cx-stats">
-          <a href="${esc(link('journey'))}"><small>${esc(d.kRoadmap)}</small><strong>${missions.length ? Math.round(100 * done / missions.length) : 0}%</strong></a>
-          <a href="${esc(link('requests'))}"><small>${esc(d.kRequests)}</small><strong>${openCount}</strong></a>
-          <a href="${esc(link('services'))}"><small>${esc(d.kLive)}</small><strong>${liveCount}</strong></a>
-          <a href="/account" class="${dueAmount ? 'warn' : ''}"><small>${esc(d.kDue)}</small><strong>${esc(money(lang, dueAmount))}</strong></a>
-        </div>`;
-    },
-    services: () => `${listOr(rows.filter(r => !['invoice'].includes(r.kind)).length ? connectedList(rows.filter(r => r.kind !== 'invoice'), lang, esc, 12) : '')}
-      <a class="cx-more" href="${esc(link('services'))}">${esc(d.viewAll)} →</a>${shortcuts}`,
-    roadmap: () => {
-      const upcoming = missions.filter(m => m.status !== 'done').slice(0, 8);
-      return `${listOr(upcoming.length ? `<ul class="hx-list">${upcoming.map(m => `<li><a class="hx-list-row" href="${esc(link('journey', { task: m.id }))}"><span class="hx-check" data-state="${esc(m.status)}" aria-hidden="true"></span><span class="hx-list-main"><strong>${esc(missionTitle(m))}</strong><small>${esc(m.reason || m.description || '')}</small></span>${statusPill(d, m.status, esc)}</a></li>`).join('')}</ul>` : '')}
-        <a class="cx-more" href="${esc(link(missions.length ? 'journey' : 'onboarding'))}">${esc(missions.length ? c.roadmapAction : c.buildAction)} →</a>`;
-    },
-    billing: () => {
-      const bill = rows.filter(r => ['invoice', 'subscription', 'shop'].includes(r.kind));
-      return `<div class="cx-due ${dueAmount ? 'warn' : ''}"><small>${esc(c.due)}</small><strong>${esc(money(lang, dueAmount))}</strong></div>
-        ${listOr(bill.length ? connectedList(bill, lang, esc, 12) : '')}
-        <a class="cx-more" href="/account">${esc(c.allBilling)} →</a>`;
-    },
-  };
-  function showPanel(tab, openOnMobile) {
-    if (!panels[tab]) tab = 'overview';
-    host.querySelectorAll('[data-cx-tab]').forEach(t => t.setAttribute('aria-selected', String(t.dataset.cxTab === tab)));
-    body.innerHTML = panels[tab]();
-    try { sessionStorage.setItem('aura-chat-panel', tab); } catch {}
-    if (openOnMobile) panel.classList.add('open');
-  }
-  host.querySelectorAll('[data-cx-tab]').forEach(t => t.addEventListener('click', () => showPanel(t.dataset.cxTab)));
-  host.querySelector('[data-cx-panel-open]').addEventListener('click', () => showPanel(panelTab, true));
-  host.querySelector('[data-cx-panel-close]').addEventListener('click', () => panel.classList.remove('open'));
-  host.querySelector('[data-cx-clear]').addEventListener('click', () => { log = [greeting()]; save(); draw(); });
-
-  // Answers: open the right panel for known topics, ask Auri for everything else.
   async function answer(text) {
     log.push({ role: 'me', text }); save(); draw();
     const t = text.toLowerCase();
-    if (INTENTS.billing.test(t)) {
+    const idea = SERVICE_IDEAS.find(s => s.match.test(t));
+    if (idea && canRequest && START_WORDS.test(t)) {
+      const name = idea.name[lang] || idea.name.en;
+      const profile = workspace?.profile || {};
+      const brief = [text, profile.name && `Business: ${profile.name}`, profile.industry && `Industry: ${profile.industry}`, [profile.city, profile.country].filter(Boolean).join(', '), profile.goals && `Goal: ${profile.goals}`].filter(Boolean).join('\n');
+      log.push({ role: 'auri', text: c.startReply(name), actions: [{ label: c.start, brief: { service: idea.service, text: brief } }] });
+    } else if (INTENTS.billing.test(t)) {
       const n = (connected?.invoices || []).filter(i => ['sent', 'overdue'].includes(i.status)).length;
-      log.push({ role: 'auri', text: c.billingReply(dueAmount ? money(lang, dueAmount) : '', n), actions: [{ label: c.tabs[3], panel: 'billing' }] }); showPanel('billing', false);
+      log.push({ role: 'auri', text: c.billingReply(dueAmount ? money(lang, dueAmount) : '', n).replace(/ (Billing details are on the right|Your billing is on the right)\./, ''), actions: [{ label: c.billingLink, href: '/account' }] });
     } else if (INTENTS.request.test(t) && canRequest) {
       log.push({ role: 'auri', text: c.requestReply, actions: [{ label: c.requestAction, href: link('requests', { new: '1' }) }] });
     } else if (INTENTS.roadmap.test(t) && missions.length) {
-      log.push({ role: 'auri', text: c.roadmapReply(next ? missionTitle(next) : ''), actions: [{ label: c.roadmapAction, href: link('journey', next ? { task: next.id } : {}) }] }); showPanel('roadmap', false);
+      log.push({ role: 'auri', text: c.roadmapReply(next ? missionTitle(next) : ''), actions: [{ label: c.roadmapAction, href: link('journey', next ? { task: next.id } : {}) }] });
     } else if (INTENTS.services.test(t) && /show|list|my |göster|hizmetlerim|اعرض|خدماتي|mes /.test(t)) {
-      log.push({ role: 'auri', text: c.servicesReply(liveCount, openCount), actions: [{ label: c.tabs[1], panel: 'services' }] }); showPanel('services', false);
+      log.push({ role: 'auri', text: c.servicesReply(liveCount, openCount), actions: [{ label: c.servicesLink, href: link('services') }] });
     } else {
       const pending = { role: 'auri', text: c.thinking, pending: true };
       log.push(pending); draw();
@@ -215,7 +177,7 @@ export function renderChatHome({ host, lang, esc, link, me, workspace, snapshot,
     }
     save(); if (host.isConnected) draw();
   }
-  const form = host.querySelector('[data-cx-form]'), input = form.querySelector('textarea');
+  const form = host.querySelector('[data-ax-form]'), input = form.querySelector('textarea');
   form.addEventListener('submit', event => {
     event.preventDefault();
     const text = input.value.trim().slice(0, 500);
@@ -225,11 +187,15 @@ export function renderChatHome({ host, lang, esc, link, me, workspace, snapshot,
   });
   input.addEventListener('keydown', event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); form.requestSubmit?.(); } });
   input.addEventListener('input', () => { input.style.height = ''; input.style.height = Math.min(140, input.scrollHeight) + 'px'; });
-  host.querySelectorAll('[data-cx-chip]').forEach(b => b.addEventListener('click', () => {
-    const i = Number(b.dataset.cxChip);
+  host.querySelectorAll('[data-ax-chip]').forEach(b => b.addEventListener('click', () => {
+    const i = Number(b.dataset.axChip);
     if (i === 3 && canRequest) { location.assign(link('requests', { new: '1' })); return; }
     answer(c.chips[i]);
   }));
   draw();
-  showPanel(panelTab, false);
+  if (initial) answer(initial); else setTimeout(() => input.focus({ preventScroll: true }), 50);
+  return {
+    reset: () => { log = [greeting()]; save(); draw(); },
+    ask: text => answer(text),
+  };
 }
