@@ -45,13 +45,6 @@ jobs:
           trap 'kill "$ops_server_pid" 2>/dev/null || true' EXIT
           curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4197/admin/index.html > /dev/null
           AURA_OPS_TEST_ORIGIN=http://127.0.0.1:4197 node scripts/test-admin-ops-browser.mjs
-      - name: Test luminous design on legacy service pages at desktop and mobile widths
-        run: |
-          python3 -m http.server 4194 --bind 127.0.0.1 > /tmp/aura-luminous-preview.log 2>&1 &
-          light_server_pid=$!
-          trap 'kill "$light_server_pid" 2>/dev/null || true' EXIT
-          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4194/index.html > /dev/null
-          PUBLIC_PALETTE_ORIGIN=http://127.0.0.1:4194 node scripts/test-public-luminous-browser.mjs
       - name: Audit live desktop and mobile landing imagery (diagnostic)
         continue-on-error: true
         run: LANDING_ORIGIN=https://auradigitalworks.com node scripts/test-landing-images-browser.mjs
@@ -69,13 +62,6 @@ jobs:
           trap 'kill "$redesign_server_pid" 2>/dev/null || true' EXIT
           curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4193/index.html > /dev/null
           REDESIGN_ORIGIN=http://127.0.0.1:4193 node scripts/test-redesign-browser.mjs
-      - name: Verify Emerald Gloss contrast surfaces on representative pages
-        run: |
-          python3 -m http.server 4195 --bind 127.0.0.1 > /tmp/emerald-theme.log 2>&1 &
-          theme_pid=$!
-          trap 'kill "$theme_pid" 2>/dev/null || true' EXIT
-          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4195/ > /dev/null
-          AURA_THEME_TEST_ORIGIN=http://127.0.0.1:4195 node scripts/test-emerald-gloss-browser.mjs
       - name: Test private draft customer interactions
         run: |
           PORT=5173 node scripts/dev-hub.mjs > /tmp/hub-menu-qa.log 2>&1 &
@@ -95,30 +81,6 @@ jobs:
         with:
           name: private-menu-draft-screenshots
           path: test-output/menu-drafts-*.png
-          if-no-files-found: ignore
-
-      - name: Preserve luminous public design screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: aura-luminous-public-screenshots
-          path: test-output/luminous-*.png
-          if-no-files-found: ignore
-
-      - name: Preserve Before and After screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: aura-before-after-screenshots
-          path: test-output/aura-comparison-*.png
-          if-no-files-found: ignore
-
-      - name: Preserve Portfolio screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: aura-portfolio-screenshots
-          path: test-output/portfolio-*.png
           if-no-files-found: ignore
 
       - name: Preserve Aura Command screenshots

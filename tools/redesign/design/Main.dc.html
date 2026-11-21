@@ -8,62 +8,8 @@
 <body>
 <x-dc>
 <helmet>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
-
-<style>
-body{margin:0;background:#FFFFFF}
-a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
-.disp{font-family:'Inter Tight',Inter,sans-serif;letter-spacing:-0.035em}
-.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
-.nl{white-space:nowrap;color:#0B0F0C;font-size:15px;font-weight:500;padding:10px 12px;border-radius:10px;background:transparent;border:0;cursor:pointer;font-family:Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
-.nl:hover{background:#F1F0EA;color:#0B0F0C}
-.nlon{background:#F1F0EA}
-.lift{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
-.lift:hover{transform:translateY(-6px);box-shadow:0 28px 60px -28px rgba(11,15,12,.35)}
-.btn{transition:transform .2s,background .2s,color .2s}
-.btn:hover{transform:translateY(-2px)}
-.btn-dark:hover{background:#E1E100 !important;color:#0B0F0C !important}
-.mi{transition:background .2s}
-.mi:hover{background:#F4F3EC}
-.ticket{position:relative}
-.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:28px;height:28px;border-radius:50%;background:#FFFFFF;transform:translateY(-50%)}
-.ticket::before{left:-14px}.ticket::after{right:-14px}
-@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
-@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-@keyframes typing{0%,80%,100%{opacity:.25}40%{opacity:1}}
-@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
-.auri-float{animation:floaty 4.5s ease-in-out infinite}
-.auri-eye{transform-origin:center;transform-box:fill-box;animation:blink 5s infinite}
-.marquee-track{animation:marquee 36s linear infinite}
-.rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
-.pop{animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
-.dot{animation:typing 1.2s infinite}
-details summary{list-style:none;cursor:pointer}
-details summary::-webkit-details-marker{display:none}
-details[open] .plus{transform:rotate(45deg)}
-.plus{transition:transform .25s}
-input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset:1px}
-@media (max-width:1180px){.desk{display:none !important}}
-@media (min-width:1181px){.mob{display:none !important}}
-@media (max-width:1380px){.wide{display:none !important}}
-.only-sm{display:none !important}
-@media (max-width:640px){
-.hide-sm{display:none !important}
-.only-sm{display:inline-flex !important}
-.full-sm{width:100% !important;justify-content:center !important}
-section{padding-left:18px !important;padding-right:18px !important;padding-top:64px !important}
-.lift,.ticket{min-height:0 !important}
-.panel-sm{min-height:0 !important;padding:22px !important;border-radius:24px !important}
-.box-sm{padding:28px 22px !important;border-radius:26px !important}
-.auri-panel{position:fixed !important;inset:0 !important;width:100vw !important;max-width:none !important;height:100dvh !important;max-height:none !important;border-radius:0 !important;z-index:95 !important}
-.auri-fab{width:58px !important;height:58px !important}
-.auri-wrap{right:14px !important;bottom:14px !important}
-.disp{letter-spacing:-0.03em}
-}
-</style>
-
+<!--FONTS-->
+<!--CSS-->
 </helmet>
 <div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; font-size: 16px; line-height: 1.55; overflow-x: clip">
   <dc-import name="Header" active="home" hint-size="100%,124px"></dc-import>
@@ -411,7 +357,7 @@ class Component extends DCLogic {
         { name: 'Mutlu Nakliyat', what: 'Istanbul moving company — website, Google profile, Meta ads', img: '/_blob/fa3669d6d8c834adc34efe0134c2a8e4', alt: 'Mutlu Nakliyat website' },
         { name: 'Erhan Oto Elektrik', what: 'Auto-electrical workshop in Fatih — one-page site and Maps', img: '/_blob/e62003c87bc3e54eb3e4c978d7561582', alt: 'Erhan Oto Elektrik website' }
       ],
-      shopCards: [{"name": "Oliva Bistro", "category": "Restaurants", "img": "/_blob/6171734db86522b18d83feb620a1ae1e", "alt": "Oliva Bistro NFC card design", "href": "https://auradigitalworks.com/shop/cards/oliva-bistro"}, {"name": "Roast & Bean", "category": "Coffee Shops & Cafés", "img": "/_blob/c82edb088af29533cdb5f91a110155ec", "alt": "Roast & Bean NFC card design", "href": "https://auradigitalworks.com/shop/cards/roast-and-bean"}, {"name": "Luna Beauty Studio", "category": "Beauty Salons & Spas", "img": "/_blob/5f60feb16b800b0c9fe748d26e7b872d", "alt": "Luna Beauty Studio NFC card design", "href": "https://auradigitalworks.com/shop/cards/luna-beauty-studio"}, {"name": "Pulse Fitness Club", "category": "Gyms & Fitness", "img": "/_blob/67fde7012efa5f519abab0c38f4c8b4b", "alt": "Pulse Fitness Club NFC card design", "href": "https://auradigitalworks.com/shop/cards/pulse-fitness-club"}, {"name": "Titan Auto Detail", "category": "Automotive & Car Detailing", "img": "/_blob/cfbbe1e814093c9f3d8a3b741e70d131", "alt": "Titan Auto Detail NFC card design", "href": "https://auradigitalworks.com/shop/cards/titan-auto-detail"}, {"name": "BrightCare Dental", "category": "Dental & Medical Clinics", "img": "/_blob/9c83595bb8d3ae90415fd4dbb6273bb0", "alt": "BrightCare Dental NFC card design", "href": "https://auradigitalworks.com/shop/cards/brightcare-dental"}, {"name": "Golden Key Realty", "category": "Real Estate", "img": "/_blob/f6431af6953a97bb5fe854e6affa4033", "alt": "Golden Key Realty NFC card design", "href": "https://auradigitalworks.com/shop/cards/golden-key-realty"}, {"name": "Hotel Luxury", "category": "Hotels & Hospitality", "img": "/_blob/854f5b1e16deee3f4bfc71e187e69e1d", "alt": "Hotel Luxury NFC card design", "href": "https://auradigitalworks.com/shop/cards/collection-hotel-luxury"}, {"name": "Emerald Dining", "category": "Restaurants", "img": "/_blob/35dc925bd8ebdaa1b670b5bffb961b0c", "alt": "Emerald Dining NFC card design", "href": "https://auradigitalworks.com/shop/cards/collection-emerald-dining"}, {"name": "Acid Energy", "category": "Gyms & Fitness", "img": "/_blob/27a85eb7fde46b44f8a6c129dad00484", "alt": "Acid Energy NFC card design", "href": "https://auradigitalworks.com/shop/cards/collection-acid-energy"}, {"name": "Coffee Cobalt", "category": "Coffee Shops & Cafés", "img": "/_blob/183c74aecf5d16291e11f6adc354efdf", "alt": "Coffee Cobalt NFC card design", "href": "https://auradigitalworks.com/shop/cards/collection-coffee-cobalt"}, {"name": "Boutique Checker", "category": "Retail & Fashion", "img": "/_blob/488e7e8f09de505a79c2651b1074355a", "alt": "Boutique Checker NFC card design", "href": "https://auradigitalworks.com/shop/cards/collection-boutique-checker"}],
+      shopCards: [{"name": "Northbridge Consulting", "category": "Corporate & Business", "img": "/media/redesign/cards/northbridge-consulting.webp", "alt": "Northbridge Consulting NFC card design", "href": "https://auradigitalworks.com/shop/cards/northbridge-consulting"}, {"name": "Titan Auto Detail", "category": "Automotive & Car Detailing", "img": "/media/redesign/cards/titan-auto-detail.webp", "alt": "Titan Auto Detail NFC card design", "href": "https://auradigitalworks.com/shop/cards/titan-auto-detail"}, {"name": "Coffee Cobalt", "category": "Coffee Shops & Cafés", "img": "/media/redesign/cards/collection-coffee-cobalt.webp", "alt": "Coffee Cobalt NFC card design", "href": "https://auradigitalworks.com/shop/cards/collection-coffee-cobalt"}, {"name": "Restaurant Terracotta", "category": "Restaurants", "img": "/media/redesign/cards/collection-restaurant-terracotta.webp", "alt": "Restaurant Terracotta NFC card design", "href": "https://auradigitalworks.com/shop/cards/collection-restaurant-terracotta"}, {"name": "Barber Monochrome", "category": "Barbershops", "img": "/media/redesign/cards/collection-barber-monochrome.webp", "alt": "Barber Monochrome NFC card design", "href": "https://auradigitalworks.com/shop/cards/collection-barber-monochrome"}, {"name": "Beauty Lilac", "category": "Beauty Salons & Spas", "img": "/media/redesign/cards/collection-beauty-lilac.webp", "alt": "Beauty Lilac NFC card design", "href": "https://auradigitalworks.com/shop/cards/collection-beauty-lilac"}, {"name": "Boutique Checker", "category": "Retail & Fashion", "img": "/media/redesign/cards/collection-boutique-checker.webp", "alt": "Boutique Checker NFC card design", "href": "https://auradigitalworks.com/shop/cards/collection-boutique-checker"}, {"name": "Digital Profile Lime", "category": "General Business", "img": "/media/redesign/cards/collection-digital-profile-lime.webp", "alt": "Digital Profile Lime NFC card design", "href": "https://auradigitalworks.com/shop/cards/collection-digital-profile-lime"}],
       sites: [
         ['AuraMenu', 'Product', 'auramenu.space', 'https://auramenu.space', '#E3F1E6'],
         ['AuraPops', 'Product', 'aurapops.online', 'https://aurapops.online', '#ECE8FF'],

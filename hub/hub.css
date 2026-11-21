@@ -864,3 +864,14 @@ html[dir=rtl] .ad-forgot{justify-self:start}
 .aurahub-shell .hub-guide input,.aurahub-shell .hub-guide textarea{background:#0A1C14;border:1px solid #24503A;border-radius:999px;color:#F3EEDC;padding-inline:16px}
 .aurahub-shell .hub-guide-prompts button,.aurahub-shell .hub-guide .secondary{background:#133A28;border:1px solid #2f6247;border-radius:999px;color:#F3EEDC}
 .aurahub-shell .hub-guide-prompts button:hover{border-color:#E1E100}
+
+/* moved from the retired global theme */
+:root{--eg-bg:#0b1711;--eg-panel:#1e3829;--eg-panel-high:#294a38;--eg-ink:#f2f8ed;--eg-muted:#c1d3c0;--eg-line:rgba(208,241,203,.27);--eg-lime:#E1E100;--eg-gloss:linear-gradient(121deg,rgba(233,255,218,.015),rgba(236,255,226,.11) 34%,rgba(236,255,226,.015) 51%,transparent 65%)}
+body:has(.aurahub-shell),body:has(.command-gate),body:has(.command-setup){background:#0b1711;color:var(--eg-ink)}
+.aurahub-shell{--hub-canvas:#102219;--hub-surface:#1b3527;--hub-raised:#284534;--hub-border:#4a6850;background:radial-gradient(ellipse at 77% 8%,rgba(141,206,161,.15),transparent 46%),linear-gradient(139deg,#0d1b14,#1b3528 60%,#0c1911)}
+.aurahub-shell :is(.sidebar,.hub-topbar){background:linear-gradient(132deg,#13291e,#0c1c15);border-color:var(--eg-line)}
+.aurahub-shell :is(.panel,.hub-page-start),.aurahub-shell .hub-home-grid .hub-service-links>a{background:var(--eg-gloss),linear-gradient(139deg,#263f2d,#13271e);border-color:var(--eg-line)}
+.command-gate-header{background:linear-gradient(135deg,#183020,#0f2118);border-color:var(--eg-line)}
+.command-gate :is(.auth-intro,.auth-panel),.command-setup :is(.mode-card,.setup-heading){background:var(--eg-gloss),linear-gradient(136deg,#25402d,#172d22);border-color:var(--eg-line)}
+.command-gate :is(.field input,.secondary),.command-setup :is(.field input,.field select,.field textarea,.secondary){background:#1b3526;color:#f2f8ed;border-color:var(--eg-line)}
+@media(max-width:900px){.ad-auth{grid-template-columns:minmax(0,1fr)}main#main.ad-main{box-sizing:border-box;width:100%;max-width:100%;min-width:0}.ad-top{flex-wrap:wrap;row-gap:10px}.ad-top>*{min-width:0}}

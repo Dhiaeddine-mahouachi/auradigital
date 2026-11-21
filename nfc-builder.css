@@ -51,3 +51,26 @@ html[dir=rtl] .workflow span:not(:last-child)::after{margin:0 10px}html[dir=rtl]
   .success-overlay{padding:10px}
   .success-card{max-height:calc(100svh - 20px);overflow:auto;border-radius:20px}
 }
+
+/* AuraDigital 2026 palette (moved from the retired global theme) */
+:root{--eg-bg:#0b1711;--eg-panel:#1e3829;--eg-panel-high:#294a38;--eg-ink:#f2f8ed;--eg-muted:#c1d3c0;--eg-line:rgba(208,241,203,.27);--eg-lime:#E1E100;--eg-gloss:linear-gradient(121deg,rgba(233,255,218,.015),rgba(236,255,226,.11) 34%,rgba(236,255,226,.015) 51%,transparent 65%)}
+body:has(.builder-shell),body:has(.status-shell){
+--paper:#0e2117;--card:#213e2b;--ink:#f2f8ed;--muted:#bbd0bd;--line:var(--eg-line);
+color:var(--eg-ink);background:radial-gradient(ellipse at 83% 5%,rgba(118,191,144,.22),transparent 47%),linear-gradient(134deg,#0d1d14,#21412e 56%,#0e1d15)
+}
+body:has(.builder-shell) .builder-header{background:rgba(17,38,26,.95);border-color:var(--eg-line)}
+body:has(.builder-shell) :is(.builder-brand,.back-link,.builder-intro h1,.section-copy h2,.section-copy p,.fields label,.order-total,.order-total b){color:var(--eg-ink)}
+body:has(.builder-shell) :is(.form-card,.type-option,.language-switch,.palette,.success-card),
+body:has(.status-shell) :is(.status-card,.status-card dl div,.payment-panel){color:var(--eg-ink);background:var(--eg-gloss),linear-gradient(135deg,#2a4d37,#162d23);border-color:var(--eg-line)}
+body:has(.builder-shell) :is(.fields input,.fields textarea,.fields select){background:#183527;color:var(--eg-ink);border-color:var(--eg-line)}
+body:has(.builder-shell) :is(input,textarea)::placeholder{color:#b1c6b0;opacity:1}
+body:has(.builder-shell) :is(.language-switch button,.type-option,.palette){color:var(--eg-ink)}
+body:has(.builder-shell) :is(.language-switch button.active,.type-option:has(input:checked)){background:#335e43;color:#f8ffef;border-color:#c2ef9d}
+body:has(.builder-shell) :is(.section-number,.type-icon,.success-icon){background:#2c503b;color:#dcff9d}
+body:has(.status-shell) :is(.status-card h1,.status-card dd,.payment-panel-head strong,.payment-row b,.payment-row code,.status-actions a){color:var(--eg-ink)}
+body:has(.status-shell) :is(.payment-panel-head span,.status-card dt,.payment-row small){color:#d2e8cd}
+body:has(.status-shell) .payment-panel>p{color:#f4d39c!important}
+body:has(.status-shell) .payment-buttons button{background:#274630;border-color:var(--eg-line);color:var(--eg-ink)}
+body:has(.status-shell) .payment-buttons a{background:var(--eg-lime);color:#14220f}
+.builder-brand .ad-tile{display:inline-grid!important;place-items:center;width:34px;height:34px;border-radius:10px;background:#E1E100;flex:0 0 auto}
+.builder-brand .ad-tile img{width:22px!important;height:11px!important;object-fit:contain}

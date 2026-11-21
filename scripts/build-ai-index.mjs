@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-const pages=[['index.html','company','/'],['services.html','services','/services'],['websites.html','website','/websites'],['packages.html','care','/packages'],['aura-menu.html','auramenu','/aura-menu'],['aurapops.html','aurapops','/aurapops'],['aura-weddings.html','auraweddings','/aura-weddings'],['spinflow.html','spinflow','/spinflow'],['portfolio.html','portfolio','/portfolio'],['about.html','company','/about'],['contact.html','contact','/contact'],['solutions.html','services','/solutions'],['service-shop.html','services','/service-shop'],['help.html','contact','/help']];
+const pages=[['index.html','company','/'],['packages.html','care','/packages'],['aura-menu.html','auramenu','/aura-menu'],['aura-weddings.html','auraweddings','/aura-weddings'],['portfolio.html','portfolio','/portfolio'],['about.html','company','/about'],['contact.html','contact','/contact'],['solutions.html','services','/solutions'],['service-shop.html','services','/service-shop'],['help.html','contact','/help']];
 const entries=[];
 const output=new URL('../src/ai-page-knowledge.js',import.meta.url);
 const old=existsSync(output)?JSON.parse(readFileSync(output,'utf8').match(/export const pageKnowledge = ([\s\S]*);\s*$/)[1]):[];

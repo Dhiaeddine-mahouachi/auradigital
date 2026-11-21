@@ -16,7 +16,7 @@ const VERSION = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
 const ROUTES = {
   'Main.dc.html': '/', 'Solutions.dc.html': '/solutions', 'Shop.dc.html': '/service-shop', 'Packages.dc.html': '/packages',
   'AuraMenu.dc.html': '/aura-menu', 'Work.dc.html': '/portfolio', 'Help.dc.html': '/help', 'About.dc.html': '/about',
-  'Contact.dc.html': '/contact', 'Hub.dc.html': '/hub/signup', 'HubApp.dc.html': '/hub', 'Mobile.dc.html': '/'
+  'Contact.dc.html': '/contact', 'Weddings.dc.html': '/aura-weddings', 'NotFound.dc.html': '/', 'Hub.dc.html': '/hub/signup', 'HubApp.dc.html': '/hub', 'Mobile.dc.html': '/'
 };
 const PAGES = [
   ['Main', 'index.html', 'AuraDigital — Websites, AI & growth for your business', 'Websites, QR menus, Google visibility and WhatsApp automation for businesses in Türkiye and beyond — planned by AI, delivered by our Istanbul team.'],
@@ -27,6 +27,8 @@ const PAGES = [
   ['Work', 'portfolio.html', 'Our work — AuraDigital', 'Websites, products and campaigns built by AuraDigital.'],
   ['Help', 'help.html', 'Help Center — AuraDigital', 'Answers about websites, AuraHub, payments, AuraMenu and WhatsApp automation.'],
   ['About', 'about.html', 'About — AuraDigital', 'An Istanbul-based digital agency combining AI with a hands-on team.'],
+  ['Weddings', 'aura-weddings.html', 'AuraWeddings — Digital wedding invitations | AuraDigital', 'Luxury digital wedding invitations with animated opening, RSVP, countdown, map, gallery and music in Arabic, English, Turkish and French.'],
+  ['NotFound', '404.html', 'Page not found — AuraDigital', 'This page could not be found. Continue to AuraDigital services, prices or contact.'],
   ['Contact', 'contact.html', 'Contact — AuraDigital', 'WhatsApp +90 538 550 76 74 · info@auradigitalworks.com · Istanbul, Türkiye.']
 ];
 const COMPONENTS = ['Header', 'Footer', 'Auri', ...PAGES.map((p) => p[0])];
@@ -96,7 +98,7 @@ for (const d of designs) {
 const compSrc = "import { def } from './runtime.js';\n" + designs.map((d) =>
   `def(${JSON.stringify(d.name)}, ${JSON.stringify(d.tree)}, function (DCLogic) {\n${d.script}\nreturn Component;\n});`).join('\n\n');
 fs.writeFileSync(path.join(HERE, 'components.gen.js'), compSrc);
-fs.writeFileSync(path.join(HERE, 'entry.gen.js'), "import { h, hydrate } from 'preact';\nimport { registry } from './runtime.js';\nimport './components.gen.js';\nconst el = document.getElementById('app');\nconst C = registry[el.dataset.page];\nif (C) hydrate(h(C, {}), el);\n");
+fs.writeFileSync(path.join(HERE, 'entry.gen.js'), "import { h, hydrate } from 'preact';\nimport { registry } from './runtime.js';\nimport './components.gen.js';\nconst el = document.getElementById('app');\nconst C = el && registry[el.dataset.page];\nif (C) hydrate(h(C, {}), el);\nfor (const c of document.querySelectorAll('[data-chrome]')) { const K = registry[c.dataset.chrome]; if (K) hydrate(h(K, { active: c.dataset.active || 'none' }), c); }\n");
 
 await esbuild({ entryPoints: [path.join(HERE, 'entry.gen.js')], bundle: true, minify: true, format: 'iife', target: ['es2019'], outfile: path.join(repoDir, 'redesign', 'app.js'), legalComments: 'none' });
 
@@ -136,7 +138,34 @@ ${stripFonts(extraCss).trim()}
 </body>
 </html>
 `;
-  fs.writeFileSync(path.join(repoDir, file), page);
+  // Hand-maintained additions (e.g. a homepage promotion) live in tools/redesign/inject/<page>.{head,body-start,body-end}.html
+  const inj = (part) => { const f = path.join(repoDir, 'tools', 'redesign', 'inject', file.replace(/\.html$/, '') + '.' + part + '.html'); return fs.existsSync(f) ? fs.readFileSync(f, 'utf8').trim() + '\n' : ''; };
+  const finalPage = page.replace('</head>', () => inj('head') + '</head>').replace('<body>\n', () => '<body>\n' + inj('body-start')).replace('</body>', () => inj('body-end') + '</body>');
+  fs.writeFileSync(path.join(repoDir, file), finalPage);
   console.log('built', file, (page.length / 1024).toFixed(0) + 'KB');
+}
+// 3) mount the shared header, footer and Auri on app-style pages (shop, NFC tools)
+const SHELLS = [['shop/index.html', 'shop']];
+const shellCss = stripFonts(css)
+  .replace(/body\{margin:0;background:#FFFFFF\}/, '.ad-chrome{font-family:Inter,system-ui,sans-serif;line-height:1.55;color:#0B0F0C}')
+  .replace(/(^|\n)a\{color:#0B0F0C;text-decoration:none\}/, '$1.ad-chrome a{color:#0B0F0C;text-decoration:none}')
+  .replace(/section\{padding-left:18px !important;padding-right:18px !important;padding-top:64px !important\}/, '.ad-chrome section{padding-left:18px !important;padding-right:18px !important;padding-top:64px !important}')
+  .replace('<style>', '<style data-ad-chrome>');
+const chrome = (name, active) => `<div class="ad-chrome" data-chrome="${name}" data-active="${active}">${renderToString(h(runtime.registry[name], { active }))}</div>`;
+const swap = (src, tag, html) => {
+  const re = new RegExp(`<!--ad:${tag}-->[\\s\\S]*?<!--/ad:${tag}-->`);
+  if (!re.test(src)) throw new Error('missing ad:' + tag + ' marker');
+  return src.replace(re, () => `<!--ad:${tag}-->${html}<!--/ad:${tag}-->`);
+};
+for (const [file, active] of SHELLS) {
+  const fp = path.join(repoDir, file);
+  if (!fs.existsSync(fp)) continue;
+  let src = fs.readFileSync(fp, 'utf8');
+  src = swap(src, 'css', `\n<link rel="stylesheet" href="/redesign/fonts.css?v=${VERSION}">\n${shellCss.trim()}\n`);
+  src = swap(src, 'header', chrome('Header', active));
+  src = swap(src, 'footer', chrome('Footer', active) + chrome('Auri', active));
+  src = swap(src, 'js', `<script src="/redesign/app.js?v=${VERSION}" defer></script>`);
+  fs.writeFileSync(fp, src);
+  console.log('chrome', file);
 }
 console.log('bundle', (fs.statSync(path.join(repoDir, 'redesign', 'app.js')).size / 1024).toFixed(0) + 'KB');

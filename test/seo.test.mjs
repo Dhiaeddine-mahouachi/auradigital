@@ -9,19 +9,19 @@ test('HTML asset handling is disabled so the worker controls clean canonical URL
 });
 
 test('legacy HTML service URL redirects once to the clean canonical URL', () => {
-  const response = permanentSeoRedirect(new Request('https://auradigital.ink/services.html'));
+  const response = permanentSeoRedirect(new Request('https://auradigital.ink/packages.html'));
   assert.equal(response?.status, 301);
-  assert.equal(response?.headers.get('location'), 'https://auradigital.ink/services');
+  assert.equal(response?.headers.get('location'), 'https://auradigital.ink/packages');
 
-  const canonicalResponse = permanentSeoRedirect(new Request('https://auradigital.ink/services'));
+  const canonicalResponse = permanentSeoRedirect(new Request('https://auradigital.ink/packages'));
   assert.equal(canonicalResponse, null);
 
   const trackedResponse = permanentSeoRedirect(new Request('https://auradigitalworks.com/services.html?utm_source=google'));
-  assert.equal(trackedResponse?.headers.get('location'), 'https://auradigitalworks.com/services?utm_source=google');
+  assert.equal(trackedResponse?.headers.get('location'), 'https://auradigitalworks.com/solutions?utm_source=google');
 });
 
 test('public pages declare their visible default language in source HTML', async () => {
-  const pages = ['index', 'services', 'portfolio', 'aura-menu', 'aura-weddings', 'nfc', 'nfc-builder', 'qr-menu', 'packages', 'about', 'contact'];
+  const pages = ['index', 'solutions', 'service-shop', 'portfolio', 'aura-menu', 'aura-weddings', 'nfc-builder', 'packages', 'about', 'contact', 'help', '404'];
   for (const name of pages) {
     const html = await readFile(new URL(`../${name}.html`, import.meta.url), 'utf8');
     assert.match(html, /^<!doctype html>\s*<html lang="en">/i, name);
@@ -36,7 +36,7 @@ test('admin shortcut redirects to the deployed dashboard entry point', async () 
 
 test('new pricing routes canonicalize via Worker without conflicting static redirects', async () => {
   const redirects = await readFile(new URL('../_redirects', import.meta.url), 'utf8');
-  for (const name of ['websites', 'spinflow']) {
+  for (const name of ['solutions', 'service-shop']) {
     const response = permanentSeoRedirect(new Request('https://auradigitalworks.com/' + name + '.html'));
     assert.equal(response?.status, 301);
     assert.equal(response?.headers.get('location'), 'https://auradigitalworks.com/' + name);

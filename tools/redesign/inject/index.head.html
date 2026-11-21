@@ -1,0 +1,22 @@
+<style>
+/* Homepage-only seven-day sale banner. Does not modify existing site components. */
+#aura-sale-bar{box-sizing:border-box;background:#E1E100;color:#0B0F0C;font-family:Inter,system-ui,sans-serif;position:relative;z-index:100;border-bottom:1px solid rgba(11,15,12,.13)}
+#aura-sale-bar *{box-sizing:border-box}
+#aura-sale-bar .aura-sale-inner{max-width:1320px;margin:0 auto;min-height:49px;padding:8px 20px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 16px;text-align:center}
+#aura-sale-bar .aura-sale-tag{font-weight:800;font-size:10px;letter-spacing:.08em;text-transform:uppercase;border:1px solid #0B0F0C;border-radius:999px;padding:3px 9px;white-space:nowrap}
+#aura-sale-bar .aura-sale-copy{font-size:14px;font-weight:500;line-height:1.3}
+#aura-sale-bar .aura-sale-copy strong{font-weight:900;font-size:17px}
+#aura-sale-bar .aura-sale-timer{font-size:12px;font-weight:600;white-space:nowrap}
+#aura-sale-bar .aura-sale-timer time{display:inline-block;min-width:127px;background:#0B0F0C;color:#E1E100;border-radius:999px;padding:5px 10px;margin-left:5px;text-align:center;font-weight:800;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+#aura-sale-bar .aura-sale-cta{color:#0B0F0C;font-size:13px;font-weight:800;white-space:nowrap;text-decoration:underline;text-underline-offset:3px}
+#aura-sale-bar .aura-sale-cta:hover{color:#003D2B}
+@media(max-width:640px){
+#aura-sale-bar .aura-sale-inner{padding:9px 12px;gap:6px 10px;min-height:0}
+#aura-sale-bar .aura-sale-tag{font-size:9px;padding:2px 7px}
+#aura-sale-bar .aura-sale-copy{font-size:12px}
+#aura-sale-bar .aura-sale-copy strong{font-size:14px}
+#aura-sale-bar .aura-sale-timer{font-size:11px}
+#aura-sale-bar .aura-sale-timer time{min-width:116px;font-size:11px;padding:4px 8px;margin-left:3px}
+#aura-sale-bar .aura-sale-cta{font-size:12px}
+}
+</style>

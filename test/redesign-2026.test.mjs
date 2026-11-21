@@ -83,7 +83,11 @@ test('shop page lists every NFC card design and links to the account-linked shop
   }
   assert.ok(bundle.includes('/shop/cards/'));
   assert.ok(read('service-shop.html').includes('href="/account"') || bundle.includes('"/account"'));
-  assert.match(read('index.html'), /href="\/shop\/cards\/oliva-bistro"/);
+  // The homepage only links cards that the public shop lists (horizontal designs).
+  const listed = seed.filter((c) => c.orientation === "Horizontal").map((c) => c.slug);
+  const linked = [...read("index.html").matchAll(/href="\/shop\/cards\/([a-z0-9-]+)"/g)].map((m) => m[1]);
+  assert.ok(linked.length >= 4);
+  for (const slug of linked) assert.ok(listed.includes(slug), "homepage links unlisted card " + slug);
 });
 
 test('landing page shows the contact email at the top', () => {

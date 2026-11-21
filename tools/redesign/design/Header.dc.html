@@ -8,8 +8,7 @@
 <body>
 <x-dc>
 <helmet>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
-
+<!--FONTS-->
 <style>body{margin:0}</style>
 </helmet>
 <div onMouseLeave="{{ closeAll }}" style="position: relative; z-index: 50; font-family: Inter, system-ui, sans-serif; color: #0B0F0C; background: #FFFFFF">
@@ -157,7 +156,7 @@ class Component extends DCLogic {
         { n: 'Packages', d: 'From ₺6,750', href: 'Packages.dc.html', bg: '#FBFAD2' }
       ].map((t) => ({ ...t, style: 'border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 2px; min-height: 72px; box-sizing: border-box; background: ' + t.bg })),
       mobileLinks: [
-        { n: 'Solutions', href: 'Solutions.dc.html' }, { n: 'Shop — services & NFC cards', href: 'Shop.dc.html' }, { n: 'My account & orders', href: 'https://auradigitalworks.com/account' },
+        { n: 'Solutions', href: 'Solutions.dc.html' }, { n: 'Shop — services & NFC cards', href: 'Shop.dc.html' }, { n: 'NFC card shop', href: 'https://auradigitalworks.com/shop' }, { n: 'AuraWeddings', href: 'https://auradigitalworks.com/aura-weddings' }, { n: 'My account & orders', href: 'https://auradigitalworks.com/account' },
         { n: 'Our Work', href: 'Work.dc.html' }, { n: 'Help Center', href: 'Help.dc.html' }, { n: 'About us', href: 'About.dc.html' }, { n: 'Contact', href: 'Contact.dc.html' }
       ]
     };

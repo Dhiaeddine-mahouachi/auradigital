@@ -27,7 +27,8 @@ try {
   assert.equal(await page.locator('[data-orientation="Vertical"]').count(), 0);
   assert.equal(await page.locator('[name="orientation"]').count(), 0);
   assert.equal(await page.locator('.shop-hero-card').count(), 2);
-  assert.equal(await page.locator('#siteHeader a[href="/shop"]').count(), 1);
+  assert.ok(await page.locator('[data-chrome="Header"] a[href="/service-shop"]').count() >= 1, 'new site header is mounted');
+  assert.equal(await page.locator('link[href*="style.css"], link[href*="emerald-gloss"], script[src*="/script.js"]').count(), 0, 'no retired stylesheets or scripts');
   const first = page.locator('.shop-scene').first();
   await first.hover(); assert.equal(await first.getAttribute('data-flipped'), 'true');
   await page.locator('#collection-title').hover(); assert.equal(await first.getAttribute('data-flipped'), 'false');
@@ -127,11 +128,10 @@ try {
     assert.equal(await mobile.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Overflow at ${width}px`);
     await mobile.page.locator('[data-flip]').first().tap(); assert.equal(await mobile.page.locator('[data-flip]').first().getAttribute('aria-pressed'), 'true');
     if (width === 390) {
-      await mobile.page.locator('#menuBtn').click();
-      assert.equal(await mobile.page.locator('#navLinks a[href="/shop"]').isVisible(), true);
-      await mobile.page.locator('.nav-products-toggle').click();
-      for (const path of ['/aura-menu','/aurapops','/aura-weddings']) assert.equal(await mobile.page.locator(`#nav-products-menu a[href="${path}"]`).isVisible(), true);
-      await mobile.page.locator('#menuBtn').click();
+      const header = mobile.page.locator('[data-chrome="Header"]');
+      await header.getByRole('button', { name: 'Open menu' }).click();
+      for (const path of ['/shop', '/service-shop', '/aura-menu', '/aura-weddings']) assert.equal(await header.locator(`a[href="${path}"]`).last().isVisible(), true, path);
+      await header.getByRole('button', { name: 'Close menu' }).click();
       assert.equal(await mobile.page.locator('.shop-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length), 2);
       await mobile.page.getByRole('button', { name: 'Filters', exact: false }).click();
       await mobile.page.locator('#shop-filters [name="category"]').selectOption('Beauty Salons & Spas');

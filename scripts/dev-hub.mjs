@@ -82,7 +82,7 @@ const server=createServer(async(req,res)=>{try{
   res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});
   res.end(JSON.stringify({path:'/hub/reset#token='+token}));return;
  }
- const publicFixture=new Map([['/contact','contact.html'],['/project-fifty.png','project-fifty.png'],['/script.js','script.js'],['/auradigital-mark.svg','auradigital-mark.svg'],['/qr-menu-phone.svg','qr-menu-phone.svg']]);
+ const publicFixture=new Map([['/contact','contact.html'],['/project-fifty.png','project-fifty.png'],['/auradigital-mark.svg','auradigital-mark.svg'],['/qr-menu-phone.svg','qr-menu-phone.svg']]);
  const publicAsset=publicFixture.get(new URL(request.url).pathname);
  const fallback=async()=>publicAsset?new Response(await readFile(new URL('../'+publicAsset,import.meta.url)),
   {headers:{'Content-Type':publicAsset.endsWith('.svg')?'image/svg+xml':publicAsset.endsWith('.js')?'text/javascript':publicAsset.endsWith('.png')?'image/png':'text/html'}}):f.env.ASSETS.fetch(request);

@@ -12,34 +12,6 @@ const PAGE_SEO = {
     "description": "Websites, QR menus, Google visibility and WhatsApp automation for businesses in Türkiye and beyond — planned by AI, delivered by our Istanbul team, tracked in AuraHub.",
     "type": "WebPage"
   },
-  "/services": {
-    "lang": "en",
-    "title": "Web Design & Digital Marketing Istanbul | AuraDigital",
-    "description": "Website design and management, hosting, domains, security, email, ads, ERP, SEO and automation at AuraDigital.",
-    "type": "CollectionPage",
-    "serviceType": [
-      "Web Design",
-      "Digital Marketing",
-      "Google Ads",
-      "Meta Ads",
-      "SEO",
-      "Website Management"
-    ]
-  },
-  "/websites": {
-    "lang": "en",
-    "title": "Website Packages & Development Pricing Istanbul | AuraDigital",
-    "description": "Compare five one-time website development plans and optional hosting or add-ons from AuraDigital.",
-    "type": "CollectionPage",
-    "serviceType": ["Website Development", "Business Websites"]
-  },
-  "/spinflow": {
-    "lang": "en",
-    "title": "Spinflow ERP Cloud & Custom Business Systems | AuraDigital",
-    "description": "Compare planned monthly Spinflow Cloud SaaS and custom ERP development with clear infrastructure costs.",
-    "type": "CollectionPage",
-    "serviceType": ["ERP Development", "Business Management Software"]
-  },
   "/portfolio": {
     "lang": "en",
     "title": "Website & Digital Projects | AuraDigital Istanbul",
@@ -67,28 +39,6 @@ const PAGE_SEO = {
       "Online Invitation Design"
     ]
   },
-  "/aurapops": {
-    "lang": "en",
-    "title": "AuraPops — One Scan. Every Connection. | AuraDigital",
-    "description": "Your all-in-one smart profile for links, menus, maps, reviews and mini games. Create your AuraPop and share it with one QR scan or NFC tap.",
-    "type": "WebPage",
-    "serviceType": [
-      "Smart QR Popup",
-      "Digital Link Profile",
-      "Interactive QR Experience"
-    ]
-  },
-  "/nfc": {
-    "lang": "en",
-    "title": "NFC Cards & Google Review Cards Istanbul | AuraDigital",
-    "description": "Custom NFC cards for Google reviews, websites, QR menus and social media. Explore AuraDigital card designs for your business.",
-    "type": "WebPage",
-    "serviceType": [
-      "NFC Cards",
-      "Google Review Cards",
-      "Business NFC Cards"
-    ]
-  },
   "/nfc-studio": {
     "lang": "en",
     "title": "Design Your NFC Card | AuraDigital",
@@ -96,16 +46,6 @@ const PAGE_SEO = {
     "type": "WebPage",
     "serviceType": [
       "NFC Card Design"
-    ]
-  },
-  "/qr-menu": {
-    "lang": "en",
-    "title": "QR Menu Design Istanbul | Restaurant Digital Menus | AuraDigital",
-    "description": "Fast, mobile-friendly QR digital menus for restaurants and cafés, tailored to your brand, products, prices and images.",
-    "type": "WebPage",
-    "serviceType": [
-      "QR Menu Design",
-      "Restaurant Digital Menus"
     ]
   },
   "/packages": {
@@ -153,23 +93,30 @@ const NOINDEX_PATHS = new Set([
 ]);
 
 export const SEO_REDIRECTS = new Map([
+  ["/services", "/solutions"],
+  ["/websites", "/packages"],
+  ["/spinflow", "/solutions"],
+  ["/qr-menu", "/aura-menu"],
+  ["/nfc", "/shop"],
+  ["/aurapops", "https://aurapops.online/"],
+  ["/aurapops-showcase.html", "https://aurapops.online/"],
   ["/home", "/"],
   ["/index.html", "/"],
-  ["/services.html", "/services"],
-  ["/hizmetler", "/services"],
+  ["/services.html", "/solutions"],
+  ["/hizmetler", "/solutions"],
   ["/portfolio.html", "/portfolio"],
-  ["/websites.html", "/websites"],
-  ["/spinflow.html", "/spinflow"],
+  ["/websites.html", "/packages"],
+  ["/spinflow.html", "/solutions"],
   ["/aura-menu.html", "/aura-menu"],
   ["/aura-weddings.html", "/aura-weddings"],
   ["/auraweddings", "/aura-weddings"],
-  ["/aurapops.html", "/aurapops"],
-  ["/aurapops/", "/aurapops"],
-  ["/nfc.html", "/nfc"],
+  ["/aurapops.html", "https://aurapops.online/"],
+  ["/aurapops/", "https://aurapops.online/"],
+  ["/nfc.html", "/shop"],
   ["/nfc-builder.html", "/nfc-studio"],
   ["/nfc-durum", "/nfc-status"],
   ["/nfc-status.html", "/nfc-status"],
-  ["/qr-menu.html", "/qr-menu"],
+  ["/qr-menu.html", "/aura-menu"],
   ["/packages.html", "/packages"],
   ["/paketler", "/packages"],
   ["/about.html", "/about"],
@@ -263,17 +210,11 @@ function canonicalPath(pathname) {
 
 const SEO_ASSETS = new Map([
   ["/", "/index.html"],
-  ["/services", "/services.html"],
-  ["/websites", "/websites.html"],
-  ["/spinflow", "/spinflow.html"],
   ["/portfolio", "/portfolio.html"],
   ["/aura-menu", "/aura-menu.html"],
   ["/aura-weddings", "/aura-weddings.html"],
-  ["/aurapops", "/aurapops-showcase.html"],
-  ["/nfc", "/nfc.html"],
   ["/nfc-studio", "/nfc-builder.html"],
   ["/nfc-status", "/nfc-status.html"],
-  ["/qr-menu", "/qr-menu.html"],
   ["/packages", "/packages.html"],
   ["/about", "/about.html"],
   ["/contact", "/contact.html"],

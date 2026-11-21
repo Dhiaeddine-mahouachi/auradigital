@@ -101,7 +101,7 @@ test('uncertain delivery stops before provider idempotency expiry; team ambiguit
 });
 
 test('UI protects repeat submissions and separates saved requests from email failure',()=>{
-  const script=readFileSync(new URL('../script.js',import.meta.url),'utf8');
-  assert.match(script,/if \(contactSubmitting\) return/);assert.match(script,/Idempotency-Key/);
+  const script=readFileSync(new URL('../tools/redesign/design/Contact.dc.html',import.meta.url),'utf8');
+  assert.match(script,/if \(this\.state\.sending \|\| this\.submitting\) return/);assert.match(script,/Idempotency-Key/);
   assert.doesNotMatch(script,/Email error:|started processing it/);
 });

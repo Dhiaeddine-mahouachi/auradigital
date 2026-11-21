@@ -8,62 +8,8 @@
 <body>
 <x-dc>
 <helmet>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
-
-<style>
-body{margin:0;background:#FFFFFF}
-a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
-.disp{font-family:'Inter Tight',Inter,sans-serif;letter-spacing:-0.035em}
-.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
-.nl{white-space:nowrap;color:#0B0F0C;font-size:15px;font-weight:500;padding:10px 12px;border-radius:10px;background:transparent;border:0;cursor:pointer;font-family:Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
-.nl:hover{background:#F1F0EA;color:#0B0F0C}
-.nlon{background:#F1F0EA}
-.lift{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
-.lift:hover{transform:translateY(-6px);box-shadow:0 28px 60px -28px rgba(11,15,12,.35)}
-.btn{transition:transform .2s,background .2s,color .2s}
-.btn:hover{transform:translateY(-2px)}
-.btn-dark:hover{background:#E1E100 !important;color:#0B0F0C !important}
-.mi{transition:background .2s}
-.mi:hover{background:#F4F3EC}
-.ticket{position:relative}
-.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:28px;height:28px;border-radius:50%;background:#FFFFFF;transform:translateY(-50%)}
-.ticket::before{left:-14px}.ticket::after{right:-14px}
-@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
-@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-@keyframes typing{0%,80%,100%{opacity:.25}40%{opacity:1}}
-@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
-.auri-float{animation:floaty 4.5s ease-in-out infinite}
-.auri-eye{transform-origin:center;transform-box:fill-box;animation:blink 5s infinite}
-.marquee-track{animation:marquee 36s linear infinite}
-.rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
-.pop{animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
-.dot{animation:typing 1.2s infinite}
-details summary{list-style:none;cursor:pointer}
-details summary::-webkit-details-marker{display:none}
-details[open] .plus{transform:rotate(45deg)}
-.plus{transition:transform .25s}
-input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset:1px}
-@media (max-width:1180px){.desk{display:none !important}}
-@media (min-width:1181px){.mob{display:none !important}}
-@media (max-width:1380px){.wide{display:none !important}}
-.only-sm{display:none !important}
-@media (max-width:640px){
-.hide-sm{display:none !important}
-.only-sm{display:inline-flex !important}
-.full-sm{width:100% !important;justify-content:center !important}
-section{padding-left:18px !important;padding-right:18px !important;padding-top:64px !important}
-.lift,.ticket{min-height:0 !important}
-.panel-sm{min-height:0 !important;padding:22px !important;border-radius:24px !important}
-.box-sm{padding:28px 22px !important;border-radius:26px !important}
-.auri-panel{position:fixed !important;inset:0 !important;width:100vw !important;max-width:none !important;height:100dvh !important;max-height:none !important;border-radius:0 !important;z-index:95 !important}
-.auri-fab{width:58px !important;height:58px !important}
-.auri-wrap{right:14px !important;bottom:14px !important}
-.disp{letter-spacing:-0.03em}
-}
-</style>
-
+<!--FONTS-->
+<!--CSS-->
 </helmet>
 <div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.55; overflow-x: clip">
   <dc-import name="Header" active="shop" hint-size="100%,124px"></dc-import>
@@ -148,7 +94,7 @@ section{padding-left:18px !important;padding-right:18px !important;padding-top:6
       <div style="font-size: 14px; color: #4B5650; margin: 16px 0 14px">{{ cardCount }}</div>
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px">
         <sc-for list="{{ cardList }}" as="k" hint-placeholder-count="12">
-          <a class="lift" href="{{ k.href }}" style="display: flex; flex-direction: column; border: 1px solid #ECEAE2; border-radius: 20px; overflow: hidden; background: #FFFFFF">
+          <a class="lift" href="{{ k.href }}" target="{{ k.target }}" style="display: flex; flex-direction: column; border: 1px solid #ECEAE2; border-radius: 20px; overflow: hidden; background: #FFFFFF">
             <span style="display: flex; align-items: center; justify-content: center; background: #F4F3EC; aspect-ratio: 4 / 5; padding: 14px; box-sizing: border-box; position: relative">
               <img src="{{ k.img }}" alt="{{ k.alt }}" loading="lazy" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; box-shadow: 0 14px 30px -14px rgba(11,15,12,.45)">
               <sc-if value="{{ k.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: 10px; left: 10px; background: #E1E100; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px">{{ k.badge }}</span></sc-if>
@@ -156,6 +102,7 @@ section{padding-left:18px !important;padding-right:18px !important;padding-top:6
             <span style="padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 2px">
               <strong style="font-size: 15px">{{ k.name }}</strong>
               <span style="font-size: 12px; color: #4B5650">{{ k.category }}</span>
+              <span style="font-size: 12px; font-weight: 700; color: #0E2B1E; margin-top: 4px">{{ k.cta }}</span>
               <span style="font-size: 13px; font-weight: 600; margin-top: 6px">View &amp; order →</span>
             </span>
           </a>
@@ -185,6 +132,7 @@ class Component extends DCLogic {
     try { if (/[?&]tab=cards/.test(location.search) || location.hash === '#cards') this.setState({ tab: 'cards' }); } catch (e) {}
   }
   renderVals() {
+    const H = ["northbridge-consulting", "titan-auto-detail", "collection-coffee-cobalt", "collection-restaurant-terracotta", "collection-barber-monochrome", "collection-beauty-lilac", "collection-boutique-checker", "collection-digital-profile-lime"];
     const s = this.state;
     const CARDS = [{"s": "oliva-bistro", "n": "Oliva Bistro", "c": "Restaurants", "b": "New", "i": "/_blob/6171734db86522b18d83feb620a1ae1e"}, {"s": "roast-and-bean", "n": "Roast & Bean", "c": "Coffee Shops & Cafés", "b": "New", "i": "/_blob/c82edb088af29533cdb5f91a110155ec"}, {"s": "northbridge-consulting", "n": "Northbridge Consulting", "c": "Corporate & Business", "b": "New", "i": "/_blob/9d72387a014e8c8c4827d93ba2995101"}, {"s": "luna-beauty-studio", "n": "Luna Beauty Studio", "c": "Beauty Salons & Spas", "b": "New", "i": "/_blob/5f60feb16b800b0c9fe748d26e7b872d"}, {"s": "pulse-fitness-club", "n": "Pulse Fitness Club", "c": "Gyms & Fitness", "b": "New", "i": "/_blob/67fde7012efa5f519abab0c38f4c8b4b"}, {"s": "titan-auto-detail", "n": "Titan Auto Detail", "c": "Automotive & Car Detailing", "b": "New", "i": "/_blob/cfbbe1e814093c9f3d8a3b741e70d131"}, {"s": "brightcare-dental", "n": "BrightCare Dental", "c": "Dental & Medical Clinics", "b": "New", "i": "/_blob/9c83595bb8d3ae90415fd4dbb6273bb0"}, {"s": "golden-key-realty", "n": "Golden Key Realty", "c": "Real Estate", "b": "New", "i": "/_blob/f6431af6953a97bb5fe854e6affa4033"}, {"s": "collection-restaurant-premium", "n": "Restaurant Premium", "c": "Restaurants", "b": "New", "i": "/_blob/63ad9ea0362513e53a253fb66a7912e8"}, {"s": "collection-cafe-modern", "n": "Café Modern", "c": "Coffee Shops & Cafés", "b": "New", "i": "/_blob/924bc622ef601d12fa815f7f476f3c78"}, {"s": "collection-hotel-luxury", "n": "Hotel Luxury", "c": "Hotels & Hospitality", "b": "New", "i": "/_blob/854f5b1e16deee3f4bfc71e187e69e1d"}, {"s": "collection-business-minimal", "n": "Business Minimal", "c": "Corporate & Business", "b": "New", "i": "/_blob/7e6cff05cdf75cf6cc5d08f23419a09d"}, {"s": "collection-real-estate-premium", "n": "Real Estate Premium", "c": "Real Estate", "b": "New", "i": "/_blob/54e63687997bd4e7ff7b8304093ffd0e"}, {"s": "collection-beauty-salon-elegant", "n": "Beauty Salon Elegant", "c": "Beauty Salons & Spas", "b": "New", "i": "/_blob/844c41add861a4b36f19cad018459504"}, {"s": "collection-gym-bold", "n": "Gym Bold", "c": "Gyms & Fitness", "b": "New", "i": "/_blob/085ddb8cefe73fa0b2b3bd9facab53bf"}, {"s": "collection-automotive-sport", "n": "Automotive Sport", "c": "Automotive & Car Detailing", "b": "New", "i": "/_blob/8d1487ee790f7516ce2be71d164a80d6"}, {"s": "collection-clinic-clean", "n": "Clinic Clean", "c": "Dental & Medical Clinics", "b": "New", "i": "/_blob/9be693569f160b5f8d7fe1268d3dff55"}, {"s": "collection-boutique-fashion", "n": "Boutique Fashion", "c": "Retail & Fashion", "b": "New", "i": "/_blob/fc479099cbc06384c1cdde7091b5a474"}, {"s": "collection-barber-classic", "n": "Barber Classic", "c": "Barbershops", "b": "New", "i": "/_blob/6ddaf8f0cfc3e774bf79fff8b889a41d"}, {"s": "collection-travel-agency", "n": "Travel Agency", "c": "Travel & Tourism", "b": "New", "i": "/_blob/5a1f2722e0c5f7177f48965da8b8f77f"}, {"s": "collection-event-wedding", "n": "Event Wedding", "c": "Events & Weddings", "b": "New", "i": "/_blob/412ad89ae0e31aa913fe4244a128d957"}, {"s": "collection-education-modern", "n": "Education Modern", "c": "Education", "b": "New", "i": "/_blob/be125252267f9e53bc49147da0bbd135"}, {"s": "collection-lawyer-professional", "n": "Lawyer Professional", "c": "Legal Services", "b": "New", "i": "/_blob/2d93399ab1899a3b537f31a5d81ccf88"}, {"s": "collection-tech-it-futuristic", "n": "Tech IT Futuristic", "c": "Technology & IT", "b": "New", "i": "/_blob/ec569324efed427fc48fa276f621479e"}, {"s": "collection-coffee-truck-food-truck", "n": "Coffee Truck Food Truck", "c": "Coffee Shops & Cafés", "b": "New", "i": "/_blob/2a73786dca3babbdfff9733c8eb1cd75"}, {"s": "collection-art-creative", "n": "Art Creative", "c": "Freelancers & Creators", "b": "New", "i": "/_blob/215e51aaa7f09f603ab3cbe5b02bbe4e"}, {"s": "collection-music-dj", "n": "Music DJ", "c": "Freelancers & Creators", "b": "New", "i": "/_blob/3fac2019d25e3b2075772c076845a28e"}, {"s": "collection-photographer", "n": "Photographer", "c": "Freelancers & Creators", "b": "New", "i": "/_blob/8e9f42f637cc8bda7f04b43b81e73e6a"}, {"s": "collection-restaurant-casual", "n": "Restaurant Casual", "c": "Restaurants", "b": "New", "i": "/_blob/11d32ba1a551ba1ba1ff019a64eb133c"}, {"s": "collection-spa-relax", "n": "Spa Relax", "c": "Beauty Salons & Spas", "b": "New", "i": "/_blob/1e1367f8eba5694c3bb1ae562ae3aead"}, {"s": "collection-pet-shop", "n": "Pet Shop", "c": "Pet Services", "b": "New", "i": "/_blob/3d838fc2fcd7ee3a9bca120349494856"}, {"s": "collection-corporate-luxury", "n": "Corporate Luxury", "c": "Corporate & Business", "b": "New", "i": "/_blob/01ed4ed82f1f56e381cda0a5e812b3e2"}, {"s": "collection-personal-unique", "n": "Personal Unique", "c": "General Business", "b": "New", "i": "/_blob/ddf680deb895665f9c771a062ed897b9"}, {"s": "collection-midnight-marble", "n": "Midnight Marble", "c": "Restaurants", "b": "New", "i": "/_blob/58738972908c606d35aceef785ae3788"}, {"s": "collection-emerald-dining", "n": "Emerald Dining", "c": "Restaurants", "b": "New", "i": "/_blob/35dc925bd8ebdaa1b670b5bffb961b0c"}, {"s": "collection-coffee-origins", "n": "Coffee Origins", "c": "Coffee Shops & Cafés", "b": "New", "i": "/_blob/c6433b8de1a2235809a1eef5de385f71"}, {"s": "collection-botanical-caf", "n": "Botanical Café", "c": "Coffee Shops & Cafés", "b": "New", "i": "/_blob/bfae9a8ec466a2cedc6590079da350db"}, {"s": "collection-royal-hotel", "n": "Royal Hotel", "c": "Hotels & Hospitality", "b": "New", "i": "/_blob/4b841a2f3aee9e70aa6cd750930b8216"}, {"s": "collection-marble-suite", "n": "Marble Suite", "c": "Hotels & Hospitality", "b": "New", "i": "/_blob/52a219b4e4dea31cf89300952964f70d"}, {"s": "collection-titanium-executive", "n": "Titanium Executive", "c": "Corporate & Business", "b": "New", "i": "/_blob/50d827c00ba0f40fc61dcefa8bc91d0c"}, {"s": "collection-pearl-executive", "n": "Pearl Executive", "c": "Corporate & Business", "b": "New", "i": "/_blob/ba973d6ed15a1c7eb77488a1e53e110f"}, {"s": "collection-golden-property", "n": "Golden Property", "c": "Real Estate", "b": "New", "i": "/_blob/bf516fd99216e7e8f11fad6e50cfdb99"}, {"s": "collection-architecture-lines", "n": "Architecture Lines", "c": "Real Estate", "b": "New", "i": "/_blob/a2ce146c25d9cd87b1fe5a15c6e3201c"}, {"s": "collection-redline-motor", "n": "Redline Motor", "c": "Automotive & Car Detailing", "b": "New", "i": "/_blob/b1f755d15fbb89e8d025baaad0aa3c89"}, {"s": "collection-carbon-gt", "n": "Carbon GT", "c": "Automotive & Car Detailing", "b": "New", "i": "/_blob/34a6f0284d8bee8c167bf30e28cbab71"}, {"s": "collection-acid-energy", "n": "Acid Energy", "c": "Gyms & Fitness", "b": "New", "i": "/_blob/27a85eb7fde46b44f8a6c129dad00484"}, {"s": "collection-black-iron", "n": "Black Iron", "c": "Gyms & Fitness", "b": "New", "i": "/_blob/8d925d4a5759fd28bc69583210fd9a59"}, {"s": "collection-rose-atelier", "n": "Rose Atelier", "c": "Beauty Salons & Spas", "b": "New", "i": "/_blob/c3e1acc9812948b67f998d5318c9df46"}, {"s": "collection-silk-blush", "n": "Silk Blush", "c": "Beauty Salons & Spas", "b": "New", "i": "/_blob/dc0ec2cb56ce156c0b5659eb398b8ca1"}, {"s": "collection-aqua-dental", "n": "Aqua Dental", "c": "Dental & Medical Clinics", "b": "New", "i": "/_blob/469c3e0693f35b2643b0b8d5d1291c60"}, {"s": "collection-pulse-health", "n": "Pulse Health", "c": "Dental & Medical Clinics", "b": "New", "i": "/_blob/b0c675178524c745b216fa6efce619c2"}, {"s": "collection-legal-legacy", "n": "Legal Legacy", "c": "Corporate & Business", "b": "New", "i": "/_blob/85ff02d9facddbadfc65e9b2af354dbe"}, {"s": "collection-coffee-cobalt", "n": "Coffee Cobalt", "c": "Coffee Shops & Cafés", "b": "New", "i": "/_blob/183c74aecf5d16291e11f6adc354efdf"}, {"s": "collection-restaurant-terracotta", "n": "Restaurant Terracotta", "c": "Restaurants", "b": "New", "i": "/_blob/363e2d7aa56dd90def95296b639685d2"}, {"s": "collection-barber-monochrome", "n": "Barber Monochrome", "c": "Barbershops", "b": "New", "i": "/_blob/5fc60b5ed5fa0daa4b4915e53b6472f9"}, {"s": "collection-beauty-lilac", "n": "Beauty Lilac", "c": "Beauty Salons & Spas", "b": "New", "i": "/_blob/30c0e57f786c27dd934464f96434b1fa"}, {"s": "collection-boutique-checker", "n": "Boutique Checker", "c": "Retail & Fashion", "b": "New", "i": "/_blob/488e7e8f09de505a79c2651b1074355a"}, {"s": "collection-digital-profile-lime", "n": "Digital Profile Lime", "c": "General Business", "b": "New", "i": "/_blob/ad477ff573af0040bce5c6408c7f43fd"}];
     const GROUPS = { 'Business': ['Corporate & Business', 'General Business', 'Legal Services', 'Technology & IT', 'Real Estate'], 'Food & drink': ['Restaurants', 'Coffee Shops & Cafés'], 'Beauty & health': ['Beauty Salons & Spas', 'Barbershops', 'Dental & Medical Clinics', 'Gyms & Fitness'], 'Hotels & travel': ['Hotels & Hospitality', 'Travel & Tourism', 'Events & Weddings'], 'Creative & retail': ['Freelancers & Creators', 'Retail & Fashion', 'Education', 'Pet Services', 'Automotive & Car Detailing'] };
@@ -239,7 +187,7 @@ class Component extends DCLogic {
       cq: s.cq, onCq: (e) => this.setState({ cq: e.target.value }),
       cardCats: ['All'].concat(Object.keys(GROUPS)).map((g) => ({ label: g, on: g === s.ccat, style: g === s.ccat ? on : off, pick: () => this.setState({ ccat: g }) })),
       cardCount: cardList.length + ' design' + (cardList.length === 1 ? '' : 's') + ' · NFC + QR · PVC · matte or glossy',
-      cardList: cardList.map((k) => ({ name: k.n, category: k.c, img: k.i, alt: k.n + ' NFC card design', badge: k.b, hasBadge: !!k.b, href: 'https://auradigitalworks.com/shop/cards/' + k.s })),
+      cardList: cardList.map((k) => ({ name: k.n, category: k.c, img: k.i, alt: k.n + ' NFC card design', badge: k.b, hasBadge: !!k.b, href: H.indexOf(k.s) !== -1 ? 'https://auradigitalworks.com/shop/cards/' + k.s : 'https://wa.me/905385507674?text=' + encodeURIComponent('Hello AuraDigital, I would like the ' + k.n + ' NFC card design.'), target: H.indexOf(k.s) !== -1 ? '_self' : '_blank', cta: H.indexOf(k.s) !== -1 ? 'Order in shop →' : 'Order on WhatsApp ↗' })),
       q: s.q, onQ: (e) => this.setState({ q: e.target.value }),
       cats: cats.map((c) => ({ label: c, on: c === s.cat, style: c === s.cat ? on : off, pick: () => this.setState({ cat: c }) })),
       resultText: list.length + ' service' + (list.length === 1 ? '' : 's') + (q ? ' matching “' + s.q + '”' : ''),

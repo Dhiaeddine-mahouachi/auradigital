@@ -87,3 +87,57 @@ body.shop-page #siteHeader,body.shop-page #siteHeader.scrolled{background:#fafaf
  .shop-page .customer-access-bar a{display:inline-flex;align-items:center;min-height:44px;color:#003d2b;font-size:13px;font-weight:700;text-decoration:none}
  .shop-page .customer-access-bar a:focus-visible{outline:3px solid #5a7200;outline-offset:2px}
 }
+
+/* AuraDigital 2026 palette (moved from the retired global theme) */
+:root{--eg-bg:#0b1711;--eg-panel:#1e3829;--eg-panel-high:#294a38;--eg-ink:#f2f8ed;--eg-muted:#c1d3c0;--eg-line:rgba(208,241,203,.27);--eg-lime:#E1E100;--eg-gloss:linear-gradient(121deg,rgba(233,255,218,.015),rgba(236,255,226,.11) 34%,rgba(236,255,226,.015) 51%,transparent 65%)}
+body.shop-page{
+--paper:#0f251a;--ink:#f1f7ec;--dark:#f1f7ec;--text:#f1f7ec;--text-muted:#c1d3c0;--muted:#c1d3c0;--line:var(--eg-line);--lime:var(--eg-lime);
+background:radial-gradient(ellipse at 90% 6%,rgba(119,190,151,.24),transparent 43%),linear-gradient(144deg,#0c1812,#1d3b2b 57%,#0b1b12);color:var(--eg-ink);
+}
+body.shop-page :is(h1,h2,h3,h4,.shop-product-meta strong,.shop-detail-copy .shop-price,.shop-unit-price,.shop-cart-total strong,.shop-checkout-total strong,.shop-order-link>strong,.shop-bank-card h2){color:var(--eg-ink)}
+body.shop-page :is(p,small,.shop-kicker,.shop-note,.shop-product-meta){color:var(--eg-muted)}
+body.shop-page #siteHeader,body.shop-page #siteHeader.scrolled{background:rgba(12,32,21,.97)!important;border-color:var(--eg-line)!important;box-shadow:0 8px 30px rgba(0,0,0,.21)!important}
+body.shop-page #siteHeader :is(.nav-links,.brand-name,.brand-name strong){color:var(--eg-ink)}
+body.shop-page :is(.shop-header-search,.shop-filters[data-open=true] .shop-filter-body,.shop-how,.shop-detail-art,.shop-cart-summary,.shop-auth,.shop-order-link,.shop-bank-card,.shop-note,.shop-dialog,.shop-payment-status,.shop-hero-card,.shop-toolbar,.nav-products-menu){
+color:var(--eg-ink);background:var(--eg-gloss),linear-gradient(139deg,#274835,#142d21);border-color:var(--eg-line)
+}
+body.shop-page .shop-product-stage,body.shop-page .shop-product:nth-child(2n) .shop-product-stage,body.shop-page .shop-product:nth-child(3n) .shop-product-stage{
+background:linear-gradient(137deg,#3b5c45,#1d352a 59%,#2b4535);border-color:var(--eg-line);box-shadow:0 12px 35px #0003
+}
+body.shop-page :is(.shop-filter-chips button,.shop-results-head select,.shop-search input,.shop-field input,.shop-field select,.shop-field textarea,.shop-cart-actions input,.shop-cart-actions .shop-quantity-step,.shop-skip,.shop-category-tabs button){
+color:var(--eg-ink);background:#1c3828;border-color:var(--eg-line)
+}
+body.shop-page :is(input,textarea)::placeholder{color:#afc5b1;opacity:1}
+body.shop-page .shop-field select option{background:#153022;color:#f1f8ee}
+body.shop-page .shop-field :is(input:disabled,input[readonly]){background:#293e30;color:#d0dfcc}
+body.shop-page .shop-payment-status{color:var(--eg-ink)!important}
+body.shop-page .shop-badge{background:#294333;color:#ecf6e5}
+body.shop-page .shop-primary,body.shop-page .shop-cart-toggle [data-cart-count]{background:var(--eg-lime);color:#13200f!important;border-color:var(--eg-lime)}
+body.shop-page .shop-primary:hover{background:#edff93;color:#13200f!important}
+body.shop-page .customer-access-bar{background:#244631;border-color:var(--eg-line)}
+body.shop-page .customer-access-bar a{color:#f2f8ee}
+body.shop-page :is(.shop-field input,.shop-field select,.shop-field textarea,.shop-results-head select):focus-visible{outline:2px solid var(--eg-lime);outline-offset:2px}
+body.shop-page :is(.shop-error,[role="alert"]){color:#ffbbb0}
+
+/* 2026 AuraDigital shop buttons (readable on the forest background) */
+html body.shop-page .shop-primary,html body.shop-page .shop-hero .shop-primary{background:#E1E100!important;border-color:#E1E100!important;color:#0B0F0C!important;border-radius:999px;font-weight:700}
+html body.shop-page .shop-primary *{color:inherit!important}
+html body.shop-page .shop-primary:hover{background:#F3EEDC!important;color:#0B0F0C!important}
+html body.shop-page .shop-primary:disabled{background:#24503A!important;border-color:#24503A!important;color:#B9C7BC!important}
+html body.shop-page .shop-add{background:#E1E100!important;border:0!important;color:#0B0F0C!important;border-radius:999px;font-weight:700}
+html body.shop-page .shop-add *{color:inherit!important}
+html body.shop-page .shop-add:hover{background:#F3EEDC!important}
+html body.shop-page .shop-secondary{border-radius:999px}
+
+/* 2026: shop toolbar under the shared AuraDigital header (cart + account) */
+html body.shop-page .shop-toolbar{display:flex!important;position:sticky;top:0;z-index:40;max-width:none;margin:0;padding:12px max(20px,calc((100vw - 1400px)/2));background:rgba(10,28,20,.94);backdrop-filter:blur(10px);border-bottom:1px solid #24503A;gap:14px;flex-wrap:nowrap}
+html body.shop-page .shop-wordmark{color:#F3EEDC;font-size:12px;font-weight:700;letter-spacing:.14em;text-decoration:none;margin-right:auto;white-space:nowrap}
+html body.shop-page .shop-wordmark span{color:#E1E100}
+html body.shop-page .shop-account-link{color:#F3EEDC;font-size:14px;font-weight:600;text-decoration:none;border:1px solid #3d6b52;border-radius:999px;padding:9px 16px;white-space:nowrap}
+html body.shop-page .shop-account-link:hover{border-color:#E1E100;color:#E1E100}
+html body.shop-page .shop-cart-toggle{display:inline-flex!important;align-items:center;gap:8px;background:#E1E100;color:#0B0F0C;border:0;border-radius:999px;padding:9px 16px;font-weight:700;min-height:42px}
+html body.shop-page .shop-cart-toggle svg{width:18px;height:18px;fill:none;stroke:#0B0F0C;stroke-width:2}
+html body.shop-page .shop-cart-toggle [data-cart-count]{background:#0B0F0C!important;color:#E1E100!important;border-radius:999px;min-width:22px;height:22px;display:inline-grid;place-items:center;font-size:12px;padding:0 6px}
+@media(max-width:520px){html body.shop-page .shop-wordmark{font-size:10px;letter-spacing:.08em}html body.shop-page .shop-account-link{padding:8px 12px;font-size:13px}}
+html body.shop-page .shop-wordmark{min-width:0;overflow:hidden;text-overflow:ellipsis}
+html body.shop-page .shop-account-link,html body.shop-page .shop-cart-toggle{flex:0 0 auto;overflow:visible}

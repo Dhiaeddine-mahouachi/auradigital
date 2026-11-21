@@ -53,11 +53,8 @@ test("ERP and SaaS purchasing models remain distinct", () => {
 });
 test("public pages load the shared catalogue without exposing old tiers", () => {
   const html=name=>readFileSync(new URL("../"+name+".html",import.meta.url),"utf8");
-  for(const name of ["services","websites","spinflow"]){
-    const s=html(name);assert.match(s,/pricing\/ui\.js/);assert.match(s,/<footer id="siteFooter">/);
-  }
   assert.doesNotMatch(html("packages"), /3[.,]590|5[.,]590|7[.,]590|data-weekly|data-price-mode/);
-  assert.doesNotMatch(html("services"), /Social Media &amp; Content|1 Sayfa · 5\.000/);
+  assert.doesNotMatch(html("solutions"), /Social Media &amp; Content|1 Sayfa · 5\.000/);
   assert.match(html("index"), /href="\/hub\/signup"/);
   assert.match(html("index"), /Start your path/);
   assert.doesNotMatch(html("index"), /data-pricing-view|See pricing/);

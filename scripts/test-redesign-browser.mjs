@@ -87,10 +87,12 @@ try {
 
   // NFC card shop tab and deep link
   { const { page } = await open('/service-shop.html?tab=cards');
-    await page.waitForFunction(() => document.querySelectorAll('a[href^="/shop/cards/"]').length >= 50);
+    const cardSel = 'main a[href^="/shop/cards/"], main a[href^="https://wa.me/"][href*="NFC%20card%20design"]';
+    await page.waitForFunction((sel) => document.querySelectorAll(sel).length >= 58, cardSel);
+    assert.ok(await page.locator('main a[href^="/shop/cards/"]').count() >= 8, 'shop-listed designs link to the shop');
     await page.getByRole('button', { name: 'Food & drink' }).click();
-    const n = await page.locator('main a[href^="/shop/cards/"]').count();
-    assert.ok(n > 0 && n < 50, 'collection filter ' + n);
+    const n = await page.locator(cardSel).count();
+    assert.ok(n > 0 && n < 58, 'collection filter ' + n);
     assert.ok(await page.locator('a[href="/account"]').first().isVisible(), 'account link');
     await page.screenshot({ path: 'test-output/redesign-cards.png' });
     await page.close(); }
