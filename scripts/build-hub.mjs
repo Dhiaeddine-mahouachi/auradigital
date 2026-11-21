@@ -6,7 +6,7 @@ await build({entryPoints:['src/hub/auri-model.js'],bundle:true,format:'esm',targ
 const entry='hub/index.html';
 const original=await readFile(entry,'utf8');
 let html=original;
-for(const asset of ['hub.css','app.js']){
+for(const asset of ['hub.css','app.js','boot.js']){
  const hash=createHash('sha256').update(await readFile('hub/'+asset)).digest('hex').slice(0,12);
  const path='/hub/'+asset;
  html=html.replace(new RegExp(path.replaceAll('.','\\.')+'(?:\\?v=[a-f0-9]+)?(?=")','g'),path+'?v='+hash);

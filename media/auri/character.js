@@ -35,7 +35,7 @@ class AuriCharacter extends HTMLElement {
       if (requested || signal.aborted || saveData() || !window.WebGL2RenderingContext) return;
       requested = true;
       try {
-        const { mountAuri } = await import('/media/auri/viewer.js?v=shared-cursor-1');
+        const { mountAuri } = await import('/media/auri/viewer.js?v=perf-guard-1');
         if (signal.aborted) return;
         const dispose = await mountAuri(this, signal);
         if (signal.aborted) dispose?.();

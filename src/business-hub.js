@@ -113,7 +113,7 @@ async function invitation(request,env,user,body,accept) {
 }
 export async function handleBusinessHub(request,env) {
  const url=new URL(request.url),path=url.pathname;
- if((['/hub/app.js','/hub/hub.css'].includes(path)||/^\/hub\/stage-[123]\.webp$/.test(path))&&['GET','HEAD'].includes(request.method))return env.ASSETS.fetch(request);
+ if((['/hub/app.js','/hub/hub.css','/hub/boot.js'].includes(path)||/^\/hub\/stage-[123]\.webp$/.test(path))&&['GET','HEAD'].includes(request.method))return env.ASSETS.fetch(request);
  if(path==='/hub'||path.startsWith('/hub/')) {
   if(!['GET','HEAD'].includes(request.method))throw new ApiError(405,'Method not allowed.');
   const asset=await env.ASSETS.fetch(new Request(new URL('/hub/index.html',url)));

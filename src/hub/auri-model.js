@@ -15,7 +15,9 @@ export async function mountAuri(host, signal) {
  if(signal?.aborted||!host.isConnected)return;
  const login=host.dataset.variant==='login';
  const enhanced=login||host.dataset.variant==='guide';
- const renderer=new WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});
+ // failIfMajorPerformanceCaveat: on software-only graphics the 3D model would
+ // freeze the page, so the still image of Auri stays instead.
+ const renderer=new WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power',failIfMajorPerformanceCaveat:true});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
  renderer.toneMapping=ACESFilmicToneMapping;
  renderer.toneMappingExposure=enhanced?1.22:1.4;

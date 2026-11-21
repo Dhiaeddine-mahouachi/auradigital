@@ -1157,3 +1157,10 @@ a.hx-list-row:hover{border-color:#0B0F0C;background:#FFFFFF}
 
 /* The hidden attribute always wins over component display rules. */
 [hidden]{display:none!important}
+
+/* Start-up error screen (hub/boot.js) */
+.hub-boot-error{max-width:620px;margin:12vh auto;padding:28px;background:#fff;border:1px solid #E6E4DC;border-radius:22px;font-family:Inter,system-ui,sans-serif;color:#0B0F0C}
+.hub-boot-error h1{font:800 1.8rem 'Inter Tight',Inter,sans-serif;margin:0 0 8px}.hub-boot-error p{color:#4B5650}
+.hub-boot-error pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#F7F6F0;border-radius:12px;padding:12px;font-size:.78rem;color:#2E3832;max-height:180px;overflow:auto}
+.hub-boot-error button{min-height:44px;padding:10px 18px;border-radius:999px;border:1px solid #0B0F0C;background:#0B0F0C;color:#fff;font-weight:650;cursor:pointer}
+.hub-boot-error button+button{background:#fff;color:#0B0F0C;border-color:#D9D6CB}
