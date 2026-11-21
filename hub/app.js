@@ -396,9 +396,9 @@ var path = "/api/hub/onboarding/guide";
 function mountGuide(host, { lang: lang2, esc: esc3, api: api2, turns, scope, context = () => ({}) }) {
   if (!host) return;
   const [title, intro, first, help, price, placeholder, send, thinking, browse, read, contact, once, month, year, hosting, unavailable] = strings[lang2] || strings.en;
-  const money2 = (price2, currency) => new Intl.NumberFormat(lang2, { style: "currency", currency }).format(price2);
+  const money3 = (price2, currency) => new Intl.NumberFormat(lang2, { style: "currency", currency }).format(price2);
   const qualifiers = { en: ["From", "Request a quote"], fr: ["D\xE8s", "Demander un devis"], tr: ["Ba\u015Flang\u0131\xE7", "Teklif iste"], ar: ["\u0627\u0628\u062A\u062F\u0627\u0621\u064B \u0645\u0646", "\u0627\u0637\u0644\u0628 \u0639\u0631\u0636 \u0633\u0639\u0631"] }[lang2] || ["From", "Request a quote"];
-  const priceLabel = (value, currency, from) => Number.isFinite(value) ? (from ? qualifiers[0] + " " : "") + money2(value, currency) : qualifiers[1];
+  const priceLabel = (value, currency, from) => Number.isFinite(value) ? (from ? qualifiers[0] + " " : "") + money3(value, currency) : qualifiers[1];
   const rows = ({ packages, currency }) => packages.map((item) => `<li><strong>${esc3(item.name)}</strong> \xB7 ${esc3(priceLabel(item.price, currency, item.from))} <small>${esc3({ once, month, year }[item.billing] || once)}${item.annualHosting ? ` \xB7 ${esc3(hosting)} ${esc3(priceLabel(item.annualHosting, currency, item.hostingFrom))}` : ""}${item.availability ? ` \xB7 ${esc3(item.availability.replaceAll("-", " "))}` : ""}</small></li>`).join("");
   host.innerHTML = `<section class="hub-guide"><h2>${esc3(title)}</h2><p>${esc3(intro)}</p>
  <div class="hub-guide-prompts">${[first, help, price].map((question) => `<button type="button" class="secondary">${esc3(question)}</button>`).join("")}</div>
@@ -1561,10 +1561,10 @@ var COPY = {
 };
 var dashCopy = (lang2) => COPY[lang2] || COPY.en;
 var NAV = {
-  en: { home: "Dashboard", groups: ["Overview", "Grow", "Manage", "Account"], menuDrafts: "Menu drafts", orders: "Orders & billing", profile: "Business profile", team: "Team", settings: "Settings", more: "More", close: "Close", business: "Business", newRequest: "New request" },
-  tr: { home: "Panel", groups: ["Genel bak\u0131\u015F", "B\xFCy\xFCme", "Y\xF6netim", "Hesap"], menuDrafts: "Men\xFC taslaklar\u0131", orders: "Sipari\u015Fler ve faturalar", profile: "\u0130\u015Fletme profili", team: "Ekip", settings: "Ayarlar", more: "Daha fazla", close: "Kapat", business: "\u0130\u015Fletme", newRequest: "Yeni talep" },
-  ar: { home: "\u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645", groups: ["\u0646\u0638\u0631\u0629 \u0639\u0627\u0645\u0629", "\u0627\u0644\u0646\u0645\u0648", "\u0627\u0644\u0625\u062F\u0627\u0631\u0629", "\u0627\u0644\u062D\u0633\u0627\u0628"], menuDrafts: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", orders: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0648\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631", profile: "\u0645\u0644\u0641 \u0627\u0644\u0646\u0634\u0627\u0637", team: "\u0627\u0644\u0641\u0631\u064A\u0642", settings: "\u0627\u0644\u0625\u0639\u062F\u0627\u062F\u0627\u062A", more: "\u0627\u0644\u0645\u0632\u064A\u062F", close: "\u0625\u063A\u0644\u0627\u0642", business: "\u0627\u0644\u0646\u0634\u0627\u0637", newRequest: "\u0637\u0644\u0628 \u062C\u062F\u064A\u062F" },
-  fr: { home: "Tableau de bord", groups: ["Vue d\u2019ensemble", "Croissance", "Gestion", "Compte"], menuDrafts: "Brouillons de menu", orders: "Commandes et factures", profile: "Profil de l\u2019activit\xE9", team: "\xC9quipe", settings: "Param\xE8tres", more: "Plus", close: "Fermer", business: "Activit\xE9", newRequest: "Nouvelle demande" }
+  en: { home: "Chat", groups: ["Overview", "Grow", "Manage", "Account"], menuDrafts: "Menu drafts", orders: "Orders & billing", profile: "Business profile", team: "Team", settings: "Settings", more: "More", close: "Close", business: "Business", newRequest: "New request" },
+  tr: { home: "Sohbet", groups: ["Genel bak\u0131\u015F", "B\xFCy\xFCme", "Y\xF6netim", "Hesap"], menuDrafts: "Men\xFC taslaklar\u0131", orders: "Sipari\u015Fler ve faturalar", profile: "\u0130\u015Fletme profili", team: "Ekip", settings: "Ayarlar", more: "Daha fazla", close: "Kapat", business: "\u0130\u015Fletme", newRequest: "Yeni talep" },
+  ar: { home: "\u0627\u0644\u0645\u062D\u0627\u062F\u062B\u0629", groups: ["\u0646\u0638\u0631\u0629 \u0639\u0627\u0645\u0629", "\u0627\u0644\u0646\u0645\u0648", "\u0627\u0644\u0625\u062F\u0627\u0631\u0629", "\u0627\u0644\u062D\u0633\u0627\u0628"], menuDrafts: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", orders: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0648\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631", profile: "\u0645\u0644\u0641 \u0627\u0644\u0646\u0634\u0627\u0637", team: "\u0627\u0644\u0641\u0631\u064A\u0642", settings: "\u0627\u0644\u0625\u0639\u062F\u0627\u062F\u0627\u062A", more: "\u0627\u0644\u0645\u0632\u064A\u062F", close: "\u0625\u063A\u0644\u0627\u0642", business: "\u0627\u0644\u0646\u0634\u0627\u0637", newRequest: "\u0637\u0644\u0628 \u062C\u062F\u064A\u062F" },
+  fr: { home: "Discussion", groups: ["Vue d\u2019ensemble", "Croissance", "Gestion", "Compte"], menuDrafts: "Brouillons de menu", orders: "Commandes et factures", profile: "Profil de l\u2019activit\xE9", team: "\xC9quipe", settings: "Param\xE8tres", more: "Plus", close: "Fermer", business: "Activit\xE9", newRequest: "Nouvelle demande" }
 };
 var navCopy = (lang2) => NAV[lang2] || NAV.en;
 var NAV_ICONS = {
@@ -1573,10 +1573,11 @@ var NAV_ICONS = {
   orders: "M6 3h12v18l-3-2-3 2-3-2-3 2z M9 8h6 M9 12h6",
   team: "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M2 21v-1a7 7 0 0 1 14 0v1 M17 11a3 3 0 1 0 0-6 M22 21v-1a5 5 0 0 0-4-5",
   settings: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z",
-  more: "M5 12h.01 M12 12h.01 M19 12h.01"
+  more: "M5 12h.01 M12 12h.01 M19 12h.01",
+  home: "M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H10l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z M8 10h.01 M12 10h.01 M16 10h.01",
+  assistant: "M12 3l2.2 5.2L20 9l-4.4 3.8L17 19l-5-3-5 3 1.4-6.2L4 9l5.8-.8z"
 };
 var navIcon = (id) => NAV_ICONS[id] ? `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${NAV_ICONS[id]}"/></svg>` : hubIcon(id);
-var fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, k) => values[k] ?? "");
 var money = (lang2, amount) => new Intl.NumberFormat(lang2 === "ar" ? "ar" : lang2, { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(Number(amount || 0));
 var day = (lang2, value) => {
   if (!value) return "";
@@ -1604,75 +1605,336 @@ function connectedList(rows, lang2, esc3, limit = 50) {
     return `<li>${r.href ? `<a class="hx-list-row" href="${esc3(r.href)}">${inner}</a>` : `<div class="hx-list-row">${inner}</div>`}</li>`;
   }).join("")}</ul>`;
 }
-function renderDashboard({ host, lang: lang2, esc: esc3, link: link2, me: me2, workspace: workspace2, work, connected, next, missionTitle: missionTitle2, stageName, canAsk, canRequest, shortcuts, hero }) {
-  const c = dashCopy(lang2);
-  const hour = (/* @__PURE__ */ new Date()).getHours();
-  const hello = hour < 12 ? c.morning : hour < 18 ? c.afternoon : c.evening;
-  const missions = workspace2.missions || [];
+
+// src/hub/chat-home.js
+var COPY2 = {
+  en: {
+    status: "Your AI guide \xB7 online",
+    placeholder: "Message Auri\u2026",
+    send: "Send",
+    thinking: "Auri is thinking\u2026",
+    tabs: ["Overview", "Services", "Roadmap", "Billing"],
+    open: "Open",
+    clear: "New conversation",
+    panel: "Details",
+    hi: (name, biz) => `Hi ${name}! Here\u2019s where ${biz} stands today:`,
+    roadmapLine: (d, t2, next) => `Roadmap: ${d} of ${t2} tasks done${next ? ` \u2014 next: ${next}` : ""}.`,
+    openLine: (n) => `${n} request${n === 1 ? "" : "s"} open.`,
+    liveLine: (n) => `${n} service${n === 1 ? "" : "s"} live.`,
+    dueLine: (a) => `${a} to pay.`,
+    attention: (what) => `Needs you now: ${what}.`,
+    noRoadmap: "You don\u2019t have a roadmap yet. Tell me about your business and I\u2019ll build one.",
+    chips: ["What should I do next?", "Show my services", "What do I owe?", "Request a service"],
+    servicesReply: (live, open) => `You have ${live} live and ${open} in progress. I opened your services on the right.`,
+    roadmapReply: (next) => next ? `Your next step is \u201C${next}\u201D. I opened your roadmap so you can start it.` : "Your roadmap is complete. Ask me what to grow next.",
+    billingReply: (due, n) => due ? `You have ${due} due across ${n} invoice${n === 1 ? "" : "s"}. Billing details are on the right.` : "Nothing is due right now. Your billing is on the right.",
+    requestReply: "Tell me what you need, or open the request form \u2014 the AuraDigital team replies with a quote.",
+    requestAction: "Open request form",
+    roadmapAction: "Open roadmap",
+    buildAction: "Build my roadmap",
+    reviewAction: "Review now",
+    error: "I couldn\u2019t answer that right now. Try again, or message the team.",
+    nothing: "Nothing here yet.",
+    due: "Amount due",
+    plans: "Plans",
+    invoices: "Invoices",
+    shop: "Shop orders",
+    allBilling: "Orders & billing",
+    flow: ["Profile", "Roadmap", "Requests", "In production", "Live"]
+  },
+  tr: {
+    status: "Yapay zek\xE2 rehberiniz \xB7 \xE7evrimi\xE7i",
+    placeholder: "Auri\u2019ye yaz\u0131n\u2026",
+    send: "G\xF6nder",
+    thinking: "Auri d\xFC\u015F\xFCn\xFCyor\u2026",
+    tabs: ["Genel", "Hizmetler", "Yol haritas\u0131", "\xD6demeler"],
+    open: "A\xE7",
+    clear: "Yeni sohbet",
+    panel: "Ayr\u0131nt\u0131lar",
+    hi: (name, biz) => `Merhaba ${name}! ${biz} bug\xFCn burada:`,
+    roadmapLine: (d, t2, next) => `Yol haritas\u0131: ${t2} g\xF6revden ${d} tamam${next ? ` \u2014 s\u0131radaki: ${next}` : ""}.`,
+    openLine: (n) => `${n} a\xE7\u0131k talep.`,
+    liveLine: (n) => `${n} hizmet yay\u0131nda.`,
+    dueLine: (a) => `\xD6denecek: ${a}.`,
+    attention: (what) => `\u015Eimdi sizi bekliyor: ${what}.`,
+    noRoadmap: "Hen\xFCz yol haritan\u0131z yok. \u0130\u015Fletmenizi anlat\u0131n, sizin i\xE7in olu\u015Fturay\u0131m.",
+    chips: ["S\u0131rada ne var?", "Hizmetlerimi g\xF6ster", "Ne kadar borcum var?", "Hizmet iste"],
+    servicesReply: (live, open) => `${live} hizmet yay\u0131nda, ${open} devam ediyor. Hizmetlerinizi sa\u011Fda a\xE7t\u0131m.`,
+    roadmapReply: (next) => next ? `S\u0131radaki ad\u0131m\u0131n\u0131z \u201C${next}\u201D. Ba\u015Flayabilmeniz i\xE7in yol haritan\u0131z\u0131 a\xE7t\u0131m.` : "Yol haritan\u0131z tamamland\u0131. S\u0131rada neyi b\xFCy\xFCtece\u011Finizi sorun.",
+    billingReply: (due, n) => due ? `${n} faturada toplam ${due} \xF6denecek. Ayr\u0131nt\u0131lar sa\u011Fda.` : "\u015Eu an \xF6denecek bir \u015Fey yok. \xD6demeleriniz sa\u011Fda.",
+    requestReply: "Neye ihtiyac\u0131n\u0131z oldu\u011Funu yaz\u0131n ya da talep formunu a\xE7\u0131n \u2014 AuraDigital ekibi teklifle d\xF6ner.",
+    requestAction: "Talep formunu a\xE7",
+    roadmapAction: "Yol haritas\u0131n\u0131 a\xE7",
+    buildAction: "Yol haritam\u0131 olu\u015Ftur",
+    reviewAction: "\u015Eimdi incele",
+    error: "\u015Eu an yan\u0131t veremedim. Tekrar deneyin ya da ekibe yaz\u0131n.",
+    nothing: "Hen\xFCz bir \u015Fey yok.",
+    due: "\xD6denecek tutar",
+    plans: "Planlar",
+    invoices: "Faturalar",
+    shop: "Ma\u011Faza sipari\u015Fleri",
+    allBilling: "Sipari\u015Fler ve faturalar",
+    flow: ["Profil", "Yol haritas\u0131", "Talepler", "\xDCretimde", "Yay\u0131nda"]
+  },
+  ar: {
+    status: "\u0645\u0631\u0634\u062F\u0643 \u0627\u0644\u0630\u0643\u064A \xB7 \u0645\u062A\u0635\u0644",
+    placeholder: "\u0627\u0643\u062A\u0628 \u0644\u0623\u0648\u0631\u064A\u2026",
+    send: "\u0625\u0631\u0633\u0627\u0644",
+    thinking: "\u0623\u0648\u0631\u064A \u064A\u0641\u0643\u0631\u2026",
+    tabs: ["\u0646\u0638\u0631\u0629 \u0639\u0627\u0645\u0629", "\u0627\u0644\u062E\u062F\u0645\u0627\u062A", "\u0627\u0644\u062E\u0637\u0629", "\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631"],
+    open: "\u0641\u062A\u062D",
+    clear: "\u0645\u062D\u0627\u062F\u062B\u0629 \u062C\u062F\u064A\u062F\u0629",
+    panel: "\u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644",
+    hi: (name, biz) => `\u0645\u0631\u062D\u0628\u064B\u0627 ${name}! \u0647\u0630\u0627 \u0648\u0636\u0639 ${biz} \u0627\u0644\u064A\u0648\u0645:`,
+    roadmapLine: (d, t2, next) => `\u0627\u0644\u062E\u0637\u0629: ${d} \u0645\u0646 ${t2} \u0645\u0647\u0627\u0645 \u0645\u0643\u062A\u0645\u0644\u0629${next ? ` \u2014 \u0627\u0644\u062A\u0627\u0644\u064A: ${next}` : ""}.`,
+    openLine: (n) => `${n} \u0637\u0644\u0628\u0627\u062A \u0645\u0641\u062A\u0648\u062D\u0629.`,
+    liveLine: (n) => `${n} \u062E\u062F\u0645\u0627\u062A \u0645\u0628\u0627\u0634\u0631\u0629.`,
+    dueLine: (a) => `\u0627\u0644\u0645\u0633\u062A\u062D\u0642: ${a}.`,
+    attention: (what) => `\u0628\u0627\u0646\u062A\u0638\u0627\u0631\u0643 \u0627\u0644\u0622\u0646: ${what}.`,
+    noRoadmap: "\u0644\u064A\u0633\u062A \u0644\u062F\u064A\u0643 \u062E\u0637\u0629 \u0628\u0639\u062F. \u0623\u062E\u0628\u0631\u0646\u064A \u0639\u0646 \u0646\u0634\u0627\u0637\u0643 \u0648\u0633\u0623\u0628\u0646\u064A\u0647\u0627 \u0644\u0643.",
+    chips: ["\u0645\u0627 \u062E\u0637\u0648\u062A\u064A \u0627\u0644\u062A\u0627\u0644\u064A\u0629\u061F", "\u0627\u0639\u0631\u0636 \u062E\u062F\u0645\u0627\u062A\u064A", "\u0643\u0645 \u0627\u0644\u0645\u0633\u062A\u062D\u0642 \u0639\u0644\u064A\u061F", "\u0627\u0637\u0644\u0628 \u062E\u062F\u0645\u0629"],
+    servicesReply: (live, open) => `\u0644\u062F\u064A\u0643 ${live} \u062E\u062F\u0645\u0627\u062A \u0645\u0628\u0627\u0634\u0631\u0629 \u0648${open} \u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630. \u0641\u062A\u062D\u062A \u062E\u062F\u0645\u0627\u062A\u0643 \u0639\u0644\u0649 \u0627\u0644\u062C\u0627\u0646\u0628.`,
+    roadmapReply: (next) => next ? `\u062E\u0637\u0648\u062A\u0643 \u0627\u0644\u062A\u0627\u0644\u064A\u0629 \xAB${next}\xBB. \u0641\u062A\u062D\u062A \u062E\u0637\u062A\u0643 \u0644\u062A\u0628\u062F\u0623.` : "\u0627\u0643\u062A\u0645\u0644\u062A \u062E\u0637\u062A\u0643. \u0627\u0633\u0623\u0644\u0646\u064A \u0645\u0627\u0630\u0627 \u062A\u0646\u0645\u0651\u064A \u0628\u0639\u062F \u0630\u0644\u0643.",
+    billingReply: (due, n) => due ? `\u0639\u0644\u064A\u0643 ${due} \u0641\u064A ${n} \u0641\u0648\u0627\u062A\u064A\u0631. \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644 \u0639\u0644\u0649 \u0627\u0644\u062C\u0627\u0646\u0628.` : "\u0644\u0627 \u0634\u064A\u0621 \u0645\u0633\u062A\u062D\u0642 \u0627\u0644\u0622\u0646. \u0641\u0648\u0627\u062A\u064A\u0631\u0643 \u0639\u0644\u0649 \u0627\u0644\u062C\u0627\u0646\u0628.",
+    requestReply: "\u0623\u062E\u0628\u0631\u0646\u064A \u0628\u0645\u0627 \u062A\u062D\u062A\u0627\u062C\u0647 \u0623\u0648 \u0627\u0641\u062A\u062D \u0646\u0645\u0648\u0630\u062C \u0627\u0644\u0637\u0644\u0628 \u2014 \u064A\u0631\u062F \u0641\u0631\u064A\u0642 AuraDigital \u0628\u0639\u0631\u0636 \u0633\u0639\u0631.",
+    requestAction: "\u0627\u0641\u062A\u062D \u0646\u0645\u0648\u0630\u062C \u0627\u0644\u0637\u0644\u0628",
+    roadmapAction: "\u0627\u0641\u062A\u062D \u0627\u0644\u062E\u0637\u0629",
+    buildAction: "\u0627\u0628\u0646\u0650 \u062E\u0637\u062A\u064A",
+    reviewAction: "\u0631\u0627\u062C\u0639 \u0627\u0644\u0622\u0646",
+    error: "\u062A\u0639\u0630\u0631 \u0639\u0644\u064A \u0627\u0644\u0631\u062F \u0627\u0644\u0622\u0646. \u062D\u0627\u0648\u0644 \u0645\u062C\u062F\u062F\u064B\u0627 \u0623\u0648 \u0631\u0627\u0633\u0644 \u0627\u0644\u0641\u0631\u064A\u0642.",
+    nothing: "\u0644\u0627 \u0634\u064A\u0621 \u0628\u0639\u062F.",
+    due: "\u0627\u0644\u0645\u0628\u0644\u063A \u0627\u0644\u0645\u0633\u062A\u062D\u0642",
+    plans: "\u0627\u0644\u062E\u0637\u0637",
+    invoices: "\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631",
+    shop: "\u0637\u0644\u0628\u0627\u062A \u0627\u0644\u0645\u062A\u062C\u0631",
+    allBilling: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0648\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631",
+    flow: ["\u0627\u0644\u0645\u0644\u0641", "\u0627\u0644\u062E\u0637\u0629", "\u0627\u0644\u0637\u0644\u0628\u0627\u062A", "\u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", "\u0645\u0628\u0627\u0634\u0631"]
+  },
+  fr: {
+    status: "Votre guide IA \xB7 en ligne",
+    placeholder: "\xC9crire \xE0 Auri\u2026",
+    send: "Envoyer",
+    thinking: "Auri r\xE9fl\xE9chit\u2026",
+    tabs: ["Aper\xE7u", "Services", "Feuille de route", "Facturation"],
+    open: "Ouvrir",
+    clear: "Nouvelle conversation",
+    panel: "D\xE9tails",
+    hi: (name, biz) => `Bonjour ${name} ! Voici o\xF9 en est ${biz} :`,
+    roadmapLine: (d, t2, next) => `Feuille de route : ${d} sur ${t2} \xE9tapes faites${next ? ` \u2014 prochaine : ${next}` : ""}.`,
+    openLine: (n) => `${n} demande(s) ouverte(s).`,
+    liveLine: (n) => `${n} service(s) en ligne.`,
+    dueLine: (a) => `${a} \xE0 payer.`,
+    attention: (what) => `\xC0 faire maintenant : ${what}.`,
+    noRoadmap: "Vous n\u2019avez pas encore de feuille de route. Pr\xE9sentez votre activit\xE9 et je la cr\xE9e.",
+    chips: ["Que faire ensuite ?", "Mes services", "Que dois-je payer ?", "Demander un service"],
+    servicesReply: (live, open) => `${live} en ligne et ${open} en cours. J\u2019ai ouvert vos services \xE0 droite.`,
+    roadmapReply: (next) => next ? `Votre prochaine \xE9tape : \xAB ${next} \xBB. J\u2019ai ouvert la feuille de route.` : "Feuille de route termin\xE9e. Demandez-moi quoi d\xE9velopper ensuite.",
+    billingReply: (due, n) => due ? `${due} \xE0 payer sur ${n} facture(s). D\xE9tails \xE0 droite.` : "Rien \xE0 payer pour l\u2019instant. Votre facturation est \xE0 droite.",
+    requestReply: "Dites-moi ce dont vous avez besoin ou ouvrez le formulaire \u2014 l\u2019\xE9quipe AuraDigital r\xE9pond avec un devis.",
+    requestAction: "Ouvrir le formulaire",
+    roadmapAction: "Ouvrir la feuille de route",
+    buildAction: "Cr\xE9er ma feuille de route",
+    reviewAction: "Examiner",
+    error: "Je n\u2019ai pas pu r\xE9pondre. R\xE9essayez ou \xE9crivez \xE0 l\u2019\xE9quipe.",
+    nothing: "Rien pour l\u2019instant.",
+    due: "Montant d\xFB",
+    plans: "Abonnements",
+    invoices: "Factures",
+    shop: "Commandes",
+    allBilling: "Commandes et factures",
+    flow: ["Profil", "Feuille de route", "Demandes", "En production", "En ligne"]
+  }
+};
+var chatCopy = (lang2) => COPY2[lang2] || COPY2.en;
+var INTENTS = {
+  services: /service|hizmet|خدم|site|website|menu|men[üu]|nfc|card|kart/i,
+  roadmap: /next|roadmap|step|todo|to do|sıra|yol harita|adım|خطة|التالي|خطوة|prochain|étape|feuille/i,
+  billing: /bill|invoice|pay|owe|due|price paid|fatura|ödeme|borç|فاتور|مستحق|دفع|factur|payer|dois/i,
+  request: /request|order a|need a|quote|talep|iste|teklif|طلب|عرض سعر|demande|devis/i
+};
+var money2 = (lang2, amount) => new Intl.NumberFormat(lang2 === "ar" ? "ar" : lang2, { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(Number(amount || 0));
+function renderChatHome({ host, lang: lang2, esc: esc3, link: link2, me: me2, workspace: workspace2, snapshot, connected, next, missionTitle: missionTitle2, attention, nextAction, askAuri: askAuri2, auriImage, shortcuts = "" }) {
+  const c = chatCopy(lang2), d = dashCopy(lang2);
+  const id = workspace2?.organization.id || "new";
+  const storeKey = "aura-chat:" + id;
+  const missions = workspace2?.missions || [];
   const done = missions.filter((m) => m.status === "done").length;
-  const pct = missions.length ? Math.round(100 * done / missions.length) : 0;
   const rows = connectedRows(connected || {}, lang2);
-  const openRequests = (work.attention?.length || 0) + (work.progress?.length || 0) + (connected?.requests || []).filter((r) => r.status === "pending").length;
-  const inProduction = (work.progress?.length || 0) + (connected?.orders || []).filter((o) => ["new", "in-progress", "ready"].includes(o.status)).length;
-  const live = (work.services?.length || 0) + (connected?.totals?.live || 0);
-  const due = connected?.totals?.amountDue || 0;
-  const counts = [1, missions.length ? 1 : 0, openRequests, inProduction, live];
-  const states2 = [
-    "done",
-    !missions.length ? "todo" : done === missions.length ? "done" : "active",
-    openRequests ? "active" : "todo",
-    inProduction ? "active" : "todo",
-    live ? "done" : "todo"
-  ];
-  const current = Math.max(1, states2.indexOf("active"));
-  const targets = [link2("profile"), link2("journey"), link2("requests"), link2("services"), link2("services")];
-  const stepNote = (i) => {
-    if (i === 0) return c.stepNotes[0];
-    if (i === 1) return missions.length ? fill(c.stepNotes[1], { done, total: missions.length }) : c.stepEmpty[1];
-    return counts[i] ? fill(c.stepNotes[i], { n: counts[i] }) : c.stepEmpty[i];
+  const openCount = (snapshot?.attention?.length || 0) + (snapshot?.progress?.length || 0) + (connected?.requests || []).filter((r) => r.status === "pending").length;
+  const liveCount = (snapshot?.services?.length || 0) + (connected?.totals?.live || 0);
+  const dueAmount = connected?.totals?.amountDue || 0;
+  const canRequest = workspace2?.permissions?.includes("roadmap:write");
+  let log = [];
+  try {
+    log = JSON.parse(sessionStorage.getItem(storeKey) || "[]");
+  } catch {
+  }
+  const save = () => {
+    try {
+      sessionStorage.setItem(storeKey, JSON.stringify(log.slice(-40)));
+    } catch {
+    }
   };
-  const flow = `<section class="hx-card hx-flow" aria-labelledby="hx-flow-title">
-    <header class="hx-card-head"><div><h2 id="hx-flow-title">${esc3(c.flow)}</h2><p>${esc3(c.flowNote)}</p></div></header>
-    <ol class="hx-steps">${c.steps.map((name, i) => {
-    const state2 = i === current && states2[i] === "active" ? "current" : states2[i];
-    return `<li class="hx-step" data-state="${state2}"${state2 === "current" ? ' aria-current="step"' : ""}><a href="${esc3(targets[i])}"><span class="hx-step-dot" aria-hidden="true">${state2 === "done" ? "\u2713" : i + 1}</span><span class="hx-step-text"><strong>${esc3(name)}</strong><small>${esc3(stepNote(i))}</small></span></a></li>`;
-  }).join("")}</ol></section>`;
-  const kpis = `<section class="hx-kpis" aria-label="${esc3(c.flow)}">
-    <a class="hx-kpi" href="${esc3(link2("journey"))}"><span>${esc3(c.kRoadmap)}</span><strong>${pct}%</strong><span class="hx-meter"><i style="width:${pct}%"></i></span></a>
-    <a class="hx-kpi" href="${esc3(link2("requests"))}"><span>${esc3(c.kRequests)}</span><strong>${openRequests}</strong></a>
-    <a class="hx-kpi" href="${esc3(link2("services"))}"><span>${esc3(c.kLive)}</span><strong>${live}</strong></a>
-    <a class="hx-kpi ${due ? "warn" : ""}" href="/account"><span>${esc3(c.kDue)}</span><strong>${esc3(money(lang2, due))}</strong></a>
-  </section>`;
-  const upcoming = missions.filter((m) => m.status !== "done").slice(0, 4);
-  const tasks = `<section class="hx-card"><header class="hx-card-head"><div><h2>${esc3(c.tasks)}</h2>${next ? `<p>${esc3(stageName)}</p>` : ""}</div><a class="hx-link" href="${esc3(link2("journey"))}">${esc3(c.allTasks)} \u2192</a></header>
-    ${upcoming.length ? `<ul class="hx-list">${upcoming.map((m) => `<li><a class="hx-list-row" href="${esc3(link2("journey", { task: m.id }))}"><span class="hx-check" data-state="${esc3(m.status)}" aria-hidden="true"></span><span class="hx-list-main"><strong>${esc3(missionTitle2(m))}</strong><small>${esc3(m.reason || m.description || "")}</small></span>${statusPill(c, m.status, esc3)}</a></li>`).join("")}</ul>` : `<p class="hx-empty">${esc3(missions.length ? c.tasksDone : c.stepEmpty[1])}</p>`}</section>`;
-  const services = `<section class="hx-card"><header class="hx-card-head"><div><h2>${esc3(c.connected)}</h2><p>${esc3(c.connectedNote)}</p></div><a class="hx-link" href="${esc3(link2("services"))}">${esc3(c.viewAll)} \u2192</a></header>
-    ${rows.length ? connectedList(rows, lang2, esc3, 6) : `<p class="hx-empty">${esc3(c.connectedEmpty)}</p>`}
-    ${connected && !connected.verified ? `<p class="hx-hint">${esc3(c.connectedVerify)}</p>` : ""}</section>`;
-  const activity = rows.length || done ? `<section class="hx-card"><header class="hx-card-head"><div><h2>${esc3(c.activity)}</h2></div></header>
-    <ol class="hx-timeline">${[
-    ...rows.slice(0, 5).map((r) => ({ at: r.at, text: r.title, meta: r.meta, status: r.status })),
-    ...missions.filter((m) => m.status === "done").slice(-3).map((m) => ({ at: "", text: missionTitle2(m), meta: c.kRoadmap, status: "done" }))
-  ].slice(0, 7).map((e) => `<li><span class="hx-dot" aria-hidden="true"></span><div><strong>${esc3(e.text)}</strong><small>${esc3([e.meta, day(lang2, e.at)].filter(Boolean).join(" \xB7 "))}</small></div>${statusPill(c, e.status, esc3)}</li>`).join("")}</ol></section>` : "";
-  const ask = canAsk ? `<section class="hx-card hx-ask"><header class="hx-card-head"><div><h2>${esc3(c.askTitle)}</h2><p>${esc3(c.askNote)}</p></div></header>
-    <form class="hx-ask-form" data-hx-ask><label class="sr-only" for="hx-ask-input">${esc3(c.askTitle)}</label><input id="hx-ask-input" name="q" maxlength="600" placeholder="${esc3(c.askPlaceholder)}" autocomplete="off"><button class="growth-primary" type="submit">${esc3(c.ask)}</button></form>
-    <div class="hx-prompts">${c.prompts.map((p) => `<button type="button" class="hx-chip" data-hx-prompt="${esc3(p)}">${esc3(p)}</button>`).join("")}</div></section>` : "";
-  host.innerHTML = `<div class="hx-dash">
-    <header class="hx-greet"><div><p class="hx-kicker">${esc3(workspace2.organization.name)}</p><h2>${esc3(hello)}, ${esc3(String(me2.name || "").split(" ")[0])}</h2></div>
-      <div class="hx-greet-actions">${canRequest ? `<a class="growth-secondary hx-mobile-only" href="${esc3(link2("requests", { new: "1" }))}">\uFF0B ${esc3(c.newRequest)}</a>` : ""}<a class="growth-secondary" href="/shop">${esc3(c.shop)}</a></div></header>
-    ${hero}
-    ${flow}
-    ${kpis}
-    <div class="hx-grid"><div class="hx-col">${tasks}${services}</div><div class="hx-col">${ask}${activity}</div></div>
-    ${shortcuts}
+  const greeting = () => {
+    const lines = [c.hi(String(me2.name || "").split(" ")[0], workspace2?.organization.name || "AuraHub")];
+    if (attention) lines.push(c.attention(attention.name));
+    if (missions.length) lines.push(c.roadmapLine(done, missions.length, next ? missionTitle2(next) : ""));
+    else lines.push(c.noRoadmap);
+    if (openCount) lines.push(c.openLine(openCount));
+    if (liveCount) lines.push(c.liveLine(liveCount));
+    if (dueAmount) lines.push(c.dueLine(money2(lang2, dueAmount)));
+    const actions2 = [];
+    if (attention) actions2.push({ label: attention.label || c.reviewAction, href: attention.href });
+    if (nextAction) actions2.push(nextAction);
+    if (!missions.length && canRequest !== false) actions2.push({ label: c.buildAction, href: link2("onboarding") });
+    return { role: "auri", text: lines.join("\n"), actions: actions2, greeting: true };
+  };
+  log = [greeting(), ...log.filter((m) => !m.greeting)];
+  save();
+  const panelTab = (() => {
+    try {
+      return sessionStorage.getItem("aura-chat-panel") || "overview";
+    } catch {
+      return "overview";
+    }
+  })();
+  host.innerHTML = `<div class="cx">
+    <section class="cx-chat" aria-label="Auri">
+      <header class="cx-head">
+        <span class="cx-avatar">${auriImage}</span>
+        <span class="cx-head-text"><strong>Auri</strong><small><i class="cx-online" aria-hidden="true"></i>${esc3(c.status)}</small></span>
+        <button type="button" class="cx-ghost cx-panel-toggle" data-cx-panel-open aria-controls="cx-panel">${esc3(c.panel)}</button>
+        <button type="button" class="cx-ghost" data-cx-clear>${esc3(c.clear)}</button>
+      </header>
+      <ol class="cx-log" role="log" aria-live="polite" data-cx-log></ol>
+      <div class="cx-chips" data-cx-chips>${c.chips.map((chip, i) => `<button type="button" class="cx-chip" data-cx-chip="${i}">${esc3(chip)}</button>`).join("")}</div>
+      <form class="cx-input" data-cx-form>
+        <label class="sr-only" for="cx-text">${esc3(c.placeholder)}</label>
+        <textarea id="cx-text" name="q" rows="1" maxlength="500" placeholder="${esc3(c.placeholder)}" autocomplete="off"></textarea>
+        <button type="submit" class="cx-send" aria-label="${esc3(c.send)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+    </section>
+    <aside class="cx-panel" id="cx-panel" data-cx-panel>
+      <div class="cx-panel-grab" aria-hidden="true"></div>
+      <div class="cx-tabs" role="tablist">${["overview", "services", "roadmap", "billing"].map((tab, i) => `<button type="button" role="tab" class="cx-tab" data-cx-tab="${tab}" aria-selected="${tab === panelTab}">${esc3(c.tabs[i])}</button>`).join("")}<button type="button" class="cx-ghost cx-panel-close" data-cx-panel-close aria-label="\u2715">\u2715</button></div>
+      <div class="cx-panel-body" data-cx-body role="tabpanel"></div>
+    </aside>
   </div>`;
-  host.querySelector("[data-hx-ask]")?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const q = new FormData(event.currentTarget).get("q");
-    if (String(q || "").trim()) location.assign(link2("assistant", { ask: String(q).trim().slice(0, 600) }));
+  const logEl = host.querySelector("[data-cx-log]");
+  const bubble = (m) => `<li class="cx-msg ${m.role === "me" ? "cx-me" : "cx-them"}">${m.role === "me" ? "" : `<span class="cx-msg-avatar" aria-hidden="true">${auriImage}</span>`}<div class="cx-bubble"><p>${esc3(m.text).replace(/\n/g, "<br>")}</p>${(m.actions || []).length ? `<div class="cx-actions">${m.actions.map((a) => a.href ? `<a class="cx-action" href="${esc3(a.href)}">${esc3(a.label)}<span aria-hidden="true"> \u2192</span></a>` : `<button type="button" class="cx-action" data-cx-open="${esc3(a.panel)}">${esc3(a.label)}</button>`).join("")}</div>` : ""}</div></li>`;
+  const draw = () => {
+    logEl.innerHTML = log.map(bubble).join("");
+    logEl.querySelectorAll("[data-cx-open]").forEach((b) => b.addEventListener("click", () => showPanel(b.dataset.cxOpen, true)));
+    logEl.scrollTop = logEl.scrollHeight;
+  };
+  const body = host.querySelector("[data-cx-body]");
+  const panel = host.querySelector("[data-cx-panel]");
+  const listOr = (html) => html || `<p class="hx-empty">${esc3(c.nothing)}</p>`;
+  const panels = {
+    overview: () => {
+      const states2 = ["done", !missions.length ? "todo" : done === missions.length ? "done" : "active", openCount ? "active" : "todo", snapshot?.progress?.length || 0 ? "active" : "todo", liveCount ? "done" : "todo"];
+      const targets = [link2("profile"), link2("journey"), link2("requests"), link2("services"), link2("services")];
+      return `<ol class="cx-flow">${c.flow.map((name, i) => `<li data-state="${states2[i]}"><a href="${esc3(targets[i])}"><span aria-hidden="true">${states2[i] === "done" ? "\u2713" : i + 1}</span>${esc3(name)}</a></li>`).join("")}</ol>
+        <div class="cx-stats">
+          <a href="${esc3(link2("journey"))}"><small>${esc3(d.kRoadmap)}</small><strong>${missions.length ? Math.round(100 * done / missions.length) : 0}%</strong></a>
+          <a href="${esc3(link2("requests"))}"><small>${esc3(d.kRequests)}</small><strong>${openCount}</strong></a>
+          <a href="${esc3(link2("services"))}"><small>${esc3(d.kLive)}</small><strong>${liveCount}</strong></a>
+          <a href="/account" class="${dueAmount ? "warn" : ""}"><small>${esc3(d.kDue)}</small><strong>${esc3(money2(lang2, dueAmount))}</strong></a>
+        </div>`;
+    },
+    services: () => `${listOr(rows.filter((r) => !["invoice"].includes(r.kind)).length ? connectedList(rows.filter((r) => r.kind !== "invoice"), lang2, esc3, 12) : "")}
+      <a class="cx-more" href="${esc3(link2("services"))}">${esc3(d.viewAll)} \u2192</a>${shortcuts}`,
+    roadmap: () => {
+      const upcoming = missions.filter((m) => m.status !== "done").slice(0, 8);
+      return `${listOr(upcoming.length ? `<ul class="hx-list">${upcoming.map((m) => `<li><a class="hx-list-row" href="${esc3(link2("journey", { task: m.id }))}"><span class="hx-check" data-state="${esc3(m.status)}" aria-hidden="true"></span><span class="hx-list-main"><strong>${esc3(missionTitle2(m))}</strong><small>${esc3(m.reason || m.description || "")}</small></span>${statusPill(d, m.status, esc3)}</a></li>`).join("")}</ul>` : "")}
+        <a class="cx-more" href="${esc3(link2(missions.length ? "journey" : "onboarding"))}">${esc3(missions.length ? c.roadmapAction : c.buildAction)} \u2192</a>`;
+    },
+    billing: () => {
+      const bill = rows.filter((r) => ["invoice", "subscription", "shop"].includes(r.kind));
+      return `<div class="cx-due ${dueAmount ? "warn" : ""}"><small>${esc3(c.due)}</small><strong>${esc3(money2(lang2, dueAmount))}</strong></div>
+        ${listOr(bill.length ? connectedList(bill, lang2, esc3, 12) : "")}
+        <a class="cx-more" href="/account">${esc3(c.allBilling)} \u2192</a>`;
+    }
+  };
+  function showPanel(tab, openOnMobile) {
+    if (!panels[tab]) tab = "overview";
+    host.querySelectorAll("[data-cx-tab]").forEach((t2) => t2.setAttribute("aria-selected", String(t2.dataset.cxTab === tab)));
+    body.innerHTML = panels[tab]();
+    try {
+      sessionStorage.setItem("aura-chat-panel", tab);
+    } catch {
+    }
+    if (openOnMobile) panel.classList.add("open");
+  }
+  host.querySelectorAll("[data-cx-tab]").forEach((t2) => t2.addEventListener("click", () => showPanel(t2.dataset.cxTab)));
+  host.querySelector("[data-cx-panel-open]").addEventListener("click", () => showPanel(panelTab, true));
+  host.querySelector("[data-cx-panel-close]").addEventListener("click", () => panel.classList.remove("open"));
+  host.querySelector("[data-cx-clear]").addEventListener("click", () => {
+    log = [greeting()];
+    save();
+    draw();
   });
-  host.querySelectorAll("[data-hx-prompt]").forEach((b) => b.addEventListener("click", () => location.assign(link2("assistant", { ask: b.dataset.hxPrompt }))));
-  return { hostIcon: hubIcon };
+  async function answer(text) {
+    log.push({ role: "me", text });
+    save();
+    draw();
+    const t2 = text.toLowerCase();
+    if (INTENTS.billing.test(t2)) {
+      const n = (connected?.invoices || []).filter((i) => ["sent", "overdue"].includes(i.status)).length;
+      log.push({ role: "auri", text: c.billingReply(dueAmount ? money2(lang2, dueAmount) : "", n), actions: [{ label: c.tabs[3], panel: "billing" }] });
+      showPanel("billing", false);
+    } else if (INTENTS.request.test(t2) && canRequest) {
+      log.push({ role: "auri", text: c.requestReply, actions: [{ label: c.requestAction, href: link2("requests", { new: "1" }) }] });
+    } else if (INTENTS.roadmap.test(t2) && missions.length) {
+      log.push({ role: "auri", text: c.roadmapReply(next ? missionTitle2(next) : ""), actions: [{ label: c.roadmapAction, href: link2("journey", next ? { task: next.id } : {}) }] });
+      showPanel("roadmap", false);
+    } else if (INTENTS.services.test(t2) && /show|list|my |göster|hizmetlerim|اعرض|خدماتي|mes /.test(t2)) {
+      log.push({ role: "auri", text: c.servicesReply(liveCount, openCount), actions: [{ label: c.tabs[1], panel: "services" }] });
+      showPanel("services", false);
+    } else {
+      const pending = { role: "auri", text: c.thinking, pending: true };
+      log.push(pending);
+      draw();
+      let reply;
+      try {
+        reply = await askAuri2(text);
+      } catch {
+        reply = "";
+      }
+      log.splice(log.indexOf(pending), 1, { role: "auri", text: reply || c.error });
+    }
+    save();
+    if (host.isConnected) draw();
+  }
+  const form = host.querySelector("[data-cx-form]"), input = form.querySelector("textarea");
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const text = input.value.trim().slice(0, 500);
+    if (!text) return;
+    input.value = "";
+    input.style.height = "";
+    answer(text);
+  });
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      form.requestSubmit?.();
+    }
+  });
+  input.addEventListener("input", () => {
+    input.style.height = "";
+    input.style.height = Math.min(140, input.scrollHeight) + "px";
+  });
+  host.querySelectorAll("[data-cx-chip]").forEach((b) => b.addEventListener("click", () => {
+    const i = Number(b.dataset.cxChip);
+    if (i === 3 && canRequest) {
+      location.assign(link2("requests", { new: "1" }));
+      return;
+    }
+    answer(c.chips[i]);
+  }));
+  draw();
+  showPanel(panelTab, false);
 }
 
 // src/http.js
@@ -2406,7 +2668,7 @@ function renderShell() {
   const can = (permission) => !workspace || workspace.permissions.includes(permission);
   const labelOf = (p) => p === "home" ? nv.home : p === "services" ? serviceLabels[lang][0] : p === "requests" ? labels3.requests : p === "assistant" ? labels3.assistant : p === "journey" ? labels3.journey : nv[p] || labels3[p] || l[p] || t(p);
   const hrefOf = (p) => p === "orders" ? "/account" : link(p);
-  const navItem = (p, mobile = false) => `<a class="nav-item ${active === p ? "active" : ""}" href="${esc2(hrefOf(p))}"
+  const navItem = (p, mobile = false) => `<a class="nav-item ${active === p ? "active" : ""}" data-tip="${esc2(labelOf(p))}" href="${esc2(hrefOf(p))}"
   data-page="${p}" ${mobile ? `data-mobile-page="${p}"` : ""} ${active === p ? 'aria-current="page"' : ""}>
   ${navIcon(p)}<span>${esc2(labelOf(p))}</span></a>`;
   const groups = [
@@ -2415,11 +2677,11 @@ function renderShell() {
     [nv.groups[2], ["services", "requests", ...workspace ? ["menuDrafts"] : [], "orders"]],
     [nv.groups[3], [...workspace && can("profile:write") ? ["profile"] : [], ...workspace ? ["team"] : [], "settings"]]
   ];
-  const mobileMain = ["home", "journey", "assistant", "services"];
+  const mobileMain = ["home", "journey", "services", "orders"];
   const sheetItems = groups.flatMap(([, items]) => items).filter((p) => !mobileMain.includes(p));
   const title = page === "services" ? serviceLabels[lang][0] : page === "journey" ? commandLabels(lang).vision : labelOf(page);
   const initials = String(workspace?.organization.name || me.name || "A").trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
-  app.innerHTML = `<div class="shell growth-shell growth-active aurahub-shell hx-shell ${page === "services" ? "service-shell" : ""}"><aside class="sidebar" id="sidebar">
+  app.innerHTML = `<div class="shell growth-shell growth-active aurahub-shell hx-shell cx-shell ${page === "home" && workspace?.missions.length ? "cx-home" : ""} ${page === "services" ? "service-shell" : ""}"><aside class="sidebar" id="sidebar">
  <a href="${esc2(link("home"))}" class="wordmark command-wordmark">${brandMarkup}</a>
  ${workspace ? `<div class="hx-business"><span class="hx-avatar" aria-hidden="true">${esc2(initials)}</span><span class="hx-business-text"><small>${esc2(nv.business)}</small>
  <label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span>
@@ -2559,10 +2821,6 @@ function renderBuildCard(ui) {
 function nextMission() {
   return eligibleMissions(workspace.missions, workspace.profile).find((m) => workspace.evidence?.[m.id] !== "pending");
 }
-function menuArtwork(menu) {
-  const products = menu.draft.categories.flatMap((category) => category.items).filter((product) => product.name).slice(0, 4);
-  return `<div class="hub-menu-device" aria-hidden="true"><strong>${esc2(menu.name)}</strong>${products.map((product) => `<small><span>${esc2(product.name)}</span><span>${esc2(product.price)} ${esc2(menu.draft.fields.currency || "")}</span></small>`).join("")}</div>`;
-}
 var missionTitle = (m) => m.objective === m.service ? cap(m.capability) : m.objective;
 async function home() {
   const ui = hubLabels(lang), host = document.querySelector("#page-content");
@@ -2573,35 +2831,27 @@ async function home() {
   const next = nextMission();
   const [snapshot, connected] = await Promise.all([workSnapshot(), api(endpoint("connected")).catch(() => null)]);
   if (!host.isConnected) return;
-  const { attention } = snapshot;
-  const item = attention[0], menu = item?.kind === "menu";
-  const heroTitle = (menu ? ui.menuReady : item?.name) || (next ? missionTitle(next) : workspace.missions.every((m) => m.status === "done") ? ui.complete : ui.journey);
-  const destination = item ? link(menu ? "menuDrafts" : "requests", menu ? { draft: item.id } : { request: item.id }) : link("journey", { task: next?.id });
-  const label = item ? menu ? ui.reviewMenu : ui.openRequest : next ? ui.continue : ui.journey;
-  const note = item ? menu ? item.name : workStatus(item) : next ? next.reason || next.description : "";
-  const hero = `<section class="hub-hero hx-hero"><div>
- ${item ? `<span class="hub-highlight">${esc2(ui.attention)}</span>` : next ? `<span class="hub-highlight">${esc2(ui.next)}</span>` : ""}
- <h2>${esc2(heroTitle)}</h2>${note ? `<p>${esc2(note)}</p>` : ""}
- <a class="growth-primary" href="${esc2(destination)}">${esc2(label)} <span aria-hidden="true">\u2192</span></a>${workspace.permissions.includes("auri:use") ? ` <a class="growth-secondary" href="${esc2(link("assistant", item?.kind === "request" ? { request: item.id } : { task: next?.id }))}">${esc2(ui.assistant)}</a>` : ""}</div>
- <div class="hub-hero-art">${menu ? menuArtwork(item) : auriCharacter(auriLevel(), { variant: "guide" })}</div></section>`;
-  renderDashboard({
+  const item = snapshot.attention[0], menu = item?.kind === "menu";
+  const attention = item ? { name: menu ? ui.menuReady : item.name, label: menu ? ui.reviewMenu : ui.openRequest, href: link(menu ? "menuDrafts" : "requests", menu ? { draft: item.id } : { request: item.id }) } : null;
+  const nextAction = next ? { label: ui.continue, href: link("journey", { task: next.id }) } : null;
+  const canAsk = workspace.permissions.includes("auri:use");
+  renderChatHome({
     host,
     lang,
     esc: esc2,
     link,
     me,
     workspace,
-    work: snapshot,
+    snapshot,
     connected,
     next,
     missionTitle,
-    stageName: next ? hubStageNames(lang)[hubStage(next.level)] : "",
-    canAsk: workspace.permissions.includes("auri:use"),
-    canRequest: workspace.permissions.includes("roadmap:write"),
-    shortcuts: serviceShortcuts(lang, esc2, link, { profile: workspace.profile, missions: workspace.missions }),
-    hero
+    attention,
+    nextAction,
+    auriImage: `<img src="/media/auri/level-${auriLevel()}.webp" alt="" width="64" height="64" decoding="async">`,
+    askAuri: canAsk ? (question) => askAuri(question) : async () => t("readOnly"),
+    shortcuts: serviceShortcuts(lang, esc2, link, { profile: workspace.profile, missions: workspace.missions })
   });
-  bindAuri(host, workspace.organization.id);
 }
 async function myWork() {
   const ui = hubLabels(lang), host = document.querySelector("#page-content"), id = workspace.organization.id;
@@ -2932,7 +3182,7 @@ function format(value, currency) {
   return value === null ? t("na") : new Intl.NumberFormat(lang, { maximumFractionDigits: 2, ...currency ? { style: "currency", currency } : {} }).format(value);
 }
 function resultsHTML(data) {
-  return `<div class="table-scroll"><table><caption>${t("assumptions")} \xB7 ${esc2(data.inputs.currency)}</caption><thead><tr><th scope="col"></th>${data.scenarios.map((s) => `<th scope="col">${t(s.name)}</th>`).join("")}</tr></thead><tbody>${[["additionalCustomers", "customers"], ["additionalRevenue", "revenue", true], ["contributionProfit", "profit", true], ["netMonthly", "net", true], ["firstYearROI", "roi"], ["paybackMonths", "payback"]].map(([key, label, money2]) => `<tr><th scope="row">${t(label)}</th>${data.scenarios.map((s) => `<td>${esc2(format(s[key], money2 ? data.inputs.currency : null))}${key === "firstYearROI" && s[key] !== null ? "%" : ""}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  return `<div class="table-scroll"><table><caption>${t("assumptions")} \xB7 ${esc2(data.inputs.currency)}</caption><thead><tr><th scope="col"></th>${data.scenarios.map((s) => `<th scope="col">${t(s.name)}</th>`).join("")}</tr></thead><tbody>${[["additionalCustomers", "customers"], ["additionalRevenue", "revenue", true], ["contributionProfit", "profit", true], ["netMonthly", "net", true], ["firstYearROI", "roi"], ["paybackMonths", "payback"]].map(([key, label, money3]) => `<tr><th scope="row">${t(label)}</th>${data.scenarios.map((s) => `<td>${esc2(format(s[key], money3 ? data.inputs.currency : null))}${key === "firstYearROI" && s[key] !== null ? "%" : ""}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
 }
 async function simulator() {
   scenarioInputs = scenarioInputs || initialInputs();

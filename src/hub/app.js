@@ -14,7 +14,8 @@ import { renderRoadmap, roadmapLabels } from './roadmap-view.js';
 import { eligibleMissions, missionGuide, missionState } from '../roadmap.js';
 import { renderMenuDrafts } from './menu-drafts.js';
 import { copy, capabilityNames } from './i18n.js';
-import { renderDashboard, connectedRows, connectedList, dashCopy, navCopy, navIcon } from './dashboard-view.js';
+import { connectedRows, connectedList, dashCopy, navCopy, navIcon } from './dashboard-view.js';
+import { renderChatHome } from './chat-home.js';
 import { simulate, capabilities, diagnose } from '../growth-engine.js';
 const app=document.querySelector('#app'),notice=document.querySelector('#notice');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -315,7 +316,7 @@ function renderShell(){
  const can=permission=>!workspace||workspace.permissions.includes(permission);
  const labelOf=p=>p==='home'?nv.home:p==='services'?serviceLabels[lang][0]:p==='requests'?labels.requests:p==='assistant'?labels.assistant:p==='journey'?labels.journey:nv[p]||labels[p]||l[p]||t(p);
  const hrefOf=p=>p==='orders'?'/account':link(p);
- const navItem=(p,mobile=false)=>`<a class="nav-item ${active===p?'active':''}" href="${esc(hrefOf(p))}"
+ const navItem=(p,mobile=false)=>`<a class="nav-item ${active===p?'active':''}" data-tip="${esc(labelOf(p))}" href="${esc(hrefOf(p))}"
   data-page="${p}" ${mobile?`data-mobile-page="${p}"`:''} ${active===p?'aria-current="page"':''}>
   ${navIcon(p)}<span>${esc(labelOf(p))}</span></a>`;
  // Grouped navigation: one place for every part of the business.
@@ -325,11 +326,11 @@ function renderShell(){
   [nv.groups[2],['services','requests',...(workspace?['menuDrafts']:[]),'orders']],
   [nv.groups[3],[...(workspace&&can('profile:write')?['profile']:[]),...(workspace?['team']:[]),'settings']],
  ];
- const mobileMain=['home','journey','assistant','services'];
+ const mobileMain=['home','journey','services','orders'];
  const sheetItems=groups.flatMap(([,items])=>items).filter(p=>!mobileMain.includes(p));
  const title=page==='services'?serviceLabels[lang][0]:page==='journey'?commandLabels(lang).vision:labelOf(page);
  const initials=String(workspace?.organization.name||me.name||'A').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
- app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell hx-shell ${page==='services'?'service-shell':''}"><aside class="sidebar" id="sidebar">
+ app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell hx-shell cx-shell ${page==='home'&&workspace?.missions.length?'cx-home':''} ${page==='services'?'service-shell':''}"><aside class="sidebar" id="sidebar">
  <a href="${esc(link('home'))}" class="wordmark command-wordmark">${brandMarkup}</a>
  ${workspace?`<div class="hx-business"><span class="hx-avatar" aria-hidden="true">${esc(initials)}</span><span class="hx-business-text"><small>${esc(nv.business)}</small>
  <label class="field workspace-picker"><span class="sr-only">${t('businessName')}</span>
@@ -437,22 +438,14 @@ async function home(){
  const next=nextMission();
  const [snapshot,connected]=await Promise.all([workSnapshot(),api(endpoint('connected')).catch(()=>null)]);
  if(!host.isConnected)return;
- const {attention}=snapshot;
- const item=attention[0],menu=item?.kind==='menu';
- const heroTitle=(menu?ui.menuReady:item?.name)|| (next?missionTitle(next):workspace.missions.every(m=>m.status==='done')?ui.complete:ui.journey);
- const destination=item?link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id}):link('journey',{task:next?.id});
- const label=item?(menu?ui.reviewMenu:ui.openRequest):next?ui.continue:ui.journey;
- const note=item?(menu?item.name:workStatus(item)):next?(next.reason||next.description):'';
- const hero=`<section class="hub-hero hx-hero"><div>
- ${item?`<span class="hub-highlight">${esc(ui.attention)}</span>`:next?`<span class="hub-highlight">${esc(ui.next)}</span>`:''}
- <h2>${esc(heroTitle)}</h2>${note?`<p>${esc(note)}</p>`:''}
- <a class="growth-primary" href="${esc(destination)}">${esc(label)} <span aria-hidden="true">→</span></a>${workspace.permissions.includes('auri:use')?` <a class="growth-secondary" href="${esc(link('assistant',item?.kind==='request'?{request:item.id}:{task:next?.id}))}">${esc(ui.assistant)}</a>`:''}</div>
- <div class="hub-hero-art">${menu?menuArtwork(item):auriCharacter(auriLevel(),{variant:'guide'})}</div></section>`;
- renderDashboard({host,lang,esc,link,me,workspace,work:snapshot,connected,next,missionTitle,
-  stageName:next?hubStageNames(lang)[hubStage(next.level)]:'',
-  canAsk:workspace.permissions.includes('auri:use'),canRequest:workspace.permissions.includes('roadmap:write'),
-  shortcuts:serviceShortcuts(lang,esc,link,{profile:workspace.profile,missions:workspace.missions}),hero});
- bindAuri(host,workspace.organization.id);
+ const item=snapshot.attention[0],menu=item?.kind==='menu';
+ const attention=item?{name:menu?ui.menuReady:item.name,label:menu?ui.reviewMenu:ui.openRequest,href:link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id})}:null;
+ const nextAction=next?{label:ui.continue,href:link('journey',{task:next.id})}:null;
+ const canAsk=workspace.permissions.includes('auri:use');
+ renderChatHome({host,lang,esc,link,me,workspace,snapshot,connected,next,missionTitle,attention,nextAction,
+  auriImage:`<img src="/media/auri/level-${auriLevel()}.webp" alt="" width="64" height="64" decoding="async">`,
+  askAuri:canAsk?question=>askAuri(question):async()=>t('readOnly'),
+  shortcuts:serviceShortcuts(lang,esc,link,{profile:workspace.profile,missions:workspace.missions})});
 }
 async function myWork(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content'),id=workspace.organization.id;

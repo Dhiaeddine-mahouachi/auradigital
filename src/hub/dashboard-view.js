@@ -84,10 +84,10 @@ const COPY = {
 export const dashCopy = lang => COPY[lang] || COPY.en;
 // Navigation labels for the AuraHub shell.
 const NAV = {
-  en: { home: 'Dashboard', groups: ['Overview', 'Grow', 'Manage', 'Account'], menuDrafts: 'Menu drafts', orders: 'Orders & billing', profile: 'Business profile', team: 'Team', settings: 'Settings', more: 'More', close: 'Close', business: 'Business', newRequest: 'New request' },
-  tr: { home: 'Panel', groups: ['Genel bakış', 'Büyüme', 'Yönetim', 'Hesap'], menuDrafts: 'Menü taslakları', orders: 'Siparişler ve faturalar', profile: 'İşletme profili', team: 'Ekip', settings: 'Ayarlar', more: 'Daha fazla', close: 'Kapat', business: 'İşletme', newRequest: 'Yeni talep' },
-  ar: { home: 'لوحة التحكم', groups: ['نظرة عامة', 'النمو', 'الإدارة', 'الحساب'], menuDrafts: 'مسودات القوائم', orders: 'الطلبات والفواتير', profile: 'ملف النشاط', team: 'الفريق', settings: 'الإعدادات', more: 'المزيد', close: 'إغلاق', business: 'النشاط', newRequest: 'طلب جديد' },
-  fr: { home: 'Tableau de bord', groups: ['Vue d’ensemble', 'Croissance', 'Gestion', 'Compte'], menuDrafts: 'Brouillons de menu', orders: 'Commandes et factures', profile: 'Profil de l’activité', team: 'Équipe', settings: 'Paramètres', more: 'Plus', close: 'Fermer', business: 'Activité', newRequest: 'Nouvelle demande' },
+  en: { home: 'Chat', groups: ['Overview', 'Grow', 'Manage', 'Account'], menuDrafts: 'Menu drafts', orders: 'Orders & billing', profile: 'Business profile', team: 'Team', settings: 'Settings', more: 'More', close: 'Close', business: 'Business', newRequest: 'New request' },
+  tr: { home: 'Sohbet', groups: ['Genel bakış', 'Büyüme', 'Yönetim', 'Hesap'], menuDrafts: 'Menü taslakları', orders: 'Siparişler ve faturalar', profile: 'İşletme profili', team: 'Ekip', settings: 'Ayarlar', more: 'Daha fazla', close: 'Kapat', business: 'İşletme', newRequest: 'Yeni talep' },
+  ar: { home: 'المحادثة', groups: ['نظرة عامة', 'النمو', 'الإدارة', 'الحساب'], menuDrafts: 'مسودات القوائم', orders: 'الطلبات والفواتير', profile: 'ملف النشاط', team: 'الفريق', settings: 'الإعدادات', more: 'المزيد', close: 'إغلاق', business: 'النشاط', newRequest: 'طلب جديد' },
+  fr: { home: 'Discussion', groups: ['Vue d’ensemble', 'Croissance', 'Gestion', 'Compte'], menuDrafts: 'Brouillons de menu', orders: 'Commandes et factures', profile: 'Profil de l’activité', team: 'Équipe', settings: 'Paramètres', more: 'Plus', close: 'Fermer', business: 'Activité', newRequest: 'Nouvelle demande' },
 };
 export const navCopy = lang => NAV[lang] || NAV.en;
 const NAV_ICONS = {
@@ -97,6 +97,8 @@ const NAV_ICONS = {
   team: 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M2 21v-1a7 7 0 0 1 14 0v1 M17 11a3 3 0 1 0 0-6 M22 21v-1a5 5 0 0 0-4-5',
   settings: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z',
   more: 'M5 12h.01 M12 12h.01 M19 12h.01',
+  home: 'M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H10l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z M8 10h.01 M12 10h.01 M16 10h.01',
+  assistant: 'M12 3l2.2 5.2L20 9l-4.4 3.8L17 19l-5-3-5 3 1.4-6.2L4 9l5.8-.8z',
 };
 export const navIcon = id => NAV_ICONS[id] ? `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${NAV_ICONS[id]}"/></svg>` : hubIcon(id);
 const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, k) => values[k] ?? '');
