@@ -1519,7 +1519,7 @@ var app = document.querySelector("#app");
 var notice = document.querySelector("#notice");
 var esc2 = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 var requestedLanguage = new URLSearchParams(location.search).get("lang");
-var lang = Object.hasOwn(copy4, requestedLanguage) ? requestedLanguage : localStorage.getItem("aura-hub-language") || "en";
+var lang = Object.hasOwn(copy4, requestedLanguage) ? requestedLanguage : localStorage.getItem("aura-hub-language") || localStorage.getItem("aura-lang-choice-v3") || "en";
 if (!Object.hasOwn(copy4, lang)) lang = "en";
 function saveLanguage(value) {
   localStorage.setItem("aura-hub-language", value);

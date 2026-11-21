@@ -102,7 +102,7 @@
             </div>
 
             <label style="display: flex; gap: 12px; align-items: flex-start; font-size: 14px; color: #2E3832; cursor: pointer"><input type="checkbox" checked="{{ f.consent }}" onChange="{{ toggleConsent }}" style="width: 20px; height: 20px; margin-top: 2px; accent-color: #0E2B1E"><span>I agree that AuraDigital may store these details to answer my request, as described in the privacy notice (KVKK). *</span></label>
-            <div aria-hidden="true" style="position: absolute; left: -9999px"><label for="c-web">Website</label><input id="c-web" tabindex="-1" autocomplete="off" value="{{ f.website }}" onChange="{{ set.website }}"></div>
+            <div aria-hidden="true" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap"><label for="c-web">Website</label><input id="c-web" tabindex="-1" autocomplete="off" value="{{ f.website }}" onChange="{{ set.website }}"></div>
 
             <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}"><div role="alert" style="background: #FBE3E0; color: #9A1C14; border-radius: 14px; padding: 14px 16px; font-size: 15px; font-weight: 500">{{ err }}</div></sc-if>
 

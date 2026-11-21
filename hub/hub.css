@@ -875,3 +875,169 @@ body:has(.aurahub-shell),body:has(.command-gate),body:has(.command-setup){backgr
 .command-gate :is(.auth-intro,.auth-panel),.command-setup :is(.mode-card,.setup-heading){background:var(--eg-gloss),linear-gradient(136deg,#25402d,#172d22);border-color:var(--eg-line)}
 .command-gate :is(.field input,.secondary),.command-setup :is(.field input,.field select,.field textarea,.secondary){background:#1b3526;color:#f2f8ed;border-color:var(--eg-line)}
 @media(max-width:900px){.ad-auth{grid-template-columns:minmax(0,1fr)}main#main.ad-main{box-sizing:border-box;width:100%;max-width:100%;min-width:0}.ad-top{flex-wrap:wrap;row-gap:10px}.ad-top>*{min-width:0}}
+
+/* ===== Site theme (2026-11): AuraHub matches auradigitalworks.com =====
+   Cream canvas, white cards, black ink, acid-yellow highlights, forest-green
+   sidebar like the site's footer and sign-in panel. Keep this block last. */
+body:has(.aurahub-shell),body:has(.command-gate),body:has(.command-setup),body:has(.auri-setup){background:#FAF9F5;color:#0B0F0C}
+.aurahub-shell,.growth-shell,.service-shell{
+ --hub-canvas:#FAF9F5;--hub-surface:#FFFFFF;--hub-surface-2:#F7F6F0;--hub-raised:#F4F3EC;--hub-border:#E6E4DC;
+ --hub-label:#4B5650;--hub-text:#0B0F0C;--hub-accent:#E1E100;--hub-ink-accent:#0E2B1E;
+ --white:#FFFFFF;--bg:#FAF9F5;--ink:#0B0F0C;--muted:#4B5650;--line:#E6E4DC;--green:#0E2B1E;--deep:#0A1C14;
+ --eg-ink:#0B0F0C;--eg-muted:#4B5650;--eg-line:#E6E4DC;
+ background:#FAF9F5;color:#0B0F0C;font-family:Inter,system-ui,sans-serif;
+}
+.aurahub-shell :is(p,small,dt,.hub-empty,.service-intro),.aurahub-shell .hub-work-row small{color:#4B5650}
+.aurahub-shell :is(h1,h2,h3,strong){color:#0B0F0C}
+.aurahub-shell .page-heading h1 span{color:#0E2B1E}
+
+/* Sidebar: forest green, cream text, yellow active pill */
+.aurahub-shell .sidebar{--hub-text:#F3EEDC;--hub-label:#B9C7BC;--hub-border:#24503A;background:#0E2B1E;border-color:#0E2B1E;color:#F3EEDC}
+.aurahub-shell .sidebar :is(strong,span,small,p){color:inherit}
+.aurahub-shell .sidebar .nav-item{color:#D9E2D6;border-radius:999px}
+.aurahub-shell .sidebar .nav-item:hover{background:#163F2C;color:#FFFFFF}
+.aurahub-shell .sidebar :is(.nav-item[aria-current],.nav-item.active),.aurahub-shell .sidebar :is(.nav-item[aria-current],.nav-item.active) :is(span,svg){background:#E1E100;color:#0B0F0C}
+.aurahub-shell .sidebar :is(.nav-item[aria-current],.nav-item.active) :is(span,svg){background:transparent}
+.aurahub-shell .wordmark>span,.aurahub-shell .command-wordmark{color:#F3EEDC}
+
+/* Top bar */
+.aurahub-shell :is(.hub-topbar,.topbar){background:rgba(255,255,255,.92);border-color:#ECEAE2;backdrop-filter:saturate(1.2) blur(8px)}
+.aurahub-shell .hub-mobile-brand,.aurahub-shell .hub-mobile-brand span{color:#0B0F0C}
+.aurahub-shell .workspace-picker select,.aurahub-shell .growth-account summary,.aurahub-shell .language select{background:#FFFFFF;color:#0B0F0C;border:1px solid #DAD7CB;border-radius:999px}
+.aurahub-shell .growth-account-menu{background:#FFFFFF;color:#0B0F0C;border:1px solid #E6E4DC;box-shadow:0 24px 50px -24px rgba(11,15,12,.35)}
+.aurahub-shell .growth-account-menu :is(a,button){color:#0B0F0C}
+
+/* Cards and surfaces */
+.aurahub-shell :is(.panel,.growth-card,.hub-page-start,.hub-settings-account,.hub-guide,.service-offer,.hub-context,.hub-work-row,.service-summary>div,.vision-stage-button,.growth-map,.hub-empty-state,.auri-workspace-card),
+.aurahub-shell .hub-home-grid .hub-service-links>a,.aurahub-shell .hub-service-links>a{
+ background:#FFFFFF;border:1px solid #E6E4DC;color:#0B0F0C;box-shadow:0 1px 0 rgba(11,15,12,.02)}
+.aurahub-shell :is(.hub-work-row,.hub-service-links>a,.vision-stage-button):hover{border-color:#0B0F0C;background:#FFFFFF;transform:translateY(-2px);box-shadow:0 18px 40px -26px rgba(11,15,12,.35)}
+.aurahub-shell .hub-row-icon,.aurahub-shell .service-icon,.aurahub-shell .growth-metric-icon,.aurahub-shell .hub-empty-icon{background:#F3EEDC;color:#0E2B1E;border-color:#E6E4DC}
+.aurahub-shell .hub-empty-icon svg{stroke:#0E2B1E}
+.aurahub-shell .hub-row-action,.aurahub-shell .hub-service-links>a>span:last-child,.aurahub-shell :is(.hub-service-shortcuts header a,.service-back,.hub-settings-link,.hub-settings-links>a,.hub-guide a){color:#0E2B1E;font-weight:650}
+.aurahub-shell .hub-roadmap-progress{accent-color:#0E2B1E}
+.aurahub-shell .service-summary dd{color:#0B0F0C}
+.aurahub-shell .hub-account-address span{color:#0E2B1E}
+
+/* Hero: dark forest card, like the site's dark sections */
+.aurahub-shell .hub-hero,.aurahub-shell .hub-welcome,.aurahub-shell .hub-hero:has(.hub-hero-art),.aurahub-shell .hub-auri-intro{
+ background:radial-gradient(ellipse at 85% 30%,rgba(225,225,0,.22) 0,transparent 50%),#0E2B1E;border:0;color:#F3EEDC;box-shadow:none}
+.aurahub-shell :is(.hub-hero,.hub-auri-intro) :is(h1,h2,h3,strong){color:#FFFFFF}
+.aurahub-shell :is(.hub-hero,.hub-auri-intro) p{color:#C9D6CC}
+.aurahub-shell .hub-highlight{border-color:#E1E100;color:#E1E100;background:transparent}
+.aurahub-shell .hub-hero .growth-secondary{background:transparent;color:#F3EEDC;border:1px solid #4E7A63}
+.aurahub-shell .hub-menu-device :is(strong,small,span){color:#F3EEDC}
+
+/* Buttons: site pills */
+.aurahub-shell :is(.primary,.growth-primary,.lime){background:#0B0F0C;color:#FFFFFF;border:1px solid #0B0F0C;border-radius:999px;font-weight:650}
+.aurahub-shell :is(.primary,.growth-primary,.lime):hover{background:#E1E100;color:#0B0F0C;border-color:#E1E100}
+.aurahub-shell .hub-hero :is(.primary,.growth-primary),.aurahub-shell .hub-auri-intro .primary{background:#E1E100;color:#0B0F0C;border-color:#E1E100}
+.aurahub-shell .hub-hero :is(.primary,.growth-primary):hover{background:#FFFFFF;border-color:#FFFFFF}
+.aurahub-shell :is(.secondary,.growth-secondary){background:#FFFFFF;color:#0B0F0C;border:1px solid #D9D6CB;border-radius:999px}
+.aurahub-shell :is(.secondary,.growth-secondary):hover{background:#F1F0EA;color:#0B0F0C}
+
+/* Filters, chips, status */
+.aurahub-shell .service-filters button,.aurahub-shell .hub-guide-prompts button{background:#FFFFFF;color:#0B0F0C;border:1px solid #D9D6CB;border-radius:999px}
+.aurahub-shell .service-filters button[aria-pressed=true]{background:#0B0F0C;color:#FFFFFF;border-color:#0B0F0C}
+.aurahub-shell .service-filters button span{background:#F1F0EA;color:#0B0F0C}
+.aurahub-shell .service-filters button[aria-pressed=true] span{background:#E1E100;color:#0B0F0C}
+.aurahub-shell .service-state{background:#FBFAD2;color:#4A4A00}
+.aurahub-shell .service-grid :is([data-service-group=active],[data-service-group=delivered]) .service-state{background:#E3F1E6;color:#0E2B1E}
+.aurahub-shell :is(.pill,.chips>span){background:#F3EEDC;color:#0E2B1E}
+
+/* Service cards: keep the illustrated top dark, body light */
+.aurahub-shell .service-grid .service-card{background:#FFFFFF;border:1px solid #E6E4DC;color:#0B0F0C}
+.aurahub-shell .service-card-body .service-facts{border-color:#ECEAE2}
+.aurahub-shell .service-art{background:radial-gradient(ellipse at 52% 69%,#2B5A3F,#0E2B1E 70%)}
+.aurahub-shell .service-art::after{background:linear-gradient(transparent,rgba(14,43,30,.85))}
+.aurahub-shell .service-art :is(span,strong){color:inherit}
+.aurahub-shell :is(.service-scope,.service-next-step){border-color:#ECEAE2}
+.aurahub-shell .service-scope ul{color:#0B0F0C}
+.aurahub-shell .service-scope li::marker{color:#0E2B1E}
+.aurahub-shell .service-next-step{background:#F7F6F0;border-inline-start-color:#E1E100}
+.aurahub-shell .service-next-step strong{color:#0B0F0C}
+.aurahub-shell .service-next-step p,.aurahub-shell .service-offer-copy>p,.aurahub-shell .service-scope p{color:#4B5650}
+
+/* Roadmap / growth vision */
+.aurahub-shell .vision-stage[data-stage-state=active] .vision-stage-button{border-color:#0B0F0C;box-shadow:0 0 0 3px #E1E100}
+.aurahub-shell .vision-stage-art{mix-blend-mode:multiply}
+.aurahub-shell :is(.growth-node,.growth-timeline section,.growth-tabs button[aria-pressed=true]){background:#F7F6F0;color:#0B0F0C;border-color:#E6E4DC}
+.aurahub-shell .growth-ring{background:radial-gradient(circle,#FFFFFF 56%,transparent 58%),conic-gradient(#0E2B1E var(--progress),#ECEAE2 0);color:#0B0F0C}
+.aurahub-shell .growth-branch h3{background:#FFFFFF;color:#0B0F0C;box-shadow:none}
+.aurahub-shell .growth-branch h3 span{color:#0E2B1E}
+
+/* Forms and Auri chat */
+.aurahub-shell :is(input:not([type=checkbox]):not([type=radio]),select,textarea),
+.aurahub-shell .hub-guide :is(input,textarea),.aurahub-shell :is([data-auri-ask],[data-auri-name]) input{background:#FFFFFF;color:#0B0F0C;border:1px solid #CFCBBE;border-radius:14px}
+.aurahub-shell :is(input,select,textarea):focus-visible{outline:3px solid rgba(225,225,0,.7);outline-offset:1px;border-color:#0E2B1E}
+.aurahub-shell :is(.auri-chat-turn,.hub-guide-turns article){background:#F7F6F0;color:#0B0F0C}
+.aurahub-shell .hub-guide :is(p,small){color:#4B5650}
+.aurahub-shell :is(table) :is(th,td){border-color:#ECEAE2}
+
+/* Mobile bottom nav */
+.aurahub-shell .command-bottom-nav{background:#FFFFFF;border-top:1px solid #E6E4DC;box-shadow:0 -10px 30px -20px rgba(11,15,12,.3)}
+.aurahub-shell .command-bottom-nav .nav-item{color:#4B5650}
+.aurahub-shell .command-bottom-nav .nav-item[aria-current],.aurahub-shell .command-bottom-nav .nav-item.active{background:#E1E100;color:#0B0F0C;border-radius:14px}
+
+/* Notices */
+#notice{background:#0B0F0C;color:#FFFFFF;border-radius:14px}
+
+/* Setup / onboarding screens */
+.command-gate,.command-setup,.auri-setup{--white:#FFFFFF;--ink:#0B0F0C;--muted:#4B5650;--line:#E6E4DC;--green:#0E2B1E;--deep:#0A1C14;--setup-text:#0B0F0C;--setup-muted:#4B5650;--setup-accent:#0E2B1E;background:#FAF9F5;color:#0B0F0C}
+.command-gate :is(.auth-intro,.auth-panel),.command-setup :is(.mode-card,.setup-heading),.auri-setup-composer{background:#FFFFFF;border-color:#E6E4DC;color:#0B0F0C}
+.command-setup .mode-card.dark{background:#0E2B1E;color:#F3EEDC}
+.command-gate :is(.field input,.secondary),.command-setup :is(.field input,.field select,.field textarea,.secondary){background:#FFFFFF;color:#0B0F0C;border-color:#CFCBBE}
+.command-gate-header{background:#FFFFFF;border-color:#ECEAE2}
+.command-gate-header .wordmark,.command-gate-header .wordmark span{color:#0B0F0C}
+.command-gate-header .wordmark .hub-brand-tile{color:#0B0F0C}
+
+/* Site theme: roadmap (growth vision) */
+.aurahub-shell .topbar.hub-topbar{background:rgba(255,255,255,.92);border-bottom:1px solid #ECEAE2}
+.aurahub-shell :is(.service-summary dt,.service-facts dt){color:#4B5650}
+.aurahub-shell .hub-work-row small{color:#4B5650}
+.aurahub-shell .growth-tabs{background:#F1F0EA;border-color:#E6E4DC}
+.aurahub-shell .growth-tabs button{color:#4B5650;background:transparent}
+.aurahub-shell .growth-tabs button[aria-pressed=true]{background:#0B0F0C;color:#FFFFFF}
+.aurahub-shell .vision-xp{background:#FFFFFF;border-color:#E6E4DC;color:#0B0F0C}
+.aurahub-shell .vision-xp :is(strong,small,span){color:#0B0F0C}
+.aurahub-shell .vision-xp small{color:#4B5650}
+.aurahub-shell .vision-xp-track{background:#ECEAE2}
+.aurahub-shell .vision-xp-track>span{background:#0E2B1E}
+.aurahub-shell .vision-stage-button,.aurahub-shell .vision-stage[data-stage-state=active] .vision-stage-button{background:#FFFFFF;color:#0B0F0C;border:1px solid #E6E4DC}
+.aurahub-shell .vision-stage-button :is(strong,small){color:#0B0F0C}
+.aurahub-shell .vision-stage-button small{color:#4B5650}
+.aurahub-shell .vision-stage[data-stage-state=active] .vision-stage-button{border:2px solid #0B0F0C;box-shadow:0 0 0 4px #E1E100}
+.aurahub-shell .vision-stage-status{background:#F1F0EA;color:#0B0F0C}
+.aurahub-shell .vision-stage[data-stage-state=active] .vision-stage-status{background:#E1E100;color:#0B0F0C}
+.aurahub-shell .vision-stage[data-stage-state=done] .vision-stage-status{background:#E3F1E6;color:#0E2B1E}
+.aurahub-shell .vision-stage-art{mix-blend-mode:normal;border-radius:14px;background:#0E2B1E}
+.aurahub-shell .vision-stage-fallback{border-radius:14px}
+.aurahub-shell .vision-stage:not(:last-child)::after{color:#0E2B1E}
+.aurahub-shell .vision-tasks{background:#FFFFFF;border-color:#E6E4DC;color:#0B0F0C}
+.aurahub-shell .vision-tasks :is(h3,strong,.vision-task-name){color:#0B0F0C}
+.aurahub-shell :is(.vision-note,.vision-tasks small){color:#4B5650}
+.aurahub-shell .vision-task{background:#FAF9F5;border:1px solid #E6E4DC;color:#0B0F0C}
+.aurahub-shell .vision-task:hover{background:#F4F3EC;border-color:#0B0F0C}
+.aurahub-shell .vision-task[aria-pressed=true]{background:#FBFAD2;border-color:#0B0F0C;box-shadow:none}
+.aurahub-shell .vision-task-icon{background:#FFFFFF;border-color:#D9D6CB;color:#0E2B1E}
+.aurahub-shell .vision-task-status{background:#FFFFFF;border:1px solid #D9D6CB;color:#0B0F0C}
+.aurahub-shell .vision-task-arrow{color:#0E2B1E}
+.aurahub-shell .vision-reward{background:#FBFAD2;border-color:#E1E100;color:#0B0F0C}
+.aurahub-shell .vision-auri{background:radial-gradient(ellipse at 50% 0,#1E5A3D 0%,#0E2B1E 70%);border:0}
+.aurahub-shell .vision-auri :is(h3,p,small,strong){color:#F3EEDC}
+.aurahub-shell .vision-auri p{color:#C9D6CC}
+.aurahub-shell .growth-focus :is(.focus-benefit,p){color:#4B5650}
+.aurahub-shell .growth-focus-top small{background:#E1E100;color:#0B0F0C}
+.aurahub-shell :is(details,summary){color:#0B0F0C}
+
+.aurahub-shell #growth-focus .focus-benefit,.aurahub-shell #growth-focus p{color:#4B5650}
+.aurahub-shell .vision-task .vision-task-icon,.aurahub-shell .vision-task .vision-task-arrow{color:#0E2B1E!important}
+.aurahub-shell .vision-task[data-display-state=verified] .vision-task-icon,.aurahub-shell .vision-task[data-display-state=done] .vision-task-icon{background:#0E2B1E;border-color:#0E2B1E;color:#E1E100!important}
+.aurahub-shell .auri-status{background:#E3F1E6;color:#0E2B1E}
+.aurahub-shell .growth-tabs button{color:#2E3832}
+
+.aurahub-shell .auri-status{padding:3px 10px;border-radius:999px;font-weight:600}
+.aurahub-shell summary::after,.aurahub-shell summary .plus,.aurahub-shell summary>span[aria-hidden]{color:#0E2B1E}
+
+/* The hidden attribute always wins over component display rules. */
+[hidden]{display:none!important}

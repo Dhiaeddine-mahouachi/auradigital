@@ -54,7 +54,7 @@
         </sc-for>
       </div>
       <form onSubmit="{{ submit }}" style="display: flex; gap: 8px; padding: 10px 12px 12px; background: #FFFFFF">
-        <label for="auri-input" style="position: absolute; left: -9999px">Message Auri</label>
+        <label for="auri-input" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap">Message Auri</label>
         <input id="auri-input" value="{{ draft }}" onChange="{{ onDraft }}" maxlength="2000" placeholder="Ask Auri anything…" autocomplete="off" style="flex: 1; min-width: 0; border: 1px solid #D9D6CB; background: #FAF9F5; border-radius: 14px; padding: 12px 14px; font-size: 15px; font-family: Inter, sans-serif; color: #0B0F0C">
         <button type="submit" aria-label="Send message" style="width: 46px; height: 46px; border-radius: 14px; border: 0; background: #0B0F0C; color: #E1E100; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
       </form>
@@ -94,9 +94,20 @@ class Component extends DCLogic {
     };
     try { window.addEventListener('pointermove', this.onMove, { passive: true }); } catch (e) {}
     this.teaserTimer = setTimeout(() => this.setState({ teaserGone: true }), 9000);
+    // Follow the site language switcher (redesign/i18n.js).
+    this.onLang = () => {
+      const l = this.pageLang();
+      const fresh = this.state.msgs.length === 1 && this.state.msgs[0].role === 'bot';
+      this.setState(fresh ? { lang: l, msgs: [this.greet(l)] } : { lang: l });
+    };
+    try { window.addEventListener('aura:lang', this.onLang); } catch (e) {}
+    if (this.pageLang() !== 'en') this.onLang();
+  }
+  pageLang() {
+    try { const l = document.documentElement.lang; return l === 'tr' || l === 'ar' ? l : 'en'; } catch (e) { return 'en'; }
   }
   componentWillUnmount() {
-    try { window.removeEventListener('pointermove', this.onMove); } catch (e) {}
+    try { window.removeEventListener('pointermove', this.onMove); window.removeEventListener('aura:lang', this.onLang); } catch (e) {}
     clearTimeout(this.timer); clearTimeout(this.teaserTimer); if (this.raf) cancelAnimationFrame(this.raf);
   }
   greet(l) {
@@ -110,7 +121,8 @@ class Component extends DCLogic {
   detect(s) {
     if (/[؀-ۿ]/.test(s)) return 'ar';
     if (/[çğıöşüİ]/i.test(s) || /\b(merhaba|selam|fiyat|ne kadar|nasıl|istiyorum|var mı|web sitesi|menü|kaç)\b/i.test(s)) return 'tr';
-    return 'en';
+    if (/\b(hi|hello|hey|how|what|price|website|menu|need|want|can|the)\b/i.test(s)) return 'en';
+    return this.pageLang();
   }
   brain(q, l) {
     const s = q.toLowerCase();

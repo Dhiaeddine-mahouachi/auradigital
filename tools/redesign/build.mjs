@@ -71,10 +71,14 @@ function toTree(nodes) {
   return out;
 }
 
+const SHARED_CSS = fs.readFileSync(path.join(HERE, 'design', 'css.txt'), 'utf8').trim();
+const SHARED_FONTS = fs.readFileSync(path.join(HERE, 'design', 'head.txt'), 'utf8').trim();
 function parseDesign(name) {
   const raw = localize(fs.readFileSync(path.join(designDir, name + '.dc.html'), 'utf8'));
   const xdc = raw.slice(raw.indexOf('<x-dc>') + 6, raw.indexOf('</x-dc>'));
-  const helmet = (xdc.match(/<helmet>([\s\S]*?)<\/helmet>/) || [, ''])[1];
+  // Design files share their stylesheet and font links through placeholders.
+  const helmet = (xdc.match(/<helmet>([\s\S]*?)<\/helmet>/) || [, ''])[1]
+    .replace('<!--CSS-->', () => SHARED_CSS).replace('<!--FONTS-->', () => SHARED_FONTS);
   const body = xdc.replace(/<helmet>[\s\S]*?<\/helmet>/, '');
   const doc = parseDocument(body, { lowerCaseAttributeNames: false, lowerCaseTags: false, recognizeSelfClosing: true, decodeEntities: true });
   const script = raw.match(/<script type="text\/x-dc" data-dc-script[^>]*>([\s\S]*?)<\/script>/)[1];
@@ -135,6 +139,7 @@ ${stripFonts(extraCss).trim()}
 <div id="app" data-page="${name}">${html}</div>
 <noscript><p style="font-family:Inter,sans-serif;padding:16px">WhatsApp +90 538 550 76 74 · info@auradigitalworks.com</p></noscript>
 <script src="/redesign/app.js?v=${VERSION}" defer></script>
+<script src="/redesign/i18n.js?v=${VERSION}" defer></script>
 </body>
 </html>
 `;
@@ -164,7 +169,7 @@ for (const [file, active] of SHELLS) {
   src = swap(src, 'css', `\n<link rel="stylesheet" href="/redesign/fonts.css?v=${VERSION}">\n${shellCss.trim()}\n`);
   src = swap(src, 'header', chrome('Header', active));
   src = swap(src, 'footer', chrome('Footer', active) + chrome('Auri', active));
-  src = swap(src, 'js', `<script src="/redesign/app.js?v=${VERSION}" defer></script>`);
+  src = swap(src, 'js', `<script src="/redesign/app.js?v=${VERSION}" defer></script><script src="/redesign/i18n.js?v=${VERSION}" defer></script>`);
   fs.writeFileSync(fp, src);
   console.log('chrome', file);
 }

@@ -20,9 +20,14 @@ AURADIGITAL — EASY ACCESS / CLOUDFLARE READY
    changes, and respects the visitor's reduced-motion preference.
 
 5) Languages
-   Turkish, English and Arabic are built in and work without a translation service.
-   Turkish is the default. The visitor's selection stays active between pages,
-   and Arabic automatically switches the layout to right-to-left (RTL).
+   English, Turkish and Arabic. Pages are written in English; redesign/i18n.js
+   swaps in Turkish or Arabic from i18n/tr.json and i18n/ar.json and switches
+   Arabic to right-to-left. The EN / TR / AR buttons are in the header (and in
+   the mobile menu). The choice is remembered and shared with AuraHub and Auri;
+   first-time visitors get their browser language.
+   To add or fix wording: edit tools/i18n/site-copy-*.txt ("English ||| Türkçe
+   ||| العربية", one phrase per line), then run: node tools/i18n/build.mjs
+   After changing a design file, rebuild the pages: cd tools/redesign && npm install && npm run build
 
 6) Brand & motion
    The public brand uses the supplied AuraDigital A mark beside the lowercase
@@ -88,3 +93,26 @@ nfc-status.html.
    Run `npm run check`, `npm test`, and `npm run deploy:check` before deployment.
    Run `bash scripts/backup-d1.sh` at least weekly and before database changes.
    Full production security operations are documented in SECURITY.md.
+
+13) AI assistant (Auri) with Ollama Cloud
+   wrangler.jsonc sets AI_PROVIDER=ollama and AI_MODEL=gpt-oss:20b, with
+   Cloudflare Workers AI as the automatic backup. Add your Ollama Cloud key
+   (ollama.com → Settings → Keys) as a Worker secret:
+     npx wrangler secret put OLLAMA_API_KEY
+   With only the key set, Auri calls https://ollama.com/api/chat. To use your
+   own Ollama server instead, set the secret AI_BASE_URL to its public HTTPS
+   address (a Cloudflare Tunnel works); "https://host", ".../api" and
+   ".../api/chat" are all accepted. Remove an old AI_BASE_URL secret that
+   points somewhere else. Any model listed at https://ollama.com/api/tags can
+   go in AI_MODEL. The AuraHub "Ask Auri" uses the same settings unless
+   HUB_OLLAMA_URL / HUB_OLLAMA_MODEL are set.
+
+14) CRM
+   Admin → CRM. Each client's "All services" tab gathers the NFC, AuraMenu and
+   website requests, orders, invoices, subscriptions, shop orders and AuraHub
+   account/workspaces that share the client's email or phone, and lets you
+   change their status from there. "New from your services" lists requests and
+   sign-ups not yet linked to a client (Add to CRM / Attach to…). The top-bar
+   search finds clients and records across every service.
+   Apply the migration once: npx wrangler d1 migrations apply auradigital-db --remote
+   (the table is also created automatically on first use).

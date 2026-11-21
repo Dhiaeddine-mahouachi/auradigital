@@ -44,6 +44,29 @@ function rateFor(provider,model,env){
   };
 }
 
+export const OLLAMA_CLOUD_CHAT='https://ollama.com/api/chat';
+// The operator may configure a bare host ("https://ollama.com"), the API root
+// ("…/api") or the full chat URL. With only an API key, use Ollama Cloud.
+export function ollamaKey(env){return env.AI_API_KEY||env.OLLAMA_API_KEY||'';}
+export function ollamaEndpoint(env){
+  const raw=env.AI_BASE_URL||env.OLLAMA_URL||(ollamaKey(env)?OLLAMA_CLOUD_CHAT:'');
+  let url;try{url=new URL(raw);}catch{return null;}
+  if(url.protocol!=='https:'||url.username||url.password)return null;
+  const path=url.pathname.replace(/\/+$/,'');
+  if(!path)url.pathname='/api/chat';
+  else if(path==='/api')url.pathname='/api/chat';
+  return url;
+}
+// Keep reasoning short: replies must arrive within the primary timeout.
+// gpt-oss only accepts a level; other models accept a boolean.
+function thinkSetting(model){return /^gpt-oss/i.test(model)?'low':false;}
+// Settings for the backup provider, used when the primary one fails.
+export function fallbackEnv(env){
+  return {...env,AI_PROVIDER:env.AI_FALLBACK_PROVIDER,AI_MODEL:env.AI_FALLBACK_MODEL||FP8,
+    AI_BASE_URL:env.AI_FALLBACK_BASE_URL||(env.AI_FALLBACK_PROVIDER==='cloudflare'?'':env.AI_BASE_URL),
+    AI_API_KEY:env.AI_FALLBACK_API_KEY||(env.AI_FALLBACK_PROVIDER==='cloudflare'?'':env.AI_API_KEY)};
+}
+
 export function tariff(env) {
   const primary=rateFor(env.AI_PROVIDER,env.AI_MODEL,env);
   // When a fallback is configured, budget against whichever is more expensive.
@@ -70,12 +93,14 @@ async function attempt(env,messages,timeout,engine) {
     const format=model==='@cf/meta/llama-3.1-8b-instruct-fp8'?{}:{response_format:{type:'json_object'}};
     try { raw=await Promise.race([env.AI.run(model,{messages,max_tokens:700,temperature:0.2,...format}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new ApiError(504,'AI timed out.')),timeout);})]); } finally { clearTimeout(timer); }
   } else if(env.AI_PROVIDER==='ollama') {
-    let endpoint;
-    try {endpoint=new URL(env.AI_BASE_URL);}catch{throw new ApiError(503,'AI endpoint unavailable.');}
-    if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password)throw new ApiError(503,'AI endpoint unavailable.');
+    const endpoint=ollamaEndpoint(env);
+    if(!endpoint)throw new ApiError(503,'AI endpoint unavailable.');
+    const key=ollamaKey(env);
+    // Ollama Cloud (ollama.com) always needs an API key; a self-hosted server may not.
+    if(endpoint.hostname==='ollama.com'&&!key)throw new ApiError(503,'AI endpoint unavailable.');
     const response=await fetch(endpoint,{method:'POST',redirect:'error',headers:{
-      'Content-Type':'application/json',...(env.AI_API_KEY?{Authorization:`Bearer ${env.AI_API_KEY}`}:{}),
-    },body:JSON.stringify({model,messages,stream:false,format:'json',options:{temperature:0.2,num_predict:1800}}),signal:AbortSignal.timeout(timeout)});
+      'Content-Type':'application/json',...(key?{Authorization:`Bearer ${key}`}:{}),
+    },body:JSON.stringify({model,messages,stream:false,format:'json',think:thinkSetting(model),options:{temperature:0.2,num_predict:1800}}),signal:AbortSignal.timeout(timeout)});
     if(!response.ok){const error=new ApiError(response.status,'AI provider unavailable.');error.providerStatus=response.status;throw error;}
     const {readJson}=await import('./http.js');
     const data=await readJson(response,64000);
@@ -135,10 +160,9 @@ export async function generate(env,messages,requestId=crypto.randomUUID(),engine
   const primaryBudget=Math.max(3000,Math.min(20000,Number(env.AI_PRIMARY_TIMEOUT_MS)||12000));
   try { return await generateWith(env,messages,requestId,engine,primaryBudget); }
   catch(primaryError) {
-    const fallbackEnv={...env,AI_PROVIDER:fallback,AI_MODEL:env.AI_FALLBACK_MODEL||FP8,AI_BASE_URL:env.AI_FALLBACK_BASE_URL||env.AI_BASE_URL,AI_API_KEY:env.AI_FALLBACK_API_KEY||env.AI_API_KEY};
     console.warn(JSON.stringify({timestamp:new Date().toISOString(),requestId,endpoint:'/api/ai/message',event:'provider_fallback',from:env.AI_PROVIDER||'none',to:fallback,reason:failureReason(primaryError)}));
     try {
-      const output=await generateWith(fallbackEnv,messages,requestId,engine,Math.max(4000,25000-primaryBudget));
+      const output=await generateWith(fallbackEnv(env),messages,requestId,engine,Math.max(4000,25000-primaryBudget));
       const billed=primaryError.billedUsage||{input:0,output:0};
       return {...output,usage:{input:output.usage.input+billed.input,output:output.usage.output+billed.output},unmeteredAttempts:(output.unmeteredAttempts||0)+(primaryError.unmeteredAttempts||0),fallback:true};
     } catch(fallbackError) {

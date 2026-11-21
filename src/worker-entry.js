@@ -16,6 +16,7 @@ import { serveAdditionalEmployeePortal } from './employee-portals.js';
 import { serveManagedEmployeePortal, handleManagedEmployeeApi, handleManagedEmployeeAdmin } from './managed-employees.js';
 import { permanentSeoRedirect, serveSeoAsset } from './seo.js';
 import { handleAiEmployee, cleanupAiData } from './ai-employee.js';
+import { handleCrm } from './crm.js';
 
 const router = {
   async fetch(request, env, ctx) {
@@ -84,6 +85,8 @@ const router = {
     const employeePortalResponse = await serveEmployeePortal(request, env);
     if (employeePortalResponse) return employeePortalResponse;
 
+    const crmResponse = await handleCrm(request, env);
+    if (crmResponse) return crmResponse;
     const auraPopsAdminResponse = await handleAuraPopsAdmin(request, env);
     if (auraPopsAdminResponse) return auraPopsAdminResponse;
     const workspaceResponse = await handleAdminWorkspace(request, env);

@@ -18,7 +18,7 @@ import { simulate, capabilities, diagnose } from '../growth-engine.js';
 const app=document.querySelector('#app'),notice=document.querySelector('#notice');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const requestedLanguage=new URLSearchParams(location.search).get('lang');
-let lang=Object.hasOwn(copy,requestedLanguage)?requestedLanguage:localStorage.getItem('aura-hub-language')||'en';if(!Object.hasOwn(copy,lang))lang='en';
+let lang=Object.hasOwn(copy,requestedLanguage)?requestedLanguage:(localStorage.getItem('aura-hub-language')||localStorage.getItem('aura-lang-choice-v3')||'en');if(!Object.hasOwn(copy,lang))lang='en';
 function saveLanguage(value){
  localStorage.setItem('aura-hub-language',value);
  if(['en','tr','ar'].includes(value))localStorage.setItem('aura-lang-choice-v3',value);

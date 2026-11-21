@@ -1,6 +1,6 @@
 import { groups } from '../pricing/catalogue.js';
 import { pricingFor } from './global-pricing.js';
-import { generate, tariff } from './ai-provider.js';
+import { generate, tariff, ollamaEndpoint, fallbackEnv } from './ai-provider.js';
 import { clean, redact, LANGUAGES, TEXT } from './ai-core.js';
 import { auriProvider } from './hub-plan.js';
 import { ApiError, json, readJson } from './http.js';
@@ -20,10 +20,11 @@ export async function hubGuide(request, env, user) {
  // Prefer the Hub's Ollama gateway, but keep the configured Workers AI
  // binding available when Ollama is absent or temporarily unreachable.
  const primary=auriProvider(env);
- const workersAIReady=env.AI_PROVIDER==='cloudflare'&&Boolean(env.AI_MODEL)&&typeof env.AI?.run==='function';
+ const workersAI=env.AI_PROVIDER==='cloudflare'?env:env.AI_FALLBACK_PROVIDER==='cloudflare'?fallbackEnv(env):null;
+ const workersAIReady=Boolean(workersAI?.AI_MODEL)&&typeof env.AI?.run==='function';
  const providers=[
-  ...(primary.AI_PROVIDER==='ollama'&&primary.AI_BASE_URL&&primary.AI_MODEL?[primary]:[]),
-  ...(workersAIReady?[env]:[]),
+  ...(primary.AI_PROVIDER==='ollama'&&ollamaEndpoint(primary)&&primary.AI_MODEL?[primary]:[]),
+  ...(workersAIReady?[workersAI]:[]),
  ];
  if(!providers.length||!env.AI_RATE_LIMITER?.limit)throw new ApiError(503,TEXT[lang].fallback);
  if(!(await env.AI_RATE_LIMITER.limit({key:'hub-guide:'+user.id})).success)throw new ApiError(429,TEXT[lang].limit);

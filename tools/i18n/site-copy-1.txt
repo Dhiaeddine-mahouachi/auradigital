@@ -1,0 +1,244 @@
+# English ||| Türkçe ||| العربية — one phrase per line. Lines starting with # are comments.
+# Rebuild with: node tools/i18n/build.mjs
+(optional) ||| (isteğe bağlı) ||| (اختياري)
++ Add ||| + Ekle ||| + أضف
+, no spam. ||| , spam yok. ||| ، بدون رسائل مزعجة.
+1 · What do you need? * ||| 1 · Neye ihtiyacınız var? * ||| 1 · ماذا تحتاج؟ *
+10% OFF ||| %10 İNDİRİM ||| خصم 10%
+16 updates/month, performance checks, SEO reporting. ||| Ayda 16 güncelleme, performans kontrolleri, SEO raporu. ||| 16 تحديثًا شهريًا، فحوصات أداء، تقارير SEO.
+17 results ||| 17 sonuç ||| 17 نتيجة
+2 min ||| 2 dk ||| دقيقتان
+2 updates/month, uptime monitoring, security checks. ||| Ayda 2 güncelleme, erişilebilirlik izleme, güvenlik kontrolleri. ||| تحديثان شهريًا، مراقبة التشغيل، فحوصات أمان.
+2 · Budget range ||| 2 · Bütçe aralığı ||| 2 · نطاق الميزانية
+24 services ||| 24 hizmet ||| 24 خدمة
+24 updates/month, priority support, basic ads management. ||| Ayda 24 güncelleme, öncelikli destek, temel reklam yönetimi. ||| 24 تحديثًا شهريًا، دعم ذو أولوية، إدارة إعلانات أساسية.
+3 steps. ||| 3 adımda. ||| 3 خطوات.
+3 · Your details ||| 3 · Bilgileriniz ||| 3 · بياناتك
+4 steps. ||| 4 adımda. ||| 4 خطوات.
+4 · Tell us about your project * ||| 4 · Projenizden bahsedin * ||| 4 · أخبرنا عن مشروعك *
+4–10 pages ||| 4–10 sayfa ||| 4–10 صفحات
+4–10 pages, premium custom design, lead forms, animations. ||| 4–10 sayfa, premium özel tasarım, talep formları, animasyonlar. ||| 4–10 صفحات، تصميم مخصص فاخر، نماذج عملاء، حركات.
+58 designs ||| 58 tasarım ||| 58 تصميمًا
+7-day offer ||| 7 günlük fırsat ||| عرض 7 أيام
+8 updates/month, maintenance, monthly report. ||| Ayda 8 güncelleme, bakım, aylık rapor. ||| 8 تحديثات شهريًا، صيانة، تقرير شهري.
+A WhatsApp Business number connected to the official WhatsApp Cloud API. We set it up for you. ||| Resmî WhatsApp Cloud API'ye bağlı bir WhatsApp Business numarası. Kurulumu biz yapıyoruz. ||| رقم واتساب للأعمال مرتبط بواجهة WhatsApp Cloud API الرسمية. نحن نجهزه لك.
+A beautiful QR digital menu your guests open instantly — in Turkish, English and Arabic. Change prices and dishes anytime, no reprinting. ||| Misafirlerinizin anında açtığı şık bir QR dijital menü — Türkçe, İngilizce ve Arapça. Fiyatları ve yemekleri istediğiniz an değiştirin, yeniden baskı yok. ||| قائمة رقمية جميلة برمز QR يفتحها ضيوفك فورًا — بالتركية والإنجليزية والعربية. غيّر الأسعار والأطباق في أي وقت دون إعادة طباعة.
+A home-grown cake brand needed a place to show its creations and take orders beyond Instagram. ||| Evde büyüyen bir pasta markası, ürünlerini sergileyip Instagram dışında da sipariş alabileceği bir yere ihtiyaç duyuyordu. ||| علامة حلويات منزلية احتاجت مكانًا لعرض إبداعاتها واستقبال الطلبات خارج إنستغرام.
+A live AuraMenu on a phone ||| Telefonda canlı bir AuraMenu ||| قائمة AuraMenu حية على هاتف
+A personal plan with clear steps in the right order. ||| Doğru sırada, net adımlarla size özel bir plan. ||| خطة شخصية بخطوات واضحة وبالترتيب الصحيح.
+A photo, PDF or list — we take it from there. ||| Bir fotoğraf, PDF veya liste — gerisini biz hallederiz. ||| صورة أو ملف PDF أو قائمة — ونتولى الباقي.
+A premium multi-page site built to bring in leads. ||| Müşteri getirmek için kurulmuş premium, çok sayfalı bir site. ||| موقع فاخر متعدد الصفحات مصمم لجلب العملاء.
+A professional website, business email and brand that make people trust you. ||| İnsanların size güvenmesini sağlayan profesyonel bir web sitesi, kurumsal e-posta ve marka. ||| موقع احترافي وبريد أعمال وهوية تجعل الناس يثقون بك.
+A sharp small site to present your business and get contacted. ||| İşletmenizi tanıtmak ve iletişim almak için şık, küçük bir site. ||| موقع صغير وأنيق لتقديم نشاطك واستقبال التواصل.
+A short, friendly chat — no forms, no jargon. ||| Kısa, samimi bir sohbet — form yok, teknik jargon yok. ||| محادثة قصيرة وودية — بلا نماذج ولا مصطلحات معقدة.
+A website with a dashboard and logins for your team. ||| Ekibiniz için panel ve kullanıcı girişleri olan bir web sitesi. ||| موقع مع لوحة تحكم وحسابات دخول لفريقك.
+AI + people ||| Yapay zekâ + insan ||| ذكاء اصطناعي + أشخاص
+AI sales agent ||| Yapay zekâ satış temsilcisi ||| وكيل مبيعات بالذكاء الاصطناعي
+AI with a human touch ||| İnsan dokunuşlu yapay zekâ ||| ذكاء اصطناعي بلمسة إنسانية
+AURADIGITAL / CARD SHOP ||| AURADIGITAL / KART MAĞAZASI ||| AURADIGITAL / متجر البطاقات
+About ||| Hakkımızda ||| من نحن
+About AuraDigital ||| AuraDigital hakkında ||| عن AuraDigital
+About us ||| Hakkımızda ||| من نحن
+About — AuraDigital ||| Hakkımızda — AuraDigital ||| من نحن — AuraDigital
+Active services ||| Aktif hizmetler ||| الخدمات النشطة
+Add an online shop to your website. ||| Web sitenize bir online mağaza ekleyin. ||| أضف متجرًا إلكترونيًا إلى موقعك.
+Add-ons ||| Ek hizmetler ||| الإضافات
+Ads ||| Reklamlar ||| الإعلانات
+Advanced multi-campaign management. ||| Gelişmiş çoklu kampanya yönetimi. ||| إدارة متقدمة لحملات متعددة.
+Advanced security review and hardening. ||| Gelişmiş güvenlik incelemesi ve sıkılaştırma. ||| مراجعة أمنية متقدمة وتحصين.
+Advanced technology — ||| İleri teknoloji — ||| تقنية متقدمة —
+Always online, protected ||| Her zaman çevrimiçi, korumalı ||| متصل دائمًا ومحمي
+An Istanbul-based digital agency combining AI with a hands-on team. ||| Yapay zekâyı işin başındaki bir ekiple birleştiren İstanbul merkezli bir dijital ajans. ||| وكالة رقمية مقرها إسطنبول تجمع بين الذكاء الاصطناعي وفريق عملي.
+Answer a few questions. Auri builds your roadmap, sets up your tools and guides each step — at your pace. ||| Birkaç soruyu yanıtlayın. Auri yol haritanızı oluşturur, araçlarınızı kurar ve her adımda size rehberlik eder — kendi hızınızda. ||| أجب عن بضعة أسئلة. يبني Auri خطتك ويجهز أدواتك ويرشدك في كل خطوة — بالسرعة التي تناسبك.
+Answer customers automatically ||| Müşterilere otomatik yanıt verin ||| رد على العملاء تلقائيًا
+Answered. ||| Yanıtlar burada. ||| وإجاباتها.
+Answers about websites, AuraHub, payments, AuraMenu and WhatsApp automation. ||| Web siteleri, AuraHub, ödemeler, AuraMenu ve WhatsApp otomasyonu hakkında yanıtlar. ||| إجابات حول المواقع وAuraHub والمدفوعات وAuraMenu وأتمتة واتساب.
+Approve your design ||| Tasarımınızı onaylayın ||| وافق على تصميمك
+Arabic-first multiplayer word game with rooms and scoring. ||| Odaları ve puanlaması olan, Arapça öncelikli çok oyunculu kelime oyunu. ||| لعبة كلمات جماعية بالعربية أولًا مع غرف ونقاط.
+Are prices tax-inclusive? ||| Fiyatlara vergi dahil mi? ||| هل الأسعار شاملة الضريبة؟
+Ask Auri ||| Auri'ye sor ||| اسأل Auri
+Ask Auri anything… ||| Auri'ye istediğinizi sorun… ||| اسأل Auri أي شيء…
+AuraDigital home ||| AuraDigital ana sayfa ||| الصفحة الرئيسية لـ AuraDigital
+AuraDigital portfolio showreel ||| AuraDigital portföy tanıtım videosu ||| فيديو أعمال AuraDigital
+AuraDigital showreel ||| AuraDigital tanıtım videosu ||| فيديو تعريفي لـ AuraDigital
+AuraDigital — Websites, AI & growth for your business ||| AuraDigital — İşletmeniz için web siteleri, yapay zekâ ve büyüme ||| AuraDigital — مواقع وذكاء اصطناعي ونمو لنشاطك
+AuraHub growth roadmap screen ||| AuraHub büyüme yol haritası ekranı ||| شاشة خطة النمو في AuraHub
+AuraHub my services screen ||| AuraHub hizmetlerim ekranı ||| شاشة خدماتي في AuraHub
+AuraHub reminds you before each renewal date so your site never goes offline. ||| AuraHub her yenileme tarihinden önce size hatırlatır, böylece siteniz hiç kapanmaz. ||| يذكّرك AuraHub قبل كل موعد تجديد كي لا يتوقف موقعك أبدًا.
+AuraHub requests screen ||| AuraHub talepler ekranı ||| شاشة الطلبات في AuraHub
+AuraMenu QR menu ||| AuraMenu QR menü ||| قائمة AuraMenu برمز QR
+AuraMenu commercial ||| AuraMenu reklam filmi ||| إعلان AuraMenu
+AuraMenu · for restaurants & cafés ||| AuraMenu · restoran ve kafeler için ||| AuraMenu · للمطاعم والمقاهي
+AuraMenu — QR digital menus — AuraDigital ||| AuraMenu — QR dijital menüler — AuraDigital ||| AuraMenu — قوائم رقمية بـ QR — AuraDigital
+AuraMenu → Website → WhatsApp orders ||| AuraMenu → Web sitesi → WhatsApp siparişleri ||| AuraMenu ← موقع ← طلبات واتساب
+AuraPops profile ||| AuraPops profili ||| ملف AuraPops
+Auri + real people ||| Auri + gerçek insanlar ||| Auri + أشخاص حقيقيون
+Auri asks a few questions and builds your roadmap for free. ||| Auri birkaç soru sorar ve yol haritanızı ücretsiz oluşturur. ||| يطرح Auri بضعة أسئلة ويبني خطتك مجانًا.
+Auri builds your free growth roadmap in AuraHub. ||| Auri, AuraHub'da ücretsiz büyüme yol haritanızı oluşturur. ||| يبني Auri خطة نموك المجانية في AuraHub.
+Auri handles the routine; our team handles the craft and the decisions. ||| Rutin işleri Auri, ustalık ve kararları ekibimiz üstlenir. ||| يتولى Auri المهام الروتينية، ويتولى فريقنا الحرفة والقرارات.
+Auri is an AI assistant · prices are confirmed in your proposal ||| Auri bir yapay zekâ asistanıdır · fiyatlar teklifinizde netleşir ||| Auri مساعد ذكاء اصطناعي · تُؤكَّد الأسعار في عرضك
+Auri: “Your Google Maps profile is ready for review.” ||| Auri: “Google Haritalar profiliniz incelemeye hazır.” ||| Auri: «ملفك على خرائط Google جاهز للمراجعة.»
+Auto-electrical workshop in Fatih — Turkish one-page site with services, gallery and Maps. ||| Fatih'te oto elektrik atölyesi — hizmetler, galeri ve Haritalar içeren Türkçe tek sayfalık site. ||| ورشة كهرباء سيارات في الفاتح — موقع تركي من صفحة واحدة مع الخدمات والمعرض والخرائط.
+Auto-electrical workshop in Fatih — one-page site and Maps ||| Fatih'te oto elektrik atölyesi — tek sayfalık site ve Haritalar ||| ورشة كهرباء سيارات في الفاتح — موقع صفحة واحدة وخرائط
+Automate ||| Otomatikleştir ||| أتمتة
+Barber Monochrome NFC card design ||| Barber Monochrome NFC kart tasarımı ||| تصميم بطاقة NFC ‏Barber Monochrome
+Basic ||| Temel ||| أساسي
+Beauty Lilac NFC card design ||| Beauty Lilac NFC kart tasarımı ||| تصميم بطاقة NFC ‏Beauty Lilac
+Best way to reach you ||| Size ulaşmanın en iyi yolu ||| أفضل طريقة للتواصل معك
+Billing ||| Faturalandırma ||| الفوترة
+Bold, beautiful work ||| Cesur, güzel işler ||| أعمال جريئة وجميلة
+Book a free call ||| Ücretsiz görüşme ayarlayın ||| احجز مكالمة مجانية
+Boutique Checker NFC card design ||| Boutique Checker NFC kart tasarımı ||| تصميم بطاقة NFC ‏Boutique Checker
+Brand ||| Marka ||| هوية
+Brand & creative ||| Marka ve kreatif ||| الهوية والإبداع
+Brand & experience landing-page concept. ||| Marka ve deneyim açılış sayfası konsepti. ||| مفهوم صفحة هبوط للعلامة والتجربة.
+Brand kit ||| Marka kiti ||| حزمة الهوية
+Browse all designs → ||| Tüm tasarımlara göz atın → ||| تصفح كل التصاميم ←
+Browse all services → ||| Tüm hizmetlere göz atın → ||| تصفح كل الخدمات ←
+Build ||| Kur ||| ابنِ
+Build it with Auri or our team ||| Auri veya ekibimizle kurun ||| ابنِه مع Auri أو مع فريقنا
+Build my roadmap → ||| Yol haritamı oluştur → ||| ابنِ خطتي ←
+Build once ||| Bir kez kurun ||| ابنِ مرة واحدة
+Build, grow, automate and manage your business with AuraDigital. ||| AuraDigital ile işletmenizi kurun, büyütün, otomatikleştirin ve yönetin. ||| ابنِ نشاطك ونمِّه وأتمته وأدره مع AuraDigital.
+Built by an engineering and cybersecurity background — hosting, SSL and monitoring included. ||| Mühendislik ve siber güvenlik geçmişiyle kuruldu — barındırma, SSL ve izleme dahil. ||| مبني بخلفية هندسية وأمن سيبراني — الاستضافة وSSL والمراقبة مشمولة.
+Business name ||| İşletme adı ||| اسم النشاط
+Business, review and menu cards — order online. ||| Kartvizit, yorum ve menü kartları — online sipariş verin. ||| بطاقات أعمال وتقييم وقوائم — اطلبها أونلاين.
+Businesses in Istanbul already growing with AuraDigital ||| AuraDigital ile şimdiden büyüyen İstanbul işletmeleri ||| أنشطة في إسطنبول تنمو بالفعل مع AuraDigital
+Buy ||| Satın al ||| اشترِ
+Cake & dessert brand — gallery website and social presence. ||| Pasta ve tatlı markası — galeri web sitesi ve sosyal medya varlığı. ||| علامة كعك وحلويات — موقع معرض وحضور على مواقع التواصل.
+Cake & dessert brand — website and social media ||| Pasta ve tatlı markası — web sitesi ve sosyal medya ||| علامة كعك وحلويات — موقع ووسائل تواصل
+Call now → ||| Hemen arayın → ||| اتصل الآن ←
+Call us ||| Bizi arayın ||| اتصل بنا
+Can I talk to a real person? ||| Gerçek bir kişiyle konuşabilir miyim? ||| هل يمكنني التحدث مع شخص حقيقي؟
+Can my menu be in Arabic? ||| Menüm Arapça olabilir mi? ||| هل يمكن أن تكون قائمتي بالعربية؟
+Care ||| Bakım ||| الرعاية
+Care & maintenance ||| Bakım ve destek ||| الرعاية والصيانة
+Care plan ||| Bakım planı ||| خطة الرعاية
+Case study ||| Vaka çalışması ||| دراسة حالة
+Catalogue prices in TRY (v2026-10-13). Taxes and scope are confirmed in your proposal. ||| Katalog fiyatları TRY cinsindendir (v2026-10-13). Vergiler ve kapsam teklifinizde netleşir. ||| أسعار الكتالوج بالليرة التركية (v2026-10-13). تُؤكَّد الضرائب والنطاق في عرضك.
+Challenge ||| Zorluk ||| التحدي
+Change prices or sold-out items without reprinting. ||| Fiyatları veya tükenen ürünleri yeniden baskı olmadan değiştirin. ||| غيّر الأسعار أو الأصناف النافدة دون إعادة طباعة.
+Chat with Auri ||| Auri ile sohbet edin ||| تحدث مع Auri
+Choose Growth ||| Growth'u seç ||| اختر Growth
+Choose Launch ||| Launch'u seç ||| اختر Launch
+Choose System ||| System'i seç ||| اختر System
+Choose websites, care plans, ads, AuraMenu, NFC cards and more with clear prices. ||| Web siteleri, bakım planları, reklamlar, AuraMenu, NFC kartlar ve daha fazlasını net fiyatlarla seçin. ||| اختر المواقع وخطط الرعاية والإعلانات وAuraMenu وبطاقات NFC وغيرها بأسعار واضحة.
+Clear prices, websites from five days, every step visible in AuraHub. ||| Net fiyatlar, beş günden başlayan web siteleri, her adım AuraHub'da görünür. ||| أسعار واضحة، مواقع خلال خمسة أيام، وكل خطوة ظاهرة في AuraHub.
+Clear prices. ||| Net fiyatlar. ||| أسعار واضحة.
+Clear quotes ||| Net teklifler ||| عروض أسعار واضحة
+Click “Start your path”, answer a few questions from Auri and get your free roadmap. You can then order services yourself or ask our team to do it. ||| “Yolculuğuna başla”ya tıklayın, Auri'nin birkaç sorusunu yanıtlayın ve ücretsiz yol haritanızı alın. Sonra hizmetleri kendiniz sipariş edebilir ya da ekibimizden yapmasını isteyebilirsiniz. ||| اضغط «ابدأ مسارك»، وأجب عن بضعة أسئلة من Auri واحصل على خطتك المجانية. بعدها يمكنك طلب الخدمات بنفسك أو أن تطلب من فريقنا القيام بذلك.
+Client ||| Müşteri ||| عميل
+Close Auri chat ||| Auri sohbetini kapat ||| أغلق محادثة Auri
+Close chat ||| Sohbeti kapat ||| أغلق المحادثة
+Close menu ||| Menüyü kapat ||| أغلق القائمة
+Coffee Cobalt NFC card design ||| Coffee Cobalt NFC kart tasarımı ||| تصميم بطاقة NFC ‏Coffee Cobalt
+Company ||| Şirket ||| الشركة
+Compare ||| Karşılaştırın ||| قارن
+Computer engineer with a cybersecurity focus, building digital solutions for businesses from Istanbul. ||| İstanbul'dan işletmeler için dijital çözümler geliştiren, siber güvenlik odaklı bir bilgisayar mühendisi. ||| مهندس حاسوب متخصص في الأمن السيبراني، يبني حلولًا رقمية للأنشطة من إسطنبول.
+Concept ||| Konsept ||| مفهوم
+Contact ||| İletişim ||| تواصل
+Contact / lead forms ||| İletişim / talep formları ||| نماذج التواصل / العملاء
+Contact page ||| İletişim sayfası ||| صفحة التواصل
+Contact us → ||| Bize ulaşın → ||| تواصل معنا ←
+Contact — AuraDigital ||| İletişim — AuraDigital ||| تواصل — AuraDigital
+Contact → ||| İletişim → ||| تواصل ←
+Couples ||| Çiftler ||| الأزواج
+Couples & events ||| Çiftler ve etkinlikler ||| الأزواج والمناسبات
+Create account ||| Hesap oluştur ||| أنشئ حسابًا
+Create free account → ||| Ücretsiz hesap oluştur → ||| أنشئ حسابًا مجانيًا ←
+Create my menu → ||| Menümü oluştur → ||| أنشئ قائمتي ←
+Create yours → ||| Sizinkini oluşturun → ||| أنشئ الخاص بك ←
+Creators ||| İçerik üreticileri ||| صنّاع المحتوى
+Custom ERP for your operations. ||| Operasyonlarınıza özel ERP. ||| نظام ERP مخصص لعملياتك.
+Custom business systems ||| Özel iş sistemleri ||| أنظمة أعمال مخصصة
+Custom quote ||| Özel teklif ||| عرض سعر مخصص
+Custom websites ||| Özel web siteleri ||| مواقع مخصصة
+Custom, fast, mobile-first ||| Özel, hızlı, mobil öncelikli ||| مخصص وسريع ومصمم للجوال أولًا
+Customers tap and land on your Google review page. ₺700 per card. ||| Müşteriler dokunur ve Google yorum sayfanıza gelir. Kart başına ₺700. ||| يلمس العملاء البطاقة فيصلون إلى صفحة تقييمك على Google. ‏₺700 للبطاقة.
+Day ||| Gün ||| اليوم
+Deliveries & renewals ||| Teslimatlar ve yenilemeler ||| التسليمات والتجديدات
+Demo menu · switch the language above ||| Demo menü · dili yukarıdan değiştirin ||| قائمة تجريبية · غيّر اللغة بالأعلى
+Digital Profile Lime NFC card design ||| Digital Profile Lime NFC kart tasarımı ||| تصميم بطاقة NFC ‏Digital Profile Lime
+Digital invitations with RSVP and countdown. ||| LCV ve geri sayımlı dijital davetiyeler. ||| دعوات رقمية مع تأكيد الحضور وعدّ تنازلي.
+Digital invitations with RSVP, countdown, maps and music. ||| LCV, geri sayım, harita ve müzikli dijital davetiyeler. ||| دعوات رقمية مع تأكيد الحضور وعدّ تنازلي وخرائط وموسيقى.
+Digital services and NFC cards — every order is saved to your AuraDigital account. ||| Dijital hizmetler ve NFC kartlar — her sipariş AuraDigital hesabınıza kaydedilir. ||| خدمات رقمية وبطاقات NFC — يُحفظ كل طلب في حسابك على AuraDigital.
+Do I need technical skills? ||| Teknik bilgiye ihtiyacım var mı? ||| هل أحتاج مهارات تقنية؟
+Do it with ||| Birlikte yapın: ||| نفّذه مع
+Do it yourself with AI help, or let us deliver it. ||| Yapay zekâ desteğiyle kendiniz yapın ya da biz teslim edelim. ||| نفّذه بنفسك بمساعدة الذكاء الاصطناعي، أو دعنا ننجزه لك.
+Do you work outside Istanbul? ||| İstanbul dışında çalışıyor musunuz? ||| هل تعملون خارج إسطنبول؟
+Décoration Gâteaux preview ||| Décoration Gâteaux önizlemesi ||| معاينة Décoration Gâteaux
+Décoration Gâteaux website ||| Décoration Gâteaux web sitesi ||| موقع Décoration Gâteaux
+E-commerce OR booking site with payments and admin. ||| Ödeme ve yönetim paneli olan e-ticaret VEYA randevu sitesi. ||| متجر إلكتروني أو موقع حجز مع مدفوعات ولوحة إدارة.
+ERP / CRM ||| ERP / CRM ||| ERP / CRM
+ERP / custom system ||| ERP / özel sistem ||| ERP / نظام مخصص
+ERP with more modules and users. ||| Daha fazla modül ve kullanıcılı ERP. ||| ERP بوحدات ومستخدمين أكثر.
+Email ||| E-posta ||| البريد الإلكتروني
+Email * ||| E-posta * ||| البريد الإلكتروني *
+Email address ||| E-posta adresi ||| عنوان البريد الإلكتروني
+Ends in ||| Bitişe ||| ينتهي خلال
+Erhan Oto Elektrik website ||| Erhan Oto Elektrik web sitesi ||| موقع Erhan Oto Elektrik
+Essential Care ₺1,950/month, Business Care ₺4,900, Growth Care ₺7,900, Managed Growth ₺12,900. ||| Essential Care aylık ₺1.950, Business Care ₺4.900, Growth Care ₺7.900, Managed Growth ₺12.900. ||| Essential Care ‏₺1,950 شهريًا، Business Care ‏₺4,900، Growth Care ‏₺7,900، Managed Growth ‏₺12,900.
+Estimate ||| Tahmini tutar ||| التقدير
+Every AuraMenu gets its own link on auramenu.space and a QR code ready to print. Pending menus show red, approved and published menus show green in your dashboard. ||| Her AuraMenu, auramenu.space üzerinde kendi bağlantısını ve baskıya hazır bir QR kodunu alır. Panelinizde bekleyen menüler kırmızı, onaylanan ve yayınlanan menüler yeşil görünür. ||| تحصل كل قائمة AuraMenu على رابطها الخاص على auramenu.space ورمز QR جاهز للطباعة. تظهر القوائم المعلّقة بالأحمر، والمعتمدة والمنشورة بالأخضر في لوحتك.
+Every project starts with a written proposal confirming scope, price, taxes and payment terms before work begins. ||| Her proje, iş başlamadan önce kapsamı, fiyatı, vergileri ve ödeme koşullarını netleştiren yazılı bir teklifle başlar. ||| يبدأ كل مشروع بعرض مكتوب يؤكد النطاق والسعر والضرائب وشروط الدفع قبل بدء العمل.
+Every project starts with a written proposal that confirms scope, price, taxes and payment terms before any work begins. ||| Her proje, herhangi bir iş başlamadan önce kapsamı, fiyatı, vergileri ve ödeme koşullarını netleştiren yazılı bir teklifle başlar. ||| يبدأ كل مشروع بعرض مكتوب يؤكد النطاق والسعر والضرائب وشروط الدفع قبل بدء أي عمل.
+Everything you need to launch, in one bundle. Add more anytime from the Service Shop. ||| Başlamak için gereken her şey tek pakette. Hizmet Mağazası'ndan istediğiniz zaman ekleme yapın. ||| كل ما تحتاجه للانطلاق في باقة واحدة. أضف المزيد في أي وقت من متجر الخدمات.
+Example website (placeholder) ||| Örnek web sitesi (temsilî) ||| موقع مثال (توضيحي)
+Explore AuraMenu → ||| AuraMenu'yü keşfedin → ||| اكتشف AuraMenu ←
+Explore → ||| Keşfedin → ||| اكتشف ←
+Fast and transparent ||| Hızlı ve şeffaf ||| سريع وشفاف
+Filter work ||| İşleri filtrele ||| تصفية الأعمال
+First mailbox setup on your domain. ||| Alan adınızda ilk e-posta kutusunun kurulumu. ||| إعداد أول صندوق بريد على نطاقك.
+First-year infrastructure ||| İlk yıl altyapısı ||| البنية التحتية للسنة الأولى
+Follow every request from pending to approved and delivered. ||| Her talebi beklemeden onaya ve teslime kadar takip edin. ||| تابع كل طلب من الانتظار حتى الموافقة والتسليم.
+Follow your roadmap, see active services, send and approve requests, pay invoices, track deliveries and renewals, and chat with Auri or the team. ||| Yol haritanızı izleyin, aktif hizmetleri görün, talep gönderip onaylayın, faturaları ödeyin, teslimat ve yenilemeleri takip edin, Auri veya ekiple sohbet edin. ||| تابع خطتك، وشاهد الخدمات النشطة، وأرسل الطلبات ووافق عليها، وادفع الفواتير، وتتبع التسليمات والتجديدات، وتحدث مع Auri أو الفريق.
+Food & drink ||| Yiyecek ve içecek ||| الطعام والشراب
+Founded by Dhia Eddine Mahouachi ||| Kurucu: Dhia Eddine Mahouachi ||| أسسها ضياء الدين المحواشي
+Founder ||| Kurucu ||| المؤسس
+Founder's portfolio ↗ ||| Kurucunun portföyü ↗ ||| أعمال المؤسس ↗
+Free ||| Ücretsiz ||| مجانًا
+From idea to launch in ||| Fikirden yayına ||| من الفكرة إلى الإطلاق في
+From ₺6,750 ||| ₺6.750'den başlayan ||| ابتداءً من ₺6,750
+Gallery ||| Galeri ||| معرض
+Get a custom quote → ||| Özel teklif alın → ||| احصل على عرض مخصص ←
+Get found locally ||| Yerelde bulunun ||| ليجدك العملاء محليًا
+Get more customers ||| Daha fazla müşteri kazanın ||| احصل على عملاء أكثر
+Get something like this → ||| Benzerini isteyin → ||| احصل على شيء مماثل ←
+Get this path → ||| Bu yolu seç → ||| اختر هذا المسار ←
+Get your growth roadmap ||| Büyüme yol haritanızı alın ||| احصل على خطة نموك
+Getting started ||| Başlarken ||| البداية
+Go to AuraHub → ||| AuraHub'a git → ||| اذهب إلى AuraHub ←
+Goals ||| Hedefler ||| الأهداف
+Google & Meta campaigns ||| Google ve Meta kampanyaları ||| حملات Google وMeta
+Google & ads ||| Google ve reklam ||| Google والإعلانات
+Google Maps ||| Google Haritalar ||| خرائط Google
+Google Maps & SEO ||| Google Haritalar ve SEO ||| خرائط Google وتحسين البحث
+Google Maps profile ||| Google Haritalar profili ||| ملف خرائط Google
+Google or Meta campaign setup. ||| Google veya Meta kampanya kurulumu. ||| إعداد حملة Google أو Meta.
+Grow ||| Büyüt ||| نمِّ
+Grow with us. ||| Bizimle büyüyün. ||| انمُ معنا.
+Growth roadmap ||| Büyüme yol haritası ||| خطة النمو
+Growth website ||| Growth web sitesi ||| موقع Growth
+Guests scan and see your menu — no app to download. ||| Misafirler tarar ve menünüzü görür — uygulama indirmeye gerek yok. ||| يمسح الضيوف الرمز ويرون قائمتك — دون تنزيل أي تطبيق.
+Help ||| Yardım ||| المساعدة
+Help Center ||| Yardım Merkezi ||| مركز المساعدة
+Help Center — AuraDigital ||| Yardım Merkezi — AuraDigital ||| مركز المساعدة — AuraDigital
+Help Center → ||| Yardım Merkezi → ||| مركز المساعدة ←
+Help categories ||| Yardım kategorileri ||| فئات المساعدة
+Hi! I'm Auri, AuraDigital's AI assistant. I can suggest services, explain prices, or connect you with our team. What does your business do? ||| Merhaba! Ben Auri, AuraDigital'in yapay zekâ asistanıyım. Hizmet önerebilir, fiyatları açıklayabilir veya sizi ekibimize bağlayabilirim. İşletmeniz ne yapıyor? ||| مرحبًا! أنا Auri، مساعد AuraDigital بالذكاء الاصطناعي. أستطيع اقتراح الخدمات وشرح الأسعار أو إيصالك بفريقنا. ما هو نشاطك؟
+Hi! I'm Auri. Need help choosing? ||| Merhaba! Ben Auri. Seçmenize yardım edeyim mi? ||| مرحبًا! أنا Auri. هل تحتاج مساعدة في الاختيار؟
+Home → ||| Ana sayfa → ||| الرئيسية ←
+Hosting & security ||| Barındırma ve güvenlik ||| الاستضافة والأمان
+Hosting, domain & security ||| Barındırma, alan adı ve güvenlik ||| الاستضافة والنطاق والأمان
+How can we ||| Size nasıl ||| كيف يمكننا
+help? ||| yardımcı olabiliriz? ||| مساعدتك؟
+How do I request a change to my website? ||| Web sitemde değişiklik nasıl talep ederim? ||| كيف أطلب تعديلًا على موقعي؟
+How do I start with AuraDigital? ||| AuraDigital ile nasıl başlarım? ||| كيف أبدأ مع AuraDigital؟
+How do I update prices on my menu? ||| Menümdeki fiyatları nasıl güncellerim? ||| كيف أحدّث الأسعار في قائمتي؟
+How do payments work? ||| Ödemeler nasıl işliyor? ||| كيف تتم المدفوعات؟
+How long does a website take? ||| Bir web sitesi ne kadar sürede hazır olur? ||| كم يستغرق إنجاز الموقع؟
+How long does it take? ||| Ne kadar sürer? ||| كم يستغرق ذلك؟
+How much does a website cost? ||| Bir web sitesi ne kadar tutar? ||| كم تكلفة الموقع؟
+How much is AuraMenu? ||| AuraMenu ne kadar? ||| كم سعر AuraMenu؟
+How we ||| Nasıl ||| كيف
+work. ||| çalışıyoruz. ||| نعمل.

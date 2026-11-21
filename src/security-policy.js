@@ -66,7 +66,7 @@ export function secureResponse(response, request, env, ctx) {
   if (!headers.has('Referrer-Policy')) headers.set('Referrer-Policy', 'no-referrer');
   if (!headers.has('Content-Security-Policy')) headers.set('Content-Security-Policy',
     (headers.get('Content-Type') || '').includes('text/html')
-      ? "default-src 'self'; script-src 'self' 'sha256-UAGFOclbJeOTJt6ykzUdMkWrB/JUYHloVyIHrRTFOAQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+      ? "default-src 'self'; script-src 'self' 'sha256-UAGFOclbJeOTJt6ykzUdMkWrB/JUYHloVyIHrRTFOAQ=' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
       : "default-src 'none'; frame-ancestors 'none'; base-uri 'none'");
   // Only public invitation HTML can be embedded by our same-origin product page.
   // Maps remain restricted to the invitation's existing Google Maps provider.

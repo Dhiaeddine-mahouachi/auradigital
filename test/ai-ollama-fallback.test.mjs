@@ -44,3 +44,37 @@ test('uses Ollama when it is healthy', async () => {
     assert.notEqual(out.fallback, true);
   } finally { globalThis.fetch = realFetch; }
 });
+
+import { ollamaEndpoint, OLLAMA_CLOUD_CHAT } from '../src/ai-provider.js';
+
+test('Ollama endpoint accepts a host, the API root or the full chat URL', () => {
+  assert.equal(String(ollamaEndpoint({ AI_BASE_URL: 'https://ollama.com' })), OLLAMA_CLOUD_CHAT);
+  assert.equal(String(ollamaEndpoint({ AI_BASE_URL: 'https://ollama.com/api/' })), OLLAMA_CLOUD_CHAT);
+  assert.equal(String(ollamaEndpoint({ AI_BASE_URL: 'https://gpu.example.com/api/chat' })), 'https://gpu.example.com/api/chat');
+  assert.equal(ollamaEndpoint({ AI_BASE_URL: 'http://localhost:11434' }), null);
+  assert.equal(ollamaEndpoint({}), null);
+});
+
+test('an Ollama Cloud API key alone selects ollama.com with bearer auth and short thinking', async () => {
+  const realFetch = globalThis.fetch; let seen;
+  globalThis.fetch = async (url, init) => { seen = { url: String(url), auth: init.headers.Authorization, body: JSON.parse(init.body) }; return Response.json({ message: { content: JSON.stringify({ reply: 'Hello from Ollama Cloud' }) }, prompt_eval_count: 5, eval_count: 3 }); };
+  try {
+    const out = await generate({ AI_PROVIDER: 'ollama', AI_MODEL: 'gpt-oss:20b', OLLAMA_API_KEY: 'k-test' }, messages, 'req-cloud-000000001');
+    assert.equal(out.result.reply, 'Hello from Ollama Cloud');
+    assert.equal(seen.url, OLLAMA_CLOUD_CHAT);
+    assert.equal(seen.auth, 'Bearer k-test');
+    assert.equal(seen.body.think, 'low');
+    assert.equal(seen.body.stream, false);
+  } finally { globalThis.fetch = realFetch; }
+});
+
+test('Ollama Cloud without a key falls back instead of sending an unauthenticated call', async () => {
+  const realFetch = globalThis.fetch; let called = false;
+  globalThis.fetch = async () => { called = true; return new Response('', { status: 401 }); };
+  try {
+    const env = { AI_PROVIDER: 'ollama', AI_MODEL: 'gpt-oss:20b', AI_BASE_URL: 'https://ollama.com', AI_FALLBACK_PROVIDER: 'cloudflare', AI: { run: async () => cfReply } };
+    const out = await generate(env, messages, 'req-cloud-000000002');
+    assert.equal(out.result.reply, 'Hello from Workers AI');
+    assert.equal(called, false);
+  } finally { globalThis.fetch = realFetch; }
+});

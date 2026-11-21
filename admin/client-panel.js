@@ -172,12 +172,14 @@
         <div class="metric good"><span>Active monthly value</span><strong>${money(monthlyRevenue)}</strong></div>
         <div class="metric warn"><span>Payment attention</span><strong>${pending}</strong></div>
       </div>
+      <div id="crmInbox"></div>
       <section class="panel">
         <div class="panel-head"><div><h2>Client workspace</h2><p>Open a client to manage everything inside this dashboard.</p></div>${canWrite() ? '<button id="clientAdd" class="btn btn-dark" type="button">+ Add client</button>' : '<span class="pill">Read-only access</span>'}</div>
         <div class="client-toolbar"><input id="clientSearch" class="client-search" type="search" placeholder="Search client, service, manager…" aria-label="Search clients"><span class="pill">${clients.length} records</span></div>
         ${clients.length ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Client</th><th>Services</th><th>Status</th><th>Monthly</th><th>Payment</th><th>Manager</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<div class="empty">No clients yet. Add your first client.</div>'}
       </section>`;
 
+    if (window.AuraCRM) window.AuraCRM.renderInbox($("crmInbox"), clients, openConnected);
     if (canWrite() && $("clientAdd")) $("clientAdd").addEventListener("click", () => renderClientForm(null));
     document.querySelectorAll("[data-client-open]").forEach(button => button.addEventListener("click", () => renderClientDetail(button.dataset.clientOpen, "overview")));
     document.querySelectorAll("[data-client-edit]").forEach(button => button.addEventListener("click", () => renderClientForm(clientById(button.dataset.clientEdit))));
@@ -198,7 +200,7 @@
   }
 
   function tabsHtml() {
-    const tabs = [["overview", "Overview"], ["services", "Services"], ["finance", "Finance"], ["contact", "Contact"], ["tasks", "Tasks"], ["activity", "Activity"]];
+    const tabs = [["overview", "Overview"], ["connected", "All services"], ["services", "Services"], ["finance", "Finance"], ["contact", "Contact"], ["tasks", "Tasks"], ["activity", "Activity"]];
     return `<div class="client-tabs">${tabs.map(([id, label]) => `<button type="button" class="client-tab ${id === currentTab ? "active" : ""}" data-client-tab="${id}">${label}</button>`).join("")}</div>`;
   }
 
@@ -280,7 +282,9 @@
     if (tab === "contact") body = contactTab(client, meta);
     if (tab === "tasks") body = tasksTab(meta);
     if (tab === "activity") body = activityTab(meta);
+    if (tab === "connected") body = '<div id="crmConnected"></div>';
     $("content").innerHTML = profileHeader(client, meta) + tabsHtml() + `<div id="clientTabBody">${body}</div>`;
+    if (tab === "connected" && window.AuraCRM) window.AuraCRM.renderConnected($("crmConnected"), client.id);
 
     $("clientBack").addEventListener("click", renderClients);
     if (canWrite() && $("clientEdit")) $("clientEdit").addEventListener("click", () => renderClientForm(client));
@@ -425,6 +429,14 @@
       submit.disabled = false;
     }
   }
+
+  // Open a client on its cross-service view (used by the CRM inbox and search).
+  async function openConnected(id) {
+    if (state.view !== "clients") { state.view = "clients"; location.hash = "clients"; buildNav(); }
+    await loadClients();
+    return renderClientDetail(id, "connected");
+  }
+  if (window.AuraCRM) window.AuraCRM.mountSearch(openConnected);
 
   openView = async function(view) {
     if (view !== "clients") return previousOpenView(view);

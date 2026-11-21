@@ -58,3 +58,15 @@ test('Hub Ask Auri returns a controlled error if neither provider is available',
   assert.equal(response.status,503);
  }finally{ f.sqlite.close(); }
 });
+
+test('Hub Ask Auri uses the site Workers AI fallback when the main provider is unconfigured Ollama',async()=>{
+ const {f,actor}=await setup();
+ try{
+  Object.assign(f.env,{AI_PROVIDER:'ollama',AI_MODEL:'gpt-oss:20b',AI_FALLBACK_PROVIDER:'cloudflare',AI_FALLBACK_MODEL:'@cf/meta/llama-3.1-8b-instruct-fp8'});
+  let model;
+  f.env.AI={async run(name){model=name;return {response:JSON.stringify({reply:'Start with a clear website.',packageIds:[]}),usage:{prompt_tokens:50,completion_tokens:10}};}};
+  const response=await f.call('/api/hub/onboarding/guide',actor,'POST',{question:'Hello',lang:'en'});
+  assert.equal(response.status,200,await response.clone().text());
+  assert.equal(model,'@cf/meta/llama-3.1-8b-instruct-fp8');
+ }finally{ f.sqlite.close(); }
+});

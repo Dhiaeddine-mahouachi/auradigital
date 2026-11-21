@@ -35,7 +35,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap">
       <div><div style="font-size: 13px; color: #4B5650">{{ crumb }}</div><h1 class="disp" style="font-size: 36px; font-weight: 800; margin: 2px 0 0; line-height: 1.1">{{ title }}</h1></div>
       <div style="display: flex; gap: 10px; align-items: center">
-        <label for="hub-search" style="position: absolute; left: -9999px">Search AuraHub</label>
+        <label for="hub-search" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap">Search AuraHub</label>
         <input id="hub-search" placeholder="Search…" style="border: 1px solid #DAD7CB; background: #FFFFFF; border-radius: 999px; padding: 11px 16px; font-size: 14px; font-family: Inter, sans-serif; width: 200px">
         <button onClick="{{ goNewReq }}" class="btn btn-dark" style="background: #0B0F0C; color: #FFFFFF; border: 0; border-radius: 999px; padding: 12px 18px; font-weight: 600; font-size: 14px; cursor: pointer; font-family: Inter, sans-serif; min-height: 44px">+ New request</button>
       </div>
@@ -154,7 +154,7 @@
         </div>
         <div style="background: #FFFFFF; border: 1px solid #ECEAE2; border-radius: 24px; overflow-x: auto">
           <table style="width: 100%; min-width: 640px; border-collapse: collapse">
-            <thead><tr style="background: #F7F6F0"><th scope="col">Invoice</th><th scope="col">Service</th><th scope="col">Amount</th><th scope="col">Status</th><th scope="col"><span style="position: absolute; left: -9999px">Action</span></th></tr></thead>
+            <thead><tr style="background: #F7F6F0"><th scope="col">Invoice</th><th scope="col">Service</th><th scope="col">Amount</th><th scope="col">Status</th><th scope="col"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap">Action</span></th></tr></thead>
             <tbody>
               <sc-for list="{{ invoices }}" as="iv" hint-placeholder-count="4">
                 <tr><td>{{ iv.no }}</td><td>{{ iv.service }}</td><td style="font-weight: 600">{{ iv.amount }}</td><td><span style="{{ iv.badge }}">{{ iv.status }}</span></td><td><sc-if value="{{ iv.due }}" hint-placeholder-val="{{ false }}"><button onClick="{{ iv.pay }}" style="background: #E1E100; border: 0; border-radius: 999px; padding: 8px 14px; font-weight: 700; cursor: pointer; font-family: Inter, sans-serif; min-height: 40px">Pay now</button></sc-if><sc-if value="{{ iv.isPaid }}" hint-placeholder-val="{{ true }}"><span style="font-size: 13px; text-decoration: underline">Download PDF</span></sc-if></td></tr>
@@ -231,7 +231,7 @@
           <sc-for list="{{ chat }}" as="c" hint-placeholder-count="3"><div style="{{ c.style }}"><span style="display: block; font-size: 11px; opacity: .7; margin-bottom: 2px">{{ c.who }}</span>{{ c.t }}</div></sc-for>
         </div>
         <form onSubmit="{{ sendChat }}" style="display: flex; gap: 8px; padding: 12px; border-top: 1px solid #ECEAE2">
-          <label for="tm-in" style="position: absolute; left: -9999px">Message the team</label>
+          <label for="tm-in" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap">Message the team</label>
           <input id="tm-in" value="{{ draft }}" onChange="{{ onDraft }}" placeholder="Write a message…" style="flex: 1; min-width: 0; border: 1px solid #DAD7CB; border-radius: 12px; padding: 12px; font-size: 14px; font-family: Inter, sans-serif">
           <button type="submit" style="background: #0B0F0C; color: #FFFFFF; border: 0; border-radius: 12px; padding: 0 18px; font-weight: 600; cursor: pointer; font-family: Inter, sans-serif; min-height: 46px">Send</button>
         </form>

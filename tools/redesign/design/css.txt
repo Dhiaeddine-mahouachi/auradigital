@@ -1,4 +1,11 @@
 <style>
+.lang-btn{border:0;background:transparent;color:#0B0F0C;font:inherit;font-weight:600;padding:5px 10px;border-radius:999px;cursor:pointer;min-height:30px}
+.lang-btn:hover{background:#F1F0EA}
+.lang-btn[aria-pressed="true"]{background:#0B0F0C;color:#FFFFFF}
+.lang-btn-lg{border:1px solid #E6E4DC;padding:8px 14px;min-height:40px}
+.lang-btn:focus-visible{outline:2px solid #0E2B1E;outline-offset:2px}
+[dir="rtl"] .ad-flip{transform:scaleX(-1)}
+[dir="rtl"] .marquee-track{direction:ltr}
 body{margin:0;background:#FFFFFF}
 a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
 .disp{font-family:'Inter Tight',Inter,sans-serif;letter-spacing:-0.035em}

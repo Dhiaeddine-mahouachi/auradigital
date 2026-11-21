@@ -12,3 +12,6 @@ worker-configuration.d.ts
 test-output/
 
 media/auri/viewer.js
+tools/redesign/components.gen.js
+tools/redesign/entry.gen.js
+tools/redesign/node_modules/

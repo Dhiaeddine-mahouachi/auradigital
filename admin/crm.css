@@ -1,0 +1,60 @@
+/* AuraDigital admin in the site's look: cream canvas, white cards, black ink,
+   acid-yellow highlights and a forest-green sidebar. Selectors start with
+   "html body" so they win over the panel stylesheets injected later. */
+html:root{--ink:#0B0F0C;--muted:#4B5650;--line:#E6E4DC;--paper:#FAF9F5;--card:#FFFFFF;--accent:#0E2B1E;--dark:#0E2B1E;--dark2:#163F2C;--ok:#1F7A4D;--danger:#B42318;--warn:#8A6A00;--lime:#E1E100}
+html body{background:#FAF9F5;color:#0B0F0C;font-family:Inter,system-ui,sans-serif}
+html body :is(h1,h2,.brand){font-family:'Inter Tight',Inter,sans-serif;letter-spacing:-.03em}
+html body .topbar h1{font-weight:800;font-size:clamp(26px,3vw,34px)}
+html body aside{background:#0E2B1E;border-right:0;box-shadow:none}
+html body aside .brand{color:#F3EEDC}html body aside .brand span{color:#E1E100}
+html body aside .admin-label{color:#B9C7BC}
+html body .nav-item{color:#D9E2D6;border-radius:999px;font-weight:600}
+html body .nav-item:hover{background:#163F2C;color:#fff}
+html body .nav-item.active{background:#E1E100;color:#0B0F0C;border-color:#E1E100}
+html body .nav-item.active::before{background:rgba(11,15,12,.08);color:#0B0F0C}
+html body .panel,html body .metric,html body .client-finance-card{background:#FFFFFF;border:1px solid #E6E4DC;border-radius:20px;box-shadow:0 1px 0 rgba(11,15,12,.02)}
+html body .btn{border-radius:999px;font-weight:650}
+html body .btn-dark,html body .btn-primary{background:#0B0F0C;border-color:#0B0F0C;color:#fff}
+html body .btn-dark:hover,html body .btn-primary:hover{background:#E1E100;border-color:#E1E100;color:#0B0F0C}
+html body .btn-light{background:#fff;border:1px solid #D9D6CB;color:#0B0F0C}
+html body .btn-light:hover{background:#F1F0EA}
+html body :is(input,select,textarea){border-color:#CFCBBE;border-radius:12px}
+html body :is(input,select,textarea):focus-visible{outline:3px solid rgba(225,225,0,.7);outline-offset:1px;border-color:#0E2B1E}
+html body .login-wrap{background:radial-gradient(ellipse at 80% 0,#1E5A3D 0,transparent 55%),#0E2B1E}
+html body .client-tab{border-radius:999px}
+html body .client-tab.active{background:#0B0F0C;color:#fff;border-color:#0B0F0C}
+
+/* CRM components */
+.crm-count{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:#E1E100;color:#0B0F0C;font:700 12px Inter,sans-serif;vertical-align:middle;margin-left:6px}
+.crm-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;margin-top:18px;align-items:start}
+.crm-col{display:grid;gap:18px;min-width:0}.crm-col>.panel{margin:0}
+.crm-totals{margin-top:4px}
+.client-finance-card.warn strong{color:#8A6A00}
+.crm-rows{display:grid;gap:8px}
+.crm-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border:1px solid #ECEAE2;border-radius:14px;background:#FAF9F5}
+.crm-row:hover{border-color:#CFCBBE}
+.crm-icon{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:10px;background:#F3EEDC;color:#0E2B1E;font-size:16px}
+.crm-main{flex:1 1 200px;min-width:0;display:grid;gap:2px}
+.crm-main strong{overflow-wrap:anywhere}.crm-main small{color:#4B5650;overflow-wrap:anywhere}
+.crm-select{display:grid;gap:2px;font-size:11px;font-weight:600;color:#4B5650;text-transform:uppercase;letter-spacing:.06em}
+.crm-select select{min-height:36px;padding:6px 10px;font-size:13px;text-transform:none;letter-spacing:0;background:#fff;color:#0B0F0C}
+.crm-pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:650;background:#F1F0EA;color:#2E3832;white-space:nowrap;text-transform:capitalize}
+.crm-pill.good{background:#E3F1E6;color:#0E2B1E}.crm-pill.warn{background:#FBFAD2;color:#5C5200}.crm-pill.bad{background:#FBE3E0;color:#9A1C14}
+.crm-bar{display:block;height:6px;border-radius:9px;background:#ECEAE2;overflow:hidden;margin-top:6px;max-width:220px}.crm-bar i{display:block;height:100%;background:#0E2B1E}
+.crm-timeline{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.crm-timeline li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F1F0EA}
+.crm-timeline li>div{flex:1;min-width:0;display:grid}.crm-timeline small{color:#4B5650}
+.crm-inbox{border-color:#E1E100;box-shadow:0 0 0 3px rgba(225,225,0,.25)}
+.crm-more{color:#4B5650;font-size:13px;margin:10px 2px 0}
+.crm-search-wrap{position:relative;min-width:min(340px,60vw)}
+.crm-search-wrap input{width:100%;min-height:42px;padding:9px 16px;border:1px solid #D9D6CB;border-radius:999px;background:#fff;font-size:14px}
+.crm-search-results{position:absolute;z-index:40;top:calc(100% + 6px);left:0;right:0;max-height:420px;overflow:auto;background:#fff;border:1px solid #E6E4DC;border-radius:16px;box-shadow:0 24px 60px -24px rgba(11,15,12,.35);padding:6px}
+.crm-search-results button{width:100%;display:flex;align-items:center;gap:10px;text-align:left;padding:9px 10px;border:0;border-radius:12px;background:transparent;cursor:pointer;color:#0B0F0C}
+.crm-search-results button:hover,.crm-search-results button:focus-visible{background:#F4F3EC}
+.crm-search-results button>span:nth-child(2){flex:1;min-width:0;display:grid}.crm-search-results small{color:#4B5650}
+.crm-none{margin:10px;color:#4B5650}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:1100px){.crm-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:820px){.crm-search-wrap{min-width:0;width:100%}.crm-row{align-items:flex-start}.crm-select{flex:1 1 120px}}
+/* One search in the top bar: the CRM search covers clients and every service. */
+html body #cc-global-search{display:none}
