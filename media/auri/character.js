@@ -21,28 +21,13 @@ class AuriCharacter extends HTMLElement {
     window.addEventListener('blur', reset, { signal });
     motion.addEventListener('change', reset, { signal });
 
-    if (!('IntersectionObserver' in window)) {
-      visible = true;
-      return;
-    }
-
-    this.observer = new IntersectionObserver(async ([entry]) => {
+    // The 3D (WebGL) model is switched off: on some graphics drivers it froze
+    // the whole tab before anything was drawn. Auri is the still image, which
+    // follows the pointer through --auri-look.
+    if (!('IntersectionObserver' in window)) { visible = true; return; }
+    this.observer = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
-      if (!visible) {
-        reset();
-        return;
-      }
-      if (requested || signal.aborted || saveData() || !window.WebGL2RenderingContext) return;
-      requested = true;
-      try {
-        const { mountAuri } = await import('/media/auri/viewer.js?v=perf-guard-1');
-        if (signal.aborted) return;
-        const dispose = await mountAuri(this, signal);
-        if (signal.aborted) dispose?.();
-        else this.disposeModel = dispose;
-      } catch {
-        // The matching render of the same model can still follow the pointer.
-      }
+      if (!visible) reset();
     });
     this.observer.observe(this);
   }
