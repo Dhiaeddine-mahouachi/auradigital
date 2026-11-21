@@ -68,6 +68,14 @@ export function secureResponse(response, request, env, ctx) {
     (headers.get('Content-Type') || '').includes('text/html')
       ? "default-src 'self'; script-src 'self' 'sha256-UAGFOclbJeOTJt6ykzUdMkWrB/JUYHloVyIHrRTFOAQ=' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
       : "default-src 'none'; frame-ancestors 'none'; base-uri 'none'");
+  // Cloudflare Web Analytics injects its beacon into every HTML page. Allow it
+  // in whichever policy the page carries (_headers, the hub, or the default).
+  if ((headers.get('Content-Type') || '').includes('text/html') && headers.has('Content-Security-Policy')) {
+    let policy = headers.get('Content-Security-Policy');
+    if (/script-src\s/.test(policy) && !policy.includes('static.cloudflareinsights.com')) policy = policy.replace(/script-src\s+([^;]+)/, 'script-src $1 https://static.cloudflareinsights.com');
+    if (/connect-src\s/.test(policy) && !/connect-src[^;]*cloudflareinsights\.com/.test(policy)) policy = policy.replace(/connect-src\s+([^;]+)/, 'connect-src $1 https://cloudflareinsights.com');
+    headers.set('Content-Security-Policy', policy);
+  }
   // Only public invitation HTML can be embedded by our same-origin product page.
   // Maps remain restricted to the invitation's existing Google Maps provider.
   const path = new URL(request.url).pathname;
