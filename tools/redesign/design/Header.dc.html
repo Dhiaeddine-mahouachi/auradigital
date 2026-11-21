@@ -13,10 +13,19 @@
 <style>body{margin:0}</style>
 </helmet>
 <div onMouseLeave="{{ closeAll }}" style="position: relative; z-index: 50; font-family: Inter, system-ui, sans-serif; color: #0B0F0C; background: #FFFFFF">
-  <div style="background: #0E2B1E; color: #F3EEDC; font-size: 14px; padding: 9px 16px; display: flex; justify-content: center; align-items: center; gap: 10px; text-align: center; white-space: nowrap; overflow: hidden">
-    <span style="background: #E1E100; color: #0B0F0C; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 700">NEW</span>
-    <span class="hide-sm">Auri now builds your free growth roadmap inside AuraHub.</span><span class="only-sm">Free growth roadmap with Auri</span>
-    <a href="Hub.dc.html" style="color: #E1E100; font-weight: 600">Try it free →</a>
+  <div style="background: #0E2B1E; color: #F3EEDC; font-size: 13px">
+    <div style="max-width: 1320px; margin: 0 auto; padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; gap: 14px; white-space: nowrap; overflow: hidden">
+      <div style="display: flex; align-items: center; gap: 18px; min-width: 0">
+        <a href="mailto:info@auradigitalworks.com" style="color: #F3EEDC; display: inline-flex; align-items: center; gap: 7px; font-weight: 500"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E1E100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3z"></path><path d="M3 6l9 7 9-7"></path></svg>info@auradigitalworks.com</a>
+        <a class="hide-sm" href="tel:+905385507674" style="color: #F3EEDC; display: inline-flex; align-items: center; gap: 7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E1E100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"></path></svg>+90 538 550 76 74</a>
+        <span class="desk wide" style="color: #A9B8AE">Istanbul, Türkiye</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px">
+        <span class="desk" style="background: #E1E100; color: #0B0F0C; border-radius: 999px; padding: 2px 9px; font-size: 11px; font-weight: 700">NEW</span>
+        <span class="desk">Auri builds your free growth roadmap in AuraHub.</span>
+        <a href="Hub.dc.html" style="color: #E1E100; font-weight: 600">Try it free →</a>
+      </div>
+    </div>
   </div>
   <div style="border-bottom: 1px solid #ECEAE2">
     <div style="max-width: 1320px; margin: 0 auto; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px">
@@ -28,7 +37,7 @@
         <nav class="desk" aria-label="Main" style="display: flex; align-items: center; gap: 2px">
           <button class="{{ cls.sol }}" onMouseEnter="{{ openSol }}" onClick="{{ openSol }}" aria-expanded="{{ isSol }}">Solutions <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
           <button class="{{ cls.prod }}" onMouseEnter="{{ openProd }}" onClick="{{ openProd }}" aria-expanded="{{ isProd }}">Products <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
-          <a class="{{ cls.shop }}" href="Shop.dc.html" onMouseEnter="{{ closeAll }}">Service Shop</a>
+          <a class="{{ cls.shop }}" href="Shop.dc.html" onMouseEnter="{{ closeAll }}">Shop</a>
           <a class="{{ cls.packages }}" href="Packages.dc.html" onMouseEnter="{{ closeAll }}">Packages</a>
           <a class="{{ cls.work }}" href="Work.dc.html" onMouseEnter="{{ closeAll }}">Our Work</a>
           <a class="{{ cls.help }}" href="Help.dc.html" onMouseEnter="{{ closeAll }}">Help</a>
@@ -139,7 +148,7 @@ class Component extends DCLogic {
         { n: 'AuraMenu', tag: 'Restaurants', d: 'QR digital menus in TR, EN and AR.', href: 'AuraMenu.dc.html', style: card + '#E3F1E6' },
         { n: 'AuraWeddings', tag: 'Couples', d: 'Digital invitations with RSVP and countdown.', href: 'https://auradigitalworks.com/aura-weddings', style: card + '#F3EEDC' },
         { n: 'AuraPops', tag: 'Creators', d: 'One link for profile, links, menu and QR.', href: 'https://aurapops.online', style: card + '#ECE8FF' },
-        { n: 'NFC review cards', tag: 'Local business', d: 'Tap the card, leave a Google review.', href: 'Shop.dc.html', style: card + '#E3EEFB' }
+        { n: 'NFC card shop', tag: '58 designs', d: 'Business, review and menu cards — order online.', href: 'Shop.dc.html?tab=cards', style: card + '#E3EEFB' }
       ],
       mobileTiles: [
         { n: 'Build', d: 'Websites & stores', href: 'Solutions.dc.html', bg: '#F3EEDC' },
@@ -148,7 +157,7 @@ class Component extends DCLogic {
         { n: 'Packages', d: 'From ₺6,750', href: 'Packages.dc.html', bg: '#FBFAD2' }
       ].map((t) => ({ ...t, style: 'border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 2px; min-height: 72px; box-sizing: border-box; background: ' + t.bg })),
       mobileLinks: [
-        { n: 'Solutions', href: 'Solutions.dc.html' }, { n: 'Service Shop', href: 'Shop.dc.html' },
+        { n: 'Solutions', href: 'Solutions.dc.html' }, { n: 'Shop — services & NFC cards', href: 'Shop.dc.html' }, { n: 'My account & orders', href: 'https://auradigitalworks.com/account' },
         { n: 'Our Work', href: 'Work.dc.html' }, { n: 'Help Center', href: 'Help.dc.html' }, { n: 'About us', href: 'About.dc.html' }, { n: 'Contact', href: 'Contact.dc.html' }
       ]
     };

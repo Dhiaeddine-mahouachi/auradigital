@@ -66,3 +66,28 @@ test('Auri talks to the AI endpoint and always has a local fallback', () => {
   assert.match(bundle, /pointermove/, 'eyes follow the cursor');
   assert.match(bundle, /text:[A-Za-z_$]+\|\|[A-Za-z_$]+\.text/, 'falls back to the built-in answer');
 });
+
+test('every redesigned route reaches the Worker (no static 404)', () => {
+  const cfg = read('wrangler.jsonc');
+  const list = cfg.slice(cfg.indexOf('"run_worker_first"'), cfg.indexOf(']', cfg.indexOf('"run_worker_first"')));
+  for (const route of ['/', '/solutions', '/service-shop', '/packages', '/aura-menu', '/portfolio', '/help', '/about', '/contact', '/hub', '/hub/*']) {
+    assert.ok(list.includes('"' + route + '"'), route + ' must be listed in assets.run_worker_first');
+  }
+});
+
+test('shop page lists every NFC card design and links to the account-linked shop', async () => {
+  const seed = JSON.parse(read('shop/catalog.seed.json'));
+  for (const card of seed) {
+    assert.ok(bundle.includes('"' + card.slug + '"'), 'card ' + card.slug + ' in shop');
+    assert.ok(existsSync(new URL('media/redesign/cards/' + card.slug + '.webp', root)), 'thumbnail for ' + card.slug);
+  }
+  assert.ok(bundle.includes('/shop/cards/'));
+  assert.ok(read('service-shop.html').includes('href="/account"') || bundle.includes('"/account"'));
+  assert.match(read('index.html'), /href="\/shop\/cards\/oliva-bistro"/);
+});
+
+test('landing page shows the contact email at the top', () => {
+  const home = read('index.html');
+  const top = home.slice(home.indexOf('<div id="app"'), home.indexOf('<main'));
+  assert.match(top, /mailto:info@auradigitalworks\.com/);
+});

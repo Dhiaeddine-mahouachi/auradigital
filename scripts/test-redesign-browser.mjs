@@ -85,5 +85,15 @@ try {
     assert.match(await page.locator('aside').textContent(), /₺1,950\/month/);
     await page.close(); }
 
-  console.log('Redesign browser QA passed: 27 page/viewport loads, menus, Auri (offline, live, fallback), contact CRM post, shop basket.');
+  // NFC card shop tab and deep link
+  { const { page } = await open('/service-shop.html?tab=cards');
+    await page.waitForFunction(() => document.querySelectorAll('a[href^="/shop/cards/"]').length >= 50);
+    await page.getByRole('button', { name: 'Food & drink' }).click();
+    const n = await page.locator('main a[href^="/shop/cards/"]').count();
+    assert.ok(n > 0 && n < 50, 'collection filter ' + n);
+    assert.ok(await page.locator('a[href="/account"]').first().isVisible(), 'account link');
+    await page.screenshot({ path: 'test-output/redesign-cards.png' });
+    await page.close(); }
+
+  console.log('Redesign browser QA passed: 27 page/viewport loads, menus, Auri (offline, live, fallback), contact CRM post, shop basket, NFC card shop.');
 } finally { await browser.close(); }

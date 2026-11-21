@@ -70,10 +70,14 @@ section{padding-left:18px !important;padding-right:18px !important;padding-top:6
 
   <section style="padding: 72px 28px 0; background: linear-gradient(180deg, #F7F6F0, #FFFFFF)">
     <div style="max-width: 1264px; margin: 0 auto">
-      <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #4B5650">Service Shop</span>
+      <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #4B5650">Shop</span>
       <h1 class="disp" style="font-size: clamp(48px, 6vw, 88px); line-height: .95; font-weight: 800; margin: 14px 0 0">Pick what you need. <span class="serif">We do the rest.</span></h1>
-      <p style="font-size: 19px; color: #4B5650; max-width: 600px; margin: 18px 0 0">Add services to one request, send it, and follow everything in AuraHub.</p>
-      <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 34px">
+      <p style="font-size: 19px; color: #4B5650; max-width: 640px; margin: 18px 0 0">Digital services and NFC cards — every order is saved to your AuraDigital account.</p>
+      <div role="tablist" aria-label="Shop sections" style="display: inline-flex; gap: 4px; background: #F1F0EA; padding: 5px; border-radius: 999px; margin-top: 28px; flex-wrap: wrap">
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2"><button role="tab" aria-selected="{{ t.on }}" onClick="{{ t.pick }}" style="{{ t.style }}">{{ t.label }}</button></sc-for>
+      </div>
+      <sc-if value="{{ isServices }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 24px">
         <div style="flex: 1 1 320px; display: flex; align-items: center; gap: 10px; background: #FFFFFF; border: 1px solid #D9D6CB; border-radius: 999px; padding: 4px 8px 4px 18px">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0F0C" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
           <label for="shop-q" style="position: absolute; left: -9999px">Search services</label>
@@ -85,9 +89,11 @@ section{padding-left:18px !important;padding-right:18px !important;padding-top:6
           </sc-for>
         </div>
       </div>
+      </sc-if>
     </div>
   </section>
 
+  <sc-if value="{{ isServices }}" hint-placeholder-val="{{ true }}">
   <section style="padding: 36px 28px 0">
     <div style="max-width: 1264px; margin: 0 auto; display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start">
       <div style="flex: 999 1 700px; min-width: 0">
@@ -121,6 +127,44 @@ section{padding-left:18px !important;padding-right:18px !important;padding-top:6
       </aside>
     </div>
   </section>
+  </sc-if>
+  <sc-if value="{{ isCards }}" hint-placeholder-val="{{ false }}">
+  <section id="cards" style="padding: 28px 28px 0">
+    <div style="max-width: 1264px; margin: 0 auto">
+      <div style="background: #0E2B1E; color: #F3EEDC; border-radius: 22px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap">
+        <span style="display: flex; gap: 10px; align-items: center"><span style="width: 34px; height: 34px; border-radius: 10px; background: #E1E100; color: #0B0F0C; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></span><span><strong style="display: block">Your orders live in your account</strong><span style="font-size: 13px; color: #B9C7BC">Sign in once — cart, checkout and order status are saved to the same AuraDigital account as AuraHub.</span></span></span>
+        <span style="display: flex; gap: 8px; flex-wrap: wrap"><a href="https://auradigitalworks.com/account" style="background: #E1E100; color: #0B0F0C; font-weight: 700; padding: 10px 16px; border-radius: 999px; font-size: 14px">My account &amp; orders</a><a href="https://auradigitalworks.com/shop/cart" style="border: 1px solid rgba(243,238,220,.4); color: #F3EEDC; font-weight: 600; padding: 10px 16px; border-radius: 999px; font-size: 14px">Cart</a></span>
+      </div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 22px">
+        <div style="flex: 1 1 280px; display: flex; align-items: center; gap: 10px; background: #FFFFFF; border: 1px solid #D9D6CB; border-radius: 999px; padding: 4px 8px 4px 18px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0F0C" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+          <label for="card-q" style="position: absolute; left: -9999px">Search card designs</label>
+          <input id="card-q" value="{{ cq }}" onChange="{{ onCq }}" placeholder="Search designs — café, dental, luxury…" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 15px; padding: 12px 0; font-family: Inter, sans-serif; color: #0B0F0C; outline: none">
+        </div>
+        <div role="group" aria-label="Card collection" style="display: flex; gap: 8px; flex-wrap: wrap">
+          <sc-for list="{{ cardCats }}" as="c" hint-placeholder-count="8"><button onClick="{{ c.pick }}" aria-pressed="{{ c.on }}" style="{{ c.style }}">{{ c.label }}</button></sc-for>
+        </div>
+      </div>
+      <div style="font-size: 14px; color: #4B5650; margin: 16px 0 14px">{{ cardCount }}</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px">
+        <sc-for list="{{ cardList }}" as="k" hint-placeholder-count="12">
+          <a class="lift" href="{{ k.href }}" style="display: flex; flex-direction: column; border: 1px solid #ECEAE2; border-radius: 20px; overflow: hidden; background: #FFFFFF">
+            <span style="display: flex; align-items: center; justify-content: center; background: #F4F3EC; aspect-ratio: 4 / 5; padding: 14px; box-sizing: border-box; position: relative">
+              <img src="{{ k.img }}" alt="{{ k.alt }}" loading="lazy" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; box-shadow: 0 14px 30px -14px rgba(11,15,12,.45)">
+              <sc-if value="{{ k.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: 10px; left: 10px; background: #E1E100; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px">{{ k.badge }}</span></sc-if>
+            </span>
+            <span style="padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 2px">
+              <strong style="font-size: 15px">{{ k.name }}</strong>
+              <span style="font-size: 12px; color: #4B5650">{{ k.category }}</span>
+              <span style="font-size: 13px; font-weight: 600; margin-top: 6px">View &amp; order →</span>
+            </span>
+          </a>
+        </sc-for>
+      </div>
+      <div style="text-align: center; margin-top: 28px"><a class="btn btn-dark" href="https://auradigitalworks.com/shop" style="background: #0B0F0C; color: #FFFFFF; font-weight: 600; padding: 15px 26px; border-radius: 999px; display: inline-flex">Open the full card shop →</a></div>
+    </div>
+  </section>
+  </sc-if>
 
   <section style="padding: 100px 28px 120px">
     <div style="max-width: 1264px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px">
@@ -136,9 +180,18 @@ section{padding-left:18px !important;padding-right:18px !important;padding-top:6
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3600}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { cat: 'All', cart: ['growth'], q: '' }; }
+  constructor(props) { super(props); this.state = { cat: 'All', cart: ['growth'], q: '', tab: 'services', ccat: 'All', cq: '' }; }
+  componentDidMount() {
+    try { if (/[?&]tab=cards/.test(location.search) || location.hash === '#cards') this.setState({ tab: 'cards' }); } catch (e) {}
+  }
   renderVals() {
     const s = this.state;
+    const CARDS = [{"s": "oliva-bistro", "n": "Oliva Bistro", "c": "Restaurants", "b": "New", "i": "/_blob/6171734db86522b18d83feb620a1ae1e"}, {"s": "roast-and-bean", "n": "Roast & Bean", "c": "Coffee Shops & Cafés", "b": "New", "i": "/_blob/c82edb088af29533cdb5f91a110155ec"}, {"s": "northbridge-consulting", "n": "Northbridge Consulting", "c": "Corporate & Business", "b": "New", "i": "/_blob/9d72387a014e8c8c4827d93ba2995101"}, {"s": "luna-beauty-studio", "n": "Luna Beauty Studio", "c": "Beauty Salons & Spas", "b": "New", "i": "/_blob/5f60feb16b800b0c9fe748d26e7b872d"}, {"s": "pulse-fitness-club", "n": "Pulse Fitness Club", "c": "Gyms & Fitness", "b": "New", "i": "/_blob/67fde7012efa5f519abab0c38f4c8b4b"}, {"s": "titan-auto-detail", "n": "Titan Auto Detail", "c": "Automotive & Car Detailing", "b": "New", "i": "/_blob/cfbbe1e814093c9f3d8a3b741e70d131"}, {"s": "brightcare-dental", "n": "BrightCare Dental", "c": "Dental & Medical Clinics", "b": "New", "i": "/_blob/9c83595bb8d3ae90415fd4dbb6273bb0"}, {"s": "golden-key-realty", "n": "Golden Key Realty", "c": "Real Estate", "b": "New", "i": "/_blob/f6431af6953a97bb5fe854e6affa4033"}, {"s": "collection-restaurant-premium", "n": "Restaurant Premium", "c": "Restaurants", "b": "New", "i": "/_blob/63ad9ea0362513e53a253fb66a7912e8"}, {"s": "collection-cafe-modern", "n": "Café Modern", "c": "Coffee Shops & Cafés", "b": "New", "i": "/_blob/924bc622ef601d12fa815f7f476f3c78"}, {"s": "collection-hotel-luxury", "n": "Hotel Luxury", "c": "Hotels & Hospitality", "b": "New", "i": "/_blob/854f5b1e16deee3f4bfc71e187e69e1d"}, {"s": "collection-business-minimal", "n": "Business Minimal", "c": "Corporate & Business", "b": "New", "i": "/_blob/7e6cff05cdf75cf6cc5d08f23419a09d"}, {"s": "collection-real-estate-premium", "n": "Real Estate Premium", "c": "Real Estate", "b": "New", "i": "/_blob/54e63687997bd4e7ff7b8304093ffd0e"}, {"s": "collection-beauty-salon-elegant", "n": "Beauty Salon Elegant", "c": "Beauty Salons & Spas", "b": "New", "i": "/_blob/844c41add861a4b36f19cad018459504"}, {"s": "collection-gym-bold", "n": "Gym Bold", "c": "Gyms & Fitness", "b": "New", "i": "/_blob/085ddb8cefe73fa0b2b3bd9facab53bf"}, {"s": "collection-automotive-sport", "n": "Automotive Sport", "c": "Automotive & Car Detailing", "b": "New", "i": "/_blob/8d1487ee790f7516ce2be71d164a80d6"}, {"s": "collection-clinic-clean", "n": "Clinic Clean", "c": "Dental & Medical Clinics", "b": "New", "i": "/_blob/9be693569f160b5f8d7fe1268d3dff55"}, {"s": "collection-boutique-fashion", "n": "Boutique Fashion", "c": "Retail & Fashion", "b": "New", "i": "/_blob/fc479099cbc06384c1cdde7091b5a474"}, {"s": "collection-barber-classic", "n": "Barber Classic", "c": "Barbershops", "b": "New", "i": "/_blob/6ddaf8f0cfc3e774bf79fff8b889a41d"}, {"s": "collection-travel-agency", "n": "Travel Agency", "c": "Travel & Tourism", "b": "New", "i": "/_blob/5a1f2722e0c5f7177f48965da8b8f77f"}, {"s": "collection-event-wedding", "n": "Event Wedding", "c": "Events & Weddings", "b": "New", "i": "/_blob/412ad89ae0e31aa913fe4244a128d957"}, {"s": "collection-education-modern", "n": "Education Modern", "c": "Education", "b": "New", "i": "/_blob/be125252267f9e53bc49147da0bbd135"}, {"s": "collection-lawyer-professional", "n": "Lawyer Professional", "c": "Legal Services", "b": "New", "i": "/_blob/2d93399ab1899a3b537f31a5d81ccf88"}, {"s": "collection-tech-it-futuristic", "n": "Tech IT Futuristic", "c": "Technology & IT", "b": "New", "i": "/_blob/ec569324efed427fc48fa276f621479e"}, {"s": "collection-coffee-truck-food-truck", "n": "Coffee Truck Food Truck", "c": "Coffee Shops & Cafés", "b": "New", "i": "/_blob/2a73786dca3babbdfff9733c8eb1cd75"}, {"s": "collection-art-creative", "n": "Art Creative", "c": "Freelancers & Creators", "b": "New", "i": "/_blob/215e51aaa7f09f603ab3cbe5b02bbe4e"}, {"s": "collection-music-dj", "n": "Music DJ", "c": "Freelancers & Creators", "b": "New", "i": "/_blob/3fac2019d25e3b2075772c076845a28e"}, {"s": "collection-photographer", "n": "Photographer", "c": "Freelancers & Creators", "b": "New", "i": "/_blob/8e9f42f637cc8bda7f04b43b81e73e6a"}, {"s": "collection-restaurant-casual", "n": "Restaurant Casual", "c": "Restaurants", "b": "New", "i": "/_blob/11d32ba1a551ba1ba1ff019a64eb133c"}, {"s": "collection-spa-relax", "n": "Spa Relax", "c": "Beauty Salons & Spas", "b": "New", "i": "/_blob/1e1367f8eba5694c3bb1ae562ae3aead"}, {"s": "collection-pet-shop", "n": "Pet Shop", "c": "Pet Services", "b": "New", "i": "/_blob/3d838fc2fcd7ee3a9bca120349494856"}, {"s": "collection-corporate-luxury", "n": "Corporate Luxury", "c": "Corporate & Business", "b": "New", "i": "/_blob/01ed4ed82f1f56e381cda0a5e812b3e2"}, {"s": "collection-personal-unique", "n": "Personal Unique", "c": "General Business", "b": "New", "i": "/_blob/ddf680deb895665f9c771a062ed897b9"}, {"s": "collection-midnight-marble", "n": "Midnight Marble", "c": "Restaurants", "b": "New", "i": "/_blob/58738972908c606d35aceef785ae3788"}, {"s": "collection-emerald-dining", "n": "Emerald Dining", "c": "Restaurants", "b": "New", "i": "/_blob/35dc925bd8ebdaa1b670b5bffb961b0c"}, {"s": "collection-coffee-origins", "n": "Coffee Origins", "c": "Coffee Shops & Cafés", "b": "New", "i": "/_blob/c6433b8de1a2235809a1eef5de385f71"}, {"s": "collection-botanical-caf", "n": "Botanical Café", "c": "Coffee Shops & Cafés", "b": "New", "i": "/_blob/bfae9a8ec466a2cedc6590079da350db"}, {"s": "collection-royal-hotel", "n": "Royal Hotel", "c": "Hotels & Hospitality", "b": "New", "i": "/_blob/4b841a2f3aee9e70aa6cd750930b8216"}, {"s": "collection-marble-suite", "n": "Marble Suite", "c": "Hotels & Hospitality", "b": "New", "i": "/_blob/52a219b4e4dea31cf89300952964f70d"}, {"s": "collection-titanium-executive", "n": "Titanium Executive", "c": "Corporate & Business", "b": "New", "i": "/_blob/50d827c00ba0f40fc61dcefa8bc91d0c"}, {"s": "collection-pearl-executive", "n": "Pearl Executive", "c": "Corporate & Business", "b": "New", "i": "/_blob/ba973d6ed15a1c7eb77488a1e53e110f"}, {"s": "collection-golden-property", "n": "Golden Property", "c": "Real Estate", "b": "New", "i": "/_blob/bf516fd99216e7e8f11fad6e50cfdb99"}, {"s": "collection-architecture-lines", "n": "Architecture Lines", "c": "Real Estate", "b": "New", "i": "/_blob/a2ce146c25d9cd87b1fe5a15c6e3201c"}, {"s": "collection-redline-motor", "n": "Redline Motor", "c": "Automotive & Car Detailing", "b": "New", "i": "/_blob/b1f755d15fbb89e8d025baaad0aa3c89"}, {"s": "collection-carbon-gt", "n": "Carbon GT", "c": "Automotive & Car Detailing", "b": "New", "i": "/_blob/34a6f0284d8bee8c167bf30e28cbab71"}, {"s": "collection-acid-energy", "n": "Acid Energy", "c": "Gyms & Fitness", "b": "New", "i": "/_blob/27a85eb7fde46b44f8a6c129dad00484"}, {"s": "collection-black-iron", "n": "Black Iron", "c": "Gyms & Fitness", "b": "New", "i": "/_blob/8d925d4a5759fd28bc69583210fd9a59"}, {"s": "collection-rose-atelier", "n": "Rose Atelier", "c": "Beauty Salons & Spas", "b": "New", "i": "/_blob/c3e1acc9812948b67f998d5318c9df46"}, {"s": "collection-silk-blush", "n": "Silk Blush", "c": "Beauty Salons & Spas", "b": "New", "i": "/_blob/dc0ec2cb56ce156c0b5659eb398b8ca1"}, {"s": "collection-aqua-dental", "n": "Aqua Dental", "c": "Dental & Medical Clinics", "b": "New", "i": "/_blob/469c3e0693f35b2643b0b8d5d1291c60"}, {"s": "collection-pulse-health", "n": "Pulse Health", "c": "Dental & Medical Clinics", "b": "New", "i": "/_blob/b0c675178524c745b216fa6efce619c2"}, {"s": "collection-legal-legacy", "n": "Legal Legacy", "c": "Corporate & Business", "b": "New", "i": "/_blob/85ff02d9facddbadfc65e9b2af354dbe"}, {"s": "collection-coffee-cobalt", "n": "Coffee Cobalt", "c": "Coffee Shops & Cafés", "b": "New", "i": "/_blob/183c74aecf5d16291e11f6adc354efdf"}, {"s": "collection-restaurant-terracotta", "n": "Restaurant Terracotta", "c": "Restaurants", "b": "New", "i": "/_blob/363e2d7aa56dd90def95296b639685d2"}, {"s": "collection-barber-monochrome", "n": "Barber Monochrome", "c": "Barbershops", "b": "New", "i": "/_blob/5fc60b5ed5fa0daa4b4915e53b6472f9"}, {"s": "collection-beauty-lilac", "n": "Beauty Lilac", "c": "Beauty Salons & Spas", "b": "New", "i": "/_blob/30c0e57f786c27dd934464f96434b1fa"}, {"s": "collection-boutique-checker", "n": "Boutique Checker", "c": "Retail & Fashion", "b": "New", "i": "/_blob/488e7e8f09de505a79c2651b1074355a"}, {"s": "collection-digital-profile-lime", "n": "Digital Profile Lime", "c": "General Business", "b": "New", "i": "/_blob/ad477ff573af0040bce5c6408c7f43fd"}];
+    const GROUPS = { 'Business': ['Corporate & Business', 'General Business', 'Legal Services', 'Technology & IT', 'Real Estate'], 'Food & drink': ['Restaurants', 'Coffee Shops & Cafés'], 'Beauty & health': ['Beauty Salons & Spas', 'Barbershops', 'Dental & Medical Clinics', 'Gyms & Fitness'], 'Hotels & travel': ['Hotels & Hospitality', 'Travel & Tourism', 'Events & Weddings'], 'Creative & retail': ['Freelancers & Creators', 'Retail & Fashion', 'Education', 'Pet Services', 'Automotive & Car Detailing'] };
+    const tabOn = 'background: #0B0F0C; color: #FFFFFF; border: 0; border-radius: 999px; padding: 12px 22px; font-size: 15px; font-weight: 600; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
+    const tabOff = 'background: transparent; color: #0B0F0C; border: 0; border-radius: 999px; padding: 12px 22px; font-size: 15px; font-weight: 500; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
+    const ccq = s.cq.trim().toLowerCase();
+    const cardList = CARDS.filter((k) => (s.ccat === 'All' || (GROUPS[s.ccat] || []).indexOf(k.c) !== -1) && (!ccq || (k.n + ' ' + k.c).toLowerCase().indexOf(ccq) !== -1));
     const all = [
       { id: 'launch', cat: 'Websites', name: 'Launch website', desc: 'Up to 3 pages, responsive, contact form, WhatsApp, basic SEO.', v: 6750, bill: 'once' },
       { id: 'growth', cat: 'Websites', name: 'Growth website', desc: '4–10 pages, premium custom design, lead forms, animations.', v: 13400, bill: 'once', popular: true },
@@ -157,7 +210,7 @@ class Component extends DCLogic {
       { id: 'advanced-ads', cat: 'Grow', name: 'Advanced Ads Management', desc: 'Advanced multi-campaign management.', v: 6500, bill: 'month' },
       { id: 'auramenu-self', cat: 'Products', name: 'AuraMenu self-service', desc: 'QR digital menu you manage yourself.', v: 1599, bill: 'once', popular: true },
       { id: 'auramenu-managed', cat: 'Products', name: 'AuraMenu done-for-you', desc: 'We build and set up your QR menu.', v: 2500, bill: 'once' },
-      { id: 'nfc-card', cat: 'Products', name: 'NFC review card', desc: 'Tap-to-review card with your branding.', v: 700, bill: 'once' },
+      { id: 'nfc-card', cat: 'Products', name: 'NFC card', desc: 'Tap-to-review, business or menu card — 58 designs in the Cards tab.', v: 700, bill: 'once' },
       { id: 'standard-infra', cat: 'Infrastructure', name: 'Hosting, domain & security', desc: 'Standard hosting, eligible domain and baseline security.', v: 2000, bill: 'year' },
       { id: 'managed-hosting', cat: 'Infrastructure', name: 'Enhanced managed hosting', desc: 'Managed, monitored hosting.', v: 350, bill: 'month' },
       { id: 'business-email', cat: 'Infrastructure', name: 'Business email', desc: 'First mailbox setup on your domain.', v: 900, bill: 'once' },
@@ -181,6 +234,12 @@ class Component extends DCLogic {
     const fmt = (n) => '₺' + n.toLocaleString('en-US');
     const parts = [sum('once') ? fmt(sum('once')) + ' one-time' : '', sum('month') ? fmt(sum('month')) + '/month' : '', sum('year') ? fmt(sum('year')) + '/year' : ''].filter(Boolean);
     return {
+      tabs: [['services', 'Services'], ['cards', 'NFC card designs (' + CARDS.length + ')']].map((t) => ({ label: t[1], on: s.tab === t[0], style: s.tab === t[0] ? tabOn : tabOff, pick: () => this.setState({ tab: t[0] }) })),
+      isServices: s.tab === 'services', isCards: s.tab === 'cards',
+      cq: s.cq, onCq: (e) => this.setState({ cq: e.target.value }),
+      cardCats: ['All'].concat(Object.keys(GROUPS)).map((g) => ({ label: g, on: g === s.ccat, style: g === s.ccat ? on : off, pick: () => this.setState({ ccat: g }) })),
+      cardCount: cardList.length + ' design' + (cardList.length === 1 ? '' : 's') + ' · NFC + QR · PVC · matte or glossy',
+      cardList: cardList.map((k) => ({ name: k.n, category: k.c, img: k.i, alt: k.n + ' NFC card design', badge: k.b, hasBadge: !!k.b, href: 'https://auradigitalworks.com/shop/cards/' + k.s })),
       q: s.q, onQ: (e) => this.setState({ q: e.target.value }),
       cats: cats.map((c) => ({ label: c, on: c === s.cat, style: c === s.cat ? on : off, pick: () => this.setState({ cat: c }) })),
       resultText: list.length + ' service' + (list.length === 1 ? '' : 's') + (q ? ' matching “' + s.q + '”' : ''),

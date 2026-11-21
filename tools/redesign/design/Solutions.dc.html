@@ -73,6 +73,7 @@ section{padding-left:18px !important;padding-right:18px !important;padding-top:6
       <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #4B5650">Solutions</span>
       <h1 class="disp" style="font-size: clamp(52px, 7vw, 100px); line-height: .94; font-weight: 800; margin: 16px 0 0; max-width: 1050px">One system for every <span class="serif">stage</span> of your business.</h1>
       <p style="font-size: 20px; color: #4B5650; max-width: 640px; margin: 24px 0 0">Start where you are. Build your presence, grow your customers, automate the busywork and manage it all from AuraHub.</p>
+      <div style="margin-top: 36px; border-radius: 30px; overflow: hidden; aspect-ratio: 21 / 9; background: #0E2B1E"><video src="/_blob/884ff8e758122adfa9ca05322f6e2960" autoplay="" muted="" loop="" playsinline="" aria-label="Inside the AuraDigital studio" style="width: 100%; height: 100%; object-fit: cover; display: block"></video></div>
       <div role="tablist" aria-label="Stages" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 40px; border-bottom: 1px solid #E6E4DC">
         <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
           <button role="tab" aria-selected="{{ t.on }}" onClick="{{ t.pick }}" style="{{ t.style }}"><span style="opacity: .55; margin-right: 8px">{{ t.n }}</span>{{ t.name }}</button>
@@ -98,6 +99,18 @@ section{padding-left:18px !important;padding-right:18px !important;padding-top:6
             <span style="margin-top: auto; font-weight: 600; font-size: 14px">Learn more →</span>
           </a>
         </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 130px 28px 0">
+    <div style="max-width: 1264px; margin: 0 auto">
+      <h2 class="disp" style="font-size: clamp(40px, 5vw, 68px); line-height: 1; font-weight: 800; margin: 0">Inside <span class="serif">AuraHub.</span></h2>
+      <p style="font-size: 18px; color: #4B5650; margin: 14px 0 0; max-width: 560px">Real screens from the workspace every client gets.</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 32px">
+        <figure style="margin: 0; background: #0E2B1E; border-radius: 24px; padding: 14px"><img src="/_blob/1437b95a8ce24a7792bbdd5c8a3e183d" alt="AuraHub growth roadmap screen" loading="lazy" style="width: 100%; border-radius: 14px; display: block; aspect-ratio: 16 / 11; object-fit: cover; object-position: top"><figcaption style="color: #F3EEDC; font-weight: 600; padding: 12px 6px 4px">Growth roadmap</figcaption></figure>
+        <figure style="margin: 0; background: #0E2B1E; border-radius: 24px; padding: 14px"><img src="/_blob/501c0abc1436e5b3a9193647e75297ad" alt="AuraHub my services screen" loading="lazy" style="width: 100%; border-radius: 14px; display: block; aspect-ratio: 16 / 11; object-fit: cover; object-position: top"><figcaption style="color: #F3EEDC; font-weight: 600; padding: 12px 6px 4px">My services</figcaption></figure>
+        <figure style="margin: 0; background: #0E2B1E; border-radius: 24px; padding: 14px"><img src="/_blob/383fb40db1c79ce6236032f6e8f54ce3" alt="AuraHub requests screen" loading="lazy" style="width: 100%; border-radius: 14px; display: block; aspect-ratio: 16 / 11; object-fit: cover; object-position: top"><figcaption style="color: #F3EEDC; font-weight: 600; padding: 12px 6px 4px">Requests &amp; approvals</figcaption></figure>
       </div>
     </div>
   </section>
@@ -134,7 +147,7 @@ section{padding-left:18px !important;padding-right:18px !important;padding-top:6
   <dc-import name="Auri" hint-size="0px,0px"></dc-import>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3300}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4400}}'>
 class Component extends DCLogic {
   constructor(props) { super(props); this.state = { tab: 0 }; }
   renderVals() {

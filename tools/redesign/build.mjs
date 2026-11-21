@@ -47,10 +47,12 @@ const BLOBS = {
   '15ec3fa6439e3bb5e1bdb565a3cf95f0': '/media/redesign/ad-monogram.png'
 };
 
+Object.assign(BLOBS, JSON.parse(fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), 'blobs-extra.json'), 'utf8')));
 function localize(src) {
   let s = src;
   for (const [file, route] of Object.entries(ROUTES)) s = s.split(file).join(route);
   s = s.split('https://auradigitalworks.com/aura-weddings').join('/aura-weddings');
+  for (const p of ['/shop/cards/', '/shop/cart', '/shop', '/account']) s = s.split('https://auradigitalworks.com' + p).join(p);
   s = s.replace(/\/_blob\/([0-9a-f]{32})/g, (m, id) => {
     if (!BLOBS[id]) throw new Error('Unmapped asset ' + id);
     return BLOBS[id];
