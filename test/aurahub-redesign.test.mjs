@@ -64,3 +64,16 @@ test('the additive work migration preserves legacy mission IDs and menu drafts',
  await fixture.call(menuPath,actor,'PUT',{version:menu.version,state:'preview',draft:menu.draft});
  assert.equal((await (await fixture.call(menuPath,actor)).json()).menu.reviewed,false);
 });
+
+test('when Auri is unavailable, an Auri setup still saves the standard roadmap',async()=>{
+ const fixture=await hubFixture();
+ fixture.sqlite.exec(await readFile(new URL('../migrations/0005_ai_employee.sql',import.meta.url),'utf8'));
+ const actor=await fixture.user('no-ai@example.test',true);
+ delete fixture.env.HUB_OLLAMA_URL;delete fixture.env.AI;fixture.env.AI_PROVIDER='ollama';
+ const body={requestId:crypto.randomUUID(),mode:'auri',personalized:true,lang:'en',profile:profile('Offline Bakery')};
+ const response=await fixture.call(route,actor,'POST',body);
+ assert.equal(response.status,201,await response.clone().text());
+ assert.equal((await response.json()).planFallback,true);
+ const saved=await (await fixture.call(route+'/'+body.requestId,actor)).json();
+ assert.ok(saved.missions.length>0,'standard roadmap saved');
+});

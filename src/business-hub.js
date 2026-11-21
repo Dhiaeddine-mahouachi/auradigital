@@ -1,6 +1,7 @@
 import { deliverables } from './hub/service-deliverables.js';
 import { hubGuide } from './hub-guide.js';
 import { getHubWork } from './hub-work.js';
+import { connectedServices } from './hub-connected.js';
 import { prepareHubPlan } from './hub-plan.js';
 import { analyzeOnboarding } from './hub-onboarding.js';
 import { ensureAuriSchema } from './auri-schema.js';
@@ -140,7 +141,7 @@ export async function handleBusinessHub(request,env) {
   const id=body.requestId??crypto.randomUUID();
   if(!['myself','auri'].includes(body.mode))throw new ApiError(400,'Choose an onboarding mode.');
   const profileJson=JSON.stringify(profile);
-  const personalized=body.mode==='auri'&&body.personalized===true;
+  let personalized=body.mode==='auri'&&body.personalized===true;
   const condition=body.requestId?'AND owner_id=?':'AND owner_id=? AND 0';
   const existing=()=>env.DB.prepare(`SELECT id,profile_json,mode FROM organizations WHERE id=? ${condition}`).bind(id,user.id).first();
   const saved=await existing();
@@ -149,7 +150,13 @@ export async function handleBusinessHub(request,env) {
    throw new ApiError(409,'This setup was already saved. Reload the Hub to open it.');
   }
   if(personalized&&(!body.requestId||!['en','fr','tr','ar'].includes(body.lang)))throw new ApiError(400,'Invalid Auri setup.');
-  const suggested=personalized?await prepareHubPlan(env,user,profile,body.lang,body.source):diagnose(profile).missions;
+  // When the AI is unavailable, Auri still gives a roadmap: the standard plan
+  // built from the business profile. The customer can ask Auri to refine it later.
+  let suggested,planFallback=false;
+  if(personalized){
+   try{suggested=await prepareHubPlan(env,user,profile,body.lang,body.source);}
+   catch(error){if(error.status!==503)throw error;personalized=false;planFallback=true;suggested=diagnose(profile).missions;}
+  }else suggested=diagnose(profile).missions;
   const deferred=body.deferredMissions??[];
   if(!Array.isArray(deferred)||deferred.length>3||deferred.some(id=>!suggested.some(m=>m.id===id)))throw new ApiError(400,'Choose which suggested missions to do later.');
 
@@ -162,7 +169,7 @@ export async function handleBusinessHub(request,env) {
    if(body.requestId&&await env.DB.prepare('SELECT id FROM organizations WHERE id=? AND owner_id=? AND profile_json=? AND mode=?').bind(id,user.id,profileJson,body.mode).first())return json({id});
    throw new ApiError(409,body.requestId?'A workspace already exists. Reload the Hub to open it.':'Workspace limit reached.');
   }
-  return json({id},201);
+  return json({id,...(planFallback?{planFallback:true}:{})},201);
  }
  if(['/api/hub/invitations/preview','/api/hub/invitations/accept'].includes(path)&&request.method==='POST')return invitation(request,env,user,await readJson(request,4096),path.endsWith('/accept'));
  const serviceMatch=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})\/work\/((?:order|subscription)-[1-9]\d{0,18})$/.exec(path);
@@ -175,9 +182,14 @@ export async function handleBusinessHub(request,env) {
   const [,org,record]=workMatch;
   return json(await getHubWork(env,org,await authorize(env.DB,org,user),record));
  }
- const match=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})(?:\/(profile|diagnosis|missions|mission-evidence|existing-evidence|mission-route|scenarios|team|invitations|activity|auri)(?:\/([a-f0-9-]{36}))?)?$/.exec(path);
+ const match=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})(?:\/(profile|diagnosis|missions|mission-evidence|existing-evidence|mission-route|scenarios|team|invitations|activity|auri|connected)(?:\/([a-f0-9-]{36}))?)?$/.exec(path);
  if(!match)throw new ApiError(404,'Not found.');
  const [,org,section,item]=match;
+ if(section==='connected'){
+  if(item||request.method!=='GET')throw new ApiError(405,'Method not allowed.');
+  await authorize(env.DB,org,user);
+  return json(await connectedServices(env,user),200,{'Cache-Control':'private, no-store'});
+ }
  await authorize(env.DB,org,user);
  if((!section&&request.method==='GET')||['auri','mission-route','mission-evidence','existing-evidence'].includes(section)){
   await ensureAuriSchema(env.DB);
@@ -213,7 +225,9 @@ export async function handleBusinessHub(request,env) {
    if((await getMissions(env.DB,org)).length)return json({id:org});
    if(!['en','fr','tr','ar'].includes(body.lang))throw new ApiError(400,'Choose a supported language.');
    const profile=validateProfile(body.profile);
-   const plan=await prepareHubPlan(env,user,profile,body.lang,body.source);
+   let plan,planFallback=false;
+   try{plan=await prepareHubPlan(env,user,profile,body.lang,body.source);}
+   catch(error){if(error.status!==503)throw error;plan=diagnose(profile).missions;planFallback=true;}
    const [saved]=await env.DB.batch([
     env.DB.prepare(`UPDATE organizations SET name=?,profile_json=?,mode='auri',version=version+1,updated_at=datetime('now')
      WHERE id=? AND version=? AND ${guard.sql} AND ${profileGuard.sql} AND NOT EXISTS(SELECT 1 FROM business_missions WHERE organization_id=?)`)
@@ -224,7 +238,7 @@ export async function handleBusinessHub(request,env) {
     await authorize(env.DB,org,user,'roadmap:write');
     if(!(await getMissions(env.DB,org)).length)throw new ApiError(409,'Workspace changed. Reopen it before retrying.');
    }
-   return json({id:org});
+   return json({id:org,...(planFallback?{planFallback:true}:{})});
   }
   if(body.services!==undefined&&(!Array.isArray(body.services)||body.services.length>capabilities.length||body.services.some(id=>!capabilities.some(c=>c.id===id))))throw new ApiError(400,'Invalid selected services.');
   const profile=JSON.parse((await env.DB.prepare('SELECT profile_json FROM organizations WHERE id=?').bind(org).first()).profile_json),analysis=diagnose(profile);

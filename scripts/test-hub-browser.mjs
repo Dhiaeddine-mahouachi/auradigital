@@ -29,7 +29,7 @@ try {
  await desktop.locator('[name=terms]').check();
  await desktop.locator('#auth-form button[type=submit]').click();
  await heading(desktop,'Build your roadmap').waitFor();
- assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Home','Roadmap','My Services','Requests','Ask Auri']);
+ assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Dashboard','Roadmap','Ask Auri','My Services','Requests','Orders & billing','Settings']);
  assert(await desktop.locator('.sidebar [data-page=journey]').evaluate(node=>node.clientHeight<66));
  await screenshot(desktop,'AuraHub-New-Home');
  await button(desktop,'What does a digital menu cost?').click();

@@ -102,8 +102,13 @@ async function accountRecords(db, tables, key, links) {
   return { accounts, workspaces, shopOrders };
 }
 
-async function byClientId(db, tables, table, select, clientId, order = 'created_at DESC') {
+async function byClientId(db, tables, table, wanted, clientId) {
   if (!tables.has(table)) return [];
+  const cols = await columnsOf(db, table);
+  if (!cols.has('client_id')) return [];
+  // Select each wanted column only if this database has it (older schemas differ).
+  const select = wanted.map(([col, alias, fallback = 'NULL']) => `${cols.has(col) ? col : fallback} AS ${alias}`).join(', ');
+  const order = cols.has('created_at') ? 'created_at DESC' : 'rowid DESC';
   return (await db.prepare(`SELECT ${select} FROM ${table} WHERE client_id = ? ORDER BY ${order} LIMIT 100`).bind(clientId).all()).results || [];
 }
 
@@ -116,11 +121,11 @@ export async function clientView(db, clientId) {
   const [services, account, orders, invoices, subscriptions, requests, aiRequests] = await Promise.all([
     serviceRecords(db, tables, key, links),
     accountRecords(db, tables, key, links),
-    byClientId(db, tables, 'orders', 'id, type, quantity, amount, status, due_date AS dueDate, created_at AS createdAt', clientId),
-    byClientId(db, tables, 'invoices', 'id, invoice_number AS number, amount, status, due_date AS dueDate, created_at AS createdAt', clientId),
-    byClientId(db, tables, 'subscriptions', 'id, plan, amount, interval, status, next_billing_date AS nextBillingDate, created_at AS createdAt', clientId),
-    byClientId(db, tables, 'request_receipts', 'request_id AS id, created_at AS createdAt', clientId),
-    byClientId(db, tables, 'ai_requests', 'id, kind, created_at AS createdAt', clientId),
+    byClientId(db, tables, 'orders', [['id', 'id'], ['type', 'type', "''"], ['quantity', 'quantity', '1'], ['amount', 'amount', '0'], ['status', 'status', "''"], ['due_date', 'dueDate'], ['created_at', 'createdAt']], clientId),
+    byClientId(db, tables, 'invoices', [['id', 'id'], ['invoice_number', 'number', "''"], ['amount', 'amount', '0'], ['status', 'status', "''"], ['due_date', 'dueDate'], ['created_at', 'createdAt']], clientId),
+    byClientId(db, tables, 'subscriptions', [['id', 'id'], ['plan', 'plan', "''"], ['amount', 'amount', '0'], ['interval', 'interval', "'monthly'"], ['status', 'status', "''"], ['next_billing_date', 'nextBillingDate'], ['created_at', 'createdAt']], clientId),
+    byClientId(db, tables, 'request_receipts', [['request_id', 'id'], ['created_at', 'createdAt']], clientId),
+    byClientId(db, tables, 'ai_requests', [['id', 'id'], ['kind', 'kind', "''"], ['created_at', 'createdAt']], clientId),
   ]);
   const sum = (rows, f) => rows.filter(f).reduce((t, r) => t + Number(r.amount || 0), 0);
   const monthly = subscriptions.filter(s => s.status === 'active').reduce((t, s) => t + Number(s.amount || 0) * (s.interval === 'weekly' ? 52 / 12 : 1), 0);

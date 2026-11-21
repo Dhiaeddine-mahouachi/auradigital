@@ -14,6 +14,7 @@ import { renderRoadmap, roadmapLabels } from './roadmap-view.js';
 import { eligibleMissions, missionGuide, missionState } from '../roadmap.js';
 import { renderMenuDrafts } from './menu-drafts.js';
 import { copy, capabilityNames } from './i18n.js';
+import { renderDashboard, connectedRows, connectedList, dashCopy, navCopy, navIcon } from './dashboard-view.js';
 import { simulate, capabilities, diagnose } from '../growth-engine.js';
 const app=document.querySelector('#app'),notice=document.querySelector('#notice');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -126,6 +127,7 @@ function openFirstLogin(){
    firstLogin=null;
    navigate('journey');
    pulseAuri(created.id,'success');
+   if(created.planFallback)toast(dashCopy(lang).planFallback);
   },
  });
 }
@@ -290,7 +292,7 @@ function persistProfile(){
 let roadmapView='tree',selectedMission=null,workspaceSwitch=null;
 const requestDrafts=new Map();
 const navigation=['home','journey','services','requests','assistant'];
-const pageGroup={tasks:'journey',menuDrafts:'services',projects:'services',websites:'services',hosting:'services'};
+const pageGroup={tasks:'journey',projects:'services',websites:'services',hosting:'services',invoices:'orders'};
 const moreNavigation=['profile','simulator','menuDrafts','projects','websites','hosting','files','reports','invoices','rewards','team','support'];
 const link=(target,params)=>hubLink(target,workspace?.organization.id,params);
 const requestLink=(service='',task='')=>link('requests',{new:'1',service,task});
@@ -308,19 +310,37 @@ function navigate(target,params,replace=false,doRender=true){
 window.addEventListener('popstate',()=>{if(me){editing=false;firstLogin=null;void load();}});
 function renderShell(){
  window.scrollTo({top:0,left:0,behavior:'instant'});
- const labels=hubLabels(lang), l=roadmapLabels(lang);
+ const labels=hubLabels(lang), l=roadmapLabels(lang), nv=navCopy(lang);
  const active=(pageGroup[page]||page);
- const navItem=(p,mobile=false)=>`<a class="nav-item ${active===p?'active':''}" href="${esc(link(p))}"
+ const can=permission=>!workspace||workspace.permissions.includes(permission);
+ const labelOf=p=>p==='home'?nv.home:p==='services'?serviceLabels[lang][0]:p==='requests'?labels.requests:p==='assistant'?labels.assistant:p==='journey'?labels.journey:nv[p]||labels[p]||l[p]||t(p);
+ const hrefOf=p=>p==='orders'?'/account':link(p);
+ const navItem=(p,mobile=false)=>`<a class="nav-item ${active===p?'active':''}" href="${esc(hrefOf(p))}"
   data-page="${p}" ${mobile?`data-mobile-page="${p}"`:''} ${active===p?'aria-current="page"':''}>
-  ${hubIcon(p)}<span>${esc((p==='services'?serviceLabels[lang][0]:labels[p]||l[p]||t(p)))}</span></a>`;
- const title=page==='services'?serviceLabels[lang][0]:page==='journey'?commandLabels(lang).vision:labels[page]||l[page]||t(page);
- app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell ${page==='services'?'service-shell':''}"><aside class="sidebar" id="sidebar">
+  ${navIcon(p)}<span>${esc(labelOf(p))}</span></a>`;
+ // Grouped navigation: one place for every part of the business.
+ const groups=[
+  [nv.groups[0],['home']],
+  [nv.groups[1],['journey','assistant']],
+  [nv.groups[2],['services','requests',...(workspace?['menuDrafts']:[]),'orders']],
+  [nv.groups[3],[...(workspace&&can('profile:write')?['profile']:[]),...(workspace?['team']:[]),'settings']],
+ ];
+ const mobileMain=['home','journey','assistant','services'];
+ const sheetItems=groups.flatMap(([,items])=>items).filter(p=>!mobileMain.includes(p));
+ const title=page==='services'?serviceLabels[lang][0]:page==='journey'?commandLabels(lang).vision:labelOf(page);
+ const initials=String(workspace?.organization.name||me.name||'A').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+ app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell hx-shell ${page==='services'?'service-shell':''}"><aside class="sidebar" id="sidebar">
  <a href="${esc(link('home'))}" class="wordmark command-wordmark">${brandMarkup}</a>
- <nav aria-label="AuraHub">${navigation.map(p=>navItem(p)).join('')}</nav></aside>
+ ${workspace?`<div class="hx-business"><span class="hx-avatar" aria-hidden="true">${esc(initials)}</span><span class="hx-business-text"><small>${esc(nv.business)}</small>
+ <label class="field workspace-picker"><span class="sr-only">${t('businessName')}</span>
+ <select id="workspace-select" aria-label="${t('businessName')}">${workspaces.map(o=>`<option value="${esc(o.id)}" ${o.id===workspace.organization.id?'selected':''}>${esc(o.id===workspace.organization.id?workspace.organization.name:o.name)}</option>`).join('')}</select></label></span></div>`:''}
+ <nav aria-label="AuraHub">${groups.map(([name,items])=>`<p class="hx-nav-group">${esc(name)}</p>${items.map(p=>navItem(p)).join('')}`).join('')}</nav>
+ <div class="hx-side-foot"><span class="hx-avatar small" aria-hidden="true">${esc(String(me.name||'?')[0].toUpperCase())}</span><span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div></aside>
  <div class="workspace"><header class="topbar growth-topbar hub-topbar">
  <a class="hub-mobile-brand wordmark" href="${esc(link('home'))}">${brandMarkup}</a>
- ${workspace?`<label class="field workspace-picker"><span class="sr-only">${t('businessName')}</span>
- <select id="workspace-select" aria-label="${t('businessName')}">${workspaces.map(o=>`<option value="${esc(o.id)}" ${o.id===workspace.organization.id?'selected':''}>${esc(o.id===workspace.organization.id?workspace.organization.name:o.name)}</option>`).join('')}</select></label>`:''}
+ <div class="hx-topbar-title"><strong>${esc(title)}</strong>${workspace?`<small>${esc(workspace.organization.name)}</small>`:''}</div>
+ ${workspace&&can('roadmap:write')?`<a class="growth-secondary hx-top-action" href="${esc(requestLink())}">＋ <span>${esc(nv.newRequest)}</span></a>`:''}
+ ${workspace&&can('auri:use')?`<a class="growth-primary hx-top-action" href="${esc(link('assistant'))}">${hubIcon('assistant')}<span>${esc(labels.assistant)}</span></a>`:''}
  <details class="growth-account"><summary aria-label="${esc(t('profile'))}">${hubIcon('profile')}</summary>
  <div class="growth-account-menu"><strong>${esc(me.name)}</strong>${languageControl()}
  ${navItem('settings')}${workspace?navItem('profile')+navItem('invoices'):''}${button('logout','logout',true)}</div></details></header>
@@ -329,9 +349,18 @@ function renderShell(){
  ${['services','requests'].includes(page)&&workspace?.permissions.includes('roadmap:write')&&!query.has('new')?`<a class="growth-secondary" href="${esc(requestLink())}">＋ ${esc(l.request)}</a>`:''}</div>
  ${!me.verified&&authCapabilities.email?`<aside class="verification"><p>${t('verifyLater')}</p>${button('sendVerification','send-verification',true)}</aside>`:''}
  <div id="page-content"></div></main>
- <nav class="command-bottom-nav" aria-label="AuraHub">${navigation.map(p=>navItem(p,true)).join('')}</nav>
+ <nav class="command-bottom-nav" aria-label="AuraHub">${mobileMain.map(p=>navItem(p,true)).join('')}
+ <button type="button" class="nav-item hx-more" data-hx-more aria-expanded="false" aria-controls="hx-sheet">${navIcon('more')}<span>${esc(nv.more)}</span></button></nav>
+ <div class="hx-sheet" id="hx-sheet" hidden><div class="hx-sheet-panel" role="dialog" aria-modal="true" aria-label="${esc(nv.more)}">
+ <header><strong>${esc(nv.more)}</strong><button type="button" class="hx-sheet-close" data-hx-close aria-label="${esc(nv.close)}">✕</button></header>
+ <nav aria-label="${esc(nv.more)}">${sheetItems.map(p=>navItem(p)).join('')}</nav></div></div>
  </div></div>`;
  bindCommon();
+ const sheet=document.querySelector('#hx-sheet'),more=document.querySelector('[data-hx-more]');
+ const openSheet=open=>{sheet.hidden=!open;more.setAttribute('aria-expanded',String(open));if(open)sheet.querySelector('a')?.focus();};
+ more.onclick=()=>openSheet(sheet.hidden);
+ sheet.addEventListener('click',e=>{if(e.target===sheet||e.target.closest('[data-hx-close]')||e.target.closest('a'))openSheet(false);});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.hidden){openSheet(false);more.focus();}},{once:true});
  document.querySelector('#workspace-select')?.addEventListener('change',async e=>{
   const select=e.target,id=select.value;
   select.disabled=true;workspaceSwitch=id;
@@ -406,27 +435,23 @@ async function home(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content');
  if(!workspace?.missions.length){renderBuildCard(ui);return;}
  const next=nextMission();
- const {attention,progress,records}=await workSnapshot();
+ const [snapshot,connected]=await Promise.all([workSnapshot(),api(endpoint('connected')).catch(()=>null)]);
  if(!host.isConnected)return;
+ const {attention}=snapshot;
  const item=attention[0],menu=item?.kind==='menu';
- const hero=(menu?ui.menuReady:item?.name)|| (next?missionTitle(next):workspace.missions.every(m=>m.status==='done')?ui.complete:ui.journey);
+ const heroTitle=(menu?ui.menuReady:item?.name)|| (next?missionTitle(next):workspace.missions.every(m=>m.status==='done')?ui.complete:ui.journey);
  const destination=item?link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id}):link('journey',{task:next?.id});
  const label=item?(menu?ui.reviewMenu:ui.openRequest):next?ui.continue:ui.journey;
  const note=item?(menu?item.name:workStatus(item)):next?(next.reason||next.description):'';
- const done=workspace.missions.filter(m=>m.status==='done').length;
- const stage=next?hubStageNames(lang)[hubStage(next.level)]:ui.journey;
- host.innerHTML=`<section class="hub-hero"><div>
+ const hero=`<section class="hub-hero hx-hero"><div>
  ${item?`<span class="hub-highlight">${esc(ui.attention)}</span>`:next?`<span class="hub-highlight">${esc(ui.next)}</span>`:''}
- <h2>${esc(hero)}</h2>${note?`<p>${esc(note)}</p>`:''}
+ <h2>${esc(heroTitle)}</h2>${note?`<p>${esc(note)}</p>`:''}
  <a class="growth-primary" href="${esc(destination)}">${esc(label)} <span aria-hidden="true">→</span></a>${workspace.permissions.includes('auri:use')?` <a class="growth-secondary" href="${esc(link('assistant',item?.kind==='request'?{request:item.id}:{task:next?.id}))}">${esc(ui.assistant)}</a>`:''}</div>
- <div class="hub-hero-art">${menu?menuArtwork(item):auriCharacter(auriLevel(),{variant:'guide'})}</div></section>
- ${serviceSummary(records,serviceLabels[lang],esc,lang)}
- <div class="hub-home-grid"><div class="hub-work-rows">
- <a class="hub-work-row" href="${esc(link('journey'))}"><span class="hub-row-icon">${hubIcon('journey')}</span><span><strong>${esc(ui.journey)}</strong><small>${esc(stage)} · ${done} / ${workspace.missions.length} ${esc(roadmapLabels(lang).completed)}</small>
- <progress class="hub-roadmap-progress" value="${done}" max="${workspace.missions.length}" aria-label="${esc(roadmapLabels(lang).completed)}"></progress></span><span aria-hidden="true">›</span></a>
- ${item&&next?`<a class="hub-work-row" href="${esc(link('journey',{task:next.id}))}"><span class="hub-row-icon">${hubIcon('journey')}</span><span><strong>${esc(ui.next)}</strong><small>${esc(missionTitle(next))}</small></span><span aria-hidden="true">›</span></a>`:''}
-  ${progress.slice(0,2).map(record=>renderWorkRow(record,{ui,esc,link})).join('')}</div>
- ${serviceShortcuts(lang,esc,link,{profile:workspace.profile,missions:workspace.missions})}</div>`;
+ <div class="hub-hero-art">${menu?menuArtwork(item):auriCharacter(auriLevel(),{variant:'guide'})}</div></section>`;
+ renderDashboard({host,lang,esc,link,me,workspace,work:snapshot,connected,next,missionTitle,
+  stageName:next?hubStageNames(lang)[hubStage(next.level)]:'',
+  canAsk:workspace.permissions.includes('auri:use'),canRequest:workspace.permissions.includes('roadmap:write'),
+  shortcuts:serviceShortcuts(lang,esc,link,{profile:workspace.profile,missions:workspace.missions}),hero});
  bindAuri(host,workspace.organization.id);
 }
 async function myWork(){
@@ -454,8 +479,16 @@ async function myWork(){
  }
  if(page==='services'&&!service){
   host.innerHTML='<p role="status">…</p>';
-  const {records}=await api(endpoint('work'));
-  if(host.isConnected)renderServices({host,records:records||[],lang,esc,link,profile:workspace.profile,missions:workspace.missions});
+  const [{records},connected]=await Promise.all([api(endpoint('work')),api(endpoint('connected')).catch(()=>null)]);
+  if(!host.isConnected)return;
+  renderServices({host,records:records||[],lang,esc,link,profile:workspace.profile,missions:workspace.missions});
+  const rows=connected?connectedRows(connected,lang):[];
+  if(rows.length){
+   const c=dashCopy(lang),section=document.createElement('section');
+   section.className='hx-card hx-connected';
+   section.innerHTML=`<header class="hx-card-head"><div><h2>${esc(c.connected)}</h2><p>${esc(c.connectedNote)}</p></div></header>${connectedList(rows,lang,esc)}`;
+   host.prepend(section);
+  }
   return;
  }
  const {attention,progress,services,requests}=await workSnapshot();
@@ -816,6 +849,12 @@ async function assistant(){
   <p role="status" data-draft-status></p>
   <h2>${esc(labels.history)}</h2><div data-auri-drafts></div></section>`:''}`);
  renderCompanion(true);
+ const preset=query.get('ask');
+ if(preset&&canAsk){
+  const form=document.querySelector('[data-auri-ask]'),input=form?.querySelector('input');
+  history.replaceState(null,'',link('assistant'));query.delete('ask');
+  if(input){input.value=preset.slice(0,500);form.requestSubmit?.();}
+ }
  if(!canAsk)return;
  const create=document.querySelector('[data-auri-draft]');
  const log=document.querySelector('[data-auri-drafts]');

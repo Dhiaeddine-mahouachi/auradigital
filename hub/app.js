@@ -232,7 +232,6 @@ var serviceLabels = {
   ar: ["\u062E\u062F\u0645\u0627\u062A\u064A", "\u0643\u0644 \u0645\u0627 \u062A\u0646\u0634\u0626\u0647 AuraDigital \u0648\u062A\u062F\u064A\u0631\u0647 \u0644\u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A.", "\u0627\u0644\u0643\u0644", "\u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", "\u064A\u062A\u0637\u0644\u0628 \u0625\u062C\u0631\u0627\u0621\u064B", "\u062A\u0645 \u0627\u0644\u062A\u0633\u0644\u064A\u0645", "\u0646\u0634\u0637", "\u0644\u0627 \u062A\u0648\u062C\u062F \u062E\u062F\u0645\u0627\u062A \u0641\u064A \u0647\u0630\u0627 \u0627\u0644\u0639\u0631\u0636.", "\u0639\u0631\u0636 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644", "\u0627\u0644\u062F\u0641\u0639", "\u063A\u064A\u0631 \u0645\u062A\u0627\u062D", "\u0645\u0648\u0639\u062F \u0627\u0644\u062A\u0633\u0644\u064A\u0645", "\u0628\u0627\u0646\u062A\u0638\u0627\u0631 \u0627\u0644\u062A\u0623\u0643\u064A\u062F", "\u0645\u0648\u0639\u062F \u0627\u0644\u062A\u062C\u062F\u064A\u062F", "\u062A\u0627\u0631\u064A\u062E \u0627\u0644\u0625\u0646\u0634\u0627\u0621"]
 };
 var filters = ["all", "progress", "attention", "delivered", "active"];
-var totalLabels = { en: "Total services", fr: "Total des services", tr: "Toplam hizmet", ar: "\u0625\u062C\u0645\u0627\u0644\u064A \u0627\u0644\u062E\u062F\u0645\u0627\u062A" };
 var statuses = {
   new: "progress",
   "in-progress": "progress",
@@ -344,9 +343,6 @@ function facts(record, lang2, labels3, esc3) {
   return `<dl class="service-facts"><div><dt>${labels3[9]}</dt><dd>${labels3[10]}</dd></div>
  <div><dt>${labels3[renewal ? 13 : 11]}</dt><dd>${esc3(serviceDate(renewal ? record.renewalDate : record.dueDate, lang2, labels3[12]))}</dd></div></dl>`;
 }
-function serviceSummary(records, labels3, esc3, lang2) {
-  return `<dl class="service-summary">${filters.map((filter, index) => `<div><dt>${esc3(filter === "all" ? totalLabels[lang2] || totalLabels.en : labels3[index + 2])}</dt><dd>${filter === "all" ? records.length : records.filter((record) => group(record) === filter).length}</dd></div>`).join("")}</dl>`;
-}
 function renderServices({ host, records, lang: lang2, esc: esc3, link: link2, profile, missions }) {
   const labels3 = serviceLabels[lang2] || serviceLabels.en;
   const [examplesTitle] = previewCopy[lang2];
@@ -400,9 +396,9 @@ var path = "/api/hub/onboarding/guide";
 function mountGuide(host, { lang: lang2, esc: esc3, api: api2, turns, scope, context = () => ({}) }) {
   if (!host) return;
   const [title, intro, first, help, price, placeholder, send, thinking, browse, read, contact, once, month, year, hosting, unavailable] = strings[lang2] || strings.en;
-  const money = (price2, currency) => new Intl.NumberFormat(lang2, { style: "currency", currency }).format(price2);
+  const money2 = (price2, currency) => new Intl.NumberFormat(lang2, { style: "currency", currency }).format(price2);
   const qualifiers = { en: ["From", "Request a quote"], fr: ["D\xE8s", "Demander un devis"], tr: ["Ba\u015Flang\u0131\xE7", "Teklif iste"], ar: ["\u0627\u0628\u062A\u062F\u0627\u0621\u064B \u0645\u0646", "\u0627\u0637\u0644\u0628 \u0639\u0631\u0636 \u0633\u0639\u0631"] }[lang2] || ["From", "Request a quote"];
-  const priceLabel = (value, currency, from) => Number.isFinite(value) ? (from ? qualifiers[0] + " " : "") + money(value, currency) : qualifiers[1];
+  const priceLabel = (value, currency, from) => Number.isFinite(value) ? (from ? qualifiers[0] + " " : "") + money2(value, currency) : qualifiers[1];
   const rows = ({ packages, currency }) => packages.map((item) => `<li><strong>${esc3(item.name)}</strong> \xB7 ${esc3(priceLabel(item.price, currency, item.from))} <small>${esc3({ once, month, year }[item.billing] || once)}${item.annualHosting ? ` \xB7 ${esc3(hosting)} ${esc3(priceLabel(item.annualHosting, currency, item.hostingFrom))}` : ""}${item.availability ? ` \xB7 ${esc3(item.availability.replaceAll("-", " "))}` : ""}</small></li>`).join("");
   host.innerHTML = `<section class="hub-guide"><h2>${esc3(title)}</h2><p>${esc3(intro)}</p>
  <div class="hub-guide-prompts">${[first, help, price].map((question) => `<button type="button" class="secondary">${esc3(question)}</button>`).join("")}</div>
@@ -1412,6 +1408,273 @@ for (const [locale, names] of Object.entries(addedCapabilityNames)) {
   for (const [index, key] of addedCapabilities.entries()) capabilityNames[locale][key] = names[index];
 }
 
+// src/hub/dashboard-view.js
+var COPY = {
+  en: {
+    planFallback: "Auri is offline right now, so we built your roadmap from your answers. Ask Auri to refine it later.",
+    morning: "Good morning",
+    afternoon: "Good afternoon",
+    evening: "Good evening",
+    flow: "Your growth flow",
+    flowNote: "Where your business is right now. Tap a step to open it.",
+    steps: ["Business profile", "Roadmap", "Requests", "In production", "Live"],
+    stepNotes: ["Saved", "{done} of {total} done", "{n} open", "{n} in progress", "{n} live"],
+    stepEmpty: ["Add details", "Build with Auri", "Nothing open", "Nothing yet", "Nothing yet"],
+    kRoadmap: "Roadmap",
+    kRequests: "Open requests",
+    kLive: "Live services",
+    kDue: "Amount due",
+    tasks: "Next on your roadmap",
+    allTasks: "Open roadmap",
+    tasksDone: "Every task on your roadmap is done.",
+    connected: "Connected services",
+    connectedNote: "Menus, cards, websites, orders, invoices and plans from your AuraDigital account.",
+    connectedEmpty: "Nothing connected yet. Requests you send with your account email and services the team links to your account appear here.",
+    connectedVerify: "Verify your email so we can match the requests you sent before you had an account.",
+    activity: "Recent activity",
+    activityEmpty: "Your activity appears here.",
+    askTitle: "Ask Auri",
+    askNote: "Your AI guide for this business.",
+    askPlaceholder: "Ask about your roadmap, prices, next steps\u2026",
+    ask: "Ask",
+    prompts: ["What should I do this week?", "Explain my roadmap", "Which service fits me best?"],
+    shop: "Shop",
+    orders: "Orders & billing",
+    newRequest: "New request",
+    viewAll: "View all",
+    due: "due",
+    next: "next",
+    kinds: { nfc: "NFC card", auramenu: "AuraMenu", quicksite: "Website", shop: "Shop order", invoice: "Invoice", subscription: "Plan", order: "Order" },
+    status: { pending: "Awaiting review", approved: "Live", rejected: "Needs changes", paid: "Paid", unpaid: "Payment due", sent: "Due", overdue: "Overdue", active: "Active", paused: "Paused", cancelled: "Cancelled", new: "Received", "in-progress": "In production", ready: "Ready", completed: "Delivered", awaiting_transfer: "Awaiting transfer", planned: "To do", in_progress: "In progress", done: "Done", postponed: "Later" }
+  },
+  tr: {
+    planFallback: "Auri \u015Fu an \xE7evrimd\u0131\u015F\u0131; yol haritan\u0131z\u0131 yan\u0131tlar\u0131n\u0131zdan olu\u015Fturduk. Daha sonra Auri\u2019den geli\u015Ftirmesini isteyebilirsiniz.",
+    morning: "G\xFCnayd\u0131n",
+    afternoon: "\u0130yi g\xFCnler",
+    evening: "\u0130yi ak\u015Famlar",
+    flow: "B\xFCy\xFCme ak\u0131\u015F\u0131n\u0131z",
+    flowNote: "\u0130\u015Fletmenizin \u015Fu anki yeri. A\xE7mak i\xE7in bir ad\u0131ma dokunun.",
+    steps: ["\u0130\u015Fletme profili", "Yol haritas\u0131", "Talepler", "\xDCretimde", "Yay\u0131nda"],
+    stepNotes: ["Kaydedildi", "{total} g\xF6revden {done} tamam", "{n} a\xE7\u0131k", "{n} devam ediyor", "{n} yay\u0131nda"],
+    stepEmpty: ["Bilgi ekleyin", "Auri ile olu\u015Fturun", "A\xE7\u0131k talep yok", "Hen\xFCz yok", "Hen\xFCz yok"],
+    kRoadmap: "Yol haritas\u0131",
+    kRequests: "A\xE7\u0131k talepler",
+    kLive: "Yay\u0131ndaki hizmetler",
+    kDue: "\xD6denecek tutar",
+    tasks: "Yol haritan\u0131zda s\u0131rada",
+    allTasks: "Yol haritas\u0131n\u0131 a\xE7",
+    tasksDone: "Yol haritan\u0131zdaki t\xFCm g\xF6revler tamamland\u0131.",
+    connected: "Ba\u011Fl\u0131 hizmetler",
+    connectedNote: "AuraDigital hesab\u0131n\u0131zdaki men\xFCler, kartlar, siteler, sipari\u015Fler, faturalar ve planlar.",
+    connectedEmpty: "Hen\xFCz ba\u011Fl\u0131 bir \u015Fey yok. Hesap e-postan\u0131zla g\xF6nderdi\u011Finiz talepler ve ekibin hesab\u0131n\u0131za ba\u011Flad\u0131\u011F\u0131 hizmetler burada g\xF6r\xFCn\xFCr.",
+    connectedVerify: "Hesap a\xE7madan \xF6nce g\xF6nderdi\u011Finiz talepleri e\u015Fle\u015Ftirebilmemiz i\xE7in e-postan\u0131z\u0131 do\u011Frulay\u0131n.",
+    activity: "Son hareketler",
+    activityEmpty: "Hareketleriniz burada g\xF6r\xFCn\xFCr.",
+    askTitle: "Auri\u2019ye sor",
+    askNote: "Bu i\u015Fletme i\xE7in yapay zek\xE2 rehberiniz.",
+    askPlaceholder: "Yol haritas\u0131, fiyatlar, sonraki ad\u0131mlar\u2026",
+    ask: "Sor",
+    prompts: ["Bu hafta ne yapmal\u0131y\u0131m?", "Yol haritam\u0131 a\xE7\u0131kla", "Bana en uygun hizmet hangisi?"],
+    shop: "Ma\u011Faza",
+    orders: "Sipari\u015Fler ve faturalar",
+    newRequest: "Yeni talep",
+    viewAll: "T\xFCm\xFCn\xFC g\xF6r",
+    due: "son tarih",
+    next: "sonraki",
+    kinds: { nfc: "NFC kart", auramenu: "AuraMenu", quicksite: "Web sitesi", shop: "Ma\u011Faza sipari\u015Fi", invoice: "Fatura", subscription: "Plan", order: "Sipari\u015F" },
+    status: { pending: "\u0130nceleniyor", approved: "Yay\u0131nda", rejected: "D\xFCzeltme gerekiyor", paid: "\xD6dendi", unpaid: "\xD6deme bekleniyor", sent: "\xD6denecek", overdue: "Gecikmi\u015F", active: "Aktif", paused: "Durduruldu", cancelled: "\u0130ptal", new: "Al\u0131nd\u0131", "in-progress": "\xDCretimde", ready: "Haz\u0131r", completed: "Teslim edildi", awaiting_transfer: "Havale bekleniyor", planned: "Yap\u0131lacak", in_progress: "Devam ediyor", done: "Tamam", postponed: "Sonra" }
+  },
+  ar: {
+    planFallback: "\u0623\u0648\u0631\u064A \u063A\u064A\u0631 \u0645\u062A\u0627\u062D \u0627\u0644\u0622\u0646\u060C \u0644\u0630\u0644\u0643 \u0628\u0646\u064A\u0646\u0627 \u062E\u0637\u062A\u0643 \u0645\u0646 \u0625\u062C\u0627\u0628\u0627\u062A\u0643. \u0627\u0637\u0644\u0628 \u0645\u0646 \u0623\u0648\u0631\u064A \u062A\u062D\u0633\u064A\u0646\u0647\u0627 \u0644\u0627\u062D\u0642\u064B\u0627.",
+    morning: "\u0635\u0628\u0627\u062D \u0627\u0644\u062E\u064A\u0631",
+    afternoon: "\u0645\u0633\u0627\u0621 \u0627\u0644\u062E\u064A\u0631",
+    evening: "\u0645\u0633\u0627\u0621 \u0627\u0644\u062E\u064A\u0631",
+    flow: "\u0645\u0633\u0627\u0631 \u0646\u0645\u0648\u0643",
+    flowNote: "\u0623\u064A\u0646 \u064A\u0642\u0641 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u0622\u0646. \u0627\u0636\u063A\u0637 \u0639\u0644\u0649 \u062E\u0637\u0648\u0629 \u0644\u0641\u062A\u062D\u0647\u0627.",
+    steps: ["\u0645\u0644\u0641 \u0627\u0644\u0646\u0634\u0627\u0637", "\u0627\u0644\u062E\u0637\u0629", "\u0627\u0644\u0637\u0644\u0628\u0627\u062A", "\u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", "\u0645\u0628\u0627\u0634\u0631"],
+    stepNotes: ["\u0645\u062D\u0641\u0648\u0638", "{done} \u0645\u0646 {total} \u0645\u0643\u062A\u0645\u0644\u0629", "{n} \u0645\u0641\u062A\u0648\u062D\u0629", "{n} \u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", "{n} \u0645\u0628\u0627\u0634\u0631\u0629"],
+    stepEmpty: ["\u0623\u0636\u0641 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644", "\u0627\u0628\u0646\u0647\u0627 \u0645\u0639 \u0623\u0648\u0631\u064A", "\u0644\u0627 \u0637\u0644\u0628\u0627\u062A \u0645\u0641\u062A\u0648\u062D\u0629", "\u0644\u0627 \u0634\u064A\u0621 \u0628\u0639\u062F", "\u0644\u0627 \u0634\u064A\u0621 \u0628\u0639\u062F"],
+    kRoadmap: "\u0627\u0644\u062E\u0637\u0629",
+    kRequests: "\u0637\u0644\u0628\u0627\u062A \u0645\u0641\u062A\u0648\u062D\u0629",
+    kLive: "\u062E\u062F\u0645\u0627\u062A \u0645\u0628\u0627\u0634\u0631\u0629",
+    kDue: "\u0627\u0644\u0645\u0628\u0644\u063A \u0627\u0644\u0645\u0633\u062A\u062D\u0642",
+    tasks: "\u0627\u0644\u062A\u0627\u0644\u064A \u0641\u064A \u062E\u0637\u062A\u0643",
+    allTasks: "\u0627\u0641\u062A\u062D \u0627\u0644\u062E\u0637\u0629",
+    tasksDone: "\u0627\u0643\u062A\u0645\u0644\u062A \u0643\u0644 \u0645\u0647\u0627\u0645 \u062E\u0637\u062A\u0643.",
+    connected: "\u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0627\u0644\u0645\u0631\u062A\u0628\u0637\u0629",
+    connectedNote: "\u0627\u0644\u0642\u0648\u0627\u0626\u0645 \u0648\u0627\u0644\u0628\u0637\u0627\u0642\u0627\u062A \u0648\u0627\u0644\u0645\u0648\u0627\u0642\u0639 \u0648\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0648\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631 \u0648\u0627\u0644\u062E\u0637\u0637 \u0645\u0646 \u062D\u0633\u0627\u0628\u0643 \u0641\u064A AuraDigital.",
+    connectedEmpty: "\u0644\u0627 \u0634\u064A\u0621 \u0645\u0631\u062A\u0628\u0637 \u0628\u0639\u062F. \u062A\u0638\u0647\u0631 \u0647\u0646\u0627 \u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0627\u0644\u0645\u0631\u0633\u0644\u0629 \u0628\u0628\u0631\u064A\u062F \u062D\u0633\u0627\u0628\u0643 \u0648\u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0627\u0644\u062A\u064A \u064A\u0631\u0628\u0637\u0647\u0627 \u0627\u0644\u0641\u0631\u064A\u0642 \u0628\u062D\u0633\u0627\u0628\u0643.",
+    connectedVerify: "\u0623\u0643\u0651\u062F \u0628\u0631\u064A\u062F\u0643 \u0627\u0644\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A \u0644\u0646\u0637\u0627\u0628\u0642 \u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0627\u0644\u062A\u064A \u0623\u0631\u0633\u0644\u062A\u0647\u0627 \u0642\u0628\u0644 \u0625\u0646\u0634\u0627\u0621 \u062D\u0633\u0627\u0628\u0643.",
+    activity: "\u0622\u062E\u0631 \u0627\u0644\u0646\u0634\u0627\u0637\u0627\u062A",
+    activityEmpty: "\u0633\u064A\u0638\u0647\u0631 \u0646\u0634\u0627\u0637\u0643 \u0647\u0646\u0627.",
+    askTitle: "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A",
+    askNote: "\u0645\u0631\u0634\u062F\u0643 \u0627\u0644\u0630\u0643\u064A \u0644\u0647\u0630\u0627 \u0627\u0644\u0646\u0634\u0627\u0637.",
+    askPlaceholder: "\u0627\u0633\u0623\u0644 \u0639\u0646 \u062E\u0637\u062A\u0643 \u0623\u0648 \u0627\u0644\u0623\u0633\u0639\u0627\u0631 \u0623\u0648 \u0627\u0644\u062E\u0637\u0648\u0627\u062A \u0627\u0644\u062A\u0627\u0644\u064A\u0629\u2026",
+    ask: "\u0627\u0633\u0623\u0644",
+    prompts: ["\u0645\u0627\u0630\u0627 \u0623\u0641\u0639\u0644 \u0647\u0630\u0627 \u0627\u0644\u0623\u0633\u0628\u0648\u0639\u061F", "\u0627\u0634\u0631\u062D \u062E\u0637\u062A\u064A", "\u0623\u064A \u062E\u062F\u0645\u0629 \u062A\u0646\u0627\u0633\u0628\u0646\u064A\u061F"],
+    shop: "\u0627\u0644\u0645\u062A\u062C\u0631",
+    orders: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0648\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631",
+    newRequest: "\u0637\u0644\u0628 \u062C\u062F\u064A\u062F",
+    viewAll: "\u0639\u0631\u0636 \u0627\u0644\u0643\u0644",
+    due: "\u0627\u0644\u0627\u0633\u062A\u062D\u0642\u0627\u0642",
+    next: "\u0627\u0644\u062A\u0627\u0644\u064A",
+    kinds: { nfc: "\u0628\u0637\u0627\u0642\u0629 NFC", auramenu: "AuraMenu", quicksite: "\u0645\u0648\u0642\u0639", shop: "\u0637\u0644\u0628 \u0645\u062A\u062C\u0631", invoice: "\u0641\u0627\u062A\u0648\u0631\u0629", subscription: "\u062E\u0637\u0629", order: "\u0637\u0644\u0628" },
+    status: { pending: "\u0642\u064A\u062F \u0627\u0644\u0645\u0631\u0627\u062C\u0639\u0629", approved: "\u0645\u0628\u0627\u0634\u0631", rejected: "\u064A\u062D\u062A\u0627\u062C \u062A\u0639\u062F\u064A\u0644\u0627\u062A", paid: "\u0645\u062F\u0641\u0648\u0639", unpaid: "\u0628\u0627\u0646\u062A\u0638\u0627\u0631 \u0627\u0644\u062F\u0641\u0639", sent: "\u0645\u0633\u062A\u062D\u0642", overdue: "\u0645\u062A\u0623\u062E\u0631", active: "\u0646\u0634\u0637", paused: "\u0645\u062A\u0648\u0642\u0641", cancelled: "\u0645\u0644\u063A\u0649", new: "\u0645\u0633\u062A\u0644\u0645", "in-progress": "\u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", ready: "\u062C\u0627\u0647\u0632", completed: "\u062A\u0645 \u0627\u0644\u062A\u0633\u0644\u064A\u0645", awaiting_transfer: "\u0628\u0627\u0646\u062A\u0638\u0627\u0631 \u0627\u0644\u062A\u062D\u0648\u064A\u0644", planned: "\u0644\u0644\u062A\u0646\u0641\u064A\u0630", in_progress: "\u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", done: "\u062A\u0645", postponed: "\u0644\u0627\u062D\u0642\u064B\u0627" }
+  },
+  fr: {
+    planFallback: "Auri est indisponible pour le moment : votre feuille de route a \xE9t\xE9 cr\xE9\xE9e \xE0 partir de vos r\xE9ponses. Demandez \xE0 Auri de l\u2019affiner plus tard.",
+    morning: "Bonjour",
+    afternoon: "Bon apr\xE8s-midi",
+    evening: "Bonsoir",
+    flow: "Votre parcours de croissance",
+    flowNote: "O\xF9 en est votre activit\xE9. Touchez une \xE9tape pour l\u2019ouvrir.",
+    steps: ["Profil", "Feuille de route", "Demandes", "En production", "En ligne"],
+    stepNotes: ["Enregistr\xE9", "{done} sur {total} faites", "{n} ouvertes", "{n} en cours", "{n} en ligne"],
+    stepEmpty: ["Ajouter des d\xE9tails", "Cr\xE9er avec Auri", "Aucune demande", "Rien pour l\u2019instant", "Rien pour l\u2019instant"],
+    kRoadmap: "Feuille de route",
+    kRequests: "Demandes ouvertes",
+    kLive: "Services en ligne",
+    kDue: "Montant d\xFB",
+    tasks: "Prochaines \xE9tapes",
+    allTasks: "Ouvrir la feuille de route",
+    tasksDone: "Toutes les \xE9tapes sont termin\xE9es.",
+    connected: "Services connect\xE9s",
+    connectedNote: "Menus, cartes, sites, commandes, factures et abonnements de votre compte AuraDigital.",
+    connectedEmpty: "Rien de connect\xE9 pour l\u2019instant. Les demandes envoy\xE9es avec l\u2019e-mail de votre compte et les services li\xE9s par l\u2019\xE9quipe apparaissent ici.",
+    connectedVerify: "V\xE9rifiez votre e-mail pour retrouver les demandes envoy\xE9es avant la cr\xE9ation de votre compte.",
+    activity: "Activit\xE9 r\xE9cente",
+    activityEmpty: "Votre activit\xE9 appara\xEEtra ici.",
+    askTitle: "Demander \xE0 Auri",
+    askNote: "Votre guide IA pour cette activit\xE9.",
+    askPlaceholder: "Feuille de route, prix, prochaines \xE9tapes\u2026",
+    ask: "Demander",
+    prompts: ["Que faire cette semaine ?", "Expliquez ma feuille de route", "Quel service me convient ?"],
+    shop: "Boutique",
+    orders: "Commandes et factures",
+    newRequest: "Nouvelle demande",
+    viewAll: "Tout voir",
+    due: "\xE9ch\xE9ance",
+    next: "prochain",
+    kinds: { nfc: "Carte NFC", auramenu: "AuraMenu", quicksite: "Site web", shop: "Commande", invoice: "Facture", subscription: "Abonnement", order: "Commande" },
+    status: { pending: "En revue", approved: "En ligne", rejected: "\xC0 corriger", paid: "Pay\xE9", unpaid: "Paiement attendu", sent: "\xC0 payer", overdue: "En retard", active: "Actif", paused: "En pause", cancelled: "Annul\xE9", new: "Re\xE7u", "in-progress": "En production", ready: "Pr\xEAt", completed: "Livr\xE9", awaiting_transfer: "Virement attendu", planned: "\xC0 faire", in_progress: "En cours", done: "Fait", postponed: "Plus tard" }
+  }
+};
+var dashCopy = (lang2) => COPY[lang2] || COPY.en;
+var NAV = {
+  en: { home: "Dashboard", groups: ["Overview", "Grow", "Manage", "Account"], menuDrafts: "Menu drafts", orders: "Orders & billing", profile: "Business profile", team: "Team", settings: "Settings", more: "More", close: "Close", business: "Business", newRequest: "New request" },
+  tr: { home: "Panel", groups: ["Genel bak\u0131\u015F", "B\xFCy\xFCme", "Y\xF6netim", "Hesap"], menuDrafts: "Men\xFC taslaklar\u0131", orders: "Sipari\u015Fler ve faturalar", profile: "\u0130\u015Fletme profili", team: "Ekip", settings: "Ayarlar", more: "Daha fazla", close: "Kapat", business: "\u0130\u015Fletme", newRequest: "Yeni talep" },
+  ar: { home: "\u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645", groups: ["\u0646\u0638\u0631\u0629 \u0639\u0627\u0645\u0629", "\u0627\u0644\u0646\u0645\u0648", "\u0627\u0644\u0625\u062F\u0627\u0631\u0629", "\u0627\u0644\u062D\u0633\u0627\u0628"], menuDrafts: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", orders: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0648\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631", profile: "\u0645\u0644\u0641 \u0627\u0644\u0646\u0634\u0627\u0637", team: "\u0627\u0644\u0641\u0631\u064A\u0642", settings: "\u0627\u0644\u0625\u0639\u062F\u0627\u062F\u0627\u062A", more: "\u0627\u0644\u0645\u0632\u064A\u062F", close: "\u0625\u063A\u0644\u0627\u0642", business: "\u0627\u0644\u0646\u0634\u0627\u0637", newRequest: "\u0637\u0644\u0628 \u062C\u062F\u064A\u062F" },
+  fr: { home: "Tableau de bord", groups: ["Vue d\u2019ensemble", "Croissance", "Gestion", "Compte"], menuDrafts: "Brouillons de menu", orders: "Commandes et factures", profile: "Profil de l\u2019activit\xE9", team: "\xC9quipe", settings: "Param\xE8tres", more: "Plus", close: "Fermer", business: "Activit\xE9", newRequest: "Nouvelle demande" }
+};
+var navCopy = (lang2) => NAV[lang2] || NAV.en;
+var NAV_ICONS = {
+  requests: "M4 13l2-8h12l2 8M4 13v6h16v-6M4 13h5l1 2h4l1-2h5",
+  menuDrafts: "M5 3h14v18H5z M8 7h8 M8 11h8 M8 15h5",
+  orders: "M6 3h12v18l-3-2-3 2-3-2-3 2z M9 8h6 M9 12h6",
+  team: "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M2 21v-1a7 7 0 0 1 14 0v1 M17 11a3 3 0 1 0 0-6 M22 21v-1a5 5 0 0 0-4-5",
+  settings: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z",
+  more: "M5 12h.01 M12 12h.01 M19 12h.01"
+};
+var navIcon = (id) => NAV_ICONS[id] ? `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${NAV_ICONS[id]}"/></svg>` : hubIcon(id);
+var fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, k) => values[k] ?? "");
+var money = (lang2, amount) => new Intl.NumberFormat(lang2 === "ar" ? "ar" : lang2, { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(Number(amount || 0));
+var day = (lang2, value) => {
+  if (!value) return "";
+  const d = new Date(String(value).includes("T") ? value : String(value).replace(" ", "T") + "Z");
+  return Number.isFinite(d.getTime()) ? d.toLocaleDateString(lang2, { day: "numeric", month: "short" }) : "";
+};
+var TONE = { approved: "good", paid: "good", active: "good", completed: "good", ready: "good", done: "good", rejected: "bad", overdue: "bad", cancelled: "bad", unpaid: "warn", sent: "warn", pending: "warn", awaiting_transfer: "warn" };
+var statusPill = (c, status, esc3) => `<span class="hx-pill ${TONE[status] || ""}">${esc3(c.status[status] || String(status || "").replace(/[_-]/g, " "))}</span>`;
+var KIND_ICON = { nfc: "M4 6h16v12H4z M8 10h4 M8 14h8", auramenu: "M5 3h14v18H5z M8 7h8 M8 11h8 M8 15h5", quicksite: "M3 5h18v12H3z M8 21h8 M12 17v4", shop: "M5 7h14l-1 13H6z M9 7a3 3 0 0 1 6 0", invoice: "M6 3h12v18l-3-2-3 2-3-2-3 2z M9 8h6 M9 12h6", subscription: "M4 12a8 8 0 0 1 14-5l2-2v6h-6l2-2a5 5 0 1 0 1 6", order: "M3 7h18v13H3z M8 7V4h8v3" };
+var kindIcon = (kind) => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${KIND_ICON[kind] || KIND_ICON.order}"/></svg>`;
+function connectedRows(data, lang2) {
+  const c = dashCopy(lang2);
+  const rows = [];
+  for (const r of data.requests || []) rows.push({ kind: r.kind, title: r.name, meta: c.kinds[r.kind] + (r.slug ? " \xB7 " + r.slug : ""), status: r.status === "approved" || !r.payment ? r.status : r.payment === "unpaid" && r.status === "pending" ? "pending" : r.status, extra: r.payment === "unpaid" && r.status !== "rejected" ? "unpaid" : "", at: r.updatedAt || r.createdAt });
+  for (const o of data.orders || []) rows.push({ kind: "order", title: `${o.type} \xD7 ${o.quantity}`, meta: `${c.kinds.order}${o.amount ? " \xB7 " + money(lang2, o.amount) : ""}${o.dueDate ? " \xB7 " + c.due + " " + day(lang2, o.dueDate) : ""}`, status: o.status, at: o.createdAt });
+  for (const s of data.subscriptions || []) rows.push({ kind: "subscription", title: s.plan, meta: `${c.kinds.subscription}${s.amount ? " \xB7 " + money(lang2, s.amount) + " / " + s.interval : ""}${s.nextBillingDate ? " \xB7 " + c.next + " " + day(lang2, s.nextBillingDate) : ""}`, status: s.status, at: s.createdAt });
+  for (const i of data.invoices || []) rows.push({ kind: "invoice", title: i.number, meta: `${c.kinds.invoice} \xB7 ${money(lang2, i.amount)}${i.dueDate ? " \xB7 " + c.due + " " + day(lang2, i.dueDate) : ""}`, status: i.status, at: i.createdAt, href: "/account" });
+  for (const o of data.shopOrders || []) rows.push({ kind: "shop", title: o.reference, meta: `${c.kinds.shop} \xB7 ${money(lang2, Number(o.totalMinor || 0) / 100)}`, status: o.payment, at: o.createdAt, href: "/shop/orders/" + o.id });
+  return rows.sort((a, b) => String(b.at || "").localeCompare(String(a.at || "")));
+}
+function connectedList(rows, lang2, esc3, limit = 50) {
+  const c = dashCopy(lang2);
+  return `<ul class="hx-list">${rows.slice(0, limit).map((r) => {
+    const inner = `<span class="hx-list-icon">${kindIcon(r.kind)}</span><span class="hx-list-main"><strong>${esc3(r.title)}</strong><small>${esc3(r.meta)}</small></span><span class="hx-list-status">${statusPill(c, r.status, esc3)}${r.extra ? statusPill(c, r.extra, esc3) : ""}</span>`;
+    return `<li>${r.href ? `<a class="hx-list-row" href="${esc3(r.href)}">${inner}</a>` : `<div class="hx-list-row">${inner}</div>`}</li>`;
+  }).join("")}</ul>`;
+}
+function renderDashboard({ host, lang: lang2, esc: esc3, link: link2, me: me2, workspace: workspace2, work, connected, next, missionTitle: missionTitle2, stageName, canAsk, canRequest, shortcuts, hero }) {
+  const c = dashCopy(lang2);
+  const hour = (/* @__PURE__ */ new Date()).getHours();
+  const hello = hour < 12 ? c.morning : hour < 18 ? c.afternoon : c.evening;
+  const missions = workspace2.missions || [];
+  const done = missions.filter((m) => m.status === "done").length;
+  const pct = missions.length ? Math.round(100 * done / missions.length) : 0;
+  const rows = connectedRows(connected || {}, lang2);
+  const openRequests = (work.attention?.length || 0) + (work.progress?.length || 0) + (connected?.requests || []).filter((r) => r.status === "pending").length;
+  const inProduction = (work.progress?.length || 0) + (connected?.orders || []).filter((o) => ["new", "in-progress", "ready"].includes(o.status)).length;
+  const live = (work.services?.length || 0) + (connected?.totals?.live || 0);
+  const due = connected?.totals?.amountDue || 0;
+  const counts = [1, missions.length ? 1 : 0, openRequests, inProduction, live];
+  const states2 = [
+    "done",
+    !missions.length ? "todo" : done === missions.length ? "done" : "active",
+    openRequests ? "active" : "todo",
+    inProduction ? "active" : "todo",
+    live ? "done" : "todo"
+  ];
+  const current = Math.max(1, states2.indexOf("active"));
+  const targets = [link2("profile"), link2("journey"), link2("requests"), link2("services"), link2("services")];
+  const stepNote = (i) => {
+    if (i === 0) return c.stepNotes[0];
+    if (i === 1) return missions.length ? fill(c.stepNotes[1], { done, total: missions.length }) : c.stepEmpty[1];
+    return counts[i] ? fill(c.stepNotes[i], { n: counts[i] }) : c.stepEmpty[i];
+  };
+  const flow = `<section class="hx-card hx-flow" aria-labelledby="hx-flow-title">
+    <header class="hx-card-head"><div><h2 id="hx-flow-title">${esc3(c.flow)}</h2><p>${esc3(c.flowNote)}</p></div></header>
+    <ol class="hx-steps">${c.steps.map((name, i) => {
+    const state2 = i === current && states2[i] === "active" ? "current" : states2[i];
+    return `<li class="hx-step" data-state="${state2}"${state2 === "current" ? ' aria-current="step"' : ""}><a href="${esc3(targets[i])}"><span class="hx-step-dot" aria-hidden="true">${state2 === "done" ? "\u2713" : i + 1}</span><span class="hx-step-text"><strong>${esc3(name)}</strong><small>${esc3(stepNote(i))}</small></span></a></li>`;
+  }).join("")}</ol></section>`;
+  const kpis = `<section class="hx-kpis" aria-label="${esc3(c.flow)}">
+    <a class="hx-kpi" href="${esc3(link2("journey"))}"><span>${esc3(c.kRoadmap)}</span><strong>${pct}%</strong><span class="hx-meter"><i style="width:${pct}%"></i></span></a>
+    <a class="hx-kpi" href="${esc3(link2("requests"))}"><span>${esc3(c.kRequests)}</span><strong>${openRequests}</strong></a>
+    <a class="hx-kpi" href="${esc3(link2("services"))}"><span>${esc3(c.kLive)}</span><strong>${live}</strong></a>
+    <a class="hx-kpi ${due ? "warn" : ""}" href="/account"><span>${esc3(c.kDue)}</span><strong>${esc3(money(lang2, due))}</strong></a>
+  </section>`;
+  const upcoming = missions.filter((m) => m.status !== "done").slice(0, 4);
+  const tasks = `<section class="hx-card"><header class="hx-card-head"><div><h2>${esc3(c.tasks)}</h2>${next ? `<p>${esc3(stageName)}</p>` : ""}</div><a class="hx-link" href="${esc3(link2("journey"))}">${esc3(c.allTasks)} \u2192</a></header>
+    ${upcoming.length ? `<ul class="hx-list">${upcoming.map((m) => `<li><a class="hx-list-row" href="${esc3(link2("journey", { task: m.id }))}"><span class="hx-check" data-state="${esc3(m.status)}" aria-hidden="true"></span><span class="hx-list-main"><strong>${esc3(missionTitle2(m))}</strong><small>${esc3(m.reason || m.description || "")}</small></span>${statusPill(c, m.status, esc3)}</a></li>`).join("")}</ul>` : `<p class="hx-empty">${esc3(missions.length ? c.tasksDone : c.stepEmpty[1])}</p>`}</section>`;
+  const services = `<section class="hx-card"><header class="hx-card-head"><div><h2>${esc3(c.connected)}</h2><p>${esc3(c.connectedNote)}</p></div><a class="hx-link" href="${esc3(link2("services"))}">${esc3(c.viewAll)} \u2192</a></header>
+    ${rows.length ? connectedList(rows, lang2, esc3, 6) : `<p class="hx-empty">${esc3(c.connectedEmpty)}</p>`}
+    ${connected && !connected.verified ? `<p class="hx-hint">${esc3(c.connectedVerify)}</p>` : ""}</section>`;
+  const activity = rows.length || done ? `<section class="hx-card"><header class="hx-card-head"><div><h2>${esc3(c.activity)}</h2></div></header>
+    <ol class="hx-timeline">${[
+    ...rows.slice(0, 5).map((r) => ({ at: r.at, text: r.title, meta: r.meta, status: r.status })),
+    ...missions.filter((m) => m.status === "done").slice(-3).map((m) => ({ at: "", text: missionTitle2(m), meta: c.kRoadmap, status: "done" }))
+  ].slice(0, 7).map((e) => `<li><span class="hx-dot" aria-hidden="true"></span><div><strong>${esc3(e.text)}</strong><small>${esc3([e.meta, day(lang2, e.at)].filter(Boolean).join(" \xB7 "))}</small></div>${statusPill(c, e.status, esc3)}</li>`).join("")}</ol></section>` : "";
+  const ask = canAsk ? `<section class="hx-card hx-ask"><header class="hx-card-head"><div><h2>${esc3(c.askTitle)}</h2><p>${esc3(c.askNote)}</p></div></header>
+    <form class="hx-ask-form" data-hx-ask><label class="sr-only" for="hx-ask-input">${esc3(c.askTitle)}</label><input id="hx-ask-input" name="q" maxlength="600" placeholder="${esc3(c.askPlaceholder)}" autocomplete="off"><button class="growth-primary" type="submit">${esc3(c.ask)}</button></form>
+    <div class="hx-prompts">${c.prompts.map((p) => `<button type="button" class="hx-chip" data-hx-prompt="${esc3(p)}">${esc3(p)}</button>`).join("")}</div></section>` : "";
+  host.innerHTML = `<div class="hx-dash">
+    <header class="hx-greet"><div><p class="hx-kicker">${esc3(workspace2.organization.name)}</p><h2>${esc3(hello)}, ${esc3(String(me2.name || "").split(" ")[0])}</h2></div>
+      <div class="hx-greet-actions">${canRequest ? `<a class="growth-secondary hx-mobile-only" href="${esc3(link2("requests", { new: "1" }))}">\uFF0B ${esc3(c.newRequest)}</a>` : ""}<a class="growth-secondary" href="/shop">${esc3(c.shop)}</a></div></header>
+    ${hero}
+    ${flow}
+    ${kpis}
+    <div class="hx-grid"><div class="hx-col">${tasks}${services}</div><div class="hx-col">${ask}${activity}</div></div>
+    ${shortcuts}
+  </div>`;
+  host.querySelector("[data-hx-ask]")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const q = new FormData(event.currentTarget).get("q");
+    if (String(q || "").trim()) location.assign(link2("assistant", { ask: String(q).trim().slice(0, 600) }));
+  });
+  host.querySelectorAll("[data-hx-prompt]").forEach((b) => b.addEventListener("click", () => location.assign(link2("assistant", { ask: b.dataset.hxPrompt }))));
+  return { hostIcon: hubIcon };
+}
+
 // src/http.js
 var ApiError = class extends Error {
   constructor(status, message, headers = {}) {
@@ -1701,6 +1964,7 @@ function openFirstLogin() {
       firstLogin = null;
       navigate("journey");
       pulseAuri(created.id, "success");
+      if (created.planFallback) toast(dashCopy(lang).planFallback);
     }
   });
 }
@@ -2110,8 +2374,7 @@ var roadmapView = "tree";
 var selectedMission = null;
 var workspaceSwitch = null;
 var requestDrafts = /* @__PURE__ */ new Map();
-var navigation = ["home", "journey", "services", "requests", "assistant"];
-var pageGroup = { tasks: "journey", menuDrafts: "services", projects: "services", websites: "services", hosting: "services" };
+var pageGroup = { tasks: "journey", projects: "services", websites: "services", hosting: "services", invoices: "orders" };
 var moreNavigation = ["profile", "simulator", "menuDrafts", "projects", "websites", "hosting", "files", "reports", "invoices", "rewards", "team", "support"];
 var link = (target, params) => hubLink(target, workspace?.organization.id, params);
 var requestLink = (service = "", task = "") => link("requests", { new: "1", service, task });
@@ -2138,19 +2401,36 @@ window.addEventListener("popstate", () => {
 });
 function renderShell() {
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  const labels3 = hubLabels(lang), l = roadmapLabels(lang);
+  const labels3 = hubLabels(lang), l = roadmapLabels(lang), nv = navCopy(lang);
   const active = pageGroup[page] || page;
-  const navItem = (p, mobile = false) => `<a class="nav-item ${active === p ? "active" : ""}" href="${esc2(link(p))}"
+  const can = (permission) => !workspace || workspace.permissions.includes(permission);
+  const labelOf = (p) => p === "home" ? nv.home : p === "services" ? serviceLabels[lang][0] : p === "requests" ? labels3.requests : p === "assistant" ? labels3.assistant : p === "journey" ? labels3.journey : nv[p] || labels3[p] || l[p] || t(p);
+  const hrefOf = (p) => p === "orders" ? "/account" : link(p);
+  const navItem = (p, mobile = false) => `<a class="nav-item ${active === p ? "active" : ""}" href="${esc2(hrefOf(p))}"
   data-page="${p}" ${mobile ? `data-mobile-page="${p}"` : ""} ${active === p ? 'aria-current="page"' : ""}>
-  ${hubIcon(p)}<span>${esc2(p === "services" ? serviceLabels[lang][0] : labels3[p] || l[p] || t(p))}</span></a>`;
-  const title = page === "services" ? serviceLabels[lang][0] : page === "journey" ? commandLabels(lang).vision : labels3[page] || l[page] || t(page);
-  app.innerHTML = `<div class="shell growth-shell growth-active aurahub-shell ${page === "services" ? "service-shell" : ""}"><aside class="sidebar" id="sidebar">
+  ${navIcon(p)}<span>${esc2(labelOf(p))}</span></a>`;
+  const groups = [
+    [nv.groups[0], ["home"]],
+    [nv.groups[1], ["journey", "assistant"]],
+    [nv.groups[2], ["services", "requests", ...workspace ? ["menuDrafts"] : [], "orders"]],
+    [nv.groups[3], [...workspace && can("profile:write") ? ["profile"] : [], ...workspace ? ["team"] : [], "settings"]]
+  ];
+  const mobileMain = ["home", "journey", "assistant", "services"];
+  const sheetItems = groups.flatMap(([, items]) => items).filter((p) => !mobileMain.includes(p));
+  const title = page === "services" ? serviceLabels[lang][0] : page === "journey" ? commandLabels(lang).vision : labelOf(page);
+  const initials = String(workspace?.organization.name || me.name || "A").trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+  app.innerHTML = `<div class="shell growth-shell growth-active aurahub-shell hx-shell ${page === "services" ? "service-shell" : ""}"><aside class="sidebar" id="sidebar">
  <a href="${esc2(link("home"))}" class="wordmark command-wordmark">${brandMarkup}</a>
- <nav aria-label="AuraHub">${navigation.map((p) => navItem(p)).join("")}</nav></aside>
+ ${workspace ? `<div class="hx-business"><span class="hx-avatar" aria-hidden="true">${esc2(initials)}</span><span class="hx-business-text"><small>${esc2(nv.business)}</small>
+ <label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span>
+ <select id="workspace-select" aria-label="${t("businessName")}">${workspaces.map((o) => `<option value="${esc2(o.id)}" ${o.id === workspace.organization.id ? "selected" : ""}>${esc2(o.id === workspace.organization.id ? workspace.organization.name : o.name)}</option>`).join("")}</select></label></span></div>` : ""}
+ <nav aria-label="AuraHub">${groups.map(([name, items]) => `<p class="hx-nav-group">${esc2(name)}</p>${items.map((p) => navItem(p)).join("")}`).join("")}</nav>
+ <div class="hx-side-foot"><span class="hx-avatar small" aria-hidden="true">${esc2(String(me.name || "?")[0].toUpperCase())}</span><span><strong>${esc2(me.name)}</strong><small>${esc2(me.email)}</small></span></div></aside>
  <div class="workspace"><header class="topbar growth-topbar hub-topbar">
  <a class="hub-mobile-brand wordmark" href="${esc2(link("home"))}">${brandMarkup}</a>
- ${workspace ? `<label class="field workspace-picker"><span class="sr-only">${t("businessName")}</span>
- <select id="workspace-select" aria-label="${t("businessName")}">${workspaces.map((o) => `<option value="${esc2(o.id)}" ${o.id === workspace.organization.id ? "selected" : ""}>${esc2(o.id === workspace.organization.id ? workspace.organization.name : o.name)}</option>`).join("")}</select></label>` : ""}
+ <div class="hx-topbar-title"><strong>${esc2(title)}</strong>${workspace ? `<small>${esc2(workspace.organization.name)}</small>` : ""}</div>
+ ${workspace && can("roadmap:write") ? `<a class="growth-secondary hx-top-action" href="${esc2(requestLink())}">\uFF0B <span>${esc2(nv.newRequest)}</span></a>` : ""}
+ ${workspace && can("auri:use") ? `<a class="growth-primary hx-top-action" href="${esc2(link("assistant"))}">${hubIcon("assistant")}<span>${esc2(labels3.assistant)}</span></a>` : ""}
  <details class="growth-account"><summary aria-label="${esc2(t("profile"))}">${hubIcon("profile")}</summary>
  <div class="growth-account-menu"><strong>${esc2(me.name)}</strong>${languageControl()}
  ${navItem("settings")}${workspace ? navItem("profile") + navItem("invoices") : ""}${button("logout", "logout", true)}</div></details></header>
@@ -2158,9 +2438,29 @@ function renderShell() {
  ${["services", "requests"].includes(page) && workspace?.permissions.includes("roadmap:write") && !query.has("new") ? `<a class="growth-secondary" href="${esc2(requestLink())}">\uFF0B ${esc2(l.request)}</a>` : ""}</div>
  ${!me.verified && authCapabilities.email ? `<aside class="verification"><p>${t("verifyLater")}</p>${button("sendVerification", "send-verification", true)}</aside>` : ""}
  <div id="page-content"></div></main>
- <nav class="command-bottom-nav" aria-label="AuraHub">${navigation.map((p) => navItem(p, true)).join("")}</nav>
+ <nav class="command-bottom-nav" aria-label="AuraHub">${mobileMain.map((p) => navItem(p, true)).join("")}
+ <button type="button" class="nav-item hx-more" data-hx-more aria-expanded="false" aria-controls="hx-sheet">${navIcon("more")}<span>${esc2(nv.more)}</span></button></nav>
+ <div class="hx-sheet" id="hx-sheet" hidden><div class="hx-sheet-panel" role="dialog" aria-modal="true" aria-label="${esc2(nv.more)}">
+ <header><strong>${esc2(nv.more)}</strong><button type="button" class="hx-sheet-close" data-hx-close aria-label="${esc2(nv.close)}">\u2715</button></header>
+ <nav aria-label="${esc2(nv.more)}">${sheetItems.map((p) => navItem(p)).join("")}</nav></div></div>
  </div></div>`;
   bindCommon();
+  const sheet = document.querySelector("#hx-sheet"), more = document.querySelector("[data-hx-more]");
+  const openSheet = (open) => {
+    sheet.hidden = !open;
+    more.setAttribute("aria-expanded", String(open));
+    if (open) sheet.querySelector("a")?.focus();
+  };
+  more.onclick = () => openSheet(sheet.hidden);
+  sheet.addEventListener("click", (e) => {
+    if (e.target === sheet || e.target.closest("[data-hx-close]") || e.target.closest("a")) openSheet(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !sheet.hidden) {
+      openSheet(false);
+      more.focus();
+    }
+  }, { once: true });
   document.querySelector("#workspace-select")?.addEventListener("change", async (e) => {
     const select2 = e.target, id = select2.value;
     select2.disabled = true;
@@ -2271,27 +2571,36 @@ async function home() {
     return;
   }
   const next = nextMission();
-  const { attention, progress, records } = await workSnapshot();
+  const [snapshot, connected] = await Promise.all([workSnapshot(), api(endpoint("connected")).catch(() => null)]);
   if (!host.isConnected) return;
+  const { attention } = snapshot;
   const item = attention[0], menu = item?.kind === "menu";
-  const hero = (menu ? ui.menuReady : item?.name) || (next ? missionTitle(next) : workspace.missions.every((m) => m.status === "done") ? ui.complete : ui.journey);
+  const heroTitle = (menu ? ui.menuReady : item?.name) || (next ? missionTitle(next) : workspace.missions.every((m) => m.status === "done") ? ui.complete : ui.journey);
   const destination = item ? link(menu ? "menuDrafts" : "requests", menu ? { draft: item.id } : { request: item.id }) : link("journey", { task: next?.id });
   const label = item ? menu ? ui.reviewMenu : ui.openRequest : next ? ui.continue : ui.journey;
   const note = item ? menu ? item.name : workStatus(item) : next ? next.reason || next.description : "";
-  const done = workspace.missions.filter((m) => m.status === "done").length;
-  const stage = next ? hubStageNames(lang)[hubStage(next.level)] : ui.journey;
-  host.innerHTML = `<section class="hub-hero"><div>
+  const hero = `<section class="hub-hero hx-hero"><div>
  ${item ? `<span class="hub-highlight">${esc2(ui.attention)}</span>` : next ? `<span class="hub-highlight">${esc2(ui.next)}</span>` : ""}
- <h2>${esc2(hero)}</h2>${note ? `<p>${esc2(note)}</p>` : ""}
+ <h2>${esc2(heroTitle)}</h2>${note ? `<p>${esc2(note)}</p>` : ""}
  <a class="growth-primary" href="${esc2(destination)}">${esc2(label)} <span aria-hidden="true">\u2192</span></a>${workspace.permissions.includes("auri:use") ? ` <a class="growth-secondary" href="${esc2(link("assistant", item?.kind === "request" ? { request: item.id } : { task: next?.id }))}">${esc2(ui.assistant)}</a>` : ""}</div>
- <div class="hub-hero-art">${menu ? menuArtwork(item) : auriCharacter(auriLevel(), { variant: "guide" })}</div></section>
- ${serviceSummary(records, serviceLabels[lang], esc2, lang)}
- <div class="hub-home-grid"><div class="hub-work-rows">
- <a class="hub-work-row" href="${esc2(link("journey"))}"><span class="hub-row-icon">${hubIcon("journey")}</span><span><strong>${esc2(ui.journey)}</strong><small>${esc2(stage)} \xB7 ${done} / ${workspace.missions.length} ${esc2(roadmapLabels(lang).completed)}</small>
- <progress class="hub-roadmap-progress" value="${done}" max="${workspace.missions.length}" aria-label="${esc2(roadmapLabels(lang).completed)}"></progress></span><span aria-hidden="true">\u203A</span></a>
- ${item && next ? `<a class="hub-work-row" href="${esc2(link("journey", { task: next.id }))}"><span class="hub-row-icon">${hubIcon("journey")}</span><span><strong>${esc2(ui.next)}</strong><small>${esc2(missionTitle(next))}</small></span><span aria-hidden="true">\u203A</span></a>` : ""}
-  ${progress.slice(0, 2).map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")}</div>
- ${serviceShortcuts(lang, esc2, link, { profile: workspace.profile, missions: workspace.missions })}</div>`;
+ <div class="hub-hero-art">${menu ? menuArtwork(item) : auriCharacter(auriLevel(), { variant: "guide" })}</div></section>`;
+  renderDashboard({
+    host,
+    lang,
+    esc: esc2,
+    link,
+    me,
+    workspace,
+    work: snapshot,
+    connected,
+    next,
+    missionTitle,
+    stageName: next ? hubStageNames(lang)[hubStage(next.level)] : "",
+    canAsk: workspace.permissions.includes("auri:use"),
+    canRequest: workspace.permissions.includes("roadmap:write"),
+    shortcuts: serviceShortcuts(lang, esc2, link, { profile: workspace.profile, missions: workspace.missions }),
+    hero
+  });
   bindAuri(host, workspace.organization.id);
 }
 async function myWork() {
@@ -2322,8 +2631,16 @@ async function myWork() {
   }
   if (page === "services" && !service) {
     host.innerHTML = '<p role="status">\u2026</p>';
-    const { records } = await api(endpoint("work"));
-    if (host.isConnected) renderServices({ host, records: records || [], lang, esc: esc2, link, profile: workspace.profile, missions: workspace.missions });
+    const [{ records }, connected] = await Promise.all([api(endpoint("work")), api(endpoint("connected")).catch(() => null)]);
+    if (!host.isConnected) return;
+    renderServices({ host, records: records || [], lang, esc: esc2, link, profile: workspace.profile, missions: workspace.missions });
+    const rows = connected ? connectedRows(connected, lang) : [];
+    if (rows.length) {
+      const c = dashCopy(lang), section2 = document.createElement("section");
+      section2.className = "hx-card hx-connected";
+      section2.innerHTML = `<header class="hx-card-head"><div><h2>${esc2(c.connected)}</h2><p>${esc2(c.connectedNote)}</p></div></header>${connectedList(rows, lang, esc2)}`;
+      host.prepend(section2);
+    }
     return;
   }
   const { attention, progress, services, requests: requests2 } = await workSnapshot();
@@ -2615,7 +2932,7 @@ function format(value, currency) {
   return value === null ? t("na") : new Intl.NumberFormat(lang, { maximumFractionDigits: 2, ...currency ? { style: "currency", currency } : {} }).format(value);
 }
 function resultsHTML(data) {
-  return `<div class="table-scroll"><table><caption>${t("assumptions")} \xB7 ${esc2(data.inputs.currency)}</caption><thead><tr><th scope="col"></th>${data.scenarios.map((s) => `<th scope="col">${t(s.name)}</th>`).join("")}</tr></thead><tbody>${[["additionalCustomers", "customers"], ["additionalRevenue", "revenue", true], ["contributionProfit", "profit", true], ["netMonthly", "net", true], ["firstYearROI", "roi"], ["paybackMonths", "payback"]].map(([key, label, money]) => `<tr><th scope="row">${t(label)}</th>${data.scenarios.map((s) => `<td>${esc2(format(s[key], money ? data.inputs.currency : null))}${key === "firstYearROI" && s[key] !== null ? "%" : ""}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  return `<div class="table-scroll"><table><caption>${t("assumptions")} \xB7 ${esc2(data.inputs.currency)}</caption><thead><tr><th scope="col"></th>${data.scenarios.map((s) => `<th scope="col">${t(s.name)}</th>`).join("")}</tr></thead><tbody>${[["additionalCustomers", "customers"], ["additionalRevenue", "revenue", true], ["contributionProfit", "profit", true], ["netMonthly", "net", true], ["firstYearROI", "roi"], ["paybackMonths", "payback"]].map(([key, label, money2]) => `<tr><th scope="row">${t(label)}</th>${data.scenarios.map((s) => `<td>${esc2(format(s[key], money2 ? data.inputs.currency : null))}${key === "firstYearROI" && s[key] !== null ? "%" : ""}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
 }
 async function simulator() {
   scenarioInputs = scenarioInputs || initialInputs();
@@ -2943,6 +3260,16 @@ async function assistant() {
   <p role="status" data-draft-status></p>
   <h2>${esc2(labels3.history)}</h2><div data-auri-drafts></div></section>` : ""}`);
   renderCompanion(true);
+  const preset = query.get("ask");
+  if (preset && canAsk) {
+    const form = document.querySelector("[data-auri-ask]"), input = form?.querySelector("input");
+    history.replaceState(null, "", link("assistant"));
+    query.delete("ask");
+    if (input) {
+      input.value = preset.slice(0, 500);
+      form.requestSubmit?.();
+    }
+  }
   if (!canAsk) return;
   const create = document.querySelector("[data-auri-draft]");
   const log = document.querySelector("[data-auri-drafts]");
