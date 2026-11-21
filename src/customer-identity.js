@@ -1,3 +1,4 @@
+import { verifyTurnstile, turnstileSiteKey } from './turnstile.js';
 import { customerReturnPath } from './customer-return.js';
 import { ApiError, json, readJson } from './http.js';
 import { authenticatedCustomer, tokenHash, signInCustomer, ensureCustomers } from './customer-accounts.ts';
@@ -204,7 +205,7 @@ export async function handleCustomerIdentity(request,env) {
   if(!user)throw new ApiError(401,'Sign in to your AuraDigital account.');
   return json({verified:await isEmailVerified(env.DB,user)});
  }
- if(path==='/api/customer/capabilities'&&request.method==='GET')return json({growth:env.GROWTH_OS_ENABLED==='true',google:env.GOOGLE_LOGIN_ENABLED==='true'&&!!env.GOOGLE_CLIENT_ID&&!!env.GOOGLE_CLIENT_SECRET,email:env.CUSTOMER_EMAIL_ENABLED==='true'&&!!env.RESEND_API_KEY});
+ if(path==='/api/customer/capabilities'&&request.method==='GET')return json({growth:env.GROWTH_OS_ENABLED==='true',google:env.GOOGLE_LOGIN_ENABLED==='true'&&!!env.GOOGLE_CLIENT_ID&&!!env.GOOGLE_CLIENT_SECRET,email:env.CUSTOMER_EMAIL_ENABLED==='true'&&!!env.RESEND_API_KEY,turnstile:turnstileSiteKey(env)});
  if(['/api/customer/google/start','/api/customer/google/callback'].includes(path)) {
   if(request.method!=='GET')throw new ApiError(405,'Method not allowed.');return google(request,env);
  }
@@ -225,6 +226,7 @@ export async function handleCustomerIdentity(request,env) {
   if(!await isEmailVerified(env.DB,user))await issueActionToken(env,user,'verify');return json({sent:true});
  }
  if(env.CUSTOMER_EMAIL_ENABLED!=='true'||!env.RESEND_API_KEY)throw new ApiError(503,'Password recovery email is not configured and verified.');
+ await verifyTurnstile(request,env,body.turnstileToken);
  if(typeof body.email!=='string'||body.email.length>254)throw new ApiError(400,'Enter your email.');
  const user=await env.DB.prepare('SELECT id,email FROM customer_users WHERE email=? COLLATE NOCASE AND active=1').bind(body.email.trim().toLowerCase()).first();
  // Reply identically for unknown accounts and provider failures; never log tokens or emails.

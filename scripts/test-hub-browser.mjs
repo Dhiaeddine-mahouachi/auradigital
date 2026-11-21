@@ -27,7 +27,7 @@ try {
  await desktop.locator('[name=email]').fill(email);
  await desktop.locator('[name=password]').fill('Saffron-lake-0142!');
  await desktop.locator('[name=terms]').check();
- await desktop.locator('#auth-form button').click();
+ await desktop.locator('#auth-form button[type=submit]').click();
  await heading(desktop,'Build your roadmap').waitFor();
  assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Home','Roadmap','My Services','Requests','Ask Auri']);
  assert(await desktop.locator('.sidebar [data-page=journey]').evaluate(node=>node.clientHeight<66));
@@ -201,7 +201,7 @@ try {
  await desktop.goto(requestUrl);
  await desktop.locator('[name=email]').fill(email);
  await desktop.locator('[name=password]').fill('Saffron-lake-0142!');
- await desktop.locator('#auth-form button').click();
+ await desktop.locator('#auth-form button[type=submit]').click();
  await heading(desktop,'AuraMenu').waitFor();
  assert.equal(desktop.url(),requestUrl);
  assert.deepEqual(errors,[]);

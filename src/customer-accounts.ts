@@ -1,3 +1,4 @@
+import { verifyTurnstile } from './turnstile.js';
 import type { D1Database } from '@cloudflare/workers-types';
 import { ApiError, json, readJson } from './http.js';
 import { hashPassword, validatePassword, verifyPassword, sameOrigin } from './security.js';
@@ -50,6 +51,7 @@ export async function handleCustomerApi(request: Request, env: CustomerEnv): Pro
   const limit = await env.LOGIN_RATE_LIMITER.limit({ key: 'customer-auth:' + (request.headers.get('CF-Connecting-IP') || 'unknown') });
   if (!limit.success) return json({ error: 'Too many attempts. Try again in a minute.' }, 429, { 'Retry-After': '60' });
   const body = await readJson(request, 4096), email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '', password = typeof body.password === 'string' ? body.password : '';
+  await verifyTurnstile(request, env, body.turnstileToken);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) throw new ApiError(400, 'Enter a valid email address.');
   if (path === '/api/customer/register') {
     const name = typeof body.name === 'string' ? body.name.trim() : '';

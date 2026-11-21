@@ -148,10 +148,95 @@ async function renderGate(){
  }
  if(route==='verify'){gateFrame(`<section class="panel">${robot()}<h1>${t('verify')}</h1><p id="verification-result" role="status"></p>${button('confirm','verify')}<a href="/hub">${t('brand')}</a></section>`);document.querySelector('[data-action="verify"]').onclick=async e=>{const confirmButton=e.target;confirmButton.disabled=true;try{await api('/api/customer/verify','POST',{token:flowToken});flowToken='';document.querySelector('#verification-result').textContent=t('verified');}catch(error){document.querySelector('#verification-result').textContent=error.message;confirmButton.disabled=false;}};return;}
  const signup=route==='signup',forgot=route==='forgot',reset=route==='reset';
- const loginCharacter=!forgot&&!reset?auriCharacter(3,{variant:'login'}):robot();
- gateFrame(`<section class="auth-intro"><p class="eyebrow">Aura Command</p><h1>${t('welcome')}</h1><p>${t('tag')}</p>${loginCharacter}</section><section class="panel auth-panel"><h2>${t(reset?'reset':forgot?'forgot':signup?'signup':'signIn')}</h2><form id="auth-form">${signup?field('name','name','','text','required minlength="2" maxlength="100" autocomplete="name"'):''}${reset?'':field('email','email','','email','required maxlength="254" autocomplete="email"')}${forgot?'':field('password',reset?'newPassword':'password','','password','required '+(signup||reset?'minlength="12" ':'')+'maxlength="72" autocomplete="'+(signup||reset?'new-password':'current-password')+'"')}${signup?`<label class="check"><input type="checkbox" name="terms" required>${t('terms')}</label>`:''}<p class="form-error" role="alert"></p><button class="primary">${t(reset?'reset':forgot?'continue':signup?'signup':'signIn')}</button></form>${!forgot&&!reset?`${authCapabilities.google?`<hr><label class="check"><input id="google-terms" type="checkbox">${t('terms')}</label>${button('google','google',true)}`:''}<div class="auth-links"><a href="/hub/${signup?'login':'signup'}${authQuery}">${t(signup?'signIn':'signup')}</a>${authCapabilities.email?`<a href="/hub/forgot${authQuery}">${t('forgot')}</a>`:''}</div>`:`<a href="/hub/login${authQuery}">${t('signIn')}</a>`}</section>`);
- document.querySelector('#auth-form').onsubmit=async e=>{e.preventDefault();const form=e.target,b=form.querySelector('button'),data=new FormData(form);b.disabled=true;try{if(forgot){const r=await api('/api/customer/forgot-password','POST',{email:data.get('email')});toast(t('resetSent'));}else if(reset){await api('/api/customer/reset-password','POST',{token:flowToken,password:data.get('password')});location.assign('/hub/login'+authQuery);}else{await api('/api/customer/'+(signup?'register':'login'),'POST',{name:data.get('name'),email:data.get('email'),password:data.get('password'),acceptTerms:data.has('terms')});if(route!=='invitation'&&resumeShop())return;route=route==='invitation'?'invitation':'';await load();}}catch(error){form.querySelector('[role="alert"]').textContent=error.message;}finally{b.disabled=false;}};
- document.querySelector('[data-action="google"]')?.addEventListener('click',()=>{if(!document.querySelector('#google-terms').checked){toast(t('terms'));return;}if(route==='invitation'){toast(t('googleInvite'));}location.assign('/api/customer/google/start?'+new URLSearchParams({acceptTerms:'true',...(returnPath?{next:returnPath}:{})}));});
+ authScreen({signup,forgot,reset});
+}
+// ---- 2026 sign-in experience: Google first, Turnstile, email verification ----
+const AL={
+ en:{side:'Your business, one account.',sideSub:'Roadmap, services, shop orders and Auri — all in AuraHub.',b1:'Growth roadmap built with Auri',b2:'Track services, requests and approvals',b3:'NFC card and shop orders in one place',b4:'Invoices, deliveries and renewals',signInTab:'Sign in',signupTab:'Create account',hello:'Welcome back',helloSub:'Sign in to continue to AuraHub.',create:'Create your free account',createSub:'Takes less than a minute.',google:'Continue with Google',googleSoon:'Google sign-in is being set up — please use email for now.',or:'or with email',show:'Show',hide:'Hide',pwHint:'At least 12 characters. Use a short sentence you can remember.',weak:'Too short',ok:'Good',strong:'Strong',human:'Please complete the human verification check.',forgotQ:'Forgot password?',back:'Back to website',help:'Need help?',checkTitle:'Check your inbox',checkSub:'We sent a verification link to',checkTip:'Open the email and tap the link to verify your account. Check spam if you do not see it.',resend:'Resend email',resent:'Verification email sent again.',wait:'You can resend in',continueHub:'Continue to AuraHub',terms:'I accept the AuraDigital account conditions.',forgotTitle:'Reset your password',forgotSub:'Enter your email and we will send you a reset link.',resetTitle:'Choose a new password',secure:'Protected by Cloudflare'},
+ tr:{side:'İşletmeniz, tek hesap.',sideSub:'Yol haritası, hizmetler, mağaza siparişleri ve Auri — hepsi AuraHub’da.',b1:'Auri ile büyüme yol haritası',b2:'Hizmet, talep ve onayları takip edin',b3:'NFC kart ve mağaza siparişleri tek yerde',b4:'Faturalar, teslimatlar ve yenilemeler',signInTab:'Giriş yap',signupTab:'Hesap oluştur',hello:'Tekrar hoş geldiniz',helloSub:'AuraHub’a devam etmek için giriş yapın.',create:'Ücretsiz hesabınızı oluşturun',createSub:'Bir dakikadan kısa sürer.',google:'Google ile devam et',googleSoon:'Google ile giriş hazırlanıyor — şimdilik e-posta kullanın.',or:'veya e-posta ile',show:'Göster',hide:'Gizle',pwHint:'En az 12 karakter. Hatırlayabileceğiniz kısa bir cümle kullanın.',weak:'Çok kısa',ok:'İyi',strong:'Güçlü',human:'Lütfen insan doğrulamasını tamamlayın.',forgotQ:'Şifremi unuttum',back:'Siteye dön',help:'Yardım',checkTitle:'Gelen kutunuzu kontrol edin',checkSub:'Doğrulama bağlantısını gönderdik:',checkTip:'E-postayı açıp bağlantıya dokunun. Görmüyorsanız spam klasörüne bakın.',resend:'Tekrar gönder',resent:'Doğrulama e-postası tekrar gönderildi.',wait:'Tekrar gönderme:',continueHub:'AuraHub’a devam et',terms:'AuraDigital hesap koşullarını kabul ediyorum.',forgotTitle:'Şifrenizi sıfırlayın',forgotSub:'E-postanızı girin, sıfırlama bağlantısı gönderelim.',resetTitle:'Yeni şifre belirleyin',secure:'Cloudflare ile korunuyor'},
+ ar:{side:'عملك، حساب واحد.',sideSub:'الخطة والخدمات وطلبات المتجر وأوري — كلها في AuraHub.',b1:'خطة نمو مع أوري',b2:'تابع الخدمات والطلبات والموافقات',b3:'طلبات بطاقات NFC والمتجر في مكان واحد',b4:'الفواتير والتسليمات والتجديدات',signInTab:'تسجيل الدخول',signupTab:'إنشاء حساب',hello:'مرحباً بعودتك',helloSub:'سجّل الدخول للمتابعة إلى AuraHub.',create:'أنشئ حسابك المجاني',createSub:'يستغرق أقل من دقيقة.',google:'المتابعة باستخدام Google',googleSoon:'تسجيل الدخول عبر Google قيد الإعداد — استخدم البريد الآن.',or:'أو عبر البريد الإلكتروني',show:'إظهار',hide:'إخفاء',pwHint:'12 حرفاً على الأقل. استخدم جملة قصيرة تتذكرها.',weak:'قصيرة جداً',ok:'جيدة',strong:'قوية',human:'يرجى إكمال التحقق البشري.',forgotQ:'نسيت كلمة المرور؟',back:'العودة إلى الموقع',help:'مساعدة',checkTitle:'تحقق من بريدك',checkSub:'أرسلنا رابط التحقق إلى',checkTip:'افتح الرسالة واضغط الرابط لتأكيد حسابك. تحقق من الرسائل غير المرغوبة.',resend:'إعادة الإرسال',resent:'تمت إعادة إرسال رسالة التحقق.',wait:'يمكنك الإعادة بعد',continueHub:'المتابعة إلى AuraHub',terms:'أوافق على شروط حساب AuraDigital.',forgotTitle:'إعادة تعيين كلمة المرور',forgotSub:'أدخل بريدك وسنرسل لك رابطاً.',resetTitle:'اختر كلمة مرور جديدة',secure:'محمي بواسطة Cloudflare'},
+ fr:{side:'Votre entreprise, un seul compte.',sideSub:'Feuille de route, services, commandes et Auri — tout dans AuraHub.',b1:'Feuille de route avec Auri',b2:'Suivez services, demandes et validations',b3:'Cartes NFC et commandes au même endroit',b4:'Factures, livraisons et renouvellements',signInTab:'Connexion',signupTab:'Créer un compte',hello:'Bon retour',helloSub:'Connectez-vous pour continuer vers AuraHub.',create:'Créez votre compte gratuit',createSub:'Moins d’une minute.',google:'Continuer avec Google',googleSoon:'La connexion Google arrive bientôt — utilisez l’e-mail pour le moment.',or:'ou par e-mail',show:'Afficher',hide:'Masquer',pwHint:'Au moins 12 caractères. Une courte phrase facile à retenir.',weak:'Trop court',ok:'Bien',strong:'Fort',human:'Veuillez compléter la vérification humaine.',forgotQ:'Mot de passe oublié ?',back:'Retour au site',help:'Aide',checkTitle:'Vérifiez votre boîte mail',checkSub:'Nous avons envoyé un lien de vérification à',checkTip:'Ouvrez l’e-mail et touchez le lien. Pensez aux spams.',resend:'Renvoyer',resent:'E-mail de vérification renvoyé.',wait:'Renvoi possible dans',continueHub:'Continuer vers AuraHub',terms:'J’accepte les conditions du compte AuraDigital.',forgotTitle:'Réinitialiser le mot de passe',forgotSub:'Saisissez votre e-mail pour recevoir un lien.',resetTitle:'Choisissez un nouveau mot de passe',secure:'Protégé par Cloudflare'}
+};
+const al=k=>(AL[lang]||AL.en)[k]||AL.en[k];
+let tsToken='',tsWidget=null;
+function mountTurnstile(){
+ const key=authCapabilities.turnstile,el=document.querySelector('#ad-turnstile');tsToken='';
+ if(!key||!el)return;
+ const render=()=>{try{tsWidget=window.turnstile.render(el,{sitekey:key,theme:'auto',language:lang,callback:v=>{tsToken=v;},'expired-callback':()=>{tsToken='';},'error-callback':()=>{tsToken='';}});}catch{}};
+ if(window.turnstile)return render();
+ let sc=document.querySelector('script[data-turnstile]');
+ if(!sc){sc=document.createElement('script');sc.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';sc.async=true;sc.defer=true;sc.dataset.turnstile='1';document.head.appendChild(sc);}
+ sc.addEventListener('load',render,{once:true});
+}
+function resetTurnstile(){tsToken='';try{if(window.turnstile&&tsWidget!==null)window.turnstile.reset(tsWidget);}catch{}}
+const googleIcon='<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
+function authScreen({signup,forgot,reset}){
+ const mode=reset?'reset':forgot?'forgot':signup?'signup':'login';
+ const title=mode==='login'?al('hello'):mode==='signup'?al('create'):mode==='forgot'?al('forgotTitle'):al('resetTitle');
+ const sub=mode==='login'?al('helloSub'):mode==='signup'?al('createSub'):mode==='forgot'?al('forgotSub'):al('pwHint');
+ const inp=(name,type,label,extra,icon)=>`<label class="ad-field"><span>${esc(label)}</span><span class="ad-input">${icon}<input name="${name}" type="${type}" ${extra}></span></label>`;
+ const ic={user:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',mail:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="m3 6 9 7 9-7"/></svg>',lock:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'};
+ const pw=mode==='forgot'?'':`<label class="ad-field"><span>${esc(t(reset?'newPassword':'password'))}</span><span class="ad-input">${ic.lock}<input name="password" type="password" required ${mode!=='login'?'minlength="12" ':''}maxlength="72" autocomplete="${mode==='login'?'current-password':'new-password'}"><button type="button" class="ad-eye" data-eye aria-pressed="false">${al('show')}</button></span>${mode!=='login'?`<span class="ad-hint" id="ad-pw-hint">${al('pwHint')}</span><span class="ad-meter" aria-hidden="true"><i></i></span>`:''}</label>`;
+ const tabs=mode==='login'||mode==='signup'?`<nav class="ad-tabs" aria-label="Account"><a href="/hub/login${authQuery}" ${mode==='login'?'aria-current="page"':''}>${al('signInTab')}</a><a href="/hub/signup${authQuery}" ${mode==='signup'?'aria-current="page"':''}>${al('signupTab')}</a></nav>`:'';
+ const googleBlock=mode==='login'||mode==='signup'?`<button type="button" class="ad-google" data-google ${authCapabilities.google?'':'aria-disabled="true"'}>${googleIcon}<span>${al('google')}</span></button>${authCapabilities.google?'':`<p class="ad-note">${al('googleSoon')}</p>`}<div class="ad-or"><span>${al('or')}</span></div>`:'';
+ const termsBox=mode==='login'||mode==='signup'?`<label class="ad-check"><input type="checkbox" name="terms" ${mode==='signup'?'required':''}><span>${al('terms')}</span></label>`:'';
+ app.innerHTML=`<div class="ad-auth">
+ <aside class="ad-side"><a href="/" class="ad-logo"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>
+  <div class="ad-side-body"><h2>${al('side')}</h2><p>${al('sideSub')}</p><ul>${['b1','b2','b3','b4'].map(k=>`<li><span aria-hidden="true">✓</span>${al(k)}</li>`).join('')}</ul></div>
+  <div class="ad-side-foot">${robot()}<span>info@auradigitalworks.com · +90 538 550 76 74</span></div></aside>
+ <main id="main" class="ad-main"><div class="ad-top"><a href="/" class="ad-logo ad-logo-sm"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>${languageControl()}</div>
+  <section class="ad-card">${tabs}<h1>${esc(title)}</h1><p class="ad-sub">${esc(sub)}</p>${googleBlock}
+   <form id="auth-form" novalidate>${mode==='signup'?inp('name','text',t('name'),'required minlength="2" maxlength="100" autocomplete="name"',ic.user):''}${mode==='reset'?'':inp('email','email',t('email'),'required maxlength="254" autocomplete="email" inputmode="email"',ic.mail)}${pw}
+    ${mode==='login'&&authCapabilities.email?`<a class="ad-forgot" href="/hub/forgot${authQuery}">${al('forgotQ')}</a>`:''}
+    ${termsBox}
+    ${authCapabilities.turnstile&&mode!=='reset'?'<div id="ad-turnstile" class="ad-turnstile"></div>':''}
+    <p class="form-error ad-error" role="alert"></p>
+    <button type="submit" class="ad-submit">${esc(t(reset?'reset':forgot?'continue':signup?'signup':'signIn'))} →</button>
+   </form>
+   ${mode==='forgot'||mode==='reset'?`<a class="ad-switch" href="/hub/login${authQuery}">← ${al('signInTab')}</a>`:''}
+   ${authCapabilities.turnstile?`<p class="ad-secure">🔒 ${al('secure')}</p>`:''}
+  </section>
+  <footer class="ad-foot"><a href="/">← ${al('back')}</a><a href="/help">${al('help')}</a><a href="https://wa.me/905385507674">WhatsApp</a></footer>
+ </main></div>`;
+ bindCommon();mountTurnstile();
+ const form=document.querySelector('#auth-form'),err=form.querySelector('[role="alert"]');
+ const pwInput=form.querySelector('input[name="password"]');
+ form.querySelector('[data-eye]')?.addEventListener('click',e=>{const b=e.currentTarget,shown=pwInput.type==='text';pwInput.type=shown?'password':'text';b.textContent=shown?al('show'):al('hide');b.setAttribute('aria-pressed',String(!shown));});
+ if(pwInput&&mode!=='login')pwInput.addEventListener('input',()=>{const n=pwInput.value.length,m=form.querySelector('.ad-meter i'),h=form.querySelector('#ad-pw-hint');const lvl=n<12?1:n<16?2:3;m.style.width=Math.min(100,n/16*100)+'%';m.dataset.level=lvl;h.textContent=n?`${al(lvl===1?'weak':lvl===2?'ok':'strong')} · ${n}/12+`:al('pwHint');});
+ document.querySelector('[data-google]')?.addEventListener('click',()=>{
+  if(!authCapabilities.google){toast(al('googleSoon'));return;}
+  const terms=form.querySelector('input[name="terms"]');
+  if(terms&&!terms.checked){err.textContent=al('terms');terms.focus();return;}
+  if(route==='invitation')toast(t('googleInvite'));
+  location.assign('/api/customer/google/start?'+new URLSearchParams({acceptTerms:'true',...(returnPath?{next:returnPath}:{})}));
+ });
+ form.onsubmit=async e=>{
+  e.preventDefault();err.textContent='';
+  if(!form.checkValidity()){const bad=form.querySelector(':invalid');err.textContent=bad?.validationMessage||t('required');bad?.focus();return;}
+  if(authCapabilities.turnstile&&mode!=='reset'&&!tsToken){err.textContent=al('human');return;}
+  const b=form.querySelector('.ad-submit'),data=new FormData(form);b.disabled=true;
+  try{
+   if(forgot){await api('/api/customer/forgot-password','POST',{email:data.get('email'),turnstileToken:tsToken});toast(t('resetSent'));resetTurnstile();}
+   else if(reset){await api('/api/customer/reset-password','POST',{token:flowToken,password:data.get('password')});location.assign('/hub/login'+authQuery);}
+   else{
+    await api('/api/customer/'+(signup?'register':'login'),'POST',{name:data.get('name'),email:data.get('email'),password:data.get('password'),acceptTerms:data.has('terms'),turnstileToken:tsToken});
+    if(signup&&authCapabilities.email){const sent=await api('/api/customer/send-verification','POST',{}).then(()=>true).catch(()=>false);if(sent){verifyPending(String(data.get('email')||''));return;}}
+    if(route!=='invitation'&&resumeShop())return;
+    route=route==='invitation'?'invitation':'';await load();
+   }
+  }catch(error){err.textContent=error.message;resetTurnstile();}
+  finally{b.disabled=false;}
+ };
+}
+function verifyPending(email){
+ app.innerHTML=`<div class="ad-auth ad-auth-single"><main id="main" class="ad-main"><div class="ad-top"><a href="/" class="ad-logo ad-logo-sm"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>${languageControl()}</div>
+ <section class="ad-card ad-center"><div class="ad-mail" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="m3 6 9 7 9-7"/></svg></div><h1>${al('checkTitle')}</h1><p class="ad-sub">${al('checkSub')} <strong>${esc(email)}</strong></p><p class="ad-sub">${al('checkTip')}</p>
+ <button type="button" class="ad-google" data-resend>${al('resend')}</button><p class="ad-note" id="ad-resend-note" role="status"></p><button type="button" class="ad-submit" data-continue>${al('continueHub')} →</button></section></main></div>`;
+ bindCommon();
+ const btn=document.querySelector('[data-resend]'),note=document.querySelector('#ad-resend-note');
+ let wait=30;const tick=()=>{if(wait>0){btn.disabled=true;note.textContent=`${al('wait')} ${wait}s`;wait--;setTimeout(tick,1000);}else{btn.disabled=false;note.textContent='';}};tick();
+ btn.onclick=async()=>{btn.disabled=true;try{await api('/api/customer/send-verification','POST',{});note.textContent=al('resent');}catch(e){note.textContent=e.message;}wait=30;setTimeout(tick,1500);};
+ document.querySelector('[data-continue]').onclick=async()=>{if(resumeShop())return;route='';await load();};
 }
 const emptyProfile=()=>({name:'',industry:'other',country:'',city:'',stage:'',website:'',tools:'',acquisition:'',difficulties:'',goals:'',timeline:'',industryDetails:'',budget:null,currency:'USD',capabilities:[]});
 function profileField(k){
