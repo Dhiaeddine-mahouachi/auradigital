@@ -45,7 +45,7 @@ jobs:
           trap 'kill "$ops_server_pid" 2>/dev/null || true' EXIT
           curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4197/admin/index.html > /dev/null
           AURA_OPS_TEST_ORIGIN=http://127.0.0.1:4197 node scripts/test-admin-ops-browser.mjs
-      - name: Test luminous public design on eight pages at desktop and mobile widths
+      - name: Test luminous design on legacy service pages at desktop and mobile widths
         run: |
           python3 -m http.server 4194 --bind 127.0.0.1 > /tmp/aura-luminous-preview.log 2>&1 &
           light_server_pid=$!
@@ -62,20 +62,13 @@ jobs:
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4191/ > /dev/null
           LANDING_ORIGIN=http://127.0.0.1:4191 node scripts/test-landing-images-browser.mjs
-      - name: Test single colorful Before and After comparison at four viewports
+      - name: Test the 2026 redesign pages, Auri and contact form at desktop and mobile widths
         run: |
-          python3 -m http.server 4193 --bind 127.0.0.1 > /tmp/aura-comparison-preview.log 2>&1 &
-          compare_server_pid=$!
-          trap 'kill "$compare_server_pid" 2>/dev/null || true' EXIT
+          python3 -m http.server 4193 --bind 127.0.0.1 > /tmp/aura-redesign.log 2>&1 &
+          redesign_server_pid=$!
+          trap 'kill "$redesign_server_pid" 2>/dev/null || true' EXIT
           curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4193/index.html > /dev/null
-          COMPARE_TEST_ORIGIN=http://127.0.0.1:4193 node scripts/test-home-comparison-browser.mjs
-      - name: Test Portfolio scroll animation and imagery on desktop and mobile
-        run: |
-          python3 -m http.server 4192 --bind 127.0.0.1 > /tmp/portfolio-preview.log 2>&1 &
-          portfolio_server_pid=$!
-          trap 'kill "$portfolio_server_pid" 2>/dev/null || true' EXIT
-          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:4192/portfolio.html > /dev/null
-          PORTFOLIO_TEST_ORIGIN=http://127.0.0.1:4192 node scripts/test-portfolio-browser.mjs
+          REDESIGN_ORIGIN=http://127.0.0.1:4193 node scripts/test-redesign-browser.mjs
       - name: Verify Emerald Gloss contrast surfaces on representative pages
         run: |
           python3 -m http.server 4195 --bind 127.0.0.1 > /tmp/emerald-theme.log 2>&1 &

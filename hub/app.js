@@ -1578,7 +1578,7 @@ function guideAt(host, scope, context) {
   if (!guideThreads.has(key)) guideThreads.set(key, []);
   mountGuide(host, { lang, esc: esc2, api, turns: guideThreads.get(key), scope, context });
 }
-var brandMarkup = '<img class="hub-brand-logo" src="/auradigital-mark-20260928.png" alt="" width="34" height="34"><span>AuraDigital</span>';
+var brandMarkup = '<span class="hub-brand-tile"><img class="hub-brand-logo" src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span>';
 var robot = () => auriCharacter(auriLevel());
 function bindAuri(host, scope) {
   disconnectAuri();

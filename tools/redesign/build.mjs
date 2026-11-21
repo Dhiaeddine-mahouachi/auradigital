@@ -43,7 +43,8 @@ const BLOBS = {
   '383fb40db1c79ce6236032f6e8f54ce3': '/media/landing/hub-requests.png',
   '60a21c95f5ece87c0a7657028a59d3c0': '/media/redesign/work-bentwalad.jpg',
   '22ee8190ae67c55cf00576c16162e287': '/media/redesign/work-weddings.jpg',
-  '6895213b818d15b748dbc4f0602a0fb9': '/media/redesign/about-team.jpg'
+  '6895213b818d15b748dbc4f0602a0fb9': '/media/redesign/about-team.jpg',
+  '15ec3fa6439e3bb5e1bdb565a3cf95f0': '/media/redesign/ad-monogram.png'
 };
 
 function localize(src) {
@@ -101,6 +102,7 @@ await esbuild({ entryPoints: [path.join(HERE, 'entry.gen.js')], bundle: true, mi
 globalThis.window = globalThis.window || { addEventListener() {}, removeEventListener() {} };
 await import(path.join(HERE, 'components.gen.js'));
 const css = designs.find((d) => d.name === 'Main').helmet;
+const stripFonts = (x) => x.replace(/<link[^>]*fonts\.(googleapis|gstatic)\.com[^>]*>\s*/g, '');
 for (const [name, file, title, description] of PAGES) {
   const d = designs.find((x) => x.name === name);
   const html = renderToString(h(runtime.registry[name], {}));
@@ -116,12 +118,14 @@ for (const [name, file, title, description] of PAGES) {
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${description.replace(/"/g, '&quot;')}">
 <meta property="og:image" content="https://auradigitalworks.com/auradigital-share-20260928.jpg">
-<link rel="icon" href="/auradigital-mark-20260928.png">
+<link rel="icon" href="/media/redesign/ad-icon-512.png">
+<link rel="apple-touch-icon" href="/media/redesign/ad-icon-512.png">
 <link rel="manifest" href="/site.webmanifest">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-${css.trim()}
-${extraCss.trim()}
+<link rel="preload" href="/fonts/redesign/inter-tight-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/redesign/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/redesign/fonts.css?v=${VERSION}">
+${stripFonts(css).trim()}
+${stripFonts(extraCss).trim()}
 </head>
 <body>
 <div id="app" data-page="${name}">${html}</div>

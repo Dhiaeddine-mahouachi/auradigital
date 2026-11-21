@@ -22,7 +22,7 @@ try{
     await button.click();
     await page.waitForTimeout(200);
   }
-  await page.locator('[data-hub-feature="roadmap"]').click();
+  if(await page.locator('[data-hub-feature="roadmap"]').count())await page.locator('[data-hub-feature="roadmap"]').click();
   await page.evaluate(async()=>{
     const images=Array.from(document.images);
     for(const image of images)image.loading='eager';

@@ -12,9 +12,9 @@
 
 <style>body{margin:0}</style>
 </helmet>
-<div style="position: fixed; right: 22px; bottom: 22px; z-index: 80; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; font-family: Inter, system-ui, sans-serif; color: #0B0F0C">
+<div class="auri-wrap" style="position: fixed; right: 22px; bottom: 22px; z-index: 80; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; font-family: Inter, system-ui, sans-serif; color: #0B0F0C">
   <sc-if value="{{ open }}" hint-placeholder-val="{{ false }}">
-    <div class="pop" role="dialog" aria-label="Chat with Auri" style="width: 380px; max-width: calc(100vw - 44px); height: 590px; max-height: calc(100vh - 120px); background: #FFFFFF; border: 1px solid #E6E4DC; border-radius: 26px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 40px 90px -30px rgba(11,15,12,.45)">
+    <div class="pop auri-panel" role="dialog" aria-label="Chat with Auri" style="width: 380px; max-width: calc(100vw - 44px); height: 590px; max-height: calc(100vh - 120px); background: #FFFFFF; border: 1px solid #E6E4DC; border-radius: 26px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 40px 90px -30px rgba(11,15,12,.45)">
       <div style="background: #0E2B1E; color: #F3EEDC; padding: 14px 16px; display: flex; align-items: center; gap: 12px">
         <span style="width: 42px; height: 42px; border-radius: 50%; background: #E1E100; display: flex; align-items: center; justify-content: center; flex: 0 0 auto">
           <svg width="30" height="30" viewBox="0 0 120 120" aria-hidden="true"><rect x="22" y="30" width="76" height="56" rx="28" fill="#0B0F0C"></rect><ellipse class="auri-eye" cx="{{ eyes.lx }}" cy="{{ eyes.y }}" rx="7" ry="9" fill="#E1E100"></ellipse><ellipse class="auri-eye" cx="{{ eyes.rx }}" cy="{{ eyes.y }}" rx="7" ry="9" fill="#E1E100"></ellipse></svg>
@@ -66,7 +66,7 @@
   <sc-if value="{{ showTeaser }}" hint-placeholder-val="{{ true }}">
     <button onClick="{{ toggle }}" class="pop hide-sm" style="background: #FFFFFF; border: 1px solid #E6E4DC; border-radius: 18px 18px 4px 18px; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #0B0F0C; cursor: pointer; box-shadow: 0 20px 40px -20px rgba(11,15,12,.4); font-family: Inter, sans-serif; max-width: 240px; text-align: left">Hi! I'm Auri. Need help choosing?</button>
   </sc-if>
-  <button ref="{{ fabRef }}" onClick="{{ toggle }}" aria-label="{{ fabLabel }}" class="auri-float" style="position: relative; width: 70px; height: 70px; border-radius: 50%; border: 0; background: #E1E100; cursor: pointer; box-shadow: 0 18px 40px -12px rgba(11,15,12,.55); display: flex; align-items: center; justify-content: center">
+  <button ref="{{ fabRef }}" onClick="{{ toggle }}" aria-label="{{ fabLabel }}" class="auri-float auri-fab" style="position: relative; width: 70px; height: 70px; border-radius: 50%; border: 0; background: #E1E100; cursor: pointer; box-shadow: 0 18px 40px -12px rgba(11,15,12,.55); display: flex; align-items: center; justify-content: center">
     <svg width="48" height="48" viewBox="0 0 120 120" aria-hidden="true"><line x1="60" y1="22" x2="60" y2="10" stroke="#0B0F0C" stroke-width="5" stroke-linecap="round"></line><circle cx="60" cy="9" r="6" fill="#0B0F0C"></circle><rect x="22" y="30" width="76" height="56" rx="28" fill="#0B0F0C"></rect><ellipse class="auri-eye" cx="{{ eyes.lx }}" cy="{{ eyes.y }}" rx="7" ry="9" fill="#E1E100"></ellipse><ellipse class="auri-eye" cx="{{ eyes.rx }}" cy="{{ eyes.y }}" rx="7" ry="9" fill="#E1E100"></ellipse><path d="M48 96 Q60 104 72 96" stroke="#0B0F0C" stroke-width="5" fill="none" stroke-linecap="round"></path></svg>
     <sc-if value="{{ unread }}" hint-placeholder-val="{{ true }}"><span style="position: absolute; top: 0; right: 0; width: 20px; height: 20px; border-radius: 50%; background: #D93025; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid #FFFFFF">1</span></sc-if>
   </button>

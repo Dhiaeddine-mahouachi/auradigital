@@ -48,7 +48,20 @@ input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset
 @media (max-width:1180px){.desk{display:none !important}}
 @media (min-width:1181px){.mob{display:none !important}}
 @media (max-width:1380px){.wide{display:none !important}}
-@media (max-width:640px){.hide-sm{display:none !important}}
+.only-sm{display:none !important}
+@media (max-width:640px){
+.hide-sm{display:none !important}
+.only-sm{display:inline-flex !important}
+.full-sm{width:100% !important;justify-content:center !important}
+section{padding-left:18px !important;padding-right:18px !important;padding-top:64px !important}
+.lift,.ticket{min-height:0 !important}
+.panel-sm{min-height:0 !important;padding:22px !important;border-radius:24px !important}
+.box-sm{padding:28px 22px !important;border-radius:26px !important}
+.auri-panel{position:fixed !important;inset:0 !important;width:100vw !important;max-width:none !important;height:100dvh !important;max-height:none !important;border-radius:0 !important;z-index:95 !important}
+.auri-fab{width:58px !important;height:58px !important}
+.auri-wrap{right:14px !important;bottom:14px !important}
+.disp{letter-spacing:-0.03em}
+}
 </style>
 
 </helmet>
@@ -136,7 +149,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset
   </section>
 
   <section style="padding: 120px 28px 120px">
-    <div style="max-width: 1264px; margin: 0 auto; background: #0E2B1E; color: #F3EEDC; border-radius: 44px; padding: 76px 48px; text-align: center">
+    <div class="box-sm" style="max-width: 1264px; margin: 0 auto; background: #0E2B1E; color: #F3EEDC; border-radius: 44px; padding: 76px 48px; text-align: center">
       <h2 class="disp" style="font-size: clamp(48px, 6vw, 88px); line-height: .94; font-weight: 800; margin: 0">Ready to go <span class="serif" style="color: #E1E100">digital?</span></h2>
       <p style="font-size: 19px; margin: 18px auto 0; max-width: 500px; color: #B9C7BC">Self-service ₺1,599 · done-for-you ₺2,500 (one-time). Pair it with ₺700 NFC review cards.</p>
       <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 30px">

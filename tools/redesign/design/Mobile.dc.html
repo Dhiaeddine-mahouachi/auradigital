@@ -48,7 +48,20 @@ input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset
 @media (max-width:1180px){.desk{display:none !important}}
 @media (min-width:1181px){.mob{display:none !important}}
 @media (max-width:1380px){.wide{display:none !important}}
-@media (max-width:640px){.hide-sm{display:none !important}}
+.only-sm{display:none !important}
+@media (max-width:640px){
+.hide-sm{display:none !important}
+.only-sm{display:inline-flex !important}
+.full-sm{width:100% !important;justify-content:center !important}
+section{padding-left:18px !important;padding-right:18px !important;padding-top:64px !important}
+.lift,.ticket{min-height:0 !important}
+.panel-sm{min-height:0 !important;padding:22px !important;border-radius:24px !important}
+.box-sm{padding:28px 22px !important;border-radius:26px !important}
+.auri-panel{position:fixed !important;inset:0 !important;width:100vw !important;max-width:none !important;height:100dvh !important;max-height:none !important;border-radius:0 !important;z-index:95 !important}
+.auri-fab{width:58px !important;height:58px !important}
+.auri-wrap{right:14px !important;bottom:14px !important}
+.disp{letter-spacing:-0.03em}
+}
 </style>
 
 </helmet>

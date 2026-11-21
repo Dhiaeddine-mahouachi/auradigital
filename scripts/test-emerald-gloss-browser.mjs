@@ -3,11 +3,8 @@ import assert from 'node:assert/strict';
 const origin=process.env.AURA_THEME_TEST_ORIGIN||'http://127.0.0.1:4195';
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||undefined});
 const pages=[
- ['/about.html','.page-hero'],
+ // about, contact, portfolio and aura-menu moved to the 2026 redesign (scripts/test-redesign-browser.mjs).
  ['/services.html','body'],
- ['/contact.html','.contact-form'],
- ['/portfolio.html','.pf-intro'],
- ['/aura-menu.html','.page-hero'],
  ['/aura-weddings.html','.aw-ivory'],
  ['/nfc-builder.html','.form-card'],
  ['/nfc-status.html','.status-card'],
@@ -35,5 +32,5 @@ try{
   assert(bg.background.includes('gradient'),path+' lost dark gradient on '+selector);
   await page.close();
  }
- console.log('Emerald Gloss styling verified on all 10 representative page types.');
+ console.log('Emerald Gloss styling verified on '+pages.length+' legacy page types.');
 }finally{await browser.close()}

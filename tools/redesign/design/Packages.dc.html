@@ -48,7 +48,20 @@ input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset
 @media (max-width:1180px){.desk{display:none !important}}
 @media (min-width:1181px){.mob{display:none !important}}
 @media (max-width:1380px){.wide{display:none !important}}
-@media (max-width:640px){.hide-sm{display:none !important}}
+.only-sm{display:none !important}
+@media (max-width:640px){
+.hide-sm{display:none !important}
+.only-sm{display:inline-flex !important}
+.full-sm{width:100% !important;justify-content:center !important}
+section{padding-left:18px !important;padding-right:18px !important;padding-top:64px !important}
+.lift,.ticket{min-height:0 !important}
+.panel-sm{min-height:0 !important;padding:22px !important;border-radius:24px !important}
+.box-sm{padding:28px 22px !important;border-radius:26px !important}
+.auri-panel{position:fixed !important;inset:0 !important;width:100vw !important;max-width:none !important;height:100dvh !important;max-height:none !important;border-radius:0 !important;z-index:95 !important}
+.auri-fab{width:58px !important;height:58px !important}
+.auri-wrap{right:14px !important;bottom:14px !important}
+.disp{letter-spacing:-0.03em}
+}
 </style>
 
 <style>td,th{padding:16px 18px;border-bottom:1px solid #ECEAE2;text-align:left}</style>
@@ -110,7 +123,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset
   </section>
 
   <section style="padding: 110px 28px 120px">
-    <div style="max-width: 1264px; margin: 0 auto; background: #ECE8FF; border-radius: 36px; padding: 52px; display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap">
+    <div class="box-sm" style="max-width: 1264px; margin: 0 auto; background: #ECE8FF; border-radius: 36px; padding: 52px; display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap">
       <div style="max-width: 640px">
         <h2 class="disp" style="font-size: 48px; line-height: 1; font-weight: 800; margin: 0">Need something <span class="serif">different?</span></h2>
         <p style="font-size: 17px; color: #2E3832; margin: 12px 0 0">Scale Commerce (₺26,900) for online stores or booking, Business Platform (₺35,900) with CRM, and custom ERP from ₺49,900 — or tell us what you need.</p>

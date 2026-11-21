@@ -743,3 +743,37 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 .hub-requests-empty>img{width:clamp(52px,10vw,80px);height:auto;flex:none;border-radius:16px;border:1px solid #566840;background:radial-gradient(ellipse,#3a4924,#18231b 74%)}
 .hub-home-grid .hub-service-links>a{min-height:58px;background:linear-gradient(145deg,#212b21,#171e19)}
 .hub-home-grid .hub-service-links>a:hover,.hub-home-grid .hub-service-links>a:focus-visible{background:#283520}
+
+/* 2026 AuraDigital brand refresh — matches the redesigned public site:
+   forest green surfaces, acid-yellow accent, Inter Tight headings, real aD logo. */
+.growth-shell,.aurahub-shell{
+ --hub-canvas:#0A1C14;--hub-surface:#0E2B1E;--hub-raised:#133A28;--hub-border:#24503A;
+ --hub-label:#B9C7BC;--hub-text:#F3EEDC;--hub-accent:#E1E100;
+ --white:var(--hub-surface);--bg:var(--hub-canvas);--ink:var(--hub-text);--muted:var(--hub-label);--line:var(--hub-border);
+ background:var(--hub-canvas);
+}
+.aurahub-shell{background:radial-gradient(ellipse at 70% 0,#14402B 0,transparent 55%),var(--hub-canvas)}
+.growth-shell .sidebar,.growth-shell .topbar,.aurahub-shell .sidebar,.aurahub-shell .hub-topbar{background:#0B2218;border-color:var(--hub-border)}
+.growth-shell .sidebar .nav-item.active,.growth-shell .sidebar .nav-item:hover,.aurahub-shell .nav-item:hover{background:#163F2C;color:var(--hub-text)}
+.aurahub-shell .nav-item[aria-current]{border:0;background:#E1E100;color:#0B0F0C;box-shadow:none;font-weight:650}
+.aurahub-shell .nav-item[aria-current] svg{color:#0B0F0C}
+.growth-shell :is(.growth-card,.panel),.aurahub-shell :is(.growth-card,.panel){background:var(--hub-surface);border-color:var(--hub-border);border-radius:22px}
+.growth-shell :is(.secondary,.growth-secondary,.growth-actions select,.field input,.field textarea,.field select),
+.aurahub-shell :is(.secondary,.growth-secondary,.field input,.field textarea,.field select),
+.aurahub-shell .workspace-picker select{background:var(--hub-raised);color:var(--hub-text);border-color:#2F6247}
+:is(.growth-shell,.aurahub-shell,.command-gate,.command-setup) :is(.primary,.lime){background:#E1E100;color:#0B0F0C;border-color:#E1E100;border-radius:999px;font-weight:650}
+:is(.growth-shell,.aurahub-shell,.command-gate,.command-setup) .primary:hover{background:#F0F04A;color:#0B0F0C}
+:is(.growth-shell,.aurahub-shell,.command-gate,.command-setup) .secondary{border-radius:999px}
+:is(.growth-shell,.aurahub-shell,.command-gate,.command-setup,.auri-setup) :is(h1,h2){font-family:'Inter Tight',Inter,sans-serif;font-weight:750;letter-spacing:-.035em}
+.command-gate-header{background:#0A1C14;border-color:#24503A}
+.command-gate-header .wordmark{color:#F3EEDC}
+.command-gate-header .wordmark span{color:#F3EEDC}
+.command-gate,.command-setup{--white:#0E2B1E;--ink:#F3EEDC;--muted:#B9C7BC;--line:#24503A;--green:#E1E100;--deep:#0A1C14;background:#0A1C14}
+.auri-setup{--setup-text:#F3EEDC;--setup-muted:#B9C7BC;--setup-accent:#E1E100;background:#0A1C14}
+.auri-setup-composer{background:#0E2B1E;border-color:#24503A}
+.hub-brand-tile{width:36px;height:36px;border-radius:10px;background:#E1E100;display:inline-grid;place-items:center;flex:none}
+.hub-brand-tile img,.aurahub-shell .command-wordmark .hub-brand-tile img{width:27px;height:auto;filter:none}
+.wordmark:has(.hub-brand-tile){display:inline-flex;align-items:center;gap:10px;font-family:'Inter Tight',Inter,sans-serif;font-weight:800;letter-spacing:-.03em}
+.wordmark:has(.hub-brand-tile) span:not(.hub-brand-tile){font-weight:800;color:var(--hub-text,#F3EEDC);letter-spacing:-.03em}
+.growth-shell .sidebar .nav-item.active,.aurahub-shell .sidebar .nav-item.active{background:#E1E100;color:#0B0F0C;font-weight:650}
+.growth-shell .sidebar .nav-item.active span,.aurahub-shell .sidebar .nav-item.active svg{color:#0B0F0C}

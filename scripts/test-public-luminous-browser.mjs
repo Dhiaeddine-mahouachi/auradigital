@@ -5,7 +5,8 @@ import {mkdir} from 'node:fs/promises';
 const origin=process.env.PUBLIC_PALETTE_ORIGIN||'http://127.0.0.1:4194';
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||undefined});
 await mkdir('test-output',{recursive:true});
-const pages=['/index.html','/portfolio.html','/services.html','/websites.html','/about.html','/contact.html','/aura-menu.html','/packages.html'];
+// Redesigned 2026 pages are covered by scripts/test-redesign-browser.mjs.
+const pages=['/services.html','/websites.html'];
 try{
  for(const [label,width,height] of [['desktop',1440,900],['mobile',390,844]]){
   for(const path of pages){
