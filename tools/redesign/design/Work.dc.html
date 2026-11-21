@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AuraDigital — Our Work</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
+.disp{font-family:'Inter Tight',Inter,sans-serif;letter-spacing:-0.035em}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.nl{white-space:nowrap;color:#0B0F0C;font-size:15px;font-weight:500;padding:10px 12px;border-radius:10px;background:transparent;border:0;cursor:pointer;font-family:Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
+.nl:hover{background:#F1F0EA;color:#0B0F0C}
+.nlon{background:#F1F0EA}
+.lift{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.lift:hover{transform:translateY(-6px);box-shadow:0 28px 60px -28px rgba(11,15,12,.35)}
+.btn{transition:transform .2s,background .2s,color .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-dark:hover{background:#E1E100 !important;color:#0B0F0C !important}
+.mi{transition:background .2s}
+.mi:hover{background:#F4F3EC}
+.ticket{position:relative}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:28px;height:28px;border-radius:50%;background:#FFFFFF;transform:translateY(-50%)}
+.ticket::before{left:-14px}.ticket::after{right:-14px}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes typing{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.auri-float{animation:floaty 4.5s ease-in-out infinite}
+.auri-eye{transform-origin:center;transform-box:fill-box;animation:blink 5s infinite}
+.marquee-track{animation:marquee 36s linear infinite}
+.rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+.pop{animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
+.dot{animation:typing 1.2s infinite}
+details summary{list-style:none;cursor:pointer}
+details summary::-webkit-details-marker{display:none}
+details[open] .plus{transform:rotate(45deg)}
+.plus{transition:transform .25s}
+input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset:1px}
+@media (max-width:1180px){.desk{display:none !important}}
+@media (min-width:1181px){.mob{display:none !important}}
+@media (max-width:1380px){.wide{display:none !important}}
+@media (max-width:640px){.hide-sm{display:none !important}}
+</style>
+
+</helmet>
+<div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.55; overflow-x: clip">
+  <dc-import name="Header" active="work" hint-size="100%,124px"></dc-import>
+
+  <section style="padding: 80px 28px 0; background: linear-gradient(180deg, #F7F6F0, #FFFFFF)">
+    <div style="max-width: 1264px; margin: 0 auto">
+      <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #4B5650">Our Work</span>
+      <h1 class="disp" style="font-size: clamp(52px, 7vw, 100px); line-height: .94; font-weight: 800; margin: 14px 0 0; max-width: 1000px">Work that makes businesses <span class="serif">look serious.</span></h1>
+      <div role="group" aria-label="Filter work" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 36px">
+        <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+          <button onClick="{{ f.pick }}" aria-pressed="{{ f.on }}" style="{{ f.style }}">{{ f.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 36px 28px 0">
+    <div style="max-width: 1264px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px">
+      <sc-for list="{{ items }}" as="w" hint-placeholder-count="6">
+        <button class="lift" onClick="{{ w.open }}" aria-pressed="{{ w.on }}" style="{{ w.card }}">
+          <img src="{{ w.img }}" alt="{{ w.alt }}" style="width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block">
+          <span style="padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; text-align: left">
+            <span style="display: flex; justify-content: space-between; gap: 10px; align-items: center"><span class="disp" style="font-size: 24px; font-weight: 700">{{ w.name }}</span><span style="font-size: 12px; font-weight: 700; background: {{ w.badgeBg }}; padding: 4px 10px; border-radius: 999px">{{ w.kind }}</span></span>
+            <span style="font-size: 15px; color: #4B5650">{{ w.what }}</span>
+            <span style="display: flex; gap: 6px; flex-wrap: wrap">
+              <sc-for list="{{ w.tags }}" as="t" hint-placeholder-count="2"><span style="font-size: 12px; font-weight: 600; border: 1px solid #DAD7CB; border-radius: 999px; padding: 3px 10px">{{ t }}</span></sc-for>
+            </span>
+          </span>
+        </button>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding: 48px 28px 0">
+    <div class="pop" style="max-width: 1264px; margin: 0 auto; background: #0E2B1E; color: #F3EEDC; border-radius: 36px; padding: 48px; display: flex; gap: 40px; flex-wrap: wrap; align-items: center">
+      <div style="flex: 1 1 380px">
+        <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #E1E100">Case study</span>
+        <h2 class="disp" style="font-size: 52px; line-height: 1; font-weight: 800; margin: 12px 0 0">{{ sel.name }}</h2>
+        <p style="font-size: 17px; color: #B9C7BC; margin: 14px 0 0">{{ sel.story }}</p>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 26px">
+          <div style="background: rgba(243,238,220,.07); border-radius: 16px; padding: 14px"><div style="font-size: 12px; color: #A9B8AE">Challenge</div><div style="font-weight: 600; margin-top: 4px; font-size: 14px">{{ sel.c }}</div></div>
+          <div style="background: rgba(243,238,220,.07); border-radius: 16px; padding: 14px"><div style="font-size: 12px; color: #A9B8AE">What we built</div><div style="font-weight: 600; margin-top: 4px; font-size: 14px">{{ sel.b }}</div></div>
+          <div style="background: rgba(243,238,220,.07); border-radius: 16px; padding: 14px"><div style="font-size: 12px; color: #A9B8AE">Status</div><div style="font-weight: 600; margin-top: 4px; font-size: 14px">{{ sel.status }}</div></div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px"><a class="btn" href="Contact.dc.html" style="background: #E1E100; color: #0B0F0C; font-weight: 700; padding: 14px 22px; border-radius: 999px; display: inline-flex; align-items: center; min-height: 50px; box-sizing: border-box">Get something like this →</a><sc-if value="{{ sel.hasUrl }}" hint-placeholder-val="{{ true }}"><a class="btn" href="{{ sel.url }}" style="border: 1px solid rgba(243,238,220,.4); color: #F3EEDC; font-weight: 600; padding: 14px 22px; border-radius: 999px; display: inline-flex; align-items: center; min-height: 50px; box-sizing: border-box">Visit live site ↗</a></sc-if></div>
+      </div>
+      <img src="{{ sel.img }}" alt="{{ sel.alt }}" style="flex: 999 1 480px; min-width: 0; width: 100%; border-radius: 22px; aspect-ratio: 16 / 10; object-fit: cover">
+    </div>
+  </section>
+
+  <section style="padding: 110px 28px 120px">
+    <div style="max-width: 1264px; margin: 0 auto; text-align: center">
+      <h2 class="disp" style="font-size: clamp(44px, 5.4vw, 76px); line-height: .95; font-weight: 800; margin: 0">Your business <span class="serif">could be next.</span></h2>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px">
+        <a class="btn btn-dark" href="Hub.dc.html" style="background: #0B0F0C; color: #FFFFFF; font-weight: 600; font-size: 17px; padding: 18px 28px; border-radius: 999px; display: inline-flex; align-items: center; min-height: 58px; box-sizing: border-box">Start your path →</a>
+        <a class="btn" href="Contact.dc.html" style="border: 2px solid #0B0F0C; font-weight: 600; font-size: 17px; padding: 16px 26px; border-radius: 999px; display: inline-flex; align-items: center; min-height: 58px; box-sizing: border-box">Talk to our team</a>
+      </div>
+    </div>
+  </section>
+
+  <dc-import name="Footer" hint-size="100%,640px"></dc-import>
+  <dc-import name="Auri" hint-size="0px,0px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3300}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { f: 'All', sel: 'gateaux' }; }
+  renderVals() {
+    const s = this.state;
+    const W = [
+      { id: 'gateaux', name: 'Décoration Gâteaux', kind: 'Client', group: 'Websites', what: 'Cake & dessert brand — gallery website and social presence.', tags: ['Website', 'Gallery'], img: '/_blob/18b435ab4d0c6ef6d3d0aea85fc0f2fe', url: 'https://decorationgateaux.shop', story: 'A home-grown cake brand needed a place to show its creations and take orders beyond Instagram.', c: 'Orders only via DMs', b: 'Responsive gallery website' },
+      { id: 'mutlu', name: 'Mutlu Nakliyat', kind: 'Client', group: 'Marketing', what: 'Istanbul moving company — website, Google Business Profile and Meta ads.', tags: ['Website', 'Google Maps', 'Ads'], img: '/_blob/fa3669d6d8c834adc34efe0134c2a8e4', url: 'https://mutlunakliyat.site', story: 'A moving company in a crowded Istanbul market needed to be found first and look trustworthy.', c: 'Low online visibility', b: 'Site, Maps profile, Meta ads' },
+      { id: 'erhan', name: 'Yurt Oto Elektrik', kind: 'Client', group: 'Websites', what: 'Auto-electrical workshop in Fatih — Turkish one-page site with services, gallery and Maps.', tags: ['Website', 'Google Maps'], img: '/_blob/e62003c87bc3e54eb3e4c978d7561582', url: 'https://xn--yurtotoelektrikerhankcr-8qdb.com/', story: 'A trusted local workshop with no website — customers could not find hours, services or directions.', c: 'No web presence', b: 'One-page site, reviews, Maps' },
+      { id: 'menu', name: 'AuraMenu', kind: 'Product', group: 'Products', what: 'Our QR digital-menu platform for restaurants — Turkish-first and multilingual.', tags: ['SaaS', 'QR menus'], img: '/_blob/c75b79c2c529830827d989d110e51421', url: 'https://auramenu.space', story: 'Our own restaurant product: menus with custom designs, three languages and an approval workflow.', c: 'Printed menus go stale', b: 'QR menu platform' },
+      { id: 'bent', name: 'Bent Walad', kind: 'Product', group: 'Products', what: 'Arabic-first multiplayer word game with rooms and scoring.', tags: ['Web app', 'Multiplayer'], img: '/_blob/60a21c95f5ece87c0a7657028a59d3c0', url: 'https://bentwalad.online', story: 'A real-time Arabic word game with comic styling — built and run by us.', c: 'Real-time play for Arabic users', b: 'Rooms, scoring, comic UI' },
+      { id: 'fifty', name: 'Fifty', kind: 'Concept', group: 'Websites', what: 'Brand & experience landing-page concept.', tags: ['Concept', 'Brand'], img: '/_blob/bbfed3b8644e412d33db8b05e7af370e', url: '', story: 'A concept exploring a bold, playful brand presence for an experience business.', c: 'Stand out instantly', b: 'Landing page concept' }
+    ];
+    const F = ['All', 'Websites', 'Marketing', 'Products'];
+    const on = 'background: #0B0F0C; color: #FFFFFF; border: 1px solid #0B0F0C; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
+    const off = 'background: #FFFFFF; color: #0B0F0C; border: 1px solid #D9D6CB; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
+    const card = 'padding: 0; display: flex; flex-direction: column; border-radius: 24px; overflow: hidden; border: 1px solid #ECEAE2; background: #FFFFFF; cursor: pointer; font-family: Inter, sans-serif; color: #0B0F0C';
+    const cardOn = 'padding: 0; display: flex; flex-direction: column; border-radius: 24px; overflow: hidden; border: 2px solid #0B0F0C; background: #FFFFFF; cursor: pointer; font-family: Inter, sans-serif; color: #0B0F0C';
+    const badge = { Client: '#E3F1E6', Product: '#ECE8FF', Concept: '#F3EEDC' };
+    const sel0 = W.find((w) => w.id === s.sel) || W[0]; const sel = { ...sel0, status: sel0.url ? 'Live' : 'Concept' };
+    return {
+      filters: F.map((f) => ({ label: f, on: f === s.f, style: f === s.f ? on : off, pick: () => this.setState({ f }) })),
+      items: W.filter((w) => s.f === 'All' || w.group === s.f).map((w) => ({ ...w, alt: w.name + '', on: w.id === s.sel, card: w.id === s.sel ? cardOn : card, badgeBg: badge[w.kind], open: () => this.setState({ sel: w.id }) })),
+      sel: { ...sel, alt: sel.name + ' preview', hasUrl: !!sel.url }
+    };
+  }
+}
+</script>
+</body>
+</html>

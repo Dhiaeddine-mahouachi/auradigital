@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AuraDigital — Site header</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+
+<style>body{margin:0}</style>
+</helmet>
+<div onMouseLeave="{{ closeAll }}" style="position: relative; z-index: 50; font-family: Inter, system-ui, sans-serif; color: #0B0F0C; background: #FFFFFF">
+  <div style="background: #0E2B1E; color: #F3EEDC; font-size: 14px; padding: 10px 20px; display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; text-align: center">
+    <span style="background: #E1E100; color: #0B0F0C; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 700">NEW</span>
+    <span>Auri now builds your free growth roadmap inside AuraHub.</span>
+    <a href="Hub.dc.html" style="color: #E1E100; font-weight: 600">Try it free →</a>
+  </div>
+  <div style="border-bottom: 1px solid #ECEAE2">
+    <div style="max-width: 1320px; margin: 0 auto; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px">
+      <div style="display: flex; align-items: center; gap: 20px">
+        <a href="Main.dc.html" aria-label="AuraDigital home" style="display: flex; align-items: center; gap: 10px; color: #0B0F0C">
+          <span style="width: 38px; height: 38px; border-radius: 10px; background: #E1E100; color: #0B0F0C; display: flex; align-items: center; justify-content: center; font-family: 'Inter Tight', sans-serif; font-weight: 800; font-size: 17px; letter-spacing: -0.06em">aD</span>
+          <span style="font-family: 'Inter Tight', sans-serif; font-weight: 800; font-size: 21px; letter-spacing: -0.03em">AuraDigital</span>
+        </a>
+        <nav class="desk" aria-label="Main" style="display: flex; align-items: center; gap: 2px">
+          <button class="{{ cls.sol }}" onMouseEnter="{{ openSol }}" onClick="{{ openSol }}" aria-expanded="{{ isSol }}">Solutions <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+          <button class="{{ cls.prod }}" onMouseEnter="{{ openProd }}" onClick="{{ openProd }}" aria-expanded="{{ isProd }}">Products <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+          <a class="{{ cls.shop }}" href="Shop.dc.html" onMouseEnter="{{ closeAll }}">Service Shop</a>
+          <a class="{{ cls.packages }}" href="Packages.dc.html" onMouseEnter="{{ closeAll }}">Packages</a>
+          <a class="{{ cls.work }}" href="Work.dc.html" onMouseEnter="{{ closeAll }}">Our Work</a>
+          <a class="{{ cls.help }}" href="Help.dc.html" onMouseEnter="{{ closeAll }}">Help</a>
+          <a class="{{ cls.about }}" href="About.dc.html" onMouseEnter="{{ closeAll }}">About</a>
+          <a class="{{ cls.contact }}" href="Contact.dc.html" onMouseEnter="{{ closeAll }}">Contact</a>
+        </nav>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px">
+        <span class="desk wide" style="display: flex; gap: 2px; font-size: 13px; font-weight: 600; border: 1px solid #E6E4DC; border-radius: 999px; padding: 3px">
+          <span style="background: #0B0F0C; color: #FFFFFF; border-radius: 999px; padding: 5px 10px">EN</span><span style="padding: 5px 10px">TR</span><span style="padding: 5px 10px">AR</span>
+        </span>
+        <a class="nl desk" href="HubApp.dc.html">Log in</a>
+        <a class="btn btn-dark desk" href="Hub.dc.html" style="white-space: nowrap; background: #0B0F0C; color: #FFFFFF; font-weight: 600; font-size: 15px; padding: 12px 20px; border-radius: 999px; min-height: 46px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px">Start your path <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+        <button class="mob" onClick="{{ toggleDrawer }}" aria-label="{{ drawerLabel }}" style="width: 46px; height: 46px; border-radius: 12px; border: 1px solid #E6E4DC; background: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B0F0C" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ isSol }}" hint-placeholder-val="{{ false }}">
+    <div class="pop" style="position: absolute; left: 0; right: 0; top: 100%; background: #FFFFFF; border-bottom: 1px solid #ECEAE2; box-shadow: 0 40px 60px -40px rgba(11,15,12,.35)">
+      <div style="max-width: 1320px; margin: 0 auto; padding: 28px; display: flex; gap: 28px; flex-wrap: wrap">
+        <div style="flex: 999 1 720px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+          <sc-for list="{{ mega }}" as="col" hint-placeholder-count="4">
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <a href="{{ col.href }}" style="font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #4B5650; padding: 0 12px 10px">{{ col.title }}</a>
+              <sc-for list="{{ col.items }}" as="it" hint-placeholder-count="3">
+                <a class="mi" href="{{ col.href }}" style="display: block; padding: 10px 12px; border-radius: 12px">
+                  <span style="display: block; font-weight: 600; font-size: 15px">{{ it.n }}</span>
+                  <span style="display: block; font-size: 13px; color: #4B5650; line-height: 1.4">{{ it.d }}</span>
+                </a>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+        <a href="Hub.dc.html" style="flex: 1 1 280px; background: #E1E100; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; min-height: 220px; color: #0B0F0C">
+          <span style="font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase">Not sure what you need?</span>
+          <span style="font-family: 'Inter Tight', sans-serif; font-size: 28px; font-weight: 800; line-height: 1.05; letter-spacing: -0.03em">Let Auri build your roadmap — free.</span>
+          <span style="font-weight: 600">Start your path →</span>
+        </a>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isProd }}" hint-placeholder-val="{{ false }}">
+    <div class="pop" style="position: absolute; left: 0; right: 0; top: 100%; background: #FFFFFF; border-bottom: 1px solid #ECEAE2; box-shadow: 0 40px 60px -40px rgba(11,15,12,.35)">
+      <div style="max-width: 1320px; margin: 0 auto; padding: 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px">
+        <sc-for list="{{ products }}" as="p" hint-placeholder-count="4">
+          <a href="{{ p.href }}" style="{{ p.style }}">
+            <span style="font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #4B5650">{{ p.tag }}</span>
+            <span style="font-family: 'Inter Tight', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: -0.03em">{{ p.n }}</span>
+            <span style="font-size: 14px; color: #2E3832">{{ p.d }}</span>
+            <span style="margin-top: auto; font-weight: 600; font-size: 14px">Explore →</span>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ drawer }}" hint-placeholder-val="{{ false }}">
+    <div class="mob pop" style="position: absolute; left: 0; right: 0; top: 100%; background: #FFFFFF; border-bottom: 1px solid #ECEAE2; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 30px 50px -30px rgba(11,15,12,.4)">
+      <sc-for list="{{ mobileLinks }}" as="m" hint-placeholder-count="8">
+        <a href="{{ m.href }}" style="font-family: 'Inter Tight', sans-serif; font-size: 22px; font-weight: 700; padding: 12px 4px; border-bottom: 1px solid #F1F0EA">{{ m.n }}</a>
+      </sc-for>
+      <a href="Hub.dc.html" style="margin-top: 14px; background: #0B0F0C; color: #FFFFFF; text-align: center; font-weight: 600; padding: 16px; border-radius: 14px">Start your path →</a>
+      <a href="HubApp.dc.html" style="text-align: center; font-weight: 600; padding: 12px">Log in to AuraHub</a>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["home","solutions","products","shop","packages","work","help","about","contact","hub"],"default":"home"},"$preview":{"width":1440,"height":120}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { open: null, drawer: false }; }
+  renderVals() {
+    const s = this.state;
+    const a = this.props.active ?? 'home';
+    const c = (k) => 'nl' + (a === k ? ' nlon' : '');
+    const card = 'border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 8px; min-height: 210px; box-sizing: border-box; color: #0B0F0C; background: ';
+    return {
+      isSol: s.open === 'sol', isProd: s.open === 'prod', drawer: s.drawer,
+      openSol: () => this.setState({ open: 'sol' }),
+      openProd: () => this.setState({ open: 'prod' }),
+      closeAll: () => this.setState({ open: null }),
+      toggleDrawer: () => this.setState({ drawer: !s.drawer }),
+      drawerLabel: s.drawer ? 'Close menu' : 'Open menu',
+      cls: { sol: c('solutions'), prod: c('products'), shop: c('shop'), packages: c('packages'), work: c('work'), help: c('help'), about: c('about'), contact: c('contact') },
+      mega: [
+        { title: 'Build', href: 'Solutions.dc.html', items: [{ n: 'Websites', d: 'Custom, fast, mobile-first' }, { n: 'Online stores', d: 'Sell products online' }, { n: 'Brand & creative', d: 'Logo, visuals, video' }] },
+        { title: 'Grow', href: 'Solutions.dc.html', items: [{ n: 'Google Maps & SEO', d: 'Get found locally' }, { n: 'Ads', d: 'Google & Meta campaigns' }, { n: 'NFC review cards', d: 'More Google reviews' }] },
+        { title: 'Automate', href: 'Solutions.dc.html', items: [{ n: 'WhatsApp AI', d: 'Instant replies & bookings' }, { n: 'AI sales agent', d: 'Qualify leads 24/7' }, { n: 'Business email', d: 'you@yourbrand.com' }] },
+        { title: 'Manage', href: 'Solutions.dc.html', items: [{ n: 'AuraHub', d: 'Your business dashboard' }, { n: 'Hosting & security', d: 'Always online, protected' }, { n: 'ERP / CRM', d: 'Custom business systems' }] }
+      ],
+      products: [
+        { n: 'AuraMenu', tag: 'Restaurants', d: 'QR digital menus in TR, EN and AR.', href: 'AuraMenu.dc.html', style: card + '#E3F1E6' },
+        { n: 'AuraWeddings', tag: 'Couples', d: 'Digital invitations with RSVP and countdown.', href: 'https://auradigitalworks.com/aura-weddings', style: card + '#F3EEDC' },
+        { n: 'AuraPops', tag: 'Creators', d: 'One link for profile, links, menu and QR.', href: 'https://aurapops.online', style: card + '#ECE8FF' },
+        { n: 'NFC review cards', tag: 'Local business', d: 'Tap the card, leave a Google review.', href: 'Shop.dc.html', style: card + '#E3EEFB' }
+      ],
+      mobileLinks: [
+        { n: 'Solutions', href: 'Solutions.dc.html' }, { n: 'AuraMenu', href: 'AuraMenu.dc.html' }, { n: 'Service Shop', href: 'Shop.dc.html' },
+        { n: 'Packages', href: 'Packages.dc.html' }, { n: 'Our Work', href: 'Work.dc.html' }, { n: 'Help Center', href: 'Help.dc.html' }, { n: 'About us', href: 'About.dc.html' }, { n: 'Contact', href: 'Contact.dc.html' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

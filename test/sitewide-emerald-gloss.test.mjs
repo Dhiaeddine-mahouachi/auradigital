@@ -6,8 +6,9 @@ import {resolve,dirname} from 'node:path';
 const base=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const load=path=>readFileSync(resolve(base,path),'utf8');
 const paths=[
- 'index.html','about.html','services.html','websites.html','contact.html','packages.html',
- 'portfolio.html','aura-menu.html','nfc.html','qr-menu.html','aurapops.html',
+ // Redesigned 2026 pages (index, about, contact, packages, portfolio, aura-menu,
+ // solutions, service-shop, help) use their own design system; see redesign-2026.test.mjs.
+ 'services.html','websites.html','nfc.html','qr-menu.html','aurapops.html',
  'aurapops-showcase.html','aura-weddings.html','spinflow.html',
  'nfc-builder.html','nfc-status.html','404.html','shop/index.html','hub/index.html'
 ];

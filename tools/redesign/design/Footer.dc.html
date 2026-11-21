@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AuraDigital — Site footer</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+
+<style>body{margin:0}</style>
+</helmet>
+<footer style="background: #0E2B1E; color: #F3EEDC; font-family: Inter, system-ui, sans-serif; padding: 80px 28px 36px">
+  <div style="max-width: 1264px; margin: 0 auto">
+    <div style="display: flex; gap: 48px; flex-wrap: wrap; justify-content: space-between; padding-bottom: 56px; border-bottom: 1px solid rgba(243,238,220,.14)">
+      <div style="flex: 1 1 420px; max-width: 520px">
+        <div style="font-family: 'Inter Tight', sans-serif; font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -0.035em">Grow with us. <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; color: #E1E100">Monthly tips</span>, no spam.</div>
+        <form style="display: flex; gap: 8px; margin-top: 24px; flex-wrap: wrap">
+          <label for="ft-email" style="position: absolute; left: -9999px">Email address</label>
+          <input id="ft-email" type="email" placeholder="you@business.com" style="flex: 1 1 220px; min-width: 0; border: 1px solid rgba(243,238,220,.3); background: rgba(243,238,220,.06); color: #F3EEDC; border-radius: 999px; padding: 14px 18px; font-size: 15px; font-family: Inter, sans-serif">
+          <button type="button" style="background: #E1E100; color: #0B0F0C; border: 0; border-radius: 999px; padding: 14px 22px; font-weight: 700; font-size: 15px; cursor: pointer; font-family: Inter, sans-serif; min-height: 48px">Subscribe</button>
+        </form>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap">
+        <a href="https://wa.me/905385507674" style="background: #E1E100; color: #0B0F0C; border-radius: 999px; padding: 12px 18px; font-weight: 700; font-size: 14px">WhatsApp +90 538 550 76 74</a>
+        <a href="mailto:info@auradigitalworks.com" style="border: 1px solid rgba(243,238,220,.3); color: #F3EEDC; border-radius: 999px; padding: 12px 18px; font-weight: 600; font-size: 14px">info@auradigitalworks.com</a>
+        <a href="Contact.dc.html" style="border: 1px solid rgba(243,238,220,.3); color: #F3EEDC; border-radius: 999px; padding: 12px 18px; font-weight: 600; font-size: 14px">Contact page</a>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 32px; padding: 48px 0">
+      <sc-for list="{{ cols }}" as="c" hint-placeholder-count="6">
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <div style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #E1E100">{{ c.t }}</div>
+          <sc-for list="{{ c.l }}" as="l" hint-placeholder-count="5">
+            <a href="{{ l.h }}" style="color: #D6DED8; font-size: 15px">{{ l.n }}</a>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-top: 24px; border-top: 1px solid rgba(243,238,220,.14); font-size: 14px; color: #A9B8AE">
+      <span style="display: flex; align-items: center; gap: 10px"><span style="width: 30px; height: 30px; border-radius: 8px; background: #E1E100; color: #0B0F0C; display: flex; align-items: center; justify-content: center; font-family: 'Inter Tight', sans-serif; font-weight: 800; font-size: 13px">aD</span>© 2026 AuraDigital · Istanbul, Türkiye</span>
+      <span style="display: flex; gap: 18px; flex-wrap: wrap"><a href="Help.dc.html" style="color: #A9B8AE">Privacy</a><a href="Help.dc.html" style="color: #A9B8AE">Terms</a><a href="Help.dc.html" style="color: #A9B8AE">KVKK</a><span>EN · TR · AR</span></span>
+    </div>
+  </div>
+</footer>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { cols: [
+      { t: 'Solutions', l: [{ n: 'Build', h: 'Solutions.dc.html' }, { n: 'Grow', h: 'Solutions.dc.html' }, { n: 'Automate', h: 'Solutions.dc.html' }, { n: 'Manage', h: 'Solutions.dc.html' }] },
+      { t: 'Products', l: [{ n: 'AuraMenu', h: 'AuraMenu.dc.html' }, { n: 'AuraWeddings', h: 'https://auradigitalworks.com/aura-weddings' }, { n: 'AuraPops', h: 'https://aurapops.online' }, { n: 'NFC review cards', h: 'Shop.dc.html' }] },
+      { t: 'Buy', l: [{ n: 'Service Shop', h: 'Shop.dc.html' }, { n: 'Packages', h: 'Packages.dc.html' }, { n: 'Custom quote', h: 'Contact.dc.html' }] },
+      { t: 'AuraHub', l: [{ n: 'Create account', h: 'Hub.dc.html' }, { n: 'Log in', h: 'HubApp.dc.html' }, { n: 'Ask Auri', h: 'Help.dc.html' }] },
+      { t: 'Our websites', l: [{ n: 'auramenu.space', h: 'https://auramenu.space' }, { n: 'aurapops.online', h: 'https://aurapops.online' }, { n: 'bentwalad.online', h: 'https://bentwalad.online' }, { n: 'dhiamahouachi.website', h: 'https://dhiamahouachi.website' }] },
+      { t: 'Company', l: [{ n: 'About us', h: 'About.dc.html' }, { n: 'Our work', h: 'Work.dc.html' }, { n: 'Help Center', h: 'Help.dc.html' }, { n: 'Contact', h: 'Contact.dc.html' }] }
+    ] };
+  }
+}
+</script>
+</body>
+</html>

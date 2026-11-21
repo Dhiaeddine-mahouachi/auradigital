@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AuraDigital — Packages</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
+.disp{font-family:'Inter Tight',Inter,sans-serif;letter-spacing:-0.035em}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.nl{white-space:nowrap;color:#0B0F0C;font-size:15px;font-weight:500;padding:10px 12px;border-radius:10px;background:transparent;border:0;cursor:pointer;font-family:Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
+.nl:hover{background:#F1F0EA;color:#0B0F0C}
+.nlon{background:#F1F0EA}
+.lift{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.lift:hover{transform:translateY(-6px);box-shadow:0 28px 60px -28px rgba(11,15,12,.35)}
+.btn{transition:transform .2s,background .2s,color .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-dark:hover{background:#E1E100 !important;color:#0B0F0C !important}
+.mi{transition:background .2s}
+.mi:hover{background:#F4F3EC}
+.ticket{position:relative}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:28px;height:28px;border-radius:50%;background:#FFFFFF;transform:translateY(-50%)}
+.ticket::before{left:-14px}.ticket::after{right:-14px}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes typing{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.auri-float{animation:floaty 4.5s ease-in-out infinite}
+.auri-eye{transform-origin:center;transform-box:fill-box;animation:blink 5s infinite}
+.marquee-track{animation:marquee 36s linear infinite}
+.rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+.pop{animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
+.dot{animation:typing 1.2s infinite}
+details summary{list-style:none;cursor:pointer}
+details summary::-webkit-details-marker{display:none}
+details[open] .plus{transform:rotate(45deg)}
+.plus{transition:transform .25s}
+input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset:1px}
+@media (max-width:1180px){.desk{display:none !important}}
+@media (min-width:1181px){.mob{display:none !important}}
+@media (max-width:1380px){.wide{display:none !important}}
+@media (max-width:640px){.hide-sm{display:none !important}}
+</style>
+
+<style>td,th{padding:16px 18px;border-bottom:1px solid #ECEAE2;text-align:left}</style>
+</helmet>
+<div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.55; overflow-x: clip">
+  <dc-import name="Header" active="packages" hint-size="100%,124px"></dc-import>
+
+  <section style="padding: 84px 28px 0; text-align: center; background: linear-gradient(180deg, #F7F6F0, #FFFFFF)">
+    <div style="max-width: 900px; margin: 0 auto">
+      <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #4B5650">Packages</span>
+      <h1 class="disp" style="font-size: clamp(52px, 6.6vw, 96px); line-height: .94; font-weight: 800; margin: 14px 0 0">Simple packages. <span class="serif">Clear prices.</span></h1>
+      <p style="font-size: 19px; color: #4B5650; margin: 20px auto 0; max-width: 560px">Everything you need to launch, in one bundle. Add more anytime from the Service Shop.</p>
+      <div role="tablist" aria-label="Package type" style="display: inline-flex; gap: 4px; background: #F1F0EA; padding: 5px; border-radius: 999px; margin-top: 32px">
+        <sc-for list="{{ modes }}" as="m" hint-placeholder-count="2">
+          <button role="tab" aria-selected="{{ m.on }}" onClick="{{ m.pick }}" style="{{ m.style }}">{{ m.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 52px 28px 0">
+    <div style="max-width: 1264px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px">
+      <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="3">
+        <div class="lift" style="{{ t.card }}">
+          <div style="display: flex; justify-content: space-between; align-items: center">
+            <span class="disp" style="font-size: 26px; font-weight: 800">{{ t.name }}</span>
+            <sc-if value="{{ t.best }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 700; background: #0B0F0C; color: #E1E100; padding: 5px 12px; border-radius: 999px">Most chosen</span></sc-if>
+          </div>
+          <div style="font-size: 15px; margin-top: 8px; min-height: 48px; opacity: .85">{{ t.desc }}</div>
+          <div class="disp" style="font-size: 56px; font-weight: 800; line-height: 1; margin-top: 22px">{{ t.price }}</div>
+          <div style="font-size: 14px; opacity: .75; margin-top: 6px">{{ t.note }}</div>
+          <a class="btn" href="Hub.dc.html" style="{{ t.btn }}">Choose {{ t.name }}</a>
+          <div style="border-top: 2px dashed currentColor; opacity: .2; margin: 26px 0 20px"></div>
+          <div style="display: flex; flex-direction: column; gap: 12px">
+            <sc-for list="{{ t.feats }}" as="f" hint-placeholder-count="6">
+              <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto; margin-top: 3px"><path d="M5 12l5 5L20 7"></path></svg>{{ f }}</div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <p style="text-align: center; font-size: 13px; color: #4B5650; margin-top: 18px">{{ footnote }}</p>
+  </section>
+
+  <section style="padding: 110px 28px 0">
+    <div style="max-width: 1264px; margin: 0 auto">
+      <h2 class="disp" style="font-size: clamp(36px, 4.4vw, 56px); line-height: 1; font-weight: 800; margin: 0">Compare <span class="serif">side by side.</span></h2>
+      <div style="overflow-x: auto; margin-top: 32px; border: 1px solid #E6E4DC; border-radius: 24px">
+        <table style="width: 100%; min-width: 720px; border-collapse: collapse; font-size: 15px">
+          <thead><tr style="background: #F7F6F0"><th scope="col">Included</th><th scope="col">Launch</th><th scope="col" style="background: #FBFAD2">Growth</th><th scope="col">System</th></tr></thead>
+          <tbody>
+            <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+              <tr><th scope="row" style="font-weight: 500; color: #2E3832">{{ r.label }}</th><td>{{ r.a }}</td><td style="background: #FDFCE8">{{ r.b }}</td><td>{{ r.c }}</td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 110px 28px 120px">
+    <div style="max-width: 1264px; margin: 0 auto; background: #ECE8FF; border-radius: 36px; padding: 52px; display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap">
+      <div style="max-width: 640px">
+        <h2 class="disp" style="font-size: 48px; line-height: 1; font-weight: 800; margin: 0">Need something <span class="serif">different?</span></h2>
+        <p style="font-size: 17px; color: #2E3832; margin: 12px 0 0">Scale Commerce (₺26,900) for online stores or booking, Business Platform (₺35,900) with CRM, and custom ERP from ₺49,900 — or tell us what you need.</p>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap">
+        <a class="btn" href="Shop.dc.html" style="border: 2px solid #0B0F0C; color: #0B0F0C; font-weight: 600; padding: 14px 22px; border-radius: 999px; min-height: 52px; box-sizing: border-box; display: inline-flex; align-items: center">Open Service Shop</a>
+        <a class="btn btn-dark" href="Contact.dc.html" style="background: #0B0F0C; color: #FFFFFF; font-weight: 600; padding: 16px 24px; border-radius: 999px; min-height: 52px; box-sizing: border-box; display: inline-flex; align-items: center">Get a custom quote →</a>
+      </div>
+    </div>
+  </section>
+
+  <dc-import name="Footer" hint-size="100%,640px"></dc-import>
+  <dc-import name="Auri" hint-size="0px,0px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3300}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { mode: 0 }; }
+  renderVals() {
+    const s = this.state;
+    const on = 'background: #0B0F0C; color: #FFFFFF; border: 0; border-radius: 999px; padding: 12px 24px; font-size: 15px; font-weight: 600; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
+    const off = 'background: transparent; color: #0B0F0C; border: 0; border-radius: 999px; padding: 12px 24px; font-size: 15px; font-weight: 500; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
+    const base = 'border-radius: 28px; padding: 34px; display: flex; flex-direction: column; box-sizing: border-box; ';
+    const cards = [base + 'background: #FFFFFF; border: 1px solid #E6E4DC; color: #0B0F0C', base + 'background: #E1E100; color: #0B0F0C; box-shadow: 0 40px 80px -40px rgba(11,15,12,.45)', base + 'background: #0E2B1E; color: #F3EEDC'];
+    const bBase = 'margin-top: 22px; text-align: center; font-weight: 700; padding: 16px; border-radius: 14px; display: block; ';
+    const btns = [bBase + 'background: #0B0F0C; color: #FFFFFF', bBase + 'background: #0B0F0C; color: #E1E100', bBase + 'background: #E1E100; color: #0B0F0C'];
+    const build = [
+      { name: 'Launch', price: '₺6,750', note: 'one-time', desc: 'A sharp small site to present your business and get contacted.', feats: ['Up to 3 pages', 'Responsive design', 'Contact form', 'WhatsApp integration', 'Basic SEO'] },
+      { name: 'Growth', price: '₺13,400', note: 'one-time', desc: 'A premium multi-page site built to bring in leads.', feats: ['4–10 pages', 'Premium custom design', 'Lead forms', 'Animations', 'SEO-ready structure'], best: true },
+      { name: 'System', price: '₺22,400', note: 'one-time', desc: 'A website with a dashboard and logins for your team.', feats: ['Business website', 'Basic dashboard', 'Login and user roles', 'Data management', 'First-year standard infrastructure'] }
+    ];
+    const care = [
+      { name: 'Essential Care', price: '₺1,950', note: 'per month', desc: 'Keep your site checked, monitored and up to date.', feats: ['2 content updates per month', 'Uptime monitoring', 'Basic security checks', 'Routine website checks'] },
+      { name: 'Business Care', price: '₺4,900', note: 'per month', desc: 'Regular updates and maintenance with a monthly report.', feats: ['Everything in Essential Care', '8 content updates per month', 'Technical maintenance', 'Monthly report', 'Support for one business mailbox'], best: true },
+      { name: 'Growth Care', price: '₺7,900', note: 'per month', desc: 'Ongoing improvements to grow your results.', feats: ['Everything in Business Care', '16 updates per month', 'Performance checks', 'SEO reporting', 'Scoped conversion improvements'] }
+    ];
+    const list = s.mode === 0 ? build : care;
+    return {
+      modes: ['Build once', 'Monthly growth'].map((l, i) => ({ label: l, on: i === s.mode, style: i === s.mode ? on : off, pick: () => this.setState({ mode: i }) })),
+      tiers: list.map((t, i) => ({ ...t, best: !!t.best, card: cards[i], btn: btns[i] })),
+      footnote: s.mode === 0 ? 'Prices in TRY, one-time. Hosting, domain & baseline security ₺2,000/year when not included. Taxes confirmed in your proposal.' : 'Prices in TRY per month. Managed Growth (₺12,900/mo) adds priority support and ads management.',
+      rows: [
+        { label: 'Pages', a: 'Up to 3', b: '4–10', c: 'Website + dashboard' },
+        { label: 'Design', a: 'Responsive', b: 'Premium custom', c: 'Premium custom' },
+        { label: 'Contact / lead forms', a: 'Contact form', b: 'Lead forms', c: '✓' },
+        { label: 'WhatsApp integration', a: '✓', b: '✓', c: '✓' },
+        { label: 'SEO', a: 'Basic', b: 'SEO-ready structure', c: 'SEO-ready structure' },
+        { label: 'Animations', a: '—', b: '✓', c: '✓' },
+        { label: 'Logins & user roles', a: '—', b: '—', c: '✓' },
+        { label: 'First-year infrastructure', a: '₺2,000/yr extra', b: '₺2,000/yr extra', c: 'Included' }
+      ]    };
+  }
+}
+</script>
+</body>
+</html>

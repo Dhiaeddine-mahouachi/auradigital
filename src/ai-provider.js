@@ -32,12 +32,30 @@ function verifiedPrices(reply,selection,packages=[],engine) {
  });
 }
 
+const FP8='@cf/meta/llama-3.1-8b-instruct-fp8';
+function rateFor(provider,model,env){
+  const known=provider==='cloudflare'&&model===FP8;
+  // Self-hosted Ollama has no per-token bill; a small nominal rate keeps the
+  // daily token ceiling meaningful unless the operator configures real rates.
+  const local=provider==='ollama';
+  return {
+    input:Number(env.AI_INPUT_USD_PER_MILLION||(known?0.152:local?0.01:0)),
+    output:Number(env.AI_OUTPUT_USD_PER_MILLION||(known?0.287:local?0.01:0)),
+  };
+}
+
 export function tariff(env) {
-  const known=env.AI_PROVIDER==='cloudflare'&&env.AI_MODEL==='@cf/meta/llama-3.1-8b-instruct-fp8';
-  const input=Number(env.AI_INPUT_USD_PER_MILLION||(known?0.152:0));
-  const output=Number(env.AI_OUTPUT_USD_PER_MILLION||(known?0.287:0));
+  const primary=rateFor(env.AI_PROVIDER,env.AI_MODEL,env);
+  // When a fallback is configured, budget against whichever is more expensive.
+  const fb=env.AI_FALLBACK_PROVIDER?rateFor(env.AI_FALLBACK_PROVIDER,env.AI_FALLBACK_MODEL||FP8,{}):null;
+  const input=Math.max(primary.input,fb?.input||0), output=Math.max(primary.output,fb?.output||0);
   if(!Number.isFinite(input)||!Number.isFinite(output)||input<=0||output<=0) throw new ApiError(503,'Configure provider token tariffs before enabling this model.');
   return {input,output,max:Math.max(input,output)};
+}
+
+export function aiConfigured(env) {
+  const ok=p=>['cloudflare','compatible','ollama'].includes(p);
+  return (!!env.AI_MODEL&&ok(env.AI_PROVIDER))||(ok(env.AI_FALLBACK_PROVIDER)&&(env.AI_FALLBACK_PROVIDER!=='cloudflare'||!!env.AI?.run));
 }
 
 async function attempt(env,messages,timeout,engine) {
@@ -108,12 +126,36 @@ async function attempt(env,messages,timeout,engine) {
 
 // Two attempts share one deadline. Never retry authentication, quota, output
 // binding timeouts: an uncancellable binding call may still bill.
+// Primary provider first (e.g. self-hosted Ollama); if it fails for any reason
+// and a fallback is configured (e.g. Cloudflare Workers AI), answer from the
+// fallback so the assistant keeps working when the Ollama host is offline.
 export async function generate(env,messages,requestId=crypto.randomUUID(),engine) {
+  const fallback=env.AI_FALLBACK_PROVIDER;
+  if(!fallback||fallback===env.AI_PROVIDER&&(env.AI_FALLBACK_MODEL||env.AI_MODEL)===env.AI_MODEL) return generateWith(env,messages,requestId,engine,25000);
+  const primaryBudget=Math.max(3000,Math.min(20000,Number(env.AI_PRIMARY_TIMEOUT_MS)||12000));
+  try { return await generateWith(env,messages,requestId,engine,primaryBudget); }
+  catch(primaryError) {
+    const fallbackEnv={...env,AI_PROVIDER:fallback,AI_MODEL:env.AI_FALLBACK_MODEL||FP8,AI_BASE_URL:env.AI_FALLBACK_BASE_URL||env.AI_BASE_URL,AI_API_KEY:env.AI_FALLBACK_API_KEY||env.AI_API_KEY};
+    console.warn(JSON.stringify({timestamp:new Date().toISOString(),requestId,endpoint:'/api/ai/message',event:'provider_fallback',from:env.AI_PROVIDER||'none',to:fallback,reason:failureReason(primaryError)}));
+    try {
+      const output=await generateWith(fallbackEnv,messages,requestId,engine,Math.max(4000,25000-primaryBudget));
+      const billed=primaryError.billedUsage||{input:0,output:0};
+      return {...output,usage:{input:output.usage.input+billed.input,output:output.usage.output+billed.output},unmeteredAttempts:(output.unmeteredAttempts||0)+(primaryError.unmeteredAttempts||0),fallback:true};
+    } catch(fallbackError) {
+      const b1=primaryError.billedUsage||{input:0,output:0},b2=fallbackError.billedUsage||{input:0,output:0};
+      fallbackError.billedUsage={input:b1.input+b2.input,output:b1.output+b2.output};
+      fallbackError.unmeteredAttempts=(primaryError.unmeteredAttempts||0)+(fallbackError.unmeteredAttempts||0);
+      throw fallbackError;
+    }
+  }
+}
+
+async function generateWith(env,messages,requestId,engine,deadline) {
   const started=Date.now();let currentMessages=messages;
   const billed={input:0,output:0};let unmeteredAttempts=0;
   for(let index=0;index<2;index++) {
     try {
-      const output=await attempt(env,currentMessages,Math.max(1,25000-(Date.now()-started)),engine);
+      const output=await attempt(env,currentMessages,Math.max(1,deadline-(Date.now()-started)),engine);
       billed.input+=output.usage.input;billed.output+=output.usage.output;
       if(!output.usage.input)unmeteredAttempts++;
       console.log(JSON.stringify({timestamp:new Date().toISOString(),requestId,endpoint:'/api/ai/message',provider:env.AI_PROVIDER,model:env.AI_MODEL,status:200,durationMs:Date.now()-started,attempt:index+1,usage:output.usage}));
@@ -123,7 +165,7 @@ export async function generate(env,messages,requestId=crypto.randomUUID(),engine
       billed.input+=error.usage?.input||0;billed.output+=error.usage?.output||0;
       if(!error.usageKnown&&!['provider_authentication','provider_rate_or_quota','binding_missing','provider_configuration'].includes(reason))unmeteredAttempts++;
       console.warn(JSON.stringify({timestamp:new Date().toISOString(),requestId,endpoint:'/api/ai/message',provider:env.AI_PROVIDER||'disabled',model:env.AI_MODEL||null,status:error.providerStatus||error.status||503,errorCategory:reason,durationMs:Date.now()-started,attempt:index+1}));
-      if(index===1||!['provider_transient','invalid_response','unsafe_response'].includes(reason)||Date.now()-started>22000){error.billedUsage={...billed};error.unmeteredAttempts=unmeteredAttempts;throw error;}
+      if(index===1||!['provider_transient','invalid_response','unsafe_response'].includes(reason)||Date.now()-started>deadline-3000){error.billedUsage={...billed};error.unmeteredAttempts=unmeteredAttempts;throw error;}
       if(reason!=='provider_transient')currentMessages=messages.map((message,index)=>index===0?{...message,content:message.content+'\nYour previous output failed validation. Return a complete JSON object with a nonempty reply, strictly in the requested language. Never include numerical monetary amounts or claim a saved/sent action in reply. For a price, return a valid approved package selection and let the server calculate the quote.'}:message);
       await new Promise(resolve=>setTimeout(resolve,250+Math.floor(Math.random()*100)));
     }

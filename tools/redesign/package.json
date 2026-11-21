@@ -1,0 +1,8 @@
+{
+  "name": "auradigital-redesign-build",
+  "private": true,
+  "type": "module",
+  "description": "Rebuilds the 2026 redesign pages (index, solutions, service-shop, packages, aura-menu, portfolio, help, about, contact) and redesign/app.js from the design files in ./design.",
+  "scripts": { "build": "node build.mjs ./design ../.." },
+  "dependencies": { "esbuild": "0.24.2", "htmlparser2": "9.1.0", "preact": "10.29.8", "preact-render-to-string": "6.8.3" }
+}

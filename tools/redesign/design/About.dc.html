@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AuraDigital — About &amp; Contact</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
+.disp{font-family:'Inter Tight',Inter,sans-serif;letter-spacing:-0.035em}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.nl{white-space:nowrap;color:#0B0F0C;font-size:15px;font-weight:500;padding:10px 12px;border-radius:10px;background:transparent;border:0;cursor:pointer;font-family:Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
+.nl:hover{background:#F1F0EA;color:#0B0F0C}
+.nlon{background:#F1F0EA}
+.lift{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.lift:hover{transform:translateY(-6px);box-shadow:0 28px 60px -28px rgba(11,15,12,.35)}
+.btn{transition:transform .2s,background .2s,color .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-dark:hover{background:#E1E100 !important;color:#0B0F0C !important}
+.mi{transition:background .2s}
+.mi:hover{background:#F4F3EC}
+.ticket{position:relative}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:28px;height:28px;border-radius:50%;background:#FFFFFF;transform:translateY(-50%)}
+.ticket::before{left:-14px}.ticket::after{right:-14px}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes typing{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.auri-float{animation:floaty 4.5s ease-in-out infinite}
+.auri-eye{transform-origin:center;transform-box:fill-box;animation:blink 5s infinite}
+.marquee-track{animation:marquee 36s linear infinite}
+.rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+.pop{animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
+.dot{animation:typing 1.2s infinite}
+details summary{list-style:none;cursor:pointer}
+details summary::-webkit-details-marker{display:none}
+details[open] .plus{transform:rotate(45deg)}
+.plus{transition:transform .25s}
+input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset:1px}
+@media (max-width:1180px){.desk{display:none !important}}
+@media (min-width:1181px){.mob{display:none !important}}
+@media (max-width:1380px){.wide{display:none !important}}
+@media (max-width:640px){.hide-sm{display:none !important}}
+</style>
+
+</helmet>
+<div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.55; overflow-x: clip">
+  <dc-import name="Header" active="about" hint-size="100%,124px"></dc-import>
+
+  <section style="padding: 80px 28px 0">
+    <div style="max-width: 1264px; margin: 0 auto">
+      <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #4B5650">About AuraDigital</span>
+      <h1 class="disp" style="font-size: clamp(52px, 7vw, 104px); line-height: .93; font-weight: 800; margin: 14px 0 0; max-width: 1100px">Advanced technology — <span class="serif">accessible, affordable, effective.</span></h1>
+      <div style="display: flex; gap: 40px; flex-wrap: wrap; margin-top: 36px; align-items: flex-end">
+        <p style="flex: 1 1 420px; font-size: 20px; color: #4B5650; margin: 0">We're an Istanbul-based digital agency helping businesses in Türkiye, the Gulf and beyond build, grow and automate — combining our own AI with a hands-on team.</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap"><span style="background: #F3EEDC; border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 14px">Istanbul, Türkiye</span><span style="background: #E3EEFB; border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 14px">EN · TR · AR</span><span style="background: #E3F1E6; border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 14px">AI + people</span></div>
+      </div>
+      <img src="/_blob/b95dcbf81f0bb28e06cef3098f8ecccc" alt="The AuraDigital team at work" style="width: 100%; margin-top: 44px; border-radius: 36px; aspect-ratio: 16 / 7; object-fit: cover; display: block">
+    </div>
+  </section>
+
+  <section style="padding: 120px 28px 0">
+    <div style="max-width: 1264px; margin: 0 auto">
+      <h2 class="disp" style="font-size: clamp(40px, 5vw, 68px); line-height: 1; font-weight: 800; margin: 0">How we <span class="serif">work.</span></h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; margin-top: 40px">
+        <div style="background: #F3EEDC; border-radius: 26px; padding: 30px; min-height: 230px; box-sizing: border-box"><span class="disp" style="font-size: 44px; font-weight: 800">01</span><div class="disp" style="font-size: 24px; font-weight: 700; margin-top: 8px">Bold, beautiful work</div><p style="color: #2E3832; margin: 8px 0 0">We ignite brands in bold and beautifully disruptive ways — never template-looking.</p></div>
+        <div style="background: #E3EEFB; border-radius: 26px; padding: 30px; min-height: 230px; box-sizing: border-box"><span class="disp" style="font-size: 44px; font-weight: 800">02</span><div class="disp" style="font-size: 24px; font-weight: 700; margin-top: 8px">Fast and transparent</div><p style="color: #2E3832; margin: 8px 0 0">Clear prices, websites from five days, every step visible in AuraHub.</p></div>
+        <div style="background: #ECE8FF; border-radius: 26px; padding: 30px; min-height: 230px; box-sizing: border-box"><span class="disp" style="font-size: 44px; font-weight: 800">03</span><div class="disp" style="font-size: 24px; font-weight: 700; margin-top: 8px">AI with a human touch</div><p style="color: #2E3832; margin: 8px 0 0">Auri handles the routine; our team handles the craft and the decisions.</p></div>
+        <div style="background: #E3F1E6; border-radius: 26px; padding: 30px; min-height: 230px; box-sizing: border-box"><span class="disp" style="font-size: 44px; font-weight: 800">04</span><div class="disp" style="font-size: 24px; font-weight: 700; margin-top: 8px">Secure by default</div><p style="color: #2E3832; margin: 8px 0 0">Built by an engineering and cybersecurity background — hosting, SSL and monitoring included.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 120px 28px 120px">
+    <div style="max-width: 1264px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px">
+      <div style="background: #0E2B1E; color: #F3EEDC; border-radius: 34px; padding: 44px; display: flex; flex-direction: column; gap: 14px">
+        <h2 class="disp" style="font-size: clamp(40px, 4.6vw, 64px); line-height: .95; font-weight: 800; margin: 0">Let's <span class="serif" style="color: #E1E100">talk.</span></h2>
+        <p style="color: #B9C7BC; font-size: 18px; margin: 0">WhatsApp +90 538 550 76 74 · info@auradigitalworks.com</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px"><a class="btn" href="Contact.dc.html" style="background: #E1E100; color: #0B0F0C; font-weight: 700; padding: 15px 24px; border-radius: 999px">Contact us →</a><a class="btn" href="https://wa.me/905385507674" style="border: 1px solid rgba(243,238,220,.4); color: #F3EEDC; font-weight: 600; padding: 15px 24px; border-radius: 999px">WhatsApp</a></div>
+      </div>
+      <div style="background: #F3EEDC; border-radius: 34px; padding: 44px; display: flex; flex-direction: column; gap: 12px">
+        <strong class="disp" style="font-size: 30px">Founded by Dhia Eddine Mahouachi</strong>
+        <p style="color: #2E3832; font-size: 17px; margin: 0">Computer engineer with a cybersecurity focus, building digital solutions for businesses from Istanbul.</p>
+        <a class="btn" href="https://dhiamahouachi.website" style="align-self: flex-start; margin-top: 6px; border: 2px solid #0B0F0C; font-weight: 600; padding: 13px 22px; border-radius: 999px">Founder's portfolio ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <dc-import name="Footer" hint-size="100%,640px"></dc-import>
+  <dc-import name="Auri" hint-size="0px,0px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2700}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { f: { name: '', biz: '', phone: '', email: '', msg: '', need: 'Website' }, sent: false, err: '' }; }
+  renderVals() {
+    const s = this.state;
+    const upd = (k) => (e) => this.setState({ f: { ...this.state.f, [k]: e.target.value }, err: '' });
+    const on = 'background: #0B0F0C; color: #FFFFFF; border: 1px solid #0B0F0C; border-radius: 999px; padding: 9px 14px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: Inter, sans-serif; min-height: 42px';
+    const off = 'background: #FFFFFF; color: #0B0F0C; border: 1px solid #D9D6CB; border-radius: 999px; padding: 9px 14px; font-size: 14px; cursor: pointer; font-family: Inter, sans-serif; min-height: 42px';
+    return {
+      f: s.f, sent: s.sent, notSent: !s.sent, err: s.err, hasErr: !!s.err,
+      firstName: (s.f.name.split(' ')[0] || 'there'),
+      set: { name: upd('name'), biz: upd('biz'), phone: upd('phone'), email: upd('email'), msg: upd('msg') },
+      needs: ['Website', 'AuraMenu', 'Google & ads', 'WhatsApp AI', 'Branding', 'Something else'].map((n) => ({ label: n, on: n === s.f.need, style: n === s.f.need ? on : off, pick: () => this.setState({ f: { ...this.state.f, need: n } }) })),
+      submit: (e) => {
+        e.preventDefault();
+        const f = this.state.f;
+        if (!f.name.trim()) return this.setState({ err: 'Please add your name.' });
+        if (f.phone.replace(/\D/g, '').length < 7) return this.setState({ err: 'Please add a valid phone or WhatsApp number.' });
+        if (f.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) return this.setState({ err: 'That email doesn’t look right.' });
+        this.setState({ sent: true });
+      },
+      again: () => this.setState({ sent: false, f: { name: '', biz: '', phone: '', email: '', msg: '', need: 'Website' } })
+    };
+  }
+}
+</script>
+</body>
+</html>

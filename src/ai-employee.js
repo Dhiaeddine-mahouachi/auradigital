@@ -6,7 +6,7 @@ import { clean, redact, hash, TEXT, language, pageContext, intent, category, val
 import { knowledge } from './ai-knowledge.js';
 import { pageKnowledge } from './ai-page-knowledge.js';
 import { schema } from './ai-schema.js';
-import { generate, SYSTEM, tariff, failureReason } from './ai-provider.js';
+import { generate, SYSTEM, tariff, failureReason, aiConfigured } from './ai-provider.js';
 
 const COOKIE='__Host-aura_ai';
 const initialized=new WeakMap();
@@ -111,7 +111,7 @@ async function message(request,env,s) {
       reply=engine.catalogue.region+' · '+engine.catalogue.currency+'\n'+approved+'\n'+({en:'Scope, taxes and external charges require confirmation.',fr:'Périmètre, taxes et frais externes à confirmer.',tr:'Kapsam, vergiler ve ek ücretler onaylanmalıdır.',ar:'يجب تأكيد نطاق العمل والضرائب والرسوم الخارجية.'}[lang]);
       mode='deterministic';
     }
-    const configured=!!env.AI_MODEL&&['cloudflare','compatible'].includes(env.AI_PROVIDER);
+    const configured=aiConfigured(env);
     if(!configured&&detected!=='restricted'&&b.selection===undefined) await event(db,s.id,'provider_failure','provider_configuration',detected).run();
     if(b.selection!==undefined&&detected!=='restricted') {reply=TEXT[lang].quote.replace('TRY',engine.catalogue.currency);mode='deterministic';}
     if(configured&&!regionalPrice&&detected!=='restricted'&&b.selection===undefined) {

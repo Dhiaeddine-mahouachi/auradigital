@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AuraDigital — Service Shop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
+.disp{font-family:'Inter Tight',Inter,sans-serif;letter-spacing:-0.035em}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.nl{white-space:nowrap;color:#0B0F0C;font-size:15px;font-weight:500;padding:10px 12px;border-radius:10px;background:transparent;border:0;cursor:pointer;font-family:Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
+.nl:hover{background:#F1F0EA;color:#0B0F0C}
+.nlon{background:#F1F0EA}
+.lift{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.lift:hover{transform:translateY(-6px);box-shadow:0 28px 60px -28px rgba(11,15,12,.35)}
+.btn{transition:transform .2s,background .2s,color .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-dark:hover{background:#E1E100 !important;color:#0B0F0C !important}
+.mi{transition:background .2s}
+.mi:hover{background:#F4F3EC}
+.ticket{position:relative}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:28px;height:28px;border-radius:50%;background:#FFFFFF;transform:translateY(-50%)}
+.ticket::before{left:-14px}.ticket::after{right:-14px}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes typing{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.auri-float{animation:floaty 4.5s ease-in-out infinite}
+.auri-eye{transform-origin:center;transform-box:fill-box;animation:blink 5s infinite}
+.marquee-track{animation:marquee 36s linear infinite}
+.rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+.pop{animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
+.dot{animation:typing 1.2s infinite}
+details summary{list-style:none;cursor:pointer}
+details summary::-webkit-details-marker{display:none}
+details[open] .plus{transform:rotate(45deg)}
+.plus{transition:transform .25s}
+input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset:1px}
+@media (max-width:1180px){.desk{display:none !important}}
+@media (min-width:1181px){.mob{display:none !important}}
+@media (max-width:1380px){.wide{display:none !important}}
+@media (max-width:640px){.hide-sm{display:none !important}}
+</style>
+
+</helmet>
+<div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.55; overflow-x: clip">
+  <dc-import name="Header" active="shop" hint-size="100%,124px"></dc-import>
+
+  <section style="padding: 72px 28px 0; background: linear-gradient(180deg, #F7F6F0, #FFFFFF)">
+    <div style="max-width: 1264px; margin: 0 auto">
+      <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #4B5650">Service Shop</span>
+      <h1 class="disp" style="font-size: clamp(48px, 6vw, 88px); line-height: .95; font-weight: 800; margin: 14px 0 0">Pick what you need. <span class="serif">We do the rest.</span></h1>
+      <p style="font-size: 19px; color: #4B5650; max-width: 600px; margin: 18px 0 0">Add services to one request, send it, and follow everything in AuraHub.</p>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 34px">
+        <div style="flex: 1 1 320px; display: flex; align-items: center; gap: 10px; background: #FFFFFF; border: 1px solid #D9D6CB; border-radius: 999px; padding: 4px 8px 4px 18px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0F0C" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+          <label for="shop-q" style="position: absolute; left: -9999px">Search services</label>
+          <input id="shop-q" value="{{ q }}" onChange="{{ onQ }}" placeholder="Search — website, WhatsApp, logo…" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 15px; padding: 12px 0; font-family: Inter, sans-serif; color: #0B0F0C; outline: none">
+        </div>
+        <div role="group" aria-label="Category" style="display: flex; gap: 8px; flex-wrap: wrap">
+          <sc-for list="{{ cats }}" as="c" hint-placeholder-count="6">
+            <button onClick="{{ c.pick }}" aria-pressed="{{ c.on }}" style="{{ c.style }}">{{ c.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 36px 28px 0">
+    <div style="max-width: 1264px; margin: 0 auto; display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start">
+      <div style="flex: 999 1 700px; min-width: 0">
+        <div style="font-size: 14px; color: #4B5650; margin-bottom: 14px">{{ resultText }}</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px">
+          <sc-for list="{{ items }}" as="s" hint-placeholder-count="9">
+            <div class="lift" style="{{ s.card }}">
+              <div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #4B5650">{{ s.cat }}</span><sc-if value="{{ s.popular }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 700; background: #E1E100; padding: 3px 10px; border-radius: 999px">Popular</span></sc-if></div>
+              <span class="disp" style="font-size: 23px; font-weight: 700; line-height: 1.1">{{ s.name }}</span>
+              <span style="font-size: 15px; color: #4B5650">{{ s.desc }}</span>
+              <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 14px; border-top: 1px dashed #D9D6CB">
+                <span><span style="font-size: 12px; color: #4B5650; display: block">Price</span><strong class="disp" style="font-size: 21px">{{ s.price }}</strong></span>
+                <button onClick="{{ s.toggle }}" aria-pressed="{{ s.added }}" style="{{ s.btnStyle }}">{{ s.btnLabel }}</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <aside aria-label="Your request" style="flex: 1 1 300px; position: sticky; top: 20px; background: #0E2B1E; color: #F3EEDC; border-radius: 26px; padding: 26px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><strong class="disp" style="font-size: 24px">Your request</strong><span style="background: #E1E100; color: #0B0F0C; font-weight: 700; font-size: 13px; border-radius: 999px; padding: 3px 10px">{{ count }}</span></div>
+        <sc-if value="{{ empty }}" hint-placeholder-val="{{ true }}"><p style="color: #B9C7BC; font-size: 14px; margin: 14px 0 0">Nothing yet — tap “+ Add” on any service.</p></sc-if>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 14px">
+          <sc-for list="{{ cart }}" as="c" hint-placeholder-count="0">
+            <div style="display: flex; justify-content: space-between; gap: 10px; align-items: center; background: rgba(243,238,220,.07); border-radius: 12px; padding: 10px 12px; font-size: 14px"><span>{{ c.name }}</span><span style="display: flex; gap: 10px; align-items: center"><span style="color: #E1E100; font-weight: 600">{{ c.price }}</span><button onClick="{{ c.remove }}" aria-label="Remove {{ c.name }}" style="width: 28px; height: 28px; border: 0; border-radius: 8px; background: rgba(243,238,220,.12); color: #F3EEDC; cursor: pointer">×</button></span></div>
+          </sc-for>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 18px; padding-top: 14px; border-top: 1px dashed rgba(243,238,220,.2); font-size: 15px"><span style="color: #B9C7BC">Estimate</span><strong class="disp" style="font-size: 22px">{{ total }}</strong></div>
+        <p style="font-size: 12px; color: #A9B8AE; margin: 6px 0 0">Catalogue prices in TRY (v2026-10-13). Taxes and scope are confirmed in your proposal.</p>
+        <a class="btn" href="Contact.dc.html" style="margin-top: 16px; display: block; text-align: center; background: #E1E100; color: #0B0F0C; font-weight: 700; padding: 15px; border-radius: 14px">Send request →</a>
+        <a href="Packages.dc.html" style="display: block; text-align: center; color: #F3EEDC; font-weight: 600; padding: 12px; font-size: 14px">Or compare packages</a>
+      </aside>
+    </div>
+  </section>
+
+  <section style="padding: 100px 28px 120px">
+    <div style="max-width: 1264px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px">
+      <div style="background: #F3EEDC; border-radius: 24px; padding: 28px"><strong class="disp" style="font-size: 22px">Clear quotes</strong><p style="color: #2E3832; margin: 8px 0 0">See starting prices up front. Your final quote is confirmed before any work begins.</p></div>
+      <div style="background: #E3EEFB; border-radius: 24px; padding: 28px"><strong class="disp" style="font-size: 22px">Tracked in AuraHub</strong><p style="color: #2E3832; margin: 8px 0 0">Follow every request from pending to approved and delivered.</p></div>
+      <div style="background: #E3F1E6; border-radius: 24px; padding: 28px"><strong class="disp" style="font-size: 22px">Real people</strong><p style="color: #2E3832; margin: 8px 0 0">Our Istanbul team reviews every request and keeps you updated.</p></div>
+    </div>
+  </section>
+
+  <dc-import name="Footer" hint-size="100%,640px"></dc-import>
+  <dc-import name="Auri" hint-size="0px,0px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3600}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { cat: 'All', cart: ['growth'], q: '' }; }
+  renderVals() {
+    const s = this.state;
+    const all = [
+      { id: 'launch', cat: 'Websites', name: 'Launch website', desc: 'Up to 3 pages, responsive, contact form, WhatsApp, basic SEO.', v: 6750, bill: 'once' },
+      { id: 'growth', cat: 'Websites', name: 'Growth website', desc: '4–10 pages, premium custom design, lead forms, animations.', v: 13400, bill: 'once', popular: true },
+      { id: 'system', cat: 'Websites', name: 'System website', desc: 'Website + dashboard, logins and user roles, data management.', v: 22400, bill: 'once' },
+      { id: 'scale-commerce', cat: 'Websites', name: 'Scale Commerce', desc: 'E-commerce OR booking site with payments and admin.', v: 26900, bill: 'once' },
+      { id: 'business-platform', cat: 'Websites', name: 'Business Platform', desc: 'Website, customer dashboard, CRM and workflow automation.', v: 35900, bill: 'once' },
+      { id: 'ecommerce', cat: 'Add-ons', name: 'E-commerce module', desc: 'Add an online shop to your website.', v: 16900, bill: 'once' },
+      { id: 'booking', cat: 'Add-ons', name: 'Booking module', desc: 'Online appointments and reservations.', v: 16900, bill: 'once' },
+      { id: 'crm', cat: 'Add-ons', name: 'Lightweight CRM', desc: 'Track leads and customers in one place.', v: 14500, bill: 'once' },
+      { id: 'essential-care', cat: 'Care', name: 'Essential Care', desc: '2 updates/month, uptime monitoring, security checks.', v: 1950, bill: 'month' },
+      { id: 'business-care', cat: 'Care', name: 'Business Care', desc: '8 updates/month, maintenance, monthly report.', v: 4900, bill: 'month', popular: true },
+      { id: 'growth-care', cat: 'Care', name: 'Growth Care', desc: '16 updates/month, performance checks, SEO reporting.', v: 7900, bill: 'month' },
+      { id: 'managed-growth', cat: 'Care', name: 'Managed Growth', desc: '24 updates/month, priority support, basic ads management.', v: 12900, bill: 'month' },
+      { id: 'ads-setup', cat: 'Grow', name: 'Advertising setup', desc: 'Google or Meta campaign setup.', v: 2500, bill: 'once' },
+      { id: 'basic-ads', cat: 'Grow', name: 'Basic Ads Management', desc: 'Ongoing campaign management.', v: 3500, bill: 'month' },
+      { id: 'advanced-ads', cat: 'Grow', name: 'Advanced Ads Management', desc: 'Advanced multi-campaign management.', v: 6500, bill: 'month' },
+      { id: 'auramenu-self', cat: 'Products', name: 'AuraMenu self-service', desc: 'QR digital menu you manage yourself.', v: 1599, bill: 'once', popular: true },
+      { id: 'auramenu-managed', cat: 'Products', name: 'AuraMenu done-for-you', desc: 'We build and set up your QR menu.', v: 2500, bill: 'once' },
+      { id: 'nfc-card', cat: 'Products', name: 'NFC review card', desc: 'Tap-to-review card with your branding.', v: 700, bill: 'once' },
+      { id: 'standard-infra', cat: 'Infrastructure', name: 'Hosting, domain & security', desc: 'Standard hosting, eligible domain and baseline security.', v: 2000, bill: 'year' },
+      { id: 'managed-hosting', cat: 'Infrastructure', name: 'Enhanced managed hosting', desc: 'Managed, monitored hosting.', v: 350, bill: 'month' },
+      { id: 'business-email', cat: 'Infrastructure', name: 'Business email', desc: 'First mailbox setup on your domain.', v: 900, bill: 'once' },
+      { id: 'security-hardening', cat: 'Infrastructure', name: 'Security hardening', desc: 'Advanced security review and hardening.', v: 3500, bill: 'once' },
+      { id: 'erp-essential', cat: 'Systems', name: 'ERP Essential', desc: 'Custom ERP for your operations.', v: 49900, bill: 'once' },
+      { id: 'erp-business', cat: 'Systems', name: 'ERP Business', desc: 'ERP with more modules and users.', v: 79900, bill: 'once' }
+    ].map((x) => ({ ...x, price: '₺' + x.v.toLocaleString('en-US') + (x.bill === 'month' ? '/mo' : x.bill === 'year' ? '/yr' : '') }));
+    const cats = ['All', 'Websites', 'Add-ons', 'Care', 'Grow', 'Products', 'Infrastructure', 'Systems'];
+    const on = 'background: #0B0F0C; color: #FFFFFF; border: 1px solid #0B0F0C; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
+    const off = 'background: #FFFFFF; color: #0B0F0C; border: 1px solid #D9D6CB; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
+    const bOn = 'background: #0E2B1E; color: #E1E100; border: 0; border-radius: 999px; padding: 10px 16px; font-size: 14px; font-weight: 700; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
+    const bOff = 'background: #E1E100; color: #0B0F0C; border: 0; border-radius: 999px; padding: 10px 16px; font-size: 14px; font-weight: 700; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
+    const card = 'border: 1px solid #E6E4DC; background: #FFFFFF; border-radius: 22px; padding: 24px; display: flex; flex-direction: column; gap: 10px; min-height: 250px; box-sizing: border-box';
+    const cardOn = 'border: 2px solid #0E2B1E; background: #F7F6F0; border-radius: 22px; padding: 23px; display: flex; flex-direction: column; gap: 10px; min-height: 250px; box-sizing: border-box';
+    const has = (id) => s.cart.indexOf(id) !== -1;
+    const toggle = (id) => this.setState({ cart: has(id) ? s.cart.filter((x) => x !== id) : s.cart.concat([id]) });
+    const q = s.q.trim().toLowerCase();
+    const list = all.filter((x) => (s.cat === 'All' || x.cat === s.cat) && (!q || (x.name + ' ' + x.desc + ' ' + x.cat).toLowerCase().indexOf(q) !== -1));
+    const inCart = all.filter((x) => has(x.id));
+    const sum = (b) => inCart.filter((x) => x.bill === b).reduce((a, x) => a + x.v, 0);
+    const fmt = (n) => '₺' + n.toLocaleString('en-US');
+    const parts = [sum('once') ? fmt(sum('once')) + ' one-time' : '', sum('month') ? fmt(sum('month')) + '/month' : '', sum('year') ? fmt(sum('year')) + '/year' : ''].filter(Boolean);
+    return {
+      q: s.q, onQ: (e) => this.setState({ q: e.target.value }),
+      cats: cats.map((c) => ({ label: c, on: c === s.cat, style: c === s.cat ? on : off, pick: () => this.setState({ cat: c }) })),
+      resultText: list.length + ' service' + (list.length === 1 ? '' : 's') + (q ? ' matching “' + s.q + '”' : ''),
+      items: list.map((x) => ({ ...x, popular: !!x.popular, added: has(x.id), card: has(x.id) ? cardOn : card, btnStyle: has(x.id) ? bOn : bOff, btnLabel: has(x.id) ? '✓ Added' : '+ Add', toggle: () => toggle(x.id) })),
+      cart: inCart.map((x) => ({ name: x.name, price: x.price, remove: () => toggle(x.id) })),
+      count: inCart.length, empty: inCart.length === 0,
+      total: parts.length ? parts.join(' + ') : '₺0'
+    };
+  }
+}
+</script>
+</body>
+</html>

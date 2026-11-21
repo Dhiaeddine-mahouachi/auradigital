@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AuraDigital — AuraMenu</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
+.disp{font-family:'Inter Tight',Inter,sans-serif;letter-spacing:-0.035em}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.nl{white-space:nowrap;color:#0B0F0C;font-size:15px;font-weight:500;padding:10px 12px;border-radius:10px;background:transparent;border:0;cursor:pointer;font-family:Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
+.nl:hover{background:#F1F0EA;color:#0B0F0C}
+.nlon{background:#F1F0EA}
+.lift{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.lift:hover{transform:translateY(-6px);box-shadow:0 28px 60px -28px rgba(11,15,12,.35)}
+.btn{transition:transform .2s,background .2s,color .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-dark:hover{background:#E1E100 !important;color:#0B0F0C !important}
+.mi{transition:background .2s}
+.mi:hover{background:#F4F3EC}
+.ticket{position:relative}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:28px;height:28px;border-radius:50%;background:#FFFFFF;transform:translateY(-50%)}
+.ticket::before{left:-14px}.ticket::after{right:-14px}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes typing{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.auri-float{animation:floaty 4.5s ease-in-out infinite}
+.auri-eye{transform-origin:center;transform-box:fill-box;animation:blink 5s infinite}
+.marquee-track{animation:marquee 36s linear infinite}
+.rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+.pop{animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
+.dot{animation:typing 1.2s infinite}
+details summary{list-style:none;cursor:pointer}
+details summary::-webkit-details-marker{display:none}
+details[open] .plus{transform:rotate(45deg)}
+.plus{transition:transform .25s}
+input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset:1px}
+@media (max-width:1180px){.desk{display:none !important}}
+@media (min-width:1181px){.mob{display:none !important}}
+@media (max-width:1380px){.wide{display:none !important}}
+@media (max-width:640px){.hide-sm{display:none !important}}
+</style>
+
+</helmet>
+<div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.55; overflow-x: clip">
+  <dc-import name="Header" active="products" hint-size="100%,124px"></dc-import>
+
+  <section style="padding: 72px 28px 90px; background: #E3F1E6">
+    <div style="max-width: 1264px; margin: 0 auto; display: flex; gap: 48px; flex-wrap: wrap; align-items: center">
+      <div style="flex: 999 1 520px">
+        <span style="display: inline-block; background: #FFFFFF; border-radius: 999px; padding: 5px 14px; font-weight: 700; font-size: 13px">AuraMenu · for restaurants &amp; cafés</span>
+        <h1 class="disp" style="font-size: clamp(56px, 7vw, 104px); line-height: .92; font-weight: 800; margin: 22px 0 0">Your menu, <span class="serif">one scan</span> away.</h1>
+        <p style="font-size: 20px; color: #2E3832; max-width: 520px; margin: 22px 0 0">A beautiful QR digital menu your guests open instantly — in Turkish, English and Arabic. Change prices and dishes anytime, no reprinting.</p>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px">
+          <a class="btn btn-dark" href="Hub.dc.html" style="background: #0B0F0C; color: #FFFFFF; font-weight: 600; font-size: 17px; padding: 16px 26px; border-radius: 999px; min-height: 56px; box-sizing: border-box; display: inline-flex; align-items: center">Create my menu →</a>
+          <a class="btn" href="#demo" style="border: 2px solid #0B0F0C; font-weight: 600; font-size: 17px; padding: 14px 24px; border-radius: 999px; min-height: 56px; box-sizing: border-box; display: inline-flex; align-items: center">Try the demo</a>
+        </div>
+      </div>
+      <div id="demo" style="flex: 1 1 360px; display: flex; flex-direction: column; align-items: center; gap: 16px">
+        <div role="group" aria-label="Menu language" style="display: flex; gap: 4px; background: #FFFFFF; padding: 5px; border-radius: 999px">
+          <sc-for list="{{ langs }}" as="l" hint-placeholder-count="3">
+            <button onClick="{{ l.pick }}" aria-pressed="{{ l.on }}" style="{{ l.style }}">{{ l.label }}</button>
+          </sc-for>
+        </div>
+        <div class="auri-float" style="width: 320px; height: 640px; background: #0B0F0C; border-radius: 46px; padding: 11px; box-sizing: border-box; box-shadow: 0 60px 100px -40px rgba(11,15,12,.6)">
+          <div dir="{{ dir }}" style="{{ screenStyle }}">
+            <div style="padding: 26px 20px 16px; background: #0E2B1E; color: #F3EEDC">
+              <div style="font-size: 12px; color: #A8D8B4">{{ t.welcome }}</div>
+              <div style="font-size: 26px; font-weight: 700; margin-top: 2px">Café Aura</div>
+              <div style="display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap">
+                <sc-for list="{{ t.cats }}" as="c" hint-placeholder-count="3"><span style="{{ c.style }}">{{ c.label }}</span></sc-for>
+              </div>
+            </div>
+            <div style="padding: 14px 14px; display: flex; flex-direction: column; gap: 10px">
+              <sc-for list="{{ t.items }}" as="it" hint-placeholder-count="4">
+                <div style="display: flex; gap: 12px; align-items: center; background: #FFFFFF; border: 1px solid #ECEAE2; border-radius: 16px; padding: 10px">
+                  <span style="{{ it.thumb }}"></span>
+                  <span style="flex: 1; min-width: 0"><span style="display: block; font-weight: 600; font-size: 15px">{{ it.name }}</span><span style="display: block; font-size: 12px; color: #4B5650">{{ it.desc }}</span></span>
+                  <span style="font-weight: 700; font-size: 14px; white-space: nowrap">{{ it.price }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <span style="font-size: 12px; color: #2E3832">Demo menu · switch the language above</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 120px 28px 0">
+    <div style="max-width: 1264px; margin: 0 auto">
+      <h2 class="disp" style="font-size: clamp(40px, 5vw, 68px); line-height: 1; font-weight: 800; margin: 0">Why restaurants <span class="serif">switch.</span></h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 40px">
+        <sc-for list="{{ feats }}" as="f" hint-placeholder-count="4">
+          <div class="lift" style="{{ f.style }}">
+            <span class="disp" style="font-size: 44px; font-weight: 800; line-height: 1">{{ f.n }}</span>
+            <span class="disp" style="font-size: 23px; font-weight: 700">{{ f.title }}</span>
+            <span style="font-size: 15px; color: #2E3832">{{ f.desc }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 120px 28px 0">
+    <div style="max-width: 1264px; margin: 0 auto; display: flex; gap: 48px; flex-wrap: wrap; align-items: center">
+      <img src="/_blob/c75b79c2c529830827d989d110e51421" alt="A live AuraMenu on a phone" style="flex: 0 0 auto; width: 300px; max-width: 100%; border-radius: 32px; box-shadow: 0 40px 80px -40px rgba(11,15,12,.5)">
+      <div style="flex: 1 1 420px">
+        <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #4B5650">Live today</span>
+        <h2 class="disp" style="font-size: clamp(40px, 5vw, 64px); line-height: 1; font-weight: 800; margin: 12px 0 0">Real menus, <span class="serif">real tables.</span></h2>
+        <p style="font-size: 18px; color: #4B5650; margin: 16px 0 0">Every AuraMenu gets its own link on auramenu.space and a QR code ready to print. Pending menus show red, approved and published menus show green in your dashboard.</p>
+        <a class="btn" href="https://auramenu.space" style="margin-top: 22px; display: inline-flex; border: 2px solid #0B0F0C; font-weight: 600; padding: 14px 22px; border-radius: 999px">Open auramenu.space ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 120px 28px 0">
+    <div style="max-width: 1264px; margin: 0 auto">
+      <h2 class="disp" style="font-size: clamp(40px, 5vw, 68px); line-height: 1; font-weight: 800; margin: 0">Live in <span class="serif">3 steps.</span></h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; margin-top: 40px">
+        <div class="ticket" style="background: #F3EEDC; border-radius: 22px; padding: 30px 34px"><span class="disp" style="font-size: 48px; font-weight: 800">01</span><div class="disp" style="font-size: 24px; font-weight: 700; margin-top: 8px">Send your menu</div><div style="color: #2E3832; margin-top: 6px">A photo, PDF or list — we take it from there.</div></div>
+        <div class="ticket" style="background: #E3EEFB; border-radius: 22px; padding: 30px 34px"><span class="disp" style="font-size: 48px; font-weight: 800">02</span><div class="disp" style="font-size: 24px; font-weight: 700; margin-top: 8px">Approve your design</div><div style="color: #2E3832; margin-top: 6px">Your colors, logo and photos. Preview before it goes live.</div></div>
+        <div class="ticket" style="background: #E1E100; border-radius: 22px; padding: 30px 34px"><span class="disp" style="font-size: 48px; font-weight: 800">03</span><div class="disp" style="font-size: 24px; font-weight: 700; margin-top: 8px">Put QR on tables</div><div style="color: #2E3832; margin-top: 6px">Update dishes anytime from AuraHub.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 120px 28px 120px">
+    <div style="max-width: 1264px; margin: 0 auto; background: #0E2B1E; color: #F3EEDC; border-radius: 44px; padding: 76px 48px; text-align: center">
+      <h2 class="disp" style="font-size: clamp(48px, 6vw, 88px); line-height: .94; font-weight: 800; margin: 0">Ready to go <span class="serif" style="color: #E1E100">digital?</span></h2>
+      <p style="font-size: 19px; margin: 18px auto 0; max-width: 500px; color: #B9C7BC">Self-service ₺1,599 · done-for-you ₺2,500 (one-time). Pair it with ₺700 NFC review cards.</p>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 30px">
+        <a class="btn" href="Hub.dc.html" style="background: #E1E100; color: #0B0F0C; font-weight: 700; font-size: 17px; padding: 18px 28px; border-radius: 999px; display: inline-flex; align-items: center; min-height: 58px; box-sizing: border-box">Create my menu →</a>
+        <a class="btn" href="https://auramenu.space" style="border: 1px solid rgba(243,238,220,.4); color: #F3EEDC; font-weight: 600; font-size: 17px; padding: 18px 28px; border-radius: 999px; display: inline-flex; align-items: center; min-height: 58px; box-sizing: border-box">Visit auramenu.space ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <dc-import name="Footer" hint-size="100%,640px"></dc-import>
+  <dc-import name="Auri" hint-size="0px,0px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4300}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { lang: 0 }; }
+  renderVals() {
+    const s = this.state;
+    const on = 'background: #0B0F0C; color: #FFFFFF; border: 0; border-radius: 999px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
+    const off = 'background: transparent; color: #0B0F0C; border: 0; border-radius: 999px; padding: 10px 20px; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
+    const catOn = 'background: #E1E100; color: #0B0F0C; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px';
+    const catOff = 'border: 1px solid rgba(243,238,220,.3); color: #F3EEDC; font-size: 12px; padding: 5px 12px; border-radius: 999px';
+    const thumbs = ['#7A4B12', '#B07A45', '#C9A227', '#5E7B45'];
+    const L = [
+      { label: 'TR', dir: 'ltr', font: 'Inter, sans-serif', welcome: 'Hoş geldiniz', cats: ['Kahve', 'Tatlı', 'Kahvaltı'], items: [['Türk Kahvesi', 'Geleneksel, köpüklü', '₺90'], ['Latte', 'Espresso ve süt', '₺120'], ['Künefe', 'Sıcak, peynirli', '₺180'], ['Serpme Kahvaltı', '2 kişilik', '₺650']] },
+      { label: 'EN', dir: 'ltr', font: 'Inter, sans-serif', welcome: 'Welcome', cats: ['Coffee', 'Desserts', 'Breakfast'], items: [['Turkish Coffee', 'Traditional, foamy', '₺90'], ['Latte', 'Espresso & milk', '₺120'], ['Künefe', 'Warm, with cheese', '₺180'], ['Turkish Breakfast', 'For two', '₺650']] },
+      { label: 'العربية', dir: 'rtl', font: "'IBM Plex Sans Arabic', sans-serif", welcome: 'أهلاً وسهلاً', cats: ['قهوة', 'حلويات', 'فطور'], items: [['قهوة تركية', 'تقليدية مع رغوة', '₺90'], ['لاتيه', 'إسبريسو وحليب', '₺120'], ['كنافة', 'ساخنة بالجبن', '₺180'], ['فطور تركي', 'لشخصين', '₺650']] }
+    ];
+    const cur = L[s.lang];
+    const fBase = 'border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 10px; min-height: 230px; box-sizing: border-box; background: ';
+    return {
+      langs: L.map((l, i) => ({ label: l.label, on: i === s.lang, style: i === s.lang ? on : off, pick: () => this.setState({ lang: i }) })),
+      dir: cur.dir,
+      screenStyle: 'width: 100%; height: 100%; border-radius: 36px; overflow: hidden; background: #F7F6F0; color: #0B0F0C; font-family: ' + cur.font,
+      t: { welcome: cur.welcome, cats: cur.cats.map((c, i) => ({ label: c, style: i === 0 ? catOn : catOff })), items: cur.items.map((x, i) => ({ name: x[0], desc: x[1], price: x[2], thumb: 'flex: 0 0 auto; width: 52px; height: 52px; border-radius: 12px; background: ' + thumbs[i] })) },
+      feats: [
+        { n: '01', title: 'Opens in a second', desc: 'Guests scan and see your menu — no app to download.', bg: '#F3EEDC' },
+        { n: '02', title: 'Three languages', desc: 'Turkish first, plus English and Arabic for tourists.', bg: '#E3EEFB' },
+        { n: '03', title: 'Update anytime', desc: 'Change prices or sold-out items without reprinting.', bg: '#ECE8FF' },
+        { n: '04', title: 'Your brand, your look', desc: 'Your colors, logo and food photos on every page.', bg: '#E3F1E6' }
+      ].map((f) => ({ ...f, style: fBase + f.bg }))
+    };
+  }
+}
+</script>
+</body>
+</html>

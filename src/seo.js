@@ -8,8 +8,8 @@ const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
 const PAGE_SEO = {
   "/": {
     "lang": "en",
-    "title": "Aura Command | AI-Powered Business Growth — AuraDigital",
-    "description": "Build an AI-guided business growth roadmap with Aura Command. Plan, launch, automate and manage your digital services in one connected AuraDigital workspace.",
+    "title": "AuraDigital | Websites, QR Menus & AI Growth for Your Business",
+    "description": "Websites, QR menus, Google visibility and WhatsApp automation for businesses in Türkiye and beyond — planned by AI, delivered by our Istanbul team, tracked in AuraHub.",
     "type": "WebPage"
   },
   "/services": {
@@ -110,14 +110,14 @@ const PAGE_SEO = {
   },
   "/packages": {
     "lang": "en",
-    "title": "Monthly Website Care Plans Istanbul | AuraDigital",
-    "description": "Compare monthly website management plans with defined updates, technical upkeep and managed growth.",
+    "title": "Website Packages & Care Plans Istanbul | AuraDigital",
+    "description": "Compare Launch, Growth and System website packages and monthly care plans with clear TRY prices.",
     "type": "WebPage"
   },
   "/about": {
     "lang": "en",
     "title": "About AuraDigital | Digital Agency Istanbul",
-    "description": "AuraDigital is an independent Istanbul-based digital growth studio connecting websites, advertising, social media, NFC and QR experiences.",
+    "description": "AuraDigital is an independent Istanbul-based digital studio combining AI with a hands-on team for websites, advertising, automation, NFC and QR experiences.",
     "type": "AboutPage"
   },
   "/contact": {
@@ -125,6 +125,24 @@ const PAGE_SEO = {
     "title": "Contact AuraDigital | Website & Digital Marketing Projects",
     "description": "Contact AuraDigital about your website, advertising, SEO, NFC card or QR menu project and get a tailored proposal.",
     "type": "ContactPage"
+  },
+  "/solutions": {
+    "lang": "en",
+    "title": "Solutions — Build, Grow, Automate, Manage | AuraDigital",
+    "description": "Websites, online stores, Google Maps, ads, WhatsApp automation, hosting and ERP systems for growing businesses.",
+    "type": "CollectionPage"
+  },
+  "/service-shop": {
+    "lang": "en",
+    "title": "Service Shop — Digital Services with Clear Prices | AuraDigital",
+    "description": "Pick websites, care plans, ads, AuraMenu, NFC cards, hosting and more, then send one request to our team.",
+    "type": "CollectionPage"
+  },
+  "/help": {
+    "lang": "en",
+    "title": "Help Center | AuraDigital",
+    "description": "Answers about websites, prices, AuraHub, payments, AuraMenu and WhatsApp automation.",
+    "type": "WebPage"
   }
 };
 
@@ -158,6 +176,10 @@ export const SEO_REDIRECTS = new Map([
   ["/hakkimizda", "/about"],
   ["/contact.html", "/contact"],
   ["/iletisim", "/contact"],
+  ["/solutions.html", "/solutions"],
+  ["/service-shop.html", "/service-shop"],
+  ["/help.html", "/help"],
+  ["/yardim", "/help"],
 ]);
 
 export function permanentSeoRedirect(request) {
@@ -255,6 +277,9 @@ const SEO_ASSETS = new Map([
   ["/packages", "/packages.html"],
   ["/about", "/about.html"],
   ["/contact", "/contact.html"],
+  ["/solutions", "/solutions.html"],
+  ["/service-shop", "/service-shop.html"],
+  ["/help", "/help.html"],
 ]);
 
 function isHtml(response) {

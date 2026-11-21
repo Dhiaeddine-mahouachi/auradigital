@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AuraHub — Create account &amp; onboarding</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
+.disp{font-family:'Inter Tight',Inter,sans-serif;letter-spacing:-0.035em}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.nl{white-space:nowrap;color:#0B0F0C;font-size:15px;font-weight:500;padding:10px 12px;border-radius:10px;background:transparent;border:0;cursor:pointer;font-family:Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
+.nl:hover{background:#F1F0EA;color:#0B0F0C}
+.nlon{background:#F1F0EA}
+.lift{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.lift:hover{transform:translateY(-6px);box-shadow:0 28px 60px -28px rgba(11,15,12,.35)}
+.btn{transition:transform .2s,background .2s,color .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-dark:hover{background:#E1E100 !important;color:#0B0F0C !important}
+.mi{transition:background .2s}
+.mi:hover{background:#F4F3EC}
+.ticket{position:relative}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:28px;height:28px;border-radius:50%;background:#FFFFFF;transform:translateY(-50%)}
+.ticket::before{left:-14px}.ticket::after{right:-14px}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes typing{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.auri-float{animation:floaty 4.5s ease-in-out infinite}
+.auri-eye{transform-origin:center;transform-box:fill-box;animation:blink 5s infinite}
+.marquee-track{animation:marquee 36s linear infinite}
+.rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+.pop{animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
+.dot{animation:typing 1.2s infinite}
+details summary{list-style:none;cursor:pointer}
+details summary::-webkit-details-marker{display:none}
+details[open] .plus{transform:rotate(45deg)}
+.plus{transition:transform .25s}
+input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset:1px}
+@media (max-width:1180px){.desk{display:none !important}}
+@media (min-width:1181px){.mob{display:none !important}}
+@media (max-width:1380px){.wide{display:none !important}}
+@media (max-width:640px){.hide-sm{display:none !important}}
+</style>
+
+</helmet>
+<div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.5; display: flex; flex-wrap: wrap">
+
+  <aside style="flex: 1 1 420px; background: #0E2B1E; color: #F3EEDC; padding: 36px 44px; box-sizing: border-box; display: flex; flex-direction: column; gap: 32px; min-height: 100vh">
+    <a href="Main.dc.html" aria-label="Back to AuraDigital" style="display: flex; align-items: center; gap: 10px; color: #F3EEDC"><span style="width: 38px; height: 38px; border-radius: 10px; background: #E1E100; color: #0B0F0C; display: flex; align-items: center; justify-content: center; font-family: 'Inter Tight', sans-serif; font-weight: 800; font-size: 17px">aD</span><span style="font-family: 'Inter Tight', sans-serif; font-weight: 800; font-size: 21px">AuraHub</span></a>
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 22px">
+      <div class="auri-float" style="width: 120px; height: 120px">
+        <svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Auri"><line x1="60" y1="16" x2="60" y2="5" stroke="#E1E100" stroke-width="4" stroke-linecap="round"></line><circle cx="60" cy="5" r="5" fill="#F3EEDC"></circle><rect x="12" y="16" width="96" height="90" rx="42" fill="#E1E100"></rect><rect x="25" y="36" width="70" height="46" rx="23" fill="#0B0F0C"></rect><ellipse class="auri-eye" cx="47" cy="59" rx="6" ry="8" fill="#E1E100"></ellipse><ellipse class="auri-eye" cx="73" cy="59" rx="6" ry="8" fill="#E1E100"></ellipse><path d="M50 92 Q60 99 70 92" stroke="#0B0F0C" stroke-width="4" fill="none" stroke-linecap="round"></path></svg>
+      </div>
+      <div class="pop" style="background: #F3EEDC; color: #0B0F0C; border-radius: 22px 22px 22px 6px; padding: 20px 22px; font-size: 18px; max-width: 420px">{{ auriSays }}</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <sc-for list="{{ stepsNav }}" as="st" hint-placeholder-count="6">
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 14px">
+          <span style="{{ st.dot }}">{{ st.mark }}</span><span style="{{ st.text }}">{{ st.label }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </aside>
+
+  <main style="flex: 999 1 560px; padding: 36px 56px 56px; box-sizing: border-box; display: flex; flex-direction: column">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+      <sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}"><button onClick="{{ back }}" style="border: 0; background: transparent; font-weight: 600; cursor: pointer; font-family: Inter, sans-serif; font-size: 15px; padding: 10px 0; min-height: 44px">← Back</button></sc-if>
+      <span style="margin-left: auto; font-size: 14px; color: #4B5650">Already have an account? <a href="HubApp.dc.html" style="font-weight: 600; text-decoration: underline">Log in</a></span>
+    </div>
+    <div style="height: 6px; background: #F1F0EA; border-radius: 3px; margin-top: 18px"><div style="{{ bar }}"></div></div>
+
+    <div style="max-width: 640px; width: 100%; margin: 48px auto 0; flex: 1">
+      <sc-if value="{{ s0 }}" hint-placeholder-val="{{ true }}">
+        <div class="pop">
+          <h1 class="disp" style="font-size: 52px; line-height: 1; font-weight: 800; margin: 0">Create your <span class="serif">free</span> account</h1>
+          <p style="color: #4B5650; font-size: 17px; margin: 12px 0 0">Your roadmap, services and requests — in one place.</p>
+          <button style="margin-top: 28px; width: 100%; border: 1px solid #D9D6CB; background: #FFFFFF; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 600; cursor: pointer; font-family: Inter, sans-serif; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px"><span style="font-weight: 800; color: #4285F4">G</span> Continue with Google</button>
+          <div style="display: flex; align-items: center; gap: 12px; margin: 20px 0; color: #4B5650; font-size: 13px"><span style="flex: 1; height: 1px; background: #E6E4DC"></span>or with email<span style="flex: 1; height: 1px; background: #E6E4DC"></span></div>
+          <form onSubmit="{{ submit0 }}" style="display: flex; flex-direction: column; gap: 14px">
+            <div style="display: flex; flex-direction: column; gap: 6px"><label for="h-name" style="font-weight: 600; font-size: 14px">Full name</label><input id="h-name" value="{{ a.name }}" onChange="{{ set.name }}" placeholder="Your name" style="border: 1px solid #D9D6CB; border-radius: 12px; padding: 14px; font-size: 16px; font-family: Inter, sans-serif"></div>
+            <div style="display: flex; flex-direction: column; gap: 6px"><label for="h-email" style="font-weight: 600; font-size: 14px">Email</label><input id="h-email" type="email" value="{{ a.email }}" onChange="{{ set.email }}" placeholder="you@business.com" style="border: 1px solid #D9D6CB; border-radius: 12px; padding: 14px; font-size: 16px; font-family: Inter, sans-serif"></div>
+            <div style="display: flex; flex-direction: column; gap: 6px"><label for="h-phone" style="font-weight: 600; font-size: 14px">Phone / WhatsApp</label><input id="h-phone" value="{{ a.phone }}" onChange="{{ set.phone }}" placeholder="+90 …" style="border: 1px solid #D9D6CB; border-radius: 12px; padding: 14px; font-size: 16px; font-family: Inter, sans-serif"></div>
+            <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}"><div role="alert" style="background: #FBE3E0; color: #9A1C14; border-radius: 12px; padding: 12px 14px; font-size: 14px">{{ err }}</div></sc-if>
+            <button type="submit" class="btn btn-dark" style="margin-top: 6px; background: #0B0F0C; color: #FFFFFF; border: 0; border-radius: 14px; padding: 17px; font-size: 16px; font-weight: 600; cursor: pointer; font-family: Inter, sans-serif; min-height: 56px">Create account &amp; meet Auri →</button>
+            <span style="font-size: 12px; color: #4B5650; text-align: center">By continuing you agree to the Terms and Privacy Policy (KVKK).</span>
+          </form>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sQ }}" hint-placeholder-val="{{ false }}">
+        <div class="pop">
+          <span style="font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #4B5650">{{ q.kicker }}</span>
+          <h1 class="disp" style="font-size: 48px; line-height: 1.02; font-weight: 800; margin: 10px 0 0">{{ q.title }}</h1>
+          <p style="color: #4B5650; font-size: 16px; margin: 10px 0 0">{{ q.hint }}</p>
+          <div role="group" aria-label="{{ q.title }}" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 28px">
+            <sc-for list="{{ q.opts }}" as="o" hint-placeholder-count="4">
+              <button onClick="{{ o.pick }}" aria-pressed="{{ o.on }}" style="{{ o.style }}"><span style="font-size: 17px; font-weight: 700; display: block">{{ o.label }}</span><span style="font-size: 13px; color: #4B5650; display: block; margin-top: 2px">{{ o.sub }}</span></button>
+            </sc-for>
+          </div>
+          <button onClick="{{ next }}" disabled="{{ cantNext }}" class="btn btn-dark" style="{{ nextStyle }}">Continue →</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sDone }}" hint-placeholder-val="{{ false }}">
+        <div class="pop">
+          <span style="font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #0B5D2A">Roadmap ready</span>
+          <h1 class="disp" style="font-size: 50px; line-height: 1; font-weight: 800; margin: 10px 0 0">{{ firstName }}, here's your <span class="serif">growth path.</span></h1>
+          <p style="color: #4B5650; font-size: 16px; margin: 10px 0 0">Built for a {{ bizLabel }} · {{ modeLabel }}</p>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 26px">
+            <sc-for list="{{ roadmap }}" as="r" hint-placeholder-count="4">
+              <div style="{{ r.style }}">
+                <span style="{{ r.badge }}">{{ r.n }}</span>
+                <span style="flex: 1"><span style="font-weight: 700; font-size: 17px; display: block">{{ r.t }}</span><span style="font-size: 13px; color: #4B5650">{{ r.why }}</span></span>
+                <span style="font-size: 12px; font-weight: 700; white-space: nowrap">{{ r.when }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px">
+            <a class="btn btn-dark" href="HubApp.dc.html" style="background: #0B0F0C; color: #FFFFFF; font-weight: 600; padding: 16px 26px; border-radius: 14px; min-height: 54px; box-sizing: border-box; display: inline-flex; align-items: center">Open my AuraHub →</a>
+            <a class="btn" href="Shop.dc.html" style="border: 2px solid #0B0F0C; font-weight: 600; padding: 14px 22px; border-radius: 14px; min-height: 54px; box-sizing: border-box; display: inline-flex; align-items: center">Order first step</a>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { step: 0, err: '', a: { name: '', email: '', phone: '', type: null, has: [], goal: null, mode: null } }; }
+  roadmap() {
+    const a = this.state.a; const has = (k) => a.has.indexOf(k) !== -1; const out = [];
+    if (a.type === 'restaurant') out.push({ t: 'Set up AuraMenu', why: 'Guests order faster with a QR menu in 3 languages', key: 'menu' });
+    if (!has('website')) out.push({ t: a.goal === 'sell' ? 'Launch your online store' : 'Launch your website', why: 'Your 24/7 shop window — live from 5 days', key: 'web' });
+    if (!has('maps')) out.push({ t: 'Verify Google Maps profile', why: 'Get found by people searching nearby', key: 'maps' });
+    if (!has('logo')) out.push({ t: 'Create your brand kit', why: 'Logo, colors and templates that look professional', key: 'brand' });
+    if (a.goal === 'time' || a.type === 'services') out.push({ t: 'Automate WhatsApp replies', why: 'Answer and book customers instantly', key: 'wa' });
+    if (a.goal === 'customers') out.push({ t: 'Start Google & Meta ads', why: 'Bring new customers every week', key: 'ads' });
+    if (a.type === 'services') out.push({ t: 'Order NFC review cards', why: 'Collect more 5-star reviews', key: 'nfc' });
+    out.push({ t: 'Professional business email', why: 'you@yourbrand.com builds trust', key: 'email' });
+    return out.slice(0, 5);
+  }
+  renderVals() {
+    const s = this.state; const a = s.a;
+    const set = (k) => (e) => this.setState({ a: { ...this.state.a, [k]: e.target.value }, err: '' });
+    const pickOne = (k, v) => this.setState({ a: { ...this.state.a, [k]: v } });
+    const toggleHas = (v) => { const h = this.state.a.has; const nh = v === 'none' ? ['none'] : (h.indexOf(v) !== -1 ? h.filter((x) => x !== v) : h.filter((x) => x !== 'none').concat([v])); this.setState({ a: { ...this.state.a, has: nh } }); };
+    const optOn = 'text-align: left; background: #FBFAD2; border: 2px solid #0B0F0C; border-radius: 18px; padding: 17px 18px; cursor: pointer; font-family: Inter, sans-serif; color: #0B0F0C; min-height: 84px';
+    const optOff = 'text-align: left; background: #FFFFFF; border: 1px solid #D9D6CB; border-radius: 18px; padding: 18px 19px; cursor: pointer; font-family: Inter, sans-serif; color: #0B0F0C; min-height: 84px';
+    const Q = [
+      { key: 'type', multi: false, kicker: 'Question 1 of 4', title: 'What kind of business do you run?', hint: 'This helps Auri choose the right first step.', opts: [['restaurant', 'Restaurant & café', 'Food, drinks, bakery'], ['services', 'Local services', 'Repair, beauty, moving…'], ['retail', 'Retail & shop', 'Products, boutique'], ['creator', 'Creator & freelancer', 'Personal brand']] },
+      { key: 'has', multi: true, kicker: 'Question 2 of 4', title: 'What do you already have?', hint: 'Pick all that apply.', opts: [['website', 'A website', 'Any kind'], ['maps', 'Google Maps profile', 'Verified listing'], ['logo', 'Logo & brand', 'Colors, fonts'], ['instagram', 'Instagram page', 'Active account'], ['none', 'Nothing yet', "We're starting fresh"]] },
+      { key: 'goal', multi: false, kicker: 'Question 3 of 4', title: "What's your main goal right now?", hint: 'We put the biggest win first.', opts: [['customers', 'Get more customers', 'Visibility & ads'], ['pro', 'Look professional', 'Website & brand'], ['time', 'Save time', 'Automate replies'], ['sell', 'Sell online', 'Store & payments']] },
+      { key: 'mode', multi: false, kicker: 'Question 4 of 4', title: 'How do you want to build it?', hint: 'You can change this anytime.', opts: [['auri', 'With Auri', 'Do it yourself, guided'], ['team', 'With our team', 'We do it for you'], ['mix', 'A bit of both', 'Auri + team support']] }
+    ];
+    const labels = { restaurant: 'restaurant', services: 'local service business', retail: 'shop', creator: 'creator', auri: 'building with Auri', team: 'built by our team', mix: 'Auri + team' };
+    const first = (a.name.split(' ')[0] || 'Friend');
+    const qi = s.step - 1; const q = Q[qi];
+    const val = q ? a[q.key] : null;
+    const cantNext = q ? (q.multi ? a.has.length === 0 : !val) : false;
+    const says = [
+      "Hi! I'm Auri. Create your account and I'll build your growth roadmap in about two minutes.",
+      'Nice to meet you, ' + first + '! First — what kind of business is it?',
+      "Great. What's already in place? I won't suggest what you have.",
+      'Got it. What would make the biggest difference right now?',
+      'Last one: should I guide you, or should our team handle it?',
+      'Done! Here is your personal roadmap, ' + first + '. Step 1 is ready in AuraHub.'
+    ];
+    const navL = ['Account', 'Business', 'What you have', 'Goal', 'How to build', 'Your roadmap'];
+    const rm = s.step === 5 ? this.roadmap() : [];
+    return {
+      s0: s.step === 0, sQ: s.step >= 1 && s.step <= 4, sDone: s.step === 5,
+      canBack: s.step > 0 && s.step < 5,
+      back: () => this.setState({ step: s.step - 1 }),
+      bar: 'height: 6px; background: #0E2B1E; border-radius: 3px; transition: width .4s; width: ' + Math.round((s.step / 5) * 100) + '%',
+      auriSays: says[s.step],
+      stepsNav: navL.map((l, i) => ({ label: l, mark: i < s.step ? '✓' : String(i + 1), dot: 'width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; ' + (i < s.step ? 'background: #A8D8B4; color: #0B0F0C' : i === s.step ? 'background: #E1E100; color: #0B0F0C' : 'border: 1px solid rgba(243,238,220,.3); color: #F3EEDC'), text: i === s.step ? 'font-weight: 700' : 'color: #A9B8AE' })),
+      a, set: { name: set('name'), email: set('email'), phone: set('phone') },
+      err: s.err, hasErr: !!s.err,
+      submit0: (e) => { e.preventDefault(); const x = this.state.a; if (!x.name.trim()) return this.setState({ err: 'Please add your name.' }); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x.email)) return this.setState({ err: 'Please add a valid email.' }); this.setState({ step: 1, err: '' }); },
+      q: q ? { kicker: q.kicker, title: q.title, hint: q.hint, opts: q.opts.map((o) => { const on = q.multi ? a.has.indexOf(o[0]) !== -1 : val === o[0]; return { label: o[1], sub: o[2], on, style: on ? optOn : optOff, pick: () => (q.multi ? toggleHas(o[0]) : pickOne(q.key, o[0])) }; }) } : { opts: [] },
+      cantNext,
+      nextStyle: 'margin-top: 26px; border: 0; border-radius: 14px; padding: 17px 28px; font-size: 16px; font-weight: 600; font-family: Inter, sans-serif; min-height: 56px; ' + (cantNext ? 'background: #E6E4DC; color: #6B746E; cursor: not-allowed' : 'background: #0B0F0C; color: #FFFFFF; cursor: pointer'),
+      next: () => { if (!cantNext) this.setState({ step: s.step + 1 }); },
+      firstName: first, bizLabel: labels[a.type] || 'business', modeLabel: labels[a.mode] || '',
+      roadmap: rm.map((r, i) => ({ ...r, n: String(i + 1), when: i === 0 ? 'Start now' : i === 1 ? 'Next' : 'Later', style: 'display: flex; gap: 14px; align-items: center; border-radius: 16px; padding: 16px 18px; ' + (i === 0 ? 'background: #FBFAD2; border: 2px solid #0B0F0C' : 'background: #F7F6F0; border: 1px solid #ECEAE2'), badge: 'width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; flex: 0 0 auto; ' + (i === 0 ? 'background: #0B0F0C; color: #E1E100' : 'background: #FFFFFF; border: 1px solid #DAD7CB') }))
+    };
+  }
+}
+</script>
+</body>
+</html>

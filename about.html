@@ -1,145 +1,65 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>About — AuraDigital</title>
-    <meta
-      name="description"
-      content="How AuraDigital works: strategy, design, technology and continuous growth."
-    />
-    <link rel="icon" href="auradigital-mark-20260928.png" type="image/png" />
-    <link rel="manifest" href="site.webmanifest" />
-    <link rel="stylesheet" href="style.css?v=direct-design-20261004" />
-    <link rel="stylesheet" href="responsive.css?v=direct-design-20261004" />
-    <link rel="stylesheet" href="cinematic.css?v=direct-design-20261004" />
-    <link rel="stylesheet" href="/emerald-gloss-global.css?v=20261116-sitewide-1">
-  <link rel="stylesheet" href="/public-luminous.css?v=20261116-color-rhythm-1" />
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About — AuraDigital</title>
+<meta name="description" content="An Istanbul-based digital agency combining AI with a hands-on team.">
+<meta name="theme-color" content="#0E2B1E">
+<meta property="og:title" content="About — AuraDigital">
+<meta property="og:description" content="An Istanbul-based digital agency combining AI with a hands-on team.">
+<meta property="og:image" content="https://auradigitalworks.com/auradigital-share-20260928.jpg">
+<link rel="icon" href="/auradigital-mark-20260928.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
+.disp{font-family:'Inter Tight',Inter,sans-serif;letter-spacing:-0.035em}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.nl{white-space:nowrap;color:#0B0F0C;font-size:15px;font-weight:500;padding:10px 12px;border-radius:10px;background:transparent;border:0;cursor:pointer;font-family:Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
+.nl:hover{background:#F1F0EA;color:#0B0F0C}
+.nlon{background:#F1F0EA}
+.lift{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.lift:hover{transform:translateY(-6px);box-shadow:0 28px 60px -28px rgba(11,15,12,.35)}
+.btn{transition:transform .2s,background .2s,color .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-dark:hover{background:#E1E100 !important;color:#0B0F0C !important}
+.mi{transition:background .2s}
+.mi:hover{background:#F4F3EC}
+.ticket{position:relative}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:28px;height:28px;border-radius:50%;background:#FFFFFF;transform:translateY(-50%)}
+.ticket::before{left:-14px}.ticket::after{right:-14px}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes typing{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.auri-float{animation:floaty 4.5s ease-in-out infinite}
+.auri-eye{transform-origin:center;transform-box:fill-box;animation:blink 5s infinite}
+.marquee-track{animation:marquee 36s linear infinite}
+.rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+.pop{animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
+.dot{animation:typing 1.2s infinite}
+details summary{list-style:none;cursor:pointer}
+details summary::-webkit-details-marker{display:none}
+details[open] .plus{transform:rotate(45deg)}
+.plus{transition:transform .25s}
+input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset:1px}
+@media (max-width:1180px){.desk{display:none !important}}
+@media (min-width:1181px){.mob{display:none !important}}
+@media (max-width:1380px){.wide{display:none !important}}
+@media (max-width:640px){.hide-sm{display:none !important}}
+</style>
+
 </head>
-  <body data-page="about" class="cinematic-enabled">
-    <header id="siteHeader"></header>
-    <main>
-      <section class="page-hero">
-        <div class="container">
-          <div class="crumb">
-            <a href="/">AuraDigital</a> / About
-          </div>
-          <span class="eyebrow">Digital Growth Studio</span>
-          <h1 class="display">
-            Small-team agility, <em>professional-system discipline.</em>
-          </h1>
-          <p>
-            AuraDigital is an independent digital studio built to unite web, advertising, social media and physical-to-digital touchpoints into one consistent system.
-          </p>
-        </div>
-      </section>
-      <section class="section">
-        <div class="container">
-          <div class="section-head reveal">
-            <span class="eyebrow">What do we believe?</span>
-            <div>
-              <h2 class="display">
-                Good design builds trust. <em>A good system drives business.</em>
-              </h2>
-              <p>
-                For us, professionalism is more than looking good. A fast website, clear messaging, measurable ads and effortless NFC/QR experiences need to work together.
-              </p>
-            </div>
-          </div>
-          <div class="detail-grid">
-            <article class="detail-card reveal">
-              <span class="eyebrow">01 · CLARITY</span>
-              <h3>Clear communication</h3>
-              <p>
-                We keep scope, expectations and next steps clear, so clients always know where the project stands.
-              </p>
-            </article>
-            <article class="detail-card reveal">
-              <span class="eyebrow">02 · CRAFT</span>
-              <h3>Design craft</h3>
-              <p>
-                Instead of a template feel, we build a visual language with color, typography and hierarchy that fits the business.
-              </p>
-            </article>
-            <article class="detail-card reveal">
-              <span class="eyebrow">03 · PERFORMANCE</span>
-              <h3>Results focus</h3>
-              <p>
-                We focus on practical outcomes such as speed, mobile experience, CTAs, ad data and user behavior.
-              </p>
-            </article>
-            <article class="detail-card reveal">
-              <span class="eyebrow">04 · CONTINUITY</span>
-              <h3>Post-launch support</h3>
-              <p>
-                The work does not end at launch. Subscriptions keep content, campaigns, optimization and updates moving.
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-      <section class="section alt">
-        <div class="container">
-          <div class="section-head reveal">
-            <span class="eyebrow">Beyond Istanbul</span>
-            <div>
-              <h2 class="display">
-                Local-business reality, <em>international quality standards.</em>
-              </h2>
-              <p>
-                From restaurants and service businesses to boutique brands and growing companies, we focus on a consistent premium digital presence at an accessible level.
-              </p>
-            </div>
-          </div>
-          <div class="process">
-            <div class="process-step reveal">
-              <b>WEB</b>
-              <h3>Core platform</h3>
-              <p>
-                A fast, trusted digital hub controlled by the brand.
-              </p>
-            </div>
-            <div class="process-step reveal">
-              <b>GROWTH</b>
-              <h3>Traffic engine</h3>
-              <p>Visibility to the right people through ads, Maps and content.</p>
-            </div>
-            <div class="process-step reveal">
-              <b>PHYGITAL</b>
-              <h3>NFC & QR</h3>
-              <p>
-                Touchpoints that connect physical customer experience to digital action.
-              </p>
-            </div>
-            <div class="process-step reveal">
-              <b>CARE</b>
-              <h3>Continuity</h3>
-              <p>Continuous development and optimization through subscriptions.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section class="cta-band">
-        <div class="container">
-          <div class="cta-box reveal">
-            <span class="eyebrow">Let's work together</span>
-            <h2 class="display">
-              Let's discuss your next <em>digital move.</em>
-            </h2>
-            <div class="hero-actions">
-              <a class="btn btn-primary" href="/contact">Contact us ↗</a
-              ><a class="btn btn-ghost" href="/services"
-                >View services</a
-              >
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-    <footer id="siteFooter"></footer>
-    <script src="script.js?v=site-copy-1"></script>
-    <script src="cinematic.js?v=direct-design-20261004"></script>
-  <link rel="stylesheet" href="/pricing/pricing.css?v=global-20261015">
-<script type="module" src="/pricing/ui.js?v=global-20261015"></script>
+<body>
+<div id="app" data-page="About"><div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.55; overflow-x: clip"><div style="position: relative; z-index: 50; font-family: Inter, system-ui, sans-serif; color: #0B0F0C; background: #FFFFFF"><div style="background: #0E2B1E; color: #F3EEDC; font-size: 14px; padding: 10px 20px; display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; text-align: center"><span style="background: #E1E100; color: #0B0F0C; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 700">NEW</span><span>Auri now builds your free growth roadmap inside AuraHub.</span><a href="/hub/signup" style="color: #E1E100; font-weight: 600">Try it free →</a></div><div style="border-bottom: 1px solid #ECEAE2"><div style="max-width: 1320px; margin: 0 auto; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px"><div style="display: flex; align-items: center; gap: 20px"><a href="/" aria-label="AuraDigital home" style="display: flex; align-items: center; gap: 10px; color: #0B0F0C"><span style="width: 38px; height: 38px; border-radius: 10px; background: #E1E100; color: #0B0F0C; display: flex; align-items: center; justify-content: center; font-family: 'Inter Tight', sans-serif; font-weight: 800; font-size: 17px; letter-spacing: -0.06em">aD</span><span style="font-family: 'Inter Tight', sans-serif; font-weight: 800; font-size: 21px; letter-spacing: -0.03em">AuraDigital</span></a><nav class="desk" aria-label="Main" style="display: flex; align-items: center; gap: 2px"><button class="nl" aria-expanded="false">Solutions <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button><button class="nl" aria-expanded="false">Products <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button><a class="nl" href="/service-shop">Service Shop</a><a class="nl" href="/packages">Packages</a><a class="nl" href="/portfolio">Our Work</a><a class="nl" href="/help">Help</a><a class="nl nlon" href="/about">About</a><a class="nl" href="/contact">Contact</a></nav></div><div style="display: flex; align-items: center; gap: 8px"><span class="desk wide" style="display: flex; gap: 2px; font-size: 13px; font-weight: 600; border: 1px solid #E6E4DC; border-radius: 999px; padding: 3px"><span style="background: #0B0F0C; color: #FFFFFF; border-radius: 999px; padding: 5px 10px">EN</span><span style="padding: 5px 10px">TR</span><span style="padding: 5px 10px">AR</span></span><a class="nl desk" href="/hub">Log in</a><a class="btn btn-dark desk" href="/hub/signup" style="white-space: nowrap; background: #0B0F0C; color: #FFFFFF; font-weight: 600; font-size: 15px; padding: 12px 20px; border-radius: 999px; min-height: 46px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px">Start your path <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a><button class="mob" aria-label="Open menu" style="width: 46px; height: 46px; border-radius: 12px; border: 1px solid #E6E4DC; background: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B0F0C" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button></div></div></div></div><main id="main"><section style="padding: 80px 28px 0"><div style="max-width: 1264px; margin: 0 auto"><span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #4B5650">About AuraDigital</span><h1 class="disp" style="font-size: clamp(52px, 7vw, 104px); line-height: .93; font-weight: 800; margin: 14px 0 0; max-width: 1100px">Advanced technology — <span class="serif">accessible, affordable, effective.</span></h1><div style="display: flex; gap: 40px; flex-wrap: wrap; margin-top: 36px; align-items: flex-end"><p style="flex: 1 1 420px; font-size: 20px; color: #4B5650; margin: 0">We're an Istanbul-based digital agency helping businesses in Türkiye, the Gulf and beyond build, grow and automate — combining our own AI with a hands-on team.</p><div style="display: flex; gap: 10px; flex-wrap: wrap"><span style="background: #F3EEDC; border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 14px">Istanbul, Türkiye</span><span style="background: #E3EEFB; border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 14px">EN · TR · AR</span><span style="background: #E3F1E6; border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 14px">AI + people</span></div></div><img src="/media/aura-hero-poster.jpg" alt="The AuraDigital team at work" style="width: 100%; margin-top: 44px; border-radius: 36px; aspect-ratio: 16 / 7; object-fit: cover; display: block"/></div></section><section style="padding: 120px 28px 0"><div style="max-width: 1264px; margin: 0 auto"><h2 class="disp" style="font-size: clamp(40px, 5vw, 68px); line-height: 1; font-weight: 800; margin: 0">How we <span class="serif">work.</span></h2><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; margin-top: 40px"><div style="background: #F3EEDC; border-radius: 26px; padding: 30px; min-height: 230px; box-sizing: border-box"><span class="disp" style="font-size: 44px; font-weight: 800">01</span><div class="disp" style="font-size: 24px; font-weight: 700; margin-top: 8px">Bold, beautiful work</div><p style="color: #2E3832; margin: 8px 0 0">We ignite brands in bold and beautifully disruptive ways — never template-looking.</p></div><div style="background: #E3EEFB; border-radius: 26px; padding: 30px; min-height: 230px; box-sizing: border-box"><span class="disp" style="font-size: 44px; font-weight: 800">02</span><div class="disp" style="font-size: 24px; font-weight: 700; margin-top: 8px">Fast and transparent</div><p style="color: #2E3832; margin: 8px 0 0">Clear prices, websites from five days, every step visible in AuraHub.</p></div><div style="background: #ECE8FF; border-radius: 26px; padding: 30px; min-height: 230px; box-sizing: border-box"><span class="disp" style="font-size: 44px; font-weight: 800">03</span><div class="disp" style="font-size: 24px; font-weight: 700; margin-top: 8px">AI with a human touch</div><p style="color: #2E3832; margin: 8px 0 0">Auri handles the routine; our team handles the craft and the decisions.</p></div><div style="background: #E3F1E6; border-radius: 26px; padding: 30px; min-height: 230px; box-sizing: border-box"><span class="disp" style="font-size: 44px; font-weight: 800">04</span><div class="disp" style="font-size: 24px; font-weight: 700; margin-top: 8px">Secure by default</div><p style="color: #2E3832; margin: 8px 0 0">Built by an engineering and cybersecurity background — hosting, SSL and monitoring included.</p></div></div></div></section><section style="padding: 120px 28px 120px"><div style="max-width: 1264px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px"><div style="background: #0E2B1E; color: #F3EEDC; border-radius: 34px; padding: 44px; display: flex; flex-direction: column; gap: 14px"><h2 class="disp" style="font-size: clamp(40px, 4.6vw, 64px); line-height: .95; font-weight: 800; margin: 0">Let's <span class="serif" style="color: #E1E100">talk.</span></h2><p style="color: #B9C7BC; font-size: 18px; margin: 0">WhatsApp +90 538 550 76 74 · info@auradigitalworks.com</p><div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px"><a class="btn" href="/contact" style="background: #E1E100; color: #0B0F0C; font-weight: 700; padding: 15px 24px; border-radius: 999px">Contact us →</a><a class="btn" href="https://wa.me/905385507674" style="border: 1px solid rgba(243,238,220,.4); color: #F3EEDC; font-weight: 600; padding: 15px 24px; border-radius: 999px">WhatsApp</a></div></div><div style="background: #F3EEDC; border-radius: 34px; padding: 44px; display: flex; flex-direction: column; gap: 12px"><strong class="disp" style="font-size: 30px">Founded by Dhia Eddine Mahouachi</strong><p style="color: #2E3832; font-size: 17px; margin: 0">Computer engineer with a cybersecurity focus, building digital solutions for businesses from Istanbul.</p><a class="btn" href="https://dhiamahouachi.website" style="align-self: flex-start; margin-top: 6px; border: 2px solid #0B0F0C; font-weight: 600; padding: 13px 22px; border-radius: 999px">Founder's portfolio ↗</a></div></div></section></main><footer style="background: #0E2B1E; color: #F3EEDC; font-family: Inter, system-ui, sans-serif; padding: 80px 28px 36px"><div style="max-width: 1264px; margin: 0 auto"><div style="display: flex; gap: 48px; flex-wrap: wrap; justify-content: space-between; padding-bottom: 56px; border-bottom: 1px solid rgba(243,238,220,.14)"><div style="flex: 1 1 420px; max-width: 520px"><div style="font-family: 'Inter Tight', sans-serif; font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -0.035em">Grow with us. <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; color: #E1E100">Monthly tips</span>, no spam.</div><form style="display: flex; gap: 8px; margin-top: 24px; flex-wrap: wrap"><label for="ft-email" style="position: absolute; left: -9999px">Email address</label><input id="ft-email" type="email" placeholder="you@business.com" style="flex: 1 1 220px; min-width: 0; border: 1px solid rgba(243,238,220,.3); background: rgba(243,238,220,.06); color: #F3EEDC; border-radius: 999px; padding: 14px 18px; font-size: 15px; font-family: Inter, sans-serif"/><button type="button" style="background: #E1E100; color: #0B0F0C; border: 0; border-radius: 999px; padding: 14px 22px; font-weight: 700; font-size: 15px; cursor: pointer; font-family: Inter, sans-serif; min-height: 48px">Subscribe</button></form></div><div style="display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap"><a href="https://wa.me/905385507674" style="background: #E1E100; color: #0B0F0C; border-radius: 999px; padding: 12px 18px; font-weight: 700; font-size: 14px">WhatsApp +90 538 550 76 74</a><a href="mailto:info@auradigitalworks.com" style="border: 1px solid rgba(243,238,220,.3); color: #F3EEDC; border-radius: 999px; padding: 12px 18px; font-weight: 600; font-size: 14px">info@auradigitalworks.com</a><a href="/contact" style="border: 1px solid rgba(243,238,220,.3); color: #F3EEDC; border-radius: 999px; padding: 12px 18px; font-weight: 600; font-size: 14px">Contact page</a></div></div><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 32px; padding: 48px 0"><div style="display: flex; flex-direction: column; gap: 10px"><div style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #E1E100">Solutions</div><a href="/solutions" style="color: #D6DED8; font-size: 15px">Build</a><a href="/solutions" style="color: #D6DED8; font-size: 15px">Grow</a><a href="/solutions" style="color: #D6DED8; font-size: 15px">Automate</a><a href="/solutions" style="color: #D6DED8; font-size: 15px">Manage</a></div><div style="display: flex; flex-direction: column; gap: 10px"><div style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #E1E100">Products</div><a href="/aura-menu" style="color: #D6DED8; font-size: 15px">AuraMenu</a><a href="/aura-weddings" style="color: #D6DED8; font-size: 15px">AuraWeddings</a><a href="https://aurapops.online" style="color: #D6DED8; font-size: 15px">AuraPops</a><a href="/service-shop" style="color: #D6DED8; font-size: 15px">NFC review cards</a></div><div style="display: flex; flex-direction: column; gap: 10px"><div style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #E1E100">Buy</div><a href="/service-shop" style="color: #D6DED8; font-size: 15px">Service Shop</a><a href="/packages" style="color: #D6DED8; font-size: 15px">Packages</a><a href="/contact" style="color: #D6DED8; font-size: 15px">Custom quote</a></div><div style="display: flex; flex-direction: column; gap: 10px"><div style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #E1E100">AuraHub</div><a href="/hub/signup" style="color: #D6DED8; font-size: 15px">Create account</a><a href="/hub" style="color: #D6DED8; font-size: 15px">Log in</a><a href="/help" style="color: #D6DED8; font-size: 15px">Ask Auri</a></div><div style="display: flex; flex-direction: column; gap: 10px"><div style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #E1E100">Our websites</div><a href="https://auramenu.space" style="color: #D6DED8; font-size: 15px">auramenu.space</a><a href="https://aurapops.online" style="color: #D6DED8; font-size: 15px">aurapops.online</a><a href="https://bentwalad.online" style="color: #D6DED8; font-size: 15px">bentwalad.online</a><a href="https://dhiamahouachi.website" style="color: #D6DED8; font-size: 15px">dhiamahouachi.website</a></div><div style="display: flex; flex-direction: column; gap: 10px"><div style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #E1E100">Company</div><a href="/about" style="color: #D6DED8; font-size: 15px">About us</a><a href="/portfolio" style="color: #D6DED8; font-size: 15px">Our work</a><a href="/help" style="color: #D6DED8; font-size: 15px">Help Center</a><a href="/contact" style="color: #D6DED8; font-size: 15px">Contact</a></div></div><div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-top: 24px; border-top: 1px solid rgba(243,238,220,.14); font-size: 14px; color: #A9B8AE"><span style="display: flex; align-items: center; gap: 10px"><span style="width: 30px; height: 30px; border-radius: 8px; background: #E1E100; color: #0B0F0C; display: flex; align-items: center; justify-content: center; font-family: 'Inter Tight', sans-serif; font-weight: 800; font-size: 13px">aD</span>© 2026 AuraDigital · Istanbul, Türkiye</span><span style="display: flex; gap: 18px; flex-wrap: wrap"><a href="/help" style="color: #A9B8AE">Privacy</a><a href="/help" style="color: #A9B8AE">Terms</a><a href="/help" style="color: #A9B8AE">KVKK</a><span>EN · TR · AR</span></span></div></div></footer><div style="position: fixed; right: 22px; bottom: 22px; z-index: 80; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; font-family: Inter, system-ui, sans-serif; color: #0B0F0C"><button class="pop hide-sm" style="background: #FFFFFF; border: 1px solid #E6E4DC; border-radius: 18px 18px 4px 18px; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #0B0F0C; cursor: pointer; box-shadow: 0 20px 40px -20px rgba(11,15,12,.4); font-family: Inter, sans-serif; max-width: 240px; text-align: left">Hi! I'm Auri. Need help choosing?</button><button aria-label="Open Auri chat" class="auri-float" style="position: relative; width: 70px; height: 70px; border-radius: 50%; border: 0; background: #E1E100; cursor: pointer; box-shadow: 0 18px 40px -12px rgba(11,15,12,.55); display: flex; align-items: center; justify-content: center"><svg width="48" height="48" viewBox="0 0 120 120" aria-hidden="true"><line x1="60" y1="22" x2="60" y2="10" stroke="#0B0F0C" stroke-width="5" stroke-linecap="round"></line><circle cx="60" cy="9" r="6" fill="#0B0F0C"></circle><rect x="22" y="30" width="76" height="56" rx="28" fill="#0B0F0C"></rect><ellipse class="auri-eye" cx="46" cy="58" rx="7" ry="9" fill="#E1E100"></ellipse><ellipse class="auri-eye" cx="74" cy="58" rx="7" ry="9" fill="#E1E100"></ellipse><path d="M48 96 Q60 104 72 96" stroke="#0B0F0C" stroke-width="5" fill="none" stroke-linecap="round"></path></svg><span style="position: absolute; top: 0; right: 0; width: 20px; height: 20px; border-radius: 50%; background: #D93025; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid #FFFFFF">1</span></button></div></div></div>
+<noscript><p style="font-family:Inter,sans-serif;padding:16px">WhatsApp +90 538 550 76 74 · info@auradigitalworks.com</p></noscript>
+<script src="/redesign/app.js?v=202611210909" defer></script>
 </body>
 </html>

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AuraDigital — Home (mobile)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Instrument+Serif:ital@1&amp;family=IBM+Plex+Sans+Arabic:wght@400;600&amp;display=swap" rel="stylesheet">
+
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
+.disp{font-family:'Inter Tight',Inter,sans-serif;letter-spacing:-0.035em}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.nl{white-space:nowrap;color:#0B0F0C;font-size:15px;font-weight:500;padding:10px 12px;border-radius:10px;background:transparent;border:0;cursor:pointer;font-family:Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
+.nl:hover{background:#F1F0EA;color:#0B0F0C}
+.nlon{background:#F1F0EA}
+.lift{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.lift:hover{transform:translateY(-6px);box-shadow:0 28px 60px -28px rgba(11,15,12,.35)}
+.btn{transition:transform .2s,background .2s,color .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-dark:hover{background:#E1E100 !important;color:#0B0F0C !important}
+.mi{transition:background .2s}
+.mi:hover{background:#F4F3EC}
+.ticket{position:relative}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:28px;height:28px;border-radius:50%;background:#FFFFFF;transform:translateY(-50%)}
+.ticket::before{left:-14px}.ticket::after{right:-14px}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes typing{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.auri-float{animation:floaty 4.5s ease-in-out infinite}
+.auri-eye{transform-origin:center;transform-box:fill-box;animation:blink 5s infinite}
+.marquee-track{animation:marquee 36s linear infinite}
+.rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+.pop{animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
+.dot{animation:typing 1.2s infinite}
+details summary{list-style:none;cursor:pointer}
+details summary::-webkit-details-marker{display:none}
+details[open] .plus{transform:rotate(45deg)}
+.plus{transition:transform .25s}
+input:focus,textarea:focus,select:focus{outline:2px solid #0E2B1E;outline-offset:1px}
+@media (max-width:1180px){.desk{display:none !important}}
+@media (min-width:1181px){.mob{display:none !important}}
+@media (max-width:1380px){.wide{display:none !important}}
+@media (max-width:640px){.hide-sm{display:none !important}}
+</style>
+
+</helmet>
+<div style="width: 390px; min-height: 2600px; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.5; position: relative; overflow-x: clip">
+  <dc-import name="Header" active="home" hint-size="390px,124px"></dc-import>
+
+  <section style="padding: 40px 20px 0; text-align: center; background: linear-gradient(180deg, #F7F6F0, #FFFFFF)">
+    <h1 class="disp" style="font-size: 50px; line-height: .95; font-weight: 800; margin: 0">Your business, <span class="serif">built to grow.</span></h1>
+    <p style="font-size: 16px; color: #4B5650; margin: 16px 0 0">Websites, menus, Google and WhatsApp automation — planned by AI, delivered by our team.</p>
+    <div style="margin-top: 22px; background: #FFFFFF; border: 1px solid #E6E4DC; border-radius: 22px; padding: 14px; text-align: left; box-shadow: 0 20px 40px -30px rgba(11,15,12,.4)">
+      <span style="font-size: 13px; font-weight: 600; color: #4B5650">What kind of business?</span>
+      <div role="group" aria-label="Business type" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px">
+        <sc-for list="{{ biz }}" as="b" hint-placeholder-count="4"><button onClick="{{ b.pick }}" aria-pressed="{{ b.on }}" style="{{ b.style }}">{{ b.label }}</button></sc-for>
+      </div>
+      <div style="font-size: 13px; color: #4B5650; margin-top: 10px">First step: <strong style="color: #0B0F0C">{{ first }}</strong></div>
+      <a href="Hub.dc.html" style="margin-top: 12px; display: block; text-align: center; background: #0B0F0C; color: #FFFFFF; font-weight: 600; padding: 16px; border-radius: 14px">Start your path →</a>
+    </div>
+    <div style="margin-top: 26px; border-radius: 22px; overflow: hidden; aspect-ratio: 16 / 10; background: #F1F0EA">
+      <video src="/_blob/56afe0dcf81cd1f38f2606979b5b33cb" poster="/_blob/b95dcbf81f0bb28e06cef3098f8ecccc" autoplay="" muted="" loop="" playsinline="" aria-label="AuraDigital showreel" style="width: 100%; height: 100%; object-fit: cover; display: block"></video>
+    </div>
+  </section>
+
+  <section style="padding: 48px 20px 0">
+    <h2 class="disp" style="font-size: 34px; line-height: 1; font-weight: 800; margin: 0">What do you <span class="serif">need?</span></h2>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 18px">
+      <a href="Solutions.dc.html" style="background: #F3EEDC; border-radius: 18px; padding: 18px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between"><strong class="disp" style="font-size: 21px">Build</strong><span style="font-size: 13px; color: #2E3832">Website, store, brand</span></a>
+      <a href="Solutions.dc.html" style="background: #E3EEFB; border-radius: 18px; padding: 18px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between"><strong class="disp" style="font-size: 21px">Grow</strong><span style="font-size: 13px; color: #2E3832">Maps, SEO, ads</span></a>
+      <a href="Solutions.dc.html" style="background: #ECE8FF; border-radius: 18px; padding: 18px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between"><strong class="disp" style="font-size: 21px">Automate</strong><span style="font-size: 13px; color: #2E3832">WhatsApp &amp; AI</span></a>
+      <a href="Solutions.dc.html" style="background: #E3F1E6; border-radius: 18px; padding: 18px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between"><strong class="disp" style="font-size: 21px">Manage</strong><span style="font-size: 13px; color: #2E3832">AuraHub</span></a>
+    </div>
+  </section>
+
+  <section style="padding: 48px 20px 0">
+    <a href="AuraMenu.dc.html" style="display: block; background: #E3F1E6; border-radius: 24px; padding: 24px">
+      <span style="font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #2E3832">Restaurants &amp; cafés</span>
+      <span class="disp" style="display: block; font-size: 40px; font-weight: 800; margin-top: 8px">AuraMenu</span>
+      <span style="display: block; font-size: 14px; margin-top: 6px; color: #2E3832">QR digital menus in TR, EN and AR.</span>
+      <span style="display: block; font-weight: 600; margin-top: 14px">Explore →</span>
+    </a>
+  </section>
+
+  <section style="padding: 48px 20px 0">
+    <h2 class="disp" style="font-size: 34px; line-height: 1; font-weight: 800; margin: 0">4 simple <span class="serif">steps.</span></h2>
+    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 18px">
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+        <div class="ticket" style="{{ s.style }}"><span class="disp" style="font-size: 32px; font-weight: 800">{{ s.n }}</span><span style="border-left: 2px dashed rgba(11,15,12,.2); padding-left: 14px"><strong style="display: block">{{ s.t }}</strong><span style="font-size: 13px; color: #2E3832">{{ s.d }}</span></span></div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding: 48px 20px 0">
+    <h2 class="disp" style="font-size: 34px; line-height: 1; font-weight: 800; margin: 0">Our <span class="serif">work.</span></h2>
+    <a href="Work.dc.html" style="display: block; margin-top: 18px; border-radius: 20px; overflow: hidden; border: 1px solid #ECEAE2">
+      <img src="/_blob/fa3669d6d8c834adc34efe0134c2a8e4" alt="Mutlu Nakliyat website" style="width: 100%; display: block; aspect-ratio: 16 / 10; object-fit: cover">
+      <span style="display: block; padding: 14px 16px"><strong class="disp" style="font-size: 20px">Mutlu Nakliyat</strong><span style="display: block; font-size: 13px; color: #4B5650">Website, Google profile, Meta ads</span></span>
+    </a>
+  </section>
+
+  <section style="padding: 40px 20px 48px">
+    <div style="background: #E1E100; border-radius: 28px; padding: 34px 22px; text-align: center">
+      <h2 class="disp" style="font-size: 38px; line-height: .98; font-weight: 800; margin: 0">Make your next <span class="serif">move count.</span></h2>
+      <a href="Hub.dc.html" style="margin-top: 18px; display: block; background: #0B0F0C; color: #FFFFFF; font-weight: 600; padding: 16px; border-radius: 999px">Start your path →</a>
+    </div>
+  </section>
+
+  <dc-import name="Footer" hint-size="390px,900px"></dc-import>
+  <dc-import name="Auri" hint-size="0px,0px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":3600}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { biz: 0 }; }
+  renderVals() {
+    const s = this.state;
+    const B = [['Restaurant', 'AuraMenu QR menu'], ['Services', 'Google Maps profile'], ['Shop', 'Online store'], ['Creator', 'AuraPops profile']];
+    const on = 'background: #0B0F0C; color: #FFFFFF; border: 1px solid #0B0F0C; border-radius: 999px; padding: 9px 14px; font-size: 14px; font-weight: 600; min-height: 42px; font-family: Inter, sans-serif; cursor: pointer';
+    const off = 'background: #FFFFFF; color: #0B0F0C; border: 1px solid #D9D6CB; border-radius: 999px; padding: 9px 14px; font-size: 14px; min-height: 42px; font-family: Inter, sans-serif; cursor: pointer';
+    const bg = ['#F3EEDC', '#E3EEFB', '#ECE8FF', '#E1E100'];
+    return {
+      biz: B.map((b, i) => ({ label: b[0], on: i === s.biz, style: i === s.biz ? on : off, pick: () => this.setState({ biz: i }) })),
+      first: B[s.biz][1],
+      steps: [['01', 'Tell Auri about you', 'A short, friendly chat'], ['02', 'Get your roadmap', 'Clear steps, right order'], ['03', 'Build it your way', 'With Auri or our team'], ['04', 'Track it in AuraHub', 'Everything in one place']].map((x, i) => ({ n: x[0], t: x[1], d: x[2], style: 'border-radius: 18px; padding: 16px 20px; display: flex; gap: 14px; align-items: center; background: ' + bg[i] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

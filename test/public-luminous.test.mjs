@@ -4,7 +4,8 @@ import {readFileSync} from 'node:fs';
 
 const root=new URL('../',import.meta.url);
 const css=readFileSync(new URL('public-luminous.css',root),'utf8');
-const publicPages=['index.html','portfolio.html','services.html','websites.html','about.html','contact.html','aura-menu.html','packages.html'];
+// Redesigned 2026 pages are covered by redesign-2026.test.mjs.
+const publicPages=['services.html','websites.html'];
 
 test('luminous marketing palette is included after existing page styles',()=>{
   for(const file of publicPages){
