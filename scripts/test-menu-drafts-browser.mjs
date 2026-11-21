@@ -3,7 +3,7 @@ import { chromium } from 'playwright';
 const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),args:['--no-sandbox']});
 async function openMenuDrafts(page) {
  await page.locator('.sidebar').getByRole('link',{name:'Requests',exact:true}).click();
- await page.getByRole('link',{name:'Menu drafts',exact:true}).click();
+ await page.locator('#page-content').getByRole('link',{name:'Menu drafts',exact:true}).click();
 }
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];page.on('pageerror',error=>errors.push(error.message));
