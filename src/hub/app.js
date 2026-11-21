@@ -222,6 +222,7 @@ function authScreen({signup,forgot,reset}){
     await api('/api/customer/'+(signup?'register':'login'),'POST',{name:data.get('name'),email:data.get('email'),password:data.get('password'),acceptTerms:data.has('terms'),turnstileToken:tsToken});
     if(signup&&authCapabilities.email){const sent=await api('/api/customer/send-verification','POST',{}).then(()=>true).catch(()=>false);if(sent){verifyPending(String(data.get('email')||''));return;}}
     if(route!=='invitation'&&resumeShop())return;
+    if(route!=='invitation'){const dest=returnPath&&returnPath.startsWith('/hub')?returnPath:'/hub';history.replaceState(null,'',dest);}
     route=route==='invitation'?'invitation':'';await load();
    }
   }catch(error){err.textContent=error.message;resetTurnstile();}
@@ -370,6 +371,22 @@ function buildCard(ui){
  <a class="growth-secondary" href="${esc(link('services'))}">${esc(serviceLabels[lang][0])}</a></div>
  <div class="hub-hero-art">${guideCharacter()}</div></section>${serviceShortcuts(lang,esc,link)}<div data-home-guide></div>`;
 }
+const EMPTY={
+ en:{reqT:'No requests yet',reqP:'Requests you send to the AuraDigital team appear here with their status.',srvT:'No services yet',srvP:'Your websites, menus, email and other services appear here once they start.',build:'Build my roadmap',browse:'Browse services',shop:'Shop NFC cards',auriT:'Ask Auri anything',auriP:'Auri explains services and prices and suggests your best first step.'},
+ tr:{reqT:'Henüz talep yok',reqP:'AuraDigital ekibine gönderdiğiniz talepler durumlarıyla burada görünür.',srvT:'Henüz hizmet yok',srvP:'Web siteleri, menüler, e-posta ve diğer hizmetleriniz başladığında burada görünür.',build:'Yol haritamı oluştur',browse:'Hizmetlere göz at',shop:'NFC kart mağazası',auriT:'Auri’ye sorun',auriP:'Auri hizmetleri ve fiyatları anlatır, en iyi ilk adımı önerir.'},
+ ar:{reqT:'لا توجد طلبات بعد',reqP:'تظهر هنا الطلبات التي ترسلها إلى فريق AuraDigital مع حالتها.',srvT:'لا توجد خدمات بعد',srvP:'تظهر هنا مواقعك وقوائمك وبريدك وخدماتك الأخرى عند بدئها.',build:'ابنِ خطتي',browse:'تصفح الخدمات',shop:'متجر بطاقات NFC',auriT:'اسأل أوري',auriP:'يشرح أوري الخدمات والأسعار ويقترح أفضل خطوة أولى.'},
+ fr:{reqT:'Aucune demande',reqP:'Vos demandes à l’équipe AuraDigital apparaissent ici avec leur statut.',srvT:'Aucun service',srvP:'Vos sites, menus, e-mails et autres services apparaissent ici dès leur démarrage.',build:'Créer ma feuille de route',browse:'Voir les services',shop:'Cartes NFC',auriT:'Demandez à Auri',auriP:'Auri explique services et prix et propose votre meilleure première étape.'}
+};
+const em=k=>(EMPTY[lang]||EMPTY.en)[k]||EMPTY.en[k];
+function renderWorkEmpty(page){
+ const req=page==='requests';
+ content(`<section class="panel hub-empty"><div class="hub-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="${req?'M4 13l2-8h12l2 8M4 13v6h16v-6M4 13h5l1 2h4l1-2h5':'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z'}"/></svg></div><h2>${esc(em(req?'reqT':'srvT'))}</h2><p>${esc(em(req?'reqP':'srvP'))}</p><div class="hub-empty-actions"><a class="growth-primary" href="${esc(link('onboarding'))}">${esc(em('build'))} <span aria-hidden="true">→</span></a><a class="growth-secondary" href="/service-shop">${esc(em('browse'))}</a><a class="growth-secondary" href="/shop">${esc(em('shop'))}</a></div></section>${serviceShortcuts(lang,esc,link)}`);
+}
+function renderAuriEmpty(){
+ content(`<section class="hub-auri-intro"><h2>${esc(em('auriT'))}</h2><p>${esc(em('auriP'))}</p></section><div data-home-guide></div>`);
+ const scope=workspace?.organization.id||setupScope;
+ guideAt(document.querySelector('[data-home-guide]'),scope,()=>workspace?.profile);
+}
 function renderBuildCard(ui){
  content(buildCard(ui));
  const scope=workspace?.organization.id||setupScope;
@@ -484,6 +501,8 @@ async function renderPage(){
   onLanguage:value=>{lang=value;saveLanguage(lang);render();},
   onNewWorkspace:()=>{stopAuriVoice();workspace=null;editing=true;draft=emptyProfile();mode='myself';step=0;renderSetup();},
  });
+ if(!workspace&&page==='assistant')return renderAuriEmpty();
+ if(!workspace&&(page==='services'||page==='requests'))return renderWorkEmpty(page);
  if(!workspace)return renderBuildCard(label);
  if(page==='services'||page==='requests')return myWork();
  if((page==='journey'||page==='onboarding')&&!workspace.missions.length)return renderBuildCard(label);

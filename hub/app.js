@@ -1904,6 +1904,10 @@ function authScreen({ signup, forgot, reset }) {
           }
         }
         if (route !== "invitation" && resumeShop()) return;
+        if (route !== "invitation") {
+          const dest = returnPath && returnPath.startsWith("/hub") ? returnPath : "/hub";
+          history.replaceState(null, "", dest);
+        }
         route = route === "invitation" ? "invitation" : "";
         await load();
       }
@@ -2230,6 +2234,22 @@ function buildCard(ui) {
  <a class="growth-secondary" href="${esc2(link("services"))}">${esc2(serviceLabels[lang][0])}</a></div>
  <div class="hub-hero-art">${guideCharacter()}</div></section>${serviceShortcuts(lang, esc2, link)}<div data-home-guide></div>`;
 }
+var EMPTY = {
+  en: { reqT: "No requests yet", reqP: "Requests you send to the AuraDigital team appear here with their status.", srvT: "No services yet", srvP: "Your websites, menus, email and other services appear here once they start.", build: "Build my roadmap", browse: "Browse services", shop: "Shop NFC cards", auriT: "Ask Auri anything", auriP: "Auri explains services and prices and suggests your best first step." },
+  tr: { reqT: "Hen\xFCz talep yok", reqP: "AuraDigital ekibine g\xF6nderdi\u011Finiz talepler durumlar\u0131yla burada g\xF6r\xFCn\xFCr.", srvT: "Hen\xFCz hizmet yok", srvP: "Web siteleri, men\xFCler, e-posta ve di\u011Fer hizmetleriniz ba\u015Flad\u0131\u011F\u0131nda burada g\xF6r\xFCn\xFCr.", build: "Yol haritam\u0131 olu\u015Ftur", browse: "Hizmetlere g\xF6z at", shop: "NFC kart ma\u011Fazas\u0131", auriT: "Auri\u2019ye sorun", auriP: "Auri hizmetleri ve fiyatlar\u0131 anlat\u0131r, en iyi ilk ad\u0131m\u0131 \xF6nerir." },
+  ar: { reqT: "\u0644\u0627 \u062A\u0648\u062C\u062F \u0637\u0644\u0628\u0627\u062A \u0628\u0639\u062F", reqP: "\u062A\u0638\u0647\u0631 \u0647\u0646\u0627 \u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0627\u0644\u062A\u064A \u062A\u0631\u0633\u0644\u0647\u0627 \u0625\u0644\u0649 \u0641\u0631\u064A\u0642 AuraDigital \u0645\u0639 \u062D\u0627\u0644\u062A\u0647\u0627.", srvT: "\u0644\u0627 \u062A\u0648\u062C\u062F \u062E\u062F\u0645\u0627\u062A \u0628\u0639\u062F", srvP: "\u062A\u0638\u0647\u0631 \u0647\u0646\u0627 \u0645\u0648\u0627\u0642\u0639\u0643 \u0648\u0642\u0648\u0627\u0626\u0645\u0643 \u0648\u0628\u0631\u064A\u062F\u0643 \u0648\u062E\u062F\u0645\u0627\u062A\u0643 \u0627\u0644\u0623\u062E\u0631\u0649 \u0639\u0646\u062F \u0628\u062F\u0626\u0647\u0627.", build: "\u0627\u0628\u0646\u0650 \u062E\u0637\u062A\u064A", browse: "\u062A\u0635\u0641\u062D \u0627\u0644\u062E\u062F\u0645\u0627\u062A", shop: "\u0645\u062A\u062C\u0631 \u0628\u0637\u0627\u0642\u0627\u062A NFC", auriT: "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A", auriP: "\u064A\u0634\u0631\u062D \u0623\u0648\u0631\u064A \u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0648\u0627\u0644\u0623\u0633\u0639\u0627\u0631 \u0648\u064A\u0642\u062A\u0631\u062D \u0623\u0641\u0636\u0644 \u062E\u0637\u0648\u0629 \u0623\u0648\u0644\u0649." },
+  fr: { reqT: "Aucune demande", reqP: "Vos demandes \xE0 l\u2019\xE9quipe AuraDigital apparaissent ici avec leur statut.", srvT: "Aucun service", srvP: "Vos sites, menus, e-mails et autres services apparaissent ici d\xE8s leur d\xE9marrage.", build: "Cr\xE9er ma feuille de route", browse: "Voir les services", shop: "Cartes NFC", auriT: "Demandez \xE0 Auri", auriP: "Auri explique services et prix et propose votre meilleure premi\xE8re \xE9tape." }
+};
+var em = (k) => (EMPTY[lang] || EMPTY.en)[k] || EMPTY.en[k];
+function renderWorkEmpty(page2) {
+  const req = page2 === "requests";
+  content(`<section class="panel hub-empty"><div class="hub-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="${req ? "M4 13l2-8h12l2 8M4 13v6h16v-6M4 13h5l1 2h4l1-2h5" : "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"}"/></svg></div><h2>${esc2(em(req ? "reqT" : "srvT"))}</h2><p>${esc2(em(req ? "reqP" : "srvP"))}</p><div class="hub-empty-actions"><a class="growth-primary" href="${esc2(link("onboarding"))}">${esc2(em("build"))} <span aria-hidden="true">\u2192</span></a><a class="growth-secondary" href="/service-shop">${esc2(em("browse"))}</a><a class="growth-secondary" href="/shop">${esc2(em("shop"))}</a></div></section>${serviceShortcuts(lang, esc2, link)}`);
+}
+function renderAuriEmpty() {
+  content(`<section class="hub-auri-intro"><h2>${esc2(em("auriT"))}</h2><p>${esc2(em("auriP"))}</p></section><div data-home-guide></div>`);
+  const scope = workspace?.organization.id || setupScope;
+  guideAt(document.querySelector("[data-home-guide]"), scope, () => workspace?.profile);
+}
 function renderBuildCard(ui) {
   content(buildCard(ui));
   const scope = workspace?.organization.id || setupScope;
@@ -2374,6 +2394,8 @@ async function renderPage() {
       renderSetup();
     }
   });
+  if (!workspace && page === "assistant") return renderAuriEmpty();
+  if (!workspace && (page === "services" || page === "requests")) return renderWorkEmpty(page);
   if (!workspace) return renderBuildCard(label);
   if (page === "services" || page === "requests") return myWork();
   if ((page === "journey" || page === "onboarding") && !workspace.missions.length) return renderBuildCard(label);
