@@ -4,7 +4,7 @@
  const main=dashboard?.querySelector("main");
  if(!main)return;
  const slug=location.pathname.split("/").filter(Boolean)[0];
- if(!/^(qusai|malek|ala|yessin|emp-[a-z0-9-]{5,50})$/.test(slug||""))return;
+ if(!/^(qusai|malek|ala|yessin|yessine|emp-[a-z0-9-]{5,50})$/.test(slug||""))return;
  const apiRoot=slug==="qusai"?"/api/employee/":"/api/employee/"+slug+"/";
  const section=document.createElement("section");
  section.className="panel";
