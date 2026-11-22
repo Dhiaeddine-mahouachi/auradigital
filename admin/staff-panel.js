@@ -9,7 +9,7 @@ async function render({root,api,user}){
  document.getElementById("pageSubtitle").textContent="Create workspaces and review employee logs.";
  root.innerHTML="<section class='cc-panel'>Loading employees and activity…</section>";
  const data=await api("/api/admin/managed-employees");
- const fixed=["qusai","malek","ala","yessin"];
+ const fixed=["qusai","malek","ala","yessin","yessine"];
  const employees=data.employees||[];
  const profiles=[
    ...fixed.map(p=>employees.find(e=>e.portal===p)||{portal:p,name:p.charAt(0).toUpperCase()+p.slice(1),configured:false,clients:0,followUps:0}),
