@@ -212,6 +212,7 @@ async function admin(request,env,path) {
     let rates;try{rates=tariff(env);}catch{rates=null;}
     return json({entries:entries.results,requests:requests.results,events:events.results,failures:failures.results,usage:usage.results.map(u=>({...u,estimatedCostUSD:rates?(u.input_tokens*rates.input+u.output_tokens*rates.output)/1000000:null,reservationUpperBoundUSD:rates?u.reserved_tokens*rates.max/1000000:null})),sessions:sessions.count,provider:env.AI_PROVIDER||'disabled',model:env.AI_MODEL||null,pricing:catalogue,limits:{dailyTokens:Number(env.AI_DAILY_TOKEN_LIMIT)||500000,recoveryTokens:env.AI_RECOVERY_DAY===new Date().toISOString().slice(0,10)?Math.max(0,Math.min(250000,Number(env.AI_RECOVERY_TOKEN_ALLOWANCE)||0)):0,dailyBudgetUSD:Number(env.AI_DAILY_BUDGET_USD)||1},resolutionRate:null,answerQuality:null});
   }
+  if(request.method==='POST'&&path==='/api/admin/ai/connection') return json(await aiConnectionCheck(env),200,{'Cache-Control':'no-store'});
   if(request.method==='POST'&&path==='/api/admin/ai/test') {
     const b=await readJson(request,8000),page=pageContext(b.page);
     return json({entries:await retrieve(env.DB,clean(b.query,2000),page.category,language(b.query,b.language)),note:'Retrieval preview only; draft entries are excluded.'});
@@ -319,4 +320,51 @@ export async function cleanupAiData(env) {
     env.DB.prepare("DELETE FROM ai_events WHERE created_at<datetime('now','-30 days')"),
     env.DB.prepare("DELETE FROM ai_requests WHERE created_at<datetime('now','-90 days')")
   ]);
+}
+
+// Admin connection check: which AI settings the Worker can see (names only,
+// never values) and a live minimal call to each provider, with the reason a
+// call fails. Owners and managers reach this through /api/admin/ai/*.
+export async function aiConnectionCheck(env) {
+  const { ollamaEndpoint, ollamaKey, fallbackEnv } = await import('./ai-provider.js');
+  const names = Object.keys(env).filter(k => /OLLAMA|AURI|^AI_|^HUB_OLLAMA/i.test(k)).sort();
+  const endpoint = env.AI_PROVIDER === 'ollama' ? ollamaEndpoint(env) : null;
+  const settings = {
+    provider: env.AI_PROVIDER || null, model: env.AI_MODEL || null,
+    fallbackProvider: env.AI_FALLBACK_PROVIDER || null, fallbackModel: env.AI_FALLBACK_MODEL || null,
+    ollamaEndpoint: endpoint ? endpoint.origin + endpoint.pathname : null,
+    ollamaKeyFound: Boolean(ollamaKey(env)), workersAIBinding: typeof env.AI?.run === 'function',
+    settingNames: names,
+  };
+  const messages = [{ role: 'user', content: 'Reply with the single word OK.' }];
+  const result = {};
+  if (env.AI_PROVIDER === 'ollama') {
+    if (!endpoint) result.ollama = { ok: false, reason: 'No Ollama address or key found. Add the secret OLLAMA_API_KEY (or AI_BASE_URL for your own server).' };
+    else {
+      const started = Date.now();
+      try {
+        const key = ollamaKey(env);
+        const response = await fetch(endpoint, { method: 'POST', redirect: 'error', headers: { 'Content-Type': 'application/json', ...(key ? { Authorization: `Bearer ${key}` } : {}) },
+          body: JSON.stringify({ model: env.AI_MODEL, messages, stream: false, options: { num_predict: 20 } }), signal: AbortSignal.timeout(20000) });
+        const text = (await response.text()).slice(0, 300);
+        result.ollama = response.ok ? { ok: true, status: response.status, ms: Date.now() - started }
+          : { ok: false, status: response.status, ms: Date.now() - started, reason: response.status === 401 || response.status === 403 ? 'Ollama rejected the key (check OLLAMA_API_KEY).' : response.status === 404 ? 'Model not found on this Ollama server (check AI_MODEL).' : 'Ollama returned an error.', detail: text.replace(/[\r\n]+/g, ' ') };
+      } catch (error) { result.ollama = { ok: false, ms: Date.now() - started, reason: error?.name === 'TimeoutError' ? 'Ollama did not answer within 20 seconds.' : 'Could not reach the Ollama address.', detail: String(error?.message || error).slice(0, 200) }; }
+    }
+  }
+  const fb = env.AI_FALLBACK_PROVIDER === 'cloudflare' ? fallbackEnv(env) : env.AI_PROVIDER === 'cloudflare' ? env : null;
+  if (fb) {
+    if (typeof env.AI?.run !== 'function') result.workersAI = { ok: false, reason: 'The Workers AI binding (AI) is missing.' };
+    else {
+      const started = Date.now();
+      try { await env.AI.run(fb.AI_MODEL, { messages, max_tokens: 10 }); result.workersAI = { ok: true, ms: Date.now() - started }; }
+      catch (error) { result.workersAI = { ok: false, ms: Date.now() - started, reason: 'Workers AI refused the request.', detail: String(error?.message || error).slice(0, 300) }; }
+    }
+  }
+  let budget = null;
+  try {
+    const row = await env.DB.prepare('SELECT reserved_tokens AS reserved, calls FROM ai_usage WHERE day=?').bind(new Date().toISOString().slice(0, 10)).first();
+    budget = { today: row || { reserved: 0, calls: 0 }, dailyTokenLimit: Number(env.AI_DAILY_TOKEN_LIMIT) || null };
+  } catch {}
+  return { settings, result, budget, checkedAt: new Date().toISOString() };
 }

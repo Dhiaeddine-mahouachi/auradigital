@@ -58,3 +58,7 @@ html body .client-tab.active{background:#0B0F0C;color:#fff;border-color:#0B0F0C}
 @media(max-width:820px){.crm-search-wrap{min-width:0;width:100%}.crm-row{align-items:flex-start}.crm-select{flex:1 1 120px}}
 /* One search in the top bar: the CRM search covers clients and every service. */
 html body #cc-global-search{display:none}
+
+/* AI connection check */
+.ai-check{list-style:none;margin:12px 0;padding:0;display:grid;gap:8px}.ai-check li{padding:12px 14px;border-radius:12px;border:1px solid #E6E4DC;line-height:1.5}.ai-check li.ok{background:#E3F1E6;border-color:#BFDDC6}.ai-check li.bad{background:#FBE3E0;border-color:#F0BDB6}.ai-check code{font-size:12px;overflow-wrap:anywhere}
+.ai-settings{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0;font-size:14px}.ai-settings dt{color:#4B5650}.ai-settings dd{margin:0;overflow-wrap:anywhere}

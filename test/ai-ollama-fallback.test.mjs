@@ -78,3 +78,21 @@ test('Ollama Cloud without a key falls back instead of sending an unauthenticate
     assert.equal(called, false);
   } finally { globalThis.fetch = realFetch; }
 });
+
+import { aiConnectionCheck } from '../src/ai-employee.js';
+
+test('admin connection check names settings without values and explains failures', async () => {
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response('{"error":"unauthorized"}', { status: 401 });
+  try {
+    const misnamed = await aiConnectionCheck({ AI_PROVIDER: 'ollama', AI_MODEL: 'gpt-oss:20b', AURI_OLLAMA_SECRET: 'secret-value', AI_FALLBACK_PROVIDER: 'cloudflare', AI: { run: async () => { throw new Error('4006: daily free allocation exceeded'); } }, DB: { prepare: () => ({ bind: () => ({ first: async () => null }) }) } });
+    assert.equal(misnamed.settings.ollamaKeyFound, false);
+    assert.ok(misnamed.settings.settingNames.includes('AURI_OLLAMA_SECRET'));
+    assert.doesNotMatch(JSON.stringify(misnamed), /secret-value/);
+    assert.match(misnamed.result.ollama.reason, /OLLAMA_API_KEY/);
+    assert.match(misnamed.result.workersAI.detail, /daily free allocation/);
+    const rejected = await aiConnectionCheck({ AI_PROVIDER: 'ollama', AI_MODEL: 'gpt-oss:20b', OLLAMA_API_KEY: 'k', DB: { prepare: () => ({ bind: () => ({ first: async () => null }) }) } });
+    assert.equal(rejected.result.ollama.status, 401);
+    assert.match(rejected.result.ollama.reason, /rejected the key/);
+  } finally { globalThis.fetch = realFetch; }
+});
