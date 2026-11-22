@@ -194,3 +194,12 @@ test("new Yessine portal requires owner setup and keeps the existing Yessin acco
 
   sqlite.close();
 });
+
+
+test("Yessine route is handled by the Worker with private asset headers", async () => {
+  const config=JSON.parse(await readFile(new URL("../wrangler.jsonc",import.meta.url),"utf8"));
+  assert.ok(config.assets.run_worker_first.includes("/yessine"));
+  assert.ok(config.assets.run_worker_first.includes("/yessine/"));
+  const headers=await readFile(new URL("../_headers",import.meta.url),"utf8");
+  assert.match(headers,/\/yessine\*\s+Cache-Control: no-store, private\s+X-Robots-Tag: noindex, nofollow, noarchive/);
+});
