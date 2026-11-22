@@ -94,18 +94,17 @@ nfc-status.html.
    Run `bash scripts/backup-d1.sh` at least weekly and before database changes.
    Full production security operations are documented in SECURITY.md.
 
-13) AI assistant (Auri) with Ollama Cloud
-   wrangler.jsonc sets AI_PROVIDER=ollama and AI_MODEL=gpt-oss:20b, with
-   Cloudflare Workers AI as the automatic backup. Add your Ollama Cloud key
-   (ollama.com → Settings → Keys) as a Worker secret:
-     npx wrangler secret put OLLAMA_API_KEY
-   With only the key set, Auri calls https://ollama.com/api/chat. To use your
-   own Ollama server instead, set the secret AI_BASE_URL to its public HTTPS
-   address (a Cloudflare Tunnel works); "https://host", ".../api" and
-   ".../api/chat" are all accepted. Remove an old AI_BASE_URL secret that
-   points somewhere else. Any model listed at https://ollama.com/api/tags can
-   go in AI_MODEL. The AuraHub "Ask Auri" uses the same settings unless
-   HUB_OLLAMA_URL / HUB_OLLAMA_MODEL are set.
+13) AI assistant (Auri)
+   Auri uses Cloudflare Workers AI through the Worker's AI binding: no API key.
+   wrangler.jsonc sets AI_PROVIDER=cloudflare and AI_MODEL to a list tried in
+   order (Llama 4 Scout, then Llama 3.3 70B, then Mistral Small); a model
+   Cloudflare retires is skipped automatically. Workers AI includes 10,000
+   Neurons a day free (about 100-200 Auri replies); more needs the Workers Paid
+   plan. AI_DAILY_BUDGET_USD caps spending. Admin -> Auri AI -> Check connection
+   tests the models live.
+   To use Ollama instead (e.g. Ollama Cloud with a subscription): set
+   AI_PROVIDER=ollama, AI_MODEL to an Ollama model, the secret OLLAMA_API_KEY,
+   and AI_FALLBACK_PROVIDER=cloudflare to keep Workers AI as the backup.
 
 14) CRM
    Admin → CRM. Each client's "All services" tab gathers the NFC, AuraMenu and
