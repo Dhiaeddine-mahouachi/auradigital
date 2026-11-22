@@ -173,7 +173,7 @@ async function attempt(env,messages,timeout,engine) {
   }
   // Prices and side effects must be server-generated, never unchecked model claims.
   if(!verifiedPrices(result.reply,result.selection,packages,engine)||/(?:I have|I’ve|we have|successfully)\s+(?:saved|sent|created|emailed)/i.test(result.reply)) throw new ApiError(502,'Unverified AI action or price claim.');
-  return {result,usage,model};
+  return {result,usage,model:env.AI_PROVIDER==='cloudflare'?(workingCfModel||model):model};
   }catch(error){error.usage=usage;error.usageKnown=usage.input>0;throw error;}
 }
 

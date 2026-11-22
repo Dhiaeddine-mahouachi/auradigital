@@ -96,6 +96,7 @@ async function message(request,env,s) {
     const history=(await db.prepare('SELECT role,content FROM ai_messages WHERE session_id=? ORDER BY id DESC LIMIT 8').bind(s.id).all()).results.reverse();
     let selection=b.selection!==undefined?validateSelection(b.selection):previous.selection;
     let state={...previous,category:cat}, reply='',mode='unavailable',usage={input:0,output:0},errorCategory='provider_configuration';
+    let timing='';
     const publicProjects=cat==='portfolio'?await portfolio(db):[];
     if(detected!=='restricted'&&cat==='portfolio') {
       docs.unshift(...publicProjects.slice(0,3).map((p,i)=>({id:'public-portfolio-'+i,title:clean(p.title,160),content:clean(p.type+' · '+p.description,1000),source_url:/^https:\/\//.test(p.url)?p.url:'https://auradigitalworks.com/portfolio',verified_at:new Date().toISOString()})));
@@ -129,7 +130,9 @@ async function message(request,env,s) {
       const budget=await db.prepare('UPDATE ai_usage SET reserved_tokens=reserved_tokens+?,calls=calls+1 WHERE day=? AND reserved_tokens+?<=? RETURNING day').bind(reserve,day,reserve,limit).first();
       if(budget) {
         try {
+          const aiStarted=Date.now();
           const output=await generate(env,messages,requestId,engine);
+          timing=`ai;dur=${Date.now()-aiStarted};desc="${String(output.model||'').replace(/[^\w@/.:-]/g,'')} x${output.attempts||1}"`;
           reply=clean(output.result.reply,4000);mode='ai';usage=output.usage;
           if(['discovery','pricing','comparison','quotation','support','handoff','restricted'].includes(output.result.intent)) detected=output.result.intent;
           state=safeMemory(state,output.result.memory);
@@ -166,7 +169,7 @@ async function message(request,env,s) {
       db.prepare('DELETE FROM ai_messages WHERE session_id=? AND id NOT IN (SELECT id FROM ai_messages WHERE session_id=? ORDER BY id DESC LIMIT 40)').bind(s.id,s.id),
       event(db,s.id,mode==='ai'?'response':mode==='deterministic'?'deterministic_quote':'fallback','',detected,Date.now()-started)
     ]);
-    return json({requestId,reply,language:lang,mode,intent:detected,estimate:calculated,memory:state,sources:docs.map(k=>({title:k.title,url:k.source_url,verifiedAt:k.verified_at})),actions:['quote','lead','handoff'],usage});
+    return json({requestId,reply,language:lang,mode,intent:detected,estimate:calculated,memory:state,sources:docs.map(k=>({title:k.title,url:k.source_url,verifiedAt:k.verified_at})),actions:['quote','lead','handoff'],usage},200,timing?{'Server-Timing':timing}:{});
   }finally{await db.prepare('UPDATE ai_sessions SET busy_until=0 WHERE id=? AND busy_until=?').bind(s.id,lease).run();}
 }
 
