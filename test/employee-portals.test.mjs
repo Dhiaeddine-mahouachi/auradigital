@@ -3,7 +3,7 @@ import test from "node:test";
 import { readFile } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 import { handleAdditionalEmployeeApi, serveAdditionalEmployeePortal } from "../src/employee-portals.js";
-import { hashPassword } from "../src/security.js";
+import { createSession, hashPassword } from "../src/security.js";
 
 const origin = "https://auradigital.ink";
 function request(path, method = "GET", body = null, cookie = "") {
@@ -15,9 +15,9 @@ function request(path, method = "GET", body = null, cookie = "") {
   });
 }
 
-test("three additional employee portals are available without changing Qusai", async () => {
+test("four additional employee portals are available without changing Qusai", async () => {
   const env = { ASSETS: { fetch: async (request) => new Response("private " + new URL(request.url).pathname, { headers: { "Content-Type": "text/html" } }) } };
-  for (const slug of ["malek", "ala", "yessin"]) {
+  for (const slug of ["malek", "ala", "yessin", "yessine"]) {
     const response = await serveAdditionalEmployeePortal(request("/" + slug), env);
     assert.equal(response.status, 200);
     assert.match(await response.text(), new RegExp(slug + "/index.html"));
@@ -133,3 +133,64 @@ function d1(sqlite) {
     },
   };
 }
+
+
+test("new Yessine portal requires owner setup and keeps the existing Yessin account separate", async () => {
+  const sqlite = new DatabaseSync(":memory:");
+  sqlite.exec("PRAGMA foreign_keys = ON");
+  sqlite.exec("CREATE TABLE clients (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, company TEXT NOT NULL DEFAULT '', email TEXT NOT NULL DEFAULT '', phone TEXT NOT NULL DEFAULT '', service TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'lead', renewal_date TEXT, notes TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')))");
+  sqlite.exec(await readFile(new URL("../migrations/0001_admin_security.sql", import.meta.url), "utf8"));
+  sqlite.exec(await readFile(new URL("../migrations/0002_employee_portal.sql", import.meta.url), "utf8"));
+  const db = d1(sqlite);
+  const env = { DB: db, LOGIN_RATE_LIMITER: { limit: async () => ({ success: true }) } };
+  const run = (path, method="GET", body=null, cookie="") => handleAdditionalEmployeeApi(request(path, method, body, cookie), env);
+
+  const status = await run("/api/employee/yessine/portal");
+  assert.deepEqual(await status.json(), { configured: false, portal: "yessine", displayName: "Yessine" });
+
+  const initial = await run("/api/employee/yessine/login", "POST", {password:"New-employee-2026-password"});
+  assert.equal(initial.status, 503);
+  assert.equal((await initial.json()).code, "not_configured");
+
+  const anonymous = await run("/api/employee/yessine/bootstrap", "POST", { password:"New-employee-2026-password" });
+  assert.equal(anonymous.status, 403);
+
+  const ownerId = crypto.randomUUID();
+  await db.prepare("INSERT INTO admin_users(id,username,display_name,password_hash,role) VALUES (?,?,?,?,?)")
+    .bind(ownerId, "owner", "Owner", await hashPassword("Owner-very-secure-password-2026"), "owner").run();
+  const ownerCookie="__Host-aura_admin="+await createSession(db, ownerId);
+  const created = await run("/api/employee/yessine/bootstrap", "POST", {password:"New-employee-2026-password"}, ownerCookie);
+  assert.equal(created.status, 201);
+  const duplicate = await run("/api/employee/yessine/bootstrap", "POST", {password:"New-employee-2026-password"}, ownerCookie);
+  assert.equal(duplicate.status, 409);
+
+  const yessine = await run("/api/employee/yessine/login", "POST", {password:"New-employee-2026-password"});
+  assert.equal(yessine.status, 200);
+  const yessineCookie = yessine.headers.get("set-cookie").split(";",1)[0];
+  assert.match(yessineCookie, /__Host-aura_employee_yessine=/);
+  assert.equal((await yessine.json()).passwordChangeRequired, false);
+
+  const existingYessinId=crypto.randomUUID();
+  await db.prepare("INSERT INTO employee_users(id,portal_slug,display_name,password_hash) VALUES (?,?,?,?)")
+    .bind(existingYessinId,"yessin","Yessin",await hashPassword("Legacy-Yessin-private-password")).run();
+  const yessin = await run("/api/employee/yessin/login","POST",{password:"Legacy-Yessin-private-password"});
+  assert.equal(yessin.status,200);
+  const yessinCookie=yessin.headers.get("set-cookie").split(";",1)[0];
+
+  const oldClient=await run("/api/employee/yessin/clients","POST",{name:"Original Yessin prospect",company:"Old account lead",status:"lead"},yessinCookie);
+  assert.equal(oldClient.status,201);
+
+  const separate=await run("/api/employee/yessine/clients","GET",null,yessineCookie);
+  assert.equal(separate.status,200);
+  assert.deepEqual((await separate.json()).clients,[]);
+  assert.equal((await run("/api/employee/yessin/clients","GET",null,yessineCookie)).status,401);
+
+  const newClient=await run("/api/employee/yessine/clients","POST",{name:"Yessine prospect",company:"New account lead",status:"lead"},yessineCookie);
+  assert.equal(newClient.status,201);
+  const oldList=await run("/api/employee/yessin/clients","GET",null,yessinCookie);
+  assert.deepEqual((await oldList.json()).clients.map(c=>c.name),["Original Yessin prospect"]);
+  const newList=await run("/api/employee/yessine/clients","GET",null,yessineCookie);
+  assert.deepEqual((await newList.json()).clients.map(c=>c.name),["Yessine prospect"]);
+
+  sqlite.close();
+});

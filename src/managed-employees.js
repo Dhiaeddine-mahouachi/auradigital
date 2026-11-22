@@ -3,7 +3,7 @@ import {getAuthenticatedAdmin,hashPassword,sameOrigin} from "./security.js";
 import {managedEmployeePortal} from "./employee-portals.js";
 
 const managedSlug=/^emp-[a-z0-9-]{5,50}$/;
-const fixedPortals=new Set(["qusai","malek","ala","yessin"]);
+const fixedPortals=new Set(["qusai","malek","ala","yessin","yessine"]);
 const jsonOut=(data,status=200)=>json(data,status,{"Cache-Control":"no-store"});
 const fail=(message,status=400)=>jsonOut({error:message},status);
 const clean=(value,max=100)=>String(value??"").trim().slice(0,max);
@@ -20,8 +20,8 @@ async function list(db){
   const summaries=new Map((metrics.results||[]).map(m=>[m.employee_user_id,m]));
   const all=staff.results||[];
   const view=u=>({id:u.id,portal:u.portal_slug,name:u.display_name,active:!!u.active,configured:true,managed:u.portal_slug.startsWith("emp-"),url:"/"+u.portal_slug,lastLogin:u.last_login_at,createdAt:u.created_at,clients:Number(summaries.get(u.id)?.total||0),activeClients:Number(summaries.get(u.id)?.active||0),followUps:Number(summaries.get(u.id)?.follow_ups||0)});
-  const profiles=["qusai","malek","ala","yessin"].map(p=>all.find(u=>u.portal_slug===p)).filter(Boolean).map(view);
-  const extra=all.filter(u=>!["qusai","malek","ala","yessin"].includes(u.portal_slug)).map(view);
+  const profiles=["qusai","malek","ala","yessin","yessine"].map(p=>all.find(u=>u.portal_slug===p)).filter(Boolean).map(view);
+  const extra=all.filter(u=>!["qusai","malek","ala","yessin","yessine"].includes(u.portal_slug)).map(view);
   return {employees:[...profiles,...extra],logs:(logs.results||[]).map(e=>({portal:e.portal_slug||"unknown",actor:e.actor_snapshot,action:e.action,target:e.target_id,at:e.created_at}))};
 }
 export async function handleManagedEmployeeAdmin(request,env){

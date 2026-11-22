@@ -521,15 +521,16 @@ const PORTALS = Object.freeze({
   malek: makeEmployeePortal("malek", "Malek"),
   ala: makeEmployeePortal("ala", "Ala"),
   yessin: makeEmployeePortal("yessin", "Yessin"),
+  yessine: makeEmployeePortal("yessine", "Yessine"),
 });
 
 export async function serveAdditionalEmployeePortal(request, env) {
-  const match = new URL(request.url).pathname.match(/^\/(malek|ala|yessin)\/?$/);
+  const match = new URL(request.url).pathname.match(/^\/(malek|ala|yessin|yessine)\/?$/);
   return match ? PORTALS[match[1]].serveEmployeePortal(request, env) : null;
 }
 
 export async function handleAdditionalEmployeeApi(request, env) {
-  const match = new URL(request.url).pathname.match(/^\/api\/employee\/(malek|ala|yessin)\//);
+  const match = new URL(request.url).pathname.match(/^\/api\/employee\/(malek|ala|yessin|yessine)\//);
   return match ? PORTALS[match[1]].handleEmployeePortalApi(request, env) : null;
 }
 
