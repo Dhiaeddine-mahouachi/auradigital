@@ -11,7 +11,7 @@ const snapshot={
  insights:["1 renewal due soon.","1 active team task."]
 };
 const staff={
- employees:[{id:"e1",portal:"qusai",name:"Qusai",configured:true,active:true,clients:5,followUps:1,lastLogin:"2026-11-19"}],
+ employees:[{id:"e1",portal:"qusai",name:"Qusai",configured:true,active:true,clients:5,followUps:1,lastLogin:"2026-11-19"},{id:"e4",portal:"yessin",name:"Yessin",configured:true,active:true,clients:3,followUps:0,lastLogin:"2026-11-20"}],
  logs:[{portal:"qusai",actor:"qusai",action:"client_created",target:"1234",at:"2026-11-19 08:30:00"}]
 };
 const known={
@@ -27,7 +27,9 @@ try {
   const page=await browser.newPage({viewport:{width:1440,height:900}});
   const errors=[];
   page.on("pageerror",e=>errors.push(e.message));
-  let creations=0;
+  let creations=0,resets=0;
+  let resetPayload=null;
+  page.on("dialog",dialog=>dialog.accept());
   await page.route("**/api/admin/**",async route=>{
    const req=route.request(),path=new URL(req.url()).pathname;
    const admin=req.method()==="GET";
@@ -35,6 +37,11 @@ try {
       return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({authenticated:true,user:{id:"test",username:role,displayName:"Test",role}})});
    }
    if(!admin){
+     if(path==="/api/admin/managed-employees/e4"&&role==="owner"&&req.method()==="PATCH"){
+       resets++;
+       resetPayload=req.postDataJSON();
+       return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({ok:true,passwordChangeRequired:true})});
+     }
      if(path==="/api/admin/managed-employees"&&role==="owner"&&req.method()==="POST"){
        creations++;
        return route.fulfill({status:201,contentType:"application/json",body:JSON.stringify({employee:{id:"e2",portal:"emp-nadia-ab12cd34",name:"Nadia",url:"/emp-nadia-ab12cd34"},temporaryPassword:"SecureMockOnly1234567890",passwordChangeRequired:true})});
@@ -66,6 +73,16 @@ try {
     await page.locator('#content button[data-destination="staff"]').click();
     await page.locator("#staff-add").waitFor();
     assert.ok((await page.locator("#content").innerText()).includes("Qusai"));
+    const yessinReset=page.locator('#content [data-staff-reset="e4"]');
+    assert.equal(await yessinReset.count(),1,"Original employee portal should expose reset button");
+    await yessinReset.click();
+    await page.locator("#staff-reset:not([hidden])").waitFor();
+    await page.locator("#staff-reset-input").fill("Temporary password for Yessin 2026!");
+    await page.locator("#staff-reset-form button[type=submit]").click();
+    await page.locator("#staff-reset-result:not([hidden])").waitFor();
+    assert.equal(resets,1);
+    assert.deepEqual(resetPayload,{action:"reset-password",newPassword:"Temporary password for Yessin 2026!"});
+    assert.ok((await page.locator("#staff-reset-result").innerText()).includes("Temporary password updated"));
     await page.locator("#staff-filter").selectOption("qusai");
     assert.equal(await page.locator("#staff-log-rows tr").count(),1);
     await page.locator("#staff-add").click();
@@ -83,5 +100,5 @@ try {
   assert.deepEqual(errors,[],"No runtime exceptions");
   await page.close();
  }
- console.log("PASS: Operations, employee creation, audit logs, role access and browser navigation.");
+ console.log("PASS: Operations, employee creation, original employee password reset, audit logs, role access and browser navigation.");
 }finally{await browser.close();}
