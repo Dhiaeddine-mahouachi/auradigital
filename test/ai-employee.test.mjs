@@ -94,11 +94,11 @@ test('provider rejects unchecked price and fake save claims rather than presenti
  env.AI.run=async()=>({response:'{"reply":"I have saved your request"}'});await assert.rejects(()=>generate(env,[]),/Unverified/);
 });
 
-test('Workers AI requests JSON mode and accepts structured JSON without relaxing validation',async()=>{
+test('Workers AI asks for JSON in the prompt (JSON mode differs per model) and keeps validation strict',async()=>{
  let options;
  const env={AI_PROVIDER:'cloudflare',AI_MODEL:'test',AI:{run:async(model,input)=>{options=input;return {response:{reply:'Tell me about your business.',memory:{requirements:'Website'}}};}}};
  const output=await generate(env,[]);
- assert.deepEqual(options.response_format,{type:'json_object'});
+ assert.equal(options.response_format,undefined);
  assert.equal(output.result.reply,'Tell me about your business.');
  env.AI.run=async()=>({response:{reply:'The price is 1 TL'}});
  await assert.rejects(()=>generate(env,[]),/Unverified/);

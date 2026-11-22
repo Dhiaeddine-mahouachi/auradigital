@@ -13,7 +13,7 @@ test('ollama counts as a configured provider (previously ignored)', () => {
 
 test('ollama tariff works without manual rates and budgets against the fallback', () => {
   const t = tariff({ AI_PROVIDER: 'ollama', AI_MODEL: 'llama3.1:8b', AI_FALLBACK_PROVIDER: 'cloudflare' });
-  assert.equal(t.output, 0.287);
+  assert.equal(t.output, 2.253, 'budget against the most expensive backup model');
   assert.ok(tariff({ AI_PROVIDER: 'ollama', AI_MODEL: 'llama3.1:8b' }).max > 0);
 });
 
@@ -95,4 +95,17 @@ test('admin connection check names settings without values and explains failures
     assert.equal(rejected.result.ollama.status, 401);
     assert.match(rejected.result.ollama.reason, /rejected the key/);
   } finally { globalThis.fetch = realFetch; }
+});
+
+test('a retired Workers AI model is skipped for the next model in the list', async () => {
+  const tried = [];
+  const env = { AI_PROVIDER: 'cloudflare', AI_MODEL: '@cf/old/model,@cf/new/model-x', AI: { run: async model => {
+    tried.push(model);
+    if (model === '@cf/old/model') throw new Error('5028: @cf/old/model was deprecated on 2026-11-20.');
+    return { response: JSON.stringify({ reply: 'Hello from the new model' }), usage: { prompt_tokens: 5, completion_tokens: 3 } };
+  } } };
+  const out = await generate(env, messages, 'req-cf-000000001');
+  assert.equal(out.result.reply, 'Hello from the new model');
+  assert.deepEqual(tried, ['@cf/old/model', '@cf/new/model-x']);
+  assert.ok(tariff({ AI_PROVIDER: 'cloudflare', AI_MODEL: '@cf/some/new-model' }).max > 0, 'unknown Workers AI model still has a budget rate');
 });

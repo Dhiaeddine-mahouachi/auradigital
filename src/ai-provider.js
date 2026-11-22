@@ -33,16 +33,33 @@ function verifiedPrices(reply,selection,packages=[],engine) {
 }
 
 const FP8='@cf/meta/llama-3.1-8b-instruct-fp8';
+// Workers AI models tried in order when a fallback model list is not set.
+// Cloudflare retires models (llama-3.1-8b-instruct-fp8 on 2026-11-20), so a
+// model it reports as retired or unknown is skipped for the next one.
+export const CF_MODELS='@cf/meta/llama-3.3-70b-instruct-fp8-fast,@cf/meta/llama-4-scout-17b-16e-instruct,@cf/mistralai/mistral-small-3.1-24b-instruct';
+const CF_RATES={
+  [FP8]:[0.152,0.287],
+  '@cf/meta/llama-3.3-70b-instruct-fp8-fast':[0.293,2.253],
+  '@cf/meta/llama-4-scout-17b-16e-instruct':[0.27,0.85],
+  '@cf/mistralai/mistral-small-3.1-24b-instruct':[0.351,0.555],
+};
+const modelList=model=>String(model||'').split(',').map(m=>m.trim()).filter(Boolean);
 function rateFor(provider,model,env){
-  const known=provider==='cloudflare'&&model===FP8;
   // Self-hosted Ollama has no per-token bill; a small nominal rate keeps the
   // daily token ceiling meaningful unless the operator configures real rates.
   const local=provider==='ollama';
+  // Budget against the most expensive model in a Workers AI list; an unknown
+  // Workers AI model gets a cautious default rather than blocking every call.
+  const cf=provider==='cloudflare'?modelList(model).map(m=>CF_RATES[m]||[0.5,2.5]):[];
+  const input=cf.length?Math.max(...cf.map(r=>r[0])):local?0.01:0;
+  const output=cf.length?Math.max(...cf.map(r=>r[1])):local?0.01:0;
   return {
-    input:Number(env.AI_INPUT_USD_PER_MILLION||(known?0.152:local?0.01:0)),
-    output:Number(env.AI_OUTPUT_USD_PER_MILLION||(known?0.287:local?0.01:0)),
+    input:Number(env.AI_INPUT_USD_PER_MILLION||input),
+    output:Number(env.AI_OUTPUT_USD_PER_MILLION||output),
   };
 }
+const RETIRED=/deprecat|retired|5028|5007|no such model|model not found|unknown model|invalid model/i;
+let workingCfModel='';
 
 export const OLLAMA_CLOUD_CHAT='https://ollama.com/api/chat';
 // The operator may configure a bare host ("https://ollama.com"), the API root
@@ -62,7 +79,7 @@ export function ollamaEndpoint(env){
 function thinkSetting(model){return /^gpt-oss/i.test(model)?'low':false;}
 // Settings for the backup provider, used when the primary one fails.
 export function fallbackEnv(env){
-  return {...env,AI_PROVIDER:env.AI_FALLBACK_PROVIDER,AI_MODEL:env.AI_FALLBACK_MODEL||FP8,
+  return {...env,AI_PROVIDER:env.AI_FALLBACK_PROVIDER,AI_MODEL:env.AI_FALLBACK_MODEL||(env.AI_FALLBACK_PROVIDER==='cloudflare'?CF_MODELS:''),
     AI_BASE_URL:env.AI_FALLBACK_BASE_URL||(env.AI_FALLBACK_PROVIDER==='cloudflare'?'':env.AI_BASE_URL),
     AI_API_KEY:env.AI_FALLBACK_API_KEY||(env.AI_FALLBACK_PROVIDER==='cloudflare'?'':env.AI_API_KEY)};
 }
@@ -70,7 +87,7 @@ export function fallbackEnv(env){
 export function tariff(env) {
   const primary=rateFor(env.AI_PROVIDER,env.AI_MODEL,env);
   // When a fallback is configured, budget against whichever is more expensive.
-  const fb=env.AI_FALLBACK_PROVIDER?rateFor(env.AI_FALLBACK_PROVIDER,env.AI_FALLBACK_MODEL||FP8,{}):null;
+  const fb=env.AI_FALLBACK_PROVIDER?rateFor(env.AI_FALLBACK_PROVIDER,env.AI_FALLBACK_MODEL||(env.AI_FALLBACK_PROVIDER==='cloudflare'?CF_MODELS:''),{}):null;
   const input=Math.max(primary.input,fb?.input||0), output=Math.max(primary.output,fb?.output||0);
   if(!Number.isFinite(input)||!Number.isFinite(output)||input<=0||output<=0) throw new ApiError(503,'Configure provider token tariffs before enabling this model.');
   return {input,output,max:Math.max(input,output)};
@@ -87,11 +104,22 @@ async function attempt(env,messages,timeout,engine) {
   let raw;
   if(env.AI_PROVIDER==='cloudflare') {
     if(!env.AI?.run) throw new ApiError(503,'AI binding unavailable.');
-    let timer;
-    // FP8 is not listed among Cloudflare's supported JSON-mode models. Ask it
-    // for JSON in the prompt and validate locally instead of forcing JSON mode.
-    const format=model==='@cf/meta/llama-3.1-8b-instruct-fp8'?{}:{response_format:{type:'json_object'}};
-    try { raw=await Promise.race([env.AI.run(model,{messages,max_tokens:700,temperature:0.2,...format}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new ApiError(504,'AI timed out.')),timeout);})]); } finally { clearTimeout(timer); }
+    // Ask for JSON in the prompt and validate locally; JSON mode support
+    // differs between Workers AI models. Try each model in the list, skipping
+    // ones Cloudflare reports as retired or unknown, and remember the one that works.
+    const models=modelList(model);
+    const ordered=workingCfModel&&models.includes(workingCfModel)?[workingCfModel,...models.filter(m=>m!==workingCfModel)]:models;
+    const started=Date.now();
+    for(const [index,name] of ordered.entries()){
+      let timer;
+      try {
+        raw=await Promise.race([env.AI.run(name,{messages,max_tokens:700,temperature:0.2}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new ApiError(504,'AI timed out.')),Math.max(1,timeout-(Date.now()-started)));})]);
+        workingCfModel=name;break;
+      } catch(error) {
+        if(index===ordered.length-1||!RETIRED.test(String(error?.message||'')))throw error;
+        console.warn(JSON.stringify({event:'workers_ai_model_skipped',model:name,reason:String(error?.message||'').slice(0,120)}));
+      } finally { clearTimeout(timer); }
+    }
   } else if(env.AI_PROVIDER==='ollama') {
     const endpoint=ollamaEndpoint(env);
     if(!endpoint)throw new ApiError(503,'AI endpoint unavailable.');

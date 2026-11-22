@@ -360,9 +360,17 @@ export async function aiConnectionCheck(env) {
   if (fb) {
     if (typeof env.AI?.run !== 'function') result.workersAI = { ok: false, reason: 'The Workers AI binding (AI) is missing.' };
     else {
-      const started = Date.now();
-      try { await env.AI.run(fb.AI_MODEL, { messages, max_tokens: 10 }); result.workersAI = { ok: true, ms: Date.now() - started }; }
-      catch (error) { result.workersAI = { ok: false, ms: Date.now() - started, reason: 'Workers AI refused the request.', detail: String(error?.message || error).slice(0, 300) }; }
+      // Test each Workers AI model in the fallback list.
+      const models = String(fb.AI_MODEL || '').split(',').map(m => m.trim()).filter(Boolean);
+      const tried = [];
+      for (const model of models) {
+        const started = Date.now();
+        try { await env.AI.run(model, { messages, max_tokens: 10 }); tried.push({ model, ok: true, ms: Date.now() - started }); }
+        catch (error) { tried.push({ model, ok: false, ms: Date.now() - started, detail: String(error?.message || error).slice(0, 200) }); }
+      }
+      const working = tried.find(t => t.ok);
+      result.workersAI = working ? { ok: true, ms: working.ms, reason: `Using ${working.model}.`, detail: tried.filter(t => !t.ok).map(t => `${t.model}: ${t.detail}`).join(' | ') || undefined }
+        : { ok: false, reason: 'Workers AI refused every backup model.', detail: tried.map(t => `${t.model}: ${t.detail}`).join(' | ') };
     }
   }
   let budget = null;
