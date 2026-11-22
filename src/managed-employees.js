@@ -3,6 +3,7 @@ import {getAuthenticatedAdmin,hashPassword,sameOrigin} from "./security.js";
 import {managedEmployeePortal} from "./employee-portals.js";
 
 const managedSlug=/^emp-[a-z0-9-]{5,50}$/;
+const fixedPortals=new Set(["qusai","malek","ala","yessin"]);
 const jsonOut=(data,status=200)=>json(data,status,{"Cache-Control":"no-store"});
 const fail=(message,status=400)=>jsonOut({error:message},status);
 const clean=(value,max=100)=>String(value??"").trim().slice(0,max);
@@ -49,18 +50,27 @@ export async function handleManagedEmployeeAdmin(request,env){
   if(match&&request.method==="PATCH"){
     if(!sameOrigin(request))return fail("Invalid request origin.",403);
     const row=await env.DB.prepare("SELECT id,portal_slug,display_name,active FROM employee_users WHERE id=?").bind(match[1]).first();
-    if(!row||!row.portal_slug.startsWith("emp-"))return fail("Managed employee not found.",404);
+    if(!row)return fail("Employee not found.",404);
+    const isManaged=managedSlug.test(row.portal_slug);
+    if(!isManaged&&!fixedPortals.has(row.portal_slug))return fail("Employee not found.",404);
     const data=await readJson(request,2048);
     if(!["activate","deactivate","reset-password"].includes(data.action))return fail("Invalid action.");
     if(data.action==="reset-password"){
-      const temporaryPassword="Aura-"+Array.from(crypto.getRandomValues(new Uint8Array(18))).map(x=>x.toString(16).padStart(2,"0")).join("");
+      // Custom passwords never enter source code or audit records. All resets force a
+      // password change before the employee can access customer data.
+      const custom=Object.prototype.hasOwnProperty.call(data,"newPassword");
+      if(custom&&(typeof data.newPassword!=="string"||data.newPassword.length<12||data.newPassword.length>200)){
+        return fail("Temporary password must contain between 12 and 200 characters.");
+      }
+      const temporaryPassword=custom?data.newPassword:"Aura-"+Array.from(crypto.getRandomValues(new Uint8Array(18))).map(x=>x.toString(16).padStart(2,"0")).join("");
       await env.DB.batch([
         env.DB.prepare("UPDATE employee_users SET password_hash=?,updated_at=datetime('now') WHERE id=?").bind("temp:"+await hashPassword(temporaryPassword),row.id),
         env.DB.prepare("DELETE FROM employee_sessions WHERE employee_user_id=?").bind(row.id),
         env.DB.prepare("INSERT INTO employee_audit_log(id,employee_user_id,actor_snapshot,action,target_id) VALUES (?,?,?,?,?)").bind(crypto.randomUUID(),row.id,owner.username,"password_reset_by_owner",row.id)
       ]);
-      return jsonOut({ok:true,temporaryPassword,passwordChangeRequired:true});
+      return jsonOut({ok:true,...(custom?{}:{temporaryPassword}),passwordChangeRequired:true});
     }
+    if(!isManaged)return fail("Only managed employees can be activated or deactivated here.",403);
     const active=data.action==="activate"?1:0;
     await env.DB.batch([
       env.DB.prepare("UPDATE employee_users SET active=?,updated_at=datetime('now') WHERE id=?").bind(active,row.id),
