@@ -98,7 +98,7 @@ async function attempt(env,messages,timeout,engine) {
     const key=ollamaKey(env);
     // Ollama Cloud (ollama.com) always needs an API key; a self-hosted server may not.
     if(endpoint.hostname==='ollama.com'&&!key)throw new ApiError(503,'AI endpoint unavailable.');
-    const response=await fetch(endpoint,{method:'POST',redirect:'error',headers:{
+    const response=await fetch(endpoint,{method:'POST',redirect:'manual',headers:{
       'Content-Type':'application/json',...(key?{Authorization:`Bearer ${key}`}:{}),
     },body:JSON.stringify({model,messages,stream:false,format:'json',think:thinkSetting(model),options:{temperature:0.2,num_predict:1800}}),signal:AbortSignal.timeout(timeout)});
     if(!response.ok){const error=new ApiError(response.status,'AI provider unavailable.');error.providerStatus=response.status;throw error;}

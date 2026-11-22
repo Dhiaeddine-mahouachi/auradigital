@@ -72,7 +72,7 @@ export async function validateGoogleToken(jwt,clientId,nonce,keys) {
 }
 async function googleKeys() {
  if(cachedKeys&&keyExpiry>Date.now())return cachedKeys;
- const response=await fetch('https://www.googleapis.com/oauth2/v3/certs',{signal:AbortSignal.timeout(10000),redirect:'error'});
+ const response=await fetch('https://www.googleapis.com/oauth2/v3/certs',{signal:AbortSignal.timeout(10000),redirect:'manual'});
  if(!response.ok)throw new ApiError(503,'Google identity service unavailable.');
  const result=await readJson(response,64000);if(!Array.isArray(result.keys))throw new ApiError(503,'Google identity service unavailable.');
  cachedKeys=result.keys;keyExpiry=Date.now()+300000;return cachedKeys;
@@ -97,7 +97,7 @@ async function google(request,env) {
  if(!/^[a-f0-9]{64}$/.test(state)||!/^[a-f0-9]{64}$/.test(binding))throw new ApiError(401,'Invalid Google sign-in state.');
  const flow=await env.DB.prepare('DELETE FROM customer_oidc_flows WHERE state_hash=? AND binding_hash=? AND expires_at>? RETURNING *').bind(await tokenHash(state),await tokenHash(binding),now()).first();
  if(!flow||!url.searchParams.get('code'))throw new ApiError(401,'Google sign-in expired or canceled.');
- const response=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:env.GOOGLE_CLIENT_ID,client_secret:env.GOOGLE_CLIENT_SECRET,redirect_uri:callback,grant_type:'authorization_code',code:url.searchParams.get('code'),code_verifier:flow.verifier}),redirect:'error',signal:AbortSignal.timeout(10000)});
+ const response=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:env.GOOGLE_CLIENT_ID,client_secret:env.GOOGLE_CLIENT_SECRET,redirect_uri:callback,grant_type:'authorization_code',code:url.searchParams.get('code'),code_verifier:flow.verifier}),redirect:'manual',signal:AbortSignal.timeout(10000)});
  if(!response.ok){await response.body?.cancel();throw new ApiError(401,'Google sign-in failed.');}
  const result=await readJson(response,64000),identity=await validateGoogleToken(result.id_token,env.GOOGLE_CLIENT_ID,flow.nonce,await googleKeys());
  await ensureCustomers(env.DB);

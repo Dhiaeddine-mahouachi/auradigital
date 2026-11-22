@@ -274,7 +274,11 @@ export async function handleAiEmployee(request,env,ctx) {
     env.DB.prepare("DELETE FROM ai_requests WHERE created_at<datetime('now','-90 days')"),
     env.DB.prepare("INSERT INTO ai_meta(key,value) VALUES('cleanup-day',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(day)
   ]);
-  if(path.startsWith('/api/admin/ai')) return admin(request,env,path);
+  // Admin-only: show the real error instead of a generic "Server error".
+  if(path.startsWith('/api/admin/ai')) {
+    try { return await admin(request,env,path); }
+    catch(error) { if(error instanceof ApiError) throw error; return json({error:'Admin AI error: '+String(error?.message||error).slice(0,300)},500,{'Cache-Control':'no-store'}); }
+  }
   if(path==='/api/ai/services'&&request.method==='GET') {const {engine}=await pricingFor(request,env);return json({services:services().map(i=>({...i,...engine.getItem(i.id)})),currency:engine.catalogue.currency,version:engine.catalogue.version});}
   if(path==='/api/ai/session'&&request.method==='POST') {
     try{const s=await session(request,env.DB);return json({language:s.language,memory:parse(s.state),persistent:!!s.persistent,messages:(await env.DB.prepare('SELECT role,content FROM ai_messages WHERE session_id=? ORDER BY id LIMIT 40').bind(s.id).all()).results});}catch(e){if(e.status!==401)throw e;}
@@ -344,7 +348,7 @@ export async function aiConnectionCheck(env) {
       const started = Date.now();
       try {
         const key = ollamaKey(env);
-        const response = await fetch(endpoint, { method: 'POST', redirect: 'error', headers: { 'Content-Type': 'application/json', ...(key ? { Authorization: `Bearer ${key}` } : {}) },
+        const response = await fetch(endpoint, { method: 'POST', redirect: 'manual', headers: { 'Content-Type': 'application/json', ...(key ? { Authorization: `Bearer ${key}` } : {}) },
           body: JSON.stringify({ model: env.AI_MODEL, messages, stream: false, options: { num_predict: 20 } }), signal: AbortSignal.timeout(20000) });
         const text = (await response.text()).slice(0, 300);
         result.ollama = response.ok ? { ok: true, status: response.status, ms: Date.now() - started }
