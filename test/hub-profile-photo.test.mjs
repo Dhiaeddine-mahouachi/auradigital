@@ -77,3 +77,16 @@ test('customers can sign out other devices and export their data', async () => {
  const stranger = await f.user('not-owner@example.test', true);
  assert.equal((await (await f.call('/api/hub/me/export', stranger)).json()).workspaces.length, 0, 'only your own workspaces are exported');
 });
+
+test('browser error reports are accepted anonymously and same-origin only', async () => {
+ const f = await hubFixture();
+ const logged = []; const original = console.error; console.error = m => logged.push(m);
+ try {
+  const r = await f.call('/api/hub/client-error', null, 'POST', { message: 'Boom for someone@example.com', where: 'app.js:1', page: '/hub/roadmap?workspace=x' });
+  assert.equal(r.status, 204);
+  assert.equal((await f.call('/api/hub/client-error', null, 'POST', { message: 'x' }, { Origin: 'https://evil.example' })).status, 403);
+ } finally { console.error = original; }
+ const entry = JSON.parse(logged.find(l => String(l).includes('aurahub_client_error')));
+ assert.equal(entry.message, 'Boom for [email]');
+ assert.equal(entry.page, '/hub/roadmap');
+});

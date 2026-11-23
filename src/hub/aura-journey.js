@@ -15,11 +15,11 @@ const OFFER = { 'Web Design': 'web', 'Business Email': 'email', AuraMenu: 'menu'
 // directly relevant public project show no examples rather than mock-ups.
 const EXAMPLES = {
  0: [
-  { img: '/media/landing/showcase-website.webp', name: 'Décoration Gâteaux', kind: { en: 'Pastry shop website', tr: 'Pastane web sitesi', fr: 'Site de pâtisserie', ar: 'موقع حلويات' }, href: '/portfolio' },
-  { img: '/media/redesign/work-bentwalad.jpg', name: 'Bent Walad', kind: { en: 'Brand website', tr: 'Marka web sitesi', fr: 'Site de marque', ar: 'موقع علامة تجارية' }, href: '/portfolio' },
+  { img: '/media/landing/showcase-website-480.webp', name: 'Décoration Gâteaux', kind: { en: 'Pastry shop website', tr: 'Pastane web sitesi', fr: 'Site de pâtisserie', ar: 'موقع حلويات' }, href: '/portfolio' },
+  { img: '/media/redesign/work-bentwalad-480.webp', name: 'Bent Walad', kind: { en: 'Brand website', tr: 'Marka web sitesi', fr: 'Site de marque', ar: 'موقع علامة تجارية' }, href: '/portfolio' },
  ],
  2: [
-  { img: '/media/redesign/work-weddings.jpg', name: 'AuraWeddings', kind: { en: 'Invitations with RSVP', tr: 'LCV’li davetiyeler', fr: 'Invitations avec RSVP', ar: 'دعوات مع تأكيد الحضور' }, href: '/aura-weddings' },
+  { img: '/media/redesign/work-weddings-480.webp', name: 'AuraWeddings', kind: { en: 'Invitations with RSVP', tr: 'LCV’li davetiyeler', fr: 'Invitations avec RSVP', ar: 'دعوات مع تأكيد الحضور' }, href: '/aura-weddings' },
  ],
 };
 let allOpen = false;
@@ -133,7 +133,7 @@ export function renderAuraJourney({ host, lang, esc, link, requestLink, workspac
     ${examples.length ? `<section class="os-stage-examples"><h3>${esc(j.examples)}</h3><div>${examples.map(e => `<a href="${esc(e.href)}" class="os-example"><img src="${esc(e.img)}" alt="" loading="lazy" decoding="async" width="320" height="200"><span><strong>${esc(e.name)}</strong><small>${esc(e.kind[lang] || e.kind.en)}</small></span></a>`).join('')}</div></section>` : ''}
    </section>
    <aside class="os-journey-auri" aria-labelledby="os-jauri-title">
-    <div class="os-auri-row"><span class="os-auri-face is-floating" aria-hidden="true"><img src="/media/auri/level-${Math.max(1, Math.min(7, workspace.auri?.level || 1))}.webp" alt="" width="56" height="56"></span><h2 id="os-jauri-title">${esc(j.explainTitle)}</h2></div>
+    <div class="os-auri-row"><span class="os-auri-face is-floating" aria-hidden="true"><img src="/media/auri/level-${Math.max(1, Math.min(7, workspace.auri?.level || 1))}-128.webp" alt="" width="56" height="56"></span><h2 id="os-jauri-title">${esc(j.explainTitle)}</h2></div>
     <dl class="os-explain">${auriExplain.map(([q, a]) => `<div><dt>${esc(q)}</dt><dd>${esc(a)}</dd></div>`).join('')}</dl>
     ${canAsk ? `<button type="button" class="os-btn is-primary is-sm" data-ask-stage>${icon('auri', 16)}<span>${esc(j.askStage)}</span></button>` : ''}
    </aside>

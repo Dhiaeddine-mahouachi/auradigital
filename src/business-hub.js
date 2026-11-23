@@ -125,6 +125,18 @@ export async function handleBusinessHub(request,env) {
   return new Response(request.method==='HEAD'?null:asset.body,{status:asset.status,headers});
  }
  if(!path.startsWith('/api/hub/'))return null;
+ // Browser error reports from the Hub (also before sign-in). Logged to Workers
+ // observability only; no cookies, emails or page content are recorded.
+ if(path==='/api/hub/client-error'&&request.method==='POST'){
+  if(!sameOrigin(request))throw new ApiError(403,'Forbidden origin.');
+  const ip=request.headers.get('CF-Connecting-IP')||'local';
+  const allowed=await env.TRACK_RATE_LIMITER?.limit({key:'hub-client-error:'+ip}).catch(()=>({success:true}));
+  if(allowed&&!allowed.success)return new Response(null,{status:204});
+  const body=await readJson(request,4000).catch(()=>({}));
+  const clean=(v,n)=>String(v??'').replace(/[\u0000-\u001f]/g,' ').replace(/[^\s@]+@[^\s@]+/g,'[email]').slice(0,n);
+  console.error(JSON.stringify({event:'aurahub_client_error',message:clean(body.message,300),where:clean(body.where,200),page:clean(String(body.page||'').split('?')[0],120),lang:clean(body.lang,5),ua:clean(request.headers.get('User-Agent'),160)}));
+  return new Response(null,{status:204});
+ }
  const user=await authenticatedCustomer(request,env);if(!user)throw new ApiError(401,'Sign in to your AuraDigital account.');
  const write=!['GET','HEAD'].includes(request.method);
  if(write){if(!sameOrigin(request))throw new ApiError(403,'Forbidden origin.');await limit(request,env,user);}

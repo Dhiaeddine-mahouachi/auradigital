@@ -374,12 +374,13 @@ async function inbox(ctx) {
 async function analytics(ctx) {
  const { body, s, esc, lang, link, api, endpoint, workspace, loadSnapshot, loadConnected } = ctx;
  const [active, archived, snapshot, connected] = await Promise.all([
-  api(endpoint('leads')), api(endpoint('leads') + '?archived=1').catch(() => ({ leads: [] })), loadSnapshot(), loadConnected()]);
+  api(endpoint('leads') + '?archived=all'), Promise.resolve({ leads: [] }), loadSnapshot(), loadConnected()]);
  if (!body.isConnected) return;
  const a = s.analytics, c = osCopy(lang);
  const days = analyticsDays, rangeText = a.rangeDays(days);
  const since = Date.now() - days * 86400000;
- const all = [...active.leads, ...archived.leads];
+ const all = active.leads;
+ active.leads = all.filter(l => !l.archived);
  const recent = all.filter(l => parseDate(l.createdAt)?.getTime() >= since);
  const wonStage = active.stages.find(x => x.id === 'won')?.id || active.stages.at(-1).id;
  const won = recent.filter(l => l.stage === wonStage).length;

@@ -131,7 +131,7 @@ export function renderAuraCommand({ host, lang, esc, link, requestLink, me, work
    </div>
    <aside class="os-col os-side">
     <section class="os-card os-auri-card" aria-labelledby="os-auri-title">
-     <div class="os-auri-row"><span class="os-auri-face" aria-hidden="true"><img src="/media/auri/level-${Math.max(1, Math.min(7, workspace.auri?.level || 1))}.webp" alt="" width="56" height="56"></span>
+     <div class="os-auri-row"><span class="os-auri-face" aria-hidden="true"><img src="/media/auri/level-${Math.max(1, Math.min(7, workspace.auri?.level || 1))}-128.webp" alt="" width="56" height="56"></span>
       <div><h2 id="os-auri-title">${esc(c.auri.title)}</h2><p>${esc(auriLine)}</p></div></div>
      <div class="os-auri-actions">${next && !attention ? `<a class="os-btn is-primary is-sm" href="${esc(link('journey', { task: next.id }))}">${esc(continueLabel)}</a>` : ''}
       ${canAsk ? `<button type="button" class="os-btn is-quiet is-sm" data-os-ask="next">${icon('auri', 16)}<span>${esc(c.auri.ask)}</span></button>` : ''}</div>

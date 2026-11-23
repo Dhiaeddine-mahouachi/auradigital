@@ -51,7 +51,7 @@ export function renderOnboarding({ app, state, lang, t, esc, header, robot, bind
  const extra = chatCopy[lang] || chatCopy.en;
  const questionText = key => ({ name: nameQuestion, industry: industryQuestion, city: cityQuestion, goals: goalQuestion, tools: toolsQuestion[lang] })[key];
  const shown = key => key === 'industry' && values[key] ? industryLabel(lang, values[key]) : values[key];
- const auriMsg = (body, extraClass = '') => `<li class="os-chat-msg is-auri ${extraClass}"><span class="os-chat-avatar" aria-hidden="true"><img src="/media/auri/level-1.webp" alt="" width="32" height="32"></span><div class="os-chat-bubble">${body}</div></li>`;
+ const auriMsg = (body, extraClass = '') => `<li class="os-chat-msg is-auri ${extraClass}"><span class="os-chat-avatar" aria-hidden="true"><img src="/media/auri/level-1-128.webp" alt="" width="32" height="32"></span><div class="os-chat-bubble">${body}</div></li>`;
  const userMsg = body => `<li class="os-chat-msg is-user"><div class="os-chat-bubble">${body}</div></li>`;
  const history = [];
  history.push(auriMsg(entry ? `<h1>${esc(title)}</h1><p>${esc(intro)}</p>` : `<p><strong>${esc(title)}</strong></p><p>${esc(intro)}</p>`));
@@ -185,7 +185,7 @@ export function renderOnboarding({ app, state, lang, t, esc, header, robot, bind
   state.busy = true;
   status.textContent = entry ? analyzing : creating;
  const log = app.querySelector('.os-chat-log');
- log?.insertAdjacentHTML('beforeend', `<li class="os-chat-msg is-auri is-typing" data-typing><span class="os-chat-avatar" aria-hidden="true"><img src="/media/auri/level-1.webp" alt="" width="32" height="32"></span><div class="os-chat-bubble"><span class="os-typing"><i></i><i></i><i></i></span><small>${esc(entry ? analyzing : creating)}</small></div></li>`);
+ log?.insertAdjacentHTML('beforeend', `<li class="os-chat-msg is-auri is-typing" data-typing><span class="os-chat-avatar" aria-hidden="true"><img src="/media/auri/level-1-128.webp" alt="" width="32" height="32"></span><div class="os-chat-bubble"><span class="os-typing"><i></i><i></i><i></i></span><small>${esc(entry ? analyzing : creating)}</small></div></li>`);
  log?.lastElementChild?.scrollIntoView?.({ block: 'nearest' });
   const controls = [...form.elements, ...app.querySelectorAll('#language')].filter(control => !control.disabled);
   controls.forEach(control => { control.disabled = true; });

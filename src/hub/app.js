@@ -445,7 +445,7 @@ function renderShell(){
  app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell hx-shell wx-shell os-shell ${page==='journey'&&workspace?.missions.length?'os-shell-journey':''} ${page==='services'?'service-shell':''}"><aside class="sidebar os-sidebar" id="sidebar">
  <a href="${esc(link('home'))}" class="wordmark command-wordmark os-brand">${brandMarkup}<small>AuraHub</small></a>
  <nav aria-label="AuraHub">${groups.map(([name,list])=>`<p class="hx-nav-group os-nav-group">${esc(name)}</p>${list.map(p=>navItem(p)).join('')}`).join('')}</nav>
- ${workspace&&can('auri:use')?`<button type="button" class="os-side-auri" data-ax-open aria-controls="ax-drawer"><img src="/media/auri/level-${auriLevel()}.webp" alt="" width="36" height="36"><span><strong>Auri</strong><small>${esc(oc.auri.ask)}</small></span></button>`:''}
+ ${workspace&&can('auri:use')?`<button type="button" class="os-side-auri" data-ax-open aria-controls="ax-drawer"><img src="/media/auri/level-${auriLevel()}-128.webp" alt="" width="36" height="36"><span><strong>Auri</strong><small>${esc(oc.auri.ask)}</small></span></button>`:''}
  <div class="hx-side-foot os-side-foot">${avatar()}<span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div></aside>
  <div class="workspace"><header class="topbar growth-topbar hub-topbar os-topbar">
  <a class="hub-mobile-brand wordmark" href="${esc(link('home'))}">${brandMarkup}</a>
@@ -471,7 +471,7 @@ function renderShell(){
  <header><strong>${esc(oc.nav.more)}</strong><button type="button" class="hx-sheet-close" data-hx-close aria-label="${esc(oc.nav.close)}">✕</button></header>
  <nav aria-label="${esc(oc.nav.more)}">${sheetItems.map(p=>navItem(p)).join('')}</nav></div></div>
  </div>
- <aside class="ax-drawer" id="ax-drawer" hidden aria-label="Auri"><header class="ax-head"><span class="ax-avatar" aria-hidden="true"><img src="/media/auri/level-${auriLevel()}.webp" alt="" width="44" height="44"></span>
+ <aside class="ax-drawer" id="ax-drawer" hidden aria-label="Auri"><header class="ax-head"><span class="ax-avatar" aria-hidden="true"><img src="/media/auri/level-${auriLevel()}-128.webp" alt="" width="44" height="44"></span>
  <span class="ax-head-text"><strong>Auri</strong><small><i class="ax-online" aria-hidden="true"></i>${esc(chatCopy(lang).status)}</small></span>
  <button type="button" class="ax-icon-btn" data-ax-reset>${esc(chatCopy(lang).clear)}</button><button type="button" class="ax-icon-btn" data-ax-close aria-label="${esc(nv.close)}">✕</button></header>
  <div class="ax-body" data-ax-body></div></aside><div class="ax-scrim" data-ax-close hidden></div></div>`;
@@ -565,8 +565,7 @@ const missionTitle=m=>m.objective===m.service?cap(m.capability):m.objective;
 let dataCache=null;
 const cached=()=>dataCache&&dataCache.id===workspace?.organization.id&&Date.now()-dataCache.at<60000?dataCache:null;
 function loadLeads(){
- return Promise.all([api(endpoint('leads')),api(endpoint('leads')+'?archived=1')])
-  .then(([open,archived])=>({all:[...open.leads,...archived.leads]})).catch(()=>({all:null}));
+ return api(endpoint('leads')+'?archived=all').then(r=>({all:r.leads})).catch(()=>({all:null}));
 }
 async function home(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content');
@@ -671,7 +670,7 @@ async function mountChatInto(host,{initial,direct=false}={}){
   data:{snapshot,connected,next,missionTitle,counts:{live:activeItems.filter(i=>i.stage===3).length,open:activeItems.filter(i=>i.stage<3).length+(snapshot.attention||[]).length},
    attention:item?{name:menu?ui.menuReady:item.name,label:menu?ui.reviewMenu:ui.openRequest,href:link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id})}:null,
    nextAction:next?{label:ui.continue,href:link('journey',{task:next.id})}:null},
-  auriImage:`<img src="/media/auri/level-${auriLevel()}.webp" alt="" width="32" height="32">`,
+  auriImage:`<img src="/media/auri/level-${auriLevel()}-128.webp" alt="" width="32" height="32">`,
   askAuri:workspace.permissions.includes('auri:use')?question=>askAuri(question):async()=>t('readOnly'),
   onAddLead:workspace.permissions.includes('roadmap:write')?lead=>api(endpoint('leads'),'POST',{name:lead.name,interest:lead.interest||'',source:'other',note:'Added with Auri'}).then(r=>{if(dataCache)dataCache.leads=undefined;return r;}):null,
   onBrief:(service,text)=>{requestDrafts.set(workspace.organization.id,text.slice(0,1700));closeAuri();navigate('requests',{new:'1',service});}});

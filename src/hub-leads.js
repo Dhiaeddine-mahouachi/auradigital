@@ -148,9 +148,10 @@ export async function handleLeads(request, env, { org, user, section, item, auth
  if (method === 'GET' && !item) {
   const guard = await authorize(db, org, user);
   const url = new URL(request.url);
-  const archived = url.searchParams.get('archived') === '1';
+  const scope = url.searchParams.get('archived');
+  const archived = scope === '1';
   const rows = (await db.prepare(`SELECT l.*, (SELECT count(*) FROM hub_lead_notes n WHERE n.lead_id=l.id) AS notes FROM hub_leads l
-   WHERE l.organization_id=? AND ${archived ? 'l.archived_at IS NOT NULL' : 'l.archived_at IS NULL'} AND ${guard.sql} ORDER BY l.updated_at DESC, l.id LIMIT ${MAX_LEADS}`).bind(org, ...guard.args).all()).results || [];
+   WHERE l.organization_id=? AND ${scope === 'all' ? '1=1' : archived ? 'l.archived_at IS NOT NULL' : 'l.archived_at IS NULL'} AND ${guard.sql} ORDER BY l.updated_at DESC, l.id LIMIT ${MAX_LEADS}`).bind(org, ...guard.args).all()).results || [];
   const [{ stages, version }, people] = await Promise.all([stagesFor(db, org), assignees(db, org)]);
   return json({ leads: rows.map(leadRow), stages, stagesVersion: version, assignees: people, sources: LEAD_SOURCES }, 200, { 'Cache-Control': 'private, no-store' });
  }

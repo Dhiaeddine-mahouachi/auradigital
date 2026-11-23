@@ -1,3 +1,4 @@
+import { getHubStats } from "./hub-admin-stats.js";
 import { authenticatedCustomer } from './customer-accounts.ts';
 import { authorize } from './business-hub.js';
 import { pricingFor, checkQuoteVersion } from './global-pricing.js';
@@ -1267,6 +1268,10 @@ export default {
 
       if (url.pathname === "/api/admin/overview" && request.method === "GET") {
         return json(await getOverview(env.DB), 200, { "Cache-Control": "no-store" });
+      }
+
+      if (url.pathname === "/api/admin/hub-stats" && request.method === "GET") {
+        return json(await getHubStats(env.DB), 200, { "Cache-Control": "no-store" });
       }
 
       if (url.pathname === "/api/admin/analytics" && request.method === "GET") {
