@@ -11,6 +11,10 @@ export async function isEmailVerified(db,user) {
  return !!await db.prepare('SELECT customer_id FROM customer_verified_emails WHERE customer_id=? AND email=? COLLATE NOCASE').bind(user.id,user.email).first();
 }
 export async function requireVerified(db,user) {if(!await isEmailVerified(db,user))throw new ApiError(403,'Verify your email before this action.');}
+// Google sign-in runs as full-page navigations, so failures go back to AuraHub
+// with a short reason the page explains, instead of a raw JSON error.
+const googleError=(status,message,code,target='/hub/login')=>Object.assign(new ApiError(status,message),{googleCode:code,googleTarget:target});
+export const GOOGLE_NOTICE_CODES=['off','terms','verify_first','canceled','expired','failed','link_required','link_mismatch','unavailable','busy'];
 export function identityOrigin(env) {
  let u;try{u=new URL(env.CUSTOMER_AUTH_ORIGIN);}catch{throw new ApiError(503,'Customer identity origin is not configured.');}
  if(u.protocol!=='https:'||u.username||u.password||u.pathname!=='/'||u.search||u.hash)throw new ApiError(503,'Customer identity origin is not configured.');
@@ -80,25 +84,26 @@ async function googleKeys() {
 const flowCookie=(value,age=600)=>`__Host-aura_oidc=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${age}`;
 async function google(request,env) {
  const url=new URL(request.url),origin=identityOrigin(env),callback=origin+'/api/customer/google/callback';
- if(!env.GOOGLE_CLIENT_ID||!env.GOOGLE_CLIENT_SECRET||env.GOOGLE_LOGIN_ENABLED!=='true')throw new ApiError(503,'Google sign-in is not configured and verified.');
- if(url.origin!==origin)throw new ApiError(400,'Use the configured account origin.');
+ if(!env.GOOGLE_CLIENT_ID||!env.GOOGLE_CLIENT_SECRET||env.GOOGLE_LOGIN_ENABLED!=='true')throw googleError(503,'Google sign-in is not configured and verified.','off');
+ if(url.origin!==origin)throw googleError(400,'Use the configured account origin.','failed');
  await rate(request,env,'google');
  if(url.pathname.endsWith('/start')) {
-  if(url.searchParams.get('acceptTerms')!=='true')throw new ApiError(400,'Accept the account conditions before using Google sign-in.');
+  if(url.searchParams.get('acceptTerms')!=='true')throw googleError(400,'Accept the account conditions before using Google sign-in.','terms');
   const user=await authenticatedCustomer(request,env);
-  if(user)await requireVerified(env.DB,user);
+  if(user&&!await isEmailVerified(env.DB,user))throw googleError(403,'Verify your email before this action.','verify_first','/hub/settings');
   const state=randomToken(),binding=randomToken(),verifier=randomToken(),nonce=randomToken();
   await env.DB.batch([env.DB.prepare('DELETE FROM customer_oidc_flows WHERE expires_at<=?').bind(now()),env.DB.prepare('INSERT INTO customer_oidc_flows(state_hash,binding_hash,verifier,nonce,customer_id,expires_at,return_path) VALUES(?,?,?,?,?,?,?)').bind(await tokenHash(state),await tokenHash(binding),verifier,nonce,user?.id||null,now()+600,customerReturnPath(url.searchParams.get('next'), env.GROWTH_OS_ENABLED==='true'?'/hub':'/account'))]);
   const u=new URL('https://accounts.google.com/o/oauth2/v2/auth');
   for(const [k,v] of Object.entries({client_id:env.GOOGLE_CLIENT_ID,redirect_uri:callback,response_type:'code',scope:'openid email profile',state,nonce,code_challenge:encode(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier)))),code_challenge_method:'S256',prompt:'select_account'}))u.searchParams.set(k,v);
   return new Response(null,{status:303,headers:{Location:u.toString(),'Set-Cookie':flowCookie(binding),'Cache-Control':'no-store'}});
  }
+ if(url.searchParams.get('error'))throw googleError(401,'Google sign-in was canceled.','canceled');
  const state=url.searchParams.get('state')||'',binding=(request.headers.get('Cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('__Host-aura_oidc='))?.slice('__Host-aura_oidc='.length)||'';
- if(!/^[a-f0-9]{64}$/.test(state)||!/^[a-f0-9]{64}$/.test(binding))throw new ApiError(401,'Invalid Google sign-in state.');
+ if(!/^[a-f0-9]{64}$/.test(state)||!/^[a-f0-9]{64}$/.test(binding))throw googleError(401,'Invalid Google sign-in state.','expired');
  const flow=await env.DB.prepare('DELETE FROM customer_oidc_flows WHERE state_hash=? AND binding_hash=? AND expires_at>? RETURNING *').bind(await tokenHash(state),await tokenHash(binding),now()).first();
- if(!flow||!url.searchParams.get('code'))throw new ApiError(401,'Google sign-in expired or canceled.');
+ if(!flow||!url.searchParams.get('code'))throw googleError(401,'Google sign-in expired or canceled.','expired');
  const response=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:env.GOOGLE_CLIENT_ID,client_secret:env.GOOGLE_CLIENT_SECRET,redirect_uri:callback,grant_type:'authorization_code',code:url.searchParams.get('code'),code_verifier:flow.verifier}),redirect:'manual',signal:AbortSignal.timeout(10000)});
- if(!response.ok){await response.body?.cancel();throw new ApiError(401,'Google sign-in failed.');}
+ if(!response.ok){await response.body?.cancel();throw googleError(401,'Google sign-in failed.','failed');}
  const result=await readJson(response,64000),identity=await validateGoogleToken(result.id_token,env.GOOGLE_CLIENT_ID,flow.nonce,await googleKeys());
  await ensureCustomers(env.DB);
  let user;
@@ -107,12 +112,12 @@ async function google(request,env) {
   // Lax flow cookie survives Google's callback; the Strict customer cookie may not.
   // The initiation was bound to an authenticated, verified user. Recheck eligibility.
   user=await env.DB.prepare('SELECT id,email,full_name AS name,profile_json,active FROM customer_users WHERE id=?').bind(flow.customer_id).first();
-  if(!user?.active||user.email.toLowerCase()!==identity.email||!await isEmailVerified(env.DB,user)||(existing&&existing.id!==user.id))throw new ApiError(409,'Sign in with your verified invited email to link this identity.');
+  if(!user?.active||user.email.toLowerCase()!==identity.email||!await isEmailVerified(env.DB,user)||(existing&&existing.id!==user.id))throw googleError(409,'Sign in with your verified invited email to link this identity.','link_mismatch','/hub/settings');
   await env.DB.prepare("INSERT INTO customer_external_identities(provider,subject,customer_id) VALUES('google',?,?) ON CONFLICT(provider,subject) DO NOTHING").bind(identity.subject,user.id).run();
- }else if(existing){if(!existing.active)throw new ApiError(401,'Account unavailable.');user=existing;}
+ }else if(existing){if(!existing.active)throw googleError(401,'Account unavailable.','unavailable');user=existing;}
  else {
   const collision=await env.DB.prepare('SELECT id FROM customer_users WHERE email=? COLLATE NOCASE').bind(identity.email).first();
-  if(collision)throw new ApiError(409,'Sign in with email first, verify it, then link Google from Settings.');
+  if(collision)throw googleError(409,'Sign in with email first, verify it, then link Google from Settings.','link_required');
   const id=crypto.randomUUID();
   const statements=[env.DB.prepare("INSERT INTO customer_users(id,email,full_name,password_hash) VALUES(?,?,?,'!google-only')").bind(id,identity.email,identity.name),env.DB.prepare("INSERT INTO customer_external_identities(provider,subject,customer_id) VALUES('google',?,?)").bind(identity.subject,id)];
   if(identity.authoritativeEmail)statements.push(env.DB.prepare("INSERT INTO customer_verified_emails(customer_id,email,source) VALUES(?,?,'google')").bind(id,identity.email));
@@ -123,6 +128,17 @@ async function google(request,env) {
  const signed=await signInCustomer(env,{id:user.id,email:user.email,name:user.name,profile:JSON.parse(user.profile_json)});
  const headers=new Headers({'Location':origin+customerReturnPath(flow.return_path, env.GROWTH_OS_ENABLED==='true'?'/hub':'/account'),'Cache-Control':'no-store'});headers.append('Set-Cookie',signed.headers.get('Set-Cookie'));headers.append('Set-Cookie',flowCookie('',0));
  return new Response(null,{status:303,headers});
+}
+async function googleRedirecting(request,env) {
+ try{return await google(request,env);}
+ catch(error){
+  let origin;try{origin=identityOrigin(env);}catch{throw error;}
+  const code=error?.googleCode||(error?.status===429?'busy':'failed');
+  if(!error?.googleCode&&error?.status!==429)console.error('Google sign-in failed',error?.message||error);
+  const headers=new Headers({Location:`${origin}${error?.googleTarget||'/hub/login'}?google=${code}`,'Cache-Control':'no-store'});
+  headers.append('Set-Cookie',flowCookie('',0));
+  return new Response(null,{status:303,headers});
+ }
 }
 async function verifyCurrentPassword(env,user,password) {
  const row=await env.DB.prepare('SELECT password_hash FROM customer_users WHERE id=? AND email=? COLLATE NOCASE AND active=1')
@@ -207,7 +223,7 @@ export async function handleCustomerIdentity(request,env) {
  }
  if(path==='/api/customer/capabilities'&&request.method==='GET')return json({growth:env.GROWTH_OS_ENABLED==='true',google:env.GOOGLE_LOGIN_ENABLED==='true'&&!!env.GOOGLE_CLIENT_ID&&!!env.GOOGLE_CLIENT_SECRET,email:env.CUSTOMER_EMAIL_ENABLED==='true'&&!!env.RESEND_API_KEY,turnstile:turnstileSiteKey(env)});
  if(['/api/customer/google/start','/api/customer/google/callback'].includes(path)) {
-  if(request.method!=='GET')throw new ApiError(405,'Method not allowed.');return google(request,env);
+  if(request.method!=='GET')throw new ApiError(405,'Method not allowed.');return googleRedirecting(request,env);
  }
  const actions={'/api/customer/send-verification':'send','/api/customer/verify':'verify','/api/customer/forgot-password':'forgot','/api/customer/reset-password':'reset','/api/customer/change-password':'changePassword','/api/customer/change-email':'changeEmail','/api/customer/confirm-email-change':'confirmEmail'};
  const action=actions[path];if(!action)return null;
