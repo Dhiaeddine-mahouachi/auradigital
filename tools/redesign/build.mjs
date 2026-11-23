@@ -7,7 +7,7 @@ import { build as esbuild } from 'esbuild';
 import { h } from 'preact';
 import renderToString from 'preact-render-to-string';
 import * as runtime from './runtime.js';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 const [designDir, repoDir] = process.argv.slice(2);
@@ -49,7 +49,7 @@ const BLOBS = {
   '15ec3fa6439e3bb5e1bdb565a3cf95f0': '/media/redesign/ad-monogram.png'
 };
 
-Object.assign(BLOBS, JSON.parse(fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), 'blobs-extra.json'), 'utf8')));
+Object.assign(BLOBS, JSON.parse(fs.readFileSync(path.join(HERE, 'blobs-extra.json'), 'utf8')));
 function localize(src) {
   let s = src;
   for (const [file, route] of Object.entries(ROUTES)) s = s.split(file).join(route);
@@ -108,7 +108,7 @@ await esbuild({ entryPoints: [path.join(HERE, 'entry.gen.js')], bundle: true, mi
 
 // 2) pre-render each page in Node
 globalThis.window = globalThis.window || { addEventListener() {}, removeEventListener() {} };
-await import(path.join(HERE, 'components.gen.js'));
+await import(pathToFileURL(path.join(HERE, 'components.gen.js')).href);
 const css = designs.find((d) => d.name === 'Main').helmet;
 const stripFonts = (x) => x.replace(/<link[^>]*fonts\.(googleapis|gstatic)\.com[^>]*>\s*/g, '');
 for (const [name, file, title, description] of PAGES) {
