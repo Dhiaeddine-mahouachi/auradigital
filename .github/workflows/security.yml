@@ -77,7 +77,7 @@ jobs:
           npm run test:shop:browser
       - name: Preserve private draft UI screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: private-menu-draft-screenshots
           path: test-output/menu-drafts-*.png
@@ -85,7 +85,7 @@ jobs:
 
       - name: Preserve Aura Command screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: aura-command-screenshots
           path: test-output/aura-command-*.png

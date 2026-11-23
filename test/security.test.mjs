@@ -69,3 +69,20 @@ test("same-origin validation supports Cloudflare-routed public requests", () => 
   });
   assert.equal(sameOrigin(crossSite), false);
 });
+
+test('customer sign-in is limited per account as well as per IP', async () => {
+ const { hubFixture } = await import('./hub-fixture.mjs');
+ const f = await hubFixture();
+ const seen = new Map();
+ f.env.LOGIN_RATE_LIMITER = { async limit({ key }) { const n = (seen.get(key) || 0) + 1; seen.set(key, n); return { success: !key.startsWith('customer-auth-account:') || n <= 5 }; } };
+ const attempt = ip => f.call('/api/customer/login', null, 'POST', { email: 'victim@example.test', password: 'wrong-password-123' }, { 'CF-Connecting-IP': ip });
+ for (let i = 0; i < 5; i++) assert.equal((await attempt('10.0.0.' + i)).status, 401);
+ assert.equal((await attempt('10.0.9.9')).status, 429, 'a new IP cannot continue guessing the same account');
+});
+
+test('the Hub page allows the microphone for Auri voice input only on its own origin', async () => {
+ const { hubFixture } = await import('./hub-fixture.mjs');
+ const f = await hubFixture();
+ const r = await f.call('/hub', null);
+ assert.equal(r.headers.get('Permissions-Policy'), 'camera=(), microphone=(self), geolocation=(), payment=(), usb=()');
+});

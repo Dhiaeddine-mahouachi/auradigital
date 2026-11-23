@@ -122,6 +122,8 @@ export async function handleBusinessHub(request,env) {
   if(!['GET','HEAD'].includes(request.method))throw new ApiError(405,'Method not allowed.');
   const asset=await env.ASSETS.fetch(new Request(new URL('/hub/index.html',url)));
   const headers=new Headers(asset.headers);headers.set('Cache-Control','private, no-store');headers.set('X-Robots-Tag','noindex, nofollow');
+  // The Hub may use the microphone for Auri voice input (same origin only, user-initiated).
+  headers.set('Permissions-Policy','camera=(), microphone=(self), geolocation=(), payment=(), usb=()');
   return new Response(request.method==='HEAD'?null:asset.body,{status:asset.status,headers});
  }
  if(!path.startsWith('/api/hub/'))return null;

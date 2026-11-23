@@ -1099,7 +1099,7 @@ export default {
 
       if (url.pathname === "/api/email-health" && request.method === "GET") {
         const admin = await getAuthenticatedAdmin(request,env.DB);
-        if (!admin) return json({provider:"resend",configured:Boolean(env.RESEND_API_KEY),version:"2026-10-14-request-email-v5"});
+        if (!admin) return json({version:"2026-10-14-request-email-v5"}); // configuration details are admin-only
         const health = await checkResendHealth(env);
         await ensureRequestDelivery(env.DB);
         const outbox = await env.DB.prepare("SELECT kind,state,COUNT(*) AS count FROM request_email_outbox GROUP BY kind,state").all();
