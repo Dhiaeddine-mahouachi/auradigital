@@ -18,3 +18,9 @@
 @keyframes aura-blink{0%,44%,48%,100%{scale:1}46%{scale:1 .12}}@keyframes aura-idle{0%,100%{translate:0 0}50%{translate:0 -2px}}@keyframes aura-think{to{opacity:.4;scale:1 .7}}
 @media(prefers-reduced-motion:reduce){.aura-bot,.aura-face i{animation:none!important;transform:none!important}.chat-panel{transition:none!important}}
 @media(max-width:600px){.chat-panel{bottom:76px;height:min(680px,calc(100svh - 88px))}.ai-toolbar button,.ai-toolbar select,.chat-actions button{min-height:36px}.chat-form input{font-size:16px}.ai-request input,.ai-request textarea{font-size:16px}}
+
+/* Keep the public assistant visually aligned with the approved Auri character. */
+.aura-bot.aura-official{width:46px;height:49px;border-radius:16px;background:#06140f;box-shadow:none;overflow:visible}
+.aura-bot.aura-official img{position:static;width:100%;height:100%;object-fit:contain;bottom:auto}
+.chat-launcher .aura-bot.aura-official{animation:aura-idle 4s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.chat-launcher .aura-bot.aura-official{animation:none}}
