@@ -37,5 +37,12 @@
   Cache-Control: no-store, private
   X-Robots-Tag: noindex, nofollow
 
+/media/auri/live/*
+  ! Cache-Control
+
+/auri-preview/*
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow, noarchive
+
 /media/*
   Cache-Control: public, max-age=604800

@@ -116,6 +116,17 @@ auri-character>img{transform:translate(var(--auri-look,0px,0px));transition:tran
 auri-character[data-motion-ready]>img:not(.auri-motion){visibility:hidden}
 auri-character[data-phase='sleeping']>img{opacity:.72}
 @media(prefers-reduced-motion:reduce){auri-character>img.auri-motion{display:none}auri-character>img:not(.auri-motion){visibility:visible!important}}
+auri-character[data-rendered] img{visibility:hidden}
+auri-character[data-live]>img{display:none}
+auri-character[data-live]{position:relative}
+.ac-hero-auri auri-character,.ax-msg-avatar auri-character,.ax-avatar auri-character{width:100%;height:100%}
+auri-character.auri{flex:none}
+.os-side-auri auri-character{width:36px;height:36px;border-radius:10px;background:var(--os-forest,#18231b)}
+.os-auri-face auri-character{width:48px;height:48px}
+.os-chat-avatar auri-character{width:28px;height:28px}
+.hub-requests-empty>auri-character{width:clamp(52px,10vw,80px);height:clamp(52px,10vw,80px);border-radius:16px;border:1px solid #566840;background:radial-gradient(ellipse,#3a4924,#18231b 74%)}
+.ad-auri-mobile{display:none}
+@media(max-width:900px){.ad-auri-mobile{display:flex;justify-content:center;margin:-4px 0 8px}.ad-auri-mobile .auri{width:96px;height:104px}}
 .auri-companion{background:#101214;color:#fafaf7;border-radius:18px;border:1px solid #383c38;margin:0 0 14px}
 .auri-companion summary{display:flex;align-items:center;gap:12px;min-height:64px;padding:4px 14px;cursor:pointer;list-style:none}
 .auri-companion summary::-webkit-details-marker{display:none}
@@ -793,7 +804,7 @@ button.vision-stage-button:hover{border-color:#a5cb30;background:#263327}
 .ad-side li{display:flex;gap:12px;align-items:center;font-weight:500}
 .ad-side li span{width:26px;height:26px;border-radius:50%;background:#E1E100;color:#0B0F0C;display:grid;place-items:center;font-size:.8rem;font-weight:800;flex:none}
 .ad-side-foot{display:flex;align-items:flex-end;gap:14px;font-size:.8rem;color:#A9B8AE}
-.ad-side-foot .auri{width:96px;height:104px}
+.ad-side-foot .auri{width:132px;height:150px}
 .ad-main{display:flex;flex-direction:column;padding:22px clamp(18px,5vw,64px);min-width:0}
 .ad-top{display:flex;justify-content:flex-end;align-items:center;gap:12px}
 .ad-logo-sm{display:none;margin-inline-end:auto;color:#0B0F0C}

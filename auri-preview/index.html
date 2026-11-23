@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Auri — Live Character Preview · AuraDigital</title>
+<link rel="stylesheet" href="/auri-preview/preview.css">
+<script type="module" src="/auri-preview/preview.js"></script>
+</head>
+<body data-bg="dark">
+<header class="bar">
+  <div class="brand"><span class="mk" aria-hidden="true"></span><strong>Auri</strong><span>Live character preview</span></div>
+  <span class="tag">Development preview · not linked from the site</span>
+</header>
+
+<main class="layout">
+  <section class="stage-wrap" aria-label="Character stage">
+    <div class="stage" id="stage" data-view="desktop">
+      <div class="desktop" id="desktopView">
+        <button class="target t-left" id="targetLeft" type="button">Pricing</button>
+        <div class="auri-slot" id="auriSlot"></div>
+        <button class="target t-right" id="targetRight" type="button">Services</button>
+      </div>
+      <div class="phone" id="mobileView" hidden>
+        <div class="phone-screen">
+          <div class="phone-scroll">
+            <div class="mock-nav"><span></span><b>AuraDigital</b><span></span></div>
+            <div class="mock-hero"><h3>Your business, built to grow.</h3><p>Mock page content — scroll to check that Auri never blocks it.</p><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="mock-chat" id="mockChat" hidden>
+            <div class="mock-chat-head"><b>Auri</b><button type="button" id="mockChatClose" aria-label="Close chat">×</button></div>
+            <p>This panel stands in for the existing chat. On the site, tapping Auri opens the real one.</p>
+          </div>
+          <div class="phone-dock" id="phoneDock"></div>
+        </div>
+      </div>
+    </div>
+    <div class="readout" aria-live="polite">
+      <span>State: <b id="roState">idle</b></span>
+      <span>Screen: <b id="roScreen">logo</b></span>
+      <span>Motion: <b id="roMotion">full</b></span>
+      <span>Frame cost: <b id="roPerf">–</b></span>
+    </div>
+  </section>
+
+  <aside class="panel" aria-label="Controls">
+    <fieldset>
+      <legend>Animation state</legend>
+      <div class="chips" id="states"></div>
+      <p class="hint">Welcome and Celebrate return to Idle by themselves. Sleep also starts after inactivity.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Eye expression</legend>
+      <select id="expression"><option value="">Automatic (follows state)</option></select>
+    </fieldset>
+
+    <fieldset>
+      <legend>Belly screen</legend>
+      <div class="chips" id="screens"></div>
+      <label class="check"><input type="checkbox" id="sampleData"> Show sample figures (labelled “sample”)</label>
+      <p class="hint">Without real data the screen shows neutral illustrations with a DEMO tag. It never invents customer numbers.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Size <output id="sizeOut">280px</output></legend>
+      <input type="range" id="size" min="64" max="440" step="2" value="280" aria-label="Character size">
+    </fieldset>
+
+    <fieldset class="row">
+      <legend>Background</legend>
+      <div class="seg" id="bg">
+        <button type="button" data-v="dark" aria-pressed="true">Dark</button>
+        <button type="button" data-v="light" aria-pressed="false">Light</button>
+        <button type="button" data-v="brand" aria-pressed="false">Emerald</button>
+      </div>
+    </fieldset>
+
+    <fieldset class="row">
+      <legend>Device</legend>
+      <div class="seg" id="view">
+        <button type="button" data-v="desktop" aria-pressed="true">Desktop</button>
+        <button type="button" data-v="mobile" aria-pressed="false">Mobile</button>
+      </div>
+    </fieldset>
+
+    <fieldset class="row">
+      <legend>Motion</legend>
+      <div class="seg" id="motion">
+        <button type="button" data-v="auto" aria-pressed="true">System</button>
+        <button type="button" data-v="no-preference" aria-pressed="false">Full</button>
+        <button type="button" data-v="reduce" aria-pressed="false">Reduced</button>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Voice</legend>
+      <select id="voicePick" aria-label="Voice"><option value="">Best human voice on this device</option></select>
+      <div class="actions"><button type="button" id="voiceTest">▶ Hear Auri</button><button type="button" id="voiceStop">■ Stop</button></div>
+      <p class="hint">Natural / neural voices are listed first (★). Edge and Chrome include very human-sounding ones; the choice is per device.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Interaction testing</legend>
+      <label class="check"><input type="checkbox" id="follow" checked> Eyes follow the cursor (nearby only)</label>
+      <label class="check"><input type="checkbox" id="clickable" checked> Click / Enter opens chat</label>
+      <label>Sleep after
+        <select id="sleepAfter"><option value="10000">10 seconds</option><option value="60000" selected>1 minute</option><option value="0">Never</option></select>
+      </label>
+      <div class="actions">
+        <button type="button" id="simOk">Simulate request → success</button>
+        <button type="button" id="simFail">Simulate request → failure</button>
+        <button type="button" id="simReply">Simulate AI reply</button>
+        <button type="button" id="simWork">Simulate authorized task</button>
+        <button type="button" id="voice">Speak with human voice</button>
+        <button type="button" id="helpL">Help → point at “Pricing”</button>
+        <button type="button" id="helpR">Help → point at “Services”</button>
+        <button type="button" id="greet">Replay first-visit greeting</button>
+      </div>
+      <p class="hint">Simulations use timers in this page only. On the site the same calls are driven by real requests.</p>
+      <ol class="log" id="log" aria-label="Event log"></ol>
+    </fieldset>
+  </aside>
+</main>
+</body>
+</html>
