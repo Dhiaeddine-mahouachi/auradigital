@@ -21,6 +21,8 @@ import { renderAuraJourney } from './aura-journey.js';
 import { renderAuraStudio, STUDIO_VIEWS } from './aura-studio.js';
 import { osCopy, industryLabel, INDUSTRY_IDS } from './os-copy.js';
 import { renderBusiness } from './business-view.js';
+import { renderBilling } from './billing-view.js';
+import { openSearch, notificationItems, renderNotifications, toolsCopy } from './hub-tools.js';
 import { localizeError } from './server-errors.js';
 import { serviceItems } from './aura-command.js';
 import { icon as osIcon, mirrorArrows, deliveryStage } from './os-ui.js';
@@ -313,6 +315,21 @@ function photoCard(host){
  };
  draw();host.prepend(section);
 }
+function securityCard(host){
+ const c=osCopy(lang).security,section=document.createElement('section');
+ section.className='os-card os-security-card';
+ section.innerHTML=`<h2>${esc(c.title)}</h2>
+  <div class="os-security-row"><div><strong>${esc(c.devices)}</strong><p class="os-muted" data-sessions>…</p></div><button type="button" class="os-btn is-quiet is-sm" data-revoke>${esc(c.revoke)}</button></div>
+  <div class="os-security-row"><div><strong>${esc(c.export)}</strong><p class="os-muted">${esc(c.exportNote)}</p></div><a class="os-btn is-quiet is-sm" href="/api/hub/me/export" download="aurahub-data.json">${esc(c.download)}</a></div>
+  ${workspace?.permissions.includes('roadmap:write')?`<div class="os-security-row"><div><strong>${esc(c.delete)}</strong><p class="os-muted">${esc(c.deleteNote)}</p></div><button type="button" class="os-btn is-quiet is-sm os-danger" data-delete>${esc(c.deleteAction)}</button></div>`:''}
+  <p class="os-error" role="alert"></p>`;
+ host.append(section);
+ const count=section.querySelector('[data-sessions]'),alert=section.querySelector('[role=alert]');
+ const load=()=>api('/api/hub/me/sessions').then(r=>{count.textContent=c.active(r.active);}).catch(e=>{count.textContent=e.message;});
+ load();
+ section.querySelector('[data-revoke]').onclick=async e=>{const b=e.currentTarget;b.disabled=true;try{const r=await api('/api/hub/me/sessions','POST',{action:'revoke-others'});toast(c.revoked(r.signedOut));await load();}catch(err){alert.textContent=err.message;}finally{b.disabled=false;}};
+ section.querySelector('[data-delete]')?.addEventListener('click',()=>{requestDrafts.set(workspace.organization.id,c.deleteBrief(me.email));navigate('requests',{new:'1',service:'Other'});});
+}
 const emptyProfile=()=>({name:'',industry:'other',country:'',city:'',stage:'',website:'',tools:'',acquisition:'',difficulties:'',goals:'',timeline:'',industryDetails:'',budget:null,currency:'USD',capabilities:[]});
 function profileField(k){
  if(k==='roadmapPreview'){
@@ -364,7 +381,7 @@ function persistProfile(){
 let roadmapView='tree',selectedMission=null,workspaceSwitch=null;
 const requestDrafts=new Map();
 const navigation=['home','journey','services','requests','assistant'];
-const pageGroup={tasks:'journey',projects:'services',websites:'services',hosting:'services',invoices:'orders'};
+const pageGroup={tasks:'journey',projects:'services',websites:'services',hosting:'services',invoices:'orders',billing:'orders'};
 const moreNavigation=['profile','simulator','menuDrafts','projects','websites','hosting','files','reports','invoices','rewards','team','support'];
 const link=(target,params)=>hubLink(target,workspace?.organization.id,params);
 const requestLink=(service='',task='')=>link('requests',{new:'1',service,task});
@@ -397,7 +414,8 @@ function renderShell(){
   assistant:{label:oc.nav.assistant,icon:'auri'},
   requests:{label:oc.nav.requests,icon:'requests'},
   menuDrafts:{label:oc.nav.menuDrafts,icon:'menuDrafts'},
-  orders:{label:oc.nav.orders,icon:'orders',href:'/account'},
+  orders:{label:oc.nav.orders,icon:'orders',href:workspace?link('billing'):'/account'},
+  billing:{label:oc.nav.orders,icon:'orders'},
   team:{label:oc.nav.team,icon:'team'},
   settings:{label:oc.nav.settings,icon:'settings'},
   support:{label:oc.nav.support,icon:'chat'},
@@ -417,6 +435,7 @@ function renderShell(){
   [oc.nav.groups[1],['requests','orders']],
   [oc.nav.groups[2],['settings','support']],
  ];
+ shellPages=groups.flatMap(([,list])=>list).map(p=>({label:labelOf(p),href:items[p]?.href||link(p),icon:items[p]?.icon||'overview'}));
  const mobileMain=workspace?['home','journey','studio']:['home','journey','services'];
  const sheetItems=groups.flatMap(([,list])=>list).filter(p=>!mobileMain.includes(p));
  const section=page==='home'?oc.sections.command:page==='journey'?oc.sections.journey:page==='studio'?oc.sections.studio:labelOf(active);
@@ -436,6 +455,8 @@ function renderShell(){
  <div class="hx-topbar-title os-crumb"><span>${esc(section)}</span></div>
  ${workspace&&can('roadmap:write')?`<a class="growth-secondary hx-top-action os-top-request" href="${esc(requestLink())}">${osIcon('plus',16)} <span>${esc(oc.nav.newRequest)}</span></a>`:''}
  ${workspace&&can('auri:use')?`<button type="button" class="wx-auri-btn os-top-auri" data-ax-open aria-controls="ax-drawer" aria-expanded="false">${osIcon('auri',18)}<span>Auri</span></button>`:''}
+ ${workspace?`<button type="button" class="os-icon-btn os-top-search" data-search aria-label="${esc(toolsCopy(lang).search)} (Ctrl K)">${osIcon('search',18)}</button>
+ <div class="os-bell-wrap"><button type="button" class="os-icon-btn os-bell" data-bell aria-expanded="false" aria-controls="os-bell-panel" aria-label="${esc(toolsCopy(lang).notifications)}">${osIcon('bell',18)}<span class="os-bell-count" hidden></span></button><div class="os-bell-panel" id="os-bell-panel" role="region" aria-label="${esc(toolsCopy(lang).notifications)}" hidden></div></div>`:''}
  <details class="growth-account"><summary aria-label="${esc(oc.nav.account)}" class="${me.photo?'has-photo':''}">${me.photo?avatar('os-photo-summary'):hubIcon('profile')}</summary>
  <div class="growth-account-menu"><div class="os-account-head">${avatar()}<span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div>${languageControl()}
  ${navItem('settings')}${workspace?navItem('profile')+navItem('orders'):''}${button('logout','logout',true)}</div></details></header>
@@ -456,6 +477,8 @@ function renderShell(){
  <div class="ax-body" data-ax-body></div></aside><div class="ax-scrim" data-ax-close hidden></div></div>`;
  bindCommon();
  document.querySelectorAll('[data-ax-open]').forEach(b=>b.addEventListener('click',()=>openAuri()));
+ document.querySelector('[data-search]')?.addEventListener('click',startSearch);
+ if(workspace)void refreshBell();
  document.querySelectorAll('[data-ax-close]').forEach(b=>b.addEventListener('click',closeAuri));
  document.querySelector('[data-ax-reset]')?.addEventListener('click',()=>auriChat?.reset());
  if(auriOpen)openAuri();
@@ -550,7 +573,7 @@ async function home(){
  if(!workspace?.missions.length){renderBuildCard(ui);return;}
  host.innerHTML=`<div class="os-command-loading" role="status" aria-label="${esc(osCopy(lang).state.loading)}"><span></span><span></span><span></span><span></span></div>`;
  const [snapshot,connected,leads]=await Promise.all([workSnapshot(),api(endpoint('connected')).catch(()=>null),loadLeads()]);
- dataCache={id:workspace.organization.id,at:Date.now(),snapshot,connected};
+ dataCache={id:workspace.organization.id,at:Date.now(),snapshot,connected,leads:leads.all?.filter(l=>!l.archived)||undefined};
  if(!host.isConnected)return;
  const next=nextMission(),item=snapshot.attention[0],menu=item?.kind==='menu';
  const eligible=eligibleMissions(workspace.missions,workspace.profile).filter(m=>workspace.evidence?.[m.id]!=='pending');
@@ -581,6 +604,39 @@ function letAuriDo(mission){
   [p.city,p.country].filter(Boolean).join(', '),p.goals?`Goal: ${p.goals}`:'',p.website?`Website: ${p.website}`:''].filter(Boolean).join('\n');
  requestDrafts.set(workspace.organization.id,brief.slice(0,1700));
  navigate('requests',{new:'1',service:serviceFor(mission.capability||mission.id),task:mission.id});
+}
+let shellPages=[];
+function startSearch(){
+ if(!workspace)return;
+ openSearch({lang,esc,pages:shellPages,missions:workspace.missions,missionTitle,link,
+  loadLeads:()=>cachedLeads(),
+  loadWork:async()=>{const hit=cached();const [snapshot,connected]=hit?[hit.snapshot,hit.connected]:await Promise.all([workSnapshot(),api(endpoint('connected')).catch(()=>null)]);return serviceItems({snapshot,connected,link,lang}).map(i=>({title:i.title,meta:dashCopy(lang).kinds[i.kind]||'',href:i.href}));}});
+}
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'&&me&&workspace){e.preventDefault();startSearch();}});
+async function cachedLeads(){
+ const hit=cached();if(hit?.leads)return hit.leads;
+ const leads=await api(endpoint('leads')).then(r=>r.leads).catch(()=>[]);
+ if(dataCache&&dataCache.id===workspace.organization.id)dataCache.leads=leads;
+ return leads;
+}
+// One page-wide listener closes the notifications panel on outside clicks.
+document.addEventListener('click',e=>{const panel=document.querySelector('#os-bell-panel');if(panel&&!panel.hidden&&!e.target.closest('.os-bell-wrap')){panel.hidden=true;document.querySelector('[data-bell]')?.setAttribute('aria-expanded','false');}});
+const seenKey=()=>'aura-notifications-seen:'+(workspace?.organization.id||'');
+async function refreshBell(){
+ const button=document.querySelector('[data-bell]'),panel=document.querySelector('#os-bell-panel');if(!button)return;
+ let seenAt=0;try{seenAt=Number(localStorage.getItem(seenKey()))||0;}catch{}
+ const hit=cached();
+ const [snapshot,connected,leads]=hit?[hit.snapshot,hit.connected,await cachedLeads()]:await Promise.all([workSnapshot().catch(()=>null),api(endpoint('connected')).catch(()=>null),cachedLeads()]);
+ if(!button.isConnected)return;
+ if(snapshot&&!hit)dataCache={id:workspace.organization.id,at:Date.now(),snapshot,connected,leads};
+ const items=notificationItems({lang,workspace,snapshot,connected,leads,missionTitle,link,seenAt});
+ const unread=items.filter(i=>i.unread).length,count=button.querySelector('.os-bell-count');
+ count.hidden=!unread;count.textContent=unread>9?'9+':String(unread);
+ button.setAttribute('aria-label',`${toolsCopy(lang).notifications}${unread?` (${unread})`:''}`);
+ const draw=()=>renderNotifications({host:panel,lang,esc,items,onRead:()=>{try{localStorage.setItem(seenKey(),String(Date.now()));}catch{}refreshBell().then(()=>{panel.hidden=false;});}});
+ draw();
+ button.onclick=()=>{const open=panel.hidden;panel.hidden=!open;button.setAttribute('aria-expanded',String(open));if(open)panel.querySelector('a,button')?.focus();};
+ panel.onkeydown=e=>{if(e.key==='Escape'){panel.hidden=true;button.setAttribute('aria-expanded','false');button.focus();}};
 }
 // Server-saved Auri conversation for this person and workspace.
 const auriHistory=()=>({
@@ -617,6 +673,7 @@ async function mountChatInto(host,{initial,direct=false}={}){
    nextAction:next?{label:ui.continue,href:link('journey',{task:next.id})}:null},
   auriImage:`<img src="/media/auri/level-${auriLevel()}.webp" alt="" width="32" height="32">`,
   askAuri:workspace.permissions.includes('auri:use')?question=>askAuri(question):async()=>t('readOnly'),
+  onAddLead:workspace.permissions.includes('roadmap:write')?lead=>api(endpoint('leads'),'POST',{name:lead.name,interest:lead.interest||'',source:'other',note:'Added with Auri'}).then(r=>{if(dataCache)dataCache.leads=undefined;return r;}):null,
   onBrief:(service,text)=>{requestDrafts.set(workspace.organization.id,text.slice(0,1700));closeAuri();navigate('requests',{new:'1',service});}});
 }
 function closeAuri(){
@@ -740,9 +797,10 @@ async function renderPage(){
   onSignIn:()=>location.assign('/hub/login'),
   onLanguage:value=>{lang=value;saveLanguage(lang);render();},
   onNewWorkspace:()=>{stopAuriVoice();workspace=null;editing=true;draft=emptyProfile();mode='myself';step=0;renderSetup();},
- });await done;if(settingsHost.isConnected)photoCard(settingsHost);return;}
+ });await done;if(settingsHost.isConnected){photoCard(settingsHost);securityCard(settingsHost);}return;}
  if(!workspace&&page==='assistant')return renderAuriEmpty();
  if(!workspace&&(page==='services'||page==='requests'))return renderWorkEmpty(page);
+ if(page==='support')return renderHelp();
  if(!workspace)return renderBuildCard(label);
  if(page==='studio')return studio();
  if(page==='services'||page==='requests')return myWork();
@@ -756,7 +814,7 @@ async function renderPage(){
  // Old addresses from earlier Hub versions go to their current home.
  const moved={insights:['studio',{view:'analytics'}],reports:['studio',{view:'analytics'}],projects:['requests'],websites:['studio',{view:'website'}],hosting:['services',{offer:'hosting'}],files:['services'],rewards:['journey'],resources:['home']}[page];
  if(moved){navigate(moved[0],moved[1]||{},true);return;}
- if(page==='support')return renderHelp();
+ if(page==='billing')return renderBilling({host:document.querySelector('#page-content'),lang,esc,api,endpoint});
  if(page==='insights'){
   content(`<section class="panel"><h2>${esc(t('reports'))}</h2><a class="secondary" href="${esc(link('simulator'))}">${esc(t('simulator'))}</a></section>`);
   return;

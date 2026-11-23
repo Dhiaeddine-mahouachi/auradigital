@@ -20,6 +20,8 @@ export const LEAD_SCHEMA = [
   value_minor INTEGER,
   stage TEXT NOT NULL,
   assignee_id TEXT,
+  follow_up_at TEXT,
+  last_contacted_at TEXT,
   created_by TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -94,6 +96,12 @@ function validLead(body, stages, people, partial = false) {
   if (!stages.some(s => s.id === stage)) throw new ApiError(400, 'Choose a pipeline stage.');
   out.stage = stage;
  }
+ for (const [key, column] of [['followUpAt', 'follow_up_at'], ['lastContactedAt', 'last_contacted_at']]) {
+  if (body[key] === undefined) continue;
+  if (body[key] === null || body[key] === '') { out[column] = null; continue; }
+  if (typeof body[key] !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(body[key]) || Number.isNaN(Date.parse(body[key]))) throw new ApiError(400, 'Use a valid date.');
+  out[column] = body[key];
+ }
  if (body.assigneeId !== undefined) {
   if (body.assigneeId === null || body.assigneeId === '') out.assignee_id = null;
   else if (!people.some(p => p.id === body.assigneeId)) throw new ApiError(400, 'Assign the lead to a member of this workspace.');
@@ -104,7 +112,7 @@ function validLead(body, stages, people, partial = false) {
 
 const leadRow = r => ({ id: r.id, name: r.name, contact: r.contact, source: r.source, interest: r.interest,
  value: r.value_minor === null || r.value_minor === undefined ? null : r.value_minor / 100, stage: r.stage,
- assigneeId: r.assignee_id, createdAt: r.created_at, updatedAt: r.updated_at, archived: Boolean(r.archived_at), version: r.version,
+ assigneeId: r.assignee_id, followUpAt: r.follow_up_at || null, lastContactedAt: r.last_contacted_at || null, createdAt: r.created_at, updatedAt: r.updated_at, archived: Boolean(r.archived_at), version: r.version,
  notes: Number(r.notes || 0) });
 
 // `authorize` and `audit` come from the Hub router so this module cannot drift
@@ -152,19 +160,22 @@ export async function handleLeads(request, env, { org, user, section, item, auth
   if (!lead) throw new ApiError(404, 'Lead not found.');
   const notes = (await db.prepare(`SELECT n.id, n.body, n.created_at AS createdAt, u.full_name AS author FROM hub_lead_notes n LEFT JOIN customer_users u ON u.id=n.author_id
    WHERE n.lead_id=? AND n.organization_id=? ORDER BY n.created_at DESC, n.id LIMIT ${MAX_NOTES}`).bind(item, org).all()).results || [];
-  return json({ lead: leadRow(lead), notes }, 200, { 'Cache-Control': 'private, no-store' });
+  // Change history from the audit log (who did what, when).
+  const historyRows = (await db.prepare(`SELECT a.action, a.created_at AS at, u.full_name AS actor FROM member_access_audit_logs a LEFT JOIN customer_users u ON u.id=a.actor_id
+   WHERE a.organization_id=? AND a.target_id=? AND a.action LIKE 'lead_%' ORDER BY a.created_at DESC LIMIT 50`).bind(org, item).all()).results || [];
+  return json({ lead: leadRow(lead), notes, history: historyRows }, 200, { 'Cache-Control': 'private, no-store' });
  }
  if (method === 'POST' && !item) {
   const guard = await authorize(db, org, user, 'roadmap:write');
   const body = await readJson(request, 6000);
   const [{ stages }, people] = await Promise.all([stagesFor(db, org), assignees(db, org)]);
-  const lead = { source: 'other', contact: '', interest: '', value_minor: null, assignee_id: null, ...validLead(body, stages, people) };
+  const lead = { source: 'other', contact: '', interest: '', value_minor: null, assignee_id: null, follow_up_at: null, last_contacted_at: null, ...validLead(body, stages, people) };
   const id = crypto.randomUUID();
   const note = clean(body.note, 2000);
   const [result] = await db.batch([
-   db.prepare(`INSERT INTO hub_leads(id,organization_id,name,contact,source,interest,value_minor,stage,assignee_id,created_by)
-    SELECT ?,?,?,?,?,?,?,?,?,? WHERE ${guard.sql} AND (SELECT count(*) FROM hub_leads WHERE organization_id=? AND archived_at IS NULL)<${MAX_LEADS}`)
-    .bind(id, org, lead.name, lead.contact, lead.source, lead.interest, lead.value_minor, lead.stage, lead.assignee_id, user.id, ...guard.args, org),
+   db.prepare(`INSERT INTO hub_leads(id,organization_id,name,contact,source,interest,value_minor,stage,assignee_id,follow_up_at,last_contacted_at,created_by)
+    SELECT ?,?,?,?,?,?,?,?,?,?,?,? WHERE ${guard.sql} AND (SELECT count(*) FROM hub_leads WHERE organization_id=? AND archived_at IS NULL)<${MAX_LEADS}`)
+    .bind(id, org, lead.name, lead.contact, lead.source, lead.interest, lead.value_minor, lead.stage, lead.assignee_id, lead.follow_up_at, lead.last_contacted_at, user.id, ...guard.args, org),
    ...(note ? [db.prepare('INSERT INTO hub_lead_notes(id,lead_id,organization_id,author_id,body) SELECT ?,?,?,?,? WHERE EXISTS(SELECT 1 FROM hub_leads WHERE id=?)').bind(crypto.randomUUID(), id, org, user.id, note, id)] : []),
    db.prepare("INSERT INTO member_access_audit_logs(id,organization_id,actor_id,action,target_id) SELECT ?,?,?,'lead_created',? WHERE EXISTS(SELECT 1 FROM hub_leads WHERE id=?)").bind(crypto.randomUUID(), org, user.id, id, id),
   ]);

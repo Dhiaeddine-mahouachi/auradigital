@@ -7,8 +7,24 @@ import { icon, pill, emptyState, loading, relative, shortDate, parseDate, number
 import { dashCopy } from './dashboard-view.js';
 import { serviceItems } from './aura-command.js';
 
+// Minimal RFC 4180 CSV parser (quoted fields, escaped quotes, newlines in quotes).
+function parseCsv(text) {
+ const rows = []; let row = [], field = '', quoted = false;
+ text = text.replace(/^\ufeff/, '');
+ for (let i = 0; i < text.length; i++) {
+  const ch = text[i];
+  if (quoted) { if (ch === '"' && text[i + 1] === '"') { field += '"'; i++; } else if (ch === '"') quoted = false; else field += ch; }
+  else if (ch === '"') quoted = true;
+  else if (ch === ',' || ch === ';') { row.push(field); field = ''; }
+  else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i + 1] === '\n') i++; row.push(field); rows.push(row); row = []; field = ''; }
+  else field += ch;
+ }
+ if (field || row.length) { row.push(field); rows.push(row); }
+ return rows.filter(r => r.some(x => x.trim()));
+}
 export const STUDIO_VIEWS = ['pipeline', 'delivery', 'website', 'menu', 'inbox', 'analytics'];
 const TAB_ICON = { pipeline: 'studio', delivery: 'services', website: 'site', menu: 'menu', inbox: 'chat', analytics: 'analytics' };
+let analyticsDays = 30;
 let showArchived = false, filters = { q: '', source: '', person: '' };
 // Filters sit behind a button on phones and are always shown on wider screens.
 let filtersOpen = typeof matchMedia === 'function' ? matchMedia('(min-width: 701px)').matches : true;
@@ -51,6 +67,7 @@ async function pipeline(ctx) {
  const card = l => `<li class="os-lead" data-lead="${esc(l.id)}" ${canWrite && !showArchived ? 'draggable="true"' : ''}>
   <button type="button" class="os-lead-open" data-open="${esc(l.id)}"><strong>${esc(l.name)}</strong>${l.interest ? `<span>${esc(l.interest)}</span>` : ''}</button>
   <div class="os-lead-meta">${pill(s.sources[l.source] || l.source, '', esc)}${l.value !== null ? `<span class="os-lead-value">${esc(money(lang, l.value, currency))}</span>` : ''}
+   ${l.followUpAt ? `<span class="os-followup ${Date.parse(l.followUpAt) < Date.now() - 86400000 ? 'is-late' : ''}" title="${esc(c.studio.lead.followUp)}">${icon('calendar', 13)}${esc(shortDate(lang, l.followUpAt))}</span>` : ''}
    ${l.notes ? `<span class="os-lead-notes" title="${esc(c.studio.lead.notes)}">${icon('note', 13)}${l.notes}</span>` : ''}
    ${l.assigneeId ? `<span class="os-avatar is-xs" title="${esc(people.get(l.assigneeId) || '')}">${esc(initials(people.get(l.assigneeId)))}</span>` : ''}</div>
   <div class="os-lead-foot"><time datetime="${esc(parseDate(l.updatedAt)?.toISOString() || '')}">${esc(relative(lang, l.updatedAt))}</time>
@@ -72,7 +89,7 @@ async function pipeline(ctx) {
    <label><span class="sr-only">${esc(c.studio.lead.source)}</span><select data-filter="source"><option value="">${esc(s.pipeline.allSources)}</option>${sources.map(x => `<option value="${x}" ${filters.source === x ? 'selected' : ''}>${esc(s.sources[x] || x)}</option>`).join('')}</select></label>
    <label><span class="sr-only">${esc(c.studio.lead.assignee)}</span><select data-filter="person"><option value="">${esc(s.pipeline.allPeople)}</option><option value="-" ${filters.person === '-' ? 'selected' : ''}>${esc(s.pipeline.unassigned)}</option>${assignees.map(p => `<option value="${esc(p.id)}" ${filters.person === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>
    <button type="button" class="os-btn is-quiet is-sm" data-archived aria-pressed="${showArchived}">${icon('archive', 16)}<span>${esc(showArchived ? s.pipeline.hideArchived : s.pipeline.showArchived)}</span></button>
-   ${canWrite && !showArchived ? `<button type="button" class="os-btn is-quiet is-sm" data-stages>${esc(s.pipeline.configure)}</button>` : ''}</div></details>
+   ${canWrite && !showArchived ? `<button type="button" class="os-btn is-quiet is-sm" data-stages>${esc(s.pipeline.configure)}</button>` : ''}<button type="button" class="os-btn is-quiet is-sm" data-export>${icon('archive', 16)}<span>${esc(s.pipeline.exportCsv)}</span></button>${canWrite && !showArchived ? `<label class="os-btn is-quiet is-sm">${icon('plus', 16)}<span>${esc(s.pipeline.importCsv)}</span><input type="file" accept=".csv,text/csv" class="sr-only" data-import></label>` : ''}</div></details>
    <span class="os-toolbar-spacer"></span>
    <span class="os-muted os-toolbar-count" role="status">${esc(s.pipeline.count(list.length))}</span>
    ${canWrite && !showArchived ? `<button type="button" class="os-btn is-primary is-sm" data-new>${icon('plus', 16)}<span>${esc(s.pipeline.add)}</span></button>` : ''}
@@ -92,6 +109,31 @@ async function pipeline(ctx) {
    const again = body.querySelector(`[data-filter="${focus}"]`); again?.focus(); if (again?.setSelectionRange && pos !== undefined) again.setSelectionRange(pos, pos);
   }));
   body.querySelector('[data-filters]')?.addEventListener('toggle', e => { filtersOpen = e.currentTarget.open; });
+  body.querySelector('[data-export]')?.addEventListener('click', () => {
+   const cell = v => { const t = String(v ?? ''); return /[",\n]/.test(t) || /^[=+\-@]/.test(t) ? '"' + (/^[=+\-@]/.test(t) ? "'" : '') + t.replace(/"/g, '""') + '"' : t; };
+   const head = ['name', 'contact', 'source', 'interest', 'value', 'stage', 'assignee', 'followUpAt', 'lastContactedAt', 'createdAt', 'updatedAt'];
+   const rows = visible().map(l => [l.name, l.contact, l.source, l.interest, l.value, stages.find(x => x.id === l.stage)?.label || l.stage, people.get(l.assigneeId) || '', l.followUpAt, l.lastContactedAt, l.createdAt, l.updatedAt]);
+   const blob = new Blob(['\ufeff' + [head, ...rows].map(r => r.map(cell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+   const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'aura-studio-leads.csv' });
+   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  body.querySelector('[data-import]')?.addEventListener('change', async e => {
+   const file = e.target.files[0]; if (!file) return;
+   if (file.size > 200000) { toast(s.pipeline.importTooBig); return; }
+   const rows = parseCsv(await file.text());
+   const header = rows.shift()?.map(h => h.trim().toLowerCase()) || [];
+   const col = name => header.findIndex(h => h === name || (name === 'name' && h === 'ad'));
+   if (col('name') < 0) { toast(s.pipeline.importNeedsName); return; }
+   let added = 0, failed = 0;
+   for (const r of rows.slice(0, 200)) {
+    const v = name => col(name) >= 0 ? String(r[col(name)] || '').trim() : '';
+    if (v('name').length < 2) continue;
+    const source = sources.includes(v('source')) ? v('source') : 'other';
+    try { const { lead } = await api(endpoint('leads'), 'POST', { name: v('name').slice(0, 120), contact: v('contact').slice(0, 200), interest: v('interest').slice(0, 160), source }); leads = [lead, ...leads]; added++; }
+    catch { failed++; }
+   }
+   toast(s.pipeline.imported(added, failed)); draw();
+  });
   body.querySelector('[data-archived]')?.addEventListener('click', async () => { showArchived = !showArchived; body.innerHTML = loading(c.state.loading, esc); await refresh(); });
   body.querySelectorAll('[data-new]').forEach(b => b.addEventListener('click', () => openForm()));
   body.querySelector('[data-stages]')?.addEventListener('click', openStages);
@@ -126,8 +168,9 @@ async function pipeline(ctx) {
   <label class="os-field"><span>${esc(c.studio.lead.stage)}</span><select name="stage">${stages.map(st => `<option value="${esc(st.id)}" ${(l.stage || stages[0].id) === st.id ? 'selected' : ''}>${esc(st.label)}</option>`).join('')}</select></label></div>
   ${field('interest', c.studio.lead.interest, l.interest, 'maxlength="160"')}
   <div class="os-field-row">${field('value', `${c.studio.lead.value} (${currency})`, l.value ?? '', 'type="number" min="0" step="any" inputmode="decimal"')}
+  <div class="os-field-row">${field('followUpAt', c.studio.lead.followUp, l.followUpAt || '', 'type="date"')}${field('lastContactedAt', c.studio.lead.lastContact, l.lastContactedAt || '', 'type="date"')}</div>
   <label class="os-field"><span>${esc(c.studio.lead.assignee)}</span><select name="assigneeId"><option value="">${esc(s.pipeline.unassigned)}</option>${assignees.map(p => `<option value="${esc(p.id)}" ${l.assigneeId === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label></div>`;
- const formValues = form => { const f = new FormData(form); return { name: f.get('name'), contact: f.get('contact'), source: f.get('source'), stage: f.get('stage'), interest: f.get('interest'), value: f.get('value') === '' ? null : Number(f.get('value')), assigneeId: f.get('assigneeId') || null }; };
+ const formValues = form => { const f = new FormData(form); return { name: f.get('name'), contact: f.get('contact'), source: f.get('source'), stage: f.get('stage'), interest: f.get('interest'), value: f.get('value') === '' ? null : Number(f.get('value')), assigneeId: f.get('assigneeId') || null, followUpAt: f.get('followUpAt') || null, lastContactedAt: f.get('lastContactedAt') || null }; };
  function openForm() {
   const d = dialog();
   d.innerHTML = `<form method="dialog" class="os-dialog-body" data-create><header><h2>${esc(s.pipeline.add)}</h2><button type="button" class="os-icon-btn" data-close aria-label="${esc(c.studio.lead.close)}">${icon('close')}</button></header>
@@ -158,6 +201,7 @@ async function pipeline(ctx) {
    <section class="os-notes"><h3>${esc(c.studio.lead.notes)}</h3>
     ${canWrite && !l.archived ? `<form data-note class="os-note-form"><label class="sr-only" for="os-note">${esc(c.studio.lead.addNote)}</label><textarea id="os-note" name="note" rows="2" maxlength="2000" required placeholder="${esc(c.studio.lead.addNote)}"></textarea><button class="os-btn is-quiet is-sm">${esc(c.studio.lead.addNote)}</button></form>` : ''}
     ${detail.notes.length ? `<ol>${detail.notes.map(n => `<li><p>${esc(n.body)}</p><small>${esc(n.author || '')} · ${esc(relative(lang, n.createdAt))}</small></li>`).join('')}</ol>` : `<p class="os-muted">${esc(c.studio.lead.noNotes)}</p>`}</section>
+   ${detail.history?.length ? `<details class="os-lead-history"><summary>${esc(c.studio.lead.history)}</summary><ol>${detail.history.map(h => `<li><strong>${esc(c.studio.lead.actions[h.action] || h.action)}</strong><small>${esc(h.actor || '')} · ${esc(relative(lang, h.at))}</small></li>`).join('')}</ol></details>` : ''}
    ${canWrite ? `<footer class="os-dialog-foot"><button type="button" class="os-btn is-quiet is-sm" data-archive>${icon('archive', 16)}<span>${esc(l.archived ? s.pipeline.restore : s.pipeline.archive)}</span></button></footer>` : ''}</div>`;
   const close = () => { d.close(); };
   d.onclose = () => { if (new URLSearchParams(location.search).get('lead')) history.replaceState(null, '', link('studio', { view: 'pipeline' })); };
@@ -333,7 +377,8 @@ async function analytics(ctx) {
   api(endpoint('leads')), api(endpoint('leads') + '?archived=1').catch(() => ({ leads: [] })), loadSnapshot(), loadConnected()]);
  if (!body.isConnected) return;
  const a = s.analytics, c = osCopy(lang);
- const since = Date.now() - 30 * 86400000;
+ const days = analyticsDays, rangeText = a.rangeDays(days);
+ const since = Date.now() - days * 86400000;
  const all = [...active.leads, ...archived.leads];
  const recent = all.filter(l => parseDate(l.createdAt)?.getTime() >= since);
  const wonStage = active.stages.find(x => x.id === 'won')?.id || active.stages.at(-1).id;
@@ -345,15 +390,15 @@ async function analytics(ctx) {
  const items = serviceItems({ snapshot, connected, link, lang });
  const bars = (rows, total) => `<ul class="os-bars">${rows.map(([label, n]) => `<li><span>${esc(label)}</span><span class="os-bar"><i style="width:${total ? Math.round(n / total * 100) : 0}%"></i></span><b>${number(lang, n)}</b></li>`).join('')}</ul>`;
  const stat = (label, value, source) => `<div class="os-stat"><dt>${esc(label)}</dt><dd>${esc(value)}</dd><small>${esc(source)}</small></div>`;
- body.innerHTML = `<p class="os-muted os-lead-in">${esc(a.lead)}</p>
+ body.innerHTML = `<div class="os-analytics-bar"><p class="os-muted os-lead-in">${esc(a.lead)}</p><div class="os-segment" role="group" aria-label="${esc(rangeText)}">${[7, 30, 90].map(d => `<button type="button" data-days="${d}" aria-pressed="${d === days}">${esc(a.rangeShort(d))}</button>`).join('')}</div><button type="button" class="os-btn is-quiet is-sm" data-analytics-export>${icon('archive', 16)}<span>${esc(s.pipeline.exportCsv)}</span></button></div>
   <dl class="os-stats">
-   ${stat(c.kpi.inquiries, number(lang, recent.length), a.range)}
-   ${stat(a.conversion, recent.length ? Math.round(won / recent.length * 100) + '%' : '—', a.range)}
+   ${stat(c.kpi.inquiries, number(lang, recent.length), rangeText)}
+   ${stat(a.conversion, recent.length ? Math.round(won / recent.length * 100) + '%' : '—', rangeText)}
    ${stat(a.roadmap, missions.length ? Math.round(doneMissions / missions.length * 100) + '%' : '—', `${doneMissions}/${missions.length}`)}
    ${stat(a.services, number(lang, items.filter(i => !i.terminal).length), c.kpi.live)}
   </dl>
   <div class="os-split">
-   <section class="os-card"><header class="os-card-head"><div><h2>${esc(a.bySource)}</h2><p>${esc(a.range)}</p></div></header>
+   <section class="os-card"><header class="os-card-head"><div><h2>${esc(a.bySource)}</h2><p>${esc(rangeText)}</p></div></header>
     ${recent.length ? bars(bySource.map(([k, n]) => [s.sources[k] || k, n]), recent.length) : emptyState({ esc, iconName: 'chat', title: a.noLeads, actions: `<a class="os-btn is-quiet is-sm" href="${esc(link('studio', { view: 'pipeline' }))}">${esc(s.tabs.pipeline)}</a>` })}
     <p class="os-source">${esc(a.srcLeads)}</p></section>
    <section class="os-card"><header class="os-card-head"><div><h2>${esc(a.byStage)}</h2></div></header>
@@ -366,4 +411,13 @@ async function analytics(ctx) {
     <p class="os-source">${esc(a.srcRoadmap)}</p></section>
    <section class="os-card"><header class="os-card-head"><div><h2>${esc(a.simulator)}</h2><p>${esc(a.simulatorNote)}</p></div></header><a class="os-btn is-quiet is-sm" href="${esc(link('simulator'))}">${icon('analytics', 16)}<span>${esc(a.simulator)}</span></a></section>
   </div>`;
+ body.querySelectorAll('[data-days]').forEach(b => b.addEventListener('click', () => { analyticsDays = Number(b.dataset.days); analytics(ctx); }));
+ body.querySelector('[data-analytics-export]')?.addEventListener('click', () => {
+  const rows = [['metric', 'value', 'range'], [c.kpi.inquiries, recent.length, rangeText], [a.conversion, recent.length ? Math.round(won / recent.length * 100) + '%' : '', rangeText],
+   ...bySource.map(([k, n]) => [a.bySource + ': ' + (s.sources[k] || k), n, rangeText]), ...openByStage.map(([k, n]) => [a.byStage + ': ' + k, n, 'now']),
+   [a.roadmap, missions.length ? Math.round(doneMissions / missions.length * 100) + '%' : '', 'now']];
+  const blob = new Blob(['\ufeff' + rows.map(r => r.map(v => /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+  const link = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `aura-studio-analytics-${days}d.csv` });
+  link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+ });
 }

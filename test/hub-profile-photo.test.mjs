@@ -55,3 +55,25 @@ test('Auri conversations are saved per person and cleared on request', async () 
  assert.equal((await f.call(path, owner, 'DELETE')).status, 200);
  assert.equal((await (await f.call(path, owner)).json()).messages.length, 0);
 });
+
+test('customers can sign out other devices and export their data', async () => {
+ const f = await hubFixture();
+ const owner = await f.user('export@example.test', true);
+ const second = owner.token.split('').reverse().join('');
+ const { tokenHash } = await import('../src/customer-accounts.ts');
+ await f.DB.prepare("INSERT INTO customer_sessions(token_hash,customer_id,expires_at) VALUES(?,?,datetime('now','+1 day'))").bind(await tokenHash(second), owner.id).run();
+ assert.equal((await (await f.call('/api/hub/me/sessions', owner)).json()).active, 2);
+ const r = await (await f.call('/api/hub/me/sessions', owner, 'POST', { action: 'revoke-others' })).json();
+ assert.equal(r.signedOut, 1);
+ assert.equal((await f.call('/api/hub/me/sessions', owner)).status, 200, 'current session still works');
+ const { id } = await (await f.call('/api/hub/workspaces', owner, 'POST', { profile: { name: 'Export Co', industry: 'retail', capabilities: [], currency: 'TRY' }, mode: 'myself' })).json();
+ await f.call('/api/hub/workspaces/' + id + '/leads', owner, 'POST', { name: 'Exported lead' });
+ const res = await f.call('/api/hub/me/export', owner);
+ assert.match(res.headers.get('Content-Disposition'), /attachment/);
+ const data = await res.json();
+ assert.equal(data.account.email, 'export@example.test');
+ assert.equal(data.workspaces[0].name, 'Export Co');
+ assert.equal(data.workspaces[0].leads[0].name, 'Exported lead');
+ const stranger = await f.user('not-owner@example.test', true);
+ assert.equal((await (await f.call('/api/hub/me/export', stranger)).json()).workspaces.length, 0, 'only your own workspaces are exported');
+});

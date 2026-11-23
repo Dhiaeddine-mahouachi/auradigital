@@ -37,6 +37,7 @@ const P = {
  filter: 'M4 5h16l-6 8v6l-4-2v-4z',
  archive: 'M3 4h18v4H3z M5 8v12h14V8 M10 12h4',
  instagram: 'M4 4h16v16H4z M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M17 7h.01',
+ bell: 'M6 16V11a6 6 0 0 1 12 0v5l2 2H4z M10 20a2 2 0 0 0 4 0',
  whatsapp: 'M4 20l1.4-4A8 8 0 1 1 8 18.7z M9 9.5c.5 2 2 3.6 4 4.4l1.2-1.1 2 1-.5 1.6c-3.3.2-7-3.3-7-6.7L10 8l1 2z',
 };
 export const icon = (name, size = 18) => `<svg class="os-i os-i-${name}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${P[name] || P.overview}"/></svg>`;

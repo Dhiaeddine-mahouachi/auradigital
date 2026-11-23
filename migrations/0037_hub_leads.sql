@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS hub_leads (
   value_minor INTEGER,
   stage TEXT NOT NULL,
   assignee_id TEXT,
+  follow_up_at TEXT,
+  last_contacted_at TEXT,
   created_by TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),

@@ -85,3 +85,15 @@ test('the lead migration is additive and idempotent', async () => {
  f.sqlite.exec(sql);
  f.sqlite.exec(sql);
 });
+
+test('leads keep follow-up dates, last contact and a change history', async () => {
+ const { f, owner, base } = await setup();
+ const { lead } = await (await f.call(base + '/leads', owner, 'POST', { name: 'Follow me', followUpAt: '2026-12-01' })).json();
+ assert.equal(lead.followUpAt, '2026-12-01');
+ assert.equal((await f.call(base + '/leads/' + lead.id, owner, 'PATCH', { version: lead.version, followUpAt: 'tomorrow' })).status, 400);
+ const moved = (await (await f.call(base + '/leads/' + lead.id, owner, 'PATCH', { version: lead.version, stage: 'contacted', lastContactedAt: '2026-11-20' })).json()).lead;
+ assert.equal(moved.lastContactedAt, '2026-11-20');
+ const detail = await (await f.call(base + '/leads/' + lead.id, owner)).json();
+ assert.deepEqual(detail.history.map(h => h.action).sort(), ['lead_created', 'lead_stage_changed']);
+ assert.equal(detail.history[0].actor, owner.name);
+});

@@ -7,7 +7,7 @@ const labels={
 const keys=['home','journey','assistant','services','build','buildNote','buildAction','continue','next','attention','progress','active','reviewMenu','openRequest','emptyAttention','emptyProgress','emptyActive','welcome','complete','return','context','small','systems','scale','locked','current','unavailable','menuReady','reviewed','requestDetails','intake'];
 const requests={en:'Requests',fr:'Demandes',tr:'Talepler',ar:'الطلبات'};
 export const hubLabels=lang=>({...Object.fromEntries(keys.map((key,index)=>[key,(labels[lang]||labels.en)[index]])),requests:requests[lang]||requests.en});
-export const destinations={home:'',journey:'roadmap',assistant:'auri',services:'work',requests:'requests',menuDrafts:'menu-drafts',profile:'profile',settings:'settings',resources:'resources',tasks:'tasks',simulator:'simulator',team:'team',insights:'insights',projects:'projects',websites:'websites',hosting:'hosting',files:'files',reports:'reports',invoices:'invoices',rewards:'rewards',support:'support',onboarding:'onboarding',studio:'studio'};
+export const destinations={home:'',journey:'roadmap',assistant:'auri',services:'work',requests:'requests',menuDrafts:'menu-drafts',profile:'profile',settings:'settings',resources:'resources',tasks:'tasks',simulator:'simulator',team:'team',insights:'insights',projects:'projects',websites:'websites',hosting:'hosting',files:'files',reports:'reports',invoices:'invoices',rewards:'rewards',support:'support',onboarding:'onboarding',studio:'studio',billing:'billing'};
 export const hubStage=level=>Math.max(0,Math.min(4,(Number(level)||1)-1));
 export const hubStageNames=lang=>({
  en:['Foundation','Visibility','Conversion','Operations','Scale'],

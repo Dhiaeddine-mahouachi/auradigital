@@ -109,6 +109,7 @@ export function renderAuraJourney({ host, lang, esc, link, requestLink, workspac
    <section class="os-stage-panel" aria-labelledby="os-stage-title">
     <header class="os-stage-panel-head"><div><p class="os-eyebrow">${esc(j.stageOf(chosen + 1))} · ${esc(stateLabel(stage))}</p><h2 id="os-stage-title">${esc(j.stages[chosen])}</h2></div>
      <div class="os-stage-progress"><span>${esc(j.progress)}</span><strong>${esc(j.of(stage.done.length, stage.missions.length))}</strong></div></header>
+    ${stage.complete ? `<p class="os-celebrate" role="status"><span aria-hidden="true">✦</span> ${esc(j.celebrate(j.stages[chosen]))}</p>` : ''}
     <p class="os-stage-objective"><b>${esc(j.objective)}</b> ${esc(j.objectives[chosen])}</p>
     ${stage.missions.length ? `<div class="os-stage-grid">
      <section><h3>${esc(j.remaining)} <span class="os-count">${stage.remaining.length}</span></h3>

@@ -14,6 +14,7 @@ import { handleMenuDrafts } from './menu-drafts.js';
 import { handleLeads } from './hub-leads.js';
 import { handleProfilePhoto, profilePhoto, handleWorkspaceLogo } from './hub-profile-photo.js';
 import { handleAuriHistory } from './hub-auri-history.js';
+import { handleAccount } from './hub-account.js';
 import { ApiError, json, readJson } from './http.js';
 import { authenticatedCustomer, tokenHash } from './customer-accounts.ts';
 import { sameOrigin } from './security.js';
@@ -128,6 +129,7 @@ export async function handleBusinessHub(request,env) {
  const write=!['GET','HEAD'].includes(request.method);
  if(write){if(!sameOrigin(request))throw new ApiError(403,'Forbidden origin.');await limit(request,env,user);}
  if(path==='/api/hub/me/photo')return handleProfilePhoto(request,env,user);
+ if(path==='/api/hub/me/sessions'||path==='/api/hub/me/export'){const r=await handleAccount(request,env,user,path);if(r)return r;}
  if(path==='/api/hub/onboarding/guide'&&['GET','POST'].includes(request.method))return hubGuide(request,env,user);
  if(path==='/api/hub/onboarding/analyze'&&request.method==='POST')return analyzeOnboarding(request,env,user);
  const menuDraftResponse=await handleMenuDrafts(request,env,user,authorize);

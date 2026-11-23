@@ -21,6 +21,8 @@ export async function tokenHash(value: string): Promise<string> {
 }
 function token(request: Request) { return (request.headers.get('Cookie') || '').split(';').map(s => s.trim()).find(s => s.startsWith(cookieName + '='))?.slice(cookieName.length + 1) || ''; }
 function cookie(value: string, seconds = sessionSeconds) { return `${cookieName}=${value}; Path=/; Max-Age=${seconds}; HttpOnly; Secure; SameSite=Strict`; }
+// Hash of the session cookie on this request (used to keep the current session when signing out other devices).
+export async function currentSessionHash(request: Request): Promise<string | null> { const value = token(request); return /^[a-f0-9]{64}$/.test(value) ? tokenHash(value) : null; }
 export async function authenticatedCustomer(request: Request, env: CustomerEnv): Promise<Customer | null> {
   const value = token(request); if (!/^[a-f0-9]{64}$/.test(value)) return null;
   await ensureCustomers(env.DB);
