@@ -7,7 +7,7 @@ const labels={
 const keys=['home','journey','assistant','services','build','buildNote','buildAction','continue','next','attention','progress','active','reviewMenu','openRequest','emptyAttention','emptyProgress','emptyActive','welcome','complete','return','context','small','systems','scale','locked','current','unavailable','menuReady','reviewed','requestDetails','intake'];
 const requests={en:'Requests',fr:'Demandes',tr:'Talepler',ar:'الطلبات'};
 export const hubLabels=lang=>({...Object.fromEntries(keys.map((key,index)=>[key,(labels[lang]||labels.en)[index]])),requests:requests[lang]||requests.en});
-export const destinations={home:'',journey:'roadmap',assistant:'auri',services:'work',requests:'requests',menuDrafts:'menu-drafts',profile:'profile',settings:'settings',resources:'resources',tasks:'tasks',simulator:'simulator',team:'team',insights:'insights',projects:'projects',websites:'websites',hosting:'hosting',files:'files',reports:'reports',invoices:'invoices',rewards:'rewards',support:'support',onboarding:'onboarding'};
+export const destinations={home:'',journey:'roadmap',assistant:'auri',services:'work',requests:'requests',menuDrafts:'menu-drafts',profile:'profile',settings:'settings',resources:'resources',tasks:'tasks',simulator:'simulator',team:'team',insights:'insights',projects:'projects',websites:'websites',hosting:'hosting',files:'files',reports:'reports',invoices:'invoices',rewards:'rewards',support:'support',onboarding:'onboarding',studio:'studio',billing:'billing'};
 export const hubStage=level=>Math.max(0,Math.min(4,(Number(level)||1)-1));
 export const hubStageNames=lang=>({
  en:['Foundation','Visibility','Conversion','Operations','Scale'],
@@ -25,7 +25,9 @@ export const hubIcons={
 export const hubIcon=id=>`<svg width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round" stroke-linecap="round" fill="none" aria-hidden="true">${hubIcons[id]||hubIcons.services}</svg>`;
 export function currentHubLocation() {
  const slug=location.pathname.split('/')[2]||'';
- const page=Object.keys(destinations).find(key=>destinations[key]===slug)||'home';
+ const known=Object.keys(destinations).find(key=>destinations[key]===slug);
+ // Auth screens are handled before the shell; anything else unknown is a 404.
+ const page=known||(['','login','signup','forgot','reset','verify','invitation','confirm-email'].includes(slug)?'home':'notfound');
  return {page,query:new URLSearchParams(location.search)};
 }
 export function hubLink(page,workspace,params={}) {

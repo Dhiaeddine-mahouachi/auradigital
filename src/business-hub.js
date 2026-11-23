@@ -11,6 +11,10 @@ import { auriProgress } from './auri-progression.js';
 import { draftFollowUp, explainRoadmap, recentAuriDrafts } from './hub-auri.js';
 import { eligibleMissions } from './roadmap.js';
 import { handleMenuDrafts } from './menu-drafts.js';
+import { handleLeads } from './hub-leads.js';
+import { handleProfilePhoto, profilePhoto, handleWorkspaceLogo } from './hub-profile-photo.js';
+import { handleAuriHistory } from './hub-auri-history.js';
+import { handleAccount } from './hub-account.js';
 import { ApiError, json, readJson } from './http.js';
 import { authenticatedCustomer, tokenHash } from './customer-accounts.ts';
 import { sameOrigin } from './security.js';
@@ -113,7 +117,7 @@ async function invitation(request,env,user,body,accept) {
 }
 export async function handleBusinessHub(request,env) {
  const url=new URL(request.url),path=url.pathname;
- if((['/hub/app.js','/hub/hub.css','/hub/boot.js'].includes(path)||/^\/hub\/stage-[123]\.webp$/.test(path))&&['GET','HEAD'].includes(request.method))return env.ASSETS.fetch(request);
+ if((['/hub/app.js','/hub/hub.css','/hub/os.css','/hub/boot.js'].includes(path)||/^\/hub\/stage-[123]\.webp$/.test(path))&&['GET','HEAD'].includes(request.method))return env.ASSETS.fetch(request);
  if(path==='/hub'||path.startsWith('/hub/')) {
   if(!['GET','HEAD'].includes(request.method))throw new ApiError(405,'Method not allowed.');
   const asset=await env.ASSETS.fetch(new Request(new URL('/hub/index.html',url)));
@@ -121,9 +125,23 @@ export async function handleBusinessHub(request,env) {
   return new Response(request.method==='HEAD'?null:asset.body,{status:asset.status,headers});
  }
  if(!path.startsWith('/api/hub/'))return null;
+ // Browser error reports from the Hub (also before sign-in). Logged to Workers
+ // observability only; no cookies, emails or page content are recorded.
+ if(path==='/api/hub/client-error'&&request.method==='POST'){
+  if(!sameOrigin(request))throw new ApiError(403,'Forbidden origin.');
+  const ip=request.headers.get('CF-Connecting-IP')||'local';
+  const allowed=await env.TRACK_RATE_LIMITER?.limit({key:'hub-client-error:'+ip}).catch(()=>({success:true}));
+  if(allowed&&!allowed.success)return new Response(null,{status:204});
+  const body=await readJson(request,4000).catch(()=>({}));
+  const clean=(v,n)=>String(v??'').replace(/[\u0000-\u001f]/g,' ').replace(/[^\s@]+@[^\s@]+/g,'[email]').slice(0,n);
+  console.error(JSON.stringify({event:'aurahub_client_error',message:clean(body.message,300),where:clean(body.where,200),page:clean(String(body.page||'').split('?')[0],120),lang:clean(body.lang,5),ua:clean(request.headers.get('User-Agent'),160)}));
+  return new Response(null,{status:204});
+ }
  const user=await authenticatedCustomer(request,env);if(!user)throw new ApiError(401,'Sign in to your AuraDigital account.');
  const write=!['GET','HEAD'].includes(request.method);
  if(write){if(!sameOrigin(request))throw new ApiError(403,'Forbidden origin.');await limit(request,env,user);}
+ if(path==='/api/hub/me/photo')return handleProfilePhoto(request,env,user);
+ if(path==='/api/hub/me/sessions'||path==='/api/hub/me/export'){const r=await handleAccount(request,env,user,path);if(r)return r;}
  if(path==='/api/hub/onboarding/guide'&&['GET','POST'].includes(request.method))return hubGuide(request,env,user);
  if(path==='/api/hub/onboarding/analyze'&&request.method==='POST')return analyzeOnboarding(request,env,user);
  const menuDraftResponse=await handleMenuDrafts(request,env,user,authorize);
@@ -133,7 +151,7 @@ export async function handleBusinessHub(request,env) {
   const owned=(await env.DB.prepare('SELECT id,name,mode FROM organizations WHERE owner_id=? ORDER BY created_at,id').bind(user.id).all()).results;
   const candidates=(await env.DB.prepare("SELECT o.id,o.name,o.mode FROM organizations o JOIN organization_members m ON m.organization_id=o.id WHERE m.customer_id=? AND m.status='active' ORDER BY o.created_at LIMIT 100").bind(user.id).all()).results;
   const shared=[];for(const o of candidates){try{await authorize(env.DB,o.id,user);shared.push({...o,owner:false});}catch(e){if(e.status!==404)throw e;}}
-  return json({user:{id:user.id,name:user.name,email:user.email,verified:await isEmailVerified(env.DB,user)},workspaces:[...owned.map(o=>({...o,owner:true})),...shared],billing});
+  return json({user:{id:user.id,name:user.name,email:user.email,verified:await isEmailVerified(env.DB,user),photo:await profilePhoto(env.DB,user.id).catch(()=>null)},workspaces:[...owned.map(o=>({...o,owner:true})),...shared],billing});
  }
  if(path==='/api/hub/workspaces'&&request.method==='POST') {
   const body=await readJson(request,36000),profile=validateProfile(body.profile);
@@ -182,9 +200,12 @@ export async function handleBusinessHub(request,env) {
   const [,org,record]=workMatch;
   return json(await getHubWork(env,org,await authorize(env.DB,org,user),record));
  }
- const match=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})(?:\/(profile|diagnosis|missions|mission-evidence|existing-evidence|mission-route|scenarios|team|invitations|activity|auri|connected)(?:\/([a-f0-9-]{36}))?)?$/.exec(path);
+ const match=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})(?:\/(profile|diagnosis|missions|mission-evidence|existing-evidence|mission-route|scenarios|team|invitations|activity|auri|connected|leads|lead-stages|logo|auri-history)(?:\/([a-f0-9-]{36}))?)?$/.exec(path);
  if(!match)throw new ApiError(404,'Not found.');
  const [,org,section,item]=match;
+ if(section==='auri-history'&&!item)return handleAuriHistory(request,env,{org,user,authorize});
+ if(section==='logo'&&!item)return handleWorkspaceLogo(request,env,{org,user,authorize});
+ if(section==='leads'||section==='lead-stages')return handleLeads(request,env,{org,user,section,item,authorize,audit});
  if(section==='connected'){
   if(item||request.method!=='GET')throw new ApiError(405,'Method not allowed.');
   await authorize(env.DB,org,user);
@@ -204,7 +225,7 @@ export async function handleBusinessHub(request,env) {
   const [auri,auriPreferencesForUser,evidence]=await Promise.all([
    auriProgress(env.DB,org,guard,missions.length>0),auriPreferences(env.DB,org,user),workspaceEvidence(env.DB,org,guard),
   ]);
-  return json({auri,evidence,auriPreferences:auriPreferencesForUser,organization:{id:o.id,name:o.name,mode:o.mode,version:o.version,owner:o.owner_id===user.id},profile,analysis,missions,permissions:perms,billing});
+  return json({features:{menuDrafts:env.MENU_DRAFTS_ENABLED==='true'},auri,evidence,auriPreferences:auriPreferencesForUser,organization:{id:o.id,name:o.name,mode:o.mode,version:o.version,owner:o.owner_id===user.id},profile,analysis,missions,permissions:perms,billing});
  }
  if(section==='profile'&&request.method==='PUT') {
   const guard=await authorize(env.DB,org,user,'profile:write'),b=await readJson(request,16000),profile=validateProfile(b.profile);

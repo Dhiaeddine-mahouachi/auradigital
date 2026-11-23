@@ -1,19 +1,20 @@
+import { guideText } from './mission-copy.js';
 import { missionAlternative } from '../mission-routes.js';
 import { blueprintLabels, commandLabels } from './blueprint-copy.js';
 import { eligibleMissions, missionGuide, missionState, roadmapStages } from '../roadmap.js';
 import { renderGrowthVisionPath } from './growth-vision-path.js';
 
 const labels = {
- en:['Dashboard','Roadmap','Tasks','Resources','Welcome back','Roadmap progress','Growth stage','Priority actions','Estimated timeline','Your business growth','Your Business Growth Roadmap','My path','Timeline','Current focus','Why it matters','How to do it','Requirements','Do it myself','Get this done with AuraDigital','Ask AURI…','Optional','Blocked','Update my roadmap','Request a service','Start','Mark complete','AURI Assistant','Can AuraDigital help?','Upcoming','Completed','Ask about this task'],
- tr:['Panel','Yol haritası','Görevler','Kaynaklar','Tekrar hoş geldiniz','Yol haritası ilerlemesi','Büyüme aşaması','Öncelikli adımlar','Tahmini süre','İşletmenizin büyümesi','İşletmenizin büyüme yol haritası','Yolum','Zaman çizelgesi','Şu anki odak','Neden önemli','Nasıl yapılır','Gereksinimler','Kendim yapacağım','AuraDigital ile yap','AURI’ye sorun…','İsteğe bağlı','Engellendi','Yol haritasını güncelle','Hizmet iste','Başla','Tamamlandı olarak işaretle','AURI Asistanı','AuraDigital yardımcı olabilir mi?','Yaklaşan','Tamamlanan','Bu görevi sor'],
- fr:['Tableau de bord','Feuille de route','Tâches','Ressources','Bon retour','Progression','Étape de croissance','Actions prioritaires','Délai estimé','La croissance de votre entreprise','Votre feuille de route de croissance','Mon parcours','Chronologie','Priorité actuelle','Pourquoi cette tâche compte','Comment faire','Prérequis','Le faire moi-même','Confier à AuraDigital','Demander à AURI…','Facultatif','Bloqué','Actualiser la feuille de route','Demander un service','Démarrer','Marquer comme terminé','Assistant AURI','AuraDigital peut-il aider ?','À venir','Terminé','Poser une question sur cette tâche'],
- ar:['لوحة التحكم','خارطة الطريق','المهام','الموارد','أهلًا بعودتك','تقدم خارطة الطريق','مرحلة النمو','الإجراءات ذات الأولوية','المدة المقدرة','نمو نشاطك التجاري','خارطة نمو نشاطك التجاري','مساري','الجدول الزمني','التركيز الحالي','لماذا يهم','طريقة التنفيذ','المتطلبات','سأنفذها بنفسي','نفّذ مع AuraDigital','اسأل AURI…','اختياري','متوقف','حدّث خارطة الطريق','اطلب خدمة','ابدأ','علّم كمكتمل','مساعد AURI','هل يمكن لـ AuraDigital المساعدة؟','القادم','المكتمل','اسأل عن هذه المهمة'],
+ en:['Dashboard','Roadmap','Tasks','Resources','Welcome back','Roadmap progress','Growth stage','Priority actions','Estimated timeline','Your business growth','Your Business Growth Roadmap','My path','Timeline','Current focus','Why it matters','How to do it','Requirements','Do it myself','Get this done with AuraDigital','Ask Auri…','Optional','Blocked','Update my roadmap','Request a service','Start','Mark complete','Auri Assistant','Can AuraDigital help?','Upcoming','Completed','Ask about this task'],
+ tr:['Panel','Yol haritası','Görevler','Kaynaklar','Tekrar hoş geldiniz','Yol haritası ilerlemesi','Büyüme aşaması','Öncelikli adımlar','Tahmini süre','İşletmenizin büyümesi','İşletmenizin büyüme yol haritası','Yolum','Zaman çizelgesi','Şu anki odak','Neden önemli','Nasıl yapılır','Gereksinimler','Kendim yapacağım','AuraDigital ile yap','Auri’ye sorun…','İsteğe bağlı','Engellendi','Yol haritasını güncelle','Hizmet iste','Başla','Tamamlandı olarak işaretle','Auri Asistanı','AuraDigital yardımcı olabilir mi?','Yaklaşan','Tamamlanan','Bu görevi sor'],
+ fr:['Tableau de bord','Feuille de route','Tâches','Ressources','Bon retour','Progression','Étape de croissance','Actions prioritaires','Délai estimé','La croissance de votre entreprise','Votre feuille de route de croissance','Mon parcours','Chronologie','Priorité actuelle','Pourquoi cette tâche compte','Comment faire','Prérequis','Le faire moi-même','Confier à AuraDigital','Demander à Auri…','Facultatif','Bloqué','Actualiser la feuille de route','Demander un service','Démarrer','Marquer comme terminé','Assistant Auri','AuraDigital peut-il aider ?','À venir','Terminé','Poser une question sur cette tâche'],
+ ar:['لوحة التحكم','خارطة الطريق','المهام','الموارد','أهلًا بعودتك','تقدم خارطة الطريق','مرحلة النمو','الإجراءات ذات الأولوية','المدة المقدرة','نمو نشاطك التجاري','خارطة نمو نشاطك التجاري','مساري','الجدول الزمني','التركيز الحالي','لماذا يهم','طريقة التنفيذ','المتطلبات','سأنفذها بنفسي','نفّذ مع AuraDigital','اسأل Auri…','اختياري','متوقف','حدّث خارطة الطريق','اطلب خدمة','ابدأ','علّم كمكتمل','مساعد Auri','هل يمكن لـ AuraDigital المساعدة؟','القادم','المكتمل','اسأل عن هذه المهمة'],
 };
 export const roadmapLabels = lang => Object.fromEntries([
  'home','journey','tasks','resources','welcome','progress','stage','priority','estimate','root','heading','tree','timeline','focus','why','how','requirements','myself','hire','ask','optional','blocked','refresh','request','start','complete','assistant','help','upcoming','completed','askTask',
 ].map((key,i)=>[key,labels[lang][i]]));
 
-export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selectedId, overview=false, auriDesk='', evolutionNames=[], onSelect, onContinue, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, onAskTask, robot, requestLink}) {
+export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selectedId, overview=false, compact=false, auriDesk='', evolutionNames=[], onSelect, onContinue, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, onAskTask, robot, requestLink}) {
  const l=roadmapLabels(lang), ui=blueprintLabels(lang), command=commandLabels(lang);
  const {missions,profile,analysis,permissions}=workspace;
  const canWrite=permissions.includes('roadmap:write');
@@ -66,7 +67,9 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
    </div>
   </section>${auriDesk}
  </div>`;
- host.innerHTML=`${overview?overviewHero:''}
+ // Compact: only the selected task's details (Aura Journey draws the path itself).
+ if(compact)host.innerHTML=`${existingProof}<section class="growth-card growth-focus os-task" id="growth-focus" tabindex="-1">${detail}</section>`;
+ else host.innerHTML=`${overview?overviewHero:''}
  ${overview&&eligible.length?`<section class="command-priorities" aria-label="${esc(command.priorities)}">${eligible.slice(0,3).map(m=>
   `<article class="growth-card"><small>${esc(status(m))}</small><h2>${esc(title(m))}</h2><p>${esc(m.route==='alternative'?missionAlternative(m.capability)?.steps:missionGuide[m.capability]?.[1]||m.description)}</p>
   <button class="growth-secondary" type="button" data-priority="${esc(m.id)}">${esc(l.focus)}</button></article>`).join('')}</section>`:''}${overview?`<section class="growth-metrics" aria-label="${l.progress}">
@@ -86,6 +89,7 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
   const proof=workspace.evidence?.[m.id];
   const reason=m.reason?.startsWith('This capability has not been reported')?guide?.[1]:m.reason;
   const action=alternate?.steps||(m.nextAction==='Define scope or record your existing solution.'?guide?.[2]:m.nextAction);
+  const reasonText=guideText(m.capability,1,lang,reason||m.description),actionText=alternate?action:guideText(m.capability,2,lang,action||guide?.[2]||m.description);
   const {requirements,blocked}=missionState(m,missions,profile);
   const copy={
    en:['Next step','Task options','Ask Auri','Request help'],
@@ -94,8 +98,8 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
    ar:['الخطوة التالية','خيارات المهمة','اسأل أوري','اطلب المساعدة'],
   }[lang];
   return `<div class="growth-focus-top"><h2>${esc(title(m))}</h2><small>${esc(status(m))}${m.optional?' · '+l.optional:''}</small></div>
-   ${!alternate?`<p class="focus-benefit">${esc(reason||m.description)}</p>`:''}
-   <div class="service-next-step"><strong>${copy[0]}</strong><p>${esc(blocked&&requirements.length?requirements.map(cap).join(' · '):action||guide?.[2]||m.description)}</p></div>
+   ${!alternate?`<p class="focus-benefit">${esc(reasonText)}</p>`:''}
+   <div class="service-next-step"><strong>${copy[0]}</strong><p>${esc(blocked&&requirements.length?requirements.map(cap).join(' · '):actionText)}</p></div>
    <div class="growth-actions">
    ${canAsk?`<button type="button" class="growth-primary" data-ask-task>${copy[2]} ↗</button>`:''}
    ${guide?.[0]?`<a class="growth-secondary" data-request-task href="${esc(requestLink(guide[0],m.id))}">${copy[3]} →</a>`:''}

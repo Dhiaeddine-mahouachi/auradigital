@@ -41,14 +41,25 @@
         });
     };
   }
+  // Send a short, anonymous error report to the Worker logs (max 5 per page).
+  var reported = 0;
+  function report(message, where) {
+    if (reported++ >= 5) return;
+    try {
+      var body = JSON.stringify({ message: String(message || '').slice(0, 300), where: String(where || '').slice(0, 200), page: location.pathname, lang: document.documentElement.lang });
+      fetch('/api/hub/client-error', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true }).catch(function () {});
+    } catch (e) {}
+  }
   window.addEventListener('error', function (event) {
     var where = event.filename ? ' (' + String(event.filename).replace(location.origin, '') + ':' + event.lineno + ')' : '';
     errors.push(String(event.message || 'Script error') + where);
+    report(event.message || 'Script error', where);
     if (!started()) setTimeout(function () { show(); }, 1500);
   }, true);
   window.addEventListener('unhandledrejection', function (event) {
     var r = event.reason;
     errors.push('Unhandled: ' + String(r && (r.message || r)).slice(0, 200));
+    report('Unhandled: ' + String(r && (r.message || r)).slice(0, 200), '');
     if (!started()) setTimeout(function () { show(); }, 1500);
   });
   // A module that never runs (blocked, old browser) leaves no error at all.
@@ -57,5 +68,5 @@
     var initial = document.querySelector('#app .initial');
     if (initial) initial.textContent = T[lang()][4];
   }, 6000);
-  setTimeout(function () { show('Timed out before the first screen'); }, 15000);
+  setTimeout(function () { if (!started()) report('Timed out before the first screen', ''); show('Timed out before the first screen'); }, 15000);
 })();

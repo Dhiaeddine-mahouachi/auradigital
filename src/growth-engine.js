@@ -21,7 +21,9 @@ export const capabilities = [
  {id:'followups',level:4,service:'Automated follow-ups',dependencies:['crm'],priority:3,optional:true},
  {id:'menu',level:1,service:'Digital menu',dependencies:[],priority:2,industry:'restaurant'},
 ];
-const industries = ['restaurant','services','ecommerce','real_estate','other'];
+// Existing values stay valid; salon, retail and professional were added for AuraHub 4.
+const industries = ['restaurant','salon','retail','services','professional','ecommerce','real_estate','other'];
+export const INDUSTRIES = industries;
 export function validateProfile(input) {
  if(!input || typeof input!=='object' || Array.isArray(input)) throw new ApiError(400,'Business profile required.');
  const profile={};
@@ -36,6 +38,29 @@ export function validateProfile(input) {
  profile.budget=input.budget===null||input.budget===undefined||input.budget===''?null:number(input.budget,'budget',0,100000000);
  if(!Array.isArray(input.capabilities)||input.capabilities.length>capabilities.length||input.capabilities.some(x=>!capabilities.some(c=>c.id===x))) throw new ApiError(400,'Invalid existing capabilities.');
  profile.capabilities=[...new Set(input.capabilities)];
+ // Contact, hours, social and brand details (all optional).
+ for(const [key,max] of Object.entries({phone:40,email:254,address:300,hours:600})){
+  if(input[key]!==undefined&&input[key]!==null&&(typeof input[key]!=='string'||input[key].length>max))throw new ApiError(400,`Invalid ${key}.`);
+  const value=String(input[key]||'').trim();if(value)profile[key]=value;
+ }
+ if(profile.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email))throw new ApiError(400,'Enter a valid email address.');
+ if(profile.phone&&!/^[+()0-9\s.-]{5,40}$/.test(profile.phone))throw new ApiError(400,'Enter a valid phone number.');
+ if(input.social!==undefined&&input.social!==null){
+  if(typeof input.social!=='object'||Array.isArray(input.social))throw new ApiError(400,'Invalid social links.');
+  const social={};
+  for(const key of ['instagram','facebook','tiktok','linkedin','maps','whatsapp']){
+   const value=String(input.social[key]||'').trim();if(!value)continue;
+   if(value.length>500)throw new ApiError(400,'Invalid social links.');
+   let url;try{url=new URL(value);}catch{throw new ApiError(400,'Use full https:// links for social profiles.');}
+   if(url.protocol!=='https:'||url.username||url.password)throw new ApiError(400,'Use full https:// links for social profiles.');
+   social[key]=value;
+  }
+  if(Object.keys(social).length)profile.social=social;
+ }
+ if(input.brandColors!==undefined&&input.brandColors!==null){
+  if(!Array.isArray(input.brandColors)||input.brandColors.length>3||input.brandColors.some(c=>typeof c!=='string'||!/^#[0-9a-fA-F]{6}$/.test(c)))throw new ApiError(400,'Use up to three hex colors like #003D2B.');
+  if(input.brandColors.length)profile.brandColors=input.brandColors.map(c=>c.toUpperCase());
+ }
  return profile;
 }
 export function diagnose(profile) {
@@ -51,7 +76,10 @@ export function diagnose(profile) {
    (conversion&&['leads','whatsapp','crm'].includes(c.id)) ||
    (automation&&['automation','followups'].includes(c.id)) ||
    (profile.industry==='restaurant'&&['discovery','menu'].includes(c.id)) ||
-   (profile.industry==='ecommerce'&&['analytics','conversion'].includes(c.id));
+   (profile.industry==='ecommerce'&&['analytics','conversion'].includes(c.id)) ||
+   (profile.industry==='salon'&&['whatsapp','reviews','discovery','retention'].includes(c.id)) ||
+   (profile.industry==='retail'&&['discovery','reviews','website'].includes(c.id)) ||
+   (profile.industry==='professional'&&['website','leads','crm'].includes(c.id));
   const optional=c.optional===true || (profile.budget===0&&c.id==='automation');
   return {...c,priority:prioritized&&!optional?1:c.priority,optional,objective:c.service,description:reason,reason,
    estimatedCost:null,currency:profile.currency||'USD',expectedBenefit:reason,nextAction,completionSource:'customer_reported'};

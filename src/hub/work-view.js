@@ -35,7 +35,7 @@ export function renderRequestForm({host,lang,esc,me,workspace,service,task,draft
  }[lang];
  host.innerHTML=`<section class="panel"><h2>${labels[0]}</h2><form data-hub-request>
   <label class="field">${labels[1]}<select name="service">${serviceOptions.map(value=>`<option ${service===value?'selected':''}>${esc(value)}</option>`).join('')}</select></label>
-  <label class="field">${labels[2]}<input name="phone" type="tel" maxlength="50" autocomplete="tel" required></label>
+  <label class="field">${labels[2]}<input name="phone" type="tel" maxlength="50" autocomplete="tel" required value="${esc(workspace?.profile?.phone||'')}"></label>
   <label class="field">${labels[3]}<textarea name="message" rows="4" maxlength="1700" required>${esc(draft.slice(0,1700))}</textarea></label>
   <p role="alert"></p><button class="primary">${labels[4]}</button> <a class="secondary" href="${esc(back)}">${labels[5]}</a>
   </form></section>`;

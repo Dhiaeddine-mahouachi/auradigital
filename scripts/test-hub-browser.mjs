@@ -29,7 +29,7 @@ try {
  await desktop.locator('[name=terms]').check();
  await desktop.locator('#auth-form button[type=submit]').click();
  await heading(desktop,'Build your roadmap').waitFor();
- assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Home','Roadmap','Ask Auri','My Services','Requests','Orders & billing','Settings']);
+ assert.deepEqual(await desktop.locator('.sidebar nav a').allTextContents().then(items=>items.map(item=>item.trim())),['Overview','Growth Roadmap','My Services','Auri Assistant','Requests','Orders & billing','Settings','Help & support']);
  assert(await desktop.locator('.sidebar [data-page=journey]').evaluate(node=>node.clientHeight<66));
  await screenshot(desktop,'AuraHub-New-Home');
  await button(desktop,'What does a digital menu cost?').click();
@@ -80,7 +80,7 @@ try {
  await desktop.reload();
  await desktop.locator('#growth-focus h2').filter({hasText:'Prepare your digital menu'}).waitFor();
  await desktop.goBack();
- await heading(desktop,'Ask Auri').waitFor();
+ await heading(desktop,'Auri Assistant').waitFor();
  await desktop.goForward();
  await heading(desktop,'Growth Vision').waitFor();
  await screenshot(desktop,'AuraHub-Roadmap');

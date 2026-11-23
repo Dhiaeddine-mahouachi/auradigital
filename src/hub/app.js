@@ -16,7 +16,16 @@ import { renderMenuDrafts } from './menu-drafts.js';
 import { copy, capabilityNames } from './i18n.js';
 import { connectedRows, connectedList, dashCopy, navCopy, navIcon } from './dashboard-view.js';
 import { mountAuriChat, chatCopy } from './auri-chat.js';
-import { renderCommandHome } from './command-home.js';
+import { renderAuraCommand } from './aura-command.js';
+import { renderAuraJourney } from './aura-journey.js';
+import { renderAuraStudio, STUDIO_VIEWS } from './aura-studio.js';
+import { osCopy, industryLabel, INDUSTRY_IDS } from './os-copy.js';
+import { renderBusiness } from './business-view.js';
+import { renderBilling } from './billing-view.js';
+import { openSearch, notificationItems, renderNotifications, toolsCopy } from './hub-tools.js';
+import { localizeError } from './server-errors.js';
+import { serviceItems } from './aura-command.js';
+import { icon as osIcon, mirrorArrows, deliveryStage } from './os-ui.js';
 import { simulate, capabilities, diagnose } from '../growth-engine.js';
 const app=document.querySelector('#app'),notice=document.querySelector('#notice');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -45,6 +54,8 @@ const toast=message=>{notice.textContent=message;notice.classList.add('visible')
 const setupScope='setup';
 let disconnectAuri=()=>{},disconnectDesk=()=>{};
 const auriLevel=()=>workspace?.auri?.level||1;
+// Server-reported feature switches (e.g. menu drafts are off in production).
+const feature=name=>workspace?.features?.[name]!==false;
 const auriPreference=()=>workspace?.auriPreferences||{name:'Auri',hidden:false};
 const auriSessions=new Map();
 let auriVoice=null,setupAuriName='',setupDeferred=[];
@@ -80,7 +91,21 @@ async function generateRoadmap(){
   await loadWorkspace(id);
  });
 }
-async function api(path,method='GET',body) {const response=await fetch(path,{method,credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});const data=await response.json().catch(()=>({error:t('error')}));if(!response.ok){const error=new Error(data.error||t('error'));error.status=response.status;throw error;}return data;}
+// Every request has a deadline so a stalled network can never leave a screen
+// (including "Opening your workspace…") waiting forever. AI-backed writes get longer.
+async function api(path,method='GET',body,{timeout=method==='GET'?15000:45000}={}) {
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
+ let response;
+ try{response=await fetch(path,{method,credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal:controller.signal});}
+ catch(cause){const error=new Error(osCopy(lang).state[cause?.name==='AbortError'?'timeout':'offline']);error.status=0;error.network=true;throw error;}
+ finally{clearTimeout(timer);}
+ const data=await response.json().catch(()=>({error:t('error')}));
+ if(!response.ok){
+  // A session that expires while the Hub is open goes back to sign-in and returns here afterwards.
+  if(response.status===401&&me&&path.startsWith('/api/hub/')){location.assign('/hub/login?'+new URLSearchParams({next:location.pathname+location.search}));}
+  const error=new Error(localizeError(data.error,lang)||t('error'));error.status=response.status;error.serverMessage=data.error;throw error;
+ }
+ return data;}
 const endpoint=s=>'/api/hub/workspaces/'+workspace.organization.id+(s?'/'+s:'');
 const button=(label,action,secondary=false,disabled=false)=>`<button type="button" data-action="${action}" class="${secondary?'secondary':'primary'}" ${disabled?'disabled':''}>${esc(t(label))}</button>`;
 function field(key,label,value='',type='text',extra='') {return `<label class="field">${esc(t(label))}<input name="${key}" type="${type}" value="${esc(value)}" ${extra}></label>`;}
@@ -90,6 +115,8 @@ function bindCommon(){document.querySelector('#language')?.addEventListener('cha
 function render(){
  disconnectAuri();disconnectDesk();
  document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+ const skip=document.querySelector('.skip');if(skip)skip.textContent=osCopy(lang).state.skip;
+ mirrorArrows(app,lang==='ar');
  app.setAttribute('aria-busy','false');
  if(!me||['verify','reset','forgot','invitation','confirm-email'].includes(route)){renderGate();return;}
  if(page==='onboarding'&&(!workspace||(!workspace.missions.length&&workspace.permissions.includes('profile:write')&&workspace.permissions.includes('roadmap:write')))){openFirstLogin();return;}
@@ -182,7 +209,8 @@ function authScreen({signup,forgot,reset}){
  const ic={user:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',mail:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="m3 6 9 7 9-7"/></svg>',lock:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'};
  const pw=mode==='forgot'?'':`<label class="ad-field"><span>${esc(t(reset?'newPassword':'password'))}</span><span class="ad-input">${ic.lock}<input name="password" type="password" required ${mode!=='login'?'minlength="12" ':''}maxlength="72" autocomplete="${mode==='login'?'current-password':'new-password'}"><button type="button" class="ad-eye" data-eye aria-pressed="false">${al('show')}</button></span>${mode!=='login'?`<span class="ad-hint" id="ad-pw-hint">${al('pwHint')}</span><span class="ad-meter" aria-hidden="true"><i></i></span>`:''}</label>`;
  const tabs=mode==='login'||mode==='signup'?`<nav class="ad-tabs" aria-label="Account"><a href="/hub/login${authQuery}" ${mode==='login'?'aria-current="page"':''}>${al('signInTab')}</a><a href="/hub/signup${authQuery}" ${mode==='signup'?'aria-current="page"':''}>${al('signupTab')}</a></nav>`:'';
- const googleBlock=mode==='login'||mode==='signup'?`<button type="button" class="ad-google" data-google ${authCapabilities.google?'':'aria-disabled="true"'}>${googleIcon}<span>${al('google')}</span></button>${authCapabilities.google?'':`<p class="ad-note">${al('googleSoon')}</p>`}<div class="ad-or"><span>${al('or')}</span></div>`:'';
+ // Google sign-in is only offered once it is configured; no "coming soon" notice.
+ const googleBlock=(mode==='login'||mode==='signup')&&authCapabilities.google?`<button type="button" class="ad-google" data-google>${googleIcon}<span>${al('google')}</span></button><div class="ad-or"><span>${al('or')}</span></div>`:'';
  const termsBox=mode==='login'||mode==='signup'?`<label class="ad-check"><input type="checkbox" name="terms" ${mode==='signup'?'required':''}><span>${al('terms')}</span></label>`:'';
  app.innerHTML=`<div class="ad-auth">
  <aside class="ad-side"><a href="/" class="ad-logo"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>
@@ -243,6 +271,65 @@ function verifyPending(email){
  btn.onclick=async()=>{btn.disabled=true;try{await api('/api/customer/send-verification','POST',{});note.textContent=al('resent');}catch(e){note.textContent=e.message;}wait=30;setTimeout(tick,1500);};
  document.querySelector('[data-continue]').onclick=async()=>{if(resumeShop())return;route='';await load();};
 }
+// Account avatar: the uploaded photo when there is one, otherwise initials.
+function avatar(cls='hx-avatar small'){
+ const initial=esc(String(me?.name||'?').trim()[0]?.toUpperCase()||'?');
+ return me?.photo?`<span class="${cls} os-photo" aria-hidden="true"><img src="${esc(me.photo)}" alt="" width="40" height="40"></span>`:`<span class="${cls}" aria-hidden="true">${initial}</span>`;
+}
+function resizePhoto(file){
+ return new Promise((resolve,reject)=>{
+  if(!/^image\/(jpeg|png|webp)$/.test(file?.type||'')||file.size>12e6){reject(new Error(osCopy(lang).photo.invalid));return;}
+  // Read as a data: URL; the Hub's CSP allows data: images but not blob:.
+  const reader=new FileReader(),img=new Image();
+  img.onload=()=>{
+   const size=256,canvas=Object.assign(document.createElement('canvas'),{width:size,height:size}),ctx=canvas.getContext('2d');
+   const side=Math.min(img.naturalWidth,img.naturalHeight);
+   ctx.drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)/2,side,side,0,0,size,size);
+   let data=canvas.toDataURL('image/webp',0.84);
+   if(!data.startsWith('data:image/webp'))data=canvas.toDataURL('image/jpeg',0.84);
+   resolve(data);
+  };
+  img.onerror=()=>reject(new Error(osCopy(lang).photo.invalid));
+  reader.onerror=()=>reject(new Error(osCopy(lang).photo.invalid));
+  reader.onload=()=>{img.src=reader.result;};
+  reader.readAsDataURL(file);
+ });
+}
+function photoCard(host){
+ const p=osCopy(lang).photo,section=document.createElement('section');
+ section.className='os-card os-photo-card';
+ const draw=()=>{
+  section.innerHTML=`<div class="os-photo-row">${avatar('os-photo-preview')}<div><h2>${esc(p.title)}</h2><p class="os-muted">${esc(p.hint)}</p>
+   <div class="os-inline-actions"><label class="os-btn is-quiet is-sm">${osIcon('user',16)}<span>${esc(me.photo?p.change:p.upload)}</span><input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" data-photo-input></label>
+   ${me.photo?`<button type="button" class="os-btn is-quiet is-sm" data-photo-remove>${esc(p.remove)}</button>`:''}</div><p class="os-error" role="alert"></p></div></div>`;
+  const alert=section.querySelector('[role=alert]');
+  section.querySelector('[data-photo-input]').onchange=async e=>{
+   const input=e.target;input.disabled=true;alert.textContent='';
+   try{const data=await resizePhoto(input.files[0]);const r=await api('/api/hub/me/photo','PUT',{photo:data});me.photo=r.photo;toast(p.saved);render();}
+   catch(error){alert.textContent=error.message;input.disabled=false;}
+  };
+  section.querySelector('[data-photo-remove]')?.addEventListener('click',async e=>{
+   e.currentTarget.disabled=true;
+   try{await api('/api/hub/me/photo','DELETE');me.photo=null;toast(p.removed);render();}catch(error){alert.textContent=error.message;}
+  });
+ };
+ draw();host.prepend(section);
+}
+function securityCard(host){
+ const c=osCopy(lang).security,section=document.createElement('section');
+ section.className='os-card os-security-card';
+ section.innerHTML=`<h2>${esc(c.title)}</h2>
+  <div class="os-security-row"><div><strong>${esc(c.devices)}</strong><p class="os-muted" data-sessions>…</p></div><button type="button" class="os-btn is-quiet is-sm" data-revoke>${esc(c.revoke)}</button></div>
+  <div class="os-security-row"><div><strong>${esc(c.export)}</strong><p class="os-muted">${esc(c.exportNote)}</p></div><a class="os-btn is-quiet is-sm" href="/api/hub/me/export" download="aurahub-data.json">${esc(c.download)}</a></div>
+  ${workspace?.permissions.includes('roadmap:write')?`<div class="os-security-row"><div><strong>${esc(c.delete)}</strong><p class="os-muted">${esc(c.deleteNote)}</p></div><button type="button" class="os-btn is-quiet is-sm os-danger" data-delete>${esc(c.deleteAction)}</button></div>`:''}
+  <p class="os-error" role="alert"></p>`;
+ host.append(section);
+ const count=section.querySelector('[data-sessions]'),alert=section.querySelector('[role=alert]');
+ const load=()=>api('/api/hub/me/sessions').then(r=>{count.textContent=c.active(r.active);}).catch(e=>{count.textContent=e.message;});
+ load();
+ section.querySelector('[data-revoke]').onclick=async e=>{const b=e.currentTarget;b.disabled=true;try{const r=await api('/api/hub/me/sessions','POST',{action:'revoke-others'});toast(c.revoked(r.signedOut));await load();}catch(err){alert.textContent=err.message;}finally{b.disabled=false;}};
+ section.querySelector('[data-delete]')?.addEventListener('click',()=>{requestDrafts.set(workspace.organization.id,c.deleteBrief(me.email));navigate('requests',{new:'1',service:'Other'});});
+}
 const emptyProfile=()=>({name:'',industry:'other',country:'',city:'',stage:'',website:'',tools:'',acquisition:'',difficulties:'',goals:'',timeline:'',industryDetails:'',budget:null,currency:'USD',capabilities:[]});
 function profileField(k){
  if(k==='roadmapPreview'){
@@ -255,7 +342,7 @@ function profileField(k){
  }
  if(k==='auriName')return field(k,auriControls(lang).name,setupAuriName,'text','maxlength="24"');
  const value=draft[k]??'';
- if(k==='industry')return select(k,k,[['restaurant',t('restaurant')],['services',t('servicesIndustry')],['ecommerce',t('ecommerce')],['real_estate',t('real_estate')],['other',t('other')]],value);
+ if(k==='industry')return select(k,k,INDUSTRY_IDS.map(id=>[id,industryLabel(lang,id)]),value);
  if(k==='currency')return select(k,k,['USD','EUR','TRY','TND'].map(x=>[x,x]),value);
  if(k==='capabilities')return `<fieldset><legend>${t(k)}</legend><div class="checks">${capabilities.map(c=>`<label class="check"><input type="checkbox" name="capabilities" value="${c.id}" ${(draft.capabilities||[]).includes(c.id)?'checked':''}>${esc(cap(c.id))}</label>`).join('')}</div></fieldset>`;
  if(['tools','acquisition','difficulties','goals','industryDetails'].includes(k)){const question=k==='industryDetails'?({restaurant:'restaurantQuestion',ecommerce:'ecommerceQuestion',real_estate:'realEstateQuestion',services:'servicesQuestion'}[draft.industry]||'otherQuestion'):k;return `<label class="field">${t(question)}<textarea name="${k}" rows="4" maxlength="${k==='tools'||k==='acquisition'?1200:1600}">${esc(value)}</textarea></label>`;}
@@ -266,7 +353,7 @@ function renderSetup(){
  if(!editing){draft=workspace?structuredClone(workspace.profile):emptyProfile();mode=workspace?.organization.mode||'myself';}
  const choosing=!editing;
  const setupKeys=workspace?profileKeys:mode==='auri'?['name','industry','industryDetails','goals','capabilities','auriName','roadmapPreview']:['name','industry','goals','budget','currency','website','capabilities'];
- app.innerHTML=`<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">${brandMarkup}</a>${languageControl()}</header><main class="setup command-setup" id="main"><div class="setup-heading"><p class="eyebrow">Aura Command</p><h1>${choosing?commandLabels(lang).onboarding:esc(draft.name||t('profile'))}</h1><p>${choosing?t('choose'):t(mode==='auri'?'auriText':'myselfText')}</p></div>${choosing?`<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">↗</span><h2>${t('myself')}</h2><p>${t('myselfText')}</p><span>${t('continue')} →</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t('auri')}</h2><p>${t('auriText')}</p><span>${t('continue')} →</span></button></div>`:`<section class="panel profile-panel"><div class="panel-bar"><span>${mode==='auri'?`AURI · ${step+1}/${setupKeys.length}`:t('profile')}</span><span id="save-state" role="status"></span>${button('switchMode','switch-mode',true)}</div>${mode==='auri'?`<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>`:''}<form id="profile-form" class="${mode==='auri'?'guided':'form-grid'}">${(mode==='auri'?[setupKeys[step]]:setupKeys).map(profileField).join('')}<div class="actions full">${mode==='auri'?button('back','back-step',true,step===0)+button('skip','skip-step',true,step===0):''}<button class="primary" type="submit">${t(mode==='auri'&&step<setupKeys.length-1?'continue':'save')}</button>${workspace?button('home','leave-setup',true):''}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+ app.innerHTML=`<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">${brandMarkup}</a>${languageControl()}</header><main class="setup command-setup" id="main"><div class="setup-heading"><p class="eyebrow">AuraHub</p><h1>${choosing?commandLabels(lang).onboarding:esc(draft.name||t('profile'))}</h1><p>${choosing?t('choose'):t(mode==='auri'?'auriText':'myselfText')}</p></div>${choosing?`<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">↗</span><h2>${t('myself')}</h2><p>${t('myselfText')}</p><span>${t('continue')} →</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t('auri')}</h2><p>${t('auriText')}</p><span>${t('continue')} →</span></button></div>`:`<section class="panel profile-panel"><div class="panel-bar"><span>${mode==='auri'?`Auri · ${step+1}/${setupKeys.length}`:t('profile')}</span><span id="save-state" role="status"></span>${button('switchMode','switch-mode',true)}</div>${mode==='auri'?`<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>`:''}<form id="profile-form" class="${mode==='auri'?'guided':'form-grid'}">${(mode==='auri'?[setupKeys[step]]:setupKeys).map(profileField).join('')}<div class="actions full">${mode==='auri'?button('back','back-step',true,step===0)+button('skip','skip-step',true,step===0):''}<button class="primary" type="submit">${t(mode==='auri'&&step<setupKeys.length-1?'continue':'save')}</button>${workspace?button('home','leave-setup',true):''}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
  bindCommon();document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;editing=true;step=0;setupAuriName='';setupDeferred=[];render();});
  if(choosing)return;
  const form=document.querySelector('#profile-form');
@@ -294,7 +381,7 @@ function persistProfile(){
 let roadmapView='tree',selectedMission=null,workspaceSwitch=null;
 const requestDrafts=new Map();
 const navigation=['home','journey','services','requests','assistant'];
-const pageGroup={tasks:'journey',projects:'services',websites:'services',hosting:'services',invoices:'orders'};
+const pageGroup={tasks:'journey',projects:'services',websites:'services',hosting:'services',invoices:'orders',billing:'orders'};
 const moreNavigation=['profile','simulator','menuDrafts','projects','websites','hosting','files','reports','invoices','rewards','team','support'];
 const link=(target,params)=>hubLink(target,workspace?.organization.id,params);
 const requestLink=(service='',task='')=>link('requests',{new:'1',service,task});
@@ -312,57 +399,86 @@ function navigate(target,params,replace=false,doRender=true){
 window.addEventListener('popstate',()=>{if(me){editing=false;firstLogin=null;void load();}});
 function renderShell(){
  window.scrollTo({top:0,left:0,behavior:'instant'});
- const labels=hubLabels(lang), l=roadmapLabels(lang), nv=navCopy(lang);
- const active=(pageGroup[page]||page);
+ const labels=hubLabels(lang), l=roadmapLabels(lang), nv=navCopy(lang), oc=osCopy(lang);
+ const view=query.get('view')||'pipeline';
+ const active=page==='studio'?(['website','menu'].includes(view)?'site':view==='analytics'?'analytics':'studio'):(pageGroup[page]||page);
  const can=permission=>!workspace||workspace.permissions.includes(permission);
- const labelOf=p=>p==='home'?nv.home:p==='services'?serviceLabels[lang][0]:p==='requests'?labels.requests:p==='assistant'?labels.assistant:p==='journey'?labels.journey:nv[p]||labels[p]||l[p]||t(p);
- const hrefOf=p=>p==='orders'?'/account':link(p);
- const navItem=(p,mobile=false)=>`<a class="nav-item ${active===p?'active':''}" data-tip="${esc(labelOf(p))}" href="${esc(hrefOf(p))}"
+ const items={
+  home:{label:oc.nav.overview,icon:'overview'},
+  profile:{label:oc.nav.business,icon:'business'},
+  journey:{label:oc.nav.journey,icon:'journey'},
+  studio:{label:oc.nav.studio,icon:'studio',href:link('studio',{view:'pipeline'})},
+  services:{label:oc.nav.services,icon:'services'},
+  site:{label:oc.nav.site,icon:'site',href:link('studio',{view:'website'})},
+  analytics:{label:oc.nav.analytics,icon:'analytics',href:link('studio',{view:'analytics'})},
+  assistant:{label:oc.nav.assistant,icon:'auri'},
+  requests:{label:oc.nav.requests,icon:'requests'},
+  menuDrafts:{label:oc.nav.menuDrafts,icon:'menuDrafts'},
+  orders:{label:oc.nav.orders,icon:'orders',href:workspace?link('billing'):'/account'},
+  billing:{label:oc.nav.orders,icon:'orders'},
+  team:{label:oc.nav.team,icon:'team'},
+  settings:{label:oc.nav.settings,icon:'settings'},
+  support:{label:oc.nav.support,icon:'chat'},
+ };
+ const labelOf=p=>items[p]?.label||labels[p]||l[p]||t(p);
+ const navItem=(p,mobile=false)=>`<a class="nav-item os-nav-item ${active===p?'active':''}" data-tip="${esc(labelOf(p))}" href="${esc(items[p]?.href||link(p))}"
   data-page="${p}" ${mobile?`data-mobile-page="${p}"`:''} ${active===p?'aria-current="page"':''}>
-  ${navIcon(p)}<span>${esc(labelOf(p))}</span></a>`;
- // Grouped navigation: one place for every part of the business.
- const groups=[
-  [nv.groups[0],['home']],
-  [nv.groups[1],['journey','assistant']],
-  [nv.groups[2],['services','requests',...(workspace?['menuDrafts']:[]),'orders']],
-  [nv.groups[3],[...(workspace&&can('profile:write')?['profile']:[]),...(workspace?['team']:[]),'settings']],
+  ${osIcon(items[p]?.icon||p,20)}<span>${esc(labelOf(p))}</span></a>`;
+ // Aura Command (overview), Aura Journey (roadmap) and Aura Studio (operations)
+ // lead the navigation; everything that existed before stays reachable.
+ const groups=workspace?[
+  [oc.nav.groups[0],['home','profile','journey','studio','services','site','analytics',...(can('auri:use')?['assistant']:[])]],
+  [oc.nav.groups[1],['requests',...(feature('menuDrafts')?['menuDrafts']:[]),'orders']],
+  [oc.nav.groups[2],[...(workspace.organization.owner?['team']:[]),'settings','support']],
+ ]:[
+  [oc.nav.groups[0],['home','journey','services','assistant']],
+  [oc.nav.groups[1],['requests','orders']],
+  [oc.nav.groups[2],['settings','support']],
  ];
- const mobileMain=['home','journey','services'];
- const sheetItems=groups.flatMap(([,items])=>items).filter(p=>!mobileMain.includes(p));
+ shellPages=groups.flatMap(([,list])=>list).map(p=>({label:labelOf(p),href:items[p]?.href||link(p),icon:items[p]?.icon||'overview'}));
+ const mobileMain=workspace?['home','journey','studio']:['home','journey','services'];
+ const sheetItems=groups.flatMap(([,list])=>list).filter(p=>!mobileMain.includes(p));
+ const section=page==='home'?oc.sections.command:page==='journey'?oc.sections.journey:page==='studio'?oc.sections.studio:labelOf(active);
  const title=page==='services'?serviceLabels[lang][0]:page==='journey'?commandLabels(lang).vision:labelOf(page);
+ const ownHeading=(page==='home'||page==='journey')&&workspace?.missions.length||(page==='studio'||page==='profile')&&workspace;
  const initials=String(workspace?.organization.name||me.name||'A').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
- app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell hx-shell wx-shell ${page==='home'&&workspace?.missions.length?'wx-home':''} ${page==='services'?'service-shell':''}"><aside class="sidebar" id="sidebar">
- <a href="${esc(link('home'))}" class="wordmark command-wordmark">${brandMarkup}</a>
- <nav aria-label="AuraHub">${groups.map(([name,items])=>`<p class="hx-nav-group">${esc(name)}</p>${items.map(p=>navItem(p)).join('')}`).join('')}</nav>
- <div class="hx-side-foot"><span class="hx-avatar small" aria-hidden="true">${esc(String(me.name||'?')[0].toUpperCase())}</span><span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div></aside>
- <div class="workspace"><header class="topbar growth-topbar hub-topbar">
+ app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell hx-shell wx-shell os-shell ${page==='journey'&&workspace?.missions.length?'os-shell-journey':''} ${page==='services'?'service-shell':''}"><aside class="sidebar os-sidebar" id="sidebar">
+ <a href="${esc(link('home'))}" class="wordmark command-wordmark os-brand">${brandMarkup}<small>AuraHub</small></a>
+ <nav aria-label="AuraHub">${groups.map(([name,list])=>`<p class="hx-nav-group os-nav-group">${esc(name)}</p>${list.map(p=>navItem(p)).join('')}`).join('')}</nav>
+ ${workspace&&can('auri:use')?`<button type="button" class="os-side-auri" data-ax-open aria-controls="ax-drawer"><img src="/media/auri/level-${auriLevel()}-128.webp" alt="" width="36" height="36"><span><strong>Auri</strong><small>${esc(oc.auri.ask)}</small></span></button>`:''}
+ <div class="hx-side-foot os-side-foot">${avatar()}<span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div></aside>
+ <div class="workspace"><header class="topbar growth-topbar hub-topbar os-topbar">
  <a class="hub-mobile-brand wordmark" href="${esc(link('home'))}">${brandMarkup}</a>
- ${workspace?`<div class="hx-business"><span class="hx-avatar" aria-hidden="true">${esc(initials)}</span>
- <label class="field workspace-picker"><span class="sr-only">${t('businessName')}</span>
- <select id="workspace-select" aria-label="${t('businessName')}">${workspaces.map(o=>`<option value="${esc(o.id)}" ${o.id===workspace.organization.id?'selected':''}>${esc(o.id===workspace.organization.id?workspace.organization.name:o.name)}</option>`).join('')}</select></label></div>`:''}
- <div class="hx-topbar-title"><strong>${esc(title)}</strong></div>
- ${workspace&&can('roadmap:write')?`<a class="growth-secondary hx-top-action" href="${esc(requestLink())}">＋ <span>${esc(nv.newRequest)}</span></a>`:''}
- ${workspace&&can('auri:use')?`<button type="button" class="wx-auri-btn" data-ax-open aria-controls="ax-drawer" aria-expanded="false">${navIcon('assistant')}<span>${esc(labels.assistant)}</span></button>`:''}
- <details class="growth-account"><summary aria-label="${esc(t('profile'))}">${hubIcon('profile')}</summary>
- <div class="growth-account-menu"><strong>${esc(me.name)}</strong>${languageControl()}
- ${navItem('settings')}${workspace?navItem('profile')+navItem('invoices'):''}${button('logout','logout',true)}</div></details></header>
- <main id="main" tabindex="-1"><div class="page-heading"><h1>${page==='home'&&(!workspace||!workspace.missions.length)
+ ${workspace?`<div class="hx-business os-business"><span class="hx-avatar" aria-hidden="true">${esc(initials)}</span>
+ <label class="field workspace-picker"><span class="sr-only">${esc(oc.nav.switchWorkspace)}</span>
+ <select id="workspace-select" aria-label="${esc(oc.nav.switchWorkspace)}">${workspaces.map(o=>`<option value="${esc(o.id)}" ${o.id===workspace.organization.id?'selected':''}>${esc(o.id===workspace.organization.id?workspace.organization.name:o.name)}</option>`).join('')}</select></label></div>`:''}
+ <div class="hx-topbar-title os-crumb"><span>${esc(section)}</span></div>
+ ${workspace&&can('roadmap:write')?`<a class="growth-secondary hx-top-action os-top-request" href="${esc(requestLink())}">${osIcon('plus',16)} <span>${esc(oc.nav.newRequest)}</span></a>`:''}
+ ${workspace&&can('auri:use')?`<button type="button" class="wx-auri-btn os-top-auri" data-ax-open aria-controls="ax-drawer" aria-expanded="false">${osIcon('auri',18)}<span>Auri</span></button>`:''}
+ ${workspace?`<button type="button" class="os-icon-btn os-top-search" data-search aria-label="${esc(toolsCopy(lang).search)} (Ctrl K)">${osIcon('search',18)}</button>
+ <div class="os-bell-wrap"><button type="button" class="os-icon-btn os-bell" data-bell aria-expanded="false" aria-controls="os-bell-panel" aria-label="${esc(toolsCopy(lang).notifications)}">${osIcon('bell',18)}<span class="os-bell-count" hidden></span></button><div class="os-bell-panel" id="os-bell-panel" role="region" aria-label="${esc(toolsCopy(lang).notifications)}" hidden></div></div>`:''}
+ <details class="growth-account"><summary aria-label="${esc(oc.nav.account)}" class="${me.photo?'has-photo':''}">${me.photo?avatar('os-photo-summary'):hubIcon('profile')}</summary>
+ <div class="growth-account-menu"><div class="os-account-head">${avatar()}<span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div>${languageControl()}
+ ${navItem('settings')}${workspace?navItem('profile')+navItem('orders'):''}${button('logout','logout',true)}</div></details></header>
+ <main id="main" tabindex="-1">${ownHeading?'':`<div class="page-heading"><h1>${page==='home'&&(!workspace||!workspace.missions.length)
   ?`${esc(labels.welcome)} <span>AuraHub</span>`:page==='journey'&&lang==='en'?'Growth <span>Vision</span>':esc(title)}</h1>
- ${['services','requests'].includes(page)&&workspace?.permissions.includes('roadmap:write')&&!query.has('new')?`<a class="growth-secondary" href="${esc(requestLink())}">＋ ${esc(l.request)}</a>`:''}</div>
+ ${['services','requests'].includes(page)&&workspace?.permissions.includes('roadmap:write')&&!query.has('new')?`<a class="growth-secondary" href="${esc(requestLink())}">＋ ${esc(l.request)}</a>`:''}</div>`}
  ${!me.verified&&authCapabilities.email?`<aside class="verification"><p>${t('verifyLater')}</p>${button('sendVerification','send-verification',true)}</aside>`:''}
  <div id="page-content"></div></main>
- <nav class="command-bottom-nav" aria-label="AuraHub">${navItem('home',true)}${navItem('journey',true)}${workspace&&can('auri:use')?`<button type="button" class="nav-item wx-bottom-auri" data-ax-open aria-controls="ax-drawer">${navIcon('assistant')}<span>Auri</span></button>`:''}${navItem('services',true)}
- <button type="button" class="nav-item hx-more" data-hx-more aria-expanded="false" aria-controls="hx-sheet">${navIcon('more')}<span>${esc(nv.more)}</span></button></nav>
- <div class="hx-sheet" id="hx-sheet" hidden><div class="hx-sheet-panel" role="dialog" aria-modal="true" aria-label="${esc(nv.more)}">
- <header><strong>${esc(nv.more)}</strong><button type="button" class="hx-sheet-close" data-hx-close aria-label="${esc(nv.close)}">✕</button></header>
- <nav aria-label="${esc(nv.more)}">${sheetItems.map(p=>navItem(p)).join('')}</nav></div></div>
+ <nav class="command-bottom-nav os-bottom-nav" aria-label="AuraHub">${navItem('home',true)}${navItem('journey',true)}${workspace&&can('auri:use')?`<button type="button" class="nav-item wx-bottom-auri" data-ax-open aria-controls="ax-drawer">${osIcon('auri',20)}<span>Auri</span></button>`:''}${navItem(mobileMain[2],true)}
+ <button type="button" class="nav-item hx-more" data-hx-more aria-expanded="false" aria-controls="hx-sheet">${osIcon('more',20)}<span>${esc(oc.nav.more)}</span></button></nav>
+ <div class="hx-sheet" id="hx-sheet" hidden><div class="hx-sheet-panel" role="dialog" aria-modal="true" aria-label="${esc(oc.nav.more)}">
+ <header><strong>${esc(oc.nav.more)}</strong><button type="button" class="hx-sheet-close" data-hx-close aria-label="${esc(oc.nav.close)}">✕</button></header>
+ <nav aria-label="${esc(oc.nav.more)}">${sheetItems.map(p=>navItem(p)).join('')}</nav></div></div>
  </div>
- <aside class="ax-drawer" id="ax-drawer" hidden aria-label="Auri"><header class="ax-head"><span class="ax-avatar" aria-hidden="true"><img src="/media/auri/level-${auriLevel()}.webp" alt="" width="44" height="44"></span>
+ <aside class="ax-drawer" id="ax-drawer" hidden aria-label="Auri"><header class="ax-head"><span class="ax-avatar" aria-hidden="true"><img src="/media/auri/level-${auriLevel()}-128.webp" alt="" width="44" height="44"></span>
  <span class="ax-head-text"><strong>Auri</strong><small><i class="ax-online" aria-hidden="true"></i>${esc(chatCopy(lang).status)}</small></span>
  <button type="button" class="ax-icon-btn" data-ax-reset>${esc(chatCopy(lang).clear)}</button><button type="button" class="ax-icon-btn" data-ax-close aria-label="${esc(nv.close)}">✕</button></header>
  <div class="ax-body" data-ax-body></div></aside><div class="ax-scrim" data-ax-close hidden></div></div>`;
  bindCommon();
  document.querySelectorAll('[data-ax-open]').forEach(b=>b.addEventListener('click',()=>openAuri()));
+ document.querySelector('[data-search]')?.addEventListener('click',startSearch);
+ if(workspace)void refreshBell();
  document.querySelectorAll('[data-ax-close]').forEach(b=>b.addEventListener('click',closeAuri));
  document.querySelector('[data-ax-reset]')?.addEventListener('click',()=>auriChat?.reset());
  if(auriOpen)openAuri();
@@ -381,7 +497,11 @@ function renderShell(){
  document.querySelector('[data-action="logout"]').onclick=async()=>{try{await api('/api/customer/logout','POST',{});location.assign('/hub/login');}catch(e){toast(e.message);}};
  document.querySelector('[data-action="send-verification"]')?.addEventListener('click',async e=>{e.target.disabled=true;try{await api('/api/customer/send-verification','POST',{});toast(t('saved'));}catch(e){toast(e.message);}finally{e.target.disabled=false;}});
  const host=document.querySelector('#page-content');
- renderPage().catch(e=>{if(host.isConnected)host.innerHTML=`<section class="panel"><p role="alert">${esc(e.message)}</p></section>`;});
+ renderPage().catch(e=>{
+  if(!host.isConnected)return;
+  host.innerHTML=`<section class="panel os-page-error"><p role="alert">${esc(e.message)}</p><button type="button" class="secondary" data-retry-page>${esc(osCopy(lang).state.retry)}</button></section>`;
+  host.querySelector('[data-retry-page]').onclick=()=>render();
+ });
 }
 const content=html=>{document.querySelector('#page-content').innerHTML=html;};
 app.addEventListener('click',event=>{
@@ -441,19 +561,29 @@ function menuArtwork(menu){
   `<small><span>${esc(product.name)}</span><span>${esc(product.price)} ${esc(menu.draft.fields.currency||'')}</span></small>`).join('')}</div>`;
 }
 const missionTitle=m=>m.objective===m.service?cap(m.capability):m.objective;
+// Data loaded by the Overview is reused by Auri for a minute instead of refetching.
+let dataCache=null;
+const cached=()=>dataCache&&dataCache.id===workspace?.organization.id&&Date.now()-dataCache.at<60000?dataCache:null;
+function loadLeads(){
+ return api(endpoint('leads')+'?archived=all').then(r=>({all:r.leads})).catch(()=>({all:null}));
+}
 async function home(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content');
  if(!workspace?.missions.length){renderBuildCard(ui);return;}
- const [snapshot,connected]=await Promise.all([workSnapshot(),api(endpoint('connected')).catch(()=>null)]);
+ host.innerHTML=`<div class="os-command-loading" role="status" aria-label="${esc(osCopy(lang).state.loading)}"><span></span><span></span><span></span><span></span></div>`;
+ const [snapshot,connected,leads]=await Promise.all([workSnapshot(),api(endpoint('connected')).catch(()=>null),loadLeads()]);
+ dataCache={id:workspace.organization.id,at:Date.now(),snapshot,connected,leads:leads.all?.filter(l=>!l.archived)||undefined};
  if(!host.isConnected)return;
  const next=nextMission(),item=snapshot.attention[0],menu=item?.kind==='menu';
- renderCommandHome({host,lang,esc,link,me,workspace,snapshot,connected,missionTitle,
+ const eligible=eligibleMissions(workspace.missions,workspace.profile).filter(m=>workspace.evidence?.[m.id]!=='pending');
+ renderAuraCommand({host,lang,esc,link,requestLink,me,workspace,snapshot,connected,leads,missionTitle,next,eligible,continueLabel:ui.continue,
   canAsk:workspace.permissions.includes('auri:use'),canRequest:workspace.permissions.includes('roadmap:write'),
-  auriImage:`<img src="/media/auri/level-${auriLevel()}.webp" alt="" width="72" height="72">`,
-  onAsk:question=>openAuri(question),onLetAuri:letAuriDo,
   attention:item?{name:menu?ui.menuReady:item.name,label:menu?ui.reviewMenu:ui.openRequest,href:link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id})}:null,
-  nextAction:next?{label:ui.continue,href:link('journey',{task:next.id})}:null,nextTitle:next?missionTitle(next):'',
-  labels:{attention:ui.attention,next:ui.next}});
+  onAsk:question=>openAuri(question||undefined,{direct:true}),onChat:question=>openAuri(question),onPrepare:letAuriDo});
+}
+async function studio(){
+ return renderAuraStudio({host:document.querySelector('#page-content'),lang,esc,link,requestLink,api,endpoint,workspace,me,toast,
+  view:query.get('view'),query,loadSnapshot:workSnapshot,loadConnected:()=>api(endpoint('connected')).catch(()=>null),onAsk:question=>openAuri(question||undefined)});
 }
 // Map a roadmap task to the request form's service list.
 function serviceFor(capability){
@@ -474,28 +604,75 @@ function letAuriDo(mission){
  requestDrafts.set(workspace.organization.id,brief.slice(0,1700));
  navigate('requests',{new:'1',service:serviceFor(mission.capability||mission.id),task:mission.id});
 }
+let shellPages=[];
+function startSearch(){
+ if(!workspace)return;
+ openSearch({lang,esc,pages:shellPages,missions:workspace.missions,missionTitle,link,
+  loadLeads:()=>cachedLeads(),
+  loadWork:async()=>{const hit=cached();const [snapshot,connected]=hit?[hit.snapshot,hit.connected]:await Promise.all([workSnapshot(),api(endpoint('connected')).catch(()=>null)]);return serviceItems({snapshot,connected,link,lang}).map(i=>({title:i.title,meta:dashCopy(lang).kinds[i.kind]||'',href:i.href}));}});
+}
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'&&me&&workspace){e.preventDefault();startSearch();}});
+async function cachedLeads(){
+ const hit=cached();if(hit?.leads)return hit.leads;
+ const leads=await api(endpoint('leads')).then(r=>r.leads).catch(()=>[]);
+ if(dataCache&&dataCache.id===workspace.organization.id)dataCache.leads=leads;
+ return leads;
+}
+// One page-wide listener closes the notifications panel on outside clicks.
+document.addEventListener('click',e=>{const panel=document.querySelector('#os-bell-panel');if(panel&&!panel.hidden&&!e.target.closest('.os-bell-wrap')){panel.hidden=true;document.querySelector('[data-bell]')?.setAttribute('aria-expanded','false');}});
+const seenKey=()=>'aura-notifications-seen:'+(workspace?.organization.id||'');
+async function refreshBell(){
+ const button=document.querySelector('[data-bell]'),panel=document.querySelector('#os-bell-panel');if(!button)return;
+ let seenAt=0;try{seenAt=Number(localStorage.getItem(seenKey()))||0;}catch{}
+ const hit=cached();
+ const [snapshot,connected,leads]=hit?[hit.snapshot,hit.connected,await cachedLeads()]:await Promise.all([workSnapshot().catch(()=>null),api(endpoint('connected')).catch(()=>null),cachedLeads()]);
+ if(!button.isConnected)return;
+ if(snapshot&&!hit)dataCache={id:workspace.organization.id,at:Date.now(),snapshot,connected,leads};
+ const items=notificationItems({lang,workspace,snapshot,connected,leads,missionTitle,link,seenAt});
+ const unread=items.filter(i=>i.unread).length,count=button.querySelector('.os-bell-count');
+ count.hidden=!unread;count.textContent=unread>9?'9+':String(unread);
+ button.setAttribute('aria-label',`${toolsCopy(lang).notifications}${unread?` (${unread})`:''}`);
+ const draw=()=>renderNotifications({host:panel,lang,esc,items,onRead:()=>{try{localStorage.setItem(seenKey(),String(Date.now()));}catch{}refreshBell().then(()=>{panel.hidden=false;});}});
+ draw();
+ button.onclick=()=>{const open=panel.hidden;panel.hidden=!open;button.setAttribute('aria-expanded',String(open));if(open)panel.querySelector('a,button')?.focus();};
+ panel.onkeydown=e=>{if(e.key==='Escape'){panel.hidden=true;button.setAttribute('aria-expanded','false');button.focus();}};
+}
+// Server-saved Auri conversation for this person and workspace.
+const auriHistory=()=>({
+ load:()=>api(endpoint('auri-history')).then(r=>r.messages),
+ save:messages=>messages.length?api(endpoint('auri-history'),'POST',{messages:messages.slice(-6)}):Promise.resolve(),
+ clear:()=>api(endpoint('auri-history'),'DELETE'),
+});
 // Auri side panel, available on every page of the hub.
 let auriOpen=false,auriChat=null;
-async function openAuri(initial){
+async function openAuri(initial,{direct=false}={}){
  const drawer=document.querySelector('#ax-drawer');
  if(!drawer||!workspace)return;
  auriOpen=true;drawer.hidden=false;document.querySelector('.ax-scrim')?.removeAttribute('hidden');
  document.querySelectorAll('[data-ax-open]').forEach(b=>b.setAttribute('aria-expanded','true'));
  document.documentElement.classList.add('ax-is-open');
  const body=drawer.querySelector('[data-ax-body]');
- if(auriChat&&body.childElementCount&&body.dataset.workspace===workspace.organization.id){if(initial)auriChat.ask(initial);return;}
+ if(auriChat&&body.childElementCount&&body.dataset.workspace===workspace.organization.id){if(initial)auriChat.ask(initial,{direct});return;}
  body.innerHTML='<p class="ax-loading" role="status">…</p>';body.dataset.workspace=workspace.organization.id;
+ auriChat=await mountChatInto(body,{initial,direct});
+}
+// One chat implementation for the drawer and the full Auri page.
+async function mountChatInto(host,{initial,direct=false}={}){
  const ui=hubLabels(lang);
- const [snapshot,connected]=await Promise.all([workSnapshot().catch(()=>({attention:[],progress:[],services:[],records:[],requests:[]})),api(endpoint('connected')).catch(()=>null)]);
- if(!drawer.isConnected)return;
+ const hit=cached();
+ const [snapshot,connected]=hit?[hit.snapshot,hit.connected]:await Promise.all([workSnapshot().catch(()=>({attention:[],progress:[],services:[],records:[],requests:[]})),api(endpoint('connected')).catch(()=>null)]);
+ if(!host.isConnected)return null;
  const next=workspace.missions.length?nextMission():null;
+ // Same de-duplicated counts as Aura Command, so Auri never disagrees with the dashboard.
+ const items=serviceItems({snapshot,connected,link,lang}),activeItems=items.filter(i=>!i.terminal);
  const item=snapshot.attention[0],menu=item?.kind==='menu';
- auriChat=mountAuriChat({host:body,lang,esc,link,me,workspace,initial,
-  data:{snapshot,connected,next,missionTitle,
+ return mountAuriChat({host,lang,esc,link,me,workspace,initial,direct,history:workspace.permissions.includes('auri:use')?auriHistory():null,
+  data:{snapshot,connected,next,missionTitle,counts:{live:activeItems.filter(i=>i.stage===3).length,open:activeItems.filter(i=>i.stage<3).length+(snapshot.attention||[]).length},
    attention:item?{name:menu?ui.menuReady:item.name,label:menu?ui.reviewMenu:ui.openRequest,href:link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id})}:null,
    nextAction:next?{label:ui.continue,href:link('journey',{task:next.id})}:null},
-  auriImage:`<img src="/media/auri/level-${auriLevel()}.webp" alt="" width="32" height="32">`,
+  auriImage:`<img src="/media/auri/level-${auriLevel()}-128.webp" alt="" width="32" height="32">`,
   askAuri:workspace.permissions.includes('auri:use')?question=>askAuri(question):async()=>t('readOnly'),
+  onAddLead:workspace.permissions.includes('roadmap:write')?lead=>api(endpoint('leads'),'POST',{name:lead.name,interest:lead.interest||'',source:'other',note:'Added with Auri'}).then(r=>{if(dataCache)dataCache.leads=undefined;return r;}):null,
   onBrief:(service,text)=>{requestDrafts.set(workspace.organization.id,text.slice(0,1700));closeAuri();navigate('requests',{new:'1',service});}});
 }
 function closeAuri(){
@@ -505,12 +682,35 @@ function closeAuri(){
  document.querySelectorAll('[data-ax-open]').forEach(b=>b.setAttribute('aria-expanded','false'));
  document.documentElement.classList.remove('ax-is-open');
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&auriOpen)closeAuri();});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&auriOpen){closeAuri();document.querySelector('.os-top-auri,[data-ax-open]')?.focus();return;}
+ // Keep keyboard focus inside the open Auri panel (the page behind is covered).
+ if(e.key==='Tab'&&auriOpen){
+  const drawer=document.querySelector('#ax-drawer');if(!drawer||drawer.hidden)return;
+  const items=[...drawer.querySelectorAll('button,a[href],textarea,input,select,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled&&el.offsetParent!==null);
+  if(!items.length)return;
+  const first=items[0],last=items.at(-1);
+  if(!drawer.contains(document.activeElement)){e.preventDefault();first.focus();}
+  else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+ }
+});
 async function myWork(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content'),id=workspace.organization.id;
  const task=workspace.missions.find(m=>m.id===query.get('task'));
  if(query.has('new')&&workspace.permissions.includes('roadmap:write')){
-  return renderRequestForm({host,lang,esc,me,workspace,service:query.get('service'),task:task?missionTitle(task):'',draft:requestDrafts.get(id)||'',back:link('requests'),submitted:request=>{requestDrafts.delete(id);navigate('requests',{request},true);}});
+  const result=renderRequestForm({host,lang,esc,me,workspace,service:query.get('service'),task:task?missionTitle(task):'',draft:requestDrafts.get(id)||'',back:link('requests'),submitted:request=>{requestDrafts.delete(id);navigate('requests',{request},true);}});
+  // Quick service picker above the form (sets the same "service" field).
+  const select=host.querySelector('select[name=service]');
+  if(select){
+   const picks=[['Web Design','site'],['Website Care','note'],['AuraMenu','menu'],['SEO / Google Maps','search'],['AI & Automation','chat'],['Branding','spark'],['Business Email','mail'],['NFC Card','phone']].filter(([v])=>[...select.options].some(o=>o.value===v));
+   const row=document.createElement('div');row.className='os-service-picks';row.setAttribute('role','group');row.setAttribute('aria-label',select.closest('label')?.firstChild?.textContent?.trim()||'Service');
+   row.innerHTML=picks.map(([v,ic])=>`<button type="button" class="os-pick" data-pick="${esc(v)}" aria-pressed="${select.value===v}">${osIcon(ic,18)}<span>${esc(v)}</span></button>`).join('');
+   select.closest('form')?.prepend(row);
+   row.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{select.value=b.dataset.pick;select.dispatchEvent(new Event('change',{bubbles:true}));row.querySelectorAll('[data-pick]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));host.querySelector('[name=message]')?.focus();});
+   select.addEventListener('change',()=>row.querySelectorAll('[data-pick]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.pick===select.value))));
+  }
+  return result;
  }
  const serviceRecord=query.get('serviceRecord');
  if(serviceRecord&&page==='services'){
@@ -524,9 +724,19 @@ async function myWork(){
  if(request){
   const record=await api(endpoint('work/'+encodeURIComponent(request)));
   if(!host.isConnected)return;
-  host.innerHTML=`<section class="panel"><h2>${esc(record.name)}</h2><p>${esc(workStatus(record))}</p><p>${esc(record.id)}</p>
-  <a class="secondary" href="${esc(link('services'))}">${esc(ui.services)}</a>
-  ${workspace.permissions.includes('auri:use')?`<a class="secondary" href="${esc(link('assistant',{request}))}">${esc(ui.assistant)}</a>`:''}</section>`;
+  const r=osCopy(lang).requestDetail,stage=deliveryStage(record.productionStatus||record.status),steps=osCopy(lang).services.stages;
+  host.innerHTML=`<section class="os-card os-request">
+   <header class="os-request-head"><div><p class="os-eyebrow">${esc(r.kicker)}</p><h2>${esc(record.name)}</h2></div><span class="os-pill ${stage===3?'is-good':stage===2?'is-info':'is-warn'}">${esc(workStatus(record))}</span></header>
+   <ol class="os-request-steps" aria-label="${esc(r.progress)}">${steps.map((label,i)=>`<li class="${i<stage?'is-past':i===stage?'is-now':''}" ${i===stage?'aria-current="step"':''}><span>${i<stage?osIcon('check',14):i+1}</span><strong>${esc(label)}</strong></li>`).join('')}</ol>
+   <dl class="os-facts os-request-facts"><div><dt>${esc(r.sent)}</dt><dd>${esc(record.createdAt?new Date(String(record.createdAt).replace(' ','T')+(String(record.createdAt).length===19?'Z':'')).toLocaleDateString(lang,{day:'numeric',month:'long',year:'numeric'}):'—')}</dd></div>
+    <div><dt>${esc(r.due)}</dt><dd>${esc(record.dueDate?new Date(record.dueDate).toLocaleDateString(lang,{day:'numeric',month:'long',year:'numeric'}):r.dueUnset)}</dd></div>
+    <div><dt>${esc(r.reference)}</dt><dd><code>${esc(record.id)}</code></dd></div></dl>
+   <p class="os-muted">${esc(r.note)}</p>
+   <div class="os-inline-actions">
+    ${workspace.permissions.includes('auri:use')?`<a class="os-btn is-primary is-sm" href="${esc(link('assistant',{request}))}">${esc(ui.assistant)}</a>`:''}
+    ${workspace.permissions.includes('roadmap:write')?`<button type="button" class="os-btn is-quiet is-sm" data-request-update>${esc(r.update)}</button>`:''}
+    <a class="os-btn is-quiet is-sm" href="${esc(link('requests'))}">${esc(r.all)}</a></div></section>`;
+  host.querySelector('[data-request-update]')?.addEventListener('click',()=>{requestDrafts.set(id,`${r.regarding} ${record.id} (${record.name}):\n`);navigate('requests',{new:'1',service:record.name});});
   return;
  }
  if(page==='services'&&!service){
@@ -556,7 +766,7 @@ async function myWork(){
   host.innerHTML=`<section class="panel hub-page-start hub-requests-empty"><img src="/media/auri/level-1.webp" alt="" width="80" height="80" loading="lazy"><div><h2>${esc(ui.requests)}</h2>
   <p>${esc(({en:'Your requests will appear here.',fr:'Vos demandes apparaîtront ici.',tr:'Talepleriniz burada görünecek.',ar:'ستظهر طلباتك هنا.'})[lang])}</p>
   <a class="growth-primary" href="${esc(link('services'))}">${esc(serviceLabels[lang][0])} →</a>
-  <a class="growth-secondary" href="${esc(link('menuDrafts'))}">${esc(t('menuDrafts'))}</a></div></section>${serviceShortcuts(lang,esc,link,{profile:workspace.profile,missions:workspace.missions})}`;
+  ${feature('menuDrafts')?`<a class="growth-secondary" href="${esc(link('menuDrafts'))}">${esc(t('menuDrafts'))}</a>`:''}</div></section>${serviceShortcuts(lang,esc,link,{profile:workspace.profile,missions:workspace.missions})}`;
   return;
  }
  const displayed=new Set([...attention,...progress].map(record=>record.id));
@@ -564,10 +774,11 @@ async function myWork(){
  host.innerHTML=section(ui.attention,ui.emptyAttention,attention.map(record=>renderWorkRow(record,{ui,esc,link})).join(''))
   +section(ui.progress,ui.emptyProgress,progress.map(record=>renderWorkRow(record,{ui,esc,link})).join(''))
   +(history.length?section(hubLabels(lang).requests,'',history.map(record=>renderWorkRow(record,{ui,esc,link})).join('')):'')
-  +`<a href="${esc(link('menuDrafts'))}" class="growth-secondary">${esc(t('menuDrafts'))}</a>`;
+  +(feature('menuDrafts')?`<a href="${esc(link('menuDrafts'))}" class="growth-secondary">${esc(t('menuDrafts'))}</a>`:'');
 }
 async function renderPage(){
  const label=hubLabels(lang);
+ if(page==='notfound'){const n=osCopy(lang).notFound;content(`<section class="os-card os-notfound"><p class="os-eyebrow">404</p><h2>${esc(n.title)}</h2><p class="os-muted">${esc(n.text)}</p><div class="os-inline-actions"><a class="os-btn is-primary is-sm" href="${esc(link('home'))}">${esc(osCopy(lang).nav.overview)}</a>${workspace?`<a class="os-btn is-quiet is-sm" href="${esc(link('journey'))}">${esc(osCopy(lang).nav.journey)}</a>`:''}</div></section>`);return;}
  if(page==='invoices')return content(`<section class="panel"><a class="primary" href="/account">${esc(t('orders'))}</a></section>`);
  if(page==='home')return home();
  if(page==='services'&&(query.has('offer')||!workspace)){
@@ -579,24 +790,30 @@ async function renderPage(){
   }else renderServices({host,records:[],lang,esc,link});
   return;
  }
- if(page==='settings')return renderAccountSettings({
+ if(page==='settings'){const settingsHost=document.querySelector('#page-content');const done=renderAccountSettings({
   host:document.querySelector('#page-content'),user:me,lang,esc,t,api,link,workspace,
   canEmail:authCapabilities.email,canLinkGoogle:me.verified&&authCapabilities.google,
   onSignIn:()=>location.assign('/hub/login'),
   onLanguage:value=>{lang=value;saveLanguage(lang);render();},
   onNewWorkspace:()=>{stopAuriVoice();workspace=null;editing=true;draft=emptyProfile();mode='myself';step=0;renderSetup();},
- });
+ });await done;if(settingsHost.isConnected){photoCard(settingsHost);securityCard(settingsHost);}return;}
  if(!workspace&&page==='assistant')return renderAuriEmpty();
  if(!workspace&&(page==='services'||page==='requests'))return renderWorkEmpty(page);
+ if(page==='support')return renderHelp();
  if(!workspace)return renderBuildCard(label);
+ if(page==='studio')return studio();
  if(page==='services'||page==='requests')return myWork();
  if((page==='journey'||page==='onboarding')&&!workspace.missions.length)return renderBuildCard(label);
  if(page==='onboarding'){navigate('journey',{},true);return;}
- if(page==='profile'&&!workspace.permissions.includes('profile:write')){content(`<section class="panel"><h2>${esc(workspace.profile.name)}</h2><p>${t('readOnly')}</p><p>${esc(workspace.profile.goals)}</p></section>`);return;}
- if(page==='profile'){draft=structuredClone(workspace.profile);mode=workspace.organization.mode;step=0;editing=true;renderSetup();return;}
+ if(page==='profile')return renderBusiness({host:document.querySelector('#page-content'),lang,esc,api,endpoint,workspace,cap,resizePhoto,toast,onSaved:()=>loadWorkspace()});
+ if(page==='menuDrafts'&&!feature('menuDrafts')){const s=osCopy(lang).studio.menu;content(`<section class="os-card"><h2>${esc(s.title)}</h2><p class="os-muted">${esc(s.unavailable)}</p><div class="os-inline-actions">${workspace.permissions.includes('roadmap:write')?`<a class="os-btn is-primary is-sm" href="${esc(requestLink('AuraMenu'))}">${esc(s.request)}</a>`:''}<a class="os-btn is-quiet is-sm" href="${esc(link('home'))}">${esc(osCopy(lang).nav.overview)}</a></div></section>`);return;}
  if(page==='menuDrafts')return renderMenuDrafts({host:document.querySelector('#page-content'),api,endpoint,profile:workspace.profile,canWrite:workspace.permissions.includes('roadmap:write'),draftId:query.get('draft'),reviewLabel:label.reviewed,onDraft:id=>navigate('menuDrafts',{draft:id}),onReviewed:()=>navigate('home')});
  if(page==='journey'){if(selectedMission&&!workspace.missions.some(m=>m.id===selectedMission))throw new Error(label.unavailable);return growthDashboard();}
  if(page==='tasks')return journey();
+ // Old addresses from earlier Hub versions go to their current home.
+ const moved={insights:['studio',{view:'analytics'}],reports:['studio',{view:'analytics'}],projects:['requests'],websites:['studio',{view:'website'}],hosting:['services',{offer:'hosting'}],files:['services'],rewards:['journey'],resources:['home']}[page];
+ if(moved){navigate(moved[0],moved[1]||{},true);return;}
+ if(page==='billing')return renderBilling({host:document.querySelector('#page-content'),lang,esc,api,endpoint});
  if(page==='insights'){
   content(`<section class="panel"><h2>${esc(t('reports'))}</h2><a class="secondary" href="${esc(link('simulator'))}">${esc(t('simulator'))}</a></section>`);
   return;
@@ -622,6 +839,20 @@ async function renderPage(){
  ${workspace.permissions.includes('auri:use')?`<a class="growth-primary" href="${esc(link('assistant'))}">${esc(label.assistant)} ↗</a>`:''}
  <a class="growth-secondary" href="/contact">${esc(t('contact'))}</a></div></section>`);
 }
+function renderHelp(){
+ const h=osCopy(lang).help,canAsk=workspace?.permissions.includes('auri:use'),canRequest=workspace?.permissions.includes('roadmap:write');
+ content(`<div class="os-help">
+  <section class="os-help-grid">
+   ${canAsk?`<button type="button" class="os-help-card" data-help-auri>${osIcon('auri',22)}<strong>${esc(h.auri)}</strong><span>${esc(h.auriNote)}</span></button>`:''}
+   <a class="os-help-card" href="https://wa.me/905385507674" target="_blank" rel="noopener">${osIcon('whatsapp',22)}<strong>WhatsApp</strong><span>+90 538 550 76 74</span></a>
+   <a class="os-help-card" href="mailto:info@auradigitalworks.com">${osIcon('mail',22)}<strong>${esc(h.email)}</strong><span>info@auradigitalworks.com</span></a>
+   ${canRequest?`<a class="os-help-card" href="${esc(requestLink())}">${osIcon('requests',22)}<strong>${esc(h.request)}</strong><span>${esc(h.requestNote)}</span></a>`:''}
+  </section>
+  <section class="os-card"><h2>${esc(h.faqTitle)}</h2><div class="os-faq">${h.faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
+   <p class="os-source"><a class="os-link" href="/help">${esc(h.center)}</a></p></section>
+ </div>`);
+ document.querySelector('[data-help-auri]')?.addEventListener('click',()=>openAuri());
+}
 async function askAuri(question,missionId,requestId,serviceKey,offer) {
  const id=workspace.organization.id;
  if(serviceKey){
@@ -634,10 +865,10 @@ async function askAuri(question,missionId,requestId,serviceKey,offer) {
  if(workspace?.organization.id!==id)return '';
  if(data.reply)return data.reply;
  const fallback=({
-  en:'Auri AI is unavailable. Roadmap guidance',
-  fr:'L’IA d’Auri est indisponible. Conseil de la feuille de route',
-  tr:'Auri yapay zekâsı kullanılamıyor. Yol haritası önerisi',
-  ar:'ذكاء أوري غير متاح. إرشاد من خارطة الطريق',
+  en:'Auri’s AI isn’t available right now (it may have reached today’s limit). Guidance from your roadmap',
+  fr:'L’IA d’Auri n’est pas disponible pour le moment (limite du jour peut-être atteinte). Conseil de votre feuille de route',
+  tr:'Auri’nin yapay zekâsı şu an kullanılamıyor (günlük sınıra ulaşmış olabilir). Yol haritanızdan öneri',
+  ar:'ذكاء أوري غير متاح الآن (ربما بلغ الحد اليومي). إرشاد من خطتك',
  })[lang];
  const guidance=message=>fallback+' · '+message;
  if(data.offerGuidance)return guidance(data.offerGuidance);
@@ -654,7 +885,7 @@ async function askAuri(question,missionId,requestId,serviceKey,offer) {
 function growthDashboard(){
  disconnectDesk();
  const host=document.querySelector('#page-content');
- renderRoadmap({host,workspace,t,esc,cap,lang,view:roadmapView,selectedId:selectedMission,robot,requestLink,
+ const options={workspace,t,esc,cap,lang,view:roadmapView,robot,requestLink,
   onSelect(id,scroll=true){
    navigate('journey',{task:id},false,false);growthDashboard();
    document.getElementById('growth-focus')?.focus({preventScroll:!scroll});
@@ -695,8 +926,13 @@ function growthDashboard(){
     if(workspace?.organization.id===id){navigate('journey',{task:result.missionId},true,false);await loadWorkspace(id);}
    }catch(error){submit.disabled=false;toast(error.message);}
   },
- });
- /* The full assistant is reached through task links or the primary navigation. */
+ };
+ const stage=query.get('stage');
+ renderAuraJourney({host,lang,esc,link,requestLink,workspace,missionTitle,cap,
+  stageParam:stage!==null&&/^[0-4]$/.test(stage)?Number(stage):null,selectedId:selectedMission,
+  canAsk:workspace.permissions.includes('auri:use'),onAsk:question=>openAuri(question,{direct:true}),
+  onSelect:id=>options.onSelect(id),
+  renderTask:(taskHost,id)=>renderRoadmap({...options,host:taskHost,selectedId:id,compact:true})});
 
 }
 
@@ -736,8 +972,11 @@ async function team(){
  document.querySelectorAll('[data-cancel]').forEach(b=>b.onclick=async()=>{try{await api(endpoint('invitations/'+b.dataset.cancel),'DELETE');await team();}catch(e){toast(e.message);}});
  document.querySelectorAll('[data-resend]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const i=data.invitations.find(i=>i.id===b.dataset.resend);await api(endpoint('invitations/'+i.id),'DELETE');await api(endpoint('invitations'),'POST',{email:i.email,role:i.role,message:''});await team();}catch(e){toast(e.message);b.disabled=false;}});
  document.querySelectorAll('[data-member]').forEach(row=>{const m=data.members.find(m=>m.id===row.dataset.member);row.querySelector('[data-action="remove-member"]')?.addEventListener('click',async()=>{if(!confirm(t('removeConfirm')))return;try{const r=await api(endpoint('team/'+m.id),'DELETE');if(r.subscriptionCancellation==='BLOCKED_PROVIDER_RECONCILIATION_REQUIRED')toast(r.subscriptionCancellation);await team();}catch(e){toast(e.message);}});row.querySelector('[data-action="edit-member"]')?.addEventListener('click',()=>{const cell=row.lastElementChild;cell.innerHTML=`<form>${select('role','role',rolesForUI(),m.role)}<fieldset><legend>${t('restrict')}</legend>${['profile:write','roadmap:write','simulation:write','workspace:read','auri:use'].map(p=>`<label class="check"><input type="checkbox" name="denied" value="${p}" ${m.deniedPermissions.includes(p)?'checked':''}>${esc(t(({'profile:write':'profile','roadmap:write':'journey','simulation:write':'simulator','workspace:read':'home','auri:use':'assistant'})[p]))}</label>`).join('')}</fieldset><button class="primary">${t('save')}</button></form>`;cell.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);try{await api(endpoint('team/'+m.id),'PATCH',{role:f.get('role'),deniedPermissions:f.getAll('denied')});await team();}catch(e){toast(e.message);}};});});
+ labelTables(document.querySelector('#page-content'));
  const a=await api(endpoint('activity'));document.querySelector('#activity').innerHTML=a.events.map(e=>`<p>${esc(e.created_at)} · ${esc(e.action)}</p>`).join('')||t('empty');
 }
+// Phones show table rows as cards; each cell carries its column name.
+function labelTables(host){host?.querySelectorAll('.table-scroll table').forEach(table=>{const heads=[...table.querySelectorAll('thead th')].map(th=>th.textContent.trim());table.classList.add('os-card-table');table.querySelectorAll('tbody tr').forEach(tr=>[...tr.children].forEach((td,i)=>{if(heads[i])td.dataset.label=heads[i];}));});}
 const rolesForUI=()=>['viewer','member','admin'].map(v=>[v,t(v)]);
 async function updateAuriPreferences(values) {
  const id=workspace.organization.id;
@@ -900,8 +1139,21 @@ async function assistant(){
   <div class="actions"><button type="button" class="primary" data-auri-draft>${esc(labels.create)}</button>${button('diagnosis','diagnosis',true)}${button('recommend','next-action',true)}</div><div data-auri-tools-status role="status"></div>
   <p role="status" data-draft-status></p>
   <h2>${esc(labels.history)}</h2><div data-auri-drafts></div></section>`:''}`);
- renderCompanion(true);
- const preset=query.get('ask');
+ const fullChat=!returnLink&&canAsk;
+ if(fullChat){
+  // Full-screen conversation (no task/request context): chat plus tools and settings.
+  const tools=document.querySelector('.auri-work-log');
+  const p=osCopy(lang).auriPage,pref=auriPreference();
+  host.innerHTML=`<div class="os-auri-page"><section class="os-auri-chat" data-auri-page aria-label="${esc(pref.name)}"></section>
+   <aside class="os-auri-side"><section class="os-card"><h2>${esc(p.tools)}</h2><p class="os-muted">${esc(p.toolsNote)}</p></section>
+   <section class="os-card"><h2>${esc(p.settings)}</h2><form data-auri-name class="os-auri-name"><label class="os-field"><span>${esc(auriControls(lang).name)}</span><input name="name" value="${esc(pref.name)}" required maxlength="24"></label><button class="os-btn is-quiet is-sm">${esc(t('save'))}</button></form></section></aside></div>`;
+  host.querySelector('.os-auri-side .os-card').append(tools);
+  const preset=query.get('ask');
+  if(preset){history.replaceState(null,'',link('assistant'));query.delete('ask');}
+  await mountChatInto(host.querySelector('[data-auri-page]'),{initial:preset?preset.slice(0,500):undefined,direct:Boolean(preset)});
+  host.querySelector('[data-auri-name]').onsubmit=async e=>{e.preventDefault();const b=e.currentTarget.querySelector('button');b.disabled=true;try{await updateAuriPreferences({name:new FormData(e.currentTarget).get('name')});toast(t('saved'));}catch(err){toast(err.message);}finally{b.disabled=false;}};
+ }else renderCompanion(true);
+ const preset=fullChat?null:query.get('ask');
  if(preset&&canAsk){
   const form=document.querySelector('[data-auri-ask]'),input=form?.querySelector('input');
   history.replaceState(null,'',link('assistant'));query.delete('ask');
@@ -926,6 +1178,7 @@ async function assistant(){
    finally{trigger.disabled=false;}
   };
  }
+ if(!auriSessions.has(id))auriSessions.set(id,{open:false,reply:'',pending:false,error:''});
  const session=auriSessions.get(id);
  create.disabled=Boolean(session.draftPending);
  status.textContent=session.draftError||'';
@@ -983,12 +1236,16 @@ async function load(){
  }catch(e){
   if(revision!==loadRevision)return;
   if(e.status===401){me=null;render();}
-  else gateFrame(`<section class="panel"><h1>AuraHub</h1><p role="alert">${esc(e.message)}</p><a href="/hub">${esc(hubLabels(lang).home)}</a></section>`);
+  else{
+   app.setAttribute('aria-busy','false');
+   gateFrame(`<section class="panel hub-load-error"><h1>AuraHub</h1><p role="alert">${esc(e.message)}</p><div class="actions"><button type="button" class="primary" data-retry-load>${esc(osCopy(lang).state.retry)}</button><a class="secondary" href="/hub/login">${esc(t('signIn'))}</a></div></section>`);
+   document.querySelector('[data-retry-load]').onclick=()=>{app.innerHTML=`<p class="initial" role="status">${esc(osCopy(lang).state.loading)}</p>`;void load();};
+  }
  }
 }
 async function start(){
  if(['verify','reset','forgot','confirm-email'].includes(route)){render();return;}
- authCapabilities=await api('/api/customer/capabilities').catch(()=>({}));
+ authCapabilities=await api('/api/customer/capabilities','GET',undefined,{timeout:6000}).catch(()=>({}));
  await load();
 }
 start();

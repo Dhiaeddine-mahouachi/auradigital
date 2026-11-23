@@ -97,18 +97,41 @@ export const SERVICE_IDEAS = [
   { match: /e-?mail|e-posta|بريد/i, service: 'Business Email', name: { en: 'business email', tr: 'kurumsal e-posta', ar: 'بريد الأعمال', fr: 'l’e-mail pro' } },
   { match: /host|domain|alan ad|استضافة|نطاق|hébergement/i, service: 'Hosting / Security', name: { en: 'hosting & domain', tr: 'barındırma ve alan adı', ar: 'الاستضافة والنطاق', fr: 'l’hébergement' } },
 ];
+// Auri can take the customer to an Aura Studio module. Navigation only: any
+// change is made by the customer on that page, with its own permission checks.
+const STUDIO_ROUTES = [
+  { view: 'pipeline', match: /\b(leads?|inquir(y|ies)|pipeline|prospects?)\b|müşteri adayı|talepleri(m)? (gör|kaydet)|استفسار|عملاء محتمل|prospect|demandes? clients?/i, label: { en: 'Open the lead pipeline', tr: 'Satış hattını aç', ar: 'افتح مسار العملاء', fr: 'Ouvrir le pipeline' } },
+  { view: 'analytics', match: /\b(analytics|stats|statistics|numbers|performance)\b|analitik|istatistik|تحليلات|إحصا|statistiques/i, label: { en: 'Open analytics', tr: 'Analitiği aç', ar: 'افتح التحليلات', fr: 'Ouvrir les statistiques' } },
+  { view: 'website', match: /\b(my|update|edit|change)\b.*\b(website|site)\b|web sitemi|sitemi (güncelle|düzenle)|موقعي|mon site/i, label: { en: 'Manage your website', tr: 'Web sitenizi yönetin', ar: 'أدر موقعك', fr: 'Gérer votre site' } },
+  { view: 'menu', match: /\b(manage|update|edit|my)\b.*\bmenu\b|menümü|قائمتي|mon menu/i, label: { en: 'Manage AuraMenu', tr: 'AuraMenu’yü yönet', ar: 'أدر AuraMenu', fr: 'Gérer AuraMenu' } },
+];
+const STUDIO_REPLY = {
+  en: label => `You can do that in Aura Studio. ${label} — changes are only saved when you confirm them there.`,
+  tr: label => `Bunu Aura Studio’da yapabilirsiniz. ${label} — değişiklikler yalnızca orada onayladığınızda kaydedilir.`,
+  ar: label => `يمكنك ذلك في Aura Studio. ${label} — لا تُحفظ التغييرات إلا عند تأكيدك هناك.`,
+  fr: label => `Vous pouvez le faire dans Aura Studio. ${label} — les modifications ne sont enregistrées qu’après votre confirmation.`,
+};
+const SpeechRecognitionCtor = () => (typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)) || null;
+const ADD_LEAD = /^\s*(add|log|new|save)\s+(an?\s+)?(lead|inquiry|enquiry)\b|^\s*(talep|müşteri adayı)\s+(ekle|kaydet)\b|^\s*(yeni\s+talep)\b|^\s*(ajoute[rz]?|nouvelle)\s+(une\s+)?(demande|prospect)\b|^\s*(أضف|سجل)\s+(استفسار|عميل محتمل)/i;
+const EXTRA = {
+  en: { confirm: (n, i) => `Add “${n}”${i ? ` (${i})` : ''} to your lead pipeline as a new inquiry?`, add: 'Add to pipeline', added: n => `Added “${n}” to your pipeline.`, openPipeline: 'Open pipeline', needName: 'Who is the inquiry from? For example: “Add inquiry Ayşe, birthday dinner for 12”.', voice: 'Speak your message' },
+  tr: { confirm: (n, i) => `“${n}”${i ? ` (${i})` : ''} satış hattınıza yeni talep olarak eklensin mi?`, add: 'Satış hattına ekle', added: n => `“${n}” satış hattınıza eklendi.`, openPipeline: 'Satış hattını aç', needName: 'Talep kimden? Örneğin: “Talep ekle Ayşe, 12 kişilik doğum günü”.', voice: 'Mesajınızı söyleyin' },
+  fr: { confirm: (n, i) => `Ajouter « ${n} »${i ? ` (${i})` : ''} à votre pipeline ?`, add: 'Ajouter au pipeline', added: n => `« ${n} » a été ajouté à votre pipeline.`, openPipeline: 'Ouvrir le pipeline', needName: 'De qui vient la demande ? Par exemple : « Ajouter une demande Ayşe, dîner pour 12 ».', voice: 'Dictez votre message' },
+  ar: { confirm: (n, i) => `إضافة «${n}»${i ? ` (${i})` : ''} إلى مسار العملاء كاستفسار جديد؟`, add: 'أضف إلى المسار', added: n => `تمت إضافة «${n}» إلى مسارك.`, openPipeline: 'افتح المسار', needName: 'ممن الاستفسار؟ مثلًا: «أضف استفسار أيشة، عشاء لـ12 شخصًا».', voice: 'قل رسالتك' },
+};
 const START_WORDS = /\b(build|make|create|set ?up|start|get|launch|need|want|do)\b|oluştur|kur|yap|istiyorum|başlat|ابن|أنشئ|أريد|ابدأ|créer|lancer|faire|veux/i;
 const money = (lang, amount) => new Intl.NumberFormat(lang === 'ar' ? 'ar' : lang, { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(Number(amount || 0));
 
-export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askAuri, auriImage, onBrief, initial }) {
+export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askAuri, auriImage, onBrief, onAddLead = null, initial, direct = false, history = null }) {
+  const X = EXTRA[lang] || EXTRA.en;
   const c = chatCopy(lang);
   const id = workspace?.organization.id || 'new';
   const storeKey = 'aura-chat:' + id;
   const { snapshot, connected, next, missionTitle, attention, nextAction } = data;
   const missions = workspace?.missions || [];
   const done = missions.filter(m => m.status === 'done').length;
-  const openCount = (snapshot?.attention?.length || 0) + (snapshot?.progress?.length || 0) + (connected?.requests || []).filter(r => r.status === 'pending').length;
-  const liveCount = (snapshot?.services?.length || 0) + (connected?.totals?.live || 0);
+  const openCount = data.counts ? data.counts.open : (snapshot?.attention?.length || 0) + (snapshot?.progress?.length || 0) + (connected?.requests || []).filter(r => r.status === 'pending').length;
+  const liveCount = data.counts ? data.counts.live : (snapshot?.services?.length || 0) + (connected?.totals?.live || 0);
   const dueAmount = connected?.totals?.amountDue || 0;
   const canRequest = workspace?.permissions?.includes('roadmap:write');
   let log = [];
@@ -129,6 +152,14 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
   };
   log = [greeting(), ...log.filter(m => !m.greeting)];
   save();
+  // Saved conversation from the server (follows the customer across devices).
+  const mountedAt = log.length;
+  history?.load().then(messages => {
+    if (!messages?.length || !host.isConnected) return;
+    // Saved history first, then anything asked since this chat opened.
+    log = [greeting(), ...messages.map(m => ({ role: m.role, text: m.text })), ...log.slice(mountedAt)];
+    save(); draw();
+  }).catch(() => {});
 
   host.innerHTML = `<div class="ax-chat">
     <ol class="ax-log" role="log" aria-live="polite" data-ax-log></ol>
@@ -136,12 +167,22 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
     <form class="ax-input" data-ax-form>
       <label class="sr-only" for="ax-text">${esc(c.placeholder)}</label>
       <textarea id="ax-text" name="q" rows="1" maxlength="500" placeholder="${esc(c.placeholder)}" autocomplete="off"></textarea>
+      ${SpeechRecognitionCtor() ? `<button type="button" class="ax-mic" data-ax-mic aria-pressed="false" aria-label="${esc(X.voice)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z M19 11a7 7 0 0 1-14 0 M12 18v3"/></svg></button>` : ''}
       <button type="submit" class="ax-send" aria-label="${esc(c.send)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </form></div>`;
   const logEl = host.querySelector('[data-ax-log]');
-  const bubble = m => `<li class="ax-msg ${m.role === 'me' ? 'ax-me' : 'ax-them'}">${m.role === 'me' ? '' : `<span class="ax-msg-avatar" aria-hidden="true">${auriImage}</span>`}<div class="ax-bubble${m.pending ? ' ax-typing' : ''}"><p>${esc(m.text).replace(/\n/g, '<br>')}</p>${(m.actions || []).length ? `<div class="ax-actions">${m.actions.map((a, i) => a.brief ? `<button type="button" class="ax-action ax-action-primary" data-ax-brief="${i}">${esc(a.label)}</button>` : `<a class="ax-action" href="${esc(a.href)}">${esc(a.label)}<span aria-hidden="true"> →</span></a>`).join('')}</div>` : ''}</div></li>`;
+  const bubble = m => `<li class="ax-msg ${m.role === 'me' ? 'ax-me' : 'ax-them'}">${m.role === 'me' ? '' : `<span class="ax-msg-avatar" aria-hidden="true">${auriImage}</span>`}<div class="ax-bubble${m.pending ? ' ax-typing' : ''}"><p>${esc(m.text).replace(/\n/g, '<br>')}</p>${(m.actions || []).length ? `<div class="ax-actions">${m.actions.map((a, i) => a.lead ? `<button type="button" class="ax-action ax-action-primary" data-ax-lead="${i}">${esc(a.label)}</button>` : a.brief ? `<button type="button" class="ax-action ax-action-primary" data-ax-brief="${i}">${esc(a.label)}</button>` : `<a class="ax-action" href="${esc(a.href)}">${esc(a.label)}<span aria-hidden="true"> →</span></a>`).join('')}</div>` : ''}</div></li>`;
   const draw = () => {
     logEl.innerHTML = log.map(bubble).join('');
+    logEl.querySelectorAll('[data-ax-lead]').forEach(button => button.addEventListener('click', async () => {
+      const msg = log[[...logEl.children].indexOf(button.closest('li'))];
+      const action = msg?.actions?.[Number(button.dataset.axLead)];
+      if (!action?.lead || !onAddLead) return;
+      button.disabled = true;
+      try { await onAddLead(action.lead); msg.actions = []; log.push({ role: 'auri', text: X.added(action.lead.name), actions: [{ label: X.openPipeline, href: link('studio', { view: 'pipeline' }) }] }); }
+      catch (error) { log.push({ role: 'auri', text: error.message || c.error }); }
+      save(); draw();
+    }));
     logEl.querySelectorAll('[data-ax-brief]').forEach(button => button.addEventListener('click', () => {
       const msg = log[[...logEl.children].indexOf(button.closest('li'))];
       const action = msg?.actions?.[Number(button.dataset.axBrief)];
@@ -150,15 +191,34 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
     logEl.scrollTop = logEl.scrollHeight;
   };
 
-  async function answer(text) {
+  // `direct` questions come from a page's own context (a roadmap stage, the
+  // dashboard) and always go to the real guidance endpoint, not a shortcut.
+  async function answer(text, { direct = false } = {}) {
+    const start = log.length;
     log.push({ role: 'me', text }); save(); draw();
     const t = text.toLowerCase();
     const idea = SERVICE_IDEAS.find(s => s.match.test(t));
-    if (idea && canRequest && START_WORDS.test(t)) {
+    if (direct) {
+      const pending = { role: 'auri', text: c.thinking, pending: true };
+      log.push(pending); draw();
+      let reply;
+      try { reply = await askAuri(text); } catch { reply = ''; }
+      log.splice(log.indexOf(pending), 1, { role: 'auri', text: reply || c.error });
+    } else if (canRequest && onAddLead && ADD_LEAD.test(text)) {
+      // Auri prepares the inquiry; nothing is saved until the customer confirms.
+      const rest = text.replace(ADD_LEAD, '').replace(/^[\s:,-]+/, '').trim();
+      const [name, ...more] = rest.split(/[,–—-]\s*/);
+      if ((name || '').trim().length < 2) log.push({ role: 'auri', text: X.needName });
+      else log.push({ role: 'auri', text: X.confirm(name.trim(), more.join(', ').trim()), actions: [{ label: X.add, lead: { name: name.trim().slice(0, 120), interest: more.join(', ').trim().slice(0, 160) } }] });
+    } else if (idea && canRequest && START_WORDS.test(t)) {
       const name = idea.name[lang] || idea.name.en;
       const profile = workspace?.profile || {};
       const brief = [text, profile.name && `Business: ${profile.name}`, profile.industry && `Industry: ${profile.industry}`, [profile.city, profile.country].filter(Boolean).join(', '), profile.goals && `Goal: ${profile.goals}`].filter(Boolean).join('\n');
       log.push({ role: 'auri', text: c.startReply(name), actions: [{ label: c.start, brief: { service: idea.service, text: brief } }] });
+    } else if (workspace && STUDIO_ROUTES.some(r => r.match.test(t))) {
+      const route = STUDIO_ROUTES.find(r => r.match.test(t));
+      const label = (route.label[lang] || route.label.en);
+      log.push({ role: 'auri', text: (STUDIO_REPLY[lang] || STUDIO_REPLY.en)(label), actions: [{ label, href: link('studio', { view: route.view }) }] });
     } else if (INTENTS.billing.test(t)) {
       const n = (connected?.invoices || []).filter(i => ['sent', 'overdue'].includes(i.status)).length;
       log.push({ role: 'auri', text: c.billingReply(dueAmount ? money(lang, dueAmount) : '', n).replace(/ (Billing details are on the right|Your billing is on the right)\./, ''), actions: [{ label: c.billingLink, href: '/account' }] });
@@ -176,8 +236,25 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
       log.splice(log.indexOf(pending), 1, { role: 'auri', text: reply || c.error });
     }
     save(); if (host.isConnected) draw();
+    history?.save(log.slice(start).filter(m => !m.pending && m.text).map(m => ({ role: m.role === 'me' ? 'me' : 'auri', text: m.text }))).catch(() => {});
   }
   const form = host.querySelector('[data-ax-form]'), input = form.querySelector('textarea');
+  // Voice input (browser speech recognition, in the Hub language).
+  const mic = host.querySelector('[data-ax-mic]');
+  if (mic) {
+    let rec = null;
+    mic.addEventListener('click', () => {
+      if (rec) { rec.stop(); return; }
+      const R = SpeechRecognitionCtor(); rec = new R();
+      rec.lang = { en: 'en-US', tr: 'tr-TR', ar: 'ar-SA', fr: 'fr-FR' }[lang] || 'en-US';
+      rec.interimResults = true;
+      rec.onresult = e => { input.value = [...e.results].map(r => r[0].transcript).join(' '); input.dispatchEvent(new Event('input')); };
+      rec.onend = () => { rec = null; mic.setAttribute('aria-pressed', 'false'); mic.classList.remove('is-on'); input.focus(); };
+      rec.onerror = () => rec?.stop();
+      mic.setAttribute('aria-pressed', 'true'); mic.classList.add('is-on');
+      rec.start();
+    });
+  }
   form.addEventListener('submit', event => {
     event.preventDefault();
     const text = input.value.trim().slice(0, 500);
@@ -193,9 +270,9 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
     answer(c.chips[i]);
   }));
   draw();
-  if (initial) answer(initial); else setTimeout(() => input.focus({ preventScroll: true }), 50);
+  if (initial) answer(initial, { direct }); else setTimeout(() => input.focus({ preventScroll: true }), 50);
   return {
-    reset: () => { log = [greeting()]; save(); draw(); },
-    ask: text => answer(text),
+    reset: () => { log = [greeting()]; save(); draw(); history?.clear().catch(() => {}); },
+    ask: (text, options) => answer(text, options),
   };
 }
