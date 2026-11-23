@@ -15,35 +15,37 @@
   <dc-import name="Header" active="home" hint-size="100%,124px"></dc-import>
 
   <!-- HERO -->
-  <section class="business-hero" style="padding: 92px 28px 0; background: #FDFCFF">
+  <section class="business-hero" style="padding: 68px 28px 0; background: #FFFEF8">
     <div class="business-hero-head">
-      <a href="Hub.dc.html" class="rise business-hero-eyebrow">
+      <a href="Hub.dc.html" class="business-hero-eyebrow">
         <span class="business-hero-eyebrow-tag">AuraHub</span>
-        One account for your website, menu, ads and automation ?
+        One account for your website, menu, ads and automation &rarr;
       </a>
-      <h1 class="disp rise business-hero-title">Your business,<br><span>built to grow.</span></h1>
+      <h1 class="business-hero-title">Your business,<br><span>built to grow.</span></h1>
+      <p class="business-hero-detail">Websites, digital menus, Google visibility and WhatsApp automation &mdash; planned by our AI, delivered by our Istanbul team, tracked in one place.</p>
     </div>
 
     <div class="business-hero-entry">
-      <div class="business-hero-search" role="group" aria-label="Tell us about your business">
-        <label for="landing-business-text" class="business-hero-visually-hidden">Tell us about your business</label>
-        <textarea id="landing-business-text" name="businessDescription" maxlength="4000" rows="1" placeholder="What does your business do, and what would you like to achieve?"></textarea>
+      <div class="business-hero-card">
+        <div class="business-hero-categories">
+          <span id="biz-label">What kind of business do you run?</span>
+          <div role="group" aria-labelledby="biz-label" class="business-hero-chiprow">
+            <sc-for list="{{ biz }}" as="b" hint-placeholder-count="4">
+              <button type="button" onClick="{{ b.pick }}" aria-pressed="{{ b.on }}" style="{{ b.style }}">{{ b.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div class="business-hero-search">
+          <label for="landing-business-text">Tell us about your business</label>
+          <textarea id="landing-business-text" name="businessDescription" maxlength="4000" rows="2" placeholder="What does your business do, and what would you like to achieve?"></textarea>
+        </div>
         <a class="business-hero-submit" onClick="{{ startPath }}" href="Hub.dc.html">
           Start your path
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
         </a>
       </div>
       <p class="business-hero-hint">A few sentences are enough. Auri will use them to personalize your roadmap.</p>
-      <div class="business-hero-categories">
-        <span id="biz-label">What kind of business do you run?</span>
-        <div role="group" aria-labelledby="biz-label" class="business-hero-chiprow">
-          <sc-for list="{{ biz }}" as="b" hint-placeholder-count="4">
-            <button type="button" onClick="{{ b.pick }}" aria-pressed="{{ b.on }}" style="{{ b.style }}">{{ b.label }}</button>
-          </sc-for>
-        </div>
-      </div>
-      <p class="business-hero-detail">Websites, digital menus, Google visibility and WhatsApp automation ? planned by our AI, delivered by our Istanbul team, tracked in one place.</p>
-      <p class="business-hero-path">Your first step: <strong>{{ bizPath }}</strong> ? Free roadmap ? No tech skills needed</p>
+      <p class="business-hero-path">Your first step: <strong>{{ bizPath }}</strong> &middot; Free roadmap &middot; No tech skills needed</p>
     </div>
 
     <!-- HERO VIDEO -->
@@ -322,8 +324,8 @@ class Component extends DCLogic {
       { label: 'Retail & shop', short: 'shop', first: 'an online store', path: 'Online store → Ads → WhatsApp automation' },
       { label: 'Creator & freelancer', short: 'creator', first: 'AuraPops', path: 'AuraPops → Brand kit → Booking site' }
     ];
-    const on = 'background: #E9ECFF; color: #333DBB; border: 1px solid #ADB5FF; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: Inter, sans-serif; min-height: 42px';
-    const off = 'background: rgba(255,255,255,.88); color: #292A3E; border: 1px solid #DCDDEB; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: Inter, sans-serif; min-height: 42px';
+    const on = 'background: #0B0F0C; color: #FFFFFF; border: 1px solid #0B0F0C; border-radius: 999px; padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: Inter, sans-serif; min-height: 40px';
+    const off = 'background: #FFFFFF; color: #0B0F0C; border: 1px solid #DDDDDA; border-radius: 999px; padding: 9px 16px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: Inter, sans-serif; min-height: 40px';
     const G = [
       { title: 'Launch my business online', desc: 'A professional website, business email and brand that make people trust you.', tags: ['Website', 'Brand kit', 'Business email'], bg: '#F3EEDC' },
       { title: 'Get more customers', desc: 'Show up on Google Maps and search, run ads, and collect reviews with NFC cards.', tags: ['Google Maps', 'SEO', 'Ads'], bg: '#E3EEFB' },
