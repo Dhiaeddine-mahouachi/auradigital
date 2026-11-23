@@ -35,6 +35,7 @@ const CSS = `
 .auri-live{position:relative;display:inline-block;width:var(--auri-size,220px);aspect-ratio:400/460;
  -webkit-tap-highlight-color:transparent;user-select:none;vertical-align:bottom;contain:layout style}
 .auri-live>svg{display:block;width:100%;height:100%;overflow:visible}
+.auri-live[data-fill]{position:absolute;inset:0;width:auto;height:auto;aspect-ratio:auto}
 .auri-live[data-interactive]{cursor:pointer}
 .auri-live:focus{outline:none}
 .auri-live:focus-visible{outline:3px solid ${C.light};outline-offset:4px;border-radius:24px}
@@ -107,7 +108,7 @@ function rigMarkup(id) {
  <clipPath id="${g('screenclip')}"><rect x="106" y="260" width="188" height="124" rx="20"/></clipPath>
  <clipPath id="${g('bodyclip')}"><path d="${BODY}"/></clipPath>
 </defs>
-<ellipse cx="200" cy="230" rx="210" ry="230" fill="url(#${g('back')})"/>
+<ellipse data-p="back" cx="200" cy="230" rx="210" ry="230" fill="url(#${g('back')})"/>
 <ellipse data-p="shadow" cx="200" cy="446" rx="104" ry="11" fill="#000" opacity=".3"/>
 <g data-p="root" class="auri-part">
  <g data-p="legL" class="auri-part">
@@ -134,7 +135,7 @@ function rigMarkup(id) {
  </g>
  ${arm('L', 56, 84, 13)}
  ${arm('R', 290, 316, -13)}
- <ellipse cx="200" cy="244" rx="82" ry="12" fill="#06261C"/>
+ <ellipse data-p="neck" cx="200" cy="244" rx="82" ry="12" fill="#06261C"/>
  <g data-p="head" class="auri-part">
   <path d="${HELMET}" fill="url(#${g('cream')})"/>
   <g clip-path="url(#${g('helmet')})">
@@ -407,7 +408,7 @@ export function createAuri(host, options = {}) {
   const opts = {
     size: 220, follow: true, followRadius: 520, interactive: false, label: 'Auri, your AuraDigital assistant',
     sleepAfter: 90000, greet: false, greetKey: 'auri-greeted', align: 'center', reducedMotion: 'auto',
-    screen: 'logo', ...options,
+    screen: 'logo', level: null, still: false, ...options,
   };
 
   const root = doc.createElement('div');
@@ -470,7 +471,7 @@ export function createAuri(host, options = {}) {
   /* -------------------------------------------------------------- state */
   const motionQuery = win.matchMedia('(prefers-reduced-motion: reduce)');
   const coarseQuery = win.matchMedia('(pointer: coarse)');
-  const reduced = () => opts.reducedMotion === 'reduce' || (opts.reducedMotion === 'auto' && motionQuery.matches);
+  const reduced = () => opts.still || opts.reducedMotion === 'reduce' || (opts.reducedMotion === 'auto' && motionQuery.matches);
   const now = () => win.performance.now() / 1000;
   const s = {
     state: 'idle', since: now(), token: 0, transient: null, extraTimer: null,
@@ -577,8 +578,27 @@ export function createAuri(host, options = {}) {
   }
 
   function screenFor() {
-    if (s.state === 'working') return s.screen;
-    return STATE_SCREEN[s.state] || s.screen;
+    const mode = opts.level != null && opts.level < 4 ? 'logo' : s.screen;
+    if (s.state === 'working') return mode;
+    return STATE_SCREEN[s.state] || mode;
+  }
+
+  // Growth levels (AuraHub): 1 head · 2 + body · 3 + arms & legs ·
+  // 4 + business screens · 5–6 brighter lights · 7 gold accents.
+  // `null` = full character (public website).
+  function applyLevel() {
+    const lv = opts.level == null ? 6 : clamp(Math.round(opts.level), 1, 7);
+    const show = (el, on) => { if (el) el.style.display = on ? '' : 'none'; };
+    show(part.body, lv >= 2); show(part.neck, lv >= 2);
+    [part.armL, part.armR, part.legL, part.legR].forEach(el => show(el, lv >= 3));
+    show(part.shadow, lv >= 2);
+    svg.setAttribute('viewBox', lv === 1 ? '24 4 352 262' : '0 0 400 460');
+    root.style.aspectRatio = lv === 1 ? '352 / 262' : '';
+    s.glowBoost = lv >= 5 ? (lv >= 6 ? .1 : .05) : -.08;
+    op(part.back, lv >= 6 ? 1 : .55);
+    const accent = lv === 7 ? C.warm : C.light;
+    [part.cuffL, part.cuffR, part.cuffGlowL, part.cuffGlowR, part.badge].forEach(el => el?.setAttribute('fill', accent));
+    kick();
   }
 
   /* ------------------------------------------------------------- input */
@@ -770,7 +790,7 @@ export function createAuri(host, options = {}) {
     op(part.shadow, .28 * (1 + lift / 120));
 
     // side lights + screen glow
-    const glow = clamp(p.glow + .12 * Math.sin(t * 1.9) * m + (st === 'speaking' ? .2 * s.voice : 0), .1, 1);
+    const glow = clamp(p.glow + (s.glowBoost || 0) + .12 * Math.sin(t * 1.9) * m + (st === 'speaking' ? .2 * s.voice : 0), .1, 1);
     const ring = clamp(.35 + glow * .8, 0, 1); op(part.ringL, ring); op(part.ringR, ring); op(part.ringGlowL, .45 * ring); op(part.ringGlowR, .45 * ring);
     op(part.cuffL, .45 + .55 * glow); op(part.cuffR, .45 + .55 * glow); op(part.cuffGlowL, .35 * glow); op(part.cuffGlowR, .35 * glow);
     op(part.screenGlow, .45 + .55 * glow); op(part.screenGlowWide, .25 * glow);
@@ -1009,6 +1029,8 @@ export function createAuri(host, options = {}) {
 
   function setSize(px) {
     opts.size = px;
+    if (px === 'fill') { root.dataset.fill = ''; root.style.removeProperty('--auri-size'); return; }
+    delete root.dataset.fill;
     root.style.setProperty('--auri-size', typeof px === 'number' ? px + 'px' : px);
   }
 
@@ -1019,6 +1041,7 @@ export function createAuri(host, options = {}) {
     if ('interactive' in next || 'label' in next) applyInteractive();
     if ('sleepAfter' in next) scheduleSleep();
     if ('follow' in next && !next.follow) resetGaze();
+    if ('level' in next) applyLevel();
     kick();
   }
 
@@ -1036,10 +1059,14 @@ export function createAuri(host, options = {}) {
   }
 
   // boot
+  applyLevel();
   setSize(opts.size);
   applyInteractive();
-  scheduleSleep();
-  if (opts.greet && shouldGreet(win.sessionStorage, opts.greetKey)) win.setTimeout(() => autoState('welcome'), 450);
+  if (!opts.still) scheduleSleep();
+  // Greet once per session, and only from a character the visitor can see.
+  if (opts.greet) win.setTimeout(() => {
+    if (!s.destroyed && root.getClientRects().length && shouldGreet(win.sessionStorage, opts.greetKey)) autoState('welcome');
+  }, 450);
   kick();
 
   return {

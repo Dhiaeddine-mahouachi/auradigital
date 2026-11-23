@@ -215,9 +215,9 @@ function authScreen({signup,forgot,reset}){
  app.innerHTML=`<div class="ad-auth">
  <aside class="ad-side"><a href="/" class="ad-logo"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>
   <div class="ad-side-body"><h2>${al('side')}</h2><p>${al('sideSub')}</p><ul>${['b1','b2','b3','b4'].map(k=>`<li><span aria-hidden="true">✓</span>${al(k)}</li>`).join('')}</ul></div>
-  <div class="ad-side-foot">${robot()}<span>info@auradigitalworks.com · +90 538 550 76 74</span></div></aside>
+  <div class="ad-side-foot">${auriCharacter(auriLevel(),{variant:'login'})}<span>info@auradigitalworks.com · +90 538 550 76 74</span></div></aside>
  <main id="main" class="ad-main"><div class="ad-top"><a href="/" class="ad-logo ad-logo-sm"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>${languageControl()}</div>
-  <section class="ad-card">${tabs}<h1>${esc(title)}</h1><p class="ad-sub">${esc(sub)}</p>${googleBlock}
+  <section class="ad-card"><div class="ad-auri-mobile">${auriCharacter(auriLevel(),{variant:'login'})}</div>${tabs}<h1>${esc(title)}</h1><p class="ad-sub">${esc(sub)}</p>${googleBlock}
    <form id="auth-form" novalidate>${mode==='signup'?inp('name','text',t('name'),'required minlength="2" maxlength="100" autocomplete="name"',ic.user):''}${mode==='reset'?'':inp('email','email',t('email'),'required maxlength="254" autocomplete="email" inputmode="email"',ic.mail)}${pw}
     ${mode==='login'&&authCapabilities.email?`<a class="ad-forgot" href="/hub/forgot${authQuery}">${al('forgotQ')}</a>`:''}
     ${termsBox}
@@ -445,7 +445,7 @@ function renderShell(){
  app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell hx-shell wx-shell os-shell ${page==='journey'&&workspace?.missions.length?'os-shell-journey':''} ${page==='services'?'service-shell':''}"><aside class="sidebar os-sidebar" id="sidebar">
  <a href="${esc(link('home'))}" class="wordmark command-wordmark os-brand">${brandMarkup}<small>AuraHub</small></a>
  <nav aria-label="AuraHub">${groups.map(([name,list])=>`<p class="hx-nav-group os-nav-group">${esc(name)}</p>${list.map(p=>navItem(p)).join('')}`).join('')}</nav>
- ${workspace&&can('auri:use')?`<button type="button" class="os-side-auri" data-ax-open aria-controls="ax-drawer"><img src="/media/auri/level-${auriLevel()}-128.webp" alt="" width="36" height="36"><span><strong>Auri</strong><small>${esc(oc.auri.ask)}</small></span></button>`:''}
+ ${workspace&&can('auri:use')?`<button type="button" class="os-side-auri" data-ax-open aria-controls="ax-drawer">${auriCharacter(auriLevel(),{variant:'face'})}<span><strong>Auri</strong><small>${esc(oc.auri.ask)}</small></span></button>`:''}
  <div class="hx-side-foot os-side-foot">${avatar()}<span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div></aside>
  <div class="workspace"><header class="topbar growth-topbar hub-topbar os-topbar">
  <a class="hub-mobile-brand wordmark" href="${esc(link('home'))}">${brandMarkup}</a>
@@ -471,7 +471,7 @@ function renderShell(){
  <header><strong>${esc(oc.nav.more)}</strong><button type="button" class="hx-sheet-close" data-hx-close aria-label="${esc(oc.nav.close)}">✕</button></header>
  <nav aria-label="${esc(oc.nav.more)}">${sheetItems.map(p=>navItem(p)).join('')}</nav></div></div>
  </div>
- <aside class="ax-drawer" id="ax-drawer" hidden aria-label="Auri"><header class="ax-head"><span class="ax-avatar" aria-hidden="true"><img src="/media/auri/level-${auriLevel()}-128.webp" alt="" width="44" height="44"></span>
+ <aside class="ax-drawer" id="ax-drawer" hidden aria-label="Auri"><header class="ax-head"><span class="ax-avatar" aria-hidden="true">${auriCharacter(auriLevel(),{variant:'face'})}</span>
  <span class="ax-head-text"><strong>Auri</strong><small><i class="ax-online" aria-hidden="true"></i>${esc(chatCopy(lang).status)}</small></span>
  <button type="button" class="ax-icon-btn" data-ax-reset>${esc(chatCopy(lang).clear)}</button><button type="button" class="ax-icon-btn" data-ax-close aria-label="${esc(nv.close)}">✕</button></header>
  <div class="ax-body" data-ax-body></div></aside><div class="ax-scrim" data-ax-close hidden></div></div>`;
@@ -670,7 +670,7 @@ async function mountChatInto(host,{initial,direct=false}={}){
   data:{snapshot,connected,next,missionTitle,counts:{live:activeItems.filter(i=>i.stage===3).length,open:activeItems.filter(i=>i.stage<3).length+(snapshot.attention||[]).length},
    attention:item?{name:menu?ui.menuReady:item.name,label:menu?ui.reviewMenu:ui.openRequest,href:link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id})}:null,
    nextAction:next?{label:ui.continue,href:link('journey',{task:next.id})}:null},
-  auriImage:`<img src="/media/auri/level-${auriLevel()}-128.webp" alt="" width="32" height="32">`,
+  auriImage:auriCharacter(auriLevel(),{variant:'avatar'}),
   askAuri:workspace.permissions.includes('auri:use')?question=>askAuri(question):async()=>t('readOnly'),
   onAddLead:workspace.permissions.includes('roadmap:write')?lead=>api(endpoint('leads'),'POST',{name:lead.name,interest:lead.interest||'',source:'other',note:'Added with Auri'}).then(r=>{if(dataCache)dataCache.leads=undefined;return r;}):null,
   onBrief:(service,text)=>{requestDrafts.set(workspace.organization.id,text.slice(0,1700));closeAuri();navigate('requests',{new:'1',service});}});
@@ -763,7 +763,7 @@ async function myWork(){
  }
  const section=(name,empty,rows)=>`<section class="hub-work-section"><h2>${esc(name)}</h2>${rows||`<p class="hub-empty">${esc(empty)}</p>`}</section>`;
  if(!attention.length&&!requests.length){
-  host.innerHTML=`<section class="panel hub-page-start hub-requests-empty"><img src="/media/auri/level-1.webp" alt="" width="80" height="80" loading="lazy"><div><h2>${esc(ui.requests)}</h2>
+  host.innerHTML=`<section class="panel hub-page-start hub-requests-empty">${auriCharacter(auriLevel(),{variant:'face'})}<div><h2>${esc(ui.requests)}</h2>
   <p>${esc(({en:'Your requests will appear here.',fr:'Vos demandes apparaîtront ici.',tr:'Talepleriniz burada görünecek.',ar:'ستظهر طلباتك هنا.'})[lang])}</p>
   <a class="growth-primary" href="${esc(link('services'))}">${esc(serviceLabels[lang][0])} →</a>
   ${feature('menuDrafts')?`<a class="growth-secondary" href="${esc(link('menuDrafts'))}">${esc(t('menuDrafts'))}</a>`:''}</div></section>${serviceShortcuts(lang,esc,link,{profile:workspace.profile,missions:workspace.missions})}`;

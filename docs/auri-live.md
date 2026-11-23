@@ -5,8 +5,7 @@ cream helmet with a dark emerald cap, big glossy black visor, glowing mint eyes,
 glowing ring side lights, chunky torso with a large belly screen, thick arms with
 glowing cuffs, short legs). By request, the character carries **no letters or
 logo marks**: the side lights are plain glowing rings and the belly badge is a
-light strip. The home belly screen shows a heartbeat pulse instead of a logo. It is **not wired into any production page yet**. Review it on
-the preview page first.
+light strip. The home belly screen shows a heartbeat pulse instead of a logo.
 
 * Preview: `/auri-preview/index.html` (noindex, not linked from the site)
 * Component: `media/auri/live/auri-live.js` (ES module, no dependencies)
@@ -87,7 +86,61 @@ and security. States override the mode while they last: processing (thinking), m
 when the caller passes `data.stats`, which must come from an endpoint the viewer is
 already authorized for. Public pages must never pass customer data.
 
-## Integration (after approval)
+## Where Auri appears
+
+| Place | How | Belly screen |
+| --- | --- | --- |
+| Home, About | corner dock | heartbeat pulse |
+| Solutions | corner dock | automation |
+| Packages | corner dock + one hint per visit after 25 s (desktop only) | roadmap |
+| Service shop, Shop | corner dock | marketing |
+| AuraMenu, AuraWeddings, Portfolio | corner dock | website |
+| Help, Contact | corner dock | support |
+| 404 | corner dock, concerned, "Go to the home page" button | warning |
+| AuraHub login / sign-up | side panel (desktop), above the form (mobile) | heartbeat pulse |
+| AuraHub (every page) | the existing `<auri-character>` element, now live | follows the Hub page |
+
+Not included: wedding invitation pages (guests' pages), NFC builder/status (order flows),
+admin and employee portals. `test/auri-live.test.mjs` fails if this list drifts.
+
+### Website dock
+
+The dock takes the old yellow button's exact place: 84×97 px on desktop and 64×74 px on
+phones, at the same corner offsets. The old button stays in the page, invisible and the
+same size, so the existing chat panel still opens right above Auri. On phones the existing
+chat is full screen and covers Auri while open. Auri reacts to both kinds of answer:
+replies from `/api/ai/message` (observed through a pass-through `fetch` wrapper) and the
+chat's built-in replies (observed in the panel; the visitor's own message is ignored).
+
+### AuraHub
+
+`media/auri/character.js` upgrades every `<auri-character>` to the live character, so the
+login, onboarding, the corner companion, the AI Workspace, service buttons, the home hero
+and the chat avatars all use it. It mirrors `data-phase` from `connectAuri()`, so states
+follow `runAuri()`/`pulseAuri()` around real requests.
+
+Growth levels from verified milestones still show:
+
+* Level 1: head only
+* Level 2: head and body
+* Level 3: arms and legs added
+* Level 4: business belly screens turn on
+* Levels 5–6: brighter side lights and glow
+* Level 7: gold accents
+
+Small places use `variant="face"` (a live head) or `variant="avatar"` (a still head, used
+in chat bubbles).
+
+On login, Auri waves once per visit, looks at the field being typed in, closes its eyes
+while a password is typed (and winks if “Show” is pressed), thinks while the form is
+sent, and looks concerned when the form shows an error. The form's own error text is not
+duplicated.
+
+**Caching:** `/media/*` is cached for 7 days, so `_headers` removes that rule for
+`/media/auri/live/*`. Those files use Cloudflare's default revalidation instead, which
+means updates reach visitors immediately.
+
+## Using it elsewhere
 
 **Hub.** Mount next to the existing chat and mirror the controller:
 
