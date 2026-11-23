@@ -55,6 +55,9 @@ export async function handleCustomerApi(request: Request, env: CustomerEnv): Pro
   const body = await readJson(request, 4096), email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '', password = typeof body.password === 'string' ? body.password : '';
   await verifyTurnstile(request, env, body.turnstileToken);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) throw new ApiError(400, 'Enter a valid email address.');
+  // Also limit attempts per account, so rotating IP addresses cannot keep guessing one password.
+  const accountLimit = await env.LOGIN_RATE_LIMITER.limit({ key: 'customer-auth-account:' + email });
+  if (!accountLimit.success) return json({ error: 'Too many attempts. Try again in a minute.' }, 429, { 'Retry-After': '60' });
   if (path === '/api/customer/register') {
     const name = typeof body.name === 'string' ? body.name.trim() : '';
     if (name.length < 2 || name.length > 100 || body.acceptTerms !== true) throw new ApiError(400, 'Enter your full name and accept the account conditions.');
