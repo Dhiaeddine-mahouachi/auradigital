@@ -1462,3 +1462,4 @@ auri-character[data-brand="official"][data-visible="false"]>img{animation-play-s
 @keyframes auriOfficialCelebrate{0%,100%{transform:translateY(0) rotate(0deg)}35%{transform:translateY(-12px) rotate(-9deg)}65%{transform:translateY(-7px) rotate(8deg)}}
 @keyframes auriOfficialError{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px) rotate(-3deg)}75%{transform:translateX(3px) rotate(3deg)}}
 @media(prefers-reduced-motion:reduce){auri-character[data-brand="official"]>img{animation:none!important;transform:none!important;filter:none}}
+.hub-requests-empty>img{object-fit:contain}
