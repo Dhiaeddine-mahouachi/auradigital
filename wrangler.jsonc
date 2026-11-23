@@ -181,10 +181,19 @@
   "ai": {
     "binding": "AI"
   },
+  "secrets": {
+    "required": [
+      "GOOGLE_CLIENT_ID",
+      "GOOGLE_CLIENT_SECRET",
+      "TURNSTILE_SITE_KEY",
+      "TURNSTILE_SECRET_KEY"
+    ]
+  },
   "vars": {
     "GROWTH_OS_ENABLED": "true",
     "MENU_DRAFTS_ENABLED": "false",
     "CUSTOMER_IDENTITY_ENABLED": "true",
+    "GOOGLE_LOGIN_ENABLED": "true",
     "CUSTOMER_AUTH_ORIGIN": "https://auradigitalworks.com",
     "AI_PROVIDER": "cloudflare",
     "AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast,@cf/mistralai/mistral-small-3.1-24b-instruct,@cf/meta/llama-4-scout-17b-16e-instruct",
