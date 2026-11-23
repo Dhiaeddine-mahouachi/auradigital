@@ -13,6 +13,15 @@
   var originalTitle = document.title;
   var metaDesc = document.querySelector('meta[name="description"]');
   var originalDesc = metaDesc ? metaDesc.getAttribute('content') : '';
+  // Homepage SEO snippets. Keep the displayed language and description aligned.
+  // French is ready for a future French UI; it is not a selectable locale yet.
+  var homeDescriptions = {
+    en: 'Grow your business with AuraDigital. Websites, AI solutions, local SEO, digital menus and digital marketing services for businesses in Istanbul.',
+    tr: 'İşletmenizi AuraDigital ile büyütün. İstanbul\'da profesyonel web siteleri, yapay zekâ çözümleri, yerel SEO, dijital menüler ve dijital pazarlama.',
+    ar: 'طوّر أعمالك مع AuraDigital. نقدم تصميم المواقع الإلكترونية، حلول الذكاء الاصطناعي، تحسين محركات البحث، القوائم الرقمية والتسويق الرقمي في إسطنبول.',
+    fr: 'Développez votre entreprise avec AuraDigital : création de sites web, solutions IA, référencement local, menus numériques et marketing digital à Istanbul.'
+  };
+  var isHome = location.pathname === '/' || location.pathname === '/index.html';
 
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
   function norm(s) { return String(s || '').replace(/\s+/g, ' ').trim(); }
@@ -92,7 +101,7 @@
     html.lang = lang;
     html.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.title = lang === 'en' ? originalTitle : (lookup(originalTitle) || originalTitle);
-    if (metaDesc) metaDesc.setAttribute('content', lang === 'en' ? originalDesc : (lookup(originalDesc) || originalDesc));
+    if (metaDesc) metaDesc.setAttribute('content', isHome ? homeDescriptions[lang] : (lang === 'en' ? originalDesc : (lookup(originalDesc) || originalDesc)));
     var buttons = document.querySelectorAll('[data-set-lang]');
     for (var i = 0; i < buttons.length; i++) buttons[i].setAttribute('aria-pressed', String(buttons[i].getAttribute('data-set-lang') === lang));
   }
