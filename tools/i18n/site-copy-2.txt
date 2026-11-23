@@ -361,3 +361,5 @@ Fri 27 ||| Cum 27 ||| الجمعة 27
 Sat 28 ||| Cmt 28 ||| السبت 28
 Request Mon 23, 12:00 → ||| Pzt 23, 12:00 için talep et → ||| اطلب الإثنين 23، 12:00 ←
 Booking module ||| Randevu modülü ||| وحدة الحجز
+Tell us about your business ||| Bize işletmenizden bahsedin ||| أخبرنا عن نشاطك التجاري
+A few sentences are enough. Auri will use them to personalize your roadmap. ||| Birkaç cümle yeterli. Auri bunları büyüme planınızı kişiselleştirmek için kullanacak. ||| بضع جمل تكفي. سيستخدمها أوري لتخصيص خطة نمو نشاطك.

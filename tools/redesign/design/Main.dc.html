@@ -26,7 +26,7 @@
     </div>
 
     <div class="rise" style="max-width: 860px; margin: 40px auto 0; background: #FFFFFF; border: 1px solid #E6E4DC; border-radius: 26px; padding: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; box-shadow: 0 30px 70px -40px rgba(11,15,12,.45)">
-      <div style="flex: 1 1 380px; padding: 8px 14px; display: flex; flex-direction: column; gap: 8px; text-align: left">
+      <div style="flex: 1 1 100%; padding: 8px 14px; display: flex; flex-direction: column; gap: 8px; text-align: left">
         <span id="biz-label" style="font-size: 13px; font-weight: 600; color: #4B5650">What kind of business do you run?</span>
         <div role="group" aria-labelledby="biz-label" style="display: flex; gap: 8px; flex-wrap: wrap">
           <sc-for list="{{ biz }}" as="b" hint-placeholder-count="4">
@@ -34,7 +34,12 @@
           </sc-for>
         </div>
       </div>
-      <a class="btn btn-dark full-sm" href="Hub.dc.html" style="background: #0B0F0C; color: #FFFFFF; font-weight: 600; font-size: 17px; padding: 20px 28px; border-radius: 18px; display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; min-height: 64px; box-sizing: border-box">Start your path <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+      <div style="flex: 1 1 100%; padding: 4px 14px 0; text-align: left">
+        <label for="landing-business-text" style="display: block; font-size: 14px; font-weight: 700; color: #0B0F0C; margin-bottom: 7px">Tell us about your business</label>
+        <textarea id="landing-business-text" name="businessDescription" maxlength="4000" rows="3" value="{{ bizText }}" onChange="{{ updateBizText }}" placeholder="What does your business do, and what would you like to achieve?" style="display: block; width: 100%; min-height: 108px; box-sizing: border-box; resize: vertical; padding: 15px 16px; border: 1px solid #D9D6CB; border-radius: 16px; background: #F9F9F6; color: #0B0F0C; font: 15px/1.55 Inter, sans-serif; outline-offset: 3px"></textarea>
+        <p style="color: #4B5650; font-size: 12px; margin: 7px 0 0">A few sentences are enough. Auri will use them to personalize your roadmap.</p>
+      </div>
+      <a class="btn btn-dark full-sm" onClick="{{ startPath }}" href="Hub.dc.html" style="background: #0B0F0C; color: #FFFFFF; font-weight: 600; font-size: 17px; padding: 20px 28px; border-radius: 18px; display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; min-height: 64px; box-sizing: border-box; width: 100%; justify-content: center">Start your path <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
     </div>
     <p style="text-align: center; font-size: 14px; color: #4B5650; margin: 14px 0 0">Your first step: <strong style="color: #0B0F0C">{{ bizPath }}</strong> · Free roadmap · No tech skills needed</p>
 
@@ -305,7 +310,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":8700}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { biz: 0, goal: 0 }; }
+  constructor(props) { super(props); this.state = { biz: 0, goal: 0, bizText: '' }; }
   renderVals() {
     const s = this.state;
     const B = [
@@ -328,6 +333,17 @@ class Component extends DCLogic {
     const stBase = 'border-radius: 22px; padding: 28px 30px; display: flex; flex-direction: column; gap: 12px; min-height: 280px; box-sizing: border-box; background: ';
     const stBg = ['#F3EEDC', '#E3EEFB', '#ECE8FF', '#E1E100'];
     return {
+      bizText: s.bizText,
+      updateBizText: e => this.setState({ bizText: e.currentTarget.value }),
+      startPath: () => {
+        try {
+          window.localStorage.setItem('aura-landing-intake-v1', JSON.stringify({
+            text: (document.getElementById('landing-business-text')?.value || '').trim().slice(0, 4000),
+            industry: ['restaurant', 'services', 'retail', 'professional'][s.biz],
+            savedAt: Date.now()
+          }));
+        } catch {}
+      },
       biz: B.map((b, i) => ({ label: b.label, on: i === s.biz, style: i === s.biz ? on : off, pick: () => this.setState({ biz: i }) })),
       bizShort: B[s.biz].short, bizFirst: B[s.biz].first, bizPath: B[s.biz].path,
       goals: G.map((g, i) => ({ ...g, n: '0' + (i + 1), on: i === s.goal, style: i === s.goal ? gOn : gOff, pick: () => this.setState({ goal: i }) })),

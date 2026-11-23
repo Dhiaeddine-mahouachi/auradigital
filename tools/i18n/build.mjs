@@ -2,7 +2,8 @@
 // hand-written phrase tables in tools/i18n/site-copy-*.txt.
 import fs from 'node:fs';
 import path from 'node:path';
-const here = path.dirname(new URL(import.meta.url).pathname);
+import { fileURLToPath } from 'node:url';
+const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '../..');
 const out = { tr: {}, ar: {} };
 for (const file of fs.readdirSync(here).filter(f => /^site-copy-.*\.txt$/.test(f)).sort()) {
