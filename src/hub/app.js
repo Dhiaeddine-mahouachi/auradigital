@@ -255,6 +255,50 @@ function verifyPending(email){
  btn.onclick=async()=>{btn.disabled=true;try{await api('/api/customer/send-verification','POST',{});note.textContent=al('resent');}catch(e){note.textContent=e.message;}wait=30;setTimeout(tick,1500);};
  document.querySelector('[data-continue]').onclick=async()=>{if(resumeShop())return;route='';await load();};
 }
+// Account avatar: the uploaded photo when there is one, otherwise initials.
+function avatar(cls='hx-avatar small'){
+ const initial=esc(String(me?.name||'?').trim()[0]?.toUpperCase()||'?');
+ return me?.photo?`<span class="${cls} os-photo" aria-hidden="true"><img src="${esc(me.photo)}" alt="" width="40" height="40"></span>`:`<span class="${cls}" aria-hidden="true">${initial}</span>`;
+}
+function resizePhoto(file){
+ return new Promise((resolve,reject)=>{
+  if(!/^image\/(jpeg|png|webp)$/.test(file?.type||'')||file.size>12e6){reject(new Error(osCopy(lang).photo.invalid));return;}
+  // Read as a data: URL; the Hub's CSP allows data: images but not blob:.
+  const reader=new FileReader(),img=new Image();
+  img.onload=()=>{
+   const size=256,canvas=Object.assign(document.createElement('canvas'),{width:size,height:size}),ctx=canvas.getContext('2d');
+   const side=Math.min(img.naturalWidth,img.naturalHeight);
+   ctx.drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)/2,side,side,0,0,size,size);
+   let data=canvas.toDataURL('image/webp',0.84);
+   if(!data.startsWith('data:image/webp'))data=canvas.toDataURL('image/jpeg',0.84);
+   resolve(data);
+  };
+  img.onerror=()=>reject(new Error(osCopy(lang).photo.invalid));
+  reader.onerror=()=>reject(new Error(osCopy(lang).photo.invalid));
+  reader.onload=()=>{img.src=reader.result;};
+  reader.readAsDataURL(file);
+ });
+}
+function photoCard(host){
+ const p=osCopy(lang).photo,section=document.createElement('section');
+ section.className='os-card os-photo-card';
+ const draw=()=>{
+  section.innerHTML=`<div class="os-photo-row">${avatar('os-photo-preview')}<div><h2>${esc(p.title)}</h2><p class="os-muted">${esc(p.hint)}</p>
+   <div class="os-inline-actions"><label class="os-btn is-quiet is-sm">${osIcon('user',16)}<span>${esc(me.photo?p.change:p.upload)}</span><input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" data-photo-input></label>
+   ${me.photo?`<button type="button" class="os-btn is-quiet is-sm" data-photo-remove>${esc(p.remove)}</button>`:''}</div><p class="os-error" role="alert"></p></div></div>`;
+  const alert=section.querySelector('[role=alert]');
+  section.querySelector('[data-photo-input]').onchange=async e=>{
+   const input=e.target;input.disabled=true;alert.textContent='';
+   try{const data=await resizePhoto(input.files[0]);const r=await api('/api/hub/me/photo','PUT',{photo:data});me.photo=r.photo;toast(p.saved);render();}
+   catch(error){alert.textContent=error.message;input.disabled=false;}
+  };
+  section.querySelector('[data-photo-remove]')?.addEventListener('click',async e=>{
+   e.currentTarget.disabled=true;
+   try{await api('/api/hub/me/photo','DELETE');me.photo=null;toast(p.removed);render();}catch(error){alert.textContent=error.message;}
+  });
+ };
+ draw();host.prepend(section);
+}
 const emptyProfile=()=>({name:'',industry:'other',country:'',city:'',stage:'',website:'',tools:'',acquisition:'',difficulties:'',goals:'',timeline:'',industryDetails:'',budget:null,currency:'USD',capabilities:[]});
 function profileField(k){
  if(k==='roadmapPreview'){
@@ -368,7 +412,7 @@ function renderShell(){
  <a href="${esc(link('home'))}" class="wordmark command-wordmark os-brand">${brandMarkup}<small>AuraHub</small></a>
  <nav aria-label="AuraHub">${groups.map(([name,list])=>`<p class="hx-nav-group os-nav-group">${esc(name)}</p>${list.map(p=>navItem(p)).join('')}`).join('')}</nav>
  ${workspace&&can('auri:use')?`<button type="button" class="os-side-auri" data-ax-open aria-controls="ax-drawer"><img src="/media/auri/level-${auriLevel()}.webp" alt="" width="36" height="36"><span><strong>Auri</strong><small>${esc(oc.auri.ask)}</small></span></button>`:''}
- <div class="hx-side-foot os-side-foot"><span class="hx-avatar small" aria-hidden="true">${esc(String(me.name||'?')[0].toUpperCase())}</span><span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div></aside>
+ <div class="hx-side-foot os-side-foot">${avatar()}<span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div></aside>
  <div class="workspace"><header class="topbar growth-topbar hub-topbar os-topbar">
  <a class="hub-mobile-brand wordmark" href="${esc(link('home'))}">${brandMarkup}</a>
  ${workspace?`<div class="hx-business os-business"><span class="hx-avatar" aria-hidden="true">${esc(initials)}</span>
@@ -377,8 +421,8 @@ function renderShell(){
  <div class="hx-topbar-title os-crumb"><span>${esc(section)}</span></div>
  ${workspace&&can('roadmap:write')?`<a class="growth-secondary hx-top-action os-top-request" href="${esc(requestLink())}">${osIcon('plus',16)} <span>${esc(oc.nav.newRequest)}</span></a>`:''}
  ${workspace&&can('auri:use')?`<button type="button" class="wx-auri-btn os-top-auri" data-ax-open aria-controls="ax-drawer" aria-expanded="false">${osIcon('auri',18)}<span>Auri</span></button>`:''}
- <details class="growth-account"><summary aria-label="${esc(oc.nav.account)}">${hubIcon('profile')}</summary>
- <div class="growth-account-menu"><strong>${esc(me.name)}</strong>${languageControl()}
+ <details class="growth-account"><summary aria-label="${esc(oc.nav.account)}" class="${me.photo?'has-photo':''}">${me.photo?avatar('os-photo-summary'):hubIcon('profile')}</summary>
+ <div class="growth-account-menu"><div class="os-account-head">${avatar()}<span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div>${languageControl()}
  ${navItem('settings')}${workspace?navItem('profile')+navItem('orders'):''}${button('logout','logout',true)}</div></details></header>
  <main id="main" tabindex="-1">${ownHeading?'':`<div class="page-heading"><h1>${page==='home'&&(!workspace||!workspace.missions.length)
   ?`${esc(labels.welcome)} <span>AuraHub</span>`:page==='journey'&&lang==='en'?'Growth <span>Vision</span>':esc(title)}</h1>
@@ -624,13 +668,13 @@ async function renderPage(){
   }else renderServices({host,records:[],lang,esc,link});
   return;
  }
- if(page==='settings')return renderAccountSettings({
+ if(page==='settings'){const settingsHost=document.querySelector('#page-content');const done=renderAccountSettings({
   host:document.querySelector('#page-content'),user:me,lang,esc,t,api,link,workspace,
   canEmail:authCapabilities.email,canLinkGoogle:me.verified&&authCapabilities.google,
   onSignIn:()=>location.assign('/hub/login'),
   onLanguage:value=>{lang=value;saveLanguage(lang);render();},
   onNewWorkspace:()=>{stopAuriVoice();workspace=null;editing=true;draft=emptyProfile();mode='myself';step=0;renderSetup();},
- });
+ });await done;if(settingsHost.isConnected)photoCard(settingsHost);return;}
  if(!workspace&&page==='assistant')return renderAuriEmpty();
  if(!workspace&&(page==='services'||page==='requests'))return renderWorkEmpty(page);
  if(!workspace)return renderBuildCard(label);

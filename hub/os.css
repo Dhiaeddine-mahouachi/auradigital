@@ -464,3 +464,159 @@ html[dir=rtl] .aurahub-shell.os-shell .os-task-row[aria-pressed=true]{box-shadow
  .aurahub-shell.os-shell .os-crumb{display:none}
  .aurahub-shell.os-shell .os-business{flex:1;max-width:none}
 }
+
+/* ---------- Auri onboarding as a conversation ---------- */
+body:has(.os-chat-setup){background:var(--os-cream)}
+main.auri-setup.os-chat-setup{max-width:1180px;margin:0 auto;padding:clamp(12px,3vw,32px) clamp(12px,3vw,28px) 32px;display:block}
+.os-chat-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,340px);gap:20px;align-items:start}
+.os-chat{display:flex;flex-direction:column;min-height:min(78dvh,760px);background:var(--os-surface);border:1px solid var(--os-line);border-radius:22px;box-shadow:var(--os-shadow);overflow:hidden}
+.os-chat-head{display:flex!important;align-items:center;gap:12px;padding:14px 18px!important;margin:0!important;border-bottom:1px solid var(--os-line);text-align:start!important;background:linear-gradient(150deg,var(--os-forest),var(--os-emerald))}
+.os-chat-head .auri-setup-character{width:44px;height:44px;flex:none;border-radius:14px;background:rgba(216,245,106,.14);display:grid;place-items:center;overflow:hidden}
+.os-chat-head .auri-setup-character :is(.auri,img){width:40px!important;height:40px!important;margin:0!important}
+.os-chat-head strong{display:block;color:#fff;font:700 1rem var(--os-display)}
+.os-chat-head small{display:flex;align-items:center;gap:6px;color:#CFE0D3;font-size:.78rem}
+.os-chat-progress{display:flex;gap:4px;margin:0 0 0 auto;padding:0;list-style:none}
+html[dir=rtl] .os-chat-progress{margin:0 auto 0 0}
+.os-chat-progress li{width:22px;height:4px;border-radius:2px;background:rgba(255,255,255,.2)}
+.os-chat-progress li.is-done{background:#9CCB4A}.os-chat-progress li.is-now{background:var(--os-lime)}
+.os-chat-log{list-style:none;margin:0;padding:22px clamp(14px,3vw,28px);display:flex;flex-direction:column;gap:14px;flex:1;overflow-y:auto;max-height:58dvh}
+.os-chat-msg{display:flex;gap:10px;align-items:flex-end;max-width:min(560px,88%);animation:os-msg-in .28s var(--os-ease) both}
+@keyframes os-msg-in{from{opacity:0;transform:translateY(6px)}}
+.os-chat-msg.is-user{align-self:flex-end}
+.os-chat-avatar{width:32px;height:32px;flex:none;border-radius:10px;background:var(--os-forest);display:grid;place-items:center;overflow:hidden}
+.os-chat-avatar img{width:28px;height:28px;object-fit:contain}
+.os-chat-bubble{padding:12px 15px;border-radius:18px;background:#F1F3EE;color:var(--os-ink);line-height:1.5;min-width:0;overflow-wrap:anywhere}
+.is-auri .os-chat-bubble{border-end-start-radius:6px}
+.is-user .os-chat-bubble{background:var(--os-emerald);border-end-end-radius:6px}
+.aurahub-shell .is-user .os-chat-bubble p,.is-user .os-chat-bubble :is(p,small){color:#fff!important}
+.os-chat-bubble p{margin:0;color:var(--os-ink)!important;font-size:.95rem}
+.os-chat-bubble p+p{margin-top:6px}
+.os-chat-bubble h1{margin:0;font:700 clamp(1.15rem,2.2vw,1.45rem)/1.3 var(--os-display);letter-spacing:-.015em;color:var(--os-ink)}
+.os-chat-bubble h1+p{margin-top:6px;color:var(--os-muted)!important}
+.os-chat-msg.is-current .os-chat-bubble{background:var(--os-mint);box-shadow:inset 0 0 0 1px #CFE3CC}
+.os-chat-hint{font-size:.85rem!important;color:var(--os-muted)!important}
+.is-skipped{font-style:italic;opacity:.8}
+.os-chat-facts{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
+.os-chat-facts li{display:flex;justify-content:space-between;gap:12px;padding:6px 10px;border-radius:10px;background:#fff;font-size:.86rem}
+.os-chat-facts span{color:var(--os-muted)}
+.os-typing{display:inline-flex;gap:4px;padding:4px 0}
+.os-typing i{width:7px;height:7px;border-radius:50%;background:var(--os-muted-soft);animation:os-dot 1.2s infinite ease-in-out}
+.os-typing i:nth-child(2){animation-delay:.15s}.os-typing i:nth-child(3){animation-delay:.3s}
+@keyframes os-dot{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-4px);opacity:1}}
+.is-typing small{display:block;font-size:.78rem;color:var(--os-muted)}
+.os-chat-composer{display:grid!important;gap:10px;padding:14px clamp(12px,2.5vw,22px) 16px;border-top:1px solid var(--os-line);background:#FBFBF8;margin:0!important;max-width:none!important}
+.os-chat-composer .auri-setup-composer{display:grid;gap:8px;padding:10px;border:1px solid var(--os-line-strong);border-radius:18px;background:#fff;box-shadow:0 1px 2px rgba(20,37,29,.05)}
+.os-chat-composer .auri-setup-composer:focus-within{border-color:var(--os-emerald);box-shadow:0 0 0 3px rgba(0,61,43,.12)}
+.os-chat-composer textarea[name=businessText]{width:100%;border:0!important;outline:0;resize:none;background:transparent!important;font:500 1rem/1.5 Inter,sans-serif;color:var(--os-ink);padding:4px 6px!important;box-shadow:none!important;min-height:72px}
+.os-chat-composer .auri-setup-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.os-chat-composer .auri-setup-actions .os-send{margin-inline-start:auto}
+.os-chip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 12px;border-radius:999px;border:1px solid var(--os-line-strong);background:#fff;color:var(--os-ink);font:600 .84rem Inter,sans-serif;cursor:pointer;transition:background .15s,border-color .15s}
+.os-chip:hover{background:var(--os-mint);border-color:#B9CDB6}
+.os-chat-chips{display:flex;flex-wrap:wrap;gap:6px}
+.os-chat-chips.is-secondary .os-chip{border-style:dashed;background:transparent;font-weight:550}
+.os-chat-input{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border:1px solid var(--os-line-strong);border-radius:999px;background:#fff}
+html[dir=rtl] .os-chat-input{padding:6px 14px 6px 6px}
+.os-chat-input:focus-within{border-color:var(--os-emerald);box-shadow:0 0 0 3px rgba(0,61,43,.12)}
+.os-chat-input .field{flex:1;margin:0;min-width:0}
+.os-chat-input :is(input,select){width:100%;border:0!important;outline:0;background:transparent!important;box-shadow:none!important;min-height:40px;padding:0!important;font:500 1rem Inter,sans-serif;color:var(--os-ink)}
+.os-send{display:inline-flex;align-items:center;gap:6px;min-height:42px;padding:8px 18px;border-radius:999px!important;border:0;background:var(--os-emerald)!important;color:#fff!important;font:650 .9rem Inter,sans-serif;cursor:pointer;flex:none}
+.os-send:hover{background:var(--os-forest)!important}
+.os-send.is-wide{justify-self:end}
+.os-chat-composer .auri-setup-review{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-height:42dvh;overflow:auto;padding:2px}
+.os-chat-composer .auri-setup-review .field{display:grid;gap:4px;font:600 .8rem Inter,sans-serif;color:var(--os-ink)}
+.os-chat-composer .auri-setup-review :is(input,select){min-height:40px;border:1px solid var(--os-line-strong);border-radius:10px;padding:7px 10px;background:#fff;font:500 .9rem Inter,sans-serif}
+.os-chat-composer .auri-setup-review small{font-weight:400;font-size:.72rem;color:var(--os-muted)}
+.os-chat-composer [role=status]:empty,.os-chat-composer [role=alert]:empty{display:none}
+.os-chat-composer [role=alert]{margin:0;color:var(--os-bad);font-size:.86rem}
+.os-chat-composer [role=status]{margin:0;font-size:.82rem;color:var(--os-muted)}
+.os-chat-aside{position:sticky;top:20px;min-width:0}
+@media(max-width:900px){
+ .os-chat-layout{grid-template-columns:minmax(0,1fr)}
+ .os-chat-aside{position:static}
+ .os-chat{min-height:0;border-radius:18px}
+ .os-chat-log{max-height:none}
+ .os-chat-composer{position:sticky;bottom:0;z-index:5;box-shadow:0 -10px 24px -18px rgba(20,37,29,.3)}
+ .os-chat-composer .auri-setup-review{grid-template-columns:minmax(0,1fr)}
+ .os-chat-msg{max-width:94%}
+}
+@media(prefers-reduced-motion:reduce){.os-chat-msg,.os-typing i{animation:none}}
+.os-chat>.os-chat-head,.os-chat>.os-chat-composer{width:100%!important;max-width:none!important;box-sizing:border-box;grid-template-columns:none}
+.os-chat-head>div:nth-child(2){flex:1;min-width:0;text-align:start}
+.os-chat-log{width:100%;box-sizing:border-box}
+body:has(.os-chat-setup) .command-gate-header{background:var(--os-surface);border-bottom:1px solid var(--os-line)}
+body:has(.os-chat-setup) .command-gate-header .wordmark span:not(.hub-brand-tile){color:var(--os-ink)!important}
+body:has(.os-chat-setup) .command-gate-header .language select{background:#fff;color:var(--os-ink);border:1px solid var(--os-line-strong);border-radius:999px}
+.os-chat-aside>*{border-radius:var(--os-r-lg)}
+/* ---------- Profile photo ---------- */
+.os-photo{overflow:hidden;padding:0!important;background:var(--os-mint)!important}
+.os-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.os-photo-card{margin-bottom:18px}
+.os-photo-row{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.os-photo-row h2{margin:0 0 4px;font:700 1.05rem var(--os-display)}
+.os-photo-preview{display:grid;place-items:center;width:80px;height:80px;border-radius:50%;flex:none;background:var(--os-lime);color:var(--os-forest);font:700 1.6rem var(--os-display);box-shadow:0 0 0 4px #fff,0 0 0 5px var(--os-line)}
+.os-photo-preview.os-photo{border-radius:50%}
+.aurahub-shell .growth-account summary.has-photo{padding:0;overflow:hidden;border-radius:50%!important;width:42px;height:42px}
+.os-photo-summary{display:block;width:100%;height:100%}
+.os-photo-summary img{width:100%;height:100%;object-fit:cover}
+.os-account-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;margin-bottom:6px;border-bottom:1px solid var(--os-line)}
+.os-account-head span:last-child{display:grid;min-width:0}.os-account-head small{font-size:.74rem;overflow:hidden;text-overflow:ellipsis}
+.aurahub-shell .os-side-foot .hx-avatar.os-photo{border-radius:50%}
+
+/* ==========================================================================
+   Legacy page harmonization. Existing pages (My Services, Requests, request
+   form, Settings, Team, Business profile, Menu drafts, Auri page) keep their
+   markup and behaviour; their components are mapped onto the new tokens.
+   ========================================================================== */
+.aurahub-shell.os-shell :is(.primary,.growth-primary,.lime):not(.os-send){background:var(--os-emerald);border:1px solid var(--os-emerald);color:#fff;border-radius:var(--os-r-sm);min-height:42px;font-weight:650;box-shadow:none}
+.aurahub-shell.os-shell :is(.primary,.growth-primary,.lime):not(.os-send):hover{background:var(--os-forest);border-color:var(--os-forest)}
+.aurahub-shell.os-shell :is(.primary,.growth-primary,.lime) :is(span,svg){color:#fff}
+.aurahub-shell.os-shell :is(.secondary,.growth-secondary):not(.hx-top-action){background:var(--os-surface);border:1px solid var(--os-line-strong);color:var(--os-ink);border-radius:var(--os-r-sm);min-height:40px;font-weight:600;box-shadow:none}
+.aurahub-shell.os-shell :is(.secondary,.growth-secondary):not(.hx-top-action):hover{background:var(--os-mint)}
+.aurahub-shell.os-shell :is(.panel,.growth-card,.hx-card,.hub-work-section>.hub-work-row,.service-card,.service-offer,.auri-companion,.auri-work-log,.hub-service-shortcuts){background:var(--os-surface);border:1px solid var(--os-line);border-radius:var(--os-r-lg);box-shadow:var(--os-shadow)}
+.aurahub-shell.os-shell .panel{padding:clamp(18px,2.2vw,26px)}
+.aurahub-shell.os-shell :is(.panel,.growth-card,.hx-card) h2{font:700 1.08rem var(--os-display);letter-spacing:-.01em}
+.aurahub-shell.os-shell .page-heading{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:20px}
+.aurahub-shell.os-shell .page-heading h1{font:700 clamp(1.6rem,2.8vw,2.1rem) var(--os-display);letter-spacing:-.025em;margin:0}
+.aurahub-shell.os-shell .page-heading h1 span{color:var(--os-emerald)}
+.aurahub-shell.os-shell :is(.field,.os-field) :is(input,select,textarea),.aurahub-shell.os-shell .language select{border:1px solid var(--os-line-strong);border-radius:var(--os-r-sm);background:#fff;color:var(--os-ink);min-height:42px}
+.aurahub-shell.os-shell :is(.field,.os-field,.os-chat-composer) :is(input,select,textarea):focus{outline:0;border-color:var(--os-emerald);box-shadow:0 0 0 3px rgba(0,61,43,.14)}
+.aurahub-shell.os-shell .field{font:600 .82rem Inter,sans-serif;color:var(--os-ink)}
+.aurahub-shell.os-shell .warning{background:var(--os-warn-bg);border:1px solid #EBD9AA;color:var(--os-warn);border-radius:var(--os-r)}
+.aurahub-shell.os-shell .verification{background:var(--os-warn-bg);border-color:#EBD9AA;border-radius:var(--os-r)}
+.aurahub-shell.os-shell .service-filters button{border-radius:999px;border:1px solid var(--os-line-strong);background:#fff;color:var(--os-ink)}
+.aurahub-shell.os-shell .service-filters button[aria-pressed=true]{background:var(--os-emerald);border-color:var(--os-emerald);color:#fff}
+.aurahub-shell.os-shell .service-filters button[aria-pressed=true] span{background:var(--os-lime);color:var(--os-forest)}
+.aurahub-shell.os-shell .hub-work-row{border-radius:var(--os-r);border:1px solid var(--os-line);background:var(--os-surface);transition:border-color .15s,background .15s}
+.aurahub-shell.os-shell .hub-work-row:hover{border-color:var(--os-line-strong);background:#FAFBF7}
+.aurahub-shell.os-shell .hub-work-section h2{font:700 1rem var(--os-display);margin:22px 0 10px}
+.aurahub-shell.os-shell .hub-row-icon{background:var(--os-mint);color:var(--os-emerald);border-radius:10px}
+.aurahub-shell.os-shell :is(.hx-pill,.pill){border-radius:999px;font-weight:600}
+.aurahub-shell.os-shell .hx-pill.good{background:var(--os-good-bg);color:var(--os-good)}
+.aurahub-shell.os-shell .hx-pill.warn{background:var(--os-warn-bg);color:var(--os-warn)}
+.aurahub-shell.os-shell .hx-pill.bad{background:var(--os-bad-bg);color:var(--os-bad)}
+.aurahub-shell.os-shell details>summary{font-weight:600;color:var(--os-ink)}
+.aurahub-shell.os-shell table th{color:var(--os-muted)}
+.aurahub-shell.os-shell .team-intro .price{color:var(--os-emerald)}
+.aurahub-shell.os-shell .eyebrow{color:var(--os-muted)}
+.aurahub-shell.os-shell .auri-companion .auri-status,.aurahub-shell.os-shell .pill{background:var(--os-mint);color:var(--os-emerald)}
+.aurahub-shell.os-shell .hub-context{background:var(--os-mint);border-radius:var(--os-r);border:0}
+
+/* Business profile / setup editor (renders outside the shell). */
+body:has(.command-setup){background:var(--os-cream)}
+body:has(.command-setup) .command-gate-header{background:var(--os-surface);border-bottom:1px solid var(--os-line)}
+body:has(.command-setup) .command-gate-header .wordmark span:not(.hub-brand-tile){color:var(--os-ink)!important}
+body:has(.command-setup) .command-gate-header .language select{background:#fff;color:var(--os-ink);border:1px solid var(--os-line-strong);border-radius:999px}
+main.command-setup .setup-heading{max-width:720px;margin:0 auto 22px;text-align:start;background:none;border:0;box-shadow:none;padding:0}
+main.command-setup .setup-heading .eyebrow{color:var(--os-muted)!important}
+main.command-setup .setup-heading h1{font:700 clamp(1.7rem,3vw,2.3rem) var(--os-display);letter-spacing:-.025em;color:var(--os-ink)}
+main.command-setup .setup-heading p{color:var(--os-muted)}
+main.command-setup .profile-panel{background:var(--os-surface);border:1px solid var(--os-line);border-radius:var(--os-r-lg);box-shadow:var(--os-shadow);max-width:960px}
+main.command-setup :is(.primary,.secondary){border-radius:var(--os-r-sm);min-height:42px}
+main.command-setup .primary{background:var(--os-emerald);border-color:var(--os-emerald);color:#fff}
+main.command-setup .secondary{background:#fff;border:1px solid var(--os-line-strong);color:var(--os-ink)}
+main.command-setup .field :is(input,select,textarea){border:1px solid var(--os-line-strong);border-radius:var(--os-r-sm)}
+main.command-setup .field :is(input,select,textarea):focus{outline:0;border-color:var(--os-emerald);box-shadow:0 0 0 3px rgba(0,61,43,.14)}
+main.command-setup .mode-card{border-radius:var(--os-r-lg);border-color:var(--os-line)}
+main.command-setup .mode-card.dark{background:linear-gradient(160deg,var(--os-emerald),var(--os-forest))}
+/* Onboarding side guide matches the brand forest instead of near-black. */
+.os-chat-aside .hub-guide,.os-chat-aside>section{background:linear-gradient(160deg,var(--os-emerald),var(--os-forest))!important;border-color:var(--os-forest)!important}

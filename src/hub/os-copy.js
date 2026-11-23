@@ -1,6 +1,7 @@
 // Copy for AuraHub 4 (Aura Command, Aura Journey, Aura Studio).
 // Every language falls back to English per key, never to a missing string.
 const EN = {
+ photo: { title: 'Profile photo', hint: 'Shown on your account in AuraHub. JPEG, PNG or WebP; we resize it to 256 × 256.', upload: 'Upload photo', change: 'Change photo', remove: 'Remove', saved: 'Profile photo saved.', removed: 'Profile photo removed.', invalid: 'Choose a JPEG, PNG or WebP image.' },
  nav: { overview: 'Overview', business: 'My Business', journey: 'Growth Roadmap', studio: 'Aura Studio', services: 'My Services', site: 'Website & AuraMenu', analytics: 'Analytics', assistant: 'Auri Assistant', settings: 'Settings', requests: 'Requests', menuDrafts: 'Menu drafts', orders: 'Orders & billing', team: 'Team', groups: ['Workspace', 'Operate', 'Account'], more: 'More', close: 'Close', newRequest: 'New request', account: 'Account', switchWorkspace: 'Switch business' },
  sections: { command: 'Aura Command', commandTag: 'Understand your business', journey: 'Aura Journey', journeyTag: 'Know how to grow', studio: 'Aura Studio', studioTag: 'Manage the work' },
  greet: { morning: 'Good morning', afternoon: 'Good afternoon', evening: 'Good evening', line: (part, name) => `${part}${name ? ', ' + name : ''}.`, sub: biz => `Let’s grow ${biz}.` },
@@ -55,6 +56,7 @@ const EN = {
 };
 
 const TR = {
+ photo: { title: 'Profil fotoğrafı', hint: 'AuraHub hesabınızda görünür. JPEG, PNG veya WebP; 256 × 256 boyutuna küçültülür.', upload: 'Fotoğraf yükle', change: 'Fotoğrafı değiştir', remove: 'Kaldır', saved: 'Profil fotoğrafı kaydedildi.', removed: 'Profil fotoğrafı kaldırıldı.', invalid: 'JPEG, PNG veya WebP bir görsel seçin.' },
  nav: { overview: 'Genel bakış', business: 'İşletmem', journey: 'Büyüme yol haritası', studio: 'Aura Studio', services: 'Hizmetlerim', site: 'Web sitesi ve AuraMenu', analytics: 'Analitik', assistant: 'Auri Asistan', settings: 'Ayarlar', requests: 'Talepler', menuDrafts: 'Menü taslakları', orders: 'Siparişler ve faturalar', team: 'Ekip', groups: ['Çalışma alanı', 'Yönetim', 'Hesap'], more: 'Daha fazla', close: 'Kapat', newRequest: 'Yeni talep', account: 'Hesap', switchWorkspace: 'İşletme değiştir' },
  sections: { command: 'Aura Command', commandTag: 'İşletmenizi anlayın', journey: 'Aura Journey', journeyTag: 'Nasıl büyüyeceğinizi bilin', studio: 'Aura Studio', studioTag: 'İşi yönetin' },
  greet: { morning: 'Günaydın', afternoon: 'İyi günler', evening: 'İyi akşamlar', line: (part, name) => `${part}${name ? ', ' + name : ''}.`, sub: biz => `${biz} için büyümeye devam edelim.` },
@@ -71,6 +73,7 @@ const TR = {
 };
 
 const FR = {
+ photo: { title: 'Photo de profil', hint: 'Affichée sur votre compte AuraHub. JPEG, PNG ou WebP ; redimensionnée en 256 × 256.', upload: 'Ajouter une photo', change: 'Changer la photo', remove: 'Supprimer', saved: 'Photo de profil enregistrée.', removed: 'Photo de profil supprimée.', invalid: 'Choisissez une image JPEG, PNG ou WebP.' },
  nav: { overview: 'Vue d’ensemble', business: 'Mon activité', journey: 'Feuille de route', studio: 'Aura Studio', services: 'Mes services', site: 'Site web et AuraMenu', analytics: 'Statistiques', assistant: 'Assistant Auri', settings: 'Paramètres', requests: 'Demandes', menuDrafts: 'Brouillons de menu', orders: 'Commandes et factures', team: 'Équipe', groups: ['Espace', 'Opérations', 'Compte'], more: 'Plus', close: 'Fermer', newRequest: 'Nouvelle demande', account: 'Compte', switchWorkspace: 'Changer d’activité' },
  sections: { command: 'Aura Command', commandTag: 'Comprendre votre activité', journey: 'Aura Journey', journeyTag: 'Savoir comment grandir', studio: 'Aura Studio', studioTag: 'Gérer le travail' },
  greet: { morning: 'Bonjour', afternoon: 'Bon après-midi', evening: 'Bonsoir', line: (part, name) => `${part}${name ? ', ' + name : ''}.`, sub: biz => `Faisons grandir ${biz}.` },
@@ -87,6 +90,7 @@ const FR = {
 };
 
 const AR = {
+ photo: { title: 'صورة الملف الشخصي', hint: 'تظهر في حسابك على AuraHub. JPEG أو PNG أو WebP؛ نصغّرها إلى 256 × 256.', upload: 'رفع صورة', change: 'تغيير الصورة', remove: 'إزالة', saved: 'تم حفظ الصورة.', removed: 'تمت إزالة الصورة.', invalid: 'اختر صورة JPEG أو PNG أو WebP.' },
  nav: { overview: 'نظرة عامة', business: 'نشاطي', journey: 'خارطة النمو', studio: 'Aura Studio', services: 'خدماتي', site: 'الموقع وAuraMenu', analytics: 'التحليلات', assistant: 'المساعد أوري', settings: 'الإعدادات', requests: 'الطلبات', menuDrafts: 'مسودات القوائم', orders: 'الطلبات والفواتير', team: 'الفريق', groups: ['مساحة العمل', 'التشغيل', 'الحساب'], more: 'المزيد', close: 'إغلاق', newRequest: 'طلب جديد', account: 'الحساب', switchWorkspace: 'تبديل النشاط' },
  sections: { command: 'Aura Command', commandTag: 'افهم نشاطك', journey: 'Aura Journey', journeyTag: 'اعرف كيف تنمو', studio: 'Aura Studio', studioTag: 'أدر العمل' },
  greet: { morning: 'صباح الخير', afternoon: 'مساء الخير', evening: 'مساء الخير', line: (part, name) => `${part}${name ? '، ' + name : ''}.`, sub: biz => `لننمِّ ${biz}.` },

@@ -25,6 +25,9 @@ Branch: `aurahub-4-redesign`. Nothing was deployed and no production database or
 | Navigation | Overview, My Business, Growth Roadmap, Aura Studio, My Services, Website & AuraMenu, Analytics and Auri Assistant come first. Requests, Menu drafts, Orders & billing, Team (owners only) and Settings follow. Phones use a bottom bar plus a "More" sheet. Back and forward work through `pushState`. |
 | Auri | Questions asked from Journey or Command are sent `direct` to the real guidance endpoint instead of keyword shortcuts. New intents route to Studio modules; navigation only, so any change is confirmed on the target page. |
 | Loading and errors | Every API call has a deadline: 15 s for reads, 45 s for AI-backed writes, 6 s for capabilities. Network, timeout and server errors show an actionable message with **Try again**, never an indefinite spinner. |
+| Auri onboarding | `src/hub/onboarding.js` is now a chat conversation, like other AI assistants. Auri's questions are message bubbles and your answers become your own bubbles. Auri summarizes what it extracted from your description, a typing indicator shows while it works, and quick-reply chips cover industry and goal suggestions per industry. A composer is pinned at the bottom and a progress bar sits in the header. The same form fields, session restore, file attach and analysis are reused, so the data and save behavior are unchanged. |
+| Profile photo | `src/hub-profile-photo.js` provides `GET/PUT/DELETE /api/hub/me/photo`, backed by the additive migration `0038_customer_profile_photos.sql`. The browser crops and resizes the image to a 256 px WebP or JPEG. The server accepts only `data:image/(webp|jpeg|png)` up to about 90 KB, with same-origin writes, and serves a photo only to its owner. The photo appears in the sidebar, the account button and the account menu, and Settings has upload, change and remove. |
+| Legacy pages | A harmonization layer in `hub/os.css` restyles My Services, Requests, the request form, Settings, Team, the Business profile editor, Menu drafts and the Auri page. It maps their buttons, cards, fields, pills and warnings onto the new tokens; their markup and behavior are unchanged. |
 | Languages | English, Turkish, French and Arabic for all new UI (`src/hub/os-copy.js`), with a per-key English fallback. Arabic renders right-to-left. |
 
 ### Design tokens (reconciled)
@@ -49,7 +52,7 @@ Branch: `aurahub-4-redesign`. Nothing was deployed and no production database or
 
 ```bash
 npm run check
-npm test                                   # 352/352 (348 existing + 4 new lead API tests)
+npm test                                   # 353/353 (348 existing + 4 lead API + 1 profile photo)
 npm run deploy:check                       # Worker dry-run bundle only
 PORT=4173 node scripts/dev-hub.mjs         # in-memory synthetic data, no remote D1
 CHROMIUM_PATH=/path/to/chromium node scripts/test-hub-browser.mjs       # existing suite
@@ -68,6 +71,8 @@ npm run test:shop:browser
 - Journey stages, `?stage=` deep links, task details and back/forward;
 - Auri answering through the real endpoint and routing to Studio;
 - cross-account lead access refused (404);
+- profile photo upload, display in the shell and removal;
+- the onboarding chat flow on a 390 px phone;
 - no horizontal overflow on nine pages at 375, 768, 1280 and 1440 px, mobile bottom-nav targets of at least 44 px, and Arabic right-to-left.
 
 Two existing browser assertions changed because labels changed on purpose: the sidebar label list, and the Auri page heading ("Ask Auri" → "Auri Assistant").

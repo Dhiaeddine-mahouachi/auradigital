@@ -195,6 +195,43 @@ try {
   await p.close();
  }
 
+ step('profile photo: upload, shown in the shell, removable');
+ const me = await open();
+ await me.goto(base + '/__qa/start');
+ await me.goto(base + '/hub/settings');
+ await me.locator('[data-photo-input]').setInputFiles('media/auri/level-3.webp');
+ await me.locator('.os-side-foot .os-photo img').waitFor();
+ assert.match(await me.locator('.os-side-foot .os-photo img').getAttribute('src'), /^data:image\/(webp|jpeg);base64,/);
+ await me.reload();
+ await me.locator('.growth-account summary.has-photo img').waitFor();
+ await shot(me, 'settings-photo');
+ await me.locator('[data-photo-remove]').click();
+ await me.locator('.os-photo-card').getByText('Upload photo').waitFor();
+ assert.equal(await me.locator('.os-side-foot .os-photo').count(), 0);
+ await me.close();
+
+ step('Auri onboarding is a conversation');
+ const fresh = await open({ viewport: { width: 390, height: 844 } });
+ await fresh.goto(base + '/hub/signup');
+ await fresh.locator('[name=name]').fill('Chat Owner');
+ await fresh.locator('[name=email]').fill('chat-' + crypto.randomUUID() + '@example.test');
+ await fresh.locator('[name=password]').fill('Saffron-lake-0142!');
+ await fresh.locator('[name=terms]').check();
+ await fresh.locator('#auth-form button[type=submit]').click();
+ await fresh.getByRole('link', { name: 'Build my roadmap' }).click();
+ await fresh.locator('[name=businessText]').fill('A family bakery in Izmir selling bread and cakes.');
+ await fresh.getByRole('button', { name: /Analyze/ }).click();
+ await fresh.locator('.os-chat-msg.is-user').filter({ hasText: 'family bakery' }).waitFor();
+ await fresh.getByRole('heading', { name: 'What’s your business called?' }).waitFor();
+ await fresh.locator('[name=name]').fill('Izmir Oven');
+ await fresh.getByRole('button', { name: /Continue/ }).click();
+ await fresh.locator('.os-chat-msg.is-user').filter({ hasText: 'Izmir Oven' }).waitFor();
+ await fresh.locator('[data-quick-goal]').first().click();
+ await fresh.getByRole('button', { name: /Continue/ }).click();
+ assert(await noOverflow(fresh));
+ await shot(fresh, 'onboarding-chat-390');
+ await fresh.close();
+
  step('Arabic is right-to-left and fits on mobile');
  const ar = await open({ viewport: { width: 375, height: 812 } });
  await ar.goto(base + '/__qa/start');

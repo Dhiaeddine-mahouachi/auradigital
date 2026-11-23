@@ -593,6 +593,44 @@ var copy = {
   tr: ["\u0130\u015Fletmenizi birlikte kural\u0131m.", "\u0130\u015Fletmenizi Auri\u2019ye anlat\u0131n. \xC7al\u0131\u015Fma alan\u0131n\u0131z\u0131 ve b\xFCy\xFCme plan\u0131n\u0131z\u0131 olu\u015Ftural\u0131m.", "\u0130\u015Fletmenizi Auri\u2019ye anlat\u0131n", "Analiz et", "Belgesiz ba\u015Fla", "Metin veya CSV ekle", "Web sitesi ekle", "\u0130\u015Fletmenizin ad\u0131 nedir?", "Hangi sekt\xF6rde \xE7al\u0131\u015F\u0131yorsunuz?", "Nerede faaliyet g\xF6steriyorsunuz?", "\u0130lk hedefiniz nedir?", "Devam et", "Atla", "\xC7al\u0131\u015Fma alan\u0131 bilgilerini kontrol edin", "\xC7al\u0131\u015Fma alan\u0131 olu\u015Ftur", "\xC7al\u0131\u015Fma alan\u0131n\u0131z ve b\xFCy\xFCme plan\u0131n\u0131z haz\u0131rlan\u0131yor\u2026", "Tam HTTPS adresini yaz\u0131n veya yap\u0131\u015Ft\u0131r\u0131n.", "16 KB alt\u0131nda ve en fazla 4.000 karakter i\xE7eren bir .txt veya .csv dosyas\u0131 se\xE7in.", "Auri bu metinde bilgi bulamad\u0131. Bilgileri a\u015Fa\u011F\u0131dan ekleyebilirsiniz.", "\u0130\u015Fletme bilgileri inceleniyor\u2026", "Auri ile konu\u015F"],
   ar: ["\u0644\u0646\u0628\u062F\u0623 \u0628\u0628\u0646\u0627\u0621 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A.", "\u0623\u062E\u0628\u0631 \u0623\u0648\u0631\u064A \u0639\u0646 \u0646\u0634\u0627\u0637\u0643 \u0644\u0646\u0639\u062F\u0651 \u0645\u0633\u0627\u062D\u0629 \u0639\u0645\u0644\u0643 \u0648\u0645\u0633\u0627\u0631 \u0646\u0645\u0648\u0643.", "\u0623\u062E\u0628\u0631 \u0623\u0648\u0631\u064A \u0639\u0646 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A", "\u062A\u062D\u0644\u064A\u0644", "\u0627\u0644\u0628\u062F\u0621 \u062F\u0648\u0646 \u0645\u0633\u062A\u0646\u062F\u0627\u062A", "\u0625\u0631\u0641\u0627\u0642 \u0645\u0644\u0641 \u0646\u0635\u064A \u0623\u0648 CSV", "\u0625\u0636\u0627\u0641\u0629 \u0645\u0648\u0642\u0639 \u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A", "\u0645\u0627 \u0627\u0633\u0645 \u0646\u0634\u0627\u0637\u0643 \u0627\u0644\u062A\u062C\u0627\u0631\u064A\u061F", "\u0645\u0627 \u0645\u062C\u0627\u0644 \u0646\u0634\u0627\u0637\u0643\u061F", "\u0623\u064A\u0646 \u062A\u0639\u0645\u0644\u061F", "\u0645\u0627 \u0623\u0648\u0644 \u0647\u062F\u0641 \u062A\u0631\u064A\u062F \u062A\u062D\u0642\u064A\u0642\u0647\u061F", "\u0645\u062A\u0627\u0628\u0639\u0629", "\u062A\u062E\u0637\u064A", "\u0631\u0627\u062C\u0639 \u062A\u0641\u0627\u0635\u064A\u0644 \u0645\u0633\u0627\u062D\u0629 \u0639\u0645\u0644\u0643", "\u0625\u0646\u0634\u0627\u0621 \u0645\u0633\u0627\u062D\u0629 \u0627\u0644\u0639\u0645\u0644", "\u062C\u0627\u0631\u064D \u0625\u0639\u062F\u0627\u062F \u0645\u0633\u0627\u062D\u0629 \u0639\u0645\u0644\u0643 \u0648\u0645\u0633\u0627\u0631 \u0646\u0645\u0648\u0643\u2026", "\u0623\u062F\u062E\u0644 \u0631\u0627\u0628\u0637 HTTPS \u0643\u0627\u0645\u0644\u064B\u0627 \u0623\u0648 \u0627\u0644\u0635\u0642\u0647.", "\u0627\u062E\u062A\u0631 \u0645\u0644\u0641 .txt \u0623\u0648 .csv \u0623\u0635\u063A\u0631 \u0645\u0646 16 \u0643\u064A\u0644\u0648\u0628\u0627\u064A\u062A \u0648\u0628\u062D\u062F \u0623\u0642\u0635\u0649 \u0664\u0660\u0660\u0660 \u062D\u0631\u0641.", "\u0644\u0645 \u064A\u0639\u062B\u0631 \u0623\u0648\u0631\u064A \u0639\u0644\u0649 \u0645\u0639\u0644\u0648\u0645\u0627\u062A \u0641\u064A \u0627\u0644\u0646\u0635. \u064A\u0645\u0643\u0646\u0643 \u0625\u0636\u0627\u0641\u062A\u0647\u0627 \u0623\u062F\u0646\u0627\u0647.", "\u062C\u0627\u0631\u064D \u062A\u062D\u0644\u064A\u0644 \u0645\u0639\u0644\u0648\u0645\u0627\u062A \u0627\u0644\u0646\u0634\u0627\u0637\u2026", "\u062A\u062D\u062F\u062B \u0645\u0639 \u0623\u0648\u0631\u064A"]
 };
+var chatCopy = {
+  en: {
+    status: "Setting up your workspace",
+    progress: "Setup progress",
+    found: "Here\u2019s what I picked up from that:",
+    skipped: "Skipped",
+    review: "Check these details \u2014 you can edit anything before I build your roadmap.",
+    hints: { industry: "Pick one below, or choose from the list.", goals: "One sentence is enough. Tap a suggestion if it fits.", tools: "For example: Instagram, a printed menu, WhatsApp, Google Maps." },
+    goals: { restaurant: ["Get more reservations", "Get more direct orders", "Be found on Google Maps"], services: ["Get more bookings", "Win more quote requests", "Keep clients coming back"], ecommerce: ["Sell more online", "Grow repeat customers", "Reach new customers"], real_estate: ["Get more property inquiries", "Follow up leads faster", "Showcase listings online"], other: ["Reach more customers", "Look more professional online", "Save time on admin"] }
+  },
+  tr: {
+    status: "\xC7al\u0131\u015Fma alan\u0131n\u0131z haz\u0131rlan\u0131yor",
+    progress: "Kurulum ilerlemesi",
+    found: "Anlatt\u0131klar\u0131n\u0131zdan \u015Funlar\u0131 \xE7\u0131kard\u0131m:",
+    skipped: "Atland\u0131",
+    review: "Bu bilgileri kontrol edin \u2014 yol haritan\u0131z\u0131 olu\u015Fturmadan \xF6nce her \u015Feyi d\xFCzenleyebilirsiniz.",
+    hints: { industry: "A\u015Fa\u011F\u0131dan birini se\xE7in.", goals: "Tek c\xFCmle yeterli. Uyan bir \xF6neriye dokunun.", tools: "\xD6rne\u011Fin: Instagram, bas\u0131l\u0131 men\xFC, WhatsApp, Google Haritalar." },
+    goals: { restaurant: ["Daha fazla rezervasyon", "Daha fazla do\u011Frudan sipari\u015F", "Google Haritalar\u2019da bulunmak"], services: ["Daha fazla randevu", "Daha fazla teklif talebi", "M\xFC\u015Fterilerin geri gelmesi"], ecommerce: ["Online daha fazla sat\u0131\u015F", "Tekrar eden m\xFC\u015Fteriler", "Yeni m\xFC\u015Fterilere ula\u015Fmak"], real_estate: ["Daha fazla ilan talebi", "Adaylara h\u0131zl\u0131 d\xF6n\xFC\u015F", "\u0130lanlar\u0131 online sergilemek"], other: ["Daha fazla m\xFC\u015Fteriye ula\u015Fmak", "Online daha profesyonel g\xF6r\xFCnmek", "\u0130dari i\u015Flerde zaman kazanmak"] }
+  },
+  fr: {
+    status: "Pr\xE9paration de votre espace",
+    progress: "Progression",
+    found: "Voici ce que j\u2019ai retenu :",
+    skipped: "Pass\xE9",
+    review: "V\xE9rifiez ces informations \u2014 tout est modifiable avant que je cr\xE9e votre feuille de route.",
+    hints: { industry: "Choisissez ci-dessous.", goals: "Une phrase suffit. Touchez une suggestion si elle convient.", tools: "Par exemple : Instagram, menu imprim\xE9, WhatsApp, Google Maps." },
+    goals: { restaurant: ["Plus de r\xE9servations", "Plus de commandes directes", "\xCAtre trouv\xE9 sur Google Maps"], services: ["Plus de rendez-vous", "Plus de demandes de devis", "Fid\xE9liser les clients"], ecommerce: ["Vendre plus en ligne", "Plus de clients fid\xE8les", "Toucher de nouveaux clients"], real_estate: ["Plus de demandes de biens", "Relancer plus vite", "Mettre en valeur les annonces"], other: ["Toucher plus de clients", "Para\xEEtre plus professionnel", "Gagner du temps"] }
+  },
+  ar: {
+    status: "\u062C\u0627\u0631\u064D \u0625\u0639\u062F\u0627\u062F \u0645\u0633\u0627\u062D\u0629 \u0639\u0645\u0644\u0643",
+    progress: "\u062A\u0642\u062F\u0645 \u0627\u0644\u0625\u0639\u062F\u0627\u062F",
+    found: "\u0625\u0644\u064A\u0643 \u0645\u0627 \u0641\u0647\u0645\u062A\u0647 \u0645\u0646 \u0630\u0644\u0643:",
+    skipped: "\u062A\u0645 \u0627\u0644\u062A\u062E\u0637\u064A",
+    review: "\u0631\u0627\u062C\u0639 \u0647\u0630\u0647 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644 \u2014 \u064A\u0645\u0643\u0646\u0643 \u062A\u0639\u062F\u064A\u0644 \u0623\u064A \u0634\u064A\u0621 \u0642\u0628\u0644 \u0623\u0646 \u0623\u0628\u0646\u064A \u062E\u0637\u062A\u0643.",
+    hints: { industry: "\u0627\u062E\u062A\u0631 \u0623\u062D\u062F \u0627\u0644\u062E\u064A\u0627\u0631\u0627\u062A \u0623\u062F\u0646\u0627\u0647.", goals: "\u062C\u0645\u0644\u0629 \u0648\u0627\u062D\u062F\u0629 \u062A\u0643\u0641\u064A. \u0627\u0636\u063A\u0637 \u0627\u0642\u062A\u0631\u0627\u062D\u064B\u0627 \u0645\u0646\u0627\u0633\u0628\u064B\u0627.", tools: "\u0645\u062B\u0644\u064B\u0627: \u0625\u0646\u0633\u062A\u063A\u0631\u0627\u0645\u060C \u0642\u0627\u0626\u0645\u0629 \u0645\u0637\u0628\u0648\u0639\u0629\u060C \u0648\u0627\u062A\u0633\u0627\u0628\u060C \u062E\u0631\u0627\u0626\u0637 Google." },
+    goals: { restaurant: ["\u062D\u062C\u0648\u0632\u0627\u062A \u0623\u0643\u062B\u0631", "\u0637\u0644\u0628\u0627\u062A \u0645\u0628\u0627\u0634\u0631\u0629 \u0623\u0643\u062B\u0631", "\u0627\u0644\u0638\u0647\u0648\u0631 \u0639\u0644\u0649 \u062E\u0631\u0627\u0626\u0637 Google"], services: ["\u0645\u0648\u0627\u0639\u064A\u062F \u0623\u0643\u062B\u0631", "\u0637\u0644\u0628\u0627\u062A \u0639\u0631\u0648\u0636 \u0623\u0633\u0639\u0627\u0631 \u0623\u0643\u062B\u0631", "\u0639\u0648\u062F\u0629 \u0627\u0644\u0639\u0645\u0644\u0627\u0621"], ecommerce: ["\u0645\u0628\u064A\u0639\u0627\u062A \u0623\u0643\u062B\u0631 \u0639\u0628\u0631 \u0627\u0644\u0625\u0646\u062A\u0631\u0646\u062A", "\u0639\u0645\u0644\u0627\u0621 \u062F\u0627\u0626\u0645\u0648\u0646", "\u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0639\u0645\u0644\u0627\u0621 \u062C\u062F\u062F"], real_estate: ["\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0639\u0642\u0627\u0631\u064A\u0629 \u0623\u0643\u062B\u0631", "\u0645\u062A\u0627\u0628\u0639\u0629 \u0623\u0633\u0631\u0639", "\u0639\u0631\u0636 \u0627\u0644\u0639\u0642\u0627\u0631\u0627\u062A \u0639\u0628\u0631 \u0627\u0644\u0625\u0646\u062A\u0631\u0646\u062A"], other: ["\u0627\u0644\u0648\u0635\u0648\u0644 \u0644\u0639\u0645\u0644\u0627\u0621 \u0623\u0643\u062B\u0631", "\u0645\u0638\u0647\u0631 \u0627\u062D\u062A\u0631\u0627\u0641\u064A \u0639\u0628\u0631 \u0627\u0644\u0625\u0646\u062A\u0631\u0646\u062A", "\u062A\u0648\u0641\u064A\u0631 \u0627\u0644\u0648\u0642\u062A"] }
+  }
+};
 function createOnboarding() {
   return { phase: "entry", text: "", values: {}, facts: {}, answered: /* @__PURE__ */ new Set(), requestId: crypto.randomUUID() };
 }
@@ -613,23 +651,55 @@ function renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: e
   const confidenceLabels = { en: ["Quoted", "Inferred"], fr: ["Cit\xE9", "D\xE9duit"], tr: ["Al\u0131nt\u0131", "\xC7\u0131kar\u0131m"], ar: ["\u0627\u0642\u062A\u0628\u0627\u0633", "\u0627\u0633\u062A\u0646\u062A\u0627\u062C"] };
   const reviewing = state2.phase === "questions" && !question;
   const entry = state2.phase !== "questions";
-  app2.innerHTML = `${header}<main id="main" class="auri-setup">
- <div class="auri-setup-heading"><div class="auri-setup-character">${robot2()}</div>
- <h1>${esc3(entry ? title : reviewing ? review : { name: nameQuestion, industry: industryQuestion, city: cityQuestion, goals: goalQuestion, tools: toolsQuestion[lang2] }[question])}</h1>
- ${entry ? `<p>${esc3(intro)}</p>` : ""}</div>
- <form class="auri-setup-form">
+  const extra = chatCopy[lang2] || chatCopy.en;
+  const questionText = (key) => ({ name: nameQuestion, industry: industryQuestion, city: cityQuestion, goals: goalQuestion, tools: toolsQuestion[lang2] })[key];
+  const shown = (key) => key === "industry" && values[key] ? t2(values[key] === "services" ? "servicesIndustry" : values[key]) : values[key];
+  const auriMsg = (body, extraClass = "") => `<li class="os-chat-msg is-auri ${extraClass}"><span class="os-chat-avatar" aria-hidden="true"><img src="/media/auri/level-1.webp" alt="" width="32" height="32"></span><div class="os-chat-bubble">${body}</div></li>`;
+  const userMsg = (body) => `<li class="os-chat-msg is-user"><div class="os-chat-bubble">${body}</div></li>`;
+  const history2 = [];
+  history2.push(auriMsg(entry ? `<h1>${esc3(title)}</h1><p>${esc3(intro)}</p>` : `<p><strong>${esc3(title)}</strong></p><p>${esc3(intro)}</p>`));
+  if (!entry) {
+    if (state2.text.trim()) history2.push(userMsg(`<p>${esc3(state2.text.trim().slice(0, 600))}${state2.text.trim().length > 600 ? "\u2026" : ""}</p>${state2.source ? `<small>\u{1F4CE} ${esc3(state2.source)}</small>` : ""}`));
+    const found = Object.keys(facts2).filter((key) => values[key]);
+    if (found.length) history2.push(auriMsg(`<p>${esc3(extra.found)}</p><ul class="os-chat-facts">${found.map((key) => `<li><span>${esc3(label(key))}</span><strong>${esc3(shown(key))}</strong></li>`).join("")}</ul>`));
+    for (const key of steps) {
+      if (key === question) break;
+      if (facts2[key] && values[key]) continue;
+      history2.push(auriMsg(`<p>${esc3(questionText(key))}</p>`));
+      history2.push(userMsg(values[key] ? `<p>${esc3(shown(key))}</p>` : `<p class="is-skipped">${esc3(extra.skipped)}</p>`));
+    }
+    history2.push(auriMsg(reviewing ? `<h1>${esc3(review)}</h1><p>${esc3(extra.review)}</p>` : `<h1>${esc3(questionText(question))}</h1>${question === "name" && !values.name ? "" : `<p class="os-chat-hint">${esc3(extra.hints[question] || "")}</p>`}`, "is-current"));
+  }
+  const chips = !entry && !reviewing && question === "industry" ? `<div class="os-chat-chips" role="group" aria-label="${esc3(industryQuestion)}">${industries.map((id) => `<button type="button" class="os-chip" data-quick-industry="${id}">${esc3(t2(id === "services" ? "servicesIndustry" : id))}</button>`).join("")}</div>` : !entry && !reviewing && question === "goals" ? `<div class="os-chat-chips">${(extra.goals[values.industry] || extra.goals.other).map((goal) => `<button type="button" class="os-chip" data-quick-goal="${esc3(goal)}">${esc3(goal)}</button>`).join("")}</div>` : "";
+  app2.innerHTML = `${header}<main id="main" class="auri-setup os-chat-setup">
+ <div class="os-chat-layout"><section class="os-chat" aria-label="Auri">
+ <div class="auri-setup-heading os-chat-head"><div class="auri-setup-character">${robot2()}</div><div><strong>Auri</strong><small><i class="ax-online" aria-hidden="true"></i>${esc3(extra.status)}</small></div>
+ ${!entry ? `<ol class="os-chat-progress" aria-label="${esc3(extra.progress)}">${[...steps, "review"].map((key, i) => `<li class="${(key === "review" ? reviewing : key === question) ? "is-now" : (key === "review" ? false : steps.indexOf(question) > i || reviewing) ? "is-done" : ""}"></li>`).join("")}</ol>` : ""}</div>
+ <ol class="os-chat-log" role="log" aria-live="polite">${history2.join("")}</ol>
+ <form class="auri-setup-form os-chat-composer">
  ${entry ? `<div class="auri-setup-composer">
- <textarea name="businessText" aria-label="${esc3(placeholder)}" placeholder="${esc3(placeholder)}" maxlength="4000" rows="4">${esc3(state2.text)}</textarea>
- <div class="auri-setup-actions"><label class="secondary">${esc3(attach)}<input type="file" name="source" accept=".txt,.csv,text/plain,text/csv" class="sr-only"></label>
- <button type="button" class="secondary" data-setup="website">${esc3(website2)}</button>
- <button type="submit" class="primary">${esc3(analyzeLabel)}</button></div></div>
+ <textarea name="businessText" aria-label="${esc3(placeholder)}" placeholder="${esc3(placeholder)}" maxlength="4000" rows="3">${esc3(state2.text)}</textarea>
+ <div class="auri-setup-actions"><label class="os-chip">\u{1F4CE} ${esc3(attach)}<input type="file" name="source" accept=".txt,.csv,text/plain,text/csv" class="sr-only"></label>
+ <button type="button" class="os-chip" data-setup="website">\u{1F517} ${esc3(website2)}</button>
+ <button type="submit" class="primary os-send">${esc3(analyzeLabel)} <span aria-hidden="true">\u2191</span></button></div></div>
  <p class="auri-setup-source" role="status">${esc3(state2.source || "")}</p>
- <button type="button" class="secondary" data-setup="manual">${esc3(manual)}</button>` : reviewing ? `<div class="auri-setup-review">${fields.map((key) => `<label class="field"><span>${esc3(label(key))}</span>${input(key, key === "name")}${facts2[key] ? `<small>${esc3(facts2[key].source)} \xB7 ${confidenceLabels[lang2][Number(facts2[key].confidence === "inferred")]} \xB7 \u201C${esc3(facts2[key].excerpt)}\u201D</small>` : ""}</label>`).join("")}</div>
- <button type="submit" class="primary">${esc3(create)}</button>` : `<label class="field">${esc3(label(question))}${input(question, question === "name")}</label><button type="submit" class="primary">${esc3(next)}</button>
- ${question !== "name" ? `<button type="button" class="secondary" data-setup="skip">${esc3(skip)}</button>` : ""}
- <button type="button" class="secondary" data-setup="entry">${esc3(converse)}</button>`}
+ <div class="os-chat-chips"><button type="button" class="os-chip" data-setup="manual">${esc3(manual)}</button></div>` : reviewing ? `<div class="auri-setup-review">${fields.map((key) => `<label class="field"><span>${esc3(label(key))}</span>${input(key, key === "name")}${facts2[key] ? `<small>${esc3(facts2[key].source)} \xB7 ${confidenceLabels[lang2][Number(facts2[key].confidence === "inferred")]} \xB7 \u201C${esc3(facts2[key].excerpt)}\u201D</small>` : ""}</label>`).join("")}</div>
+ <button type="submit" class="primary os-send is-wide">${esc3(create)} <span aria-hidden="true">\u2192</span></button>` : `${chips}<div class="os-chat-input"><label class="field"><span class="sr-only">${esc3(label(question))}</span>${input(question, question === "name")}</label><button type="submit" class="primary os-send">${esc3(next)} <span aria-hidden="true">\u2191</span></button></div>
+ <div class="os-chat-chips is-secondary">${question !== "name" ? `<button type="button" class="os-chip" data-setup="skip">${esc3(skip)}</button>` : ""}
+ <button type="button" class="os-chip" data-setup="entry">${esc3(converse)}</button></div>`}
  <p role="status" data-setup-status>${esc3(state2.message || "")}</p><p role="alert"></p>
- </form><div data-onboarding-guide></div></main>`;
+ </form></section><aside class="os-chat-aside" data-onboarding-guide></aside></div></main>`;
+  app2.querySelector(".os-chat-log").lastElementChild?.scrollIntoView?.({ block: "nearest" });
+  app2.querySelectorAll("[data-quick-industry]").forEach((b) => b.addEventListener("click", () => {
+    const sel = app2.querySelector("select[name=industry]");
+    sel.value = b.dataset.quickIndustry;
+    app2.querySelector(".auri-setup-form").requestSubmit();
+  }));
+  app2.querySelectorAll("[data-quick-goal]").forEach((b) => b.addEventListener("click", () => {
+    const field2 = app2.querySelector("input[name=goals]");
+    field2.value = b.dataset.quickGoal;
+    field2.focus();
+  }));
   bind();
   guide?.(app2.querySelector("[data-onboarding-guide]"));
   const form = app2.querySelector(".auri-setup-form");
@@ -737,6 +807,9 @@ function renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: e
     save(state2);
     state2.busy = true;
     status.textContent = entry ? analyzing : creating;
+    const log = app2.querySelector(".os-chat-log");
+    log?.insertAdjacentHTML("beforeend", `<li class="os-chat-msg is-auri is-typing" data-typing><span class="os-chat-avatar" aria-hidden="true"><img src="/media/auri/level-1.webp" alt="" width="32" height="32"></span><div class="os-chat-bubble"><span class="os-typing"><i></i><i></i><i></i></span><small>${esc3(entry ? analyzing : creating)}</small></div></li>`);
+    log?.lastElementChild?.scrollIntoView?.({ block: "nearest" });
     const controls2 = [...form.elements, ...app2.querySelectorAll("#language")].filter((control) => !control.disabled);
     controls2.forEach((control) => {
       control.disabled = true;
@@ -768,6 +841,7 @@ function renderOnboarding({ app: app2, state: state2, lang: lang2, t: t2, esc: e
     } finally {
       state2.busy = false;
       status.textContent = "";
+      app2.querySelector("[data-typing]")?.remove();
       controls2.forEach((control) => {
         control.disabled = false;
       });
@@ -1751,7 +1825,7 @@ var COPY2 = {
     flow: ["Profil", "Feuille de route", "Demandes", "En production", "En ligne"]
   }
 };
-var chatCopy = (lang2) => COPY2[lang2] || COPY2.en;
+var chatCopy2 = (lang2) => COPY2[lang2] || COPY2.en;
 var INTENTS = {
   services: /service|hizmet|خدم|site|website|menu|men[üu]|nfc|card|kart/i,
   roadmap: /next|roadmap|step|todo|to do|sıra|yol harita|adım|خطة|التالي|خطوة|prochain|étape|feuille/i,
@@ -1784,7 +1858,7 @@ var STUDIO_REPLY = {
 var START_WORDS = /\b(build|make|create|set ?up|start|get|launch|need|want|do)\b|oluştur|kur|yap|istiyorum|başlat|ابن|أنشئ|أريد|ابدأ|créer|lancer|faire|veux/i;
 var money2 = (lang2, amount) => new Intl.NumberFormat(lang2 === "ar" ? "ar" : lang2, { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(Number(amount || 0));
 function mountAuriChat({ host, lang: lang2, esc: esc3, link: link2, me: me2, workspace: workspace2, data, askAuri: askAuri2, auriImage, onBrief, initial, direct = false }) {
-  const c = chatCopy(lang2);
+  const c = chatCopy2(lang2);
   const id = workspace2?.organization.id || "new";
   const storeKey = "aura-chat:" + id;
   const { snapshot, connected, next, missionTitle: missionTitle2, attention, nextAction } = data;
@@ -1931,6 +2005,7 @@ function mountAuriChat({ host, lang: lang2, esc: esc3, link: link2, me: me2, wor
 
 // src/hub/os-copy.js
 var EN = {
+  photo: { title: "Profile photo", hint: "Shown on your account in AuraHub. JPEG, PNG or WebP; we resize it to 256 \xD7 256.", upload: "Upload photo", change: "Change photo", remove: "Remove", saved: "Profile photo saved.", removed: "Profile photo removed.", invalid: "Choose a JPEG, PNG or WebP image." },
   nav: { overview: "Overview", business: "My Business", journey: "Growth Roadmap", studio: "Aura Studio", services: "My Services", site: "Website & AuraMenu", analytics: "Analytics", assistant: "Auri Assistant", settings: "Settings", requests: "Requests", menuDrafts: "Menu drafts", orders: "Orders & billing", team: "Team", groups: ["Workspace", "Operate", "Account"], more: "More", close: "Close", newRequest: "New request", account: "Account", switchWorkspace: "Switch business" },
   sections: { command: "Aura Command", commandTag: "Understand your business", journey: "Aura Journey", journeyTag: "Know how to grow", studio: "Aura Studio", studioTag: "Manage the work" },
   greet: { morning: "Good morning", afternoon: "Good afternoon", evening: "Good evening", line: (part, name) => `${part}${name ? ", " + name : ""}.`, sub: (biz) => `Let\u2019s grow ${biz}.` },
@@ -2032,6 +2107,7 @@ var EN = {
   state: { loading: "Loading\u2026", error: "Something went wrong loading this section.", retry: "Try again", offline: "You appear to be offline. Check your connection and try again.", timeout: "The server took too long to answer." }
 };
 var TR = {
+  photo: { title: "Profil foto\u011Fraf\u0131", hint: "AuraHub hesab\u0131n\u0131zda g\xF6r\xFCn\xFCr. JPEG, PNG veya WebP; 256 \xD7 256 boyutuna k\xFC\xE7\xFClt\xFCl\xFCr.", upload: "Foto\u011Fraf y\xFCkle", change: "Foto\u011Fraf\u0131 de\u011Fi\u015Ftir", remove: "Kald\u0131r", saved: "Profil foto\u011Fraf\u0131 kaydedildi.", removed: "Profil foto\u011Fraf\u0131 kald\u0131r\u0131ld\u0131.", invalid: "JPEG, PNG veya WebP bir g\xF6rsel se\xE7in." },
   nav: { overview: "Genel bak\u0131\u015F", business: "\u0130\u015Fletmem", journey: "B\xFCy\xFCme yol haritas\u0131", studio: "Aura Studio", services: "Hizmetlerim", site: "Web sitesi ve AuraMenu", analytics: "Analitik", assistant: "Auri Asistan", settings: "Ayarlar", requests: "Talepler", menuDrafts: "Men\xFC taslaklar\u0131", orders: "Sipari\u015Fler ve faturalar", team: "Ekip", groups: ["\xC7al\u0131\u015Fma alan\u0131", "Y\xF6netim", "Hesap"], more: "Daha fazla", close: "Kapat", newRequest: "Yeni talep", account: "Hesap", switchWorkspace: "\u0130\u015Fletme de\u011Fi\u015Ftir" },
   sections: { command: "Aura Command", commandTag: "\u0130\u015Fletmenizi anlay\u0131n", journey: "Aura Journey", journeyTag: "Nas\u0131l b\xFCy\xFCyece\u011Finizi bilin", studio: "Aura Studio", studioTag: "\u0130\u015Fi y\xF6netin" },
   greet: { morning: "G\xFCnayd\u0131n", afternoon: "\u0130yi g\xFCnler", evening: "\u0130yi ak\u015Famlar", line: (part, name) => `${part}${name ? ", " + name : ""}.`, sub: (biz) => `${biz} i\xE7in b\xFCy\xFCmeye devam edelim.` },
@@ -2047,6 +2123,7 @@ var TR = {
   state: { loading: "Y\xFCkleniyor\u2026", error: "Bu b\xF6l\xFCm y\xFCklenirken bir sorun olu\u015Ftu.", retry: "Tekrar dene", offline: "\xC7evrimd\u0131\u015F\u0131 g\xF6r\xFCn\xFCyorsunuz. Ba\u011Flant\u0131n\u0131z\u0131 kontrol edip tekrar deneyin.", timeout: "Sunucu \xE7ok ge\xE7 yan\u0131t verdi." }
 };
 var FR = {
+  photo: { title: "Photo de profil", hint: "Affich\xE9e sur votre compte AuraHub. JPEG, PNG ou WebP ; redimensionn\xE9e en 256 \xD7 256.", upload: "Ajouter une photo", change: "Changer la photo", remove: "Supprimer", saved: "Photo de profil enregistr\xE9e.", removed: "Photo de profil supprim\xE9e.", invalid: "Choisissez une image JPEG, PNG ou WebP." },
   nav: { overview: "Vue d\u2019ensemble", business: "Mon activit\xE9", journey: "Feuille de route", studio: "Aura Studio", services: "Mes services", site: "Site web et AuraMenu", analytics: "Statistiques", assistant: "Assistant Auri", settings: "Param\xE8tres", requests: "Demandes", menuDrafts: "Brouillons de menu", orders: "Commandes et factures", team: "\xC9quipe", groups: ["Espace", "Op\xE9rations", "Compte"], more: "Plus", close: "Fermer", newRequest: "Nouvelle demande", account: "Compte", switchWorkspace: "Changer d\u2019activit\xE9" },
   sections: { command: "Aura Command", commandTag: "Comprendre votre activit\xE9", journey: "Aura Journey", journeyTag: "Savoir comment grandir", studio: "Aura Studio", studioTag: "G\xE9rer le travail" },
   greet: { morning: "Bonjour", afternoon: "Bon apr\xE8s-midi", evening: "Bonsoir", line: (part, name) => `${part}${name ? ", " + name : ""}.`, sub: (biz) => `Faisons grandir ${biz}.` },
@@ -2062,6 +2139,7 @@ var FR = {
   state: { loading: "Chargement\u2026", error: "Un probl\xE8me est survenu lors du chargement.", retry: "R\xE9essayer", offline: "Vous semblez hors ligne. V\xE9rifiez votre connexion.", timeout: "Le serveur a mis trop de temps \xE0 r\xE9pondre." }
 };
 var AR = {
+  photo: { title: "\u0635\u0648\u0631\u0629 \u0627\u0644\u0645\u0644\u0641 \u0627\u0644\u0634\u062E\u0635\u064A", hint: "\u062A\u0638\u0647\u0631 \u0641\u064A \u062D\u0633\u0627\u0628\u0643 \u0639\u0644\u0649 AuraHub. JPEG \u0623\u0648 PNG \u0623\u0648 WebP\u061B \u0646\u0635\u063A\u0651\u0631\u0647\u0627 \u0625\u0644\u0649 256 \xD7 256.", upload: "\u0631\u0641\u0639 \u0635\u0648\u0631\u0629", change: "\u062A\u063A\u064A\u064A\u0631 \u0627\u0644\u0635\u0648\u0631\u0629", remove: "\u0625\u0632\u0627\u0644\u0629", saved: "\u062A\u0645 \u062D\u0641\u0638 \u0627\u0644\u0635\u0648\u0631\u0629.", removed: "\u062A\u0645\u062A \u0625\u0632\u0627\u0644\u0629 \u0627\u0644\u0635\u0648\u0631\u0629.", invalid: "\u0627\u062E\u062A\u0631 \u0635\u0648\u0631\u0629 JPEG \u0623\u0648 PNG \u0623\u0648 WebP." },
   nav: { overview: "\u0646\u0638\u0631\u0629 \u0639\u0627\u0645\u0629", business: "\u0646\u0634\u0627\u0637\u064A", journey: "\u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0646\u0645\u0648", studio: "Aura Studio", services: "\u062E\u062F\u0645\u0627\u062A\u064A", site: "\u0627\u0644\u0645\u0648\u0642\u0639 \u0648AuraMenu", analytics: "\u0627\u0644\u062A\u062D\u0644\u064A\u0644\u0627\u062A", assistant: "\u0627\u0644\u0645\u0633\u0627\u0639\u062F \u0623\u0648\u0631\u064A", settings: "\u0627\u0644\u0625\u0639\u062F\u0627\u062F\u0627\u062A", requests: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A", menuDrafts: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", orders: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0648\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631", team: "\u0627\u0644\u0641\u0631\u064A\u0642", groups: ["\u0645\u0633\u0627\u062D\u0629 \u0627\u0644\u0639\u0645\u0644", "\u0627\u0644\u062A\u0634\u063A\u064A\u0644", "\u0627\u0644\u062D\u0633\u0627\u0628"], more: "\u0627\u0644\u0645\u0632\u064A\u062F", close: "\u0625\u063A\u0644\u0627\u0642", newRequest: "\u0637\u0644\u0628 \u062C\u062F\u064A\u062F", account: "\u0627\u0644\u062D\u0633\u0627\u0628", switchWorkspace: "\u062A\u0628\u062F\u064A\u0644 \u0627\u0644\u0646\u0634\u0627\u0637" },
   sections: { command: "Aura Command", commandTag: "\u0627\u0641\u0647\u0645 \u0646\u0634\u0627\u0637\u0643", journey: "Aura Journey", journeyTag: "\u0627\u0639\u0631\u0641 \u0643\u064A\u0641 \u062A\u0646\u0645\u0648", studio: "Aura Studio", studioTag: "\u0623\u062F\u0631 \u0627\u0644\u0639\u0645\u0644" },
   greet: { morning: "\u0635\u0628\u0627\u062D \u0627\u0644\u062E\u064A\u0631", afternoon: "\u0645\u0633\u0627\u0621 \u0627\u0644\u062E\u064A\u0631", evening: "\u0645\u0633\u0627\u0621 \u0627\u0644\u062E\u064A\u0631", line: (part, name) => `${part}${name ? "\u060C " + name : ""}.`, sub: (biz) => `\u0644\u0646\u0646\u0645\u0650\u0651 ${biz}.` },
@@ -3591,6 +3669,71 @@ function verifyPending(email) {
     await load();
   };
 }
+function avatar(cls = "hx-avatar small") {
+  const initial = esc2(String(me?.name || "?").trim()[0]?.toUpperCase() || "?");
+  return me?.photo ? `<span class="${cls} os-photo" aria-hidden="true"><img src="${esc2(me.photo)}" alt="" width="40" height="40"></span>` : `<span class="${cls}" aria-hidden="true">${initial}</span>`;
+}
+function resizePhoto(file) {
+  return new Promise((resolve, reject) => {
+    if (!/^image\/(jpeg|png|webp)$/.test(file?.type || "") || file.size > 12e6) {
+      reject(new Error(osCopy(lang).photo.invalid));
+      return;
+    }
+    const reader = new FileReader(), img = new Image();
+    img.onload = () => {
+      const size = 256, canvas = Object.assign(document.createElement("canvas"), { width: size, height: size }), ctx = canvas.getContext("2d");
+      const side = Math.min(img.naturalWidth, img.naturalHeight);
+      ctx.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, size, size);
+      let data = canvas.toDataURL("image/webp", 0.84);
+      if (!data.startsWith("data:image/webp")) data = canvas.toDataURL("image/jpeg", 0.84);
+      resolve(data);
+    };
+    img.onerror = () => reject(new Error(osCopy(lang).photo.invalid));
+    reader.onerror = () => reject(new Error(osCopy(lang).photo.invalid));
+    reader.onload = () => {
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function photoCard(host) {
+  const p = osCopy(lang).photo, section = document.createElement("section");
+  section.className = "os-card os-photo-card";
+  const draw = () => {
+    section.innerHTML = `<div class="os-photo-row">${avatar("os-photo-preview")}<div><h2>${esc2(p.title)}</h2><p class="os-muted">${esc2(p.hint)}</p>
+   <div class="os-inline-actions"><label class="os-btn is-quiet is-sm">${icon2("user", 16)}<span>${esc2(me.photo ? p.change : p.upload)}</span><input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" data-photo-input></label>
+   ${me.photo ? `<button type="button" class="os-btn is-quiet is-sm" data-photo-remove>${esc2(p.remove)}</button>` : ""}</div><p class="os-error" role="alert"></p></div></div>`;
+    const alert = section.querySelector("[role=alert]");
+    section.querySelector("[data-photo-input]").onchange = async (e) => {
+      const input = e.target;
+      input.disabled = true;
+      alert.textContent = "";
+      try {
+        const data = await resizePhoto(input.files[0]);
+        const r = await api("/api/hub/me/photo", "PUT", { photo: data });
+        me.photo = r.photo;
+        toast(p.saved);
+        render();
+      } catch (error) {
+        alert.textContent = error.message;
+        input.disabled = false;
+      }
+    };
+    section.querySelector("[data-photo-remove]")?.addEventListener("click", async (e) => {
+      e.currentTarget.disabled = true;
+      try {
+        await api("/api/hub/me/photo", "DELETE");
+        me.photo = null;
+        toast(p.removed);
+        render();
+      } catch (error) {
+        alert.textContent = error.message;
+      }
+    });
+  };
+  draw();
+  host.prepend(section);
+}
 var emptyProfile = () => ({ name: "", industry: "other", country: "", city: "", stage: "", website: "", tools: "", acquisition: "", difficulties: "", goals: "", timeline: "", industryDetails: "", budget: null, currency: "USD", capabilities: [] });
 function profileField(k) {
   if (k === "roadmapPreview") {
@@ -3632,9 +3775,9 @@ function renderSetup() {
   });
   if (choosing) return;
   const form = document.querySelector("#profile-form");
-  const avatar = document.querySelector(".auri-onboarding");
-  if (avatar) {
-    bindAuri(avatar, setupScope);
+  const avatar2 = document.querySelector(".auri-onboarding");
+  if (avatar2) {
+    bindAuri(avatar2, setupScope);
     pulseAuri(setupScope, "listening", 950);
   }
   const collect = () => {
@@ -3815,7 +3958,7 @@ function renderShell() {
  <a href="${esc2(link("home"))}" class="wordmark command-wordmark os-brand">${brandMarkup}<small>AuraHub</small></a>
  <nav aria-label="AuraHub">${groups.map(([name, list]) => `<p class="hx-nav-group os-nav-group">${esc2(name)}</p>${list.map((p) => navItem(p)).join("")}`).join("")}</nav>
  ${workspace && can("auri:use") ? `<button type="button" class="os-side-auri" data-ax-open aria-controls="ax-drawer"><img src="/media/auri/level-${auriLevel()}.webp" alt="" width="36" height="36"><span><strong>Auri</strong><small>${esc2(oc.auri.ask)}</small></span></button>` : ""}
- <div class="hx-side-foot os-side-foot"><span class="hx-avatar small" aria-hidden="true">${esc2(String(me.name || "?")[0].toUpperCase())}</span><span><strong>${esc2(me.name)}</strong><small>${esc2(me.email)}</small></span></div></aside>
+ <div class="hx-side-foot os-side-foot">${avatar()}<span><strong>${esc2(me.name)}</strong><small>${esc2(me.email)}</small></span></div></aside>
  <div class="workspace"><header class="topbar growth-topbar hub-topbar os-topbar">
  <a class="hub-mobile-brand wordmark" href="${esc2(link("home"))}">${brandMarkup}</a>
  ${workspace ? `<div class="hx-business os-business"><span class="hx-avatar" aria-hidden="true">${esc2(initials)}</span>
@@ -3824,8 +3967,8 @@ function renderShell() {
  <div class="hx-topbar-title os-crumb"><span>${esc2(section)}</span></div>
  ${workspace && can("roadmap:write") ? `<a class="growth-secondary hx-top-action os-top-request" href="${esc2(requestLink())}">${icon2("plus", 16)} <span>${esc2(oc.nav.newRequest)}</span></a>` : ""}
  ${workspace && can("auri:use") ? `<button type="button" class="wx-auri-btn os-top-auri" data-ax-open aria-controls="ax-drawer" aria-expanded="false">${icon2("auri", 18)}<span>Auri</span></button>` : ""}
- <details class="growth-account"><summary aria-label="${esc2(oc.nav.account)}">${hubIcon("profile")}</summary>
- <div class="growth-account-menu"><strong>${esc2(me.name)}</strong>${languageControl()}
+ <details class="growth-account"><summary aria-label="${esc2(oc.nav.account)}" class="${me.photo ? "has-photo" : ""}">${me.photo ? avatar("os-photo-summary") : hubIcon("profile")}</summary>
+ <div class="growth-account-menu"><div class="os-account-head">${avatar()}<span><strong>${esc2(me.name)}</strong><small>${esc2(me.email)}</small></span></div>${languageControl()}
  ${navItem("settings")}${workspace ? navItem("profile") + navItem("orders") : ""}${button("logout", "logout", true)}</div></details></header>
  <main id="main" tabindex="-1">${ownHeading ? "" : `<div class="page-heading"><h1>${page === "home" && (!workspace || !workspace.missions.length) ? `${esc2(labels3.welcome)} <span>AuraHub</span>` : page === "journey" && lang === "en" ? "Growth <span>Vision</span>" : esc2(title)}</h1>
  ${["services", "requests"].includes(page) && workspace?.permissions.includes("roadmap:write") && !query.has("new") ? `<a class="growth-secondary" href="${esc2(requestLink())}">\uFF0B ${esc2(l.request)}</a>` : ""}</div>`}
@@ -3838,8 +3981,8 @@ function renderShell() {
  <nav aria-label="${esc2(oc.nav.more)}">${sheetItems.map((p) => navItem(p)).join("")}</nav></div></div>
  </div>
  <aside class="ax-drawer" id="ax-drawer" hidden aria-label="Auri"><header class="ax-head"><span class="ax-avatar" aria-hidden="true"><img src="/media/auri/level-${auriLevel()}.webp" alt="" width="44" height="44"></span>
- <span class="ax-head-text"><strong>Auri</strong><small><i class="ax-online" aria-hidden="true"></i>${esc2(chatCopy(lang).status)}</small></span>
- <button type="button" class="ax-icon-btn" data-ax-reset>${esc2(chatCopy(lang).clear)}</button><button type="button" class="ax-icon-btn" data-ax-close aria-label="${esc2(nv.close)}">\u2715</button></header>
+ <span class="ax-head-text"><strong>Auri</strong><small><i class="ax-online" aria-hidden="true"></i>${esc2(chatCopy2(lang).status)}</small></span>
+ <button type="button" class="ax-icon-btn" data-ax-reset>${esc2(chatCopy2(lang).clear)}</button><button type="button" class="ax-icon-btn" data-ax-close aria-label="${esc2(nv.close)}">\u2715</button></header>
  <div class="ax-body" data-ax-body></div></aside><div class="ax-scrim" data-ax-close hidden></div></div>`;
   bindCommon();
   document.querySelectorAll("[data-ax-open]").forEach((b) => b.addEventListener("click", () => openAuri()));
@@ -4177,33 +4320,39 @@ async function renderPage() {
     } else renderServices({ host, records: [], lang, esc: esc2, link });
     return;
   }
-  if (page === "settings") return renderAccountSettings({
-    host: document.querySelector("#page-content"),
-    user: me,
-    lang,
-    esc: esc2,
-    t,
-    api,
-    link,
-    workspace,
-    canEmail: authCapabilities.email,
-    canLinkGoogle: me.verified && authCapabilities.google,
-    onSignIn: () => location.assign("/hub/login"),
-    onLanguage: (value) => {
-      lang = value;
-      saveLanguage(lang);
-      render();
-    },
-    onNewWorkspace: () => {
-      stopAuriVoice();
-      workspace = null;
-      editing = true;
-      draft = emptyProfile();
-      mode = "myself";
-      step = 0;
-      renderSetup();
-    }
-  });
+  if (page === "settings") {
+    const settingsHost = document.querySelector("#page-content");
+    const done = renderAccountSettings({
+      host: document.querySelector("#page-content"),
+      user: me,
+      lang,
+      esc: esc2,
+      t,
+      api,
+      link,
+      workspace,
+      canEmail: authCapabilities.email,
+      canLinkGoogle: me.verified && authCapabilities.google,
+      onSignIn: () => location.assign("/hub/login"),
+      onLanguage: (value) => {
+        lang = value;
+        saveLanguage(lang);
+        render();
+      },
+      onNewWorkspace: () => {
+        stopAuriVoice();
+        workspace = null;
+        editing = true;
+        draft = emptyProfile();
+        mode = "myself";
+        step = 0;
+        renderSetup();
+      }
+    });
+    await done;
+    if (settingsHost.isConnected) photoCard(settingsHost);
+    return;
+  }
   if (!workspace && page === "assistant") return renderAuriEmpty();
   if (!workspace && (page === "services" || page === "requests")) return renderWorkEmpty(page);
   if (!workspace) return renderBuildCard(label);

@@ -12,6 +12,7 @@ import { draftFollowUp, explainRoadmap, recentAuriDrafts } from './hub-auri.js';
 import { eligibleMissions } from './roadmap.js';
 import { handleMenuDrafts } from './menu-drafts.js';
 import { handleLeads } from './hub-leads.js';
+import { handleProfilePhoto, profilePhoto } from './hub-profile-photo.js';
 import { ApiError, json, readJson } from './http.js';
 import { authenticatedCustomer, tokenHash } from './customer-accounts.ts';
 import { sameOrigin } from './security.js';
@@ -125,6 +126,7 @@ export async function handleBusinessHub(request,env) {
  const user=await authenticatedCustomer(request,env);if(!user)throw new ApiError(401,'Sign in to your AuraDigital account.');
  const write=!['GET','HEAD'].includes(request.method);
  if(write){if(!sameOrigin(request))throw new ApiError(403,'Forbidden origin.');await limit(request,env,user);}
+ if(path==='/api/hub/me/photo')return handleProfilePhoto(request,env,user);
  if(path==='/api/hub/onboarding/guide'&&['GET','POST'].includes(request.method))return hubGuide(request,env,user);
  if(path==='/api/hub/onboarding/analyze'&&request.method==='POST')return analyzeOnboarding(request,env,user);
  const menuDraftResponse=await handleMenuDrafts(request,env,user,authorize);
@@ -134,7 +136,7 @@ export async function handleBusinessHub(request,env) {
   const owned=(await env.DB.prepare('SELECT id,name,mode FROM organizations WHERE owner_id=? ORDER BY created_at,id').bind(user.id).all()).results;
   const candidates=(await env.DB.prepare("SELECT o.id,o.name,o.mode FROM organizations o JOIN organization_members m ON m.organization_id=o.id WHERE m.customer_id=? AND m.status='active' ORDER BY o.created_at LIMIT 100").bind(user.id).all()).results;
   const shared=[];for(const o of candidates){try{await authorize(env.DB,o.id,user);shared.push({...o,owner:false});}catch(e){if(e.status!==404)throw e;}}
-  return json({user:{id:user.id,name:user.name,email:user.email,verified:await isEmailVerified(env.DB,user)},workspaces:[...owned.map(o=>({...o,owner:true})),...shared],billing});
+  return json({user:{id:user.id,name:user.name,email:user.email,verified:await isEmailVerified(env.DB,user),photo:await profilePhoto(env.DB,user.id).catch(()=>null)},workspaces:[...owned.map(o=>({...o,owner:true})),...shared],billing});
  }
  if(path==='/api/hub/workspaces'&&request.method==='POST') {
   const body=await readJson(request,36000),profile=validateProfile(body.profile);
