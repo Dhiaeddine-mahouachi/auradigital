@@ -32,7 +32,7 @@
   </section>
 
   <section style="padding: 36px 28px 0">
-    <div style="max-width: 1264px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px">
+    <div style="max-width: 1264px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 20px">
       <sc-for list="{{ items }}" as="w" hint-placeholder-count="6">
         <button class="lift" onClick="{{ w.open }}" aria-pressed="{{ w.on }}" style="{{ w.card }}">
           <img src="{{ w.img }}" alt="{{ w.alt }}" style="width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block">
