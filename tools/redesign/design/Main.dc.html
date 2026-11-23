@@ -15,33 +15,36 @@
   <dc-import name="Header" active="home" hint-size="100%,124px"></dc-import>
 
   <!-- HERO -->
-  <section style="padding: 84px 28px 0; background: linear-gradient(180deg, #F7F6F0 0%, #FFFFFF 100%)">
-    <div style="max-width: 1100px; margin: 0 auto; text-align: center">
-      <a href="Hub.dc.html" class="rise" style="display: inline-flex; align-items: center; gap: 10px; border: 1px solid #E6E4DC; background: #FFFFFF; border-radius: 999px; padding: 6px 14px 6px 6px; font-size: 14px; color: #2E3832">
-        <span style="background: #E1E100; color: #0B0F0C; border-radius: 999px; padding: 3px 10px; font-weight: 700; font-size: 12px">AuraHub</span>
-        One account for your website, menu, ads and automation →
+  <section class="business-hero" style="padding: 92px 28px 0; background: #FDFCFF">
+    <div class="business-hero-head">
+      <a href="Hub.dc.html" class="rise business-hero-eyebrow">
+        <span class="business-hero-eyebrow-tag">AuraHub</span>
+        One account for your website, menu, ads and automation ?
       </a>
-      <h1 class="disp rise" style="font-size: clamp(52px, 7.6vw, 112px); line-height: .94; font-weight: 800; margin: 26px 0 0">Your business, <br><span class="serif" style="font-size: 1.06em">built to grow.</span></h1>
-      <p class="rise" style="font-size: 21px; color: #4B5650; max-width: 640px; margin: 24px auto 0">Websites, digital menus, Google visibility and WhatsApp automation — planned by our AI, delivered by our Istanbul team, tracked in one place.</p>
+      <h1 class="disp rise business-hero-title">Your business,<br><span>built to grow.</span></h1>
     </div>
 
-    <div class="rise" style="max-width: 860px; margin: 40px auto 0; background: #FFFFFF; border: 1px solid #E6E4DC; border-radius: 26px; padding: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; box-shadow: 0 30px 70px -40px rgba(11,15,12,.45)">
-      <div style="flex: 1 1 100%; padding: 8px 14px; display: flex; flex-direction: column; gap: 8px; text-align: left">
-        <span id="biz-label" style="font-size: 13px; font-weight: 600; color: #4B5650">What kind of business do you run?</span>
-        <div role="group" aria-labelledby="biz-label" style="display: flex; gap: 8px; flex-wrap: wrap">
+    <div class="business-hero-entry">
+      <div class="business-hero-search" role="group" aria-label="Tell us about your business">
+        <label for="landing-business-text" class="business-hero-visually-hidden">Tell us about your business</label>
+        <textarea id="landing-business-text" name="businessDescription" maxlength="4000" rows="1" placeholder="What does your business do, and what would you like to achieve?"></textarea>
+        <a class="business-hero-submit" onClick="{{ startPath }}" href="Hub.dc.html">
+          Start your path
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </a>
+      </div>
+      <p class="business-hero-hint">A few sentences are enough. Auri will use them to personalize your roadmap.</p>
+      <div class="business-hero-categories">
+        <span id="biz-label">What kind of business do you run?</span>
+        <div role="group" aria-labelledby="biz-label" class="business-hero-chiprow">
           <sc-for list="{{ biz }}" as="b" hint-placeholder-count="4">
-            <button onClick="{{ b.pick }}" aria-pressed="{{ b.on }}" style="{{ b.style }}">{{ b.label }}</button>
+            <button type="button" onClick="{{ b.pick }}" aria-pressed="{{ b.on }}" style="{{ b.style }}">{{ b.label }}</button>
           </sc-for>
         </div>
       </div>
-      <div style="flex: 1 1 100%; padding: 4px 14px 0; text-align: left">
-        <label for="landing-business-text" style="display: block; font-size: 14px; font-weight: 700; color: #0B0F0C; margin-bottom: 7px">Tell us about your business</label>
-        <textarea id="landing-business-text" name="businessDescription" maxlength="4000" rows="3" value="{{ bizText }}" onChange="{{ updateBizText }}" placeholder="What does your business do, and what would you like to achieve?" style="display: block; width: 100%; min-height: 108px; box-sizing: border-box; resize: vertical; padding: 15px 16px; border: 1px solid #D9D6CB; border-radius: 16px; background: #F9F9F6; color: #0B0F0C; font: 15px/1.55 Inter, sans-serif; outline-offset: 3px"></textarea>
-        <p style="color: #4B5650; font-size: 12px; margin: 7px 0 0">A few sentences are enough. Auri will use them to personalize your roadmap.</p>
-      </div>
-      <a class="btn btn-dark full-sm" onClick="{{ startPath }}" href="Hub.dc.html" style="background: #0B0F0C; color: #FFFFFF; font-weight: 600; font-size: 17px; padding: 20px 28px; border-radius: 18px; display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; min-height: 64px; box-sizing: border-box; width: 100%; justify-content: center">Start your path <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+      <p class="business-hero-detail">Websites, digital menus, Google visibility and WhatsApp automation ? planned by our AI, delivered by our Istanbul team, tracked in one place.</p>
+      <p class="business-hero-path">Your first step: <strong>{{ bizPath }}</strong> ? Free roadmap ? No tech skills needed</p>
     </div>
-    <p style="text-align: center; font-size: 14px; color: #4B5650; margin: 14px 0 0">Your first step: <strong style="color: #0B0F0C">{{ bizPath }}</strong> · Free roadmap · No tech skills needed</p>
 
     <!-- HERO VIDEO -->
     <div style="max-width: 1240px; margin: 56px auto 0; position: relative">
@@ -310,7 +313,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":8700}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { biz: 0, goal: 0, bizText: '' }; }
+  constructor(props) { super(props); this.state = { biz: 0, goal: 0 }; }
   renderVals() {
     const s = this.state;
     const B = [
@@ -319,8 +322,8 @@ class Component extends DCLogic {
       { label: 'Retail & shop', short: 'shop', first: 'an online store', path: 'Online store → Ads → WhatsApp automation' },
       { label: 'Creator & freelancer', short: 'creator', first: 'AuraPops', path: 'AuraPops → Brand kit → Booking site' }
     ];
-    const on = 'background: #0B0F0C; color: #FFFFFF; border: 1px solid #0B0F0C; border-radius: 999px; padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: Inter, sans-serif; min-height: 44px';
-    const off = 'background: #FFFFFF; color: #0B0F0C; border: 1px solid #D9D6CB; border-radius: 999px; padding: 10px 16px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: Inter, sans-serif; min-height: 44px';
+    const on = 'background: #E9ECFF; color: #333DBB; border: 1px solid #ADB5FF; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: Inter, sans-serif; min-height: 42px';
+    const off = 'background: rgba(255,255,255,.88); color: #292A3E; border: 1px solid #DCDDEB; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: Inter, sans-serif; min-height: 42px';
     const G = [
       { title: 'Launch my business online', desc: 'A professional website, business email and brand that make people trust you.', tags: ['Website', 'Brand kit', 'Business email'], bg: '#F3EEDC' },
       { title: 'Get more customers', desc: 'Show up on Google Maps and search, run ads, and collect reviews with NFC cards.', tags: ['Google Maps', 'SEO', 'Ads'], bg: '#E3EEFB' },
@@ -333,8 +336,6 @@ class Component extends DCLogic {
     const stBase = 'border-radius: 22px; padding: 28px 30px; display: flex; flex-direction: column; gap: 12px; min-height: 280px; box-sizing: border-box; background: ';
     const stBg = ['#F3EEDC', '#E3EEFB', '#ECE8FF', '#E1E100'];
     return {
-      bizText: s.bizText,
-      updateBizText: e => this.setState({ bizText: e.currentTarget.value }),
       startPath: () => {
         try {
           window.localStorage.setItem('aura-landing-intake-v1', JSON.stringify({
