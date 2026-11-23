@@ -45,22 +45,11 @@ const PUBLIC_SETTING_KEYS = [
   "web_dynamic_price",
 ];
 const TRACKABLE_PATHS = new Set([
-  "/",
-  "/index.html",
-  "/portfolio.html",
-  "/aura-menu.html",
-  "/aura-weddings.html",
-  "/nfc-builder.html",
-  "/nfc-status.html",
-  "/packages.html",
-  "/about.html",
-  "/contact.html",
-  "/home",
-  "/aura-menu",
-  "/aura-weddings",
-  "/paketler",
-  "/hakkimizda",
-  "/iletisim",
+  // Current public pages (clean URLs and their .html files).
+  "/", "/index.html", "/solutions", "/solutions.html", "/service-shop", "/service-shop.html",
+  "/packages", "/packages.html", "/aura-menu", "/aura-menu.html", "/portfolio", "/portfolio.html",
+  "/help", "/help.html", "/about", "/about.html", "/contact", "/contact.html",
+  "/aura-weddings", "/aura-weddings.html", "/shop", "/shop/", "/nfc-studio", "/nfc-builder.html", "/nfc-status", "/nfc-status.html",
 ]);
 
 

@@ -33,3 +33,16 @@ test('site language choice is shared with AuraHub', () => {
   assert.match(runtime, /aura-lang-choice-v3/);
   assert.match(hub, /aura-lang-choice-v3/);
 });
+
+test('public pages report anonymous page views and the server accepts current page paths', async () => {
+  for (const page of PAGES) assert.match(read(page), /<script src="\/redesign\/track\.js\?v=\w+" defer><\/script>/, page + ' loads track.js');
+  const worker = read('src/worker.js');
+  for (const path of ['/solutions', '/service-shop', '/help', '/shop']) assert.match(worker, new RegExp(`"${path}"`), path + ' is trackable');
+});
+
+test('hub hides switched-off features: menu drafts and Google sign-in', () => {
+  const identity = read('src/customer-identity.js'), hub = read('src/hub/app.js');
+  assert.match(identity, /menuDrafts:env\.MENU_DRAFTS_ENABLED==='true'/);
+  assert.match(hub, /authCapabilities\.menuDrafts\?\['menuDrafts'\]/);
+  assert.match(hub, /\(mode==='login'\|\|mode==='signup'\)&&authCapabilities\.google\?/);
+});

@@ -182,7 +182,7 @@ function authScreen({signup,forgot,reset}){
  const ic={user:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',mail:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="m3 6 9 7 9-7"/></svg>',lock:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'};
  const pw=mode==='forgot'?'':`<label class="ad-field"><span>${esc(t(reset?'newPassword':'password'))}</span><span class="ad-input">${ic.lock}<input name="password" type="password" required ${mode!=='login'?'minlength="12" ':''}maxlength="72" autocomplete="${mode==='login'?'current-password':'new-password'}"><button type="button" class="ad-eye" data-eye aria-pressed="false">${al('show')}</button></span>${mode!=='login'?`<span class="ad-hint" id="ad-pw-hint">${al('pwHint')}</span><span class="ad-meter" aria-hidden="true"><i></i></span>`:''}</label>`;
  const tabs=mode==='login'||mode==='signup'?`<nav class="ad-tabs" aria-label="Account"><a href="/hub/login${authQuery}" ${mode==='login'?'aria-current="page"':''}>${al('signInTab')}</a><a href="/hub/signup${authQuery}" ${mode==='signup'?'aria-current="page"':''}>${al('signupTab')}</a></nav>`:'';
- const googleBlock=mode==='login'||mode==='signup'?`<button type="button" class="ad-google" data-google ${authCapabilities.google?'':'aria-disabled="true"'}>${googleIcon}<span>${al('google')}</span></button>${authCapabilities.google?'':`<p class="ad-note">${al('googleSoon')}</p>`}<div class="ad-or"><span>${al('or')}</span></div>`:'';
+ const googleBlock=(mode==='login'||mode==='signup')&&authCapabilities.google?`<button type="button" class="ad-google" data-google>${googleIcon}<span>${al('google')}</span></button><div class="ad-or"><span>${al('or')}</span></div>`:'';
  const termsBox=mode==='login'||mode==='signup'?`<label class="ad-check"><input type="checkbox" name="terms" ${mode==='signup'?'required':''}><span>${al('terms')}</span></label>`:'';
  app.innerHTML=`<div class="ad-auth">
  <aside class="ad-side"><a href="/" class="ad-logo"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>
@@ -191,7 +191,7 @@ function authScreen({signup,forgot,reset}){
  <main id="main" class="ad-main"><div class="ad-top"><a href="/" class="ad-logo ad-logo-sm"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>${languageControl()}</div>
   <section class="ad-card">${tabs}<h1>${esc(title)}</h1><p class="ad-sub">${esc(sub)}</p>${googleBlock}
    <form id="auth-form" novalidate>${mode==='signup'?inp('name','text',t('name'),'required minlength="2" maxlength="100" autocomplete="name"',ic.user):''}${mode==='reset'?'':inp('email','email',t('email'),'required maxlength="254" autocomplete="email" inputmode="email"',ic.mail)}${pw}
-    ${mode==='login'&&authCapabilities.email?`<a class="ad-forgot" href="/hub/forgot${authQuery}">${al('forgotQ')}</a>`:''}
+    ${mode==='login'?(authCapabilities.email?`<a class="ad-forgot" href="/hub/forgot${authQuery}">${al('forgotQ')}</a>`:`<a class="ad-forgot" href="https://wa.me/905385507674?text=${encodeURIComponent('AuraHub password help')}" rel="noopener">${esc(({en:'Forgot your password? Message us on WhatsApp',tr:'Şifrenizi mi unuttunuz? WhatsApp’tan yazın',ar:'نسيت كلمة المرور؟ راسلنا على واتساب',fr:'Mot de passe oublié ? Écrivez-nous sur WhatsApp'})[lang]||'Forgot your password? Message us on WhatsApp')}</a>`):''}
     ${termsBox}
     ${authCapabilities.turnstile&&mode!=='reset'?'<div id="ad-turnstile" class="ad-turnstile"></div>':''}
     <p class="form-error ad-error" role="alert"></p>
@@ -324,7 +324,7 @@ function renderShell(){
  const groups=[
   [nv.groups[0],['home']],
   [nv.groups[1],['journey','assistant']],
-  [nv.groups[2],['services','requests',...(workspace?['menuDrafts']:[]),'orders']],
+  [nv.groups[2],['services','requests',...(workspace&&authCapabilities.menuDrafts?['menuDrafts']:[]),'orders']],
   [nv.groups[3],[...(workspace&&can('profile:write')?['profile']:[]),...(workspace?['team']:[]),'settings']],
  ];
  const mobileMain=['home','journey','services'];
@@ -556,7 +556,7 @@ async function myWork(){
   host.innerHTML=`<section class="panel hub-page-start hub-requests-empty"><img src="/media/auri/level-1.webp" alt="" width="80" height="80" loading="lazy"><div><h2>${esc(ui.requests)}</h2>
   <p>${esc(({en:'Your requests will appear here.',fr:'Vos demandes apparaîtront ici.',tr:'Talepleriniz burada görünecek.',ar:'ستظهر طلباتك هنا.'})[lang])}</p>
   <a class="growth-primary" href="${esc(link('services'))}">${esc(serviceLabels[lang][0])} →</a>
-  <a class="growth-secondary" href="${esc(link('menuDrafts'))}">${esc(t('menuDrafts'))}</a></div></section>${serviceShortcuts(lang,esc,link,{profile:workspace.profile,missions:workspace.missions})}`;
+  ${authCapabilities.menuDrafts?`<a class="growth-secondary" href="${esc(link('menuDrafts'))}">${esc(t('menuDrafts'))}</a>`:''}</div></section>${serviceShortcuts(lang,esc,link,{profile:workspace.profile,missions:workspace.missions})}`;
   return;
  }
  const displayed=new Set([...attention,...progress].map(record=>record.id));
@@ -564,7 +564,7 @@ async function myWork(){
  host.innerHTML=section(ui.attention,ui.emptyAttention,attention.map(record=>renderWorkRow(record,{ui,esc,link})).join(''))
   +section(ui.progress,ui.emptyProgress,progress.map(record=>renderWorkRow(record,{ui,esc,link})).join(''))
   +(history.length?section(hubLabels(lang).requests,'',history.map(record=>renderWorkRow(record,{ui,esc,link})).join('')):'')
-  +`<a href="${esc(link('menuDrafts'))}" class="growth-secondary">${esc(t('menuDrafts'))}</a>`;
+  +(authCapabilities.menuDrafts?`<a href="${esc(link('menuDrafts'))}" class="growth-secondary">${esc(t('menuDrafts'))}</a>`:'');
 }
 async function renderPage(){
  const label=hubLabels(lang);
@@ -594,6 +594,7 @@ async function renderPage(){
  if(page==='onboarding'){navigate('journey',{},true);return;}
  if(page==='profile'&&!workspace.permissions.includes('profile:write')){content(`<section class="panel"><h2>${esc(workspace.profile.name)}</h2><p>${t('readOnly')}</p><p>${esc(workspace.profile.goals)}</p></section>`);return;}
  if(page==='profile'){draft=structuredClone(workspace.profile);mode=workspace.organization.mode;step=0;editing=true;renderSetup();return;}
+ if(page==='menuDrafts'&&!authCapabilities.menuDrafts){content(`<section class="panel hub-page-start"><div><h2>${esc(t('menuDrafts'))}</h2><p>${esc(({en:'Menu drafts are not available yet. Ask the team or Auri to prepare your menu.',tr:'Menü taslakları henüz kullanılamıyor. Menünüzü hazırlamak için ekibe veya Auri’ye yazın.',ar:'مسودات القوائم غير متاحة بعد. اطلب من الفريق أو أوري تجهيز قائمتك.',fr:'Les brouillons de menu ne sont pas encore disponibles. Demandez à l’équipe ou à Auri.'})[lang]||'')}</p><a class="growth-primary" href="${esc(link('requests',{new:'1',service:'AuraMenu'}))}">${esc(hubLabels(lang).requests)} →</a></div></section>`);return;}
  if(page==='menuDrafts')return renderMenuDrafts({host:document.querySelector('#page-content'),api,endpoint,profile:workspace.profile,canWrite:workspace.permissions.includes('roadmap:write'),draftId:query.get('draft'),reviewLabel:label.reviewed,onDraft:id=>navigate('menuDrafts',{draft:id}),onReviewed:()=>navigate('home')});
  if(page==='journey'){if(selectedMission&&!workspace.missions.some(m=>m.id===selectedMission))throw new Error(label.unavailable);return growthDashboard();}
  if(page==='tasks')return journey();

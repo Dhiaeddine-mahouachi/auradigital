@@ -205,7 +205,7 @@ export async function handleCustomerIdentity(request,env) {
   if(!user)throw new ApiError(401,'Sign in to your AuraDigital account.');
   return json({verified:await isEmailVerified(env.DB,user)});
  }
- if(path==='/api/customer/capabilities'&&request.method==='GET')return json({growth:env.GROWTH_OS_ENABLED==='true',google:env.GOOGLE_LOGIN_ENABLED==='true'&&!!env.GOOGLE_CLIENT_ID&&!!env.GOOGLE_CLIENT_SECRET,email:env.CUSTOMER_EMAIL_ENABLED==='true'&&!!env.RESEND_API_KEY,turnstile:turnstileSiteKey(env)});
+ if(path==='/api/customer/capabilities'&&request.method==='GET')return json({menuDrafts:env.MENU_DRAFTS_ENABLED==='true',growth:env.GROWTH_OS_ENABLED==='true',google:env.GOOGLE_LOGIN_ENABLED==='true'&&!!env.GOOGLE_CLIENT_ID&&!!env.GOOGLE_CLIENT_SECRET,email:env.CUSTOMER_EMAIL_ENABLED==='true'&&!!env.RESEND_API_KEY,turnstile:turnstileSiteKey(env)});
  if(['/api/customer/google/start','/api/customer/google/callback'].includes(path)) {
   if(request.method!=='GET')throw new ApiError(405,'Method not allowed.');return google(request,env);
  }

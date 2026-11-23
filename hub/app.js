@@ -2510,7 +2510,7 @@ function authScreen({ signup, forgot, reset }) {
   const ic = { user: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>', mail: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="m3 6 9 7 9-7"/></svg>', lock: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' };
   const pw = mode2 === "forgot" ? "" : `<label class="ad-field"><span>${esc2(t(reset ? "newPassword" : "password"))}</span><span class="ad-input">${ic.lock}<input name="password" type="password" required ${mode2 !== "login" ? 'minlength="12" ' : ""}maxlength="72" autocomplete="${mode2 === "login" ? "current-password" : "new-password"}"><button type="button" class="ad-eye" data-eye aria-pressed="false">${al("show")}</button></span>${mode2 !== "login" ? `<span class="ad-hint" id="ad-pw-hint">${al("pwHint")}</span><span class="ad-meter" aria-hidden="true"><i></i></span>` : ""}</label>`;
   const tabs = mode2 === "login" || mode2 === "signup" ? `<nav class="ad-tabs" aria-label="Account"><a href="/hub/login${authQuery}" ${mode2 === "login" ? 'aria-current="page"' : ""}>${al("signInTab")}</a><a href="/hub/signup${authQuery}" ${mode2 === "signup" ? 'aria-current="page"' : ""}>${al("signupTab")}</a></nav>` : "";
-  const googleBlock = mode2 === "login" || mode2 === "signup" ? `<button type="button" class="ad-google" data-google ${authCapabilities.google ? "" : 'aria-disabled="true"'}>${googleIcon}<span>${al("google")}</span></button>${authCapabilities.google ? "" : `<p class="ad-note">${al("googleSoon")}</p>`}<div class="ad-or"><span>${al("or")}</span></div>` : "";
+  const googleBlock = (mode2 === "login" || mode2 === "signup") && authCapabilities.google ? `<button type="button" class="ad-google" data-google>${googleIcon}<span>${al("google")}</span></button><div class="ad-or"><span>${al("or")}</span></div>` : "";
   const termsBox = mode2 === "login" || mode2 === "signup" ? `<label class="ad-check"><input type="checkbox" name="terms" ${mode2 === "signup" ? "required" : ""}><span>${al("terms")}</span></label>` : "";
   app.innerHTML = `<div class="ad-auth">
  <aside class="ad-side"><a href="/" class="ad-logo"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>
@@ -2519,7 +2519,7 @@ function authScreen({ signup, forgot, reset }) {
  <main id="main" class="ad-main"><div class="ad-top"><a href="/" class="ad-logo ad-logo-sm"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>${languageControl()}</div>
   <section class="ad-card">${tabs}<h1>${esc2(title)}</h1><p class="ad-sub">${esc2(sub)}</p>${googleBlock}
    <form id="auth-form" novalidate>${mode2 === "signup" ? inp("name", "text", t("name"), 'required minlength="2" maxlength="100" autocomplete="name"', ic.user) : ""}${mode2 === "reset" ? "" : inp("email", "email", t("email"), 'required maxlength="254" autocomplete="email" inputmode="email"', ic.mail)}${pw}
-    ${mode2 === "login" && authCapabilities.email ? `<a class="ad-forgot" href="/hub/forgot${authQuery}">${al("forgotQ")}</a>` : ""}
+    ${mode2 === "login" ? authCapabilities.email ? `<a class="ad-forgot" href="/hub/forgot${authQuery}">${al("forgotQ")}</a>` : `<a class="ad-forgot" href="https://wa.me/905385507674?text=${encodeURIComponent("AuraHub password help")}" rel="noopener">${esc2({ en: "Forgot your password? Message us on WhatsApp", tr: "\u015Eifrenizi mi unuttunuz? WhatsApp\u2019tan yaz\u0131n", ar: "\u0646\u0633\u064A\u062A \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631\u061F \u0631\u0627\u0633\u0644\u0646\u0627 \u0639\u0644\u0649 \u0648\u0627\u062A\u0633\u0627\u0628", fr: "Mot de passe oubli\xE9 ? \xC9crivez-nous sur WhatsApp" }[lang] || "Forgot your password? Message us on WhatsApp")}</a>` : ""}
     ${termsBox}
     ${authCapabilities.turnstile && mode2 !== "reset" ? '<div id="ad-turnstile" class="ad-turnstile"></div>' : ""}
     <p class="form-error ad-error" role="alert"></p>
@@ -2838,7 +2838,7 @@ function renderShell() {
   const groups = [
     [nv.groups[0], ["home"]],
     [nv.groups[1], ["journey", "assistant"]],
-    [nv.groups[2], ["services", "requests", ...workspace ? ["menuDrafts"] : [], "orders"]],
+    [nv.groups[2], ["services", "requests", ...workspace && authCapabilities.menuDrafts ? ["menuDrafts"] : [], "orders"]],
     [nv.groups[3], [...workspace && can("profile:write") ? ["profile"] : [], ...workspace ? ["team"] : [], "settings"]]
   ];
   const mobileMain = ["home", "journey", "services"];
@@ -3154,12 +3154,12 @@ async function myWork() {
     host.innerHTML = `<section class="panel hub-page-start hub-requests-empty"><img src="/media/auri/level-1.webp" alt="" width="80" height="80" loading="lazy"><div><h2>${esc2(ui.requests)}</h2>
   <p>${esc2({ en: "Your requests will appear here.", fr: "Vos demandes appara\xEEtront ici.", tr: "Talepleriniz burada g\xF6r\xFCnecek.", ar: "\u0633\u062A\u0638\u0647\u0631 \u0637\u0644\u0628\u0627\u062A\u0643 \u0647\u0646\u0627." }[lang])}</p>
   <a class="growth-primary" href="${esc2(link("services"))}">${esc2(serviceLabels[lang][0])} \u2192</a>
-  <a class="growth-secondary" href="${esc2(link("menuDrafts"))}">${esc2(t("menuDrafts"))}</a></div></section>${serviceShortcuts(lang, esc2, link, { profile: workspace.profile, missions: workspace.missions })}`;
+  ${authCapabilities.menuDrafts ? `<a class="growth-secondary" href="${esc2(link("menuDrafts"))}">${esc2(t("menuDrafts"))}</a>` : ""}</div></section>${serviceShortcuts(lang, esc2, link, { profile: workspace.profile, missions: workspace.missions })}`;
     return;
   }
   const displayed = new Set([...attention, ...progress].map((record) => record.id));
   const history2 = requests2.filter((record) => !displayed.has(record.id));
-  host.innerHTML = section(ui.attention, ui.emptyAttention, attention.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + section(ui.progress, ui.emptyProgress, progress.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + (history2.length ? section(hubLabels(lang).requests, "", history2.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) : "") + `<a href="${esc2(link("menuDrafts"))}" class="growth-secondary">${esc2(t("menuDrafts"))}</a>`;
+  host.innerHTML = section(ui.attention, ui.emptyAttention, attention.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + section(ui.progress, ui.emptyProgress, progress.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) + (history2.length ? section(hubLabels(lang).requests, "", history2.map((record) => renderWorkRow(record, { ui, esc: esc2, link })).join("")) : "") + (authCapabilities.menuDrafts ? `<a href="${esc2(link("menuDrafts"))}" class="growth-secondary">${esc2(t("menuDrafts"))}</a>` : "");
 }
 async function renderPage() {
   const label = hubLabels(lang);
@@ -3228,6 +3228,10 @@ async function renderPage() {
     step = 0;
     editing = true;
     renderSetup();
+    return;
+  }
+  if (page === "menuDrafts" && !authCapabilities.menuDrafts) {
+    content(`<section class="panel hub-page-start"><div><h2>${esc2(t("menuDrafts"))}</h2><p>${esc2({ en: "Menu drafts are not available yet. Ask the team or Auri to prepare your menu.", tr: "Men\xFC taslaklar\u0131 hen\xFCz kullan\u0131lam\u0131yor. Men\xFCn\xFCz\xFC haz\u0131rlamak i\xE7in ekibe veya Auri\u2019ye yaz\u0131n.", ar: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645 \u063A\u064A\u0631 \u0645\u062A\u0627\u062D\u0629 \u0628\u0639\u062F. \u0627\u0637\u0644\u0628 \u0645\u0646 \u0627\u0644\u0641\u0631\u064A\u0642 \u0623\u0648 \u0623\u0648\u0631\u064A \u062A\u062C\u0647\u064A\u0632 \u0642\u0627\u0626\u0645\u062A\u0643.", fr: "Les brouillons de menu ne sont pas encore disponibles. Demandez \xE0 l\u2019\xE9quipe ou \xE0 Auri." }[lang] || "")}</p><a class="growth-primary" href="${esc2(link("requests", { new: "1", service: "AuraMenu" }))}">${esc2(hubLabels(lang).requests)} \u2192</a></div></section>`);
     return;
   }
   if (page === "menuDrafts") return renderMenuDrafts({ host: document.querySelector("#page-content"), api, endpoint, profile: workspace.profile, canWrite: workspace.permissions.includes("roadmap:write"), draftId: query.get("draft"), reviewLabel: label.reviewed, onDraft: (id) => navigate("menuDrafts", { draft: id }), onReviewed: () => navigate("home") });

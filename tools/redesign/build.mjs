@@ -140,6 +140,7 @@ ${stripFonts(extraCss).trim()}
 <noscript><p style="font-family:Inter,sans-serif;padding:16px">WhatsApp +90 538 550 76 74 · info@auradigitalworks.com</p></noscript>
 <script src="/redesign/app.js?v=${VERSION}" defer></script>
 <script src="/redesign/i18n.js?v=${VERSION}" defer></script>
+<script src="/redesign/track.js?v=${VERSION}" defer></script>
 </body>
 </html>
 `;
@@ -169,7 +170,7 @@ for (const [file, active] of SHELLS) {
   src = swap(src, 'css', `\n<link rel="stylesheet" href="/redesign/fonts.css?v=${VERSION}">\n${shellCss.trim()}\n`);
   src = swap(src, 'header', chrome('Header', active));
   src = swap(src, 'footer', chrome('Footer', active) + chrome('Auri', active));
-  src = swap(src, 'js', `<script src="/redesign/app.js?v=${VERSION}" defer></script><script src="/redesign/i18n.js?v=${VERSION}" defer></script>`);
+  src = swap(src, 'js', `<script src="/redesign/app.js?v=${VERSION}" defer></script><script src="/redesign/i18n.js?v=${VERSION}" defer></script><script src="/redesign/track.js?v=${VERSION}" defer></script>`);
   fs.writeFileSync(fp, src);
   console.log('chrome', file);
 }
