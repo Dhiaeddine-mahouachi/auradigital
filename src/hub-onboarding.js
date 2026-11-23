@@ -3,7 +3,7 @@ import { generate, tariff } from './ai-provider.js';
 import { ApiError, json, readJson } from './http.js';
 
 const limits = { name: 120, industry: 30, city: 100, country: 80, website: 500, goals: 1600, industryDetails: 1600, tools: 1200, acquisition: 1200 };
-const industries = ['restaurant', 'services', 'ecommerce', 'real_estate', 'other'];
+import { INDUSTRIES as industries } from './growth-engine.js';
 
 export function groundedFacts(facts, source) {
  const result = {};

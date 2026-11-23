@@ -12,7 +12,8 @@ import { draftFollowUp, explainRoadmap, recentAuriDrafts } from './hub-auri.js';
 import { eligibleMissions } from './roadmap.js';
 import { handleMenuDrafts } from './menu-drafts.js';
 import { handleLeads } from './hub-leads.js';
-import { handleProfilePhoto, profilePhoto } from './hub-profile-photo.js';
+import { handleProfilePhoto, profilePhoto, handleWorkspaceLogo } from './hub-profile-photo.js';
+import { handleAuriHistory } from './hub-auri-history.js';
 import { ApiError, json, readJson } from './http.js';
 import { authenticatedCustomer, tokenHash } from './customer-accounts.ts';
 import { sameOrigin } from './security.js';
@@ -185,9 +186,11 @@ export async function handleBusinessHub(request,env) {
   const [,org,record]=workMatch;
   return json(await getHubWork(env,org,await authorize(env.DB,org,user),record));
  }
- const match=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})(?:\/(profile|diagnosis|missions|mission-evidence|existing-evidence|mission-route|scenarios|team|invitations|activity|auri|connected|leads|lead-stages)(?:\/([a-f0-9-]{36}))?)?$/.exec(path);
+ const match=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})(?:\/(profile|diagnosis|missions|mission-evidence|existing-evidence|mission-route|scenarios|team|invitations|activity|auri|connected|leads|lead-stages|logo|auri-history)(?:\/([a-f0-9-]{36}))?)?$/.exec(path);
  if(!match)throw new ApiError(404,'Not found.');
  const [,org,section,item]=match;
+ if(section==='auri-history'&&!item)return handleAuriHistory(request,env,{org,user,authorize});
+ if(section==='logo'&&!item)return handleWorkspaceLogo(request,env,{org,user,authorize});
  if(section==='leads'||section==='lead-stages')return handleLeads(request,env,{org,user,section,item,authorize,audit});
  if(section==='connected'){
   if(item||request.method!=='GET')throw new ApiError(405,'Method not allowed.');

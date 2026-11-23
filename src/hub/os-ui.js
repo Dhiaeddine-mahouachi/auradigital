@@ -39,7 +39,7 @@ const P = {
  instagram: 'M4 4h16v16H4z M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M17 7h.01',
  whatsapp: 'M4 20l1.4-4A8 8 0 1 1 8 18.7z M9 9.5c.5 2 2 3.6 4 4.4l1.2-1.1 2 1-.5 1.6c-3.3.2-7-3.3-7-6.7L10 8l1 2z',
 };
-export const icon = (name, size = 18) => `<svg class="os-i" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${P[name] || P.overview}"/></svg>`;
+export const icon = (name, size = 18) => `<svg class="os-i os-i-${name}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${P[name] || P.overview}"/></svg>`;
 
 export const parseDate = value => {
  if (!value) return null;
@@ -143,3 +143,18 @@ const ART = [
  `<path d="M80 66L40 40 M80 66l42-28 M80 66l-36 40 M80 66l40 38" class="a-fold"/><circle cx="80" cy="66" r="18" class="a-pin"/><path d="M72 66h16 M80 58v16" class="a-check"/><rect x="26" y="28" width="28" height="24" rx="6" class="a-wall"/><rect x="108" y="26" width="28" height="24" rx="6" class="a-awning"/><rect x="30" y="96" width="28" height="22" rx="6" class="a-glass"/><rect x="106" y="94" width="28" height="22" rx="6" class="a-wall"/><circle cx="140" cy="76" r="4" class="a-spark"/>`,
 ];
 export const stageArt = index => `<svg class="os-stage-art" viewBox="0 0 160 130" aria-hidden="true" focusable="false">${ART[index] || ART[0]}</svg>`;
+
+// Right-to-left: text arrows in templates point "forward" in Arabic too.
+const MIRROR = { '→': '←', '↗': '↖', '›': '‹' };
+let arrowObserver = null;
+export function mirrorArrows(root, rtl) {
+ arrowObserver?.disconnect(); arrowObserver = null;
+ if (!rtl || !root) return;
+ const fix = node => {
+  const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+  for (let t = walker.nextNode(); t; t = walker.nextNode()) if (/[→↗›]/.test(t.nodeValue)) t.nodeValue = t.nodeValue.replace(/[→↗›]/g, ch => MIRROR[ch]);
+ };
+ fix(root);
+ arrowObserver = new MutationObserver(records => { for (const r of records) for (const n of r.addedNodes) n.nodeType === 3 ? fix(n.parentNode || n) : n.nodeType === 1 && fix(n); });
+ arrowObserver.observe(root, { childList: true, subtree: true });
+}

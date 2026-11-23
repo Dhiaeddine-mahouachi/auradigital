@@ -25,3 +25,33 @@ test('workspaces report whether menu drafts are enabled', async () => {
  f.env.MENU_DRAFTS_ENABLED = 'true';
  assert.equal((await (await f.call('/api/hub/workspaces/' + id, owner)).json()).features.menuDrafts, true);
 });
+
+test('business logos are workspace-scoped and owner-editable', async () => {
+ const f = await hubFixture();
+ const owner = await f.user('logo-owner@example.test', true), stranger = await f.user('logo-stranger@example.test', true);
+ const { id } = await (await f.call('/api/hub/workspaces', owner, 'POST', { profile: { name: 'Logo Shop', industry: 'retail', capabilities: [], currency: 'TRY', phone: '+90 555 111 22 33', social: { instagram: 'https://instagram.com/logoshop' } }, mode: 'myself' })).json();
+ const base = '/api/hub/workspaces/' + id;
+ const ws = await (await f.call(base, owner)).json();
+ assert.equal(ws.profile.industry, 'retail');
+ assert.equal(ws.profile.phone, '+90 555 111 22 33');
+ assert.equal((await f.call(base + '/logo', owner, 'PUT', { logo: tiny })).status, 200);
+ assert.equal((await (await f.call(base + '/logo', owner)).json()).logo, tiny);
+ assert.equal((await f.call(base + '/logo', stranger)).status, 404);
+ assert.equal((await f.call(base + '/logo', stranger, 'PUT', { logo: tiny })).status, 404);
+ assert.equal((await f.call(base + '/logo', owner, 'PUT', { logo: 'data:text/html;base64,PGgxPg==' })).status, 400);
+ assert.equal((await f.call(base + '/logo', owner, 'DELETE')).status, 200);
+ assert.equal((await (await f.call(base + '/logo', owner)).json()).logo, null);
+});
+
+test('Auri conversations are saved per person and cleared on request', async () => {
+ const f = await hubFixture();
+ const owner = await f.user('history@example.test', true), other = await f.user('history-other@example.test', true);
+ const { id } = await (await f.call('/api/hub/workspaces', owner, 'POST', { profile: { name: 'Chat Co', industry: 'salon', capabilities: [], currency: 'TRY' }, mode: 'myself' })).json();
+ const path = '/api/hub/workspaces/' + id + '/auri-history';
+ assert.equal((await f.call(path, owner, 'POST', { messages: [{ role: 'me', text: 'Hello' }, { role: 'auri', text: 'Hi! How can I help?' }] })).status, 201);
+ assert.deepEqual((await (await f.call(path, owner)).json()).messages.map(m => m.text), ['Hello', 'Hi! How can I help?']);
+ assert.equal((await f.call(path, other)).status, 404);
+ assert.equal((await f.call(path, owner, 'POST', { messages: [{ role: 'system', text: 'x' }] })).status, 400);
+ assert.equal((await f.call(path, owner, 'DELETE')).status, 200);
+ assert.equal((await (await f.call(path, owner)).json()).messages.length, 0);
+});

@@ -1,3 +1,4 @@
+import { guideText } from './mission-copy.js';
 import { missionAlternative } from '../mission-routes.js';
 import { blueprintLabels, commandLabels } from './blueprint-copy.js';
 import { eligibleMissions, missionGuide, missionState, roadmapStages } from '../roadmap.js';
@@ -88,6 +89,7 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
   const proof=workspace.evidence?.[m.id];
   const reason=m.reason?.startsWith('This capability has not been reported')?guide?.[1]:m.reason;
   const action=alternate?.steps||(m.nextAction==='Define scope or record your existing solution.'?guide?.[2]:m.nextAction);
+  const reasonText=guideText(m.capability,1,lang,reason||m.description),actionText=alternate?action:guideText(m.capability,2,lang,action||guide?.[2]||m.description);
   const {requirements,blocked}=missionState(m,missions,profile);
   const copy={
    en:['Next step','Task options','Ask Auri','Request help'],
@@ -96,8 +98,8 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
    ar:['الخطوة التالية','خيارات المهمة','اسأل أوري','اطلب المساعدة'],
   }[lang];
   return `<div class="growth-focus-top"><h2>${esc(title(m))}</h2><small>${esc(status(m))}${m.optional?' · '+l.optional:''}</small></div>
-   ${!alternate?`<p class="focus-benefit">${esc(reason||m.description)}</p>`:''}
-   <div class="service-next-step"><strong>${copy[0]}</strong><p>${esc(blocked&&requirements.length?requirements.map(cap).join(' · '):action||guide?.[2]||m.description)}</p></div>
+   ${!alternate?`<p class="focus-benefit">${esc(reasonText)}</p>`:''}
+   <div class="service-next-step"><strong>${copy[0]}</strong><p>${esc(blocked&&requirements.length?requirements.map(cap).join(' · '):actionText)}</p></div>
    <div class="growth-actions">
    ${canAsk?`<button type="button" class="growth-primary" data-ask-task>${copy[2]} ↗</button>`:''}
    ${guide?.[0]?`<a class="growth-secondary" data-request-task href="${esc(requestLink(guide[0],m.id))}">${copy[3]} →</a>`:''}

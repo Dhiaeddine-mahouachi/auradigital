@@ -1,3 +1,4 @@
+import { guideText } from './mission-copy.js';
 // Aura Journey — "Know how to grow". The illustrated five-stage Growth Vision.
 // Stage progress is derived only from the workspace's missions (status set by
 // the team or the customer) and server-verified evidence — never a free-form
@@ -21,6 +22,7 @@ const EXAMPLES = {
   { img: '/media/redesign/work-weddings.jpg', name: 'AuraWeddings', kind: { en: 'Invitations with RSVP', tr: 'LCV’li davetiyeler', fr: 'Invitations avec RSVP', ar: 'دعوات مع تأكيد الحضور' }, href: '/aura-weddings' },
  ],
 };
+let allOpen = false;
 const level = m => Math.max(1, Math.min(5, Number(m.level) || 1)) - 1;
 
 export function journeyModel(workspace) {
@@ -75,7 +77,7 @@ export function renderAuraJourney({ host, lang, esc, link, requestLink, workspac
  const auriExplain = [
   [j.explain.matters, j.why[chosen]],
   [j.explain.did, stage.done.length ? j.didSome(stage.done.length, stage.done.map(missionTitle).join(', ')) : j.didNone],
-  [j.explain.doNext, nextTask ? `${missionTitle(nextTask)} — ${missionGuide[nextTask.capability]?.[2] || nextTask.nextAction || ''}` : j.nextNone],
+  [j.explain.doNext, nextTask ? `${missionTitle(nextTask)} — ${guideText(nextTask.capability, 2, lang, missionGuide[nextTask.capability]?.[2] ?? nextTask.nextAction) || ''}` : j.nextNone],
   [j.explain.help, services.length ? j.helpSome(services.map(m => cap(m.capability)).join(', ')) : j.helpNone],
   [j.explain.optional, stage.missions.some(m => m.optional) ? j.optYes : j.optNo],
  ];
@@ -136,6 +138,13 @@ export function renderAuraJourney({ host, lang, esc, link, requestLink, workspac
    </aside>
   </div>
   <section class="os-task-detail" aria-label="${esc(j.taskDetail)}" data-task-detail></section>
+  ${missions.length ? (() => {
+   const eligible = eligibleMissions(missions, profile).filter(m => evidence[m.id] !== 'pending');
+   const groups = [[j.listPriority, eligible], [j.listUpcoming, missions.filter(m => m.status !== 'done' && !eligible.includes(m))],
+    [j.listCompleted, missions.filter(m => m.status === 'done').sort((a, b) => String(b.completedAt || '').localeCompare(String(a.completedAt || '')))]];
+   return `<details class="os-card os-all-tasks" ${allOpen ? 'open' : ''} data-all-tasks><summary><span>${icon('journey', 18)} ${esc(j.allTasks)}</span><span class="os-count">${missions.length}</span></summary>
+    <div class="os-all-grid">${groups.map(([title, list]) => `<section><h3>${esc(title)} <span class="os-count">${list.length}</span></h3>${list.length ? `<ul>${list.map(m => `<li><button type="button" class="os-all-row" data-node="${esc(m.id)}"><span class="os-all-stage">${esc(j.stages[level(m)])}</span><strong>${esc(missionTitle(m))}</strong>${m.completedAt ? `<time datetime="${esc(m.completedAt)}">${esc(new Date(m.completedAt).toLocaleDateString(lang))}</time>` : pill(statusText(m), tone(m), esc)}</button></li>`).join('')}</ul>` : `<p class="os-muted">${esc(j.noneDone)}</p>`}</section>`).join('')}</div></details>`;
+  })() : ''}
  </div>`;
 
  requestAnimationFrame(() => host.querySelector('.os-path-line')?.classList.add('is-ready'));
@@ -145,7 +154,8 @@ export function renderAuraJourney({ host, lang, esc, link, requestLink, workspac
   renderAuraJourney({ host, lang, esc, link, requestLink, workspace, missionTitle, cap, stageParam: index, selectedId: null, canAsk, onAsk, onSelect, renderTask });
   host.querySelector(`[data-stage="${index}"]`)?.focus();
  }));
- host.querySelectorAll('.os-journey-body [data-node]').forEach(b => b.addEventListener('click', () => onSelect(b.dataset.node)));
+ host.querySelectorAll('.os-journey-body [data-node], .os-all-tasks [data-node]').forEach(b => b.addEventListener('click', () => onSelect(b.dataset.node)));
+ host.querySelector('[data-all-tasks]')?.addEventListener('toggle', e => { allOpen = e.currentTarget.open; });
  const taskHost = host.querySelector('[data-task-detail]');
  const focusId = selectedMission && level(selectedMission) === chosen ? selectedMission.id : nextTask?.id || stage.missions[0]?.id;
  if (focusId) renderTask(taskHost, focusId);

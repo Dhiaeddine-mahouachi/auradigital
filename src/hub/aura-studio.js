@@ -10,6 +10,8 @@ import { serviceItems } from './aura-command.js';
 export const STUDIO_VIEWS = ['pipeline', 'delivery', 'website', 'menu', 'inbox', 'analytics'];
 const TAB_ICON = { pipeline: 'studio', delivery: 'services', website: 'site', menu: 'menu', inbox: 'chat', analytics: 'analytics' };
 let showArchived = false, filters = { q: '', source: '', person: '' };
+// Filters sit behind a button on phones and are always shown on wider screens.
+let filtersOpen = typeof matchMedia === 'function' ? matchMedia('(min-width: 701px)').matches : true;
 
 export function renderAuraStudio(ctx) {
  const { host, lang, esc, link, view } = ctx;
@@ -18,10 +20,12 @@ export function renderAuraStudio(ctx) {
  const canWrite = ctx.workspace.permissions.includes('roadmap:write');
  host.innerHTML = `<div class="os-studio">
   <header class="os-studio-head"><div><p class="os-eyebrow">${esc(c.sections.studio)} · ${esc(c.sections.studioTag)}</p><h1>${esc(s.tabs[current])}</h1><p class="os-muted">${esc(s.intro)}</p></div></header>
+  <label class="os-studio-select"><span class="sr-only">${esc(s.title)}</span><select data-studio-select>${STUDIO_VIEWS.map(v => `<option value="${esc(link('studio', { view: v }))}" ${v === current ? 'selected' : ''}>${esc(s.tabs[v])}</option>`).join('')}</select></label>
   <nav class="os-studio-tabs" aria-label="${esc(s.title)}">${STUDIO_VIEWS.map(v => `<a href="${esc(link('studio', { view: v }))}" ${v === current ? 'aria-current="page"' : ''} data-studio-tab="${v}">${icon(TAB_ICON[v], 16)}<span>${esc(s.tabs[v])}</span></a>`).join('')}</nav>
   ${canWrite ? '' : `<p class="os-notice">${icon('lock', 16)}<span>${esc(s.readOnly)}</span></p>`}
   <div class="os-studio-body" data-studio-body>${loading(c.state.loading, esc)}</div></div>`;
  host.querySelector('[data-studio-tab][aria-current]')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+ host.querySelector('[data-studio-select]')?.addEventListener('change', e => { const a = Object.assign(document.createElement('a'), { href: e.target.value }); host.append(a); a.click(); a.remove(); });
  const body = host.querySelector('[data-studio-body]');
  const run = { pipeline, delivery, website, menu, inbox, analytics }[current];
  return run({ ...ctx, body, c, s, canWrite }).catch(error => {
@@ -64,12 +68,14 @@ async function pipeline(ctx) {
     }).join('')}</div>`;
   body.innerHTML = `<div class="os-toolbar">
    <label class="os-search">${icon('search', 16)}<span class="sr-only">${esc(s.pipeline.search)}</span><input type="search" data-filter="q" value="${esc(filters.q)}" placeholder="${esc(s.pipeline.search)}" maxlength="80"></label>
+   <details class="os-filters" ${filtersOpen ? 'open' : ''} data-filters><summary class="os-btn is-quiet is-sm">${icon('filter', 16)}<span>${esc(s.pipeline.filters)}</span>${filters.source || filters.person ? '<b class="os-dot is-on"></b>' : ''}</summary><div class="os-filters-body">
    <label><span class="sr-only">${esc(c.studio.lead.source)}</span><select data-filter="source"><option value="">${esc(s.pipeline.allSources)}</option>${sources.map(x => `<option value="${x}" ${filters.source === x ? 'selected' : ''}>${esc(s.sources[x] || x)}</option>`).join('')}</select></label>
    <label><span class="sr-only">${esc(c.studio.lead.assignee)}</span><select data-filter="person"><option value="">${esc(s.pipeline.allPeople)}</option><option value="-" ${filters.person === '-' ? 'selected' : ''}>${esc(s.pipeline.unassigned)}</option>${assignees.map(p => `<option value="${esc(p.id)}" ${filters.person === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>
+   <button type="button" class="os-btn is-quiet is-sm" data-archived aria-pressed="${showArchived}">${icon('archive', 16)}<span>${esc(showArchived ? s.pipeline.hideArchived : s.pipeline.showArchived)}</span></button>
+   ${canWrite && !showArchived ? `<button type="button" class="os-btn is-quiet is-sm" data-stages>${esc(s.pipeline.configure)}</button>` : ''}</div></details>
    <span class="os-toolbar-spacer"></span>
    <span class="os-muted os-toolbar-count" role="status">${esc(s.pipeline.count(list.length))}</span>
-   <button type="button" class="os-btn is-quiet is-sm" data-archived aria-pressed="${showArchived}">${icon('archive', 16)}<span>${esc(showArchived ? s.pipeline.hideArchived : s.pipeline.showArchived)}</span></button>
-   ${canWrite && !showArchived ? `<button type="button" class="os-btn is-quiet is-sm" data-stages>${esc(s.pipeline.configure)}</button><button type="button" class="os-btn is-primary is-sm" data-new>${icon('plus', 16)}<span>${esc(s.pipeline.add)}</span></button>` : ''}
+   ${canWrite && !showArchived ? `<button type="button" class="os-btn is-primary is-sm" data-new>${icon('plus', 16)}<span>${esc(s.pipeline.add)}</span></button>` : ''}
   </div>${leads.length && !list.length && !showArchived ? emptyState({ esc, iconName: 'filter', title: s.pipeline.none }) : board}<dialog class="os-dialog" data-dialog></dialog>`;
   bind();
  };
@@ -85,6 +91,7 @@ async function pipeline(ctx) {
    draw();
    const again = body.querySelector(`[data-filter="${focus}"]`); again?.focus(); if (again?.setSelectionRange && pos !== undefined) again.setSelectionRange(pos, pos);
   }));
+  body.querySelector('[data-filters]')?.addEventListener('toggle', e => { filtersOpen = e.currentTarget.open; });
   body.querySelector('[data-archived]')?.addEventListener('click', async () => { showArchived = !showArchived; body.innerHTML = loading(c.state.loading, esc); await refresh(); });
   body.querySelectorAll('[data-new]').forEach(b => b.addEventListener('click', () => openForm()));
   body.querySelector('[data-stages]')?.addEventListener('click', openStages);

@@ -1,3 +1,4 @@
+import { guideText } from './mission-copy.js';
 // Aura Command — "Understand your business". The default page after sign-in.
 // Every number here comes from a real record: the Aura Studio pipeline, the
 // AuraDigital service records connected to this account, or the roadmap.
@@ -11,7 +12,7 @@ const TERMINAL = /^(completed|cancelled|canceled|rejected|delivered)$/;
 let chartRange = '30d', chartMetric = 'inquiries';
 
 export function bookingLabel(c, industry) {
- return industry === 'restaurant' ? c.kpi.reservations : industry === 'services' ? c.kpi.appointments : industry === 'real_estate' ? c.kpi.viewings : c.kpi.bookings;
+ return industry === 'restaurant' ? c.kpi.reservations : ['services', 'salon', 'professional'].includes(industry) ? c.kpi.appointments : industry === 'real_estate' ? c.kpi.viewings : c.kpi.bookings;
 }
 
 // One de-duplicated list of the services AuraDigital delivers for this
@@ -87,7 +88,7 @@ export function renderAuraCommand({ host, lang, esc, link, requestLink, me, work
  const events = activityEvents({ leads: leadList, workspace, snapshot, connected, missionTitle, link, c }).slice(0, 7);
  const nextList = [
   ...(attention ? [{ attention: true, title: attention.name, label: attention.label, href: attention.href }] : []),
-  ...eligible.slice(0, attention ? 2 : 3).map(m => ({ mission: m, title: missionTitle(m), why: missionGuide[m.capability]?.[1] || m.reason || '', href: link('journey', { task: m.id }), service: missionGuide[m.capability]?.[0] })),
+  ...eligible.slice(0, attention ? 2 : 3).map(m => ({ mission: m, title: missionTitle(m), why: guideText(m.capability, 1, lang, missionGuide[m.capability]?.[1] ?? m.reason) || '', href: link('journey', { task: m.id }), service: missionGuide[m.capability]?.[0] })),
  ];
  const auriLine = attention ? c.auri.attention(attention.name) : next ? c.auri.next(missionTitle(next)) : (workspace.missions || []).length ? c.auri.idle : c.auri.setup;
  const stageNames = c.services.stages;

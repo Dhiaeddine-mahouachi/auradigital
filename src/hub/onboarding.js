@@ -1,7 +1,7 @@
 import { runAuri } from './auri-controller.js';
 
 const fields = ['name', 'industry', 'city', 'country', 'website', 'goals', 'industryDetails', 'tools', 'acquisition'];
-const industries = ['restaurant', 'services', 'ecommerce', 'real_estate', 'other'];
+import { industryLabel, INDUSTRY_IDS as industries } from './os-copy.js';
 const steps = ['name', 'industry', 'goals', 'tools'];
 const toolsQuestion={en:'Which tools do you already use?',fr:'Quels outils utilisez-vous déjà ?',tr:'Hangi araçları zaten kullanıyorsunuz?',ar:'ما الأدوات التي تستخدمها بالفعل؟'};
 const copy = {
@@ -14,16 +14,16 @@ const copy = {
 const chatCopy = {
  en: { status: 'Setting up your workspace', progress: 'Setup progress', found: 'Here’s what I picked up from that:', skipped: 'Skipped', review: 'Check these details — you can edit anything before I build your roadmap.',
   hints: { industry: 'Pick one below, or choose from the list.', goals: 'One sentence is enough. Tap a suggestion if it fits.', tools: 'For example: Instagram, a printed menu, WhatsApp, Google Maps.' },
-  goals: { restaurant: ['Get more reservations', 'Get more direct orders', 'Be found on Google Maps'], services: ['Get more bookings', 'Win more quote requests', 'Keep clients coming back'], ecommerce: ['Sell more online', 'Grow repeat customers', 'Reach new customers'], real_estate: ['Get more property inquiries', 'Follow up leads faster', 'Showcase listings online'], other: ['Reach more customers', 'Look more professional online', 'Save time on admin'] } },
+  goals: { salon: ['Get more bookings', 'Bring clients back more often', 'Get more Google reviews'], retail: ['Get more people into the shop', 'Be found on Google Maps', 'Sell on WhatsApp and Instagram'], professional: ['Get more qualified inquiries', 'Follow up leads faster', 'Look more established online'],  restaurant: ['Get more reservations', 'Get more direct orders', 'Be found on Google Maps'], services: ['Get more bookings', 'Win more quote requests', 'Keep clients coming back'], ecommerce: ['Sell more online', 'Grow repeat customers', 'Reach new customers'], real_estate: ['Get more property inquiries', 'Follow up leads faster', 'Showcase listings online'], other: ['Reach more customers', 'Look more professional online', 'Save time on admin'] } },
  tr: { status: 'Çalışma alanınız hazırlanıyor', progress: 'Kurulum ilerlemesi', found: 'Anlattıklarınızdan şunları çıkardım:', skipped: 'Atlandı', review: 'Bu bilgileri kontrol edin — yol haritanızı oluşturmadan önce her şeyi düzenleyebilirsiniz.',
   hints: { industry: 'Aşağıdan birini seçin.', goals: 'Tek cümle yeterli. Uyan bir öneriye dokunun.', tools: 'Örneğin: Instagram, basılı menü, WhatsApp, Google Haritalar.' },
-  goals: { restaurant: ['Daha fazla rezervasyon', 'Daha fazla doğrudan sipariş', 'Google Haritalar’da bulunmak'], services: ['Daha fazla randevu', 'Daha fazla teklif talebi', 'Müşterilerin geri gelmesi'], ecommerce: ['Online daha fazla satış', 'Tekrar eden müşteriler', 'Yeni müşterilere ulaşmak'], real_estate: ['Daha fazla ilan talebi', 'Adaylara hızlı dönüş', 'İlanları online sergilemek'], other: ['Daha fazla müşteriye ulaşmak', 'Online daha profesyonel görünmek', 'İdari işlerde zaman kazanmak'] } },
+  goals: { salon: ['Daha fazla randevu', 'Müşterilerin daha sık gelmesi', 'Daha fazla Google yorumu'], retail: ['Mağazaya daha fazla müşteri', 'Google Haritalar’da bulunmak', 'WhatsApp ve Instagram’dan satış'], professional: ['Daha nitelikli talepler', 'Adaylara hızlı dönüş', 'Online daha güvenilir görünmek'],  restaurant: ['Daha fazla rezervasyon', 'Daha fazla doğrudan sipariş', 'Google Haritalar’da bulunmak'], services: ['Daha fazla randevu', 'Daha fazla teklif talebi', 'Müşterilerin geri gelmesi'], ecommerce: ['Online daha fazla satış', 'Tekrar eden müşteriler', 'Yeni müşterilere ulaşmak'], real_estate: ['Daha fazla ilan talebi', 'Adaylara hızlı dönüş', 'İlanları online sergilemek'], other: ['Daha fazla müşteriye ulaşmak', 'Online daha profesyonel görünmek', 'İdari işlerde zaman kazanmak'] } },
  fr: { status: 'Préparation de votre espace', progress: 'Progression', found: 'Voici ce que j’ai retenu :', skipped: 'Passé', review: 'Vérifiez ces informations — tout est modifiable avant que je crée votre feuille de route.',
   hints: { industry: 'Choisissez ci-dessous.', goals: 'Une phrase suffit. Touchez une suggestion si elle convient.', tools: 'Par exemple : Instagram, menu imprimé, WhatsApp, Google Maps.' },
-  goals: { restaurant: ['Plus de réservations', 'Plus de commandes directes', 'Être trouvé sur Google Maps'], services: ['Plus de rendez-vous', 'Plus de demandes de devis', 'Fidéliser les clients'], ecommerce: ['Vendre plus en ligne', 'Plus de clients fidèles', 'Toucher de nouveaux clients'], real_estate: ['Plus de demandes de biens', 'Relancer plus vite', 'Mettre en valeur les annonces'], other: ['Toucher plus de clients', 'Paraître plus professionnel', 'Gagner du temps'] } },
+  goals: { salon: ['Plus de rendez-vous', 'Faire revenir les clients', 'Plus d’avis Google'], retail: ['Plus de visites en boutique', 'Être trouvé sur Google Maps', 'Vendre sur WhatsApp et Instagram'], professional: ['Plus de demandes qualifiées', 'Relancer plus vite', 'Paraître plus établi en ligne'],  restaurant: ['Plus de réservations', 'Plus de commandes directes', 'Être trouvé sur Google Maps'], services: ['Plus de rendez-vous', 'Plus de demandes de devis', 'Fidéliser les clients'], ecommerce: ['Vendre plus en ligne', 'Plus de clients fidèles', 'Toucher de nouveaux clients'], real_estate: ['Plus de demandes de biens', 'Relancer plus vite', 'Mettre en valeur les annonces'], other: ['Toucher plus de clients', 'Paraître plus professionnel', 'Gagner du temps'] } },
  ar: { status: 'جارٍ إعداد مساحة عملك', progress: 'تقدم الإعداد', found: 'إليك ما فهمته من ذلك:', skipped: 'تم التخطي', review: 'راجع هذه التفاصيل — يمكنك تعديل أي شيء قبل أن أبني خطتك.',
   hints: { industry: 'اختر أحد الخيارات أدناه.', goals: 'جملة واحدة تكفي. اضغط اقتراحًا مناسبًا.', tools: 'مثلًا: إنستغرام، قائمة مطبوعة، واتساب، خرائط Google.' },
-  goals: { restaurant: ['حجوزات أكثر', 'طلبات مباشرة أكثر', 'الظهور على خرائط Google'], services: ['مواعيد أكثر', 'طلبات عروض أسعار أكثر', 'عودة العملاء'], ecommerce: ['مبيعات أكثر عبر الإنترنت', 'عملاء دائمون', 'الوصول إلى عملاء جدد'], real_estate: ['استفسارات عقارية أكثر', 'متابعة أسرع', 'عرض العقارات عبر الإنترنت'], other: ['الوصول لعملاء أكثر', 'مظهر احترافي عبر الإنترنت', 'توفير الوقت'] } },
+  goals: { salon: ['مواعيد أكثر', 'عودة العملاء أكثر', 'تقييمات Google أكثر'], retail: ['زوار أكثر للمتجر', 'الظهور على خرائط Google', 'البيع عبر واتساب وإنستغرام'], professional: ['استفسارات مؤهلة أكثر', 'متابعة أسرع', 'مظهر أكثر موثوقية'],  restaurant: ['حجوزات أكثر', 'طلبات مباشرة أكثر', 'الظهور على خرائط Google'], services: ['مواعيد أكثر', 'طلبات عروض أسعار أكثر', 'عودة العملاء'], ecommerce: ['مبيعات أكثر عبر الإنترنت', 'عملاء دائمون', 'الوصول إلى عملاء جدد'], real_estate: ['استفسارات عقارية أكثر', 'متابعة أسرع', 'عرض العقارات عبر الإنترنت'], other: ['الوصول لعملاء أكثر', 'مظهر احترافي عبر الإنترنت', 'توفير الوقت'] } },
 };
 
 export function createOnboarding() {
@@ -37,7 +37,7 @@ export function renderOnboarding({ app, state, lang, t, esc, header, robot, bind
  const input = (key, required = false) => {
   const value = values[key] || '';
   if (key === 'industry') {
-   return `<select name="industry"><option value="">—</option>${industries.map(id => `<option value="${id}" ${value === id ? 'selected' : ''}>${esc(t(id === 'services' ? 'servicesIndustry' : id))}</option>`).join('')}</select>`;
+   return `<select name="industry"><option value="">—</option>${industries.map(id => `<option value="${id}" ${value === id ? 'selected' : ''}>${esc(industryLabel(lang, id))}</option>`).join('')}</select>`;
   }
   const max = { name: 120, city: 100, country: 80, website: 500, tools: 1200, acquisition: 1200 }[key] || 1600;
   return `<input name="${key}" value="${esc(value)}" type="${key === 'website' ? 'url' : 'text'}" maxlength="${max}" ${required ? 'required' : ''}>`;
@@ -50,7 +50,7 @@ export function renderOnboarding({ app, state, lang, t, esc, header, robot, bind
  // answers form a conversation; the current question has a pinned composer.
  const extra = chatCopy[lang] || chatCopy.en;
  const questionText = key => ({ name: nameQuestion, industry: industryQuestion, city: cityQuestion, goals: goalQuestion, tools: toolsQuestion[lang] })[key];
- const shown = key => key === 'industry' && values[key] ? t(values[key] === 'services' ? 'servicesIndustry' : values[key]) : values[key];
+ const shown = key => key === 'industry' && values[key] ? industryLabel(lang, values[key]) : values[key];
  const auriMsg = (body, extraClass = '') => `<li class="os-chat-msg is-auri ${extraClass}"><span class="os-chat-avatar" aria-hidden="true"><img src="/media/auri/level-1.webp" alt="" width="32" height="32"></span><div class="os-chat-bubble">${body}</div></li>`;
  const userMsg = body => `<li class="os-chat-msg is-user"><div class="os-chat-bubble">${body}</div></li>`;
  const history = [];
@@ -68,7 +68,7 @@ export function renderOnboarding({ app, state, lang, t, esc, header, robot, bind
   history.push(auriMsg(reviewing ? `<h1>${esc(review)}</h1><p>${esc(extra.review)}</p>` : `<h1>${esc(questionText(question))}</h1>${question === 'name' && !values.name ? '' : `<p class="os-chat-hint">${esc(extra.hints[question] || '')}</p>`}`, 'is-current'));
  }
  const chips = !entry && !reviewing && question === 'industry'
-  ? `<div class="os-chat-chips" role="group" aria-label="${esc(industryQuestion)}">${industries.map(id => `<button type="button" class="os-chip" data-quick-industry="${id}">${esc(t(id === 'services' ? 'servicesIndustry' : id))}</button>`).join('')}</div>`
+  ? `<div class="os-chat-chips" role="group" aria-label="${esc(industryQuestion)}">${industries.map(id => `<button type="button" class="os-chip" data-quick-industry="${id}">${esc(industryLabel(lang, id))}</button>`).join('')}</div>`
   : !entry && !reviewing && question === 'goals' ? `<div class="os-chat-chips">${(extra.goals[values.industry] || extra.goals.other).map(goal => `<button type="button" class="os-chip" data-quick-goal="${esc(goal)}">${esc(goal)}</button>`).join('')}</div>` : '';
  app.innerHTML = `${header}<main id="main" class="auri-setup os-chat-setup">
  <div class="os-chat-layout"><section class="os-chat" aria-label="Auri">

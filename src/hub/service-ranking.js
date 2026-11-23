@@ -20,6 +20,9 @@ const sectorBoost={
  real_estate:{crm:75,website:30,whatsapp:30,ads:27},
  ecommerce:{website:35,crm:30,ads:30,reviews:30,whatsapp:25},
  services:{email:20,crm:20,website:15,discovery:15},
+ salon:{whatsapp:35,reviews:30,discovery:30,crm:20},
+ retail:{discovery:35,reviews:30,website:25,card:20},
+ professional:{website:35,crm:30,email:25,discovery:15},
 };
 const validDate=value=>{
  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}(?:$|[T ])/.test(value))return null;

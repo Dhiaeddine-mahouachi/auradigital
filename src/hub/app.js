@@ -19,10 +19,11 @@ import { mountAuriChat, chatCopy } from './auri-chat.js';
 import { renderAuraCommand } from './aura-command.js';
 import { renderAuraJourney } from './aura-journey.js';
 import { renderAuraStudio, STUDIO_VIEWS } from './aura-studio.js';
-import { osCopy } from './os-copy.js';
+import { osCopy, industryLabel, INDUSTRY_IDS } from './os-copy.js';
+import { renderBusiness } from './business-view.js';
 import { localizeError } from './server-errors.js';
 import { serviceItems } from './aura-command.js';
-import { icon as osIcon } from './os-ui.js';
+import { icon as osIcon, mirrorArrows } from './os-ui.js';
 import { simulate, capabilities, diagnose } from '../growth-engine.js';
 const app=document.querySelector('#app'),notice=document.querySelector('#notice');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -113,6 +114,7 @@ function render(){
  disconnectAuri();disconnectDesk();
  document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
  const skip=document.querySelector('.skip');if(skip)skip.textContent=osCopy(lang).state.skip;
+ mirrorArrows(app,lang==='ar');
  app.setAttribute('aria-busy','false');
  if(!me||['verify','reset','forgot','invitation','confirm-email'].includes(route)){renderGate();return;}
  if(page==='onboarding'&&(!workspace||(!workspace.missions.length&&workspace.permissions.includes('profile:write')&&workspace.permissions.includes('roadmap:write')))){openFirstLogin();return;}
@@ -322,7 +324,7 @@ function profileField(k){
  }
  if(k==='auriName')return field(k,auriControls(lang).name,setupAuriName,'text','maxlength="24"');
  const value=draft[k]??'';
- if(k==='industry')return select(k,k,[['restaurant',t('restaurant')],['services',t('servicesIndustry')],['ecommerce',t('ecommerce')],['real_estate',t('real_estate')],['other',t('other')]],value);
+ if(k==='industry')return select(k,k,INDUSTRY_IDS.map(id=>[id,industryLabel(lang,id)]),value);
  if(k==='currency')return select(k,k,['USD','EUR','TRY','TND'].map(x=>[x,x]),value);
  if(k==='capabilities')return `<fieldset><legend>${t(k)}</legend><div class="checks">${capabilities.map(c=>`<label class="check"><input type="checkbox" name="capabilities" value="${c.id}" ${(draft.capabilities||[]).includes(c.id)?'checked':''}>${esc(cap(c.id))}</label>`).join('')}</div></fieldset>`;
  if(['tools','acquisition','difficulties','goals','industryDetails'].includes(k)){const question=k==='industryDetails'?({restaurant:'restaurantQuestion',ecommerce:'ecommerceQuestion',real_estate:'realEstateQuestion',services:'servicesQuestion'}[draft.industry]||'otherQuestion'):k;return `<label class="field">${t(question)}<textarea name="${k}" rows="4" maxlength="${k==='tools'||k==='acquisition'?1200:1600}">${esc(value)}</textarea></label>`;}
@@ -417,7 +419,7 @@ function renderShell(){
  const sheetItems=groups.flatMap(([,list])=>list).filter(p=>!mobileMain.includes(p));
  const section=page==='home'?oc.sections.command:page==='journey'?oc.sections.journey:page==='studio'?oc.sections.studio:labelOf(active);
  const title=page==='services'?serviceLabels[lang][0]:page==='journey'?commandLabels(lang).vision:labelOf(page);
- const ownHeading=(page==='home'||page==='journey')&&workspace?.missions.length||page==='studio'&&workspace;
+ const ownHeading=(page==='home'||page==='journey')&&workspace?.missions.length||(page==='studio'||page==='profile')&&workspace;
  const initials=String(workspace?.organization.name||me.name||'A').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
  app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell hx-shell wx-shell os-shell ${page==='journey'&&workspace?.missions.length?'os-shell-journey':''} ${page==='services'?'service-shell':''}"><aside class="sidebar os-sidebar" id="sidebar">
  <a href="${esc(link('home'))}" class="wordmark command-wordmark os-brand">${brandMarkup}<small>AuraHub</small></a>
@@ -578,6 +580,12 @@ function letAuriDo(mission){
  requestDrafts.set(workspace.organization.id,brief.slice(0,1700));
  navigate('requests',{new:'1',service:serviceFor(mission.capability||mission.id),task:mission.id});
 }
+// Server-saved Auri conversation for this person and workspace.
+const auriHistory=()=>({
+ load:()=>api(endpoint('auri-history')).then(r=>r.messages),
+ save:messages=>messages.length?api(endpoint('auri-history'),'POST',{messages:messages.slice(-6)}):Promise.resolve(),
+ clear:()=>api(endpoint('auri-history'),'DELETE'),
+});
 // Auri side panel, available on every page of the hub.
 let auriOpen=false,auriChat=null;
 async function openAuri(initial,{direct=false}={}){
@@ -589,15 +597,19 @@ async function openAuri(initial,{direct=false}={}){
  const body=drawer.querySelector('[data-ax-body]');
  if(auriChat&&body.childElementCount&&body.dataset.workspace===workspace.organization.id){if(initial)auriChat.ask(initial,{direct});return;}
  body.innerHTML='<p class="ax-loading" role="status">…</p>';body.dataset.workspace=workspace.organization.id;
+ auriChat=await mountChatInto(body,{initial,direct});
+}
+// One chat implementation for the drawer and the full Auri page.
+async function mountChatInto(host,{initial,direct=false}={}){
  const ui=hubLabels(lang);
  const hit=cached();
  const [snapshot,connected]=hit?[hit.snapshot,hit.connected]:await Promise.all([workSnapshot().catch(()=>({attention:[],progress:[],services:[],records:[],requests:[]})),api(endpoint('connected')).catch(()=>null)]);
- if(!drawer.isConnected)return;
+ if(!host.isConnected)return null;
  const next=workspace.missions.length?nextMission():null;
  // Same de-duplicated counts as Aura Command, so Auri never disagrees with the dashboard.
  const items=serviceItems({snapshot,connected,link,lang}),activeItems=items.filter(i=>!i.terminal);
  const item=snapshot.attention[0],menu=item?.kind==='menu';
- auriChat=mountAuriChat({host:body,lang,esc,link,me,workspace,initial,direct,
+ return mountAuriChat({host,lang,esc,link,me,workspace,initial,direct,history:workspace.permissions.includes('auri:use')?auriHistory():null,
   data:{snapshot,connected,next,missionTitle,counts:{live:activeItems.filter(i=>i.stage===3).length,open:activeItems.filter(i=>i.stage<3).length+(snapshot.attention||[]).length},
    attention:item?{name:menu?ui.menuReady:item.name,label:menu?ui.reviewMenu:ui.openRequest,href:link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id})}:null,
    nextAction:next?{label:ui.continue,href:link('journey',{task:next.id})}:null},
@@ -713,8 +725,7 @@ async function renderPage(){
  if(page==='services'||page==='requests')return myWork();
  if((page==='journey'||page==='onboarding')&&!workspace.missions.length)return renderBuildCard(label);
  if(page==='onboarding'){navigate('journey',{},true);return;}
- if(page==='profile'&&!workspace.permissions.includes('profile:write')){content(`<section class="panel"><h2>${esc(workspace.profile.name)}</h2><p>${t('readOnly')}</p><p>${esc(workspace.profile.goals)}</p></section>`);return;}
- if(page==='profile'){draft=structuredClone(workspace.profile);mode=workspace.organization.mode;step=0;editing=true;renderSetup();return;}
+ if(page==='profile')return renderBusiness({host:document.querySelector('#page-content'),lang,esc,api,endpoint,workspace,cap,resizePhoto,toast,onSaved:()=>loadWorkspace()});
  if(page==='menuDrafts'&&!feature('menuDrafts')){const s=osCopy(lang).studio.menu;content(`<section class="os-card"><h2>${esc(s.title)}</h2><p class="os-muted">${esc(s.unavailable)}</p><div class="os-inline-actions">${workspace.permissions.includes('roadmap:write')?`<a class="os-btn is-primary is-sm" href="${esc(requestLink('AuraMenu'))}">${esc(s.request)}</a>`:''}<a class="os-btn is-quiet is-sm" href="${esc(link('home'))}">${esc(osCopy(lang).nav.overview)}</a></div></section>`);return;}
  if(page==='menuDrafts')return renderMenuDrafts({host:document.querySelector('#page-content'),api,endpoint,profile:workspace.profile,canWrite:workspace.permissions.includes('roadmap:write'),draftId:query.get('draft'),reviewLabel:label.reviewed,onDraft:id=>navigate('menuDrafts',{draft:id}),onReviewed:()=>navigate('home')});
  if(page==='journey'){if(selectedMission&&!workspace.missions.some(m=>m.id===selectedMission))throw new Error(label.unavailable);return growthDashboard();}
@@ -863,8 +874,11 @@ async function team(){
  document.querySelectorAll('[data-cancel]').forEach(b=>b.onclick=async()=>{try{await api(endpoint('invitations/'+b.dataset.cancel),'DELETE');await team();}catch(e){toast(e.message);}});
  document.querySelectorAll('[data-resend]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const i=data.invitations.find(i=>i.id===b.dataset.resend);await api(endpoint('invitations/'+i.id),'DELETE');await api(endpoint('invitations'),'POST',{email:i.email,role:i.role,message:''});await team();}catch(e){toast(e.message);b.disabled=false;}});
  document.querySelectorAll('[data-member]').forEach(row=>{const m=data.members.find(m=>m.id===row.dataset.member);row.querySelector('[data-action="remove-member"]')?.addEventListener('click',async()=>{if(!confirm(t('removeConfirm')))return;try{const r=await api(endpoint('team/'+m.id),'DELETE');if(r.subscriptionCancellation==='BLOCKED_PROVIDER_RECONCILIATION_REQUIRED')toast(r.subscriptionCancellation);await team();}catch(e){toast(e.message);}});row.querySelector('[data-action="edit-member"]')?.addEventListener('click',()=>{const cell=row.lastElementChild;cell.innerHTML=`<form>${select('role','role',rolesForUI(),m.role)}<fieldset><legend>${t('restrict')}</legend>${['profile:write','roadmap:write','simulation:write','workspace:read','auri:use'].map(p=>`<label class="check"><input type="checkbox" name="denied" value="${p}" ${m.deniedPermissions.includes(p)?'checked':''}>${esc(t(({'profile:write':'profile','roadmap:write':'journey','simulation:write':'simulator','workspace:read':'home','auri:use':'assistant'})[p]))}</label>`).join('')}</fieldset><button class="primary">${t('save')}</button></form>`;cell.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);try{await api(endpoint('team/'+m.id),'PATCH',{role:f.get('role'),deniedPermissions:f.getAll('denied')});await team();}catch(e){toast(e.message);}};});});
+ labelTables(document.querySelector('#page-content'));
  const a=await api(endpoint('activity'));document.querySelector('#activity').innerHTML=a.events.map(e=>`<p>${esc(e.created_at)} · ${esc(e.action)}</p>`).join('')||t('empty');
 }
+// Phones show table rows as cards; each cell carries its column name.
+function labelTables(host){host?.querySelectorAll('.table-scroll table').forEach(table=>{const heads=[...table.querySelectorAll('thead th')].map(th=>th.textContent.trim());table.classList.add('os-card-table');table.querySelectorAll('tbody tr').forEach(tr=>[...tr.children].forEach((td,i)=>{if(heads[i])td.dataset.label=heads[i];}));});}
 const rolesForUI=()=>['viewer','member','admin'].map(v=>[v,t(v)]);
 async function updateAuriPreferences(values) {
  const id=workspace.organization.id;
@@ -1027,8 +1041,21 @@ async function assistant(){
   <div class="actions"><button type="button" class="primary" data-auri-draft>${esc(labels.create)}</button>${button('diagnosis','diagnosis',true)}${button('recommend','next-action',true)}</div><div data-auri-tools-status role="status"></div>
   <p role="status" data-draft-status></p>
   <h2>${esc(labels.history)}</h2><div data-auri-drafts></div></section>`:''}`);
- renderCompanion(true);
- const preset=query.get('ask');
+ const fullChat=!returnLink&&canAsk;
+ if(fullChat){
+  // Full-screen conversation (no task/request context): chat plus tools and settings.
+  const tools=document.querySelector('.auri-work-log');
+  const p=osCopy(lang).auriPage,pref=auriPreference();
+  host.innerHTML=`<div class="os-auri-page"><section class="os-auri-chat" data-auri-page aria-label="${esc(pref.name)}"></section>
+   <aside class="os-auri-side"><section class="os-card"><h2>${esc(p.tools)}</h2><p class="os-muted">${esc(p.toolsNote)}</p></section>
+   <section class="os-card"><h2>${esc(p.settings)}</h2><form data-auri-name class="os-auri-name"><label class="os-field"><span>${esc(auriControls(lang).name)}</span><input name="name" value="${esc(pref.name)}" required maxlength="24"></label><button class="os-btn is-quiet is-sm">${esc(t('save'))}</button></form></section></aside></div>`;
+  host.querySelector('.os-auri-side .os-card').append(tools);
+  const preset=query.get('ask');
+  if(preset){history.replaceState(null,'',link('assistant'));query.delete('ask');}
+  await mountChatInto(host.querySelector('[data-auri-page]'),{initial:preset?preset.slice(0,500):undefined,direct:Boolean(preset)});
+  host.querySelector('[data-auri-name]').onsubmit=async e=>{e.preventDefault();const b=e.currentTarget.querySelector('button');b.disabled=true;try{await updateAuriPreferences({name:new FormData(e.currentTarget).get('name')});toast(t('saved'));}catch(err){toast(err.message);}finally{b.disabled=false;}};
+ }else renderCompanion(true);
+ const preset=fullChat?null:query.get('ask');
  if(preset&&canAsk){
   const form=document.querySelector('[data-auri-ask]'),input=form?.querySelector('input');
   history.replaceState(null,'',link('assistant'));query.delete('ask');
@@ -1053,6 +1080,7 @@ async function assistant(){
    finally{trigger.disabled=false;}
   };
  }
+ if(!auriSessions.has(id))auriSessions.set(id,{open:false,reply:'',pending:false,error:''});
  const session=auriSessions.get(id);
  create.disabled=Boolean(session.draftPending);
  status.textContent=session.draftError||'';

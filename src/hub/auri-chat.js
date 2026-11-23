@@ -114,7 +114,7 @@ const STUDIO_REPLY = {
 const START_WORDS = /\b(build|make|create|set ?up|start|get|launch|need|want|do)\b|oluştur|kur|yap|istiyorum|başlat|ابن|أنشئ|أريد|ابدأ|créer|lancer|faire|veux/i;
 const money = (lang, amount) => new Intl.NumberFormat(lang === 'ar' ? 'ar' : lang, { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(Number(amount || 0));
 
-export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askAuri, auriImage, onBrief, initial, direct = false }) {
+export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askAuri, auriImage, onBrief, initial, direct = false, history = null }) {
   const c = chatCopy(lang);
   const id = workspace?.organization.id || 'new';
   const storeKey = 'aura-chat:' + id;
@@ -143,6 +143,12 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
   };
   log = [greeting(), ...log.filter(m => !m.greeting)];
   save();
+  // Saved conversation from the server (follows the customer across devices).
+  history?.load().then(messages => {
+    if (!messages?.length || !host.isConnected) return;
+    log = [greeting(), ...messages.map(m => ({ role: m.role, text: m.text }))];
+    save(); draw();
+  }).catch(() => {});
 
   host.innerHTML = `<div class="ax-chat">
     <ol class="ax-log" role="log" aria-live="polite" data-ax-log></ol>
@@ -167,6 +173,7 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
   // `direct` questions come from a page's own context (a roadmap stage, the
   // dashboard) and always go to the real guidance endpoint, not a shortcut.
   async function answer(text, { direct = false } = {}) {
+    const start = log.length;
     log.push({ role: 'me', text }); save(); draw();
     const t = text.toLowerCase();
     const idea = SERVICE_IDEAS.find(s => s.match.test(t));
@@ -202,6 +209,7 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
       log.splice(log.indexOf(pending), 1, { role: 'auri', text: reply || c.error });
     }
     save(); if (host.isConnected) draw();
+    history?.save(log.slice(start).filter(m => !m.pending && m.text).map(m => ({ role: m.role === 'me' ? 'me' : 'auri', text: m.text }))).catch(() => {});
   }
   const form = host.querySelector('[data-ax-form]'), input = form.querySelector('textarea');
   form.addEventListener('submit', event => {
@@ -221,7 +229,7 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
   draw();
   if (initial) answer(initial, { direct }); else setTimeout(() => input.focus({ preventScroll: true }), 50);
   return {
-    reset: () => { log = [greeting()]; save(); draw(); },
+    reset: () => { log = [greeting()]; save(); draw(); history?.clear().catch(() => {}); },
     ask: (text, options) => answer(text, options),
   };
 }
