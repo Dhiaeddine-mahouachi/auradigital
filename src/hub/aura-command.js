@@ -3,7 +3,7 @@
 // AuraDigital service records connected to this account, or the roadmap.
 // Sources that are not connected show a setup state, never a sample number.
 import { osCopy } from './os-copy.js';
-import { icon, pill, emptyState, barChart, bucketize, parseDate, relative, shortDate, number, deliveryStage, TONE } from './os-ui.js';
+import { icon, pill, emptyState, barChart, bucketize, parseDate, relative, shortDate, number, money, deliveryStage, TONE } from './os-ui.js';
 import { dashCopy } from './dashboard-view.js';
 import { missionGuide } from '../roadmap.js';
 
@@ -64,7 +64,7 @@ export function renderAuraCommand({ host, lang, esc, link, requestLink, me, work
  ].filter(Boolean);
 
  const kpi = ({ key, label, value, foot, source, setup, action, tone }) => `<article class="os-kpi${setup ? ' is-setup' : ''}" data-kpi="${key}">
-  <header><span class="os-kpi-icon">${icon(key === 'visitors' ? 'globe' : key === 'inquiries' ? 'chat' : key === 'bookings' ? 'calendar' : 'services')}</span><h3>${esc(label)}</h3></header>
+  <header><span class="os-kpi-icon">${icon(key === 'visitors' ? 'globe' : key === 'inquiries' ? 'chat' : key === 'bookings' ? 'calendar' : 'services')}</span><h2>${esc(label)}</h2></header>
   ${setup ? `<p class="os-kpi-setup"><span class="os-dot" aria-hidden="true"></span>${esc(c.kpi.notConnected)}</p><p class="os-kpi-note">${esc(setup)}</p>${action || ''}`
    : `<p class="os-kpi-value">${esc(value)}</p><p class="os-kpi-foot ${tone ? 'is-' + tone : ''}">${esc(foot)}</p>`}
   <p class="os-source">${esc(source)}</p></article>`;
@@ -122,6 +122,10 @@ export function renderAuraCommand({ host, lang, esc, link, requestLink, me, work
      <div class="os-auri-actions">${next && !attention ? `<a class="os-btn is-primary is-sm" href="${esc(link('journey', { task: next.id }))}">${esc(continueLabel)}</a>` : ''}
       ${canAsk ? `<button type="button" class="os-btn is-quiet is-sm" data-os-ask="next">${icon('auri', 16)}<span>${esc(c.auri.ask)}</span></button>` : ''}</div>
     </section>
+    ${connected ? `<section class="os-card os-billing" aria-labelledby="os-bill-title">
+     <header class="os-card-head"><div><h2 id="os-bill-title">${esc(c.billing.title)}</h2></div><a class="os-link" href="/account">${esc(c.billing.open)}</a></header>
+     ${connected.totals?.amountDue ? `<p class="os-bill-due ${connected.totals.amountDue ? 'is-due' : ''}"><span>${esc(c.billing.due)}</span><strong>${esc(money(lang, connected.totals.amountDue, 'TRY'))}</strong></p><p class="os-muted">${esc(c.billing.invoices(connected.totals.invoicesDue))}</p>` : `<p class="os-muted">${esc(c.billing.none)}</p>`}
+     <p class="os-source">${esc(c.billing.note)}</p></section>` : ''}
     <section class="os-card" aria-labelledby="os-next-title">
      <header class="os-card-head"><div><h2 id="os-next-title">${esc(c.next.title)}</h2></div></header>
      ${nextList.length ? `<ul class="os-next">${nextList.map((n, i) => `<li class="${n.attention ? 'is-attention' : ''}">

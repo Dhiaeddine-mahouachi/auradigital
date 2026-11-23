@@ -195,6 +195,34 @@ try {
   await p.close();
  }
 
+ step('audit fixes: 404 page, matching Auri counts, focus stays in Auri, billing card');
+ const fx = await open();
+ await fx.goto(base + '/__qa/start');
+ await fx.locator('#os-greeting').waitFor();
+ await fx.locator('.os-billing').waitFor();
+ const live = (await fx.locator('[data-kpi=services] .os-kpi-foot').innerText()).match(/\d+/)[0];
+ await fx.locator('.os-top-auri').click();
+ await fx.locator('#ax-drawer .ax-msg').first().waitFor();
+ assert.match(await fx.locator('#ax-drawer .ax-msg').first().innerText(), new RegExp(live + ' services? live'));
+ for (let i = 0; i < 25; i++) await fx.keyboard.press('Tab');
+ assert(await fx.evaluate(() => !!document.activeElement.closest('#ax-drawer')), 'focus stays inside Auri');
+ await fx.keyboard.press('Escape');
+ await fx.goto(base + '/hub/this-page-does-not-exist');
+ await fx.getByRole('heading', { name: 'Page not found' }).waitFor();
+ await fx.goto(base + '/hub/roadmap?lang=tr');
+ assert.equal(await fx.locator('.skip').innerText(), 'İçeriğe geç');
+ await fx.close();
+ const newbie = await open();
+ await newbie.goto(base + '/hub/signup');
+ await newbie.locator('[name=name]').fill('Contrast Check');
+ await newbie.locator('[name=email]').fill('contrast-' + crypto.randomUUID() + '@example.test');
+ await newbie.locator('[name=password]').fill('Saffron-lake-0142!');
+ await newbie.locator('[name=terms]').check();
+ await newbie.locator('#auth-form button[type=submit]').click();
+ const heroColor = await newbie.getByRole('heading', { name: 'Build your roadmap' }).evaluate(h => getComputedStyle(h).color);
+ assert.equal(heroColor, 'rgb(255, 255, 255)', 'hero heading is readable on the dark card');
+ await newbie.close();
+
  step('profile photo: upload, shown in the shell, removable');
  const me = await open();
  await me.goto(base + '/__qa/start');

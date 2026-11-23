@@ -25,7 +25,9 @@ export const hubIcons={
 export const hubIcon=id=>`<svg width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round" stroke-linecap="round" fill="none" aria-hidden="true">${hubIcons[id]||hubIcons.services}</svg>`;
 export function currentHubLocation() {
  const slug=location.pathname.split('/')[2]||'';
- const page=Object.keys(destinations).find(key=>destinations[key]===slug)||'home';
+ const known=Object.keys(destinations).find(key=>destinations[key]===slug);
+ // Auth screens are handled before the shell; anything else unknown is a 404.
+ const page=known||(['','login','signup','forgot','reset','verify','invitation','confirm-email'].includes(slug)?'home':'notfound');
  return {page,query:new URLSearchParams(location.search)};
 }
 export function hubLink(page,workspace,params={}) {

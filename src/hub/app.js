@@ -20,6 +20,8 @@ import { renderAuraCommand } from './aura-command.js';
 import { renderAuraJourney } from './aura-journey.js';
 import { renderAuraStudio, STUDIO_VIEWS } from './aura-studio.js';
 import { osCopy } from './os-copy.js';
+import { localizeError } from './server-errors.js';
+import { serviceItems } from './aura-command.js';
 import { icon as osIcon } from './os-ui.js';
 import { simulate, capabilities, diagnose } from '../growth-engine.js';
 const app=document.querySelector('#app'),notice=document.querySelector('#notice');
@@ -49,6 +51,8 @@ const toast=message=>{notice.textContent=message;notice.classList.add('visible')
 const setupScope='setup';
 let disconnectAuri=()=>{},disconnectDesk=()=>{};
 const auriLevel=()=>workspace?.auri?.level||1;
+// Server-reported feature switches (e.g. menu drafts are off in production).
+const feature=name=>workspace?.features?.[name]!==false;
 const auriPreference=()=>workspace?.auriPreferences||{name:'Auri',hidden:false};
 const auriSessions=new Map();
 let auriVoice=null,setupAuriName='',setupDeferred=[];
@@ -92,7 +96,13 @@ async function api(path,method='GET',body,{timeout=method==='GET'?15000:45000}={
  try{response=await fetch(path,{method,credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal:controller.signal});}
  catch(cause){const error=new Error(osCopy(lang).state[cause?.name==='AbortError'?'timeout':'offline']);error.status=0;error.network=true;throw error;}
  finally{clearTimeout(timer);}
- const data=await response.json().catch(()=>({error:t('error')}));if(!response.ok){const error=new Error(data.error||t('error'));error.status=response.status;throw error;}return data;}
+ const data=await response.json().catch(()=>({error:t('error')}));
+ if(!response.ok){
+  // A session that expires while the Hub is open goes back to sign-in and returns here afterwards.
+  if(response.status===401&&me&&path.startsWith('/api/hub/')){location.assign('/hub/login?'+new URLSearchParams({next:location.pathname+location.search}));}
+  const error=new Error(localizeError(data.error,lang)||t('error'));error.status=response.status;error.serverMessage=data.error;throw error;
+ }
+ return data;}
 const endpoint=s=>'/api/hub/workspaces/'+workspace.organization.id+(s?'/'+s:'');
 const button=(label,action,secondary=false,disabled=false)=>`<button type="button" data-action="${action}" class="${secondary?'secondary':'primary'}" ${disabled?'disabled':''}>${esc(t(label))}</button>`;
 function field(key,label,value='',type='text',extra='') {return `<label class="field">${esc(t(label))}<input name="${key}" type="${type}" value="${esc(value)}" ${extra}></label>`;}
@@ -102,6 +112,7 @@ function bindCommon(){document.querySelector('#language')?.addEventListener('cha
 function render(){
  disconnectAuri();disconnectDesk();
  document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+ const skip=document.querySelector('.skip');if(skip)skip.textContent=osCopy(lang).state.skip;
  app.setAttribute('aria-busy','false');
  if(!me||['verify','reset','forgot','invitation','confirm-email'].includes(route)){renderGate();return;}
  if(page==='onboarding'&&(!workspace||(!workspace.missions.length&&workspace.permissions.includes('profile:write')&&workspace.permissions.includes('roadmap:write')))){openFirstLogin();return;}
@@ -322,7 +333,7 @@ function renderSetup(){
  if(!editing){draft=workspace?structuredClone(workspace.profile):emptyProfile();mode=workspace?.organization.mode||'myself';}
  const choosing=!editing;
  const setupKeys=workspace?profileKeys:mode==='auri'?['name','industry','industryDetails','goals','capabilities','auriName','roadmapPreview']:['name','industry','goals','budget','currency','website','capabilities'];
- app.innerHTML=`<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">${brandMarkup}</a>${languageControl()}</header><main class="setup command-setup" id="main"><div class="setup-heading"><p class="eyebrow">Aura Command</p><h1>${choosing?commandLabels(lang).onboarding:esc(draft.name||t('profile'))}</h1><p>${choosing?t('choose'):t(mode==='auri'?'auriText':'myselfText')}</p></div>${choosing?`<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">↗</span><h2>${t('myself')}</h2><p>${t('myselfText')}</p><span>${t('continue')} →</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t('auri')}</h2><p>${t('auriText')}</p><span>${t('continue')} →</span></button></div>`:`<section class="panel profile-panel"><div class="panel-bar"><span>${mode==='auri'?`AURI · ${step+1}/${setupKeys.length}`:t('profile')}</span><span id="save-state" role="status"></span>${button('switchMode','switch-mode',true)}</div>${mode==='auri'?`<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>`:''}<form id="profile-form" class="${mode==='auri'?'guided':'form-grid'}">${(mode==='auri'?[setupKeys[step]]:setupKeys).map(profileField).join('')}<div class="actions full">${mode==='auri'?button('back','back-step',true,step===0)+button('skip','skip-step',true,step===0):''}<button class="primary" type="submit">${t(mode==='auri'&&step<setupKeys.length-1?'continue':'save')}</button>${workspace?button('home','leave-setup',true):''}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
+ app.innerHTML=`<header class="gate-header command-gate-header"><a href="/hub" class="wordmark">${brandMarkup}</a>${languageControl()}</header><main class="setup command-setup" id="main"><div class="setup-heading"><p class="eyebrow">AuraHub</p><h1>${choosing?commandLabels(lang).onboarding:esc(draft.name||t('profile'))}</h1><p>${choosing?t('choose'):t(mode==='auri'?'auriText':'myselfText')}</p></div>${choosing?`<div class="mode-grid"><button class="mode-card" data-mode="myself"><span class="mode-icon">↗</span><h2>${t('myself')}</h2><p>${t('myselfText')}</p><span>${t('continue')} →</span></button><button class="mode-card dark" data-mode="auri">${robot()}<h2>${t('auri')}</h2><p>${t('auriText')}</p><span>${t('continue')} →</span></button></div>`:`<section class="panel profile-panel"><div class="panel-bar"><span>${mode==='auri'?`Auri · ${step+1}/${setupKeys.length}`:t('profile')}</span><span id="save-state" role="status"></span>${button('switchMode','switch-mode',true)}</div>${mode==='auri'?`<div class="auri-onboarding">${auriCharacter(auriLevel())}<p data-auri-status role="status"></p></div>`:''}<form id="profile-form" class="${mode==='auri'?'guided':'form-grid'}">${(mode==='auri'?[setupKeys[step]]:setupKeys).map(profileField).join('')}<div class="actions full">${mode==='auri'?button('back','back-step',true,step===0)+button('skip','skip-step',true,step===0):''}<button class="primary" type="submit">${t(mode==='auri'&&step<setupKeys.length-1?'continue':'save')}</button>${workspace?button('home','leave-setup',true):''}</div><p class="form-error full" role="alert"></p></form></section>`}</main>`;
  bindCommon();document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;editing=true;step=0;setupAuriName='';setupDeferred=[];render();});
  if(choosing)return;
  const form=document.querySelector('#profile-form');
@@ -395,7 +406,7 @@ function renderShell(){
  // lead the navigation; everything that existed before stays reachable.
  const groups=workspace?[
   [oc.nav.groups[0],['home','profile','journey','studio','services','site','analytics',...(can('auri:use')?['assistant']:[])]],
-  [oc.nav.groups[1],['requests','menuDrafts','orders']],
+  [oc.nav.groups[1],['requests',...(feature('menuDrafts')?['menuDrafts']:[]),'orders']],
   [oc.nav.groups[2],[...(workspace.organization.owner?['team']:[]),'settings']],
  ]:[
   [oc.nav.groups[0],['home','journey','services','assistant']],
@@ -523,6 +534,9 @@ function menuArtwork(menu){
   `<small><span>${esc(product.name)}</span><span>${esc(product.price)} ${esc(menu.draft.fields.currency||'')}</span></small>`).join('')}</div>`;
 }
 const missionTitle=m=>m.objective===m.service?cap(m.capability):m.objective;
+// Data loaded by the Overview is reused by Auri for a minute instead of refetching.
+let dataCache=null;
+const cached=()=>dataCache&&dataCache.id===workspace?.organization.id&&Date.now()-dataCache.at<60000?dataCache:null;
 function loadLeads(){
  return Promise.all([api(endpoint('leads')),api(endpoint('leads')+'?archived=1')])
   .then(([open,archived])=>({all:[...open.leads,...archived.leads]})).catch(()=>({all:null}));
@@ -532,6 +546,7 @@ async function home(){
  if(!workspace?.missions.length){renderBuildCard(ui);return;}
  host.innerHTML=`<div class="os-command-loading" role="status" aria-label="${esc(osCopy(lang).state.loading)}"><span></span><span></span><span></span><span></span></div>`;
  const [snapshot,connected,leads]=await Promise.all([workSnapshot(),api(endpoint('connected')).catch(()=>null),loadLeads()]);
+ dataCache={id:workspace.organization.id,at:Date.now(),snapshot,connected};
  if(!host.isConnected)return;
  const next=nextMission(),item=snapshot.attention[0],menu=item?.kind==='menu';
  const eligible=eligibleMissions(workspace.missions,workspace.profile).filter(m=>workspace.evidence?.[m.id]!=='pending');
@@ -575,12 +590,15 @@ async function openAuri(initial,{direct=false}={}){
  if(auriChat&&body.childElementCount&&body.dataset.workspace===workspace.organization.id){if(initial)auriChat.ask(initial,{direct});return;}
  body.innerHTML='<p class="ax-loading" role="status">…</p>';body.dataset.workspace=workspace.organization.id;
  const ui=hubLabels(lang);
- const [snapshot,connected]=await Promise.all([workSnapshot().catch(()=>({attention:[],progress:[],services:[],records:[],requests:[]})),api(endpoint('connected')).catch(()=>null)]);
+ const hit=cached();
+ const [snapshot,connected]=hit?[hit.snapshot,hit.connected]:await Promise.all([workSnapshot().catch(()=>({attention:[],progress:[],services:[],records:[],requests:[]})),api(endpoint('connected')).catch(()=>null)]);
  if(!drawer.isConnected)return;
  const next=workspace.missions.length?nextMission():null;
+ // Same de-duplicated counts as Aura Command, so Auri never disagrees with the dashboard.
+ const items=serviceItems({snapshot,connected,link,lang}),activeItems=items.filter(i=>!i.terminal);
  const item=snapshot.attention[0],menu=item?.kind==='menu';
  auriChat=mountAuriChat({host:body,lang,esc,link,me,workspace,initial,direct,
-  data:{snapshot,connected,next,missionTitle,
+  data:{snapshot,connected,next,missionTitle,counts:{live:activeItems.filter(i=>i.stage===3).length,open:activeItems.filter(i=>i.stage<3).length+(snapshot.attention||[]).length},
    attention:item?{name:menu?ui.menuReady:item.name,label:menu?ui.reviewMenu:ui.openRequest,href:link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id})}:null,
    nextAction:next?{label:ui.continue,href:link('journey',{task:next.id})}:null},
   auriImage:`<img src="/media/auri/level-${auriLevel()}.webp" alt="" width="32" height="32">`,
@@ -594,7 +612,19 @@ function closeAuri(){
  document.querySelectorAll('[data-ax-open]').forEach(b=>b.setAttribute('aria-expanded','false'));
  document.documentElement.classList.remove('ax-is-open');
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&auriOpen)closeAuri();});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&auriOpen){closeAuri();document.querySelector('.os-top-auri,[data-ax-open]')?.focus();return;}
+ // Keep keyboard focus inside the open Auri panel (the page behind is covered).
+ if(e.key==='Tab'&&auriOpen){
+  const drawer=document.querySelector('#ax-drawer');if(!drawer||drawer.hidden)return;
+  const items=[...drawer.querySelectorAll('button,a[href],textarea,input,select,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled&&el.offsetParent!==null);
+  if(!items.length)return;
+  const first=items[0],last=items.at(-1);
+  if(!drawer.contains(document.activeElement)){e.preventDefault();first.focus();}
+  else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+ }
+});
 async function myWork(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content'),id=workspace.organization.id;
  const task=workspace.missions.find(m=>m.id===query.get('task'));
@@ -645,7 +675,7 @@ async function myWork(){
   host.innerHTML=`<section class="panel hub-page-start hub-requests-empty"><img src="/media/auri/level-1.webp" alt="" width="80" height="80" loading="lazy"><div><h2>${esc(ui.requests)}</h2>
   <p>${esc(({en:'Your requests will appear here.',fr:'Vos demandes apparaîtront ici.',tr:'Talepleriniz burada görünecek.',ar:'ستظهر طلباتك هنا.'})[lang])}</p>
   <a class="growth-primary" href="${esc(link('services'))}">${esc(serviceLabels[lang][0])} →</a>
-  <a class="growth-secondary" href="${esc(link('menuDrafts'))}">${esc(t('menuDrafts'))}</a></div></section>${serviceShortcuts(lang,esc,link,{profile:workspace.profile,missions:workspace.missions})}`;
+  ${feature('menuDrafts')?`<a class="growth-secondary" href="${esc(link('menuDrafts'))}">${esc(t('menuDrafts'))}</a>`:''}</div></section>${serviceShortcuts(lang,esc,link,{profile:workspace.profile,missions:workspace.missions})}`;
   return;
  }
  const displayed=new Set([...attention,...progress].map(record=>record.id));
@@ -653,10 +683,11 @@ async function myWork(){
  host.innerHTML=section(ui.attention,ui.emptyAttention,attention.map(record=>renderWorkRow(record,{ui,esc,link})).join(''))
   +section(ui.progress,ui.emptyProgress,progress.map(record=>renderWorkRow(record,{ui,esc,link})).join(''))
   +(history.length?section(hubLabels(lang).requests,'',history.map(record=>renderWorkRow(record,{ui,esc,link})).join('')):'')
-  +`<a href="${esc(link('menuDrafts'))}" class="growth-secondary">${esc(t('menuDrafts'))}</a>`;
+  +(feature('menuDrafts')?`<a href="${esc(link('menuDrafts'))}" class="growth-secondary">${esc(t('menuDrafts'))}</a>`:'');
 }
 async function renderPage(){
  const label=hubLabels(lang);
+ if(page==='notfound'){const n=osCopy(lang).notFound;content(`<section class="os-card os-notfound"><p class="os-eyebrow">404</p><h2>${esc(n.title)}</h2><p class="os-muted">${esc(n.text)}</p><div class="os-inline-actions"><a class="os-btn is-primary is-sm" href="${esc(link('home'))}">${esc(osCopy(lang).nav.overview)}</a>${workspace?`<a class="os-btn is-quiet is-sm" href="${esc(link('journey'))}">${esc(osCopy(lang).nav.journey)}</a>`:''}</div></section>`);return;}
  if(page==='invoices')return content(`<section class="panel"><a class="primary" href="/account">${esc(t('orders'))}</a></section>`);
  if(page==='home')return home();
  if(page==='services'&&(query.has('offer')||!workspace)){
@@ -684,6 +715,7 @@ async function renderPage(){
  if(page==='onboarding'){navigate('journey',{},true);return;}
  if(page==='profile'&&!workspace.permissions.includes('profile:write')){content(`<section class="panel"><h2>${esc(workspace.profile.name)}</h2><p>${t('readOnly')}</p><p>${esc(workspace.profile.goals)}</p></section>`);return;}
  if(page==='profile'){draft=structuredClone(workspace.profile);mode=workspace.organization.mode;step=0;editing=true;renderSetup();return;}
+ if(page==='menuDrafts'&&!feature('menuDrafts')){const s=osCopy(lang).studio.menu;content(`<section class="os-card"><h2>${esc(s.title)}</h2><p class="os-muted">${esc(s.unavailable)}</p><div class="os-inline-actions">${workspace.permissions.includes('roadmap:write')?`<a class="os-btn is-primary is-sm" href="${esc(requestLink('AuraMenu'))}">${esc(s.request)}</a>`:''}<a class="os-btn is-quiet is-sm" href="${esc(link('home'))}">${esc(osCopy(lang).nav.overview)}</a></div></section>`);return;}
  if(page==='menuDrafts')return renderMenuDrafts({host:document.querySelector('#page-content'),api,endpoint,profile:workspace.profile,canWrite:workspace.permissions.includes('roadmap:write'),draftId:query.get('draft'),reviewLabel:label.reviewed,onDraft:id=>navigate('menuDrafts',{draft:id}),onReviewed:()=>navigate('home')});
  if(page==='journey'){if(selectedMission&&!workspace.missions.some(m=>m.id===selectedMission))throw new Error(label.unavailable);return growthDashboard();}
  if(page==='tasks')return journey();
@@ -724,10 +756,10 @@ async function askAuri(question,missionId,requestId,serviceKey,offer) {
  if(workspace?.organization.id!==id)return '';
  if(data.reply)return data.reply;
  const fallback=({
-  en:'Auri AI is unavailable. Roadmap guidance',
-  fr:'L’IA d’Auri est indisponible. Conseil de la feuille de route',
-  tr:'Auri yapay zekâsı kullanılamıyor. Yol haritası önerisi',
-  ar:'ذكاء أوري غير متاح. إرشاد من خارطة الطريق',
+  en:'Auri’s AI isn’t available right now (it may have reached today’s limit). Guidance from your roadmap',
+  fr:'L’IA d’Auri n’est pas disponible pour le moment (limite du jour peut-être atteinte). Conseil de votre feuille de route',
+  tr:'Auri’nin yapay zekâsı şu an kullanılamıyor (günlük sınıra ulaşmış olabilir). Yol haritanızdan öneri',
+  ar:'ذكاء أوري غير متاح الآن (ربما بلغ الحد اليومي). إرشاد من خطتك',
  })[lang];
  const guidance=message=>fallback+' · '+message;
  if(data.offerGuidance)return guidance(data.offerGuidance);

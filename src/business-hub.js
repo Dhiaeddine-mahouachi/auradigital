@@ -208,7 +208,7 @@ export async function handleBusinessHub(request,env) {
   const [auri,auriPreferencesForUser,evidence]=await Promise.all([
    auriProgress(env.DB,org,guard,missions.length>0),auriPreferences(env.DB,org,user),workspaceEvidence(env.DB,org,guard),
   ]);
-  return json({auri,evidence,auriPreferences:auriPreferencesForUser,organization:{id:o.id,name:o.name,mode:o.mode,version:o.version,owner:o.owner_id===user.id},profile,analysis,missions,permissions:perms,billing});
+  return json({features:{menuDrafts:env.MENU_DRAFTS_ENABLED==='true'},auri,evidence,auriPreferences:auriPreferencesForUser,organization:{id:o.id,name:o.name,mode:o.mode,version:o.version,owner:o.owner_id===user.id},profile,analysis,missions,permissions:perms,billing});
  }
  if(section==='profile'&&request.method==='PUT') {
   const guard=await authorize(env.DB,org,user,'profile:write'),b=await readJson(request,16000),profile=validateProfile(b.profile);

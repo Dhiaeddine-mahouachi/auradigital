@@ -107,7 +107,7 @@ html[dir=rtl] body:has(.os-shell){font-family:'IBM Plex Sans Arabic',Inter,syste
 .os-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .os-kpi{display:flex;flex-direction:column;gap:6px;padding:16px 18px;border-radius:var(--os-r-lg);background:var(--os-surface);border:1px solid var(--os-line);box-shadow:var(--os-shadow);min-width:0}
 .os-kpi header{display:flex;align-items:center;gap:10px}
-.os-kpi h3{margin:0;font:600 .86rem Inter,sans-serif;color:var(--os-muted)}
+.os-kpi h2{margin:0;font:600 .86rem Inter,sans-serif;color:var(--os-muted)}
 .os-kpi-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--os-mint);color:var(--os-emerald)}
 .os-kpi-value{margin:6px 0 0;font:700 2rem/1 var(--os-display);letter-spacing:-.03em;color:var(--os-ink)}
 .os-kpi-foot{margin:0;font-size:.8rem}.os-kpi-foot.is-up{color:var(--os-good)}
@@ -620,3 +620,38 @@ main.command-setup .mode-card{border-radius:var(--os-r-lg);border-color:var(--os
 main.command-setup .mode-card.dark{background:linear-gradient(160deg,var(--os-emerald),var(--os-forest))}
 /* Onboarding side guide matches the brand forest instead of near-black. */
 .os-chat-aside .hub-guide,.os-chat-aside>section{background:linear-gradient(160deg,var(--os-emerald),var(--os-forest))!important;border-color:var(--os-forest)!important}
+
+/* ==== Audit fixes (batch 1) ==== */
+/* Dark legacy cards keep light text (the global ink rule must not reach them). */
+.aurahub-shell.os-shell :is(.hub-hero,.hub-welcome,.hub-auri-intro,.mode-card.dark,.overview-hero) :is(h1,h2,h3,strong){color:#fff}
+.aurahub-shell.os-shell :is(.hub-hero,.hub-welcome,.hub-auri-intro,.mode-card.dark,.overview-hero) :is(p,small){color:#CFE0D3}
+.aurahub-shell.os-shell :is(.hub-hero,.hub-welcome,.hub-auri-intro){background:linear-gradient(150deg,var(--os-emerald),var(--os-forest));border-radius:var(--os-r-lg)}
+/* Auri drawer: chips wrap, one clean border, brand send button. */
+.ax-drawer .ax-chips{display:flex;flex-wrap:wrap;gap:6px;overflow:visible;padding:8px 12px 0}
+.ax-drawer .ax-chip{border-radius:999px;border:1px solid var(--os-line-strong);background:#fff;color:var(--os-ink);font:600 .8rem Inter,sans-serif;min-height:34px;padding:6px 12px}
+.ax-drawer .ax-chip:hover{background:var(--os-mint)}
+.ax-drawer .ax-input{border:1px solid var(--os-line-strong)!important;border-radius:16px!important;box-shadow:none!important;background:#fff!important;margin:10px 12px 12px}
+.ax-drawer .ax-input:focus-within{border-color:var(--os-emerald)!important;box-shadow:0 0 0 3px rgba(0,61,43,.14)!important}
+.ax-drawer .ax-input textarea:focus{outline:0!important;box-shadow:none!important}
+.ax-drawer .ax-send{background:var(--os-emerald)!important;color:#fff!important;border-radius:12px!important}
+.ax-drawer .ax-send:hover{background:var(--os-forest)!important}
+.ax-drawer .ax-bubble{color:var(--os-ink)}
+/* Account menu: one-line email, styled sign-out. */
+.aurahub-shell .growth-account-menu{min-width:260px;padding:12px}
+.os-account-head small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+.aurahub-shell.os-shell .growth-account-menu [data-action=logout]{width:100%;justify-content:center;margin-top:6px;border-radius:var(--os-r-sm);background:#fff;border:1px solid var(--os-line-strong);color:var(--os-bad);font-weight:650}
+.aurahub-shell.os-shell .growth-account-menu [data-action=logout]:hover{background:var(--os-bad-bg)}
+/* Minimum 12px text. */
+.aurahub-shell.os-shell .os-nav-group{font-size:.75rem}
+.aurahub-shell.os-shell .os-side-foot small,.os-side-auri small,.os-account-head small,.aurahub-shell.os-shell .os-journey-stats :is(dt,small),.aurahub-shell.os-shell .os-brand small,.os-kpi .os-source,.os-source,.os-chart-tick{font-size:.78rem}
+.aurahub-shell.os-shell .os-side-foot strong{font-size:.86rem}
+/* Workspace switcher: comfortable touch size. */
+.aurahub-shell.os-shell .os-business{min-height:44px}
+.aurahub-shell.os-shell .os-business select{min-height:36px}
+/* Billing card and 404. */
+.os-bill-due{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 4px}
+.os-bill-due strong{font:700 1.5rem var(--os-display);color:var(--os-ink)}
+.os-bill-due.is-due strong{color:var(--os-bad)}
+.os-notfound{max-width:560px;margin:40px auto;text-align:center}
+.os-notfound h2{font:700 1.5rem var(--os-display);margin:0 0 8px}
+.os-notfound .os-inline-actions{justify-content:center}

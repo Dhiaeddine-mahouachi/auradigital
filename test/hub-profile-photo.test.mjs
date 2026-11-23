@@ -16,3 +16,12 @@ test('customers set, read and remove only their own profile photo', async () => 
  assert.equal((await f.call('/api/hub/me/photo', a, 'DELETE')).status, 200);
  assert.equal((await (await f.call('/api/hub/me/photo', a)).json()).photo, null);
 });
+
+test('workspaces report whether menu drafts are enabled', async () => {
+ const f = await hubFixture();
+ const owner = await f.user('flags@example.test', true);
+ const { id } = await (await f.call('/api/hub/workspaces', owner, 'POST', { profile: { name: 'Flag Cafe', industry: 'restaurant', capabilities: [], currency: 'USD' }, mode: 'myself' })).json();
+ assert.equal((await (await f.call('/api/hub/workspaces/' + id, owner)).json()).features.menuDrafts, false);
+ f.env.MENU_DRAFTS_ENABLED = 'true';
+ assert.equal((await (await f.call('/api/hub/workspaces/' + id, owner)).json()).features.menuDrafts, true);
+});

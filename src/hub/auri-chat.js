@@ -121,8 +121,8 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
   const { snapshot, connected, next, missionTitle, attention, nextAction } = data;
   const missions = workspace?.missions || [];
   const done = missions.filter(m => m.status === 'done').length;
-  const openCount = (snapshot?.attention?.length || 0) + (snapshot?.progress?.length || 0) + (connected?.requests || []).filter(r => r.status === 'pending').length;
-  const liveCount = (snapshot?.services?.length || 0) + (connected?.totals?.live || 0);
+  const openCount = data.counts ? data.counts.open : (snapshot?.attention?.length || 0) + (snapshot?.progress?.length || 0) + (connected?.requests || []).filter(r => r.status === 'pending').length;
+  const liveCount = data.counts ? data.counts.live : (snapshot?.services?.length || 0) + (connected?.totals?.live || 0);
   const dueAmount = connected?.totals?.amountDue || 0;
   const canRequest = workspace?.permissions?.includes('roadmap:write');
   let log = [];
