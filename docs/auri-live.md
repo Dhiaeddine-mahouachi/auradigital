@@ -1,8 +1,11 @@
 # Auri live character
 
-A layered, animated Auri that matches the emerald Auri reference sheet (cream
-helmet, glossy black visor, mint eyes, “A” side lights, belly screen, short
-arms and legs). It is **not wired into any production page yet**. Review it on
+A layered, animated Auri that matches the emerald Auri reference sheet (large
+cream helmet with a dark emerald cap, big glossy black visor, glowing mint eyes,
+glowing ring side lights, chunky torso with a large belly screen, thick arms with
+glowing cuffs, short legs). By request, the character carries **no letters or
+logo marks**: the side lights are plain glowing rings and the belly badge is a
+light strip. The home belly screen shows a heartbeat pulse instead of a logo. It is **not wired into any production page yet**. Review it on
 the preview page first.
 
 * Preview: `/auri-preview/index.html` (noindex, not linked from the site)
@@ -35,15 +38,34 @@ auri.setState('error', { message: 'Nothing was changed.', action: { label: 'Retr
 auri.setScreen('crm', { data: { stats: [{ label: 'Leads', value: 12 }] }, demo: false });
 auri.setExpression('wink');                // or null to follow the state
 await auri.run(() => api(), { busy: 'thinking', success: 'celebrate' });
-await auri.speak(reply);                   // restrained speaking, duration from text length
-await auri.speak(reply, { voice: true });  // device voice; face pulses on real word boundaries
-auri.setVoiceLevel(0.7);                   // drive from a real audio analyser instead
+await auri.speak(reply);                   // silent, restrained speaking (duration from text length)
+await auri.speak(reply, { voice: true });  // human voice (see Voice below)
+await auri.speak(reply, { audio: blobOrUrl }); // play a recorded / generated voice file
+auri.stopVoice();
+auri.setVoiceLevel(0.7);                   // drive from your own audio analyser instead
 auri.on('activate', openChat);             // click / Enter / Space
 auri.destroy();
 ```
 
 Also available as `<auri-live state="idle" screen="crm" size="160" interactive>` after
 `defineAuriElement()`.
+
+### Voice
+
+`speak(text, { voice: true })` picks, in order:
+
+1. **`ttsUrl`** (option). If it's set, Auri POSTs `{ text, lang, voice }` there and plays
+   the returned audio. The face follows the real loudness of the audio through a Web Audio
+   analyser. This is the way to get a truly human, consistent voice on every device. It
+   needs a same-origin Worker endpoint that calls a neural text-to-speech service. That
+   endpoint is **not built yet**, because it adds per-request cost and needs rate limits.
+2. **The most natural voice on the device.** `rankVoices()` puts neural voices first:
+   Edge “Online (Natural)”, Google, and Apple Premium/Enhanced/Siri. Robotic voices
+   (eSpeak, Zarvox, …) go last, and the language is matched to the page.
+   `voiceName`, `voiceRate` (0.96) and `voicePitch` (1.02) can be set with `setOptions`.
+3. Nothing to play: the silent speaking animation.
+
+Auri only cancels speech it started itself, so the Hub's existing "read aloud" is not affected.
 
 ### State rules
 
@@ -115,8 +137,11 @@ that stays inside the character (`contain: layout style`). No page reflow was me
 * This is a 2.5D front view. Turning the head is simulated with offsets and tilt, and there
   are no true 3/4 or side views. A rigged model of the **new** design (separate
   head/arms/legs, belly screen as its own material) would be needed for real turns.
-* Lip-sync is intentionally absent, as the brief asks. With voice, motion follows word
-  boundaries or `setVoiceLevel`.
+* There's no mouth or lip-sync, as the brief asks. With audio, the eyes, the side lights
+  and the sound waves follow the real loudness. With device voices, they follow word boundaries.
+* Device voices depend on the browser and OS. The most human-sounding ones are in Edge and
+  Chrome (desktop and Android) and on Apple devices with enhanced voices installed. For the
+  same human voice everywhere, use `ttsUrl`.
 * The landing page bundle (`redesign/app.js`) is compiled, so the dock sits beside the
   existing FAB (hidden) rather than replacing its internals.
 * The pixel versions (16/32 px) from the sheet are not included. The vector rig is used at all sizes.
