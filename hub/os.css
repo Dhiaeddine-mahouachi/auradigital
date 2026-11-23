@@ -856,3 +856,141 @@ html[dir=rtl] .os-askbar{padding:6px 14px 6px 6px}
 @media(prefers-reduced-motion:reduce){.ax-mic.is-on{animation:none}}
 .os-celebrate{margin:0;padding:12px 16px;border-radius:var(--os-r);background:linear-gradient(120deg,var(--os-lime),#EEFAC0);color:var(--os-forest);font-weight:650;animation:os-msg-in .5s var(--os-ease) both}
 .os-celebrate span{margin-inline-end:6px}
+
+
+/* AuraHub responsive parity: the phone uses the same OS navigation, cards and
+   actions as desktop; only the shell arrangement changes at narrow widths. */
+.os-mobile-menu,.os-mobile-sidebar-close,.os-mobile-scrim{display:none}
+@media(max-width:800px){
+ body.os-hub-menu-open{overflow:hidden}
+ .aurahub-shell.os-shell{
+  display:block;min-width:0;width:100%;overflow-x:clip
+ }
+ .aurahub-shell.os-shell .workspace{min-width:0;width:100%;margin:0}
+ .aurahub-shell.os-shell .os-topbar{
+  display:grid!important;
+  grid-template-columns:42px minmax(0,1fr) repeat(3,40px);
+  grid-template-rows:42px 44px;
+  grid-template-areas:"menu brand search bell account" "business business business request auri";
+  align-items:center;justify-content:stretch;
+  column-gap:6px;row-gap:8px;
+  padding:9px 12px!important;
+  min-height:0;height:auto;
+  background:rgba(248,247,242,.96);
+  border-color:var(--os-line);
+  box-sizing:border-box
+ }
+ .aurahub-shell.os-shell .os-topbar:not(:has(.os-business)){
+  grid-template-rows:42px;
+  grid-template-areas:"menu brand brand brand account"
+ }
+ .aurahub-shell.os-shell .os-topbar :is(.os-mobile-menu,.hub-mobile-brand,.os-business,.os-top-request,.os-top-auri,.os-top-search,.os-bell-wrap,.growth-account){min-width:0;margin:0;box-sizing:border-box}
+ .aurahub-shell.os-shell .os-topbar .os-mobile-menu{
+  grid-area:menu;display:grid;place-items:center;
+  width:42px;height:42px;
+  background:var(--os-surface);color:var(--os-ink);
+  border:1px solid var(--os-line);border-radius:11px;
+  cursor:pointer
+ }
+ .aurahub-shell.os-shell .os-topbar .os-mobile-menu:hover{background:var(--os-mint)}
+ .aurahub-shell.os-shell .os-topbar .hub-mobile-brand{
+  grid-area:brand;display:inline-flex!important;align-items:center;
+  justify-self:start;gap:6px;max-width:100%;
+  overflow:hidden;white-space:nowrap;color:var(--os-ink);
+  font:750 1.08rem 'Inter Tight',Inter,sans-serif;letter-spacing:-.04em
+ }
+ .aurahub-shell.os-shell .os-topbar .hub-mobile-brand .hub-brand-tile{flex:none}
+ .aurahub-shell.os-shell .os-topbar .os-business{
+  grid-area:business;display:flex;min-height:42px;
+  width:100%;max-width:none;flex:none;
+  border:1px solid var(--os-line);border-radius:11px;
+  background:var(--os-surface);padding:4px 6px;gap:7px
+ }
+ .aurahub-shell.os-shell .os-topbar .os-business .hx-avatar{
+  width:30px;height:30px;border-radius:8px
+ }
+ .aurahub-shell.os-shell .os-topbar .workspace-picker{
+  min-width:0;flex:1;max-width:100%;margin:0
+ }
+ .aurahub-shell.os-shell .os-topbar .workspace-picker select{
+  max-width:100%;width:100%;min-width:0;
+  min-height:32px;padding:2px 16px 2px 1px;
+  overflow:hidden;text-overflow:ellipsis;
+  font-size:.85rem
+ }
+ .aurahub-shell.os-shell .os-topbar .os-top-search{grid-area:search;display:grid;place-items:center;width:40px;height:40px}
+ .aurahub-shell.os-shell .os-topbar .os-bell-wrap{grid-area:bell;width:40px;justify-self:center}
+ .aurahub-shell.os-shell .os-topbar .growth-account{grid-area:account;justify-self:center;align-self:center;padding:0}
+ .aurahub-shell.os-shell .os-topbar .growth-account summary{width:40px;height:40px;display:grid;place-items:center}
+ .aurahub-shell.os-shell .os-topbar .os-top-request{
+  grid-area:request;display:grid!important;place-items:center;
+  width:40px!important;height:42px;min-height:42px;
+  padding:0!important;margin:0!important;
+  background:var(--os-surface);border:1px solid var(--os-line);
+  border-radius:11px
+ }
+ .aurahub-shell.os-shell .os-topbar .os-top-request>span{display:none}
+ .aurahub-shell.os-shell .os-topbar .os-top-request svg{width:20px;height:20px;color:var(--os-emerald)}
+ .aurahub-shell.os-shell .os-topbar .os-top-auri{
+  grid-area:auri;display:grid!important;place-items:center;
+  width:40px;height:42px;min-height:42px;padding:0!important;margin:0;
+  border-radius:11px;box-shadow:none
+ }
+ .aurahub-shell.os-shell .os-topbar .os-top-auri span{display:none}
+ .aurahub-shell.os-shell .os-topbar .os-top-auri svg{width:20px;height:20px}
+ .aurahub-shell.os-shell .os-topbar .os-crumb{display:none}
+ .aurahub-shell.os-shell .os-sidebar{
+  display:flex!important;flex-direction:column;
+  position:fixed;top:0;bottom:0;inset-inline-start:0;
+  width:min(300px,calc(100vw - 52px));height:100dvh;
+  overflow-x:hidden;overflow-y:auto;
+  transform:translateX(-105%);visibility:hidden;pointer-events:none;
+  transition:transform .22s ease,visibility .22s ease;
+  background:var(--os-surface);z-index:121;
+  box-shadow:22px 0 60px -20px rgba(11,15,12,.24);
+  padding:16px 12px calc(18px + env(safe-area-inset-bottom))
+ }
+ html[dir=rtl] .aurahub-shell.os-shell .os-sidebar{transform:translateX(105%);box-shadow:-22px 0 60px -20px rgba(11,15,12,.24)}
+ .aurahub-shell.os-shell.os-mobile-nav-open .os-sidebar,
+ html[dir=rtl] .aurahub-shell.os-shell.os-mobile-nav-open .os-sidebar{
+  transform:none;visibility:visible;pointer-events:auto
+ }
+ .aurahub-shell.os-shell .os-sidebar .os-brand{padding-inline-end:48px}
+ .aurahub-shell.os-shell .os-mobile-sidebar-close{
+  display:grid;place-items:center;position:absolute;
+  top:12px;inset-inline-end:12px;
+  width:40px;height:40px;border:1px solid var(--os-line);
+  border-radius:11px;background:var(--os-surface);color:var(--os-ink);
+  cursor:pointer;z-index:2
+ }
+ .aurahub-shell.os-shell .os-mobile-scrim:not([hidden]){
+  display:block;position:fixed;inset:0;z-index:120;
+  width:100vw;height:100dvh;padding:0;margin:0;border:0;
+  background:rgba(11,26,18,.45);backdrop-filter:blur(2px);cursor:pointer
+ }
+ .aurahub-shell.os-shell .command-bottom-nav,
+ .aurahub-shell.os-shell .hx-sheet{display:none!important}
+ .aurahub-shell.os-shell main#main:not(.gate):not(.setup){
+  padding:20px clamp(12px,3vw,24px) calc(28px + env(safe-area-inset-bottom));
+  width:100%;max-width:100%;box-sizing:border-box
+ }
+ .aurahub-shell.os-shell :is(.os-command,.os-journey,.os-studio,.os-split,.os-command-grid){min-width:0}
+ .aurahub-shell.os-shell .os-kpi-icon{display:grid}
+ .aurahub-shell.os-shell .os-kpi{box-shadow:var(--os-shadow)}
+ .aurahub-shell.os-shell .ax-drawer{z-index:140}
+ .aurahub-shell.os-shell .ax-scrim{z-index:139}
+}
+@media(max-width:370px){
+ .aurahub-shell.os-shell .os-topbar .hub-mobile-brand>span:not(.hub-brand-tile){display:none}
+ .aurahub-shell.os-shell .os-topbar .hub-mobile-brand::after{content:"AuraHub";font-size:1rem;letter-spacing:-.025em}
+ .aurahub-shell.os-shell .os-topbar{column-gap:4px;padding-inline:8px!important}
+ .aurahub-shell.os-shell .os-card{padding:14px}
+}
+@media(min-width:801px){
+ .aurahub-shell.os-shell .os-mobile-scrim,
+ .aurahub-shell.os-shell .os-mobile-menu,
+ .aurahub-shell.os-shell .os-mobile-sidebar-close{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .aurahub-shell.os-shell .os-sidebar{transition:none}
+}

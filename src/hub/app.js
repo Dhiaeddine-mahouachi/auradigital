@@ -414,6 +414,7 @@ function navigate(target,params,replace=false,doRender=true){
  if(doRender){render();document.querySelector('#main')?.focus();}
 }
 window.addEventListener('popstate',()=>{if(me){editing=false;firstLogin=null;void load();}});
+let mobileNavCleanup=()=>{};
 function renderShell(){
  window.scrollTo({top:0,left:0,behavior:'instant'});
  const labels=hubLabels(lang), l=roadmapLabels(lang), nv=navCopy(lang), oc=osCopy(lang);
@@ -453,6 +454,7 @@ function renderShell(){
   [oc.nav.groups[2],['settings','support']],
  ];
  shellPages=groups.flatMap(([,list])=>list).map(p=>({label:labelOf(p),href:items[p]?.href||link(p),icon:items[p]?.icon||'overview'}));
+ const mobileNavLabel=({en:'Open navigation',tr:'Men\u00fcy\u00fc a\u00e7',ar:'\u0641\u062a\u062d \u0627\u0644\u0642\u0627\u0626\u0645\u0629',fr:'Ouvrir le menu'})[lang]||'Open navigation';
  const mobileMain=workspace?['home','journey','studio']:['home','journey','services'];
  const sheetItems=groups.flatMap(([,list])=>list).filter(p=>!mobileMain.includes(p));
  const section=page==='home'?oc.sections.command:page==='journey'?oc.sections.journey:page==='studio'?oc.sections.studio:labelOf(active);
@@ -461,17 +463,19 @@ function renderShell(){
  const initials=String(workspace?.organization.name||me.name||'A').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
  app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell hx-shell wx-shell os-shell ${page==='journey'&&workspace?.missions.length?'os-shell-journey':''} ${page==='services'?'service-shell':''}"><aside class="sidebar os-sidebar" id="sidebar">
  <a href="${esc(link('home'))}" class="wordmark command-wordmark os-brand">${brandMarkup}<small>AuraHub</small></a>
+ <button type="button" class="os-mobile-sidebar-close" data-os-menu-close aria-label="${esc(oc.nav.close)}">${osIcon('close',20)}</button>
  <nav aria-label="AuraHub">${groups.map(([name,list])=>`<p class="hx-nav-group os-nav-group">${esc(name)}</p>${list.map(p=>navItem(p)).join('')}`).join('')}</nav>
  ${workspace&&can('auri:use')?`<button type="button" class="os-side-auri" data-ax-open aria-controls="ax-drawer">${auriCharacter(auriLevel(),{variant:'face'})}<span><strong>Auri</strong><small>${esc(oc.auri.ask)}</small></span></button>`:''}
  <div class="hx-side-foot os-side-foot">${avatar()}<span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div></aside>
  <div class="workspace"><header class="topbar growth-topbar hub-topbar os-topbar">
+ <button type="button" class="os-mobile-menu" data-os-menu aria-controls="sidebar" aria-expanded="false" aria-label="${esc(mobileNavLabel)}">${osIcon('navigation',22)}</button>
  <a class="hub-mobile-brand wordmark" href="${esc(link('home'))}">${brandMarkup}</a>
  ${workspace?`<div class="hx-business os-business"><span class="hx-avatar" aria-hidden="true">${esc(initials)}</span>
  <label class="field workspace-picker"><span class="sr-only">${esc(oc.nav.switchWorkspace)}</span>
  <select id="workspace-select" aria-label="${esc(oc.nav.switchWorkspace)}">${workspaces.map(o=>`<option value="${esc(o.id)}" ${o.id===workspace.organization.id?'selected':''}>${esc(o.id===workspace.organization.id?workspace.organization.name:o.name)}</option>`).join('')}</select></label></div>`:''}
  <div class="hx-topbar-title os-crumb"><span>${esc(section)}</span></div>
- ${workspace&&can('roadmap:write')?`<a class="growth-secondary hx-top-action os-top-request" href="${esc(requestLink())}">${osIcon('plus',16)} <span>${esc(oc.nav.newRequest)}</span></a>`:''}
- ${workspace&&can('auri:use')?`<button type="button" class="wx-auri-btn os-top-auri" data-ax-open aria-controls="ax-drawer" aria-expanded="false">${osIcon('auri',18)}<span>Auri</span></button>`:''}
+ ${workspace&&can('roadmap:write')?`<a class="growth-secondary hx-top-action os-top-request" href="${esc(requestLink())}" aria-label="${esc(oc.nav.newRequest)}">${osIcon('plus',16)} <span>${esc(oc.nav.newRequest)}</span></a>`:''}
+ ${workspace&&can('auri:use')?`<button type="button" class="wx-auri-btn os-top-auri" data-ax-open aria-controls="ax-drawer" aria-expanded="false" aria-label="Auri">${osIcon('auri',18)}<span>Auri</span></button>`:''}
  ${workspace?`<button type="button" class="os-icon-btn os-top-search" data-search aria-label="${esc(toolsCopy(lang).search)} (Ctrl K)">${osIcon('search',18)}</button>
  <div class="os-bell-wrap"><button type="button" class="os-icon-btn os-bell" data-bell aria-expanded="false" aria-controls="os-bell-panel" aria-label="${esc(toolsCopy(lang).notifications)}">${osIcon('bell',18)}<span class="os-bell-count" hidden></span></button><div class="os-bell-panel" id="os-bell-panel" role="region" aria-label="${esc(toolsCopy(lang).notifications)}" hidden></div></div>`:''}
  <details class="growth-account"><summary aria-label="${esc(oc.nav.account)}" class="${me.photo?'has-photo':''}">${me.photo?avatar('os-photo-summary'):hubIcon('profile')}</summary>
@@ -488,11 +492,51 @@ function renderShell(){
  <header><strong>${esc(oc.nav.more)}</strong><button type="button" class="hx-sheet-close" data-hx-close aria-label="${esc(oc.nav.close)}">✕</button></header>
  <nav aria-label="${esc(oc.nav.more)}">${sheetItems.map(p=>navItem(p)).join('')}</nav></div></div>
  </div>
+ <button type="button" class="os-mobile-scrim" data-os-menu-close aria-label="${esc(oc.nav.close)}" hidden></button>
  <aside class="ax-drawer" id="ax-drawer" hidden aria-label="Auri"><header class="ax-head"><span class="ax-avatar" aria-hidden="true">${auriCharacter(auriLevel(),{variant:'face'})}</span>
  <span class="ax-head-text"><strong>Auri</strong><small><i class="ax-online" aria-hidden="true"></i>${esc(chatCopy(lang).status)}</small></span>
  <button type="button" class="ax-icon-btn" data-ax-reset>${esc(chatCopy(lang).clear)}</button><button type="button" class="ax-icon-btn" data-ax-close aria-label="${esc(nv.close)}">✕</button></header>
  <div class="ax-body" data-ax-body></div></aside><div class="ax-scrim" data-ax-close hidden></div></div>`;
  bindCommon();
+ // Keep the full desktop navigation available on touch screens.
+ mobileNavCleanup();
+ const mobileShell=app.querySelector('.os-shell');
+ const mobileSidebar=mobileShell.querySelector('#sidebar');
+ const mobileTrigger=mobileShell.querySelector('[data-os-menu]');
+ const mobileScrim=mobileShell.querySelector('.os-mobile-scrim');
+ const mobileQuery=window.matchMedia('(max-width:800px)');
+ const setMobileNav=(open,restoreFocus=true)=>{
+  const enabled=Boolean(open&&mobileQuery.matches);
+  const wasOpen=mobileShell.classList.contains('os-mobile-nav-open');
+  mobileShell.classList.toggle('os-mobile-nav-open',enabled);
+  mobileScrim.hidden=!enabled;
+  mobileTrigger.setAttribute('aria-expanded',String(enabled));
+  mobileTrigger.setAttribute('aria-label',enabled?oc.nav.close:mobileNavLabel);
+  mobileSidebar.inert=mobileQuery.matches&&!enabled;
+  document.body.classList.toggle('os-hub-menu-open',enabled);
+  if(enabled)mobileSidebar.querySelector('[data-os-menu-close]')?.focus();
+  else if(wasOpen&&restoreFocus&&mobileQuery.matches)mobileTrigger.focus();
+ };
+ const onMobileResize=()=>setMobileNav(false,false);
+ const onMobileEscape=e=>{
+  if(e.key==='Escape'&&mobileShell.classList.contains('os-mobile-nav-open')){
+   e.preventDefault();setMobileNav(false);
+  }
+ };
+ const onMobileNavClick=e=>{
+  if(e.target.closest('a[href],[data-ax-open]'))setMobileNav(false,false);
+ };
+ mobileTrigger.addEventListener('click',()=>setMobileNav(!mobileShell.classList.contains('os-mobile-nav-open')));
+ mobileShell.querySelectorAll('[data-os-menu-close]').forEach(b=>b.addEventListener('click',()=>setMobileNav(false)));
+ mobileSidebar.addEventListener('click',onMobileNavClick);
+ window.addEventListener('resize',onMobileResize);
+ document.addEventListener('keydown',onMobileEscape);
+ mobileNavCleanup=()=>{
+  window.removeEventListener('resize',onMobileResize);
+  document.removeEventListener('keydown',onMobileEscape);
+  document.body.classList.remove('os-hub-menu-open');
+ };
+ setMobileNav(false,false);
  document.querySelectorAll('[data-ax-open]').forEach(b=>b.addEventListener('click',()=>openAuri()));
  document.querySelector('[data-search]')?.addEventListener('click',startSearch);
  if(workspace)void refreshBell();

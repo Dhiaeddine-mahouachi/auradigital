@@ -29,6 +29,7 @@ const P = {
  mail: 'M3 6h18v12H3z M3 7l9 6 9-6',
  globe: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M3 12h18 M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3z',
  menu: 'M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M14 14h2v2h-2z M18 18h2v2h-2z M18 13v2 M13 18h2',
+ navigation: 'M4 7h16 M4 12h16 M4 17h16',
  more: 'M5 12h.01 M12 12h.01 M19 12h.01',
  close: 'M6 6l12 12 M18 6 6 18',
  calendar: 'M4 6h16v15H4z M4 10h16 M8 3v4 M16 3v4',
