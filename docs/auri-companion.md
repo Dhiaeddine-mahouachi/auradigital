@@ -21,9 +21,19 @@ StrategistKit and MasterKit to configure the seven appearances in Spline.
 To rebuild the model and posters, run `blender -b -P scripts/build-auri-model.py` from
 the repository root, then convert `/tmp/auri-level-{1..7}.png` to same-named WebPs in
 `media/auri/` with WebP quality 84. `npm run build:hub` compiles the Hub and lazy Three.js viewer.
-Posters are used on data-saving connections and when WebGL is unavailable. WebGL pauses
-offscreen, in hidden tabs and after a minute of inactivity. The viewer also observes the
-device's reduced-motion preference.
+Production displays GPU-safe animated WebP sequences baked from the rigged GLB: six
+states across seven Auri levels. This avoids constructing a WebGL context in visitors'
+browsers (some graphics drivers previously froze the entire Hub). The underlying still
+posters remain available when animations fail to load, the tab is hidden, data-saving is
+active or reduced-motion is requested. Animations switch based on the real Hub request
+phase, and stop offscreen.
+
+To regenerate: run `npm run build:hub`, then `node scripts/bake-auri-animation.mjs`
+(requires Playwright and a compatible installed Chromium or Chrome), then install Pillow
+and run `python scripts/pack-auri-animation.py`. The baker uses a local-only fixture
+under `scripts/`; production never runs the 3D viewer. Inspect all seven levels and
+states after rebaking. Run `node scripts/test-auri-animation-browser.mjs` against a local
+static test origin before deploying.
 
 ## Hub placement and first task
 

@@ -17,7 +17,10 @@ export async function mountAuri(host, signal) {
  const enhanced=login||host.dataset.variant==='guide';
  // failIfMajorPerformanceCaveat: on software-only graphics the 3D model would
  // freeze the page, so the still image of Auri stays instead.
- const renderer=new WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power',failIfMajorPerformanceCaveat:true});
+ // The offline sprite baker is the only place allowed to use software WebGL.
+ // In production, Auri's animated WebP frames require no WebGL context at all.
+ const bake=location.pathname==='/scripts/auri-bake.html';
+ const renderer=new WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power',failIfMajorPerformanceCaveat:!bake,preserveDrawingBuffer:bake});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
  renderer.toneMapping=ACESFilmicToneMapping;
  renderer.toneMappingExposure=enhanced?1.22:1.4;
@@ -93,7 +96,7 @@ export async function mountAuri(host, signal) {
   gazeX=preference.matches?0:gazeX+(targetX-gazeX)*.14;
   gazeY=preference.matches?0:gazeY+(targetY-gazeY)*.14;
   const pulse=preference.matches?0:Math.sin(time*2);
-  const wave=login&&!preference.matches?Math.max(0,1-Math.abs(t-1.7)/1.45):0;
+  const wave=(login||phase==='welcome')&&!preference.matches?Math.max(0,1-Math.abs(t-1.2)/1.1):0;
   modelRoot.position.y=.028*pulse+(happy&&!preference.matches?.15*Math.abs(Math.sin(t*6))*Math.max(0,1-t/2):0);
   modelRoot.rotation.y=phase==='evolving'&&!preference.matches?.32*Math.sin(Math.min(1,t/1.4)*Math.PI):.035*pulse;
   head.rotation.z=phase==='thinking'?-.14:phase==='error'?.1:.026*pulse;
