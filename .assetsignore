@@ -6,6 +6,7 @@ test/**
 backups/**
 tools/**
 node_modules/**
+.git
 .git/**
 .github/**
 .gitignore
