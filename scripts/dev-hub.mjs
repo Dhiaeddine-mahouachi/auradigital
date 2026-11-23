@@ -85,9 +85,9 @@ const server=createServer(async(req,res)=>{try{
  const publicFixture=new Map([['/contact','contact.html'],['/project-fifty.png','project-fifty.png'],['/auradigital-mark.svg','auradigital-mark.svg'],['/qr-menu-phone.svg','qr-menu-phone.svg']]);
  const assetPath=new URL(request.url).pathname;
  // Shared public assets (logo, fonts, translations) so local QA matches production.
- const publicAsset=publicFixture.get(assetPath)||(/^\/(media|fonts|redesign|i18n)\/[\w./-]+\.(png|webp|svg|woff2|css|js|json)$/.test(assetPath)&&!assetPath.includes('..')?assetPath.slice(1):null);
+ const publicAsset=publicFixture.get(assetPath)||(/^\/(media|fonts|redesign|i18n)\/[\w./-]+\.(png|webp|svg|jpg|woff2|css|js|json)$/.test(assetPath)&&!assetPath.includes('..')?assetPath.slice(1):null);
  const fallback=async()=>publicAsset?new Response(await readFile(new URL('../'+publicAsset,import.meta.url)),
-  {headers:{'Content-Type':({svg:'image/svg+xml',js:'text/javascript',png:'image/png',webp:'image/webp',woff2:'font/woff2',css:'text/css',json:'application/json'})[publicAsset.split('.').pop()]||'text/html'}}):f.env.ASSETS.fetch(request);
+  {headers:{'Content-Type':({svg:'image/svg+xml',js:'text/javascript',png:'image/png',jpg:'image/jpeg',webp:'image/webp',woff2:'font/woff2',css:'text/css',json:'application/json'})[publicAsset.split('.').pop()]||'text/html'}}):f.env.ASSETS.fetch(request);
  const contactResponse=req.url==='/api/contact'&&req.method==='POST'?await createContactRequest(request,f.DB,f.env):null;
  const response=secureResponse(contactResponse||await handleCustomerIdentity(request,f.env)||await handleBusinessHub(request,f.env)||await handleShop(request,f.env)||await fallback(),request,{},null);
  // The preview gateway is HTTP. Only this isolated in-memory QA harness maps

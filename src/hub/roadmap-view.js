@@ -13,7 +13,7 @@ export const roadmapLabels = lang => Object.fromEntries([
  'home','journey','tasks','resources','welcome','progress','stage','priority','estimate','root','heading','tree','timeline','focus','why','how','requirements','myself','hire','ask','optional','blocked','refresh','request','start','complete','assistant','help','upcoming','completed','askTask',
 ].map((key,i)=>[key,labels[lang][i]]));
 
-export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selectedId, overview=false, auriDesk='', evolutionNames=[], onSelect, onContinue, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, onAskTask, robot, requestLink}) {
+export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selectedId, overview=false, compact=false, auriDesk='', evolutionNames=[], onSelect, onContinue, onView, onSave, onEdit, onGenerate, onAsk, onRoute, onEvidence, onExistingEvidence, onAskTask, robot, requestLink}) {
  const l=roadmapLabels(lang), ui=blueprintLabels(lang), command=commandLabels(lang);
  const {missions,profile,analysis,permissions}=workspace;
  const canWrite=permissions.includes('roadmap:write');
@@ -66,7 +66,9 @@ export function renderRoadmap({host, workspace, t, esc, cap, lang, view, selecte
    </div>
   </section>${auriDesk}
  </div>`;
- host.innerHTML=`${overview?overviewHero:''}
+ // Compact: only the selected task's details (Aura Journey draws the path itself).
+ if(compact)host.innerHTML=`${existingProof}<section class="growth-card growth-focus os-task" id="growth-focus" tabindex="-1">${detail}</section>`;
+ else host.innerHTML=`${overview?overviewHero:''}
  ${overview&&eligible.length?`<section class="command-priorities" aria-label="${esc(command.priorities)}">${eligible.slice(0,3).map(m=>
   `<article class="growth-card"><small>${esc(status(m))}</small><h2>${esc(title(m))}</h2><p>${esc(m.route==='alternative'?missionAlternative(m.capability)?.steps:missionGuide[m.capability]?.[1]||m.description)}</p>
   <button class="growth-secondary" type="button" data-priority="${esc(m.id)}">${esc(l.focus)}</button></article>`).join('')}</section>`:''}${overview?`<section class="growth-metrics" aria-label="${l.progress}">

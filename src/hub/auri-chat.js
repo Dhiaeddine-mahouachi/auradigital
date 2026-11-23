@@ -97,10 +97,24 @@ export const SERVICE_IDEAS = [
   { match: /e-?mail|e-posta|بريد/i, service: 'Business Email', name: { en: 'business email', tr: 'kurumsal e-posta', ar: 'بريد الأعمال', fr: 'l’e-mail pro' } },
   { match: /host|domain|alan ad|استضافة|نطاق|hébergement/i, service: 'Hosting / Security', name: { en: 'hosting & domain', tr: 'barındırma ve alan adı', ar: 'الاستضافة والنطاق', fr: 'l’hébergement' } },
 ];
+// Auri can take the customer to an Aura Studio module. Navigation only: any
+// change is made by the customer on that page, with its own permission checks.
+const STUDIO_ROUTES = [
+  { view: 'pipeline', match: /\b(leads?|inquir(y|ies)|pipeline|prospects?)\b|müşteri adayı|talepleri(m)? (gör|kaydet)|استفسار|عملاء محتمل|prospect|demandes? clients?/i, label: { en: 'Open the lead pipeline', tr: 'Satış hattını aç', ar: 'افتح مسار العملاء', fr: 'Ouvrir le pipeline' } },
+  { view: 'analytics', match: /\b(analytics|stats|statistics|numbers|performance)\b|analitik|istatistik|تحليلات|إحصا|statistiques/i, label: { en: 'Open analytics', tr: 'Analitiği aç', ar: 'افتح التحليلات', fr: 'Ouvrir les statistiques' } },
+  { view: 'website', match: /\b(my|update|edit|change)\b.*\b(website|site)\b|web sitemi|sitemi (güncelle|düzenle)|موقعي|mon site/i, label: { en: 'Manage your website', tr: 'Web sitenizi yönetin', ar: 'أدر موقعك', fr: 'Gérer votre site' } },
+  { view: 'menu', match: /\b(manage|update|edit|my)\b.*\bmenu\b|menümü|قائمتي|mon menu/i, label: { en: 'Manage AuraMenu', tr: 'AuraMenu’yü yönet', ar: 'أدر AuraMenu', fr: 'Gérer AuraMenu' } },
+];
+const STUDIO_REPLY = {
+  en: label => `You can do that in Aura Studio. ${label} — changes are only saved when you confirm them there.`,
+  tr: label => `Bunu Aura Studio’da yapabilirsiniz. ${label} — değişiklikler yalnızca orada onayladığınızda kaydedilir.`,
+  ar: label => `يمكنك ذلك في Aura Studio. ${label} — لا تُحفظ التغييرات إلا عند تأكيدك هناك.`,
+  fr: label => `Vous pouvez le faire dans Aura Studio. ${label} — les modifications ne sont enregistrées qu’après votre confirmation.`,
+};
 const START_WORDS = /\b(build|make|create|set ?up|start|get|launch|need|want|do)\b|oluştur|kur|yap|istiyorum|başlat|ابن|أنشئ|أريد|ابدأ|créer|lancer|faire|veux/i;
 const money = (lang, amount) => new Intl.NumberFormat(lang === 'ar' ? 'ar' : lang, { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(Number(amount || 0));
 
-export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askAuri, auriImage, onBrief, initial }) {
+export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askAuri, auriImage, onBrief, initial, direct = false }) {
   const c = chatCopy(lang);
   const id = workspace?.organization.id || 'new';
   const storeKey = 'aura-chat:' + id;
@@ -150,15 +164,27 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
     logEl.scrollTop = logEl.scrollHeight;
   };
 
-  async function answer(text) {
+  // `direct` questions come from a page's own context (a roadmap stage, the
+  // dashboard) and always go to the real guidance endpoint, not a shortcut.
+  async function answer(text, { direct = false } = {}) {
     log.push({ role: 'me', text }); save(); draw();
     const t = text.toLowerCase();
     const idea = SERVICE_IDEAS.find(s => s.match.test(t));
-    if (idea && canRequest && START_WORDS.test(t)) {
+    if (direct) {
+      const pending = { role: 'auri', text: c.thinking, pending: true };
+      log.push(pending); draw();
+      let reply;
+      try { reply = await askAuri(text); } catch { reply = ''; }
+      log.splice(log.indexOf(pending), 1, { role: 'auri', text: reply || c.error });
+    } else if (idea && canRequest && START_WORDS.test(t)) {
       const name = idea.name[lang] || idea.name.en;
       const profile = workspace?.profile || {};
       const brief = [text, profile.name && `Business: ${profile.name}`, profile.industry && `Industry: ${profile.industry}`, [profile.city, profile.country].filter(Boolean).join(', '), profile.goals && `Goal: ${profile.goals}`].filter(Boolean).join('\n');
       log.push({ role: 'auri', text: c.startReply(name), actions: [{ label: c.start, brief: { service: idea.service, text: brief } }] });
+    } else if (workspace && STUDIO_ROUTES.some(r => r.match.test(t))) {
+      const route = STUDIO_ROUTES.find(r => r.match.test(t));
+      const label = (route.label[lang] || route.label.en);
+      log.push({ role: 'auri', text: (STUDIO_REPLY[lang] || STUDIO_REPLY.en)(label), actions: [{ label, href: link('studio', { view: route.view }) }] });
     } else if (INTENTS.billing.test(t)) {
       const n = (connected?.invoices || []).filter(i => ['sent', 'overdue'].includes(i.status)).length;
       log.push({ role: 'auri', text: c.billingReply(dueAmount ? money(lang, dueAmount) : '', n).replace(/ (Billing details are on the right|Your billing is on the right)\./, ''), actions: [{ label: c.billingLink, href: '/account' }] });
@@ -193,9 +219,9 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
     answer(c.chips[i]);
   }));
   draw();
-  if (initial) answer(initial); else setTimeout(() => input.focus({ preventScroll: true }), 50);
+  if (initial) answer(initial, { direct }); else setTimeout(() => input.focus({ preventScroll: true }), 50);
   return {
     reset: () => { log = [greeting()]; save(); draw(); },
-    ask: text => answer(text),
+    ask: (text, options) => answer(text, options),
   };
 }

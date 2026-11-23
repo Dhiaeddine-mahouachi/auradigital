@@ -11,6 +11,7 @@ import { auriProgress } from './auri-progression.js';
 import { draftFollowUp, explainRoadmap, recentAuriDrafts } from './hub-auri.js';
 import { eligibleMissions } from './roadmap.js';
 import { handleMenuDrafts } from './menu-drafts.js';
+import { handleLeads } from './hub-leads.js';
 import { ApiError, json, readJson } from './http.js';
 import { authenticatedCustomer, tokenHash } from './customer-accounts.ts';
 import { sameOrigin } from './security.js';
@@ -113,7 +114,7 @@ async function invitation(request,env,user,body,accept) {
 }
 export async function handleBusinessHub(request,env) {
  const url=new URL(request.url),path=url.pathname;
- if((['/hub/app.js','/hub/hub.css','/hub/boot.js'].includes(path)||/^\/hub\/stage-[123]\.webp$/.test(path))&&['GET','HEAD'].includes(request.method))return env.ASSETS.fetch(request);
+ if((['/hub/app.js','/hub/hub.css','/hub/os.css','/hub/boot.js'].includes(path)||/^\/hub\/stage-[123]\.webp$/.test(path))&&['GET','HEAD'].includes(request.method))return env.ASSETS.fetch(request);
  if(path==='/hub'||path.startsWith('/hub/')) {
   if(!['GET','HEAD'].includes(request.method))throw new ApiError(405,'Method not allowed.');
   const asset=await env.ASSETS.fetch(new Request(new URL('/hub/index.html',url)));
@@ -182,9 +183,10 @@ export async function handleBusinessHub(request,env) {
   const [,org,record]=workMatch;
   return json(await getHubWork(env,org,await authorize(env.DB,org,user),record));
  }
- const match=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})(?:\/(profile|diagnosis|missions|mission-evidence|existing-evidence|mission-route|scenarios|team|invitations|activity|auri|connected)(?:\/([a-f0-9-]{36}))?)?$/.exec(path);
+ const match=/^\/api\/hub\/workspaces\/([a-f0-9-]{36})(?:\/(profile|diagnosis|missions|mission-evidence|existing-evidence|mission-route|scenarios|team|invitations|activity|auri|connected|leads|lead-stages)(?:\/([a-f0-9-]{36}))?)?$/.exec(path);
  if(!match)throw new ApiError(404,'Not found.');
  const [,org,section,item]=match;
+ if(section==='leads'||section==='lead-stages')return handleLeads(request,env,{org,user,section,item,authorize,audit});
  if(section==='connected'){
   if(item||request.method!=='GET')throw new ApiError(405,'Method not allowed.');
   await authorize(env.DB,org,user);

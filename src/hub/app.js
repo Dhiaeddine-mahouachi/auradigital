@@ -16,7 +16,11 @@ import { renderMenuDrafts } from './menu-drafts.js';
 import { copy, capabilityNames } from './i18n.js';
 import { connectedRows, connectedList, dashCopy, navCopy, navIcon } from './dashboard-view.js';
 import { mountAuriChat, chatCopy } from './auri-chat.js';
-import { renderCommandHome } from './command-home.js';
+import { renderAuraCommand } from './aura-command.js';
+import { renderAuraJourney } from './aura-journey.js';
+import { renderAuraStudio, STUDIO_VIEWS } from './aura-studio.js';
+import { osCopy } from './os-copy.js';
+import { icon as osIcon } from './os-ui.js';
 import { simulate, capabilities, diagnose } from '../growth-engine.js';
 const app=document.querySelector('#app'),notice=document.querySelector('#notice');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -80,7 +84,15 @@ async function generateRoadmap(){
   await loadWorkspace(id);
  });
 }
-async function api(path,method='GET',body) {const response=await fetch(path,{method,credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});const data=await response.json().catch(()=>({error:t('error')}));if(!response.ok){const error=new Error(data.error||t('error'));error.status=response.status;throw error;}return data;}
+// Every request has a deadline so a stalled network can never leave a screen
+// (including "Opening your workspace…") waiting forever. AI-backed writes get longer.
+async function api(path,method='GET',body,{timeout=method==='GET'?15000:45000}={}) {
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
+ let response;
+ try{response=await fetch(path,{method,credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal:controller.signal});}
+ catch(cause){const error=new Error(osCopy(lang).state[cause?.name==='AbortError'?'timeout':'offline']);error.status=0;error.network=true;throw error;}
+ finally{clearTimeout(timer);}
+ const data=await response.json().catch(()=>({error:t('error')}));if(!response.ok){const error=new Error(data.error||t('error'));error.status=response.status;throw error;}return data;}
 const endpoint=s=>'/api/hub/workspaces/'+workspace.organization.id+(s?'/'+s:'');
 const button=(label,action,secondary=false,disabled=false)=>`<button type="button" data-action="${action}" class="${secondary?'secondary':'primary'}" ${disabled?'disabled':''}>${esc(t(label))}</button>`;
 function field(key,label,value='',type='text',extra='') {return `<label class="field">${esc(t(label))}<input name="${key}" type="${type}" value="${esc(value)}" ${extra}></label>`;}
@@ -312,50 +324,72 @@ function navigate(target,params,replace=false,doRender=true){
 window.addEventListener('popstate',()=>{if(me){editing=false;firstLogin=null;void load();}});
 function renderShell(){
  window.scrollTo({top:0,left:0,behavior:'instant'});
- const labels=hubLabels(lang), l=roadmapLabels(lang), nv=navCopy(lang);
- const active=(pageGroup[page]||page);
+ const labels=hubLabels(lang), l=roadmapLabels(lang), nv=navCopy(lang), oc=osCopy(lang);
+ const view=query.get('view')||'pipeline';
+ const active=page==='studio'?(['website','menu'].includes(view)?'site':view==='analytics'?'analytics':'studio'):(pageGroup[page]||page);
  const can=permission=>!workspace||workspace.permissions.includes(permission);
- const labelOf=p=>p==='home'?nv.home:p==='services'?serviceLabels[lang][0]:p==='requests'?labels.requests:p==='assistant'?labels.assistant:p==='journey'?labels.journey:nv[p]||labels[p]||l[p]||t(p);
- const hrefOf=p=>p==='orders'?'/account':link(p);
- const navItem=(p,mobile=false)=>`<a class="nav-item ${active===p?'active':''}" data-tip="${esc(labelOf(p))}" href="${esc(hrefOf(p))}"
+ const items={
+  home:{label:oc.nav.overview,icon:'overview'},
+  profile:{label:oc.nav.business,icon:'business'},
+  journey:{label:oc.nav.journey,icon:'journey'},
+  studio:{label:oc.nav.studio,icon:'studio',href:link('studio',{view:'pipeline'})},
+  services:{label:oc.nav.services,icon:'services'},
+  site:{label:oc.nav.site,icon:'site',href:link('studio',{view:'website'})},
+  analytics:{label:oc.nav.analytics,icon:'analytics',href:link('studio',{view:'analytics'})},
+  assistant:{label:oc.nav.assistant,icon:'auri'},
+  requests:{label:oc.nav.requests,icon:'requests'},
+  menuDrafts:{label:oc.nav.menuDrafts,icon:'menuDrafts'},
+  orders:{label:oc.nav.orders,icon:'orders',href:'/account'},
+  team:{label:oc.nav.team,icon:'team'},
+  settings:{label:oc.nav.settings,icon:'settings'},
+ };
+ const labelOf=p=>items[p]?.label||labels[p]||l[p]||t(p);
+ const navItem=(p,mobile=false)=>`<a class="nav-item os-nav-item ${active===p?'active':''}" data-tip="${esc(labelOf(p))}" href="${esc(items[p]?.href||link(p))}"
   data-page="${p}" ${mobile?`data-mobile-page="${p}"`:''} ${active===p?'aria-current="page"':''}>
-  ${navIcon(p)}<span>${esc(labelOf(p))}</span></a>`;
- // Grouped navigation: one place for every part of the business.
- const groups=[
-  [nv.groups[0],['home']],
-  [nv.groups[1],['journey','assistant']],
-  [nv.groups[2],['services','requests',...(workspace?['menuDrafts']:[]),'orders']],
-  [nv.groups[3],[...(workspace&&can('profile:write')?['profile']:[]),...(workspace?['team']:[]),'settings']],
+  ${osIcon(items[p]?.icon||p,20)}<span>${esc(labelOf(p))}</span></a>`;
+ // Aura Command (overview), Aura Journey (roadmap) and Aura Studio (operations)
+ // lead the navigation; everything that existed before stays reachable.
+ const groups=workspace?[
+  [oc.nav.groups[0],['home','profile','journey','studio','services','site','analytics',...(can('auri:use')?['assistant']:[])]],
+  [oc.nav.groups[1],['requests','menuDrafts','orders']],
+  [oc.nav.groups[2],[...(workspace.organization.owner?['team']:[]),'settings']],
+ ]:[
+  [oc.nav.groups[0],['home','journey','services','assistant']],
+  [oc.nav.groups[1],['requests','orders']],
+  [oc.nav.groups[2],['settings']],
  ];
- const mobileMain=['home','journey','services'];
- const sheetItems=groups.flatMap(([,items])=>items).filter(p=>!mobileMain.includes(p));
+ const mobileMain=workspace?['home','journey','studio']:['home','journey','services'];
+ const sheetItems=groups.flatMap(([,list])=>list).filter(p=>!mobileMain.includes(p));
+ const section=page==='home'?oc.sections.command:page==='journey'?oc.sections.journey:page==='studio'?oc.sections.studio:labelOf(active);
  const title=page==='services'?serviceLabels[lang][0]:page==='journey'?commandLabels(lang).vision:labelOf(page);
+ const ownHeading=(page==='home'||page==='journey')&&workspace?.missions.length||page==='studio'&&workspace;
  const initials=String(workspace?.organization.name||me.name||'A').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
- app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell hx-shell wx-shell ${page==='home'&&workspace?.missions.length?'wx-home':''} ${page==='services'?'service-shell':''}"><aside class="sidebar" id="sidebar">
- <a href="${esc(link('home'))}" class="wordmark command-wordmark">${brandMarkup}</a>
- <nav aria-label="AuraHub">${groups.map(([name,items])=>`<p class="hx-nav-group">${esc(name)}</p>${items.map(p=>navItem(p)).join('')}`).join('')}</nav>
- <div class="hx-side-foot"><span class="hx-avatar small" aria-hidden="true">${esc(String(me.name||'?')[0].toUpperCase())}</span><span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div></aside>
- <div class="workspace"><header class="topbar growth-topbar hub-topbar">
+ app.innerHTML=`<div class="shell growth-shell growth-active aurahub-shell hx-shell wx-shell os-shell ${page==='journey'&&workspace?.missions.length?'os-shell-journey':''} ${page==='services'?'service-shell':''}"><aside class="sidebar os-sidebar" id="sidebar">
+ <a href="${esc(link('home'))}" class="wordmark command-wordmark os-brand">${brandMarkup}<small>AuraHub</small></a>
+ <nav aria-label="AuraHub">${groups.map(([name,list])=>`<p class="hx-nav-group os-nav-group">${esc(name)}</p>${list.map(p=>navItem(p)).join('')}`).join('')}</nav>
+ ${workspace&&can('auri:use')?`<button type="button" class="os-side-auri" data-ax-open aria-controls="ax-drawer"><img src="/media/auri/level-${auriLevel()}.webp" alt="" width="36" height="36"><span><strong>Auri</strong><small>${esc(oc.auri.ask)}</small></span></button>`:''}
+ <div class="hx-side-foot os-side-foot"><span class="hx-avatar small" aria-hidden="true">${esc(String(me.name||'?')[0].toUpperCase())}</span><span><strong>${esc(me.name)}</strong><small>${esc(me.email)}</small></span></div></aside>
+ <div class="workspace"><header class="topbar growth-topbar hub-topbar os-topbar">
  <a class="hub-mobile-brand wordmark" href="${esc(link('home'))}">${brandMarkup}</a>
- ${workspace?`<div class="hx-business"><span class="hx-avatar" aria-hidden="true">${esc(initials)}</span>
- <label class="field workspace-picker"><span class="sr-only">${t('businessName')}</span>
- <select id="workspace-select" aria-label="${t('businessName')}">${workspaces.map(o=>`<option value="${esc(o.id)}" ${o.id===workspace.organization.id?'selected':''}>${esc(o.id===workspace.organization.id?workspace.organization.name:o.name)}</option>`).join('')}</select></label></div>`:''}
- <div class="hx-topbar-title"><strong>${esc(title)}</strong></div>
- ${workspace&&can('roadmap:write')?`<a class="growth-secondary hx-top-action" href="${esc(requestLink())}">＋ <span>${esc(nv.newRequest)}</span></a>`:''}
- ${workspace&&can('auri:use')?`<button type="button" class="wx-auri-btn" data-ax-open aria-controls="ax-drawer" aria-expanded="false">${navIcon('assistant')}<span>${esc(labels.assistant)}</span></button>`:''}
- <details class="growth-account"><summary aria-label="${esc(t('profile'))}">${hubIcon('profile')}</summary>
+ ${workspace?`<div class="hx-business os-business"><span class="hx-avatar" aria-hidden="true">${esc(initials)}</span>
+ <label class="field workspace-picker"><span class="sr-only">${esc(oc.nav.switchWorkspace)}</span>
+ <select id="workspace-select" aria-label="${esc(oc.nav.switchWorkspace)}">${workspaces.map(o=>`<option value="${esc(o.id)}" ${o.id===workspace.organization.id?'selected':''}>${esc(o.id===workspace.organization.id?workspace.organization.name:o.name)}</option>`).join('')}</select></label></div>`:''}
+ <div class="hx-topbar-title os-crumb"><span>${esc(section)}</span></div>
+ ${workspace&&can('roadmap:write')?`<a class="growth-secondary hx-top-action os-top-request" href="${esc(requestLink())}">${osIcon('plus',16)} <span>${esc(oc.nav.newRequest)}</span></a>`:''}
+ ${workspace&&can('auri:use')?`<button type="button" class="wx-auri-btn os-top-auri" data-ax-open aria-controls="ax-drawer" aria-expanded="false">${osIcon('auri',18)}<span>Auri</span></button>`:''}
+ <details class="growth-account"><summary aria-label="${esc(oc.nav.account)}">${hubIcon('profile')}</summary>
  <div class="growth-account-menu"><strong>${esc(me.name)}</strong>${languageControl()}
- ${navItem('settings')}${workspace?navItem('profile')+navItem('invoices'):''}${button('logout','logout',true)}</div></details></header>
- <main id="main" tabindex="-1"><div class="page-heading"><h1>${page==='home'&&(!workspace||!workspace.missions.length)
+ ${navItem('settings')}${workspace?navItem('profile')+navItem('orders'):''}${button('logout','logout',true)}</div></details></header>
+ <main id="main" tabindex="-1">${ownHeading?'':`<div class="page-heading"><h1>${page==='home'&&(!workspace||!workspace.missions.length)
   ?`${esc(labels.welcome)} <span>AuraHub</span>`:page==='journey'&&lang==='en'?'Growth <span>Vision</span>':esc(title)}</h1>
- ${['services','requests'].includes(page)&&workspace?.permissions.includes('roadmap:write')&&!query.has('new')?`<a class="growth-secondary" href="${esc(requestLink())}">＋ ${esc(l.request)}</a>`:''}</div>
+ ${['services','requests'].includes(page)&&workspace?.permissions.includes('roadmap:write')&&!query.has('new')?`<a class="growth-secondary" href="${esc(requestLink())}">＋ ${esc(l.request)}</a>`:''}</div>`}
  ${!me.verified&&authCapabilities.email?`<aside class="verification"><p>${t('verifyLater')}</p>${button('sendVerification','send-verification',true)}</aside>`:''}
  <div id="page-content"></div></main>
- <nav class="command-bottom-nav" aria-label="AuraHub">${navItem('home',true)}${navItem('journey',true)}${workspace&&can('auri:use')?`<button type="button" class="nav-item wx-bottom-auri" data-ax-open aria-controls="ax-drawer">${navIcon('assistant')}<span>Auri</span></button>`:''}${navItem('services',true)}
- <button type="button" class="nav-item hx-more" data-hx-more aria-expanded="false" aria-controls="hx-sheet">${navIcon('more')}<span>${esc(nv.more)}</span></button></nav>
- <div class="hx-sheet" id="hx-sheet" hidden><div class="hx-sheet-panel" role="dialog" aria-modal="true" aria-label="${esc(nv.more)}">
- <header><strong>${esc(nv.more)}</strong><button type="button" class="hx-sheet-close" data-hx-close aria-label="${esc(nv.close)}">✕</button></header>
- <nav aria-label="${esc(nv.more)}">${sheetItems.map(p=>navItem(p)).join('')}</nav></div></div>
+ <nav class="command-bottom-nav os-bottom-nav" aria-label="AuraHub">${navItem('home',true)}${navItem('journey',true)}${workspace&&can('auri:use')?`<button type="button" class="nav-item wx-bottom-auri" data-ax-open aria-controls="ax-drawer">${osIcon('auri',20)}<span>Auri</span></button>`:''}${navItem(mobileMain[2],true)}
+ <button type="button" class="nav-item hx-more" data-hx-more aria-expanded="false" aria-controls="hx-sheet">${osIcon('more',20)}<span>${esc(oc.nav.more)}</span></button></nav>
+ <div class="hx-sheet" id="hx-sheet" hidden><div class="hx-sheet-panel" role="dialog" aria-modal="true" aria-label="${esc(oc.nav.more)}">
+ <header><strong>${esc(oc.nav.more)}</strong><button type="button" class="hx-sheet-close" data-hx-close aria-label="${esc(oc.nav.close)}">✕</button></header>
+ <nav aria-label="${esc(oc.nav.more)}">${sheetItems.map(p=>navItem(p)).join('')}</nav></div></div>
  </div>
  <aside class="ax-drawer" id="ax-drawer" hidden aria-label="Auri"><header class="ax-head"><span class="ax-avatar" aria-hidden="true"><img src="/media/auri/level-${auriLevel()}.webp" alt="" width="44" height="44"></span>
  <span class="ax-head-text"><strong>Auri</strong><small><i class="ax-online" aria-hidden="true"></i>${esc(chatCopy(lang).status)}</small></span>
@@ -381,7 +415,11 @@ function renderShell(){
  document.querySelector('[data-action="logout"]').onclick=async()=>{try{await api('/api/customer/logout','POST',{});location.assign('/hub/login');}catch(e){toast(e.message);}};
  document.querySelector('[data-action="send-verification"]')?.addEventListener('click',async e=>{e.target.disabled=true;try{await api('/api/customer/send-verification','POST',{});toast(t('saved'));}catch(e){toast(e.message);}finally{e.target.disabled=false;}});
  const host=document.querySelector('#page-content');
- renderPage().catch(e=>{if(host.isConnected)host.innerHTML=`<section class="panel"><p role="alert">${esc(e.message)}</p></section>`;});
+ renderPage().catch(e=>{
+  if(!host.isConnected)return;
+  host.innerHTML=`<section class="panel os-page-error"><p role="alert">${esc(e.message)}</p><button type="button" class="secondary" data-retry-page>${esc(osCopy(lang).state.retry)}</button></section>`;
+  host.querySelector('[data-retry-page]').onclick=()=>render();
+ });
 }
 const content=html=>{document.querySelector('#page-content').innerHTML=html;};
 app.addEventListener('click',event=>{
@@ -441,19 +479,26 @@ function menuArtwork(menu){
   `<small><span>${esc(product.name)}</span><span>${esc(product.price)} ${esc(menu.draft.fields.currency||'')}</span></small>`).join('')}</div>`;
 }
 const missionTitle=m=>m.objective===m.service?cap(m.capability):m.objective;
+function loadLeads(){
+ return Promise.all([api(endpoint('leads')),api(endpoint('leads')+'?archived=1')])
+  .then(([open,archived])=>({all:[...open.leads,...archived.leads]})).catch(()=>({all:null}));
+}
 async function home(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content');
  if(!workspace?.missions.length){renderBuildCard(ui);return;}
- const [snapshot,connected]=await Promise.all([workSnapshot(),api(endpoint('connected')).catch(()=>null)]);
+ host.innerHTML=`<div class="os-command-loading" role="status" aria-label="${esc(osCopy(lang).state.loading)}"><span></span><span></span><span></span><span></span></div>`;
+ const [snapshot,connected,leads]=await Promise.all([workSnapshot(),api(endpoint('connected')).catch(()=>null),loadLeads()]);
  if(!host.isConnected)return;
  const next=nextMission(),item=snapshot.attention[0],menu=item?.kind==='menu';
- renderCommandHome({host,lang,esc,link,me,workspace,snapshot,connected,missionTitle,
+ const eligible=eligibleMissions(workspace.missions,workspace.profile).filter(m=>workspace.evidence?.[m.id]!=='pending');
+ renderAuraCommand({host,lang,esc,link,requestLink,me,workspace,snapshot,connected,leads,missionTitle,next,eligible,continueLabel:ui.continue,
   canAsk:workspace.permissions.includes('auri:use'),canRequest:workspace.permissions.includes('roadmap:write'),
-  auriImage:`<img src="/media/auri/level-${auriLevel()}.webp" alt="" width="72" height="72">`,
-  onAsk:question=>openAuri(question),onLetAuri:letAuriDo,
   attention:item?{name:menu?ui.menuReady:item.name,label:menu?ui.reviewMenu:ui.openRequest,href:link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id})}:null,
-  nextAction:next?{label:ui.continue,href:link('journey',{task:next.id})}:null,nextTitle:next?missionTitle(next):'',
-  labels:{attention:ui.attention,next:ui.next}});
+  onAsk:question=>openAuri(question||undefined,{direct:true}),onPrepare:letAuriDo});
+}
+async function studio(){
+ return renderAuraStudio({host:document.querySelector('#page-content'),lang,esc,link,requestLink,api,endpoint,workspace,me,toast,
+  view:query.get('view'),query,loadSnapshot:workSnapshot,loadConnected:()=>api(endpoint('connected')).catch(()=>null),onAsk:question=>openAuri(question||undefined)});
 }
 // Map a roadmap task to the request form's service list.
 function serviceFor(capability){
@@ -476,21 +521,21 @@ function letAuriDo(mission){
 }
 // Auri side panel, available on every page of the hub.
 let auriOpen=false,auriChat=null;
-async function openAuri(initial){
+async function openAuri(initial,{direct=false}={}){
  const drawer=document.querySelector('#ax-drawer');
  if(!drawer||!workspace)return;
  auriOpen=true;drawer.hidden=false;document.querySelector('.ax-scrim')?.removeAttribute('hidden');
  document.querySelectorAll('[data-ax-open]').forEach(b=>b.setAttribute('aria-expanded','true'));
  document.documentElement.classList.add('ax-is-open');
  const body=drawer.querySelector('[data-ax-body]');
- if(auriChat&&body.childElementCount&&body.dataset.workspace===workspace.organization.id){if(initial)auriChat.ask(initial);return;}
+ if(auriChat&&body.childElementCount&&body.dataset.workspace===workspace.organization.id){if(initial)auriChat.ask(initial,{direct});return;}
  body.innerHTML='<p class="ax-loading" role="status">…</p>';body.dataset.workspace=workspace.organization.id;
  const ui=hubLabels(lang);
  const [snapshot,connected]=await Promise.all([workSnapshot().catch(()=>({attention:[],progress:[],services:[],records:[],requests:[]})),api(endpoint('connected')).catch(()=>null)]);
  if(!drawer.isConnected)return;
  const next=workspace.missions.length?nextMission():null;
  const item=snapshot.attention[0],menu=item?.kind==='menu';
- auriChat=mountAuriChat({host:body,lang,esc,link,me,workspace,initial,
+ auriChat=mountAuriChat({host:body,lang,esc,link,me,workspace,initial,direct,
   data:{snapshot,connected,next,missionTitle,
    attention:item?{name:menu?ui.menuReady:item.name,label:menu?ui.reviewMenu:ui.openRequest,href:link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id})}:null,
    nextAction:next?{label:ui.continue,href:link('journey',{task:next.id})}:null},
@@ -589,6 +634,7 @@ async function renderPage(){
  if(!workspace&&page==='assistant')return renderAuriEmpty();
  if(!workspace&&(page==='services'||page==='requests'))return renderWorkEmpty(page);
  if(!workspace)return renderBuildCard(label);
+ if(page==='studio')return studio();
  if(page==='services'||page==='requests')return myWork();
  if((page==='journey'||page==='onboarding')&&!workspace.missions.length)return renderBuildCard(label);
  if(page==='onboarding'){navigate('journey',{},true);return;}
@@ -654,7 +700,7 @@ async function askAuri(question,missionId,requestId,serviceKey,offer) {
 function growthDashboard(){
  disconnectDesk();
  const host=document.querySelector('#page-content');
- renderRoadmap({host,workspace,t,esc,cap,lang,view:roadmapView,selectedId:selectedMission,robot,requestLink,
+ const options={workspace,t,esc,cap,lang,view:roadmapView,robot,requestLink,
   onSelect(id,scroll=true){
    navigate('journey',{task:id},false,false);growthDashboard();
    document.getElementById('growth-focus')?.focus({preventScroll:!scroll});
@@ -695,8 +741,13 @@ function growthDashboard(){
     if(workspace?.organization.id===id){navigate('journey',{task:result.missionId},true,false);await loadWorkspace(id);}
    }catch(error){submit.disabled=false;toast(error.message);}
   },
- });
- /* The full assistant is reached through task links or the primary navigation. */
+ };
+ const stage=query.get('stage');
+ renderAuraJourney({host,lang,esc,link,requestLink,workspace,missionTitle,cap,
+  stageParam:stage!==null&&/^[0-4]$/.test(stage)?Number(stage):null,selectedId:selectedMission,
+  canAsk:workspace.permissions.includes('auri:use'),onAsk:question=>openAuri(question,{direct:true}),
+  onSelect:id=>options.onSelect(id),
+  renderTask:(taskHost,id)=>renderRoadmap({...options,host:taskHost,selectedId:id,compact:true})});
 
 }
 
@@ -983,12 +1034,16 @@ async function load(){
  }catch(e){
   if(revision!==loadRevision)return;
   if(e.status===401){me=null;render();}
-  else gateFrame(`<section class="panel"><h1>AuraHub</h1><p role="alert">${esc(e.message)}</p><a href="/hub">${esc(hubLabels(lang).home)}</a></section>`);
+  else{
+   app.setAttribute('aria-busy','false');
+   gateFrame(`<section class="panel hub-load-error"><h1>AuraHub</h1><p role="alert">${esc(e.message)}</p><div class="actions"><button type="button" class="primary" data-retry-load>${esc(osCopy(lang).state.retry)}</button><a class="secondary" href="/hub/login">${esc(t('signIn'))}</a></div></section>`);
+   document.querySelector('[data-retry-load]').onclick=()=>{app.innerHTML=`<p class="initial" role="status">${esc(osCopy(lang).state.loading)}</p>`;void load();};
+  }
  }
 }
 async function start(){
  if(['verify','reset','forgot','confirm-email'].includes(route)){render();return;}
- authCapabilities=await api('/api/customer/capabilities').catch(()=>({}));
+ authCapabilities=await api('/api/customer/capabilities','GET',undefined,{timeout:6000}).catch(()=>({}));
  await load();
 }
 start();
