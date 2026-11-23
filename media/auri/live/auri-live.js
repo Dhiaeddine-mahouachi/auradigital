@@ -26,7 +26,7 @@ export { STATES, EXPRESSIONS, SCREEN_MODES };
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
   ink: '#06140F', deep: '#0B3D2E', main: '#10B981', light: '#34D399', pale: '#A7F3D0',
-  glow: '#ECFDF5', eye: '#8DF7C8', warm: '#FDE68A', cream: '#F6F2E7', creamShade: '#D9D3C2',
+  glow: '#ECFDF5', eye: '#A6FFD6', ring: '#5CF2B5', warm: '#FDE68A', cream: '#F6F2E7', creamShade: '#D9D3C2',
 };
 let uid = 0;
 
@@ -62,107 +62,112 @@ function injectStyles(doc) {
 }
 
 /* ---------------------------------------------------------------- svg rig */
-const chevron = (cx, cy, s, stroke, w) =>
-  `<path d="M${cx - s},${cy + s * .62} L${cx},${cy - s * .7} L${cx + s},${cy + s * .62} M${cx - s * .42},${cy + s * .12} L${cx + s * .42},${cy + s * .12}" fill="none" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
-
 function rigMarkup(id) {
   const g = n => `${n}-${id}`;
+  const HELMET = 'M200,14 C292,14 352,62 352,138 C352,214 300,250 200,250 C100,250 48,214 48,138 C48,62 108,14 200,14Z';
+  const BODY = 'M112,238 Q200,224 288,238 Q336,250 336,320 Q336,388 292,408 Q200,428 108,408 Q64,388 64,320 Q64,250 112,238Z';
+  const ear = (cx, s) => `<g data-p="ear${s}">
+   <ellipse cx="${cx}" cy="160" rx="30" ry="46" fill="url(#${g('ear')})" stroke="#0A2E23" stroke-width="4"/>
+   <ellipse data-p="ringGlow${s}" cx="${cx}" cy="160" rx="21" ry="34" fill="none" stroke="${C.ring}" stroke-width="14" opacity=".4"/>
+   <ellipse data-p="ring${s}" cx="${cx}" cy="160" rx="21" ry="34" fill="none" stroke="${C.ring}" stroke-width="5"/>
+   <ellipse cx="${cx}" cy="160" rx="10" ry="17" fill="#0E3F31"/>
+   <ellipse cx="${cx - 3 * Math.sign(200 - cx)}" cy="150" rx="4" ry="7" fill="#fff" opacity=".10"/>
+  </g>`;
+  const arm = (s, x, px, rot) => `<g data-p="arm${s}" class="auri-part"><g transform="rotate(${rot} ${px} 280)">
+   <rect x="${x}" y="262" width="54" height="98" rx="27" fill="url(#${g('cream')})"/>
+   <path d="M${x + 6},272 Q${x + 4},300 ${x + 8},326" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".45"/>
+   <rect x="${x - 2}" y="328" width="58" height="48" rx="24" fill="url(#${g('lower')})"/>
+   <rect data-p="cuffGlow${s}" x="${x}" y="321" width="54" height="10" rx="5" fill="${C.light}" opacity=".3"/>
+   <rect data-p="cuff${s}" x="${x + 1}" y="323" width="52" height="6" rx="3" fill="${C.light}"/>
+  </g></g>`;
   return `
 <defs>
- <radialGradient id="${g('cream')}" cx="38%" cy="28%" r="80%">
-  <stop offset="0" stop-color="#FFFEF9"/><stop offset=".55" stop-color="${C.cream}"/><stop offset="1" stop-color="${C.creamShade}"/>
+ <radialGradient id="${g('cream')}" cx="35%" cy="25%" r="85%">
+  <stop offset="0" stop-color="#FFFFFB"/><stop offset=".5" stop-color="${C.cream}"/><stop offset=".85" stop-color="#D8D2C1"/><stop offset="1" stop-color="#B9B3A2"/>
  </radialGradient>
  <linearGradient id="${g('visor')}" x1="0" y1="0" x2="0" y2="1">
-  <stop offset="0" stop-color="#16201C"/><stop offset=".45" stop-color="#050A08"/><stop offset="1" stop-color="#020403"/>
+  <stop offset="0" stop-color="#1A2622"/><stop offset=".35" stop-color="#070C0A"/><stop offset="1" stop-color="#010302"/>
  </linearGradient>
  <linearGradient id="${g('screen')}" x1="0" y1="0" x2="0" y2="1">
-  <stop offset="0" stop-color="#0A1C15"/><stop offset="1" stop-color="#030B08"/>
+  <stop offset="0" stop-color="#0B2119"/><stop offset="1" stop-color="#030B08"/>
  </linearGradient>
- <radialGradient id="${g('ear')}" cx="40%" cy="35%" r="70%">
-  <stop offset="0" stop-color="#145A44"/><stop offset="1" stop-color="${C.deep}"/>
+ <radialGradient id="${g('ear')}" cx="45%" cy="35%" r="75%">
+  <stop offset="0" stop-color="#16533F"/><stop offset="1" stop-color="#062019"/>
  </radialGradient>
  <linearGradient id="${g('lower')}" x1="0" y1="0" x2="0" y2="1">
-  <stop offset="0" stop-color="#0F4A38"/><stop offset="1" stop-color="#07271D"/>
+  <stop offset="0" stop-color="#12503D"/><stop offset="1" stop-color="#05231A"/>
  </linearGradient>
- <clipPath id="${g('helmet')}"><rect x="62" y="24" width="276" height="212" rx="104"/></clipPath>
- <clipPath id="${g('visorclip')}"><rect x="96" y="80" width="208" height="140" rx="56"/></clipPath>
- <clipPath id="${g('screenclip')}"><rect x="134" y="256" width="132" height="100" rx="14"/></clipPath>
- <clipPath id="${g('bodyclip')}"><path d="M136,232 Q200,220 264,232 Q300,242 302,300 Q302,372 268,392 Q200,410 132,392 Q98,372 98,300 Q100,242 136,232Z"/></clipPath>
+ <linearGradient id="${g('cap')}" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#145641"/><stop offset="1" stop-color="#0A3326"/>
+ </linearGradient>
+ <radialGradient id="${g('eyeglow')}"><stop offset="0" stop-color="${C.light}" stop-opacity=".75"/><stop offset=".55" stop-color="${C.main}" stop-opacity=".22"/><stop offset="1" stop-color="${C.main}" stop-opacity="0"/></radialGradient>
+ <radialGradient id="${g('back')}"><stop offset="0" stop-color="${C.main}" stop-opacity=".22"/><stop offset="1" stop-color="${C.main}" stop-opacity="0"/></radialGradient>
+ <clipPath id="${g('helmet')}"><path d="${HELMET}"/></clipPath>
+ <clipPath id="${g('visorclip')}"><rect x="80" y="68" width="240" height="166" rx="72"/></clipPath>
+ <clipPath id="${g('screenclip')}"><rect x="106" y="260" width="188" height="124" rx="20"/></clipPath>
+ <clipPath id="${g('bodyclip')}"><path d="${BODY}"/></clipPath>
 </defs>
-<ellipse data-p="shadow" cx="200" cy="446" rx="92" ry="11" fill="#000" opacity=".28"/>
+<ellipse cx="200" cy="230" rx="210" ry="230" fill="url(#${g('back')})"/>
+<ellipse data-p="shadow" cx="200" cy="446" rx="104" ry="11" fill="#000" opacity=".3"/>
 <g data-p="root" class="auri-part">
  <g data-p="legL" class="auri-part">
-  <rect x="148" y="366" width="46" height="62" rx="21" fill="url(#${g('cream')})"/>
-  <rect x="146" y="410" width="50" height="22" rx="11" fill="${C.deep}"/>
+  <rect x="142" y="388" width="50" height="38" rx="18" fill="url(#${g('cream')})"/>
+  <rect x="137" y="414" width="60" height="24" rx="12" fill="url(#${g('lower')})"/>
  </g>
  <g data-p="legR" class="auri-part">
-  <rect x="206" y="366" width="46" height="62" rx="21" fill="url(#${g('cream')})"/>
-  <rect x="204" y="410" width="50" height="22" rx="11" fill="${C.deep}"/>
+  <rect x="208" y="388" width="50" height="38" rx="18" fill="url(#${g('cream')})"/>
+  <rect x="203" y="414" width="60" height="24" rx="12" fill="url(#${g('lower')})"/>
  </g>
  <g data-p="body" class="auri-part">
-  <path d="M136,232 Q200,220 264,232 Q300,242 302,300 Q302,372 268,392 Q200,410 132,392 Q98,372 98,300 Q100,242 136,232Z" fill="url(#${g('cream')})"/>
+  <path d="${BODY}" fill="url(#${g('cream')})"/>
   <g clip-path="url(#${g('bodyclip')})">
-   <path d="M90,350 Q200,380 310,350 L310,420 L90,420Z" fill="url(#${g('lower')})"/>
-   <path d="M90,350 Q200,380 310,350" fill="none" stroke="${C.light}" stroke-width="1.5" opacity=".35"/>
+   <path d="M56,356 Q200,396 344,356 L344,440 L56,440Z" fill="url(#${g('lower')})"/>
+   <path d="M330,270 Q340,320 326,380" fill="none" stroke="${C.light}" stroke-width="3" opacity=".35"/>
   </g>
-  <rect x="126" y="248" width="148" height="116" rx="21" fill="${C.deep}"/>
-  <rect data-p="screenGlow" x="128.5" y="250.5" width="143" height="111" rx="19" fill="none" stroke="${C.light}" stroke-width="2.5" opacity=".85"/>
-  <rect x="134" y="256" width="132" height="100" rx="14" fill="url(#${g('screen')})"/>
-  <g data-p="screen" clip-path="url(#${g('screenclip')})"><g transform="translate(134 256)" data-p="screenContent"></g></g>
-  <path d="M140,262 Q200,252 260,262" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".06"/>
-  <g data-p="badge" opacity=".9">${chevron(200, 378, 9, C.light, 3.2)}</g>
+  <rect x="96" y="250" width="208" height="144" rx="28" fill="#08281E"/>
+  <rect data-p="screenGlowWide" x="99" y="253" width="202" height="138" rx="25" fill="none" stroke="${C.light}" stroke-width="9" opacity=".18"/>
+  <rect data-p="screenGlow" x="100" y="254" width="200" height="136" rx="24" fill="none" stroke="${C.light}" stroke-width="3"/>
+  <rect x="106" y="260" width="188" height="124" rx="20" fill="url(#${g('screen')})"/>
+  <g data-p="screen" clip-path="url(#${g('screenclip')})"><g transform="translate(118.2 260) scale(1.24)" data-p="screenContent"></g></g>
+  <path d="M114,268 Q200,256 286,268" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".07"/>
+  <rect data-p="badge" x="186" y="400" width="28" height="5" rx="2.5" fill="${C.light}"/>
  </g>
- <g data-p="armL" class="auri-part">
-  <g transform="rotate(10 112 262)">
-   <rect x="88" y="250" width="40" height="86" rx="20" fill="url(#${g('cream')})"/>
-   <rect x="86" y="314" width="44" height="34" rx="17" fill="${C.deep}"/>
-   <rect data-p="cuffL" x="89" y="311" width="38" height="4" rx="2" fill="${C.light}" opacity=".85"/>
-  </g>
- </g>
- <g data-p="armR" class="auri-part">
-  <g transform="rotate(-10 288 262)">
-   <rect x="272" y="250" width="40" height="86" rx="20" fill="url(#${g('cream')})"/>
-   <rect x="270" y="314" width="44" height="34" rx="17" fill="${C.deep}"/>
-   <rect data-p="cuffR" x="273" y="311" width="38" height="4" rx="2" fill="${C.light}" opacity=".85"/>
-  </g>
- </g>
- <ellipse cx="200" cy="234" rx="64" ry="13" fill="${C.deep}"/>
+ ${arm('L', 56, 84, 13)}
+ ${arm('R', 290, 316, -13)}
+ <ellipse cx="200" cy="244" rx="82" ry="12" fill="#06261C"/>
  <g data-p="head" class="auri-part">
-  <rect x="62" y="24" width="276" height="212" rx="104" fill="url(#${g('cream')})"/>
+  <path d="${HELMET}" fill="url(#${g('cream')})"/>
   <g clip-path="url(#${g('helmet')})">
-   <rect x="183" y="14" width="34" height="74" rx="17" fill="${C.deep}"/>
-   <path d="M62,200 Q200,250 338,200 L338,250 L62,250Z" fill="#000" opacity=".06"/>
+   <path d="M118,14 Q200,-12 282,14 L262,64 Q200,52 138,64Z" fill="url(#${g('cap')})"/>
+   <path d="M136,26 Q200,10 264,26" fill="none" stroke="#fff" stroke-width="3" opacity=".12" stroke-linecap="round"/>
+   <path d="M48,206 Q200,272 352,206 L352,260 L48,260Z" fill="#000" opacity=".08"/>
+   <path d="M340,90 Q356,140 336,200" fill="none" stroke="${C.light}" stroke-width="4" opacity=".28"/>
   </g>
-  <rect x="96" y="80" width="208" height="140" rx="56" fill="url(#${g('visor')})" stroke="${C.deep}" stroke-width="5"/>
+  <path d="M84,60 Q96,30 140,24" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".55"/>
+  <rect x="80" y="68" width="240" height="166" rx="72" fill="url(#${g('visor')})" stroke="#0A3326" stroke-width="7"/>
+  <rect x="86" y="74" width="228" height="154" rx="66" fill="none" stroke="#2C4A40" stroke-width="1.5" opacity=".6"/>
   <g clip-path="url(#${g('visorclip')})">
-   <path d="M118,104 Q150,86 196,88" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".10"/>
+   <path d="M104,104 Q140,78 208,80" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" opacity=".10"/>
+   <ellipse cx="282" cy="96" rx="10" ry="5" fill="#fff" opacity=".08"/>
    <g data-p="eyes">
-    <g data-p="eyeL"><rect data-p="haloL" fill="none" stroke="${C.light}" stroke-width="12" opacity=".22"/><rect data-p="pillL" fill="${C.eye}"/>
-     <path data-p="lineL" fill="none" stroke="${C.eye}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity="0"/></g>
-    <g data-p="eyeR"><rect data-p="haloR" fill="none" stroke="${C.light}" stroke-width="12" opacity=".22"/><rect data-p="pillR" fill="${C.eye}"/>
-     <path data-p="lineR" fill="none" stroke="${C.eye}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity="0"/></g>
+    <g data-p="eyeL"><ellipse data-p="glowL" rx="56" ry="66" fill="url(#${g('eyeglow')})"/><rect data-p="haloL" fill="none" stroke="${C.ring}" stroke-width="8" opacity=".35"/><rect data-p="pillL" fill="${C.eye}"/>
+     <path data-p="lineL" fill="none" stroke="${C.eye}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0"/></g>
+    <g data-p="eyeR"><ellipse data-p="glowR" rx="56" ry="66" fill="url(#${g('eyeglow')})"/><rect data-p="haloR" fill="none" stroke="${C.ring}" stroke-width="8" opacity=".35"/><rect data-p="pillR" fill="${C.eye}"/>
+     <path data-p="lineR" fill="none" stroke="${C.eye}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0"/></g>
    </g>
-   <g data-p="dots" opacity="0"><circle cx="184" cy="198" r="4.5" fill="${C.eye}"/><circle cx="200" cy="198" r="4.5" fill="${C.eye}"/><circle cx="216" cy="198" r="4.5" fill="${C.eye}"/></g>
+   <g data-p="dots" opacity="0"><circle cx="182" cy="208" r="5" fill="${C.eye}"/><circle cx="200" cy="208" r="5" fill="${C.eye}"/><circle cx="218" cy="208" r="5" fill="${C.eye}"/></g>
   </g>
-  <g data-p="earL">
-   <circle cx="64" cy="152" r="38" fill="url(#${g('ear')})" stroke="${C.cream}" stroke-width="5"/>
-   <circle data-p="ringL" cx="64" cy="152" r="27" fill="none" stroke="${C.light}" stroke-width="4.5"/>
-   ${chevron(64, 152, 11, C.light, 4)}
-  </g>
-  <g data-p="earR">
-   <circle cx="336" cy="152" r="38" fill="url(#${g('ear')})" stroke="${C.cream}" stroke-width="5"/>
-   <circle data-p="ringR" cx="336" cy="152" r="27" fill="none" stroke="${C.light}" stroke-width="4.5"/>
-   ${chevron(336, 152, 11, C.light, 4)}
-  </g>
+  ${ear(50, 'L')}
+  ${ear(350, 'R')}
  </g>
 </g>
 <g data-p="fx">
  <g data-p="sparkles" opacity="0"></g>
  <g data-p="zzz" opacity="0" font-family="Inter,system-ui,sans-serif" font-weight="800" fill="${C.pale}">
-  <text data-z="0" x="318" y="70" font-size="22">z</text><text data-z="1" x="338" y="46" font-size="17">z</text><text data-z="2" x="354" y="26" font-size="13">z</text>
+  <text data-z="0" x="330" y="46" font-size="24">z</text><text data-z="1" x="352" y="22" font-size="18">z</text><text data-z="2" x="370" y="4" font-size="14">z</text>
  </g>
  <g data-p="waves" opacity="0" fill="none" stroke="${C.light}" stroke-width="4" stroke-linecap="round">
-  <path data-w="0" d="M382,132 Q392,152 382,172"/><path data-w="1" d="M394,120 Q410,152 394,184"/>
+  <path data-w="0" d="M394,138 Q406,160 394,182"/><path data-w="1" d="M408,124 Q426,160 408,196"/>
  </g>
 </g>`;
 }
@@ -171,24 +176,24 @@ function rigMarkup(id) {
 // pill: rounded rectangle eye (w,h, dx/dy offset, rot). line: stroked path.
 const P = (w, h, dx = 0, dy = 0, rot = 0) => ({ kind: 'pill', w, h, dx, dy, rot });
 const L = d => ({ kind: 'line', d });
-const ARC_UP = 'M-19,8 Q0,-18 19,8';
-const ARC_SOFT = 'M-18,6 Q0,-12 18,6';
-const ARC_DOWN = 'M-18,-4 Q0,12 18,-4';
+const ARC_UP = 'M-23,10 Q0,-22 23,10';
+const ARC_SOFT = 'M-22,7 Q0,-15 22,7';
+const ARC_DOWN = 'M-22,-5 Q0,14 22,-5';
 const FACES = {
-  neutral: [P(34, 60), P(34, 60)],
+  neutral: [P(40, 62), P(40, 62)],
   happy: [L(ARC_UP), L(ARC_UP)],
-  excited: [L('M-14,-16 L12,0 L-14,16'), L('M14,-16 L-12,0 L14,16')],
-  thinking: [P(30, 46, 4, -14), P(30, 46, 4, -14)],
-  surprised: [P(42, 70), P(42, 70)],
-  wink: [P(34, 60), L(ARC_SOFT)],
-  focused: [P(40, 20, 0, 4), P(40, 20, 0, 4)],
-  typing: [P(38, 14, 0, -4), P(38, 14, 0, -4)],
+  excited: [L('M-17,-19 L14,0 L-17,19'), L('M17,-19 L-14,0 L17,19')],
+  thinking: [P(38, 54, 5, -16), P(38, 54, 5, -16)],
+  surprised: [P(48, 74), P(48, 74)],
+  wink: [P(40, 62), L(ARC_SOFT)],
+  focused: [P(50, 22, 0, 4), P(50, 22, 0, 4)],
+  typing: [P(48, 16, 0, -4), P(48, 16, 0, -4)],
   helpful: [L(ARC_SOFT), L(ARC_SOFT)],
   sleepy: [L(ARC_DOWN), L(ARC_DOWN)],
-  concerned: [P(30, 46, 0, 6, 14), P(30, 46, 0, 6, -14)],
+  concerned: [P(38, 54, 0, 6, 14), P(38, 54, 0, 6, -14)],
 };
 const DOT_FACES = new Set(['thinking', 'typing']);
-const EYE_X = [160, 240];
+const EYE_X = [158, 242];
 const EYE_Y = 150;
 
 /* ------------------------------------------------------------ belly screen */
@@ -208,8 +213,13 @@ function esc(value) {
 function buildViews() {
   const v = {};
   v.logo = {
-    svg: `<g data-s="mark" transform="translate(66 50)"><circle r="30" fill="${C.deep}" opacity=".55"/>${chevron(0, 2, 17, C.light, 5)}</g>`,
-    update(t, n) { n.mark.setAttribute('opacity', (.75 + .25 * Math.sin(t * 1.6)).toFixed(3)); },
+    svg: `<circle data-s="halo" cx="66" cy="50" r="34" fill="${C.main}" opacity=".12"/>
+      <path d="M6,50 L40,50 L48,36 L58,68 L70,26 L80,58 L88,50 L126,50" fill="none" stroke="${C.deep}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path data-s="pulse" d="M6,50 L40,50 L48,36 L58,68 L70,26 L80,58 L88,50 L126,50" fill="none" stroke="${C.light}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="60 240"/>`,
+    update(t, n) {
+      n.pulse.setAttribute('stroke-dashoffset', (-(t * 110) % 300).toFixed(1));
+      n.halo.setAttribute('opacity', (.08 + .08 * (Math.sin(t * 2) + 1) / 2).toFixed(3));
+    },
   };
   v.crm = {
     svg: `${head('CRM', person(13, 11, .9))}
@@ -378,11 +388,11 @@ const ease = k => k < .5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
 
 const POSE = {
   idle: { y: 0, rot: 0, headRot: 0, headY: 0, armL: 8, armR: -8, glow: .65, dim: 0, lean: 0 },
-  welcome: { y: -4, rot: 0, headRot: 5, headY: 0, armL: 8, armR: -150, glow: .9, dim: 0, lean: 0 },
+  welcome: { y: -4, rot: 0, headRot: 5, headY: 0, armL: 8, armR: -124, glow: .9, dim: 0, lean: 0 },
   thinking: { y: 0, rot: 0, headRot: -7, headY: 0, armL: 8, armR: -38, glow: .7, dim: 0, lean: 0 },
   speaking: { y: 0, rot: 0, headRot: 0, headY: 0, armL: 22, armR: -10, glow: .85, dim: 0, lean: 0 },
   working: { y: 2, rot: 0, headRot: 0, headY: 5, armL: 32, armR: -32, glow: .8, dim: 0, lean: 0 },
-  celebrate: { y: 0, rot: 0, headRot: 0, headY: -2, armL: 150, armR: -150, glow: 1, dim: 0, lean: 0 },
+  celebrate: { y: 0, rot: 0, headRot: 0, headY: -2, armL: 128, armR: -128, glow: 1, dim: 0, lean: 0 },
   help: { y: 0, rot: 0, headRot: 0, headY: 0, armL: 8, armR: -8, glow: .9, dim: 0, lean: 0 },
   sleep: { y: 12, rot: 0, headRot: 8, headY: 8, armL: 3, armR: -3, glow: .18, dim: .65, lean: 0 },
   error: { y: 2, rot: 0, headRot: 6, headY: 2, armL: 4, armR: -4, glow: .55, dim: 0, lean: 0 },
@@ -419,7 +429,7 @@ export function createAuri(host, options = {}) {
   svg.querySelectorAll('[data-p]').forEach(el => { part[el.dataset.p] = el; });
 
   // Sparkles (built once)
-  const sparkSpots = [[70, 70, C.pale], [330, 62, C.warm], [40, 210, C.light], [362, 220, C.pale], [120, 20, C.warm], [282, 18, C.light]];
+  const sparkSpots = [[40, 46, C.pale], [362, 40, C.warm], [18, 250, C.light], [384, 262, C.pale], [118, 0, C.warm], [286, -4, C.light]];
   part.sparkles.innerHTML = sparkSpots.map(([x, y, c], i) =>
     `<path data-k="${i}" d="M0,-9 Q1.5,-1.5 9,0 Q1.5,1.5 0,9 Q-1.5,1.5 -9,0 Q-1.5,-1.5 0,-9Z" fill="${c}" transform="translate(${x} ${y})"/>`).join('');
   const sparks = [...part.sparkles.children];
@@ -454,7 +464,7 @@ export function createAuri(host, options = {}) {
 
   const eyes = [0, 1].map(i => {
     const s = i ? 'R' : 'L';
-    return { pill: part['pill' + s], halo: part['halo' + s], line: part['line' + s], cur: { ...FACES.neutral[i], open: 1 } };
+    return { pill: part['pill' + s], halo: part['halo' + s], line: part['line' + s], glow: part['glow' + s], cur: { ...FACES.neutral[i], open: 1 } };
   });
 
   /* -------------------------------------------------------------- state */
@@ -489,6 +499,7 @@ export function createAuri(host, options = {}) {
     s.operation = extra.operation ?? (next === 'working' ? 'Working…' : '');
     s.progress = typeof extra.progress === 'number' ? clamp(extra.progress, 0, 1) : null;
     if (next === 'help') s.direction = resolveDirection(extra);
+    if (next !== 'speaking' && (audio || s.ownSpeech)) stopVoice();
     if (next !== 'speaking' && !s.voiceExternal) s.voiceTarget = 0;
 
     const message = extra.message ?? null;
@@ -707,7 +718,7 @@ export function createAuri(host, options = {}) {
     if (st === 'welcome') {
       const notice = ease(clamp(age / .4, 0, 1));
       y -= 6 * Math.sin(Math.min(1, age / .5) * Math.PI) * m;
-      target.armR = lerp(-8, -150, notice);
+      target.armR = lerp(-8, -124, notice);
       armR += 16 * Math.sin(age * 11) * clamp((age - .5) / .3, 0, 1) * clamp((2.2 - age) / .3, 0, 1) * m;
       if (age > 2.2) target.armR = -8;
     }
@@ -749,9 +760,9 @@ export function createAuri(host, options = {}) {
 
     tf(part.root, `translate(0 ${y.toFixed(2)}) rotate(${rot.toFixed(2)} 200 430)`);
     tf(part.body, `translate(200 395) scale(${(1 - squash * .4).toFixed(4)} ${(1 + squash).toFixed(4)}) translate(-200 -395)`);
-    tf(part.head, `translate(${headX.toFixed(2)} ${(headY - squash * 120).toFixed(2)}) rotate(${headRot.toFixed(2)} 200 225)`);
-    tf(part.armL, `translate(0 ${(-squash * 60).toFixed(2)}) rotate(${armL.toFixed(2)} 112 262)`);
-    tf(part.armR, `translate(0 ${(-squash * 60).toFixed(2)}) rotate(${armR.toFixed(2)} 288 262)`);
+    tf(part.head, `translate(${headX.toFixed(2)} ${(headY - squash * 120).toFixed(2)}) rotate(${headRot.toFixed(2)} 200 240)`);
+    tf(part.armL, `translate(0 ${(-squash * 60).toFixed(2)}) rotate(${armL.toFixed(2)} 84 280)`);
+    tf(part.armR, `translate(0 ${(-squash * 60).toFixed(2)}) rotate(${armR.toFixed(2)} 316 280)`);
     const lift = Math.min(0, y);
     tf(part.legL, `translate(0 ${(-lift * .15).toFixed(2)})`);
     tf(part.legR, `translate(0 ${(-lift * .15).toFixed(2)})`);
@@ -760,9 +771,9 @@ export function createAuri(host, options = {}) {
 
     // side lights + screen glow
     const glow = clamp(p.glow + .12 * Math.sin(t * 1.9) * m + (st === 'speaking' ? .2 * s.voice : 0), .1, 1);
-    op(part.ringL, glow); op(part.ringR, glow);
-    op(part.cuffL, .35 + .55 * glow); op(part.cuffR, .35 + .55 * glow);
-    op(part.screenGlow, .35 + .6 * glow);
+    const ring = clamp(.35 + glow * .8, 0, 1); op(part.ringL, ring); op(part.ringR, ring); op(part.ringGlowL, .45 * ring); op(part.ringGlowR, .45 * ring);
+    op(part.cuffL, .45 + .55 * glow); op(part.cuffR, .45 + .55 * glow); op(part.cuffGlowL, .35 * glow); op(part.cuffGlowR, .35 * glow);
+    op(part.screenGlow, .45 + .55 * glow); op(part.screenGlowWide, .25 * glow);
     op(part.screen, 1 - p.dim);
     op(part.badge, .4 + .5 * glow);
 
@@ -816,7 +827,9 @@ export function createAuri(host, options = {}) {
         el.setAttribute('transform', `rotate(${cur.rot.toFixed(2)} ${cx.toFixed(2)} ${cy.toFixed(2)})`);
       }
       op(eye.pill, cur.open > .05 ? 1 : 0);
-      op(eye.halo, .22 * cur.open);
+      op(eye.halo, .35 * cur.open);
+      eye.glow.setAttribute('cx', cx.toFixed(2)); eye.glow.setAttribute('cy', (EYE_Y + gy + (pill ? cur.dy : 0)).toFixed(2));
+      op(eye.glow, (blinking ? .25 : .85) * (st === 'sleep' ? .35 : 1));
       if (!pill) { eye.line.setAttribute('d', f.d); }
       op(eye.line, 1 - cur.open);
       tf(eye.line, `translate(${(EYE_X[i] + gx).toFixed(2)} ${(EYE_Y + gy).toFixed(2)})`);
@@ -872,38 +885,114 @@ export function createAuri(host, options = {}) {
     }
   }
 
-  function speak(text, { voice = false, lang } = {}) {
-    const synth = win.speechSynthesis;
-    if (voice && synth && win.SpeechSynthesisUtterance) {
-      return new Promise(resolve => {
-        synth.cancel();
-        const u = new win.SpeechSynthesisUtterance(String(text));
-        if (lang) u.lang = lang;
-        const token = setState('speaking');
-        s.voiceExternal = true;
-        s.voiceTarget = .3;
-        let decay = 0;
-        // Animation follows the real audio: word boundaries pulse the face.
-        u.onboundary = () => {
-          s.voiceTarget = 1;
-          win.clearTimeout(decay);
-          decay = win.setTimeout(() => { s.voiceTarget = .25; }, 160);
-        };
-        const end = () => {
-          win.clearTimeout(decay);
-          s.voiceExternal = false;
-          s.voiceTarget = 0;
-          if (s.token === token) setState('idle');
-          resolve();
-        };
-        u.onend = end;
-        u.onerror = end;
-        synth.speak(u);
-      });
+  // Voice. Priority: 1) a real human/neural audio file from `ttsUrl` (or an
+  // audio URL/Blob you pass), with the face driven by the actual sound level;
+  // 2) the most natural voice installed on the device (neural / "Natural" /
+  // "Premium" voices first); 3) silent, restrained speaking animation.
+  let audio = null, audioCtx = null;
+  function stopVoice() {
+    // Only cancel speech Auri started: the Hub's own "read aloud" stays untouched.
+    if (s.ownSpeech) { s.ownSpeech = false; win.speechSynthesis?.cancel(); }
+    if (audio) { audio.pause(); audio.src = ''; audio = null; }
+    s.voiceExternal = false;
+    s.voiceTarget = 0;
+  }
+
+  async function speak(text, { voice = false, lang = opts.lang || doc.documentElement.lang || 'en', audio: source } = {}) {
+    stopVoice();
+    if (source || (voice && opts.ttsUrl)) {
+      try { return await speakAudio(text, lang, source); } catch (error) { if (error?.name === 'AbortError') return; }
     }
+    const synth = win.speechSynthesis;
+    if (voice && synth && win.SpeechSynthesisUtterance) return speakDevice(text, lang);
     const duration = speakingDuration(text);
     setState('speaking', { duration });
     return new Promise(resolve => win.setTimeout(resolve, duration));
+  }
+
+  async function speakAudio(text, lang, source) {
+    let src = source;
+    if (!src) {
+      const res = await win.fetch(opts.ttsUrl, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+        body: JSON.stringify({ text: String(text), lang, voice: opts.voiceName || undefined }),
+      });
+      if (!res.ok) throw new Error('tts ' + res.status);
+      src = await res.blob();
+    }
+    const url = typeof src === 'string' ? src : win.URL.createObjectURL(src);
+    const el = new win.Audio();
+    el.crossOrigin = 'anonymous';
+    el.src = url;
+    audio = el;
+    const token = setState('speaking');
+    s.voiceExternal = true;
+    let analyser = null, data = null, meter = 0;
+    try {
+      audioCtx ??= new (win.AudioContext || win.webkitAudioContext)();
+      await audioCtx.resume?.();
+      const node = audioCtx.createMediaElementSource(el);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 512;
+      data = new Uint8Array(analyser.fftSize);
+      node.connect(analyser); analyser.connect(audioCtx.destination);
+    } catch { analyser = null; }
+    // Face follows the real loudness of the voice.
+    const tick = () => {
+      if (audio !== el) return;
+      if (analyser) {
+        analyser.getByteTimeDomainData(data);
+        let sum = 0;
+        for (let i = 0; i < data.length; i++) { const v = (data[i] - 128) / 128; sum += v * v; }
+        s.voiceTarget = clamp(Math.sqrt(sum / data.length) * 5, 0, 1);
+      } else s.voiceTarget = .5;
+      meter = win.requestAnimationFrame(tick);
+    };
+    return new Promise((resolve, reject) => {
+      const end = () => {
+        win.cancelAnimationFrame(meter);
+        if (typeof src !== 'string') win.URL.revokeObjectURL(url);
+        if (audio === el) { audio = null; s.voiceExternal = false; s.voiceTarget = 0; if (s.token === token) setState('idle'); }
+        resolve();
+      };
+      el.onended = end;
+      el.onerror = () => { end(); reject(new Error('audio')); };
+      el.play().then(tick, error => { end(); reject(error); });
+    });
+  }
+
+  function speakDevice(text, lang) {
+    const synth = win.speechSynthesis;
+    return new Promise(resolve => {
+      const u = new win.SpeechSynthesisUtterance(String(text));
+      const chosen = pickHumanVoice(win, lang, opts.voiceName);
+      if (chosen) { u.voice = chosen; u.lang = chosen.lang; } else u.lang = lang;
+      // Natural pacing: a touch slower than default, neutral pitch.
+      u.rate = opts.voiceRate ?? .96;
+      u.pitch = opts.voicePitch ?? 1.02;
+      const token = setState('speaking');
+      s.ownSpeech = true;
+      s.voiceExternal = true;
+      s.voiceTarget = .3;
+      let decay = 0;
+      // Animation follows the real audio: word boundaries pulse the face.
+      u.onboundary = () => {
+        s.voiceTarget = 1;
+        win.clearTimeout(decay);
+        decay = win.setTimeout(() => { s.voiceTarget = .25; }, 160);
+      };
+      const end = () => {
+        win.clearTimeout(decay);
+        s.ownSpeech = false;
+        s.voiceExternal = false;
+        s.voiceTarget = 0;
+        if (s.token === token) setState('idle');
+        resolve();
+      };
+      u.onend = end;
+      u.onerror = end;
+      synth.speak(u);
+    });
   }
 
   function setVoiceLevel(level) {
@@ -936,6 +1025,8 @@ export function createAuri(host, options = {}) {
   function destroy() {
     if (s.destroyed) return;
     s.destroyed = true;
+    stopVoice();
+    audioCtx?.close?.();
     win.cancelAnimationFrame(s.raf);
     [s.transient, s.extraTimer, s.sleepTimer, bubbleTimer].forEach(id => win.clearTimeout(id));
     ac.abort();
@@ -953,7 +1044,7 @@ export function createAuri(host, options = {}) {
 
   return {
     element: root,
-    setState, setScreen, setExpression, setSize, setOptions, setVoiceLevel, speak, run, destroy,
+    setState, setScreen, setExpression, setSize, setOptions, setVoiceLevel, speak, stopVoice, run, destroy,
     say: (text, o) => showBubble(text, o), hush: hideBubble,
     lookAt(x, y) { if (x == null) resetGaze(); else { setGazeFromPointer(x, y); kick(); } },
     on(type, fn) { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type).add(fn); return () => listeners.get(type)?.delete(fn); },
@@ -962,6 +1053,34 @@ export function createAuri(host, options = {}) {
     get expression() { return s.expression; },
     stats() { return { frames: s.frames, avgFrameMs: s.frames ? s.workMs / s.frames : 0, running: !!s.raf, visible: s.visible }; },
   };
+}
+
+/* --------------------------------------------------------------- voices */
+// Ranks the voices installed on this device by how human they sound.
+// Neural voices (Edge "Online (Natural)", Google, Apple Premium/Enhanced,
+// Siri) beat the old robotic system voices (eSpeak, "Compact", etc.).
+export function rankVoices(win = globalThis.window, lang = 'en') {
+  const all = win?.speechSynthesis?.getVoices?.() || [];
+  const want = String(lang || 'en').toLowerCase().split('-')[0];
+  const score = v => {
+    const name = v.name.toLowerCase();
+    let n = 0;
+    if (v.lang?.toLowerCase().startsWith(want)) n += 20;
+    if (/natural|neural/.test(name)) n += 12;
+    if (/premium|enhanced|siri/.test(name)) n += 10;
+    if (/online/.test(name)) n += 6;
+    if (/google/.test(name)) n += 5;
+    if (/aria|jenny|guy|ava|andrew|emma|brian|samantha|daniel|karen|moira|serena|zeynep|hoda|denise|henri/.test(name)) n += 3;
+    if (/espeak|compact|robot|novelty|whisper|zarvox|trinoids|bad news|bells|boing|bubbles|cellos|wobble|jester|organ|superstar/.test(name)) n -= 30;
+    if (v.localService === false) n += 1;
+    return n;
+  };
+  return all.map(v => ({ voice: v, score: score(v) })).sort((a, b) => b.score - a.score);
+}
+export function pickHumanVoice(win = globalThis.window, lang = 'en', name) {
+  const all = win?.speechSynthesis?.getVoices?.() || [];
+  if (name) { const exact = all.find(v => v.name === name); if (exact) return exact; }
+  return rankVoices(win, lang)[0]?.voice || null;
 }
 
 /* ------------------------------------------------------- custom element */

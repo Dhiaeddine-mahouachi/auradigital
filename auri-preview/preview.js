@@ -1,4 +1,4 @@
-import { createAuri, STATES, EXPRESSIONS, SCREEN_MODES } from '/media/auri/live/auri-live.js';
+import { createAuri, STATES, EXPRESSIONS, SCREEN_MODES, rankVoices } from '/media/auri/live/auri-live.js';
 
 const $ = id => document.getElementById(id);
 const log = msg => {
@@ -12,7 +12,7 @@ const auri = createAuri($('auriSlot'), { size: 280, interactive: true, sleepAfte
 let mobile = null;
 const all = () => [auri, mobile].filter(Boolean);
 
-const SCREEN_LABELS = { logo: 'Logo', crm: 'CRM', analytics: 'Analytics', website: 'Website', marketing: 'Marketing', automation: 'Automation', support: 'Support', roadmap: 'Roadmap', security: 'Security' };
+const SCREEN_LABELS = { logo: 'Home pulse', crm: 'CRM', analytics: 'Analytics', website: 'Website', marketing: 'Marketing', automation: 'Automation', support: 'Support', roadmap: 'Roadmap', security: 'Security' };
 const SAMPLE = {
   crm: [{ label: 'Leads (sample)', value: '128' }, { label: 'Clients (sample)', value: '64' }],
   analytics: [{ label: 'Visits (sample)', value: '+12%' }],
@@ -108,10 +108,23 @@ $('simWork').addEventListener('click', async () => {
   }
   if (token) auri.setState('celebrate', { message: 'Your website is live.' });
 });
-$('voice').addEventListener('click', () => {
-  if (!('speechSynthesis' in window)) { auri.say('This browser has no speech voice.', { duration: 2500 }); return; }
-  auri.speak('Hello, I’m Auri. I help you run and grow your business with AuraDigital.', { voice: true });
-});
+const LINE = 'Hi, I’m Auri. I’m here to help you run and grow your business — just ask me anything.';
+const hear = () => {
+  if (!('speechSynthesis' in window)) { auri.say('This browser has no speech voices.', { duration: 2500 }); return; }
+  auri.speak(LINE, { voice: true });
+};
+$('voice').addEventListener('click', hear);
+$('voiceTest').addEventListener('click', hear);
+$('voiceStop').addEventListener('click', () => { auri.stopVoice(); auri.setState('idle'); });
+$('voicePick').addEventListener('change', e => auri.setOptions({ voiceName: e.target.value || undefined }));
+function fillVoices() {
+  const ranked = rankVoices(window, document.documentElement.lang || 'en');
+  const keep = $('voicePick').value;
+  $('voicePick').replaceChildren(new Option('Best human voice on this device', ''),
+    ...ranked.map(({ voice, score }) => new Option(`${score >= 30 ? '★ ' : ''}${voice.name} (${voice.lang})`, voice.name)));
+  $('voicePick').value = keep;
+}
+if ('speechSynthesis' in window) { fillVoices(); speechSynthesis.addEventListener?.('voiceschanged', fillVoices); }
 const help = (dir, el) => {
   el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1600);
   auri.setState('help', { target: el, message: dir === 'left' ? 'Pricing compares every package side by side.' : 'Services lists what we can build for you.', duration: 6000 });

@@ -62,3 +62,22 @@ test('greeting plays once per session and tolerates blocked storage', () => {
   const blocked = { getItem() { throw new Error('denied'); }, setItem() { throw new Error('denied'); } };
   assert.equal(shouldGreet(blocked), true);
 });
+
+test('the most human-sounding voice in the right language is chosen', async () => {
+  const { rankVoices, pickHumanVoice } = await import('../media/auri/live/auri-live.js');
+  const v = (name, lang, localService = true) => ({ name, lang, localService });
+  const voices = [
+    v('eSpeak English', 'en-US'), v('Microsoft David - English (United States)', 'en-US'),
+    v('Microsoft Aria Online (Natural) - English (United States)', 'en-US', false),
+    v('Google US English', 'en-US', false), v('Zarvox', 'en-US'),
+    v('Microsoft Emel Online (Natural) - Turkish (Turkey)', 'tr-TR', false), v('Yelda', 'tr-TR'),
+  ];
+  const win = { speechSynthesis: { getVoices: () => voices } };
+  assert.match(pickHumanVoice(win, 'en').name, /Aria Online \(Natural\)/);
+  assert.match(pickHumanVoice(win, 'tr').name, /Emel Online \(Natural\)/);
+  assert.equal(pickHumanVoice(win, 'en', 'Google US English').name, 'Google US English');
+  const ranked = rankVoices(win, 'en').map(r => r.voice.name);
+  assert.ok(ranked.indexOf('Zarvox') > ranked.indexOf('Microsoft David - English (United States)'));
+  assert.ok(ranked.indexOf('eSpeak English') > ranked.indexOf('Google US English'));
+  assert.equal(pickHumanVoice({}, 'en'), null);
+});

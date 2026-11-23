@@ -95,6 +95,13 @@
     </fieldset>
 
     <fieldset>
+      <legend>Voice</legend>
+      <select id="voicePick" aria-label="Voice"><option value="">Best human voice on this device</option></select>
+      <div class="actions"><button type="button" id="voiceTest">▶ Hear Auri</button><button type="button" id="voiceStop">■ Stop</button></div>
+      <p class="hint">Natural / neural voices are listed first (★). Edge and Chrome include very human-sounding ones; the choice is per device.</p>
+    </fieldset>
+
+    <fieldset>
       <legend>Interaction testing</legend>
       <label class="check"><input type="checkbox" id="follow" checked> Eyes follow the cursor (nearby only)</label>
       <label class="check"><input type="checkbox" id="clickable" checked> Click / Enter opens chat</label>
@@ -106,7 +113,7 @@
         <button type="button" id="simFail">Simulate request → failure</button>
         <button type="button" id="simReply">Simulate AI reply</button>
         <button type="button" id="simWork">Simulate authorized task</button>
-        <button type="button" id="voice">Speak with device voice</button>
+        <button type="button" id="voice">Speak with human voice</button>
         <button type="button" id="helpL">Help → point at “Pricing”</button>
         <button type="button" id="helpR">Help → point at “Services”</button>
         <button type="button" id="greet">Replay first-visit greeting</button>
