@@ -34,6 +34,8 @@ a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
 .marquee-track{animation:marquee 36s linear infinite}
 .rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
 .pop{animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
+/* Open chat must stack above homepage promotion and mobile navigation. */
+.auri-wrap.auri-chat-open{z-index:160 !important}
 .dot{animation:typing 1.2s infinite}
 details summary{list-style:none;cursor:pointer}
 details summary::-webkit-details-marker{display:none}
@@ -52,7 +54,10 @@ section{padding-left:18px !important;padding-right:18px !important;padding-top:6
 .lift,.ticket{min-height:0 !important}
 .panel-sm{min-height:0 !important;padding:22px !important;border-radius:24px !important}
 .box-sm{padding:28px 22px !important;border-radius:26px !important}
-.auri-panel{position:fixed !important;inset:0 !important;width:100vw !important;max-width:none !important;height:100dvh !important;max-height:none !important;border-radius:0 !important;z-index:95 !important}
+.auri-panel{position:fixed !important;inset:0 !important;box-sizing:border-box !important;width:100vw !important;max-width:100vw !important;height:100dvh !important;max-height:100dvh !important;min-height:0 !important;padding-bottom:env(safe-area-inset-bottom,0px) !important;border-radius:0 !important;z-index:95 !important;animation:none !important;overscroll-behavior:contain}
+.auri-panel input,.auri-panel textarea{font-size:16px !important}
+.auri-panel>div:first-child,.auri-panel form{flex-shrink:0}
+body:has(.auri-chat-open){overflow:hidden}
 .auri-fab{width:58px !important;height:58px !important}
 .auri-wrap{right:14px !important;bottom:14px !important}
 .disp{letter-spacing:-0.03em}

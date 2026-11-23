@@ -11,7 +11,7 @@
 <!--FONTS-->
 <style>body{margin:0}</style>
 </helmet>
-<div class="auri-wrap" style="position: fixed; right: 22px; bottom: 22px; z-index: 80; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; font-family: Inter, system-ui, sans-serif; color: #0B0F0C">
+<div class="auri-wrap {{ chatOpenClass }}" style="position: fixed; right: 22px; bottom: 22px; z-index: 80; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; font-family: Inter, system-ui, sans-serif; color: #0B0F0C">
   <sc-if value="{{ open }}" hint-placeholder-val="{{ false }}">
     <div class="pop auri-panel" role="dialog" aria-label="Chat with Auri" style="width: 380px; max-width: calc(100vw - 44px); height: 590px; max-height: calc(100vh - 120px); background: #FFFFFF; border: 1px solid #E6E4DC; border-radius: 26px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 40px 90px -30px rgba(11,15,12,.45)">
       <div style="background: #0E2B1E; color: #F3EEDC; padding: 14px 16px; display: flex; align-items: center; gap: 12px">
@@ -246,6 +246,7 @@ class Component extends DCLogic {
     const e = s.eye || { x: 0, y: 0 };
     return {
       open: s.open,
+      chatOpenClass: s.open ? "auri-chat-open" : "",
       showTeaser: !s.open && !s.seen && !s.teaserGone,
       unread: !s.seen,
       fabLabel: s.open ? 'Close Auri chat' : 'Open Auri chat',

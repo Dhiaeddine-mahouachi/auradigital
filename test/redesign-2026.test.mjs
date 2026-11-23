@@ -95,3 +95,23 @@ test('landing page shows the contact email at the top', () => {
   const top = home.slice(home.indexOf('<div id="app"'), home.indexOf('<main'));
   assert.match(top, /mailto:info@auradigitalworks\.com/);
 });
+
+
+test('mobile Auri chat stays above the sale banner and fits the viewport', () => {
+  const css = read('tools/redesign/design/css.txt');
+  const auri = read('tools/redesign/design/Auri.dc.html');
+  const promo = read('tools/redesign/inject/index.head.html');
+  assert.match(promo, /#aura-sale-bar\{[^}]*z-index:100/);
+  assert.match(auri, /class="auri-wrap \{\{ chatOpenClass \}\}"/);
+  assert.match(auri, /chatOpenClass: s\.open \? "auri-chat-open"/);
+  assert.match(css, /\.auri-wrap\.auri-chat-open\{z-index:160 !important\}/);
+  assert.match(css, /box-sizing:border-box !important;width:100vw !important/);
+  assert.match(css, /\.auri-panel input,\.auri-panel textarea\{font-size:16px !important\}/);
+});
+
+test('320px homepage and portfolio cards use fluid grid minimums', () => {
+  assert.match(read('tools/redesign/design/Main.dc.html'), /minmax\(min\(100%, 330px\), 1fr\)/);
+  assert.match(read('tools/redesign/design/Work.dc.html'), /minmax\(min\(100%, 380px\), 1fr\)/);
+  assert.match(read('index.html'), /business-hero-card/);
+  assert.match(read('tools/redesign/inject/index.head.html'), /rgba\(222,232,13,\.28\)/);
+});
