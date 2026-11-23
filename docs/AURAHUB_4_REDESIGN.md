@@ -81,3 +81,40 @@ Two existing browser assertions changed because labels changed on purpose: the s
 
 1. Review a staging deployment against a copy of D1. The lead tables are created on first use (`CREATE TABLE IF NOT EXISTS`); `0037_hub_leads.sql` can also be applied with Wrangler. Neither step alters existing tables.
 2. Visitor analytics, bookings and messaging channels need real integrations before their cards can show numbers.
+
+## Audit follow-up (82 items)
+
+The audit was fixed in five batches, each committed and covered by `scripts/test-aurahub4-browser.mjs` and unit tests. Unit tests: 359/359 passing.
+
+1. **Urgent fixes.** Readable hero text, matching Auri/Overview counts, billing card, 404 page, Menu drafts hidden while disabled, localized server errors, sign-in redirect on session expiry, drawer focus trap, 12 px minimum text, consistent "Auri" and "AuraHub" names.
+2. **Bigger pages.**
+   - My Business page (logo, contact, hours, social links, brand colors, completeness); migration 0039.
+   - Salon, retail and professional categories.
+   - Full Auri page with server-saved history; migration 0040.
+   - Journey "All tasks" list.
+   - Phone layouts.
+   - Translated task guidance; arrows mirrored in Arabic.
+3. **Sign-in and requests.** Brand-styled sign-in with no unfinished Google notice, request detail timeline, service picker, redirects for old pages, Help & support page, Ask Auri bar, "Today" items, profile nudge.
+4. **Features.**
+   - Lead follow-ups, history and CSV import/export.
+   - Billing page, global search (Ctrl/⌘+K), notifications.
+   - Signed-in devices, data export, deletion request.
+   - Analytics ranges.
+   - Auri voice input and confirm-to-add leads.
+   - Stage celebration.
+5. **Launch readiness.** Minified bundle, removed dead code, one leads request, thumbnails, browser error reporting to Worker logs, admin AuraHub usage panel.
+
+### Still open (needs a decision, content or an external system)
+
+| Item | Why it is not done in code |
+| --- | --- |
+| Paid team seats (Team page) | Needs a payment provider (Stripe, iyzico or PayTR) and its webhooks. |
+| Website visitors, bookings, WhatsApp/Instagram/email inbox, automatic lead capture | Each needs an integration or account on that service. |
+| Notification emails/WhatsApp and their preferences | Needs a sending channel. In-app notifications exist. |
+| Delivery approvals with files; messaging with the team; domain expiry dates | Need staff-side tools and data sources in the admin CRM. |
+| Auri daily AI budget ($1/day total; 10 AI calls per person per day) | Spending decision: change `AI_DAILY_BUDGET_USD`. |
+| Real case studies for stages 2, 4, 5; team-written task durations | Content from your team. |
+| Site lime `#E1E100` vs hub lime `#D8F56A` | Brand decision; then update one of them. |
+| Two-step verification; chat attachments; onboarding "pick services" step; onboarding resume across devices; bulk lead actions | Larger follow-up features. |
+| Full CSS cleanup of legacy `hub.css`; per-language translation loading (bundle is ~165 KB gzipped, mostly copy) | Refactors best done with staging visual checks. |
+| Staging deployment, member/viewer role testing, uptime monitoring | Need your Cloudflare and monitoring accounts. |
