@@ -9,7 +9,7 @@ const PAGE_SEO = {
   "/": {
     "lang": "en",
     "title": "AuraDigital | Websites, QR Menus & AI Growth for Your Business",
-    "description": "Websites, QR menus, Google visibility and WhatsApp automation for businesses in Türkiye and beyond — planned by AI, delivered by our Istanbul team, tracked in AuraHub.",
+    "description": "Grow your business with AuraDigital. Websites, AI solutions, local SEO, digital menus and digital marketing services for businesses in Istanbul.",
     "type": "WebPage"
   },
   "/portfolio": {
