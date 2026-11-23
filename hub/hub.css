@@ -112,7 +112,10 @@ auri-character{display:inline-grid;place-items:center;aspect-ratio:1;animation:n
 auri-character>img,auri-character>canvas{grid-area:1/1;width:100%;height:100%;object-fit:contain;pointer-events:none}
 auri-character>img{transform:translate(var(--auri-look,0px,0px));transition:transform .18s ease-out}
 @media(prefers-reduced-motion:reduce){auri-character>img{transform:none;transition:none}}
-auri-character[data-rendered] img{visibility:hidden}
+/* The native animated WebP is a safe 3D-rendered fallback: no runtime WebGL. */
+auri-character[data-motion-ready]>img:not(.auri-motion){visibility:hidden}
+auri-character[data-phase='sleeping']>img{opacity:.72}
+@media(prefers-reduced-motion:reduce){auri-character>img.auri-motion{display:none}auri-character>img:not(.auri-motion){visibility:visible!important}}
 .auri-companion{background:#101214;color:#fafaf7;border-radius:18px;border:1px solid #383c38;margin:0 0 14px}
 .auri-companion summary{display:flex;align-items:center;gap:12px;min-height:64px;padding:4px 14px;cursor:pointer;list-style:none}
 .auri-companion summary::-webkit-details-marker{display:none}
