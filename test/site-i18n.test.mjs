@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const read = file => readFileSync(new URL('../' + file, import.meta.url), 'utf8');
 const PAGES = ['index.html', 'solutions.html', 'service-shop.html', 'packages.html', 'aura-menu.html', 'portfolio.html', 'help.html', 'about.html', 'contact.html', '404.html', 'shop/index.html'];
@@ -24,7 +25,7 @@ test('Turkish and Arabic phrase tables are complete and in sync with their sourc
     assert.ok(tr[key] && tr[key] !== key, 'tr ' + key);
     assert.match(ar[key], /[؀-ۿ]/, 'ar ' + key);
   }
-  execFileSync(process.execPath, [new URL('../tools/i18n/build.mjs', import.meta.url).pathname]);
+  execFileSync(process.execPath, [fileURLToPath(new URL('../tools/i18n/build.mjs', import.meta.url))]);
   assert.deepEqual(JSON.parse(read('i18n/tr.json')), tr, 'i18n/tr.json is rebuilt from tools/i18n');
 });
 

@@ -132,6 +132,19 @@ function openFirstLogin(){
   try{
    const saved=JSON.parse(sessionStorage.getItem(key));
    firstLogin=saved?{...initial,...saved,answered:new Set(saved.answered)}:initial;
+   // Carry a visitor's landing-page brief across email registration / verification.
+   // Existing in-progress onboarding answers always take precedence.
+   const rawIntake=localStorage.getItem('aura-landing-intake-v1');
+   if(rawIntake){
+    try{
+     const intake=JSON.parse(rawIntake);
+     if(!saved && intake && Number.isFinite(intake.savedAt) && intake.savedAt<=Date.now() && Date.now()-intake.savedAt<48*60*60*1000){
+      if(typeof intake.text==='string')firstLogin.text=intake.text.trim().slice(0,4000);
+      if(!firstLogin.values.industry && INDUSTRY_IDS.includes(intake.industry))firstLogin.values.industry=intake.industry;
+     }
+    }catch{}
+    localStorage.removeItem('aura-landing-intake-v1');
+   }
   }catch{firstLogin=initial;}
  }
  renderOnboarding({
