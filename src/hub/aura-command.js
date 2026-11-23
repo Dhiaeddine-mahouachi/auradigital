@@ -7,6 +7,7 @@ import { osCopy } from './os-copy.js';
 import { icon, pill, emptyState, barChart, bucketize, parseDate, relative, shortDate, number, money, deliveryStage, TONE } from './os-ui.js';
 import { dashCopy } from './dashboard-view.js';
 import { missionGuide } from '../roadmap.js';
+import { profileCompleteness } from './business-view.js';
 
 const TERMINAL = /^(completed|cancelled|canceled|rejected|delivered)$/;
 let chartRange = '30d', chartMetric = 'inquiries';
@@ -39,7 +40,7 @@ export function activityEvents({ leads = [], workspace, snapshot, connected, mis
 
 const within = (value, from, to) => { const d = parseDate(value); return d && d >= from && d < to; };
 
-export function renderAuraCommand({ host, lang, esc, link, requestLink, me, workspace, snapshot, connected, leads, missionTitle, next, eligible = [], continueLabel, attention, canAsk, canRequest, onAsk, onPrepare }) {
+export function renderAuraCommand({ host, lang, esc, link, requestLink, me, workspace, snapshot, connected, leads, missionTitle, next, eligible = [], continueLabel, attention, canAsk, canRequest, onAsk, onChat = onAsk, onPrepare }) {
  const c = osCopy(lang), d = dashCopy(lang);
  const profile = workspace.profile || {};
  const perms = workspace.permissions || [];
@@ -86,8 +87,18 @@ export function renderAuraCommand({ host, lang, esc, link, requestLink, me, work
  ].join('');
 
  const events = activityEvents({ leads: leadList, workspace, snapshot, connected, missionTitle, link, c }).slice(0, 7);
+ // "Today": real, dated things that need the customer now.
+ const soon = Date.now() + 7 * 86400000;
+ const today = [
+  ...(connected?.totals?.invoicesDue ? [{ attention: true, tag: c.today.tag, title: c.billing.invoices(connected.totals.invoicesDue), label: c.billing.open, href: '/account', icon: 'orders' }] : []),
+  ...active.filter(i => { const d = parseDate(i.due); return d && d.getTime() < soon; }).slice(0, 2).map(i => ({ attention: true, tag: c.today.tag, title: c.today.due(i.title, shortDate(lang, i.due)), label: c.services.details, href: i.href, icon: 'clock' })),
+  ...(() => { const stale = leadList.filter(l => !l.archived && l.stage !== 'won' && parseDate(l.updatedAt) && Date.now() - parseDate(l.updatedAt).getTime() > 3 * 86400000); return stale.length ? [{ attention: true, tag: c.today.tag, title: c.today.stale(stale.length), label: c.today.openPipeline, href: link('studio', { view: 'pipeline' }), icon: 'user' }] : []; })(),
+ ];
+ const completeness = profileCompleteness(profile, null, { ignoreLogo: true });
  const nextList = [
   ...(attention ? [{ attention: true, title: attention.name, label: attention.label, href: attention.href }] : []),
+  ...today,
+  ...(completeness < 70 && perms.includes('profile:write') ? [{ attention: true, tag: c.today.profileTag, title: c.today.profile(completeness), label: c.today.completeProfile, href: link('profile'), icon: 'business' }] : []),
   ...eligible.slice(0, attention ? 2 : 3).map(m => ({ mission: m, title: missionTitle(m), why: guideText(m.capability, 1, lang, missionGuide[m.capability]?.[1] ?? m.reason) || '', href: link('journey', { task: m.id }), service: missionGuide[m.capability]?.[0] })),
  ];
  const auriLine = attention ? c.auri.attention(attention.name) : next ? c.auri.next(missionTitle(next)) : (workspace.missions || []).length ? c.auri.idle : c.auri.setup;
@@ -100,8 +111,10 @@ export function renderAuraCommand({ host, lang, esc, link, requestLink, me, work
    ${quick.length ? `<nav class="os-quick" aria-label="${esc(c.sections.command)}">${quick.map(q => q.ask
     ? `<button type="button" class="os-btn is-quiet" data-os-ask="">${icon(q.icon)}<span>${esc(q.label)}</span></button>`
     : `<a class="os-btn ${q.primary ? 'is-primary' : 'is-quiet'}" href="${esc(q.href)}">${icon(q.icon)}<span>${esc(q.label)}</span></a>`).join('')}</nav>` : ''}
+   ${canAsk ? `<form class="os-askbar" data-os-askbar><label class="sr-only" for="os-askbar-q">${esc(c.auri.ask)}</label>${icon('auri', 18)}<input id="os-askbar-q" name="q" maxlength="500" autocomplete="off" placeholder="${esc(c.auri.placeholder)}"><button class="os-btn is-primary is-sm">${esc(c.auri.ask)}</button></form>` : ''}
   </section>
   <section class="os-kpis" aria-label="${esc(c.chart.title)}">${kpis}</section>
+  <p class="os-updated">${icon('clock', 14)} ${esc(c.today.updated(new Date().toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' })))}</p>
   <div class="os-command-grid">
    <div class="os-col">
     <section class="os-card os-perf" aria-labelledby="os-perf-title">
@@ -130,8 +143,8 @@ export function renderAuraCommand({ host, lang, esc, link, requestLink, me, work
     <section class="os-card" aria-labelledby="os-next-title">
      <header class="os-card-head"><div><h2 id="os-next-title">${esc(c.next.title)}</h2></div></header>
      ${nextList.length ? `<ul class="os-next">${nextList.map((n, i) => `<li class="${n.attention ? 'is-attention' : ''}">
-      <span class="os-next-mark">${n.attention ? icon('alert', 16) : `<b>${i + 1 - (attention ? 1 : 0)}</b>`}</span>
-      <div><small>${esc(n.attention ? c.next.attention : c.next.roadmap)}</small><strong>${esc(n.title)}</strong>${n.why ? `<p>${esc(n.why)}</p>` : ''}
+      <span class="os-next-mark">${n.attention ? icon(n.icon || 'alert', 16) : `<b>${i + 1 - nextList.filter(x => x.attention).length}</b>`}</span>
+      <div><small>${esc(n.attention ? n.tag || c.next.attention : c.next.roadmap)}</small><strong>${esc(n.title)}</strong>${n.why ? `<p>${esc(n.why)}</p>` : ''}
        <div class="os-next-actions">${n.attention ? `<a class="os-link" href="${esc(n.href)}">${esc(n.label)}</a>`
         : `<a class="os-link" href="${esc(n.href)}">${esc(c.next.open)}</a>${canRequest && n.service ? `<button type="button" class="os-link" data-os-prepare="${esc(n.mission.id)}">${esc(c.next.prepare)}</button>` : ''}`}</div></div></li>`).join('')}</ul>`
       : emptyState({ esc, iconName: 'check', title: c.next.empty, tone: 'good' })}
@@ -188,5 +201,6 @@ export function renderAuraCommand({ host, lang, esc, link, requestLink, me, work
   bookings: c.auri.promptBookings(bookingLabel(c, profile.industry)),
  };
  host.querySelectorAll('[data-os-ask]').forEach(b => b.addEventListener('click', () => onAsk(prompts[b.dataset.osAsk] || null)));
+ host.querySelector('[data-os-askbar]')?.addEventListener('submit', e => { e.preventDefault(); const q = String(new FormData(e.currentTarget).get('q') || '').trim(); if (q) { onChat(q.slice(0, 500)); e.currentTarget.reset(); } });
  host.querySelectorAll('[data-os-prepare]').forEach(b => b.addEventListener('click', () => onPrepare(workspace.missions.find(m => m.id === b.dataset.osPrepare))));
 }

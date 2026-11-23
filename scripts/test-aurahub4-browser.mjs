@@ -54,7 +54,7 @@ try {
  await page.locator('#os-greeting').waitFor();
  assert.match(await page.locator('#os-greeting').innerText(), /Lumen Studio QA/);
  const nav = await page.locator('.sidebar nav a').allTextContents();
- assert.deepEqual(nav.map(s => s.trim()), ['Overview', 'My Business', 'Growth Roadmap', 'Aura Studio', 'My Services', 'Website & AuraMenu', 'Analytics', 'Auri Assistant', 'Requests', 'Menu drafts', 'Orders & billing', 'Team', 'Settings']);
+ assert.deepEqual(nav.map(s => s.trim()), ['Overview', 'My Business', 'Growth Roadmap', 'Aura Studio', 'My Services', 'Website & AuraMenu', 'Analytics', 'Auri Assistant', 'Requests', 'Menu drafts', 'Orders & billing', 'Team', 'Settings', 'Help & support']);
  assert.equal(await page.locator('[data-kpi=visitors]').getByText('Not connected').count(), 1, 'visitors has no source, so no number');
  assert.equal(await page.locator('[data-kpi=bookings] .os-kpi-value').count(), 0);
  assert.equal(await page.locator('[data-kpi=services] .os-kpi-value').innerText(), '2');
@@ -210,7 +210,8 @@ try {
  await fx.goto(base + '/hub/this-page-does-not-exist');
  await fx.getByRole('heading', { name: 'Page not found' }).waitFor();
  await fx.goto(base + '/hub/roadmap?lang=tr');
- assert.equal(await fx.locator('.skip').innerText(), 'İçeriğe geç');
+ await fx.locator('.os-journey').waitFor();
+ await fx.waitForFunction(() => document.querySelector('.skip')?.textContent === 'İçeriğe geç');
  await fx.close();
  const newbie = await open();
  await newbie.goto(base + '/hub/signup');
@@ -259,6 +260,32 @@ try {
  const sideFirst = await phone.evaluate(() => document.querySelector('.os-side').getBoundingClientRect().top < document.querySelector('.os-perf').getBoundingClientRect().top);
  assert(sideFirst, 'Auri and next actions come before the chart on phones');
  await phone.close();
+
+ step('batch 3: sign-in, redirects, help, request detail, service picker, Ask Auri bar');
+ const b3 = await open();
+ await b3.goto(base + '/hub/login');
+ assert.equal(await b3.getByText('Google sign-in is being set up', { exact: false }).count(), 0, 'no unfinished Google notice');
+ assert.equal(await b3.locator('.ad-submit').evaluate(e => getComputedStyle(e).backgroundColor), 'rgb(0, 61, 43)');
+ await b3.goto(base + '/__qa/start');
+ await b3.goto(base + '/hub/insights');
+ await b3.waitForURL(/studio\?.*view=analytics/);
+ await b3.getByRole('link', { name: 'Growth simulator' }).waitFor();
+ await b3.goto(base + '/hub/support');
+ await b3.getByRole('heading', { name: 'Common questions' }).waitFor();
+ await b3.locator('.sidebar [data-page=support]').waitFor();
+ await b3.goto(base + '/hub/requests?new=1');
+ await b3.locator('[data-pick="AuraMenu"]').click();
+ assert.equal(await b3.locator('[name=service]').inputValue(), 'AuraMenu');
+ await b3.goto(base + '/hub/requests');
+ await b3.locator('.hub-work-row').filter({ hasText: 'Web Design' }).click();
+ await b3.locator('.os-request-steps li[aria-current=step]').waitFor();
+ await b3.getByRole('button', { name: 'Send an update' }).click();
+ assert.match(await b3.locator('[name=message]').inputValue(), /Regarding request WEB-/);
+ await b3.goto(base + '/hub');
+ await b3.locator('[data-os-askbar] input').fill('Show my services');
+ await b3.locator('[data-os-askbar] input').press('Enter');
+ await b3.locator('#ax-drawer .ax-me').filter({ hasText: 'Show my services' }).waitFor();
+ await b3.close();
 
  step('profile photo: upload, shown in the shell, removable');
  const me = await open();

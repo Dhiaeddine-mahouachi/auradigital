@@ -36,9 +36,9 @@ const C = {
 };
 const SOCIAL = ['instagram', 'facebook', 'tiktok', 'linkedin', 'maps', 'whatsapp'];
 
-export function profileCompleteness(profile, logo) {
+export function profileCompleteness(profile, logo, { ignoreLogo = false } = {}) {
  const checks = [profile.name, profile.industry && profile.industry !== 'other', profile.industryDetails, profile.phone, profile.email, profile.address || profile.city,
-  profile.hours, profile.website, profile.social && Object.keys(profile.social).length, logo, profile.brandColors?.length, profile.goals];
+  profile.hours, profile.website, profile.social && Object.keys(profile.social).length, ...(ignoreLogo ? [] : [logo]), profile.brandColors?.length, profile.goals];
  return Math.round(checks.filter(Boolean).length / checks.length * 100);
 }
 

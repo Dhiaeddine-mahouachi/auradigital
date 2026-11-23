@@ -144,9 +144,11 @@ export function mountAuriChat({ host, lang, esc, link, me, workspace, data, askA
   log = [greeting(), ...log.filter(m => !m.greeting)];
   save();
   // Saved conversation from the server (follows the customer across devices).
+  const mountedAt = log.length;
   history?.load().then(messages => {
     if (!messages?.length || !host.isConnected) return;
-    log = [greeting(), ...messages.map(m => ({ role: m.role, text: m.text }))];
+    // Saved history first, then anything asked since this chat opened.
+    log = [greeting(), ...messages.map(m => ({ role: m.role, text: m.text })), ...log.slice(mountedAt)];
     save(); draw();
   }).catch(() => {});
 

@@ -588,11 +588,14 @@ function renderRequestForm({ host, lang: lang2, esc: esc3, me: me2, workspace: w
 
 // src/hub/os-copy.js
 var EN = {
+  today: { tag: "Today", due: (t2, d) => `${t2} is due ${d}`, stale: (n) => n === 1 ? "1 inquiry has waited 3+ days" : `${n} inquiries have waited 3+ days`, openPipeline: "Open pipeline", profileTag: "Your profile", profile: (n) => `Business profile ${n}% complete`, completeProfile: "Complete profile", updated: (t2) => `Live data \xB7 updated ${t2}` },
+  requestDetail: { kicker: "Request", progress: "Progress", sent: "Sent", due: "Delivery date", dueUnset: "Confirmed in your quote", reference: "Reference", note: "The AuraDigital team updates this status as work moves forward. Questions or new details? Send an update.", update: "Send an update", all: "All requests", regarding: "Regarding request" },
+  help: { auri: "Ask Auri", auriNote: "Instant answers about your roadmap, services and account.", email: "Email us", request: "Send a request", requestNote: "For changes, new work or quotes.", faqTitle: "Common questions", center: "Open the full help center", faq: [["How do I add a customer inquiry?", "Open Aura Studio \u2192 Lead pipeline and choose \u201CAdd inquiry\u201D. You can move it between stages, add notes and assign it to a teammate."], ["How do I ask for a change to my website or menu?", "Open Aura Studio \u2192 Website or AuraMenu and choose a content action, or send a request. The team replies through your request."], ["How is my roadmap progress counted?", "Only tasks marked done count. Milestones become verified after the AuraDigital team reviews your evidence."], ["Do I have to buy AuraDigital services?", "No. Every roadmap step can be done yourself or with any provider. Services are optional."], ["Who can see my business details?", "Only you and teammates you invite. AuraDigital staff see what is needed to deliver the services you request."]] },
   auriPage: { tools: "Auri tools", toolsNote: "Drafts are saved for you to review. Nothing is sent automatically.", settings: "Companion settings" },
   notFound: { title: "Page not found", text: "This address doesn\u2019t exist in AuraHub. It may have moved, or the link may be mistyped." },
   billing: { title: "Billing", due: "Amount due", invoices: (n) => n === 1 ? "1 invoice to pay" : `${n} invoices to pay`, none: "Nothing to pay right now.", open: "Open orders & billing", note: "AuraDigital invoices are in Turkish lira (TRY)." },
   photo: { title: "Profile photo", hint: "Shown on your account in AuraHub. JPEG, PNG or WebP; we resize it to 256 \xD7 256.", upload: "Upload photo", change: "Change photo", remove: "Remove", saved: "Profile photo saved.", removed: "Profile photo removed.", invalid: "Choose a JPEG, PNG or WebP image." },
-  nav: { overview: "Overview", business: "My Business", journey: "Growth Roadmap", studio: "Aura Studio", services: "My Services", site: "Website & AuraMenu", analytics: "Analytics", assistant: "Auri Assistant", settings: "Settings", requests: "Requests", menuDrafts: "Menu drafts", orders: "Orders & billing", team: "Team", groups: ["Workspace", "Operate", "Account"], more: "More", close: "Close", newRequest: "New request", account: "Account", switchWorkspace: "Switch business" },
+  nav: { support: "Help & support", overview: "Overview", business: "My Business", journey: "Growth Roadmap", studio: "Aura Studio", services: "My Services", site: "Website & AuraMenu", analytics: "Analytics", assistant: "Auri Assistant", settings: "Settings", requests: "Requests", menuDrafts: "Menu drafts", orders: "Orders & billing", team: "Team", groups: ["Workspace", "Operate", "Account"], more: "More", close: "Close", newRequest: "New request", account: "Account", switchWorkspace: "Switch business" },
   sections: { command: "Aura Command", commandTag: "Understand your business", journey: "Aura Journey", journeyTag: "Know how to grow", studio: "Aura Studio", studioTag: "Manage the work" },
   greet: { morning: "Good morning", afternoon: "Good afternoon", evening: "Good evening", line: (part, name) => `${part}${name ? ", " + name : ""}.`, sub: (biz) => `Let\u2019s grow ${biz}.` },
   quick: { request: "Request a service", website: "Update website", menu: "Manage AuraMenu", roadmap: "View growth roadmap", ask: "Ask Auri" },
@@ -625,7 +628,7 @@ var EN = {
   activity: { title: "Recent activity", empty: "Activity from your services, roadmap and pipeline appears here.", lead: (n) => `New inquiry logged: ${n}`, mission: (n) => `Roadmap task completed: ${n}`, request: (n) => `Request sent: ${n}`, record: (n) => `Service update: ${n}`, menu: (n) => `Menu draft saved: ${n}`, all: "View all" },
   services: { title: "Active services", empty: "No active services yet.", stages: ["Received", "In review", "In production", "Live"], due: "Due", renews: "Renews", details: "Details", all: "All services" },
   next: { title: "Next actions", empty: "You\u2019re all caught up.", review: "Review", open: "Open", prepare: "Prepare request", why: "Why", roadmap: "From your roadmap", attention: "Needs your attention" },
-  auri: { promptNext: (t2) => `What should I do next for \u201C${t2}\u201D?`, promptGeneral: "What should I focus on next for my business?", promptBookings: (l) => `What are my options for taking ${l.toLowerCase()} online?`, title: "Auri suggests", ask: "Ask Auri", more: "Open chat", next: (t2) => `Your most useful next step is \u201C${t2}\u201D.`, attention: (n) => `Start with \u201C${n}\u201D \u2014 it\u2019s waiting on you.`, idle: "Your roadmap is clear. Ask Auri what to improve next.", setup: "Build your roadmap so Auri can suggest the next step." },
+  auri: { placeholder: "Ask Auri anything \u2014 e.g. \u201CBuild me a website with booking\u201D", promptNext: (t2) => `What should I do next for \u201C${t2}\u201D?`, promptGeneral: "What should I focus on next for my business?", promptBookings: (l) => `What are my options for taking ${l.toLowerCase()} online?`, title: "Auri suggests", ask: "Ask Auri", more: "Open chat", next: (t2) => `Your most useful next step is \u201C${t2}\u201D.`, attention: (n) => `Start with \u201C${n}\u201D \u2014 it\u2019s waiting on you.`, idle: "Your roadmap is clear. Ask Auri what to improve next.", setup: "Build your roadmap so Auri can suggest the next step." },
   journey: {
     allTasks: "All roadmap tasks",
     listPriority: "Do next",
@@ -692,16 +695,19 @@ var EN = {
     website: { title: "Your website", preview: "Open live site", domain: "Domain", status: "Publication status", published: "Published", inProgress: "In progress", unknown: "Status not tracked", actions: "Content actions", change: "Request a content change", newPage: "Request a new page", seo: "Ask about Google visibility", none: "No website linked to this business yet", noneText: "Add your website to your business profile, or ask AuraDigital to build one.", addSite: "Add to profile", build: "Request a website", secure: "HTTPS", notOwned: "Only websites linked to this business appear here." },
     menu: { unavailable: "Self-service menu drafts are not available yet. AuraDigital can set up your menu for you.", title: "AuraMenu", drafts: "Menu drafts", open: "Open menu drafts", live: "Menus with AuraDigital", none: "No AuraMenu linked to this business yet", noneText: "Start a private menu draft, or ask the team to set one up for you.", start: "Start a menu draft", request: "Request AuraMenu", manage: "Open", notRestaurant: "AuraMenu is built for restaurants and caf\xE9s." },
     inbox: { title: "Inbox", lead: "One place for conversations \u2014 only from channels that are actually connected.", channels: "Channels", notConnected: "Not connected", connected: "Connected", connectHint: "Ask AuraDigital to connect this channel.", fromPipeline: "Recent inquiry notes", empty: "No conversations yet.", auri: "Auri conversation", teamRequests: "Requests to AuraDigital" },
-    analytics: { title: "Analytics", lead: "Validated numbers only, each with its source and date range.", range: "Last 30 days", pipeline: "Pipeline", bySource: "Inquiries by source", byStage: "Open inquiries by stage", won: "Won", conversion: "Won rate", roadmap: "Roadmap completion", services: "Services", site: "Website traffic", siteNone: "Website analytics isn\u2019t connected. Numbers will appear here once tracking is set up and verified.", srcLeads: "Source: Aura Studio pipeline (entries logged by your team)", srcRoadmap: "Source: your Growth Roadmap", srcServices: "Source: AuraDigital service records", noLeads: "Log inquiries in the pipeline to see conversion." }
+    analytics: { simulator: "Growth simulator", simulatorNote: "Estimate what more visitors or a better conversion rate could mean. Illustrative numbers you enter yourself.", title: "Analytics", lead: "Validated numbers only, each with its source and date range.", range: "Last 30 days", pipeline: "Pipeline", bySource: "Inquiries by source", byStage: "Open inquiries by stage", won: "Won", conversion: "Won rate", roadmap: "Roadmap completion", services: "Services", site: "Website traffic", siteNone: "Website analytics isn\u2019t connected. Numbers will appear here once tracking is set up and verified.", srcLeads: "Source: Aura Studio pipeline (entries logged by your team)", srcRoadmap: "Source: your Growth Roadmap", srcServices: "Source: AuraDigital service records", noLeads: "Log inquiries in the pipeline to see conversion." }
   },
   state: { skip: "Skip to content", loading: "Loading\u2026", error: "Something went wrong loading this section.", retry: "Try again", offline: "You appear to be offline. Check your connection and try again.", timeout: "The server took too long to answer." }
 };
 var TR = {
+  today: { tag: "Bug\xFCn", due: (t2, d) => `${t2} teslimi: ${d}`, stale: (n) => `${n} talep 3+ g\xFCnd\xFCr bekliyor`, openPipeline: "Sat\u0131\u015F hatt\u0131n\u0131 a\xE7", profileTag: "Profiliniz", profile: (n) => `\u0130\u015Fletme profili %${n} tamamland\u0131`, completeProfile: "Profili tamamla", updated: (t2) => `Canl\u0131 veriler \xB7 ${t2} itibar\u0131yla` },
+  requestDetail: { kicker: "Talep", progress: "\u0130lerleme", sent: "G\xF6nderildi", due: "Teslim tarihi", dueUnset: "Teklifinizde belirtilir", reference: "Referans", note: "AuraDigital ekibi i\u015F ilerledik\xE7e bu durumu g\xFCnceller. Sorunuz veya yeni bilgi mi var? G\xFCncelleme g\xF6nderin.", update: "G\xFCncelleme g\xF6nder", all: "T\xFCm talepler", regarding: "Talep hakk\u0131nda" },
+  help: { auri: "Auri\u2019ye sor", auriNote: "Yol haritas\u0131, hizmetler ve hesab\u0131n\u0131z hakk\u0131nda an\u0131nda yan\u0131t.", email: "E-posta g\xF6nderin", request: "Talep g\xF6nder", requestNote: "De\u011Fi\u015Fiklik, yeni i\u015F veya teklif i\xE7in.", faqTitle: "S\u0131k sorulan sorular", center: "Yard\u0131m merkezini a\xE7", faq: [["M\xFC\u015Fteri talebini nas\u0131l eklerim?", "Aura Studio \u2192 Sat\u0131\u015F hatt\u0131\u2019n\u0131 a\xE7\u0131n ve \u201CTalep ekle\u201Dyi se\xE7in. A\u015Famalar aras\u0131nda ta\u015F\u0131yabilir, not ekleyebilir ve ekip arkada\u015F\u0131na atayabilirsiniz."], ["Web sitemde veya men\xFCmde de\u011Fi\u015Fikli\u011Fi nas\u0131l isterim?", "Aura Studio \u2192 Web sitesi veya AuraMenu\u2019y\xFC a\xE7\u0131p bir i\xE7erik i\u015Flemi se\xE7in ya da talep g\xF6nderin. Ekip talebiniz \xFCzerinden yan\u0131t verir."], ["Yol haritas\u0131 ilerlemesi nas\u0131l hesaplan\u0131r?", "Yaln\u0131zca tamamlanan g\xF6revler say\u0131l\u0131r. Kan\u0131t\u0131n\u0131z AuraDigital ekibince incelendikten sonra hedefler do\u011Frulan\u0131r."], ["AuraDigital hizmeti sat\u0131n almak zorunda m\u0131y\u0131m?", "Hay\u0131r. Her ad\u0131m\u0131 kendiniz veya istedi\u011Finiz bir sa\u011Flay\u0131c\u0131yla yapabilirsiniz. Hizmetler iste\u011Fe ba\u011Fl\u0131d\u0131r."], ["\u0130\u015Fletme bilgilerimi kim g\xF6rebilir?", "Yaln\u0131zca siz ve davet etti\u011Finiz ekip arkada\u015Flar\u0131. AuraDigital ekibi istedi\u011Finiz hizmetleri sunmak i\xE7in gerekenleri g\xF6r\xFCr."]] },
   auriPage: { tools: "Auri ara\xE7lar\u0131", toolsNote: "Taslaklar incelemeniz i\xE7in kaydedilir. Hi\xE7bir \u015Fey otomatik g\xF6nderilmez.", settings: "Asistan ayarlar\u0131" },
   notFound: { title: "Sayfa bulunamad\u0131", text: "Bu adres AuraHub\u2019da yok. Ta\u015F\u0131nm\u0131\u015F veya ba\u011Flant\u0131 hatal\u0131 yaz\u0131lm\u0131\u015F olabilir." },
   billing: { title: "\xD6demeler", due: "\xD6denecek tutar", invoices: (n) => `${n} \xF6denecek fatura`, none: "\u015Eu anda \xF6denecek bir \u015Fey yok.", open: "Sipari\u015Fler ve faturalar\u0131 a\xE7", note: "AuraDigital faturalar\u0131 T\xFCrk liras\u0131 (TRY) cinsindendir." },
   photo: { title: "Profil foto\u011Fraf\u0131", hint: "AuraHub hesab\u0131n\u0131zda g\xF6r\xFCn\xFCr. JPEG, PNG veya WebP; 256 \xD7 256 boyutuna k\xFC\xE7\xFClt\xFCl\xFCr.", upload: "Foto\u011Fraf y\xFCkle", change: "Foto\u011Fraf\u0131 de\u011Fi\u015Ftir", remove: "Kald\u0131r", saved: "Profil foto\u011Fraf\u0131 kaydedildi.", removed: "Profil foto\u011Fraf\u0131 kald\u0131r\u0131ld\u0131.", invalid: "JPEG, PNG veya WebP bir g\xF6rsel se\xE7in." },
-  nav: { overview: "Genel bak\u0131\u015F", business: "\u0130\u015Fletmem", journey: "B\xFCy\xFCme yol haritas\u0131", studio: "Aura Studio", services: "Hizmetlerim", site: "Web sitesi ve AuraMenu", analytics: "Analitik", assistant: "Auri Asistan", settings: "Ayarlar", requests: "Talepler", menuDrafts: "Men\xFC taslaklar\u0131", orders: "Sipari\u015Fler ve faturalar", team: "Ekip", groups: ["\xC7al\u0131\u015Fma alan\u0131", "Y\xF6netim", "Hesap"], more: "Daha fazla", close: "Kapat", newRequest: "Yeni talep", account: "Hesap", switchWorkspace: "\u0130\u015Fletme de\u011Fi\u015Ftir" },
+  nav: { support: "Yard\u0131m ve destek", overview: "Genel bak\u0131\u015F", business: "\u0130\u015Fletmem", journey: "B\xFCy\xFCme yol haritas\u0131", studio: "Aura Studio", services: "Hizmetlerim", site: "Web sitesi ve AuraMenu", analytics: "Analitik", assistant: "Auri Asistan", settings: "Ayarlar", requests: "Talepler", menuDrafts: "Men\xFC taslaklar\u0131", orders: "Sipari\u015Fler ve faturalar", team: "Ekip", groups: ["\xC7al\u0131\u015Fma alan\u0131", "Y\xF6netim", "Hesap"], more: "Daha fazla", close: "Kapat", newRequest: "Yeni talep", account: "Hesap", switchWorkspace: "\u0130\u015Fletme de\u011Fi\u015Ftir" },
   sections: { command: "Aura Command", commandTag: "\u0130\u015Fletmenizi anlay\u0131n", journey: "Aura Journey", journeyTag: "Nas\u0131l b\xFCy\xFCyece\u011Finizi bilin", studio: "Aura Studio", studioTag: "\u0130\u015Fi y\xF6netin" },
   greet: { morning: "G\xFCnayd\u0131n", afternoon: "\u0130yi g\xFCnler", evening: "\u0130yi ak\u015Famlar", line: (part, name) => `${part}${name ? ", " + name : ""}.`, sub: (biz) => `${biz} i\xE7in b\xFCy\xFCmeye devam edelim.` },
   quick: { request: "Hizmet iste", website: "Web sitesini g\xFCncelle", menu: "AuraMenu\u2019y\xFC y\xF6net", roadmap: "Yol haritas\u0131n\u0131 g\xF6r", ask: "Auri\u2019ye sor" },
@@ -710,17 +716,20 @@ var TR = {
   activity: { title: "Son hareketler", empty: "Hizmetlerinizden, yol haritan\u0131zdan ve sat\u0131\u015F hatt\u0131n\u0131zdan hareketler burada g\xF6r\xFCn\xFCr.", lead: (n) => `Yeni talep kaydedildi: ${n}`, mission: (n) => `G\xF6rev tamamland\u0131: ${n}`, request: (n) => `Talep g\xF6nderildi: ${n}`, record: (n) => `Hizmet g\xFCncellemesi: ${n}`, menu: (n) => `Men\xFC tasla\u011F\u0131 kaydedildi: ${n}`, all: "T\xFCm\xFCn\xFC g\xF6r" },
   services: { title: "Aktif hizmetler", empty: "Hen\xFCz aktif hizmet yok.", stages: ["Al\u0131nd\u0131", "\u0130ncelemede", "\xDCretimde", "Yay\u0131nda"], due: "Teslim", renews: "Yenileme", details: "Ayr\u0131nt\u0131lar", all: "T\xFCm hizmetler" },
   next: { title: "S\u0131radaki ad\u0131mlar", empty: "Her \u015Fey yolunda.", review: "\u0130ncele", open: "A\xE7", prepare: "Talep haz\u0131rla", why: "Neden", roadmap: "Yol haritan\u0131zdan", attention: "\u0130lginizi bekliyor" },
-  auri: { promptNext: (t2) => `\u201C${t2}\u201D i\xE7in s\u0131rada ne yapmal\u0131y\u0131m?`, promptGeneral: "\u0130\u015Fletmem i\xE7in s\u0131rada neye odaklanmal\u0131y\u0131m?", promptBookings: (l) => `${l} i\xE7in online se\xE7eneklerim neler?`, title: "Auri\u2019nin \xF6nerisi", ask: "Auri\u2019ye sor", more: "Sohbeti a\xE7", next: (t2) => `En faydal\u0131 sonraki ad\u0131m\u0131n\u0131z: \u201C${t2}\u201D.`, attention: (n) => `\u201C${n}\u201D ile ba\u015Flay\u0131n \u2014 sizi bekliyor.`, idle: "Yol haritan\u0131z temiz. Auri\u2019ye neyi geli\u015Ftirebilece\u011Finizi sorun.", setup: "Auri\u2019nin sonraki ad\u0131m\u0131 \xF6nerebilmesi i\xE7in yol haritan\u0131z\u0131 olu\u015Fturun." },
+  auri: { placeholder: "Auri\u2019ye her \u015Feyi sorun \u2014 \xF6r. \u201CRandevulu bir web sitesi kur\u201D", promptNext: (t2) => `\u201C${t2}\u201D i\xE7in s\u0131rada ne yapmal\u0131y\u0131m?`, promptGeneral: "\u0130\u015Fletmem i\xE7in s\u0131rada neye odaklanmal\u0131y\u0131m?", promptBookings: (l) => `${l} i\xE7in online se\xE7eneklerim neler?`, title: "Auri\u2019nin \xF6nerisi", ask: "Auri\u2019ye sor", more: "Sohbeti a\xE7", next: (t2) => `En faydal\u0131 sonraki ad\u0131m\u0131n\u0131z: \u201C${t2}\u201D.`, attention: (n) => `\u201C${n}\u201D ile ba\u015Flay\u0131n \u2014 sizi bekliyor.`, idle: "Yol haritan\u0131z temiz. Auri\u2019ye neyi geli\u015Ftirebilece\u011Finizi sorun.", setup: "Auri\u2019nin sonraki ad\u0131m\u0131 \xF6nerebilmesi i\xE7in yol haritan\u0131z\u0131 olu\u015Fturun." },
   journey: { allTasks: "T\xFCm yol haritas\u0131 g\xF6revleri", listPriority: "S\u0131radakiler", listUpcoming: "Daha sonra", listCompleted: "Tamamlananlar", askPrompt: (s) => `\u0130\u015Fletmem i\xE7in \u201C${s}\u201D a\u015Famas\u0131n\u0131 a\xE7\u0131kla: neler yapt\u0131m, s\u0131rada ne var ve bir hizmete ihtiyac\u0131m var m\u0131?`, title: "B\xFCy\xFCme Vizyonu", kicker: "Aura Journey", lead: "Kap\u0131lar\u0131n\u0131z\u0131 a\xE7maktan b\xFCy\xFCmeye be\u015F a\u015Fama. \u0130lerleme yaln\u0131zca tamamlanan ve do\u011Frulanan i\u015Fleri sayar.", stages: ["Ba\u015Fla", "Bulun", "D\xF6n\xFC\u015Ft\xFCr", "B\xFCy\xFC", "\xD6l\xE7ekle"], taglines: ["\u0130nternette hizmete a\xE7\u0131l\u0131n", "Kolay bulunun", "\u0130lgiyi m\xFC\u015Fteriye \xE7evirin", "Ak\u0131ll\u0131 \xE7al\u0131\u015F\u0131n, m\xFC\u015Fteriyi tutun", "\xD6l\xE7\xFCn, tekrarlay\u0131n, geni\u015Fleyin"], objectives: ["M\xFC\u015Fterilere sizi tan\u0131yabilecekleri ve ula\u015Fabilecekleri g\xFCvenilir bir yer sunun.", "Yak\u0131ndaki m\xFC\u015Fterilerin aray\u0131p karar verdi\u011Fi yerlerde g\xF6r\xFCn\xFCn.", "Sormay\u0131, rezervasyonu veya sat\u0131n almay\u0131 kolayla\u015Ft\u0131r\u0131n ve her seferinde d\xF6n\xFC\u015F yap\u0131n.", "M\xFC\u015Fteri i\u015Flerini d\xFCzenleyin; hi\xE7bir \u015Fey ka\xE7mas\u0131n, m\xFC\u015Fteriler geri gelsin.", "Neye yat\u0131r\u0131m yapaca\u011F\u0131n\u0131za ger\xE7ek say\u0131larla karar verin."], why: ["Temeller olmadan di\u011Fer her yat\u0131r\u0131m bo\u015Fa gider: insanlar sizi inceleyemez ya da ula\u015Famaz.", "\xC7o\u011Fu m\xFC\u015Fteri ziyaret etmeden \xF6nce arar. Sizi bulamazlarsa ba\u015Fkas\u0131n\u0131 se\xE7erler.", "Bir sonraki ad\u0131m\u0131 atmayan ziyaret\xE7i kaybolur. Net \xE7a\u011Fr\u0131lar ve h\u0131zl\u0131 yan\u0131tlar kazand\u0131r\u0131r.", "Tekrar gelen m\xFC\u015Fteri daha az maliyetlidir. Sistemler zaman\u0131n\u0131z\u0131 a\xE7ar.", "\xD6l\xE7ebildi\u011Finiz b\xFCy\xFCmeyi tekrarlayabilirsiniz."], overall: "Genel ilerleme", of: (a, b) => `${b} g\xF6revden ${a}`, verified: "do\u011Frulanm\u0131\u015F hedef", stageOf: (i) => `A\u015Fama ${i} / 5`, done: "Tamamland\u0131", current: "Ge\xE7erli a\u015Fama", upcoming: "Yakla\u015Fan", empty: "Bu a\u015Famada i\u015Fletmeniz i\xE7in g\xF6rev yok.", objective: "Hedef", completed: "Tamamlanan", remaining: "Kalan", recommended: "AuraDigital yard\u0131mc\u0131 olabilir", examples: "Ger\xE7ek AuraDigital i\u015Fleri", effort: "Tahmini efor", next: "\xD6nerilen sonraki ad\u0131m", progress: "A\u015Fama ilerlemesi", effortLevels: { done: "A\u015Fama tamamland\u0131", light: "Hafif \u2014 1\u20132 g\xF6rev kald\u0131", moderate: "Orta \u2014 3\u20134 g\xF6rev kald\u0131", heavy: "Kapsaml\u0131 \u2014 5+ g\xF6rev kald\u0131" }, effortNote: "Kalan g\xF6revlere g\xF6re. Teslim tarihleri her teklifte kesinle\u015Fir.", optional: "\u0130ste\u011Fe ba\u011Fl\u0131", diy: "Her ad\u0131m\u0131 kendiniz yapabilirsiniz \u2014 hizmetler iste\u011Fe ba\u011Fl\u0131d\u0131r.", request: "\u0130ste", view: "Neler alacaks\u0131n\u0131z", openTask: "G\xF6revi a\xE7", noneDone: "Burada hen\xFCz tamamlanan yok.", allDone: "Buradaki t\xFCm g\xF6revler tamam.", askStage: "Bu a\u015Famay\u0131 Auri\u2019ye sor", explainTitle: "Auri bu a\u015Fama hakk\u0131nda", explain: { matters: "Neden \xF6nemli", did: "Neler yapt\u0131n\u0131z", doNext: "S\u0131rada ne var", help: "AuraDigital nerede yard\u0131mc\u0131 olur", optional: "\u0130ste\u011Fe ba\u011Fl\u0131 m\u0131?" }, didNone: "Bu a\u015Famada hen\xFCz tamamlanan g\xF6rev yok.", didSome: (n, list) => `${n} tamam: ${list}.`, nextNone: "Burada i\u015F kalmad\u0131 \u2014 sonraki a\u015Famaya ge\xE7in.", helpNone: "Bu a\u015Fama i\xE7in AuraDigital hizmeti gerekmiyor.", helpSome: (list) => `${list}. T\xFCm hizmetler iste\u011Fe ba\u011Fl\u0131d\u0131r; ad\u0131mlar\u0131 kendiniz izleyebilirsiniz.`, optYes: "Bu a\u015Famada atlayabilece\u011Finiz iste\u011Fe ba\u011Fl\u0131 g\xF6revler var.", optNo: "Buradaki g\xF6revler temel yol haritan\u0131z\u0131n par\xE7as\u0131; kimin yapaca\u011F\u0131n\u0131 siz se\xE7ersiniz.", taskDetail: "G\xF6rev ayr\u0131nt\u0131lar\u0131", stagesLabel: "B\xFCy\xFCme a\u015Famalar\u0131", inReview: "\u0130ncelemede", locked: "Yakla\u015Fan" },
-  studio: { title: "Aura Studio", intro: "Operasyon alan\u0131n\u0131z: talepler, teslimat, web sitesi, men\xFC ve mesajlar.", tabs: { pipeline: "Sat\u0131\u015F hatt\u0131", delivery: "Hizmet ve teslimat", website: "Web sitesi", menu: "AuraMenu", inbox: "Gelen kutusu", analytics: "Analitik" }, readOnly: "Bu \xE7al\u0131\u015Fma alan\u0131n\u0131 g\xF6r\xFCnt\xFCleyebilirsiniz. De\u011Fi\u015Fiklik i\xE7in sahibinden yetki isteyin.", pipeline: { filters: "Filtreler", add: "Talep ekle", search: "Taleplerde ara", allSources: "T\xFCm kaynaklar", allPeople: "Herkes", unassigned: "Atanmam\u0131\u015F", empty: "Hen\xFCz talep yok", emptyText: "Telefon, mesaj veya ziyaretlerden gelen talepleri kaydedin. Web sitenizden otomatik aktar\u0131m hen\xFCz ba\u011Fl\u0131 de\u011Fil.", none: "Filtrelere uyan talep yok.", stageEmpty: "Bo\u015F", count: (n) => `${n} talep`, value: "De\u011Fer", configure: "A\u015Famalar\u0131 d\xFCzenle", archived: "Ar\u015Fiv", showArchived: "Ar\u015Fivi g\xF6ster", hideArchived: "Sat\u0131\u015F hatt\u0131na d\xF6n", moveTo: "Ta\u015F\u0131", archive: "Ar\u015Fivle", restore: "Geri al", confirmArchive: "Bu talep ar\u015Fivlensin mi? Daha sonra geri alabilirsiniz." }, lead: { name: "Ad", contact: "Telefon veya e-posta", source: "Kaynak", interest: "\u0130lgilendi\u011Fi", value: "Tahmini de\u011Fer", stage: "A\u015Fama", assignee: "Sorumlu", note: "Not", notes: "Notlar", addNote: "Not ekle", save: "Kaydet", cancel: "Vazge\xE7", create: "Talep ekle", saved: "Kaydedildi", noNotes: "Hen\xFCz not yok.", created: "Olu\u015Fturuldu", updated: "G\xFCncellendi", close: "Kapat" }, sources: { website: "Web sitesi", phone: "Telefon", whatsapp: "WhatsApp", instagram: "Instagram", email: "E-posta", walk_in: "Ziyaret", referral: "Tavsiye", other: "Di\u011Fer" }, stagesEditor: { title: "Sat\u0131\u015F hatt\u0131 a\u015Famalar\u0131", hint: "A\u015Famalar\u0131 yeniden adland\u0131r\u0131n, ekleyin veya kald\u0131r\u0131n. \u0130\xE7inde talep olan a\u015Fama kald\u0131r\u0131lamaz.", add: "A\u015Fama ekle", remove: "Kald\u0131r", save: "A\u015Famalar\u0131 kaydet", name: "A\u015Fama ad\u0131" }, delivery: { active: "Aktif sipari\u015Fler", completed: "Tamamlanan", deadlines: "Yakla\u015Fan teslimler", approvals: "Onay\u0131n\u0131z\u0131 bekleyen", revisions: "\u0130stenen d\xFCzeltmeler", messages: "M\xFC\u015Fteri mesajlar\u0131", none: "\u015Eu an burada bir \u015Fey yok.", revisionsNone: "A\xE7\u0131k d\xFCzeltme yok. De\u011Fi\u015Fiklik i\xE7in ekibe talep g\xF6nderin.", messagesNone: "AuraDigital ekibiyle yaz\u0131\u015Fmalar talepleriniz \xFCzerinden y\xFCr\xFCr.", requestChange: "De\u011Fi\u015Fiklik iste", reviewMenu: "Men\xFCy\xFC incele", open: "A\xE7", overdue: "Gecikmi\u015F" }, website: { title: "Web siteniz", preview: "Canl\u0131 siteyi a\xE7", domain: "Alan ad\u0131", status: "Yay\u0131n durumu", published: "Yay\u0131nda", inProgress: "Haz\u0131rlan\u0131yor", unknown: "Durum izlenmiyor", actions: "\u0130\xE7erik i\u015Flemleri", change: "\u0130\xE7erik de\u011Fi\u015Fikli\u011Fi iste", newPage: "Yeni sayfa iste", seo: "Google g\xF6r\xFCn\xFCrl\xFC\u011F\xFCn\xFC sor", none: "Bu i\u015Fletmeye ba\u011Fl\u0131 web sitesi yok", noneText: "Web sitenizi i\u015Fletme profilinize ekleyin veya AuraDigital\u2019den isteyin.", addSite: "Profile ekle", build: "Web sitesi iste", secure: "HTTPS", notOwned: "Yaln\u0131zca bu i\u015Fletmeye ba\u011Fl\u0131 siteler g\xF6r\xFCn\xFCr." }, menu: { unavailable: "Men\xFC taslaklar\u0131 hen\xFCz kullan\u0131lam\u0131yor. AuraDigital men\xFCn\xFCz\xFC sizin i\xE7in kurabilir.", title: "AuraMenu", drafts: "Men\xFC taslaklar\u0131", open: "Men\xFC taslaklar\u0131n\u0131 a\xE7", live: "AuraDigital\u2019deki men\xFCler", none: "Bu i\u015Fletmeye ba\u011Fl\u0131 AuraMenu yok", noneText: "\xD6zel bir men\xFC tasla\u011F\u0131 ba\u015Flat\u0131n veya ekipten kurulum isteyin.", start: "Men\xFC tasla\u011F\u0131 ba\u015Flat", request: "AuraMenu iste", manage: "A\xE7", notRestaurant: "AuraMenu restoran ve kafeler i\xE7in tasarland\u0131." }, inbox: { title: "Gelen kutusu", lead: "Konu\u015Fmalar tek yerde \u2014 yaln\u0131zca ger\xE7ekten ba\u011Fl\u0131 kanallardan.", channels: "Kanallar", notConnected: "Ba\u011Fl\u0131 de\u011Fil", connected: "Ba\u011Fl\u0131", connectHint: "Bu kanal\u0131n ba\u011Flanmas\u0131 i\xE7in AuraDigital\u2019e yaz\u0131n.", fromPipeline: "Son talep notlar\u0131", empty: "Hen\xFCz konu\u015Fma yok.", auri: "Auri sohbeti", teamRequests: "AuraDigital talepleri" }, analytics: { title: "Analitik", lead: "Yaln\u0131zca do\u011Frulanm\u0131\u015F say\u0131lar; her biri kayna\u011F\u0131 ve tarih aral\u0131\u011F\u0131yla.", range: "Son 30 g\xFCn", pipeline: "Sat\u0131\u015F hatt\u0131", bySource: "Kayna\u011Fa g\xF6re talepler", byStage: "A\u015Famaya g\xF6re a\xE7\u0131k talepler", won: "Kazan\u0131lan", conversion: "Kazanma oran\u0131", roadmap: "Yol haritas\u0131 tamamlanma", services: "Hizmetler", site: "Web sitesi trafi\u011Fi", siteNone: "Web sitesi analiti\u011Fi ba\u011Fl\u0131 de\u011Fil. Takip kurulup do\u011Fruland\u0131\u011F\u0131nda say\u0131lar burada g\xF6r\xFCn\xFCr.", srcLeads: "Kaynak: Aura Studio sat\u0131\u015F hatt\u0131 (ekibinizin kay\u0131tlar\u0131)", srcRoadmap: "Kaynak: B\xFCy\xFCme yol haritan\u0131z", srcServices: "Kaynak: AuraDigital hizmet kay\u0131tlar\u0131", noLeads: "D\xF6n\xFC\u015F\xFCm\xFC g\xF6rmek i\xE7in sat\u0131\u015F hatt\u0131na talep kaydedin." } },
+  studio: { title: "Aura Studio", intro: "Operasyon alan\u0131n\u0131z: talepler, teslimat, web sitesi, men\xFC ve mesajlar.", tabs: { pipeline: "Sat\u0131\u015F hatt\u0131", delivery: "Hizmet ve teslimat", website: "Web sitesi", menu: "AuraMenu", inbox: "Gelen kutusu", analytics: "Analitik" }, readOnly: "Bu \xE7al\u0131\u015Fma alan\u0131n\u0131 g\xF6r\xFCnt\xFCleyebilirsiniz. De\u011Fi\u015Fiklik i\xE7in sahibinden yetki isteyin.", pipeline: { filters: "Filtreler", add: "Talep ekle", search: "Taleplerde ara", allSources: "T\xFCm kaynaklar", allPeople: "Herkes", unassigned: "Atanmam\u0131\u015F", empty: "Hen\xFCz talep yok", emptyText: "Telefon, mesaj veya ziyaretlerden gelen talepleri kaydedin. Web sitenizden otomatik aktar\u0131m hen\xFCz ba\u011Fl\u0131 de\u011Fil.", none: "Filtrelere uyan talep yok.", stageEmpty: "Bo\u015F", count: (n) => `${n} talep`, value: "De\u011Fer", configure: "A\u015Famalar\u0131 d\xFCzenle", archived: "Ar\u015Fiv", showArchived: "Ar\u015Fivi g\xF6ster", hideArchived: "Sat\u0131\u015F hatt\u0131na d\xF6n", moveTo: "Ta\u015F\u0131", archive: "Ar\u015Fivle", restore: "Geri al", confirmArchive: "Bu talep ar\u015Fivlensin mi? Daha sonra geri alabilirsiniz." }, lead: { name: "Ad", contact: "Telefon veya e-posta", source: "Kaynak", interest: "\u0130lgilendi\u011Fi", value: "Tahmini de\u011Fer", stage: "A\u015Fama", assignee: "Sorumlu", note: "Not", notes: "Notlar", addNote: "Not ekle", save: "Kaydet", cancel: "Vazge\xE7", create: "Talep ekle", saved: "Kaydedildi", noNotes: "Hen\xFCz not yok.", created: "Olu\u015Fturuldu", updated: "G\xFCncellendi", close: "Kapat" }, sources: { website: "Web sitesi", phone: "Telefon", whatsapp: "WhatsApp", instagram: "Instagram", email: "E-posta", walk_in: "Ziyaret", referral: "Tavsiye", other: "Di\u011Fer" }, stagesEditor: { title: "Sat\u0131\u015F hatt\u0131 a\u015Famalar\u0131", hint: "A\u015Famalar\u0131 yeniden adland\u0131r\u0131n, ekleyin veya kald\u0131r\u0131n. \u0130\xE7inde talep olan a\u015Fama kald\u0131r\u0131lamaz.", add: "A\u015Fama ekle", remove: "Kald\u0131r", save: "A\u015Famalar\u0131 kaydet", name: "A\u015Fama ad\u0131" }, delivery: { active: "Aktif sipari\u015Fler", completed: "Tamamlanan", deadlines: "Yakla\u015Fan teslimler", approvals: "Onay\u0131n\u0131z\u0131 bekleyen", revisions: "\u0130stenen d\xFCzeltmeler", messages: "M\xFC\u015Fteri mesajlar\u0131", none: "\u015Eu an burada bir \u015Fey yok.", revisionsNone: "A\xE7\u0131k d\xFCzeltme yok. De\u011Fi\u015Fiklik i\xE7in ekibe talep g\xF6nderin.", messagesNone: "AuraDigital ekibiyle yaz\u0131\u015Fmalar talepleriniz \xFCzerinden y\xFCr\xFCr.", requestChange: "De\u011Fi\u015Fiklik iste", reviewMenu: "Men\xFCy\xFC incele", open: "A\xE7", overdue: "Gecikmi\u015F" }, website: { title: "Web siteniz", preview: "Canl\u0131 siteyi a\xE7", domain: "Alan ad\u0131", status: "Yay\u0131n durumu", published: "Yay\u0131nda", inProgress: "Haz\u0131rlan\u0131yor", unknown: "Durum izlenmiyor", actions: "\u0130\xE7erik i\u015Flemleri", change: "\u0130\xE7erik de\u011Fi\u015Fikli\u011Fi iste", newPage: "Yeni sayfa iste", seo: "Google g\xF6r\xFCn\xFCrl\xFC\u011F\xFCn\xFC sor", none: "Bu i\u015Fletmeye ba\u011Fl\u0131 web sitesi yok", noneText: "Web sitenizi i\u015Fletme profilinize ekleyin veya AuraDigital\u2019den isteyin.", addSite: "Profile ekle", build: "Web sitesi iste", secure: "HTTPS", notOwned: "Yaln\u0131zca bu i\u015Fletmeye ba\u011Fl\u0131 siteler g\xF6r\xFCn\xFCr." }, menu: { unavailable: "Men\xFC taslaklar\u0131 hen\xFCz kullan\u0131lam\u0131yor. AuraDigital men\xFCn\xFCz\xFC sizin i\xE7in kurabilir.", title: "AuraMenu", drafts: "Men\xFC taslaklar\u0131", open: "Men\xFC taslaklar\u0131n\u0131 a\xE7", live: "AuraDigital\u2019deki men\xFCler", none: "Bu i\u015Fletmeye ba\u011Fl\u0131 AuraMenu yok", noneText: "\xD6zel bir men\xFC tasla\u011F\u0131 ba\u015Flat\u0131n veya ekipten kurulum isteyin.", start: "Men\xFC tasla\u011F\u0131 ba\u015Flat", request: "AuraMenu iste", manage: "A\xE7", notRestaurant: "AuraMenu restoran ve kafeler i\xE7in tasarland\u0131." }, inbox: { title: "Gelen kutusu", lead: "Konu\u015Fmalar tek yerde \u2014 yaln\u0131zca ger\xE7ekten ba\u011Fl\u0131 kanallardan.", channels: "Kanallar", notConnected: "Ba\u011Fl\u0131 de\u011Fil", connected: "Ba\u011Fl\u0131", connectHint: "Bu kanal\u0131n ba\u011Flanmas\u0131 i\xE7in AuraDigital\u2019e yaz\u0131n.", fromPipeline: "Son talep notlar\u0131", empty: "Hen\xFCz konu\u015Fma yok.", auri: "Auri sohbeti", teamRequests: "AuraDigital talepleri" }, analytics: { simulator: "B\xFCy\xFCme sim\xFClat\xF6r\xFC", simulatorNote: "Daha fazla ziyaret\xE7inin veya daha iyi d\xF6n\xFC\u015F\xFCm\xFCn ne anlama gelebilece\u011Fini tahmin edin. Kendi girdi\u011Finiz \xF6rnek rakamlar.", title: "Analitik", lead: "Yaln\u0131zca do\u011Frulanm\u0131\u015F say\u0131lar; her biri kayna\u011F\u0131 ve tarih aral\u0131\u011F\u0131yla.", range: "Son 30 g\xFCn", pipeline: "Sat\u0131\u015F hatt\u0131", bySource: "Kayna\u011Fa g\xF6re talepler", byStage: "A\u015Famaya g\xF6re a\xE7\u0131k talepler", won: "Kazan\u0131lan", conversion: "Kazanma oran\u0131", roadmap: "Yol haritas\u0131 tamamlanma", services: "Hizmetler", site: "Web sitesi trafi\u011Fi", siteNone: "Web sitesi analiti\u011Fi ba\u011Fl\u0131 de\u011Fil. Takip kurulup do\u011Fruland\u0131\u011F\u0131nda say\u0131lar burada g\xF6r\xFCn\xFCr.", srcLeads: "Kaynak: Aura Studio sat\u0131\u015F hatt\u0131 (ekibinizin kay\u0131tlar\u0131)", srcRoadmap: "Kaynak: B\xFCy\xFCme yol haritan\u0131z", srcServices: "Kaynak: AuraDigital hizmet kay\u0131tlar\u0131", noLeads: "D\xF6n\xFC\u015F\xFCm\xFC g\xF6rmek i\xE7in sat\u0131\u015F hatt\u0131na talep kaydedin." } },
   state: { skip: "\u0130\xE7eri\u011Fe ge\xE7", loading: "Y\xFCkleniyor\u2026", error: "Bu b\xF6l\xFCm y\xFCklenirken bir sorun olu\u015Ftu.", retry: "Tekrar dene", offline: "\xC7evrimd\u0131\u015F\u0131 g\xF6r\xFCn\xFCyorsunuz. Ba\u011Flant\u0131n\u0131z\u0131 kontrol edip tekrar deneyin.", timeout: "Sunucu \xE7ok ge\xE7 yan\u0131t verdi." }
 };
 var FR = {
+  today: { tag: "Aujourd\u2019hui", due: (t2, d) => `${t2} : \xE9ch\xE9ance ${d}`, stale: (n) => n === 1 ? "1 demande attend depuis 3 jours ou plus" : `${n} demandes attendent depuis 3 jours ou plus`, openPipeline: "Ouvrir le pipeline", profileTag: "Votre profil", profile: (n) => `Profil compl\xE9t\xE9 \xE0 ${n} %`, completeProfile: "Compl\xE9ter le profil", updated: (t2) => `Donn\xE9es en direct \xB7 mises \xE0 jour \xE0 ${t2}` },
+  requestDetail: { kicker: "Demande", progress: "Progression", sent: "Envoy\xE9e", due: "Date de livraison", dueUnset: "Confirm\xE9e dans votre devis", reference: "R\xE9f\xE9rence", note: "L\u2019\xE9quipe AuraDigital met \xE0 jour ce statut au fil du travail. Une question ou un d\xE9tail ? Envoyez une mise \xE0 jour.", update: "Envoyer une mise \xE0 jour", all: "Toutes les demandes", regarding: "Concernant la demande" },
+  help: { auri: "Demander \xE0 Auri", auriNote: "Des r\xE9ponses imm\xE9diates sur votre feuille de route, vos services et votre compte.", email: "Nous \xE9crire", request: "Envoyer une demande", requestNote: "Pour une modification, un nouveau projet ou un devis.", faqTitle: "Questions fr\xE9quentes", center: "Ouvrir le centre d\u2019aide", faq: [["Comment ajouter une demande client ?", "Ouvrez Aura Studio \u2192 Pipeline et choisissez \xAB Ajouter une demande \xBB. D\xE9placez-la entre les \xE9tapes, ajoutez des notes et attribuez-la."], ["Comment demander une modification du site ou du menu ?", "Ouvrez Aura Studio \u2192 Site web ou AuraMenu et choisissez une action, ou envoyez une demande. L\u2019\xE9quipe r\xE9pond via votre demande."], ["Comment la progression est-elle calcul\xE9e ?", "Seules les t\xE2ches termin\xE9es comptent. Les objectifs sont v\xE9rifi\xE9s apr\xE8s examen de vos preuves par AuraDigital."], ["Dois-je acheter des services AuraDigital ?", "Non. Chaque \xE9tape peut \xEAtre r\xE9alis\xE9e par vous ou un autre prestataire. Les services sont facultatifs."], ["Qui voit les informations de mon activit\xE9 ?", "Vous et les membres que vous invitez. L\u2019\xE9quipe AuraDigital voit ce qui est n\xE9cessaire pour livrer vos services."]] },
   auriPage: { tools: "Outils d\u2019Auri", toolsNote: "Les brouillons sont enregistr\xE9s pour relecture. Rien n\u2019est envoy\xE9 automatiquement.", settings: "R\xE9glages de l\u2019assistant" },
   notFound: { title: "Page introuvable", text: "Cette adresse n\u2019existe pas dans AuraHub. Elle a peut-\xEAtre chang\xE9 ou le lien est incorrect." },
   billing: { title: "Facturation", due: "Montant d\xFB", invoices: (n) => n === 1 ? "1 facture \xE0 payer" : `${n} factures \xE0 payer`, none: "Rien \xE0 payer pour le moment.", open: "Commandes et factures", note: "Les factures AuraDigital sont en livres turques (TRY)." },
   photo: { title: "Photo de profil", hint: "Affich\xE9e sur votre compte AuraHub. JPEG, PNG ou WebP ; redimensionn\xE9e en 256 \xD7 256.", upload: "Ajouter une photo", change: "Changer la photo", remove: "Supprimer", saved: "Photo de profil enregistr\xE9e.", removed: "Photo de profil supprim\xE9e.", invalid: "Choisissez une image JPEG, PNG ou WebP." },
-  nav: { overview: "Vue d\u2019ensemble", business: "Mon activit\xE9", journey: "Feuille de route", studio: "Aura Studio", services: "Mes services", site: "Site web et AuraMenu", analytics: "Statistiques", assistant: "Assistant Auri", settings: "Param\xE8tres", requests: "Demandes", menuDrafts: "Brouillons de menu", orders: "Commandes et factures", team: "\xC9quipe", groups: ["Espace", "Op\xE9rations", "Compte"], more: "Plus", close: "Fermer", newRequest: "Nouvelle demande", account: "Compte", switchWorkspace: "Changer d\u2019activit\xE9" },
+  nav: { support: "Aide et support", overview: "Vue d\u2019ensemble", business: "Mon activit\xE9", journey: "Feuille de route", studio: "Aura Studio", services: "Mes services", site: "Site web et AuraMenu", analytics: "Statistiques", assistant: "Assistant Auri", settings: "Param\xE8tres", requests: "Demandes", menuDrafts: "Brouillons de menu", orders: "Commandes et factures", team: "\xC9quipe", groups: ["Espace", "Op\xE9rations", "Compte"], more: "Plus", close: "Fermer", newRequest: "Nouvelle demande", account: "Compte", switchWorkspace: "Changer d\u2019activit\xE9" },
   sections: { command: "Aura Command", commandTag: "Comprendre votre activit\xE9", journey: "Aura Journey", journeyTag: "Savoir comment grandir", studio: "Aura Studio", studioTag: "G\xE9rer le travail" },
   greet: { morning: "Bonjour", afternoon: "Bon apr\xE8s-midi", evening: "Bonsoir", line: (part, name) => `${part}${name ? ", " + name : ""}.`, sub: (biz) => `Faisons grandir ${biz}.` },
   quick: { request: "Demander un service", website: "Mettre \xE0 jour le site", menu: "G\xE9rer AuraMenu", roadmap: "Voir la feuille de route", ask: "Demander \xE0 Auri" },
@@ -729,17 +738,20 @@ var FR = {
   activity: { title: "Activit\xE9 r\xE9cente", empty: "L\u2019activit\xE9 de vos services, feuille de route et pipeline appara\xEEt ici.", lead: (n) => `Nouvelle demande : ${n}`, mission: (n) => `T\xE2che termin\xE9e : ${n}`, request: (n) => `Demande envoy\xE9e : ${n}`, record: (n) => `Mise \xE0 jour du service : ${n}`, menu: (n) => `Brouillon de menu enregistr\xE9 : ${n}`, all: "Tout voir" },
   services: { title: "Services actifs", empty: "Aucun service actif pour le moment.", stages: ["Re\xE7u", "En revue", "En production", "En ligne"], due: "\xC9ch\xE9ance", renews: "Renouvellement", details: "D\xE9tails", all: "Tous les services" },
   next: { title: "Prochaines actions", empty: "Tout est \xE0 jour.", review: "Examiner", open: "Ouvrir", prepare: "Pr\xE9parer la demande", why: "Pourquoi", roadmap: "De votre feuille de route", attention: "Attend votre action" },
-  auri: { promptNext: (t2) => `Que dois-je faire ensuite pour \xAB ${t2} \xBB ?`, promptGeneral: "Sur quoi dois-je me concentrer ensuite ?", promptBookings: (l) => `Quelles sont mes options pour g\xE9rer les ${l.toLowerCase()} en ligne ?`, title: "Auri sugg\xE8re", ask: "Demander \xE0 Auri", more: "Ouvrir le chat", next: (t2) => `Votre prochaine \xE9tape la plus utile : \xAB ${t2} \xBB.`, attention: (n) => `Commencez par \xAB ${n} \xBB \u2014 cela vous attend.`, idle: "Votre feuille de route est \xE0 jour. Demandez \xE0 Auri quoi am\xE9liorer.", setup: "Cr\xE9ez votre feuille de route pour qu\u2019Auri propose la prochaine \xE9tape." },
+  auri: { placeholder: "Demandez \xE0 Auri \u2014 ex. \xAB Cr\xE9e-moi un site avec r\xE9servation \xBB", promptNext: (t2) => `Que dois-je faire ensuite pour \xAB ${t2} \xBB ?`, promptGeneral: "Sur quoi dois-je me concentrer ensuite ?", promptBookings: (l) => `Quelles sont mes options pour g\xE9rer les ${l.toLowerCase()} en ligne ?`, title: "Auri sugg\xE8re", ask: "Demander \xE0 Auri", more: "Ouvrir le chat", next: (t2) => `Votre prochaine \xE9tape la plus utile : \xAB ${t2} \xBB.`, attention: (n) => `Commencez par \xAB ${n} \xBB \u2014 cela vous attend.`, idle: "Votre feuille de route est \xE0 jour. Demandez \xE0 Auri quoi am\xE9liorer.", setup: "Cr\xE9ez votre feuille de route pour qu\u2019Auri propose la prochaine \xE9tape." },
   journey: { allTasks: "Toutes les t\xE2ches", listPriority: "\xC0 faire ensuite", listUpcoming: "Plus tard", listCompleted: "Termin\xE9es", askPrompt: (s) => `Explique l\u2019\xE9tape \xAB ${s} \xBB pour mon activit\xE9 : ce que j\u2019ai fait, la suite, et si j\u2019ai besoin d\u2019un service.`, title: "Vision de croissance", kicker: "Aura Journey", lead: "Cinq \xE9tapes, de l\u2019ouverture \xE0 la croissance. La progression ne compte que le travail termin\xE9 et v\xE9rifi\xE9.", stages: ["Lancer", "\xCAtre trouv\xE9", "Convertir", "Grandir", "Passer \xE0 l\u2019\xE9chelle"], taglines: ["Ouvert en ligne", "Facile \xE0 d\xE9couvrir", "Transformer l\u2019int\xE9r\xEAt en clients", "Travailler mieux, fid\xE9liser", "Mesurer, r\xE9p\xE9ter, \xE9tendre"], objectives: ["Offrir un lieu fiable pour vous d\xE9couvrir et vous contacter.", "Appara\xEEtre l\xE0 o\xF9 les clients proches cherchent et d\xE9cident.", "Rendre simple la demande, la r\xE9servation ou l\u2019achat \u2014 et toujours relancer.", "Organiser le travail client pour ne rien oublier et fid\xE9liser.", "D\xE9cider avec de vrais chiffres o\xF9 investir."], why: ["Sans les bases, tout le reste fuit : on ne peut ni vous v\xE9rifier ni vous joindre.", "La plupart des clients cherchent avant de venir. Introuvable, vous \xEAtes remplac\xE9.", "Un visiteur sans prochaine \xE9tape est perdu. Des actions claires et des r\xE9ponses rapides convertissent.", "Un client fid\xE8le co\xFBte moins cher. Les syst\xE8mes lib\xE8rent votre temps.", "Une croissance mesur\xE9e est une croissance reproductible."], overall: "Progression globale", of: (a, b) => `${a} sur ${b} t\xE2ches`, verified: "objectifs v\xE9rifi\xE9s", stageOf: (i) => `\xC9tape ${i} sur 5`, done: "Termin\xE9", current: "\xC9tape actuelle", upcoming: "\xC0 venir", empty: "Aucune t\xE2che \xE0 cette \xE9tape pour votre activit\xE9.", objective: "Objectif", completed: "Termin\xE9", remaining: "Restant", recommended: "AuraDigital peut aider", examples: "R\xE9alisations AuraDigital", effort: "Effort estim\xE9", next: "Prochaine action sugg\xE9r\xE9e", progress: "Progression de l\u2019\xE9tape", effortLevels: { done: "\xC9tape termin\xE9e", light: "L\xE9ger \u2014 1 \xE0 2 t\xE2ches", moderate: "Mod\xE9r\xE9 \u2014 3 \xE0 4 t\xE2ches", heavy: "Important \u2014 5 t\xE2ches ou plus" }, effortNote: "Selon les t\xE2ches restantes. Les d\xE9lais sont confirm\xE9s dans chaque devis.", optional: "Facultatif", diy: "Vous pouvez tout faire vous-m\xEAme \u2014 les services sont facultatifs.", request: "Demander", view: "Ce que vous recevrez", openTask: "Ouvrir la t\xE2che", noneDone: "Rien de termin\xE9 ici pour l\u2019instant.", allDone: "Toutes les t\xE2ches sont faites.", askStage: "Demander \xE0 Auri sur cette \xE9tape", explainTitle: "Auri sur cette \xE9tape", explain: { matters: "Pourquoi c\u2019est important", did: "Ce que vous avez fait", doNext: "Quoi faire ensuite", help: "O\xF9 AuraDigital peut aider", optional: "Facultatif ?" }, didNone: "Aucune t\xE2che termin\xE9e \xE0 cette \xE9tape.", didSome: (n, list) => `${n} termin\xE9e(s) : ${list}.`, nextNone: "Plus rien ici \u2014 passez \xE0 l\u2019\xE9tape suivante.", helpNone: "Aucun service AuraDigital n\u2019est n\xE9cessaire ici.", helpSome: (list) => `${list}. Chaque service est facultatif ; vous pouvez suivre les \xE9tapes vous-m\xEAme.`, optYes: "Cette \xE9tape contient des t\xE2ches facultatives.", optNo: "Ces t\xE2ches font partie de votre feuille de route ; vous choisissez qui les r\xE9alise.", taskDetail: "D\xE9tails de la t\xE2che", stagesLabel: "\xC9tapes de croissance", inReview: "En revue", locked: "\xC0 venir" },
-  studio: { title: "Aura Studio", intro: "Votre espace op\xE9rationnel : demandes, livraison, site, menu et messages.", tabs: { pipeline: "Pipeline", delivery: "Services et livraison", website: "Site web", menu: "AuraMenu", inbox: "Messagerie", analytics: "Statistiques" }, readOnly: "Vous pouvez consulter cet espace. Demandez au propri\xE9taire un acc\xE8s en \xE9criture.", pipeline: { filters: "Filtres", add: "Ajouter une demande", search: "Rechercher", allSources: "Toutes les sources", allPeople: "Tout le monde", unassigned: "Non attribu\xE9", empty: "Aucune demande", emptyText: "Enregistrez les demandes re\xE7ues par t\xE9l\xE9phone, message ou en boutique. La capture automatique depuis votre site n\u2019est pas encore connect\xE9e.", none: "Aucune demande ne correspond aux filtres.", stageEmpty: "Vide", count: (n) => n === 1 ? "1 demande" : `${n} demandes`, value: "Valeur", configure: "Modifier les \xE9tapes", archived: "Archiv\xE9es", showArchived: "Voir les archives", hideArchived: "Retour au pipeline", moveTo: "D\xE9placer vers", archive: "Archiver", restore: "Restaurer", confirmArchive: "Archiver cette demande ? Vous pourrez la restaurer." }, lead: { name: "Nom", contact: "T\xE9l\xE9phone ou e-mail", source: "Source", interest: "Int\xE9ress\xE9 par", value: "Valeur estim\xE9e", stage: "\xC9tape", assignee: "Attribu\xE9 \xE0", note: "Note", notes: "Notes", addNote: "Ajouter une note", save: "Enregistrer", cancel: "Annuler", create: "Ajouter", saved: "Enregistr\xE9", noNotes: "Aucune note.", created: "Cr\xE9\xE9", updated: "Mis \xE0 jour", close: "Fermer" }, sources: { website: "Site web", phone: "T\xE9l\xE9phone", whatsapp: "WhatsApp", instagram: "Instagram", email: "E-mail", walk_in: "En boutique", referral: "Recommandation", other: "Autre" }, stagesEditor: { title: "\xC9tapes du pipeline", hint: "Renommez, ajoutez ou supprimez des \xE9tapes. Une \xE9tape contenant des demandes ne peut pas \xEAtre supprim\xE9e.", add: "Ajouter une \xE9tape", remove: "Supprimer", save: "Enregistrer", name: "Nom de l\u2019\xE9tape" }, delivery: { active: "Commandes actives", completed: "Termin\xE9es", deadlines: "\xC9ch\xE9ances \xE0 venir", approvals: "En attente de validation", revisions: "R\xE9visions demand\xE9es", messages: "Messages", none: "Rien pour le moment.", revisionsNone: "Aucune r\xE9vision ouverte. Pour une modification, envoyez une demande.", messagesNone: "Les \xE9changes avec AuraDigital passent par vos demandes.", requestChange: "Demander une modification", reviewMenu: "Examiner le menu", open: "Ouvrir", overdue: "En retard" }, website: { title: "Votre site web", preview: "Ouvrir le site", domain: "Domaine", status: "Statut de publication", published: "Publi\xE9", inProgress: "En cours", unknown: "Statut non suivi", actions: "Actions de contenu", change: "Demander une modification", newPage: "Demander une page", seo: "Visibilit\xE9 Google", none: "Aucun site li\xE9 \xE0 cette activit\xE9", noneText: "Ajoutez votre site au profil ou demandez-en un \xE0 AuraDigital.", addSite: "Ajouter au profil", build: "Demander un site", secure: "HTTPS", notOwned: "Seuls les sites li\xE9s \xE0 cette activit\xE9 apparaissent." }, menu: { unavailable: "Les brouillons de menu ne sont pas encore disponibles. AuraDigital peut cr\xE9er votre menu pour vous.", title: "AuraMenu", drafts: "Brouillons de menu", open: "Ouvrir les brouillons", live: "Menus chez AuraDigital", none: "Aucun AuraMenu li\xE9 \xE0 cette activit\xE9", noneText: "Commencez un brouillon priv\xE9 ou demandez \xE0 l\u2019\xE9quipe de le pr\xE9parer.", start: "Commencer un brouillon", request: "Demander AuraMenu", manage: "Ouvrir", notRestaurant: "AuraMenu est con\xE7u pour les restaurants et caf\xE9s." }, inbox: { title: "Messagerie", lead: "Vos conversations au m\xEAme endroit \u2014 uniquement depuis les canaux r\xE9ellement connect\xE9s.", channels: "Canaux", notConnected: "Non connect\xE9", connected: "Connect\xE9", connectHint: "Demandez \xE0 AuraDigital de connecter ce canal.", fromPipeline: "Notes r\xE9centes", empty: "Aucune conversation.", auri: "Conversation avec Auri", teamRequests: "Demandes \xE0 AuraDigital" }, analytics: { title: "Statistiques", lead: "Uniquement des chiffres v\xE9rifi\xE9s, avec leur source et leur p\xE9riode.", range: "30 derniers jours", pipeline: "Pipeline", bySource: "Demandes par source", byStage: "Demandes ouvertes par \xE9tape", won: "Gagn\xE9es", conversion: "Taux de r\xE9ussite", roadmap: "Feuille de route", services: "Services", site: "Trafic du site", siteNone: "Les statistiques du site ne sont pas connect\xE9es. Les chiffres appara\xEEtront une fois le suivi configur\xE9 et v\xE9rifi\xE9.", srcLeads: "Source : pipeline Aura Studio (saisies de votre \xE9quipe)", srcRoadmap: "Source : votre feuille de route", srcServices: "Source : dossiers de service AuraDigital", noLeads: "Enregistrez des demandes pour voir la conversion." } },
+  studio: { title: "Aura Studio", intro: "Votre espace op\xE9rationnel : demandes, livraison, site, menu et messages.", tabs: { pipeline: "Pipeline", delivery: "Services et livraison", website: "Site web", menu: "AuraMenu", inbox: "Messagerie", analytics: "Statistiques" }, readOnly: "Vous pouvez consulter cet espace. Demandez au propri\xE9taire un acc\xE8s en \xE9criture.", pipeline: { filters: "Filtres", add: "Ajouter une demande", search: "Rechercher", allSources: "Toutes les sources", allPeople: "Tout le monde", unassigned: "Non attribu\xE9", empty: "Aucune demande", emptyText: "Enregistrez les demandes re\xE7ues par t\xE9l\xE9phone, message ou en boutique. La capture automatique depuis votre site n\u2019est pas encore connect\xE9e.", none: "Aucune demande ne correspond aux filtres.", stageEmpty: "Vide", count: (n) => n === 1 ? "1 demande" : `${n} demandes`, value: "Valeur", configure: "Modifier les \xE9tapes", archived: "Archiv\xE9es", showArchived: "Voir les archives", hideArchived: "Retour au pipeline", moveTo: "D\xE9placer vers", archive: "Archiver", restore: "Restaurer", confirmArchive: "Archiver cette demande ? Vous pourrez la restaurer." }, lead: { name: "Nom", contact: "T\xE9l\xE9phone ou e-mail", source: "Source", interest: "Int\xE9ress\xE9 par", value: "Valeur estim\xE9e", stage: "\xC9tape", assignee: "Attribu\xE9 \xE0", note: "Note", notes: "Notes", addNote: "Ajouter une note", save: "Enregistrer", cancel: "Annuler", create: "Ajouter", saved: "Enregistr\xE9", noNotes: "Aucune note.", created: "Cr\xE9\xE9", updated: "Mis \xE0 jour", close: "Fermer" }, sources: { website: "Site web", phone: "T\xE9l\xE9phone", whatsapp: "WhatsApp", instagram: "Instagram", email: "E-mail", walk_in: "En boutique", referral: "Recommandation", other: "Autre" }, stagesEditor: { title: "\xC9tapes du pipeline", hint: "Renommez, ajoutez ou supprimez des \xE9tapes. Une \xE9tape contenant des demandes ne peut pas \xEAtre supprim\xE9e.", add: "Ajouter une \xE9tape", remove: "Supprimer", save: "Enregistrer", name: "Nom de l\u2019\xE9tape" }, delivery: { active: "Commandes actives", completed: "Termin\xE9es", deadlines: "\xC9ch\xE9ances \xE0 venir", approvals: "En attente de validation", revisions: "R\xE9visions demand\xE9es", messages: "Messages", none: "Rien pour le moment.", revisionsNone: "Aucune r\xE9vision ouverte. Pour une modification, envoyez une demande.", messagesNone: "Les \xE9changes avec AuraDigital passent par vos demandes.", requestChange: "Demander une modification", reviewMenu: "Examiner le menu", open: "Ouvrir", overdue: "En retard" }, website: { title: "Votre site web", preview: "Ouvrir le site", domain: "Domaine", status: "Statut de publication", published: "Publi\xE9", inProgress: "En cours", unknown: "Statut non suivi", actions: "Actions de contenu", change: "Demander une modification", newPage: "Demander une page", seo: "Visibilit\xE9 Google", none: "Aucun site li\xE9 \xE0 cette activit\xE9", noneText: "Ajoutez votre site au profil ou demandez-en un \xE0 AuraDigital.", addSite: "Ajouter au profil", build: "Demander un site", secure: "HTTPS", notOwned: "Seuls les sites li\xE9s \xE0 cette activit\xE9 apparaissent." }, menu: { unavailable: "Les brouillons de menu ne sont pas encore disponibles. AuraDigital peut cr\xE9er votre menu pour vous.", title: "AuraMenu", drafts: "Brouillons de menu", open: "Ouvrir les brouillons", live: "Menus chez AuraDigital", none: "Aucun AuraMenu li\xE9 \xE0 cette activit\xE9", noneText: "Commencez un brouillon priv\xE9 ou demandez \xE0 l\u2019\xE9quipe de le pr\xE9parer.", start: "Commencer un brouillon", request: "Demander AuraMenu", manage: "Ouvrir", notRestaurant: "AuraMenu est con\xE7u pour les restaurants et caf\xE9s." }, inbox: { title: "Messagerie", lead: "Vos conversations au m\xEAme endroit \u2014 uniquement depuis les canaux r\xE9ellement connect\xE9s.", channels: "Canaux", notConnected: "Non connect\xE9", connected: "Connect\xE9", connectHint: "Demandez \xE0 AuraDigital de connecter ce canal.", fromPipeline: "Notes r\xE9centes", empty: "Aucune conversation.", auri: "Conversation avec Auri", teamRequests: "Demandes \xE0 AuraDigital" }, analytics: { simulator: "Simulateur de croissance", simulatorNote: "Estimez l\u2019effet de plus de visiteurs ou d\u2019un meilleur taux de conversion. Chiffres indicatifs que vous saisissez.", title: "Statistiques", lead: "Uniquement des chiffres v\xE9rifi\xE9s, avec leur source et leur p\xE9riode.", range: "30 derniers jours", pipeline: "Pipeline", bySource: "Demandes par source", byStage: "Demandes ouvertes par \xE9tape", won: "Gagn\xE9es", conversion: "Taux de r\xE9ussite", roadmap: "Feuille de route", services: "Services", site: "Trafic du site", siteNone: "Les statistiques du site ne sont pas connect\xE9es. Les chiffres appara\xEEtront une fois le suivi configur\xE9 et v\xE9rifi\xE9.", srcLeads: "Source : pipeline Aura Studio (saisies de votre \xE9quipe)", srcRoadmap: "Source : votre feuille de route", srcServices: "Source : dossiers de service AuraDigital", noLeads: "Enregistrez des demandes pour voir la conversion." } },
   state: { skip: "Aller au contenu", loading: "Chargement\u2026", error: "Un probl\xE8me est survenu lors du chargement.", retry: "R\xE9essayer", offline: "Vous semblez hors ligne. V\xE9rifiez votre connexion.", timeout: "Le serveur a mis trop de temps \xE0 r\xE9pondre." }
 };
 var AR = {
+  today: { tag: "\u0627\u0644\u064A\u0648\u0645", due: (t2, d) => `\u0645\u0648\u0639\u062F \u062A\u0633\u0644\u064A\u0645 ${t2}: ${d}`, stale: (n) => `${n} \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u062A\u0646\u062A\u0638\u0631 \u0645\u0646\u0630 3 \u0623\u064A\u0627\u0645 \u0623\u0648 \u0623\u0643\u062B\u0631`, openPipeline: "\u0627\u0641\u062A\u062D \u0627\u0644\u0645\u0633\u0627\u0631", profileTag: "\u0645\u0644\u0641\u0643", profile: (n) => `\u0645\u0644\u0641 \u0627\u0644\u0646\u0634\u0627\u0637 \u0645\u0643\u062A\u0645\u0644 \u0628\u0646\u0633\u0628\u0629 ${n}%`, completeProfile: "\u0623\u0643\u0645\u0644 \u0627\u0644\u0645\u0644\u0641", updated: (t2) => `\u0628\u064A\u0627\u0646\u0627\u062A \u0645\u0628\u0627\u0634\u0631\u0629 \xB7 \u0645\u062D\u062F\u062B\u0629 ${t2}` },
+  requestDetail: { kicker: "\u0637\u0644\u0628", progress: "\u0627\u0644\u062A\u0642\u062F\u0645", sent: "\u0623\u064F\u0631\u0633\u0644", due: "\u0645\u0648\u0639\u062F \u0627\u0644\u062A\u0633\u0644\u064A\u0645", dueUnset: "\u064A\u064F\u062D\u062F\u062F \u0641\u064A \u0639\u0631\u0636 \u0627\u0644\u0633\u0639\u0631", reference: "\u0627\u0644\u0645\u0631\u062C\u0639", note: "\u064A\u062D\u062F\u0651\u062B \u0641\u0631\u064A\u0642 AuraDigital \u0647\u0630\u0647 \u0627\u0644\u062D\u0627\u0644\u0629 \u0645\u0639 \u062A\u0642\u062F\u0645 \u0627\u0644\u0639\u0645\u0644. \u0644\u062F\u064A\u0643 \u0633\u0624\u0627\u0644 \u0623\u0648 \u062A\u0641\u0627\u0635\u064A\u0644 \u062C\u062F\u064A\u062F\u0629\u061F \u0623\u0631\u0633\u0644 \u062A\u062D\u062F\u064A\u062B\u064B\u0627.", update: "\u0623\u0631\u0633\u0644 \u062A\u062D\u062F\u064A\u062B\u064B\u0627", all: "\u0643\u0644 \u0627\u0644\u0637\u0644\u0628\u0627\u062A", regarding: "\u0628\u062E\u0635\u0648\u0635 \u0627\u0644\u0637\u0644\u0628" },
+  help: { auri: "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A", auriNote: "\u0625\u062C\u0627\u0628\u0627\u062A \u0641\u0648\u0631\u064A\u0629 \u0639\u0646 \u062E\u0637\u062A\u0643 \u0648\u062E\u062F\u0645\u0627\u062A\u0643 \u0648\u062D\u0633\u0627\u0628\u0643.", email: "\u0631\u0627\u0633\u0644\u0646\u0627", request: "\u0623\u0631\u0633\u0644 \u0637\u0644\u0628\u064B\u0627", requestNote: "\u0644\u0644\u062A\u0639\u062F\u064A\u0644\u0627\u062A \u0623\u0648 \u0627\u0644\u0623\u0639\u0645\u0627\u0644 \u0627\u0644\u062C\u062F\u064A\u062F\u0629 \u0623\u0648 \u0639\u0631\u0648\u0636 \u0627\u0644\u0623\u0633\u0639\u0627\u0631.", faqTitle: "\u0623\u0633\u0626\u0644\u0629 \u0634\u0627\u0626\u0639\u0629", center: "\u0627\u0641\u062A\u062D \u0645\u0631\u0643\u0632 \u0627\u0644\u0645\u0633\u0627\u0639\u062F\u0629", faq: [["\u0643\u064A\u0641 \u0623\u0636\u064A\u0641 \u0627\u0633\u062A\u0641\u0633\u0627\u0631 \u0639\u0645\u064A\u0644\u061F", "\u0627\u0641\u062A\u062D Aura Studio \u2190 \u0645\u0633\u0627\u0631 \u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0648\u0627\u062E\u062A\u0631 \xAB\u0623\u0636\u0641 \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u064B\u0627\xBB. \u064A\u0645\u0643\u0646\u0643 \u0646\u0642\u0644\u0647 \u0628\u064A\u0646 \u0627\u0644\u0645\u0631\u0627\u062D\u0644 \u0648\u0625\u0636\u0627\u0641\u0629 \u0645\u0644\u0627\u062D\u0638\u0627\u062A \u0648\u0625\u0633\u0646\u0627\u062F\u0647 \u0644\u0632\u0645\u064A\u0644."], ["\u0643\u064A\u0641 \u0623\u0637\u0644\u0628 \u062A\u0639\u062F\u064A\u0644\u064B\u0627 \u0639\u0644\u0649 \u0645\u0648\u0642\u0639\u064A \u0623\u0648 \u0642\u0627\u0626\u0645\u062A\u064A\u061F", "\u0627\u0641\u062A\u062D Aura Studio \u2190 \u0627\u0644\u0645\u0648\u0642\u0639 \u0623\u0648 AuraMenu \u0648\u0627\u062E\u062A\u0631 \u0625\u062C\u0631\u0627\u0621\u064B\u060C \u0623\u0648 \u0623\u0631\u0633\u0644 \u0637\u0644\u0628\u064B\u0627. \u064A\u0631\u062F \u0627\u0644\u0641\u0631\u064A\u0642 \u0639\u0628\u0631 \u0637\u0644\u0628\u0643."], ["\u0643\u064A\u0641 \u064A\u064F\u062D\u0633\u0628 \u062A\u0642\u062F\u0645 \u062E\u0637\u062A\u064A\u061F", "\u062A\u064F\u062D\u062A\u0633\u0628 \u0627\u0644\u0645\u0647\u0627\u0645 \u0627\u0644\u0645\u0643\u062A\u0645\u0644\u0629 \u0641\u0642\u0637. \u064A\u064F\u062A\u062D\u0642\u0642 \u0645\u0646 \u0627\u0644\u0625\u0646\u062C\u0627\u0632\u0627\u062A \u0628\u0639\u062F \u0645\u0631\u0627\u062C\u0639\u0629 \u0641\u0631\u064A\u0642 AuraDigital \u0644\u0644\u062F\u0644\u064A\u0644."], ["\u0647\u0644 \u064A\u062C\u0628 \u0623\u0646 \u0623\u0634\u062A\u0631\u064A \u062E\u062F\u0645\u0627\u062A AuraDigital\u061F", "\u0644\u0627. \u064A\u0645\u0643\u0646\u0643 \u062A\u0646\u0641\u064A\u0630 \u0643\u0644 \u062E\u0637\u0648\u0629 \u0628\u0646\u0641\u0633\u0643 \u0623\u0648 \u0645\u0639 \u0623\u064A \u0645\u0632\u0648\u0651\u062F. \u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0627\u062E\u062A\u064A\u0627\u0631\u064A\u0629."], ["\u0645\u0646 \u064A\u0645\u0643\u0646\u0647 \u0631\u0624\u064A\u0629 \u062A\u0641\u0627\u0635\u064A\u0644 \u0646\u0634\u0627\u0637\u064A\u061F", "\u0623\u0646\u062A \u0648\u0627\u0644\u0632\u0645\u0644\u0627\u0621 \u0627\u0644\u0630\u064A\u0646 \u062A\u062F\u0639\u0648\u0647\u0645 \u0641\u0642\u0637. \u064A\u0631\u0649 \u0641\u0631\u064A\u0642 AuraDigital \u0645\u0627 \u064A\u0644\u0632\u0645 \u0644\u062A\u0642\u062F\u064A\u0645 \u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0627\u0644\u062A\u064A \u062A\u0637\u0644\u0628\u0647\u0627."]] },
   auriPage: { tools: "\u0623\u062F\u0648\u0627\u062A \u0623\u0648\u0631\u064A", toolsNote: "\u062A\u064F\u062D\u0641\u0638 \u0627\u0644\u0645\u0633\u0648\u062F\u0627\u062A \u0644\u0645\u0631\u0627\u062C\u0639\u062A\u0647\u0627. \u0644\u0627 \u064A\u064F\u0631\u0633\u0644 \u0634\u064A\u0621 \u062A\u0644\u0642\u0627\u0626\u064A\u064B\u0627.", settings: "\u0625\u0639\u062F\u0627\u062F\u0627\u062A \u0627\u0644\u0645\u0633\u0627\u0639\u062F" },
   notFound: { title: "\u0627\u0644\u0635\u0641\u062D\u0629 \u063A\u064A\u0631 \u0645\u0648\u062C\u0648\u062F\u0629", text: "\u0647\u0630\u0627 \u0627\u0644\u0639\u0646\u0648\u0627\u0646 \u063A\u064A\u0631 \u0645\u0648\u062C\u0648\u062F \u0641\u064A AuraHub. \u0631\u0628\u0645\u0627 \u0646\u064F\u0642\u0644 \u0623\u0648 \u0623\u0646 \u0627\u0644\u0631\u0627\u0628\u0637 \u063A\u064A\u0631 \u0635\u062D\u064A\u062D." },
   billing: { title: "\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631", due: "\u0627\u0644\u0645\u0628\u0644\u063A \u0627\u0644\u0645\u0633\u062A\u062D\u0642", invoices: (n) => `${n} \u0641\u0648\u0627\u062A\u064A\u0631 \u0644\u0644\u062F\u0641\u0639`, none: "\u0644\u0627 \u0634\u064A\u0621 \u0644\u0644\u062F\u0641\u0639 \u062D\u0627\u0644\u064A\u064B\u0627.", open: "\u0627\u0641\u062A\u062D \u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0648\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631", note: "\u0641\u0648\u0627\u062A\u064A\u0631 AuraDigital \u0628\u0627\u0644\u0644\u064A\u0631\u0629 \u0627\u0644\u062A\u0631\u0643\u064A\u0629 (TRY)." },
   photo: { title: "\u0635\u0648\u0631\u0629 \u0627\u0644\u0645\u0644\u0641 \u0627\u0644\u0634\u062E\u0635\u064A", hint: "\u062A\u0638\u0647\u0631 \u0641\u064A \u062D\u0633\u0627\u0628\u0643 \u0639\u0644\u0649 AuraHub. JPEG \u0623\u0648 PNG \u0623\u0648 WebP\u061B \u0646\u0635\u063A\u0651\u0631\u0647\u0627 \u0625\u0644\u0649 256 \xD7 256.", upload: "\u0631\u0641\u0639 \u0635\u0648\u0631\u0629", change: "\u062A\u063A\u064A\u064A\u0631 \u0627\u0644\u0635\u0648\u0631\u0629", remove: "\u0625\u0632\u0627\u0644\u0629", saved: "\u062A\u0645 \u062D\u0641\u0638 \u0627\u0644\u0635\u0648\u0631\u0629.", removed: "\u062A\u0645\u062A \u0625\u0632\u0627\u0644\u0629 \u0627\u0644\u0635\u0648\u0631\u0629.", invalid: "\u0627\u062E\u062A\u0631 \u0635\u0648\u0631\u0629 JPEG \u0623\u0648 PNG \u0623\u0648 WebP." },
-  nav: { overview: "\u0646\u0638\u0631\u0629 \u0639\u0627\u0645\u0629", business: "\u0646\u0634\u0627\u0637\u064A", journey: "\u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0646\u0645\u0648", studio: "Aura Studio", services: "\u062E\u062F\u0645\u0627\u062A\u064A", site: "\u0627\u0644\u0645\u0648\u0642\u0639 \u0648AuraMenu", analytics: "\u0627\u0644\u062A\u062D\u0644\u064A\u0644\u0627\u062A", assistant: "\u0627\u0644\u0645\u0633\u0627\u0639\u062F \u0623\u0648\u0631\u064A", settings: "\u0627\u0644\u0625\u0639\u062F\u0627\u062F\u0627\u062A", requests: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A", menuDrafts: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", orders: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0648\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631", team: "\u0627\u0644\u0641\u0631\u064A\u0642", groups: ["\u0645\u0633\u0627\u062D\u0629 \u0627\u0644\u0639\u0645\u0644", "\u0627\u0644\u062A\u0634\u063A\u064A\u0644", "\u0627\u0644\u062D\u0633\u0627\u0628"], more: "\u0627\u0644\u0645\u0632\u064A\u062F", close: "\u0625\u063A\u0644\u0627\u0642", newRequest: "\u0637\u0644\u0628 \u062C\u062F\u064A\u062F", account: "\u0627\u0644\u062D\u0633\u0627\u0628", switchWorkspace: "\u062A\u0628\u062F\u064A\u0644 \u0627\u0644\u0646\u0634\u0627\u0637" },
+  nav: { support: "\u0627\u0644\u0645\u0633\u0627\u0639\u062F\u0629 \u0648\u0627\u0644\u062F\u0639\u0645", overview: "\u0646\u0638\u0631\u0629 \u0639\u0627\u0645\u0629", business: "\u0646\u0634\u0627\u0637\u064A", journey: "\u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0646\u0645\u0648", studio: "Aura Studio", services: "\u062E\u062F\u0645\u0627\u062A\u064A", site: "\u0627\u0644\u0645\u0648\u0642\u0639 \u0648AuraMenu", analytics: "\u0627\u0644\u062A\u062D\u0644\u064A\u0644\u0627\u062A", assistant: "\u0627\u0644\u0645\u0633\u0627\u0639\u062F \u0623\u0648\u0631\u064A", settings: "\u0627\u0644\u0625\u0639\u062F\u0627\u062F\u0627\u062A", requests: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A", menuDrafts: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", orders: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0648\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631", team: "\u0627\u0644\u0641\u0631\u064A\u0642", groups: ["\u0645\u0633\u0627\u062D\u0629 \u0627\u0644\u0639\u0645\u0644", "\u0627\u0644\u062A\u0634\u063A\u064A\u0644", "\u0627\u0644\u062D\u0633\u0627\u0628"], more: "\u0627\u0644\u0645\u0632\u064A\u062F", close: "\u0625\u063A\u0644\u0627\u0642", newRequest: "\u0637\u0644\u0628 \u062C\u062F\u064A\u062F", account: "\u0627\u0644\u062D\u0633\u0627\u0628", switchWorkspace: "\u062A\u0628\u062F\u064A\u0644 \u0627\u0644\u0646\u0634\u0627\u0637" },
   sections: { command: "Aura Command", commandTag: "\u0627\u0641\u0647\u0645 \u0646\u0634\u0627\u0637\u0643", journey: "Aura Journey", journeyTag: "\u0627\u0639\u0631\u0641 \u0643\u064A\u0641 \u062A\u0646\u0645\u0648", studio: "Aura Studio", studioTag: "\u0623\u062F\u0631 \u0627\u0644\u0639\u0645\u0644" },
   greet: { morning: "\u0635\u0628\u0627\u062D \u0627\u0644\u062E\u064A\u0631", afternoon: "\u0645\u0633\u0627\u0621 \u0627\u0644\u062E\u064A\u0631", evening: "\u0645\u0633\u0627\u0621 \u0627\u0644\u062E\u064A\u0631", line: (part, name) => `${part}${name ? "\u060C " + name : ""}.`, sub: (biz) => `\u0644\u0646\u0646\u0645\u0650\u0651 ${biz}.` },
   quick: { request: "\u0627\u0637\u0644\u0628 \u062E\u062F\u0645\u0629", website: "\u062D\u062F\u0651\u062B \u0627\u0644\u0645\u0648\u0642\u0639", menu: "\u0623\u062F\u0631 AuraMenu", roadmap: "\u0627\u0639\u0631\u0636 \u062E\u0627\u0631\u0637\u0629 \u0627\u0644\u0646\u0645\u0648", ask: "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A" },
@@ -748,9 +760,9 @@ var AR = {
   activity: { title: "\u0622\u062E\u0631 \u0627\u0644\u0646\u0634\u0627\u0637\u0627\u062A", empty: "\u064A\u0638\u0647\u0631 \u0647\u0646\u0627 \u0646\u0634\u0627\u0637 \u062E\u062F\u0645\u0627\u062A\u0643 \u0648\u062E\u0637\u062A\u0643 \u0648\u0645\u0633\u0627\u0631 \u0639\u0645\u0644\u0627\u0626\u0643.", lead: (n) => `\u0627\u0633\u062A\u0641\u0633\u0627\u0631 \u062C\u062F\u064A\u062F: ${n}`, mission: (n) => `\u0627\u0643\u062A\u0645\u0644\u062A \u0645\u0647\u0645\u0629: ${n}`, request: (n) => `\u0623\u064F\u0631\u0633\u0644 \u0637\u0644\u0628: ${n}`, record: (n) => `\u062A\u062D\u062F\u064A\u062B \u062E\u062F\u0645\u0629: ${n}`, menu: (n) => `\u062D\u064F\u0641\u0638\u062A \u0645\u0633\u0648\u062F\u0629 \u0642\u0627\u0626\u0645\u0629: ${n}`, all: "\u0639\u0631\u0636 \u0627\u0644\u0643\u0644" },
   services: { title: "\u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0627\u0644\u0646\u0634\u0637\u0629", empty: "\u0644\u0627 \u062A\u0648\u062C\u062F \u062E\u062F\u0645\u0627\u062A \u0646\u0634\u0637\u0629 \u0628\u0639\u062F.", stages: ["\u0645\u0633\u062A\u0644\u0645", "\u0642\u064A\u062F \u0627\u0644\u0645\u0631\u0627\u062C\u0639\u0629", "\u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", "\u0645\u0628\u0627\u0634\u0631"], due: "\u0627\u0644\u0627\u0633\u062A\u062D\u0642\u0627\u0642", renews: "\u0627\u0644\u062A\u062C\u062F\u064A\u062F", details: "\u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644", all: "\u0643\u0644 \u0627\u0644\u062E\u062F\u0645\u0627\u062A" },
   next: { title: "\u0627\u0644\u062E\u0637\u0648\u0627\u062A \u0627\u0644\u062A\u0627\u0644\u064A\u0629", empty: "\u0643\u0644 \u0634\u064A\u0621 \u0645\u062D\u062F\u0651\u062B.", review: "\u0631\u0627\u062C\u0639", open: "\u0627\u0641\u062A\u062D", prepare: "\u062C\u0647\u0651\u0632 \u0627\u0644\u0637\u0644\u0628", why: "\u0644\u0645\u0627\u0630\u0627", roadmap: "\u0645\u0646 \u062E\u0637\u062A\u0643", attention: "\u0628\u0627\u0646\u062A\u0638\u0627\u0631\u0643" },
-  auri: { promptNext: (t2) => `\u0645\u0627 \u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629 \u0644\u0640\xAB${t2}\xBB\u061F`, promptGeneral: "\u0639\u0644\u0649 \u0645\u0627\u0630\u0627 \u0623\u0631\u0643\u0632 \u0628\u0639\u062F \u0630\u0644\u0643 \u0641\u064A \u0646\u0634\u0627\u0637\u064A\u061F", promptBookings: (l) => `\u0645\u0627 \u062E\u064A\u0627\u0631\u0627\u062A\u064A \u0644\u0627\u0633\u062A\u0642\u0628\u0627\u0644 ${l} \u0639\u0628\u0631 \u0627\u0644\u0625\u0646\u062A\u0631\u0646\u062A\u061F`, title: "\u0627\u0642\u062A\u0631\u0627\u062D \u0623\u0648\u0631\u064A", ask: "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A", more: "\u0627\u0641\u062A\u062D \u0627\u0644\u0645\u062D\u0627\u062F\u062B\u0629", next: (t2) => `\u0623\u0641\u0636\u0644 \u062E\u0637\u0648\u0629 \u062A\u0627\u0644\u064A\u0629 \u0644\u0643: \xAB${t2}\xBB.`, attention: (n) => `\u0627\u0628\u062F\u0623 \u0628\u0640\xAB${n}\xBB \u2014 \u0625\u0646\u0647\u0627 \u0628\u0627\u0646\u062A\u0638\u0627\u0631\u0643.`, idle: "\u062E\u0637\u062A\u0643 \u0645\u062D\u062F\u0651\u062B\u0629. \u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A \u0639\u0645\u0651\u0627 \u064A\u0645\u0643\u0646 \u062A\u062D\u0633\u064A\u0646\u0647.", setup: "\u0623\u0646\u0634\u0626 \u062E\u0637\u062A\u0643 \u0644\u064A\u0642\u062A\u0631\u062D \u0623\u0648\u0631\u064A \u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629." },
+  auri: { placeholder: "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A \u0623\u064A \u0634\u064A\u0621 \u2014 \u0645\u062B\u0644\u064B\u0627 \xAB\u0627\u0628\u0646\u0650 \u0644\u064A \u0645\u0648\u0642\u0639\u064B\u0627 \u0645\u0639 \u062D\u062C\u0632\xBB", promptNext: (t2) => `\u0645\u0627 \u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629 \u0644\u0640\xAB${t2}\xBB\u061F`, promptGeneral: "\u0639\u0644\u0649 \u0645\u0627\u0630\u0627 \u0623\u0631\u0643\u0632 \u0628\u0639\u062F \u0630\u0644\u0643 \u0641\u064A \u0646\u0634\u0627\u0637\u064A\u061F", promptBookings: (l) => `\u0645\u0627 \u062E\u064A\u0627\u0631\u0627\u062A\u064A \u0644\u0627\u0633\u062A\u0642\u0628\u0627\u0644 ${l} \u0639\u0628\u0631 \u0627\u0644\u0625\u0646\u062A\u0631\u0646\u062A\u061F`, title: "\u0627\u0642\u062A\u0631\u0627\u062D \u0623\u0648\u0631\u064A", ask: "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A", more: "\u0627\u0641\u062A\u062D \u0627\u0644\u0645\u062D\u0627\u062F\u062B\u0629", next: (t2) => `\u0623\u0641\u0636\u0644 \u062E\u0637\u0648\u0629 \u062A\u0627\u0644\u064A\u0629 \u0644\u0643: \xAB${t2}\xBB.`, attention: (n) => `\u0627\u0628\u062F\u0623 \u0628\u0640\xAB${n}\xBB \u2014 \u0625\u0646\u0647\u0627 \u0628\u0627\u0646\u062A\u0638\u0627\u0631\u0643.`, idle: "\u062E\u0637\u062A\u0643 \u0645\u062D\u062F\u0651\u062B\u0629. \u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A \u0639\u0645\u0651\u0627 \u064A\u0645\u0643\u0646 \u062A\u062D\u0633\u064A\u0646\u0647.", setup: "\u0623\u0646\u0634\u0626 \u062E\u0637\u062A\u0643 \u0644\u064A\u0642\u062A\u0631\u062D \u0623\u0648\u0631\u064A \u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629." },
   journey: { allTasks: "\u0643\u0644 \u0645\u0647\u0627\u0645 \u0627\u0644\u062E\u0637\u0629", listPriority: "\u0627\u0644\u062A\u0627\u0644\u064A", listUpcoming: "\u0644\u0627\u062D\u0642\u064B\u0627", listCompleted: "\u0627\u0644\u0645\u0643\u062A\u0645\u0644\u0629", askPrompt: (s) => `\u0627\u0634\u0631\u062D \u0645\u0631\u062D\u0644\u0629 \xAB${s}\xBB \u0644\u0646\u0634\u0627\u0637\u064A: \u0645\u0627 \u0623\u0646\u062C\u0632\u062A\u0647 \u0648\u0645\u0627 \u0627\u0644\u062A\u0627\u0644\u064A \u0648\u0647\u0644 \u0623\u062D\u062A\u0627\u062C \u062E\u062F\u0645\u0629\u061F`, title: "\u0631\u0624\u064A\u0629 \u0627\u0644\u0646\u0645\u0648", kicker: "Aura Journey", lead: "\u062E\u0645\u0633 \u0645\u0631\u0627\u062D\u0644 \u0645\u0646 \u0627\u0644\u0627\u0646\u0637\u0644\u0627\u0642 \u0625\u0644\u0649 \u0627\u0644\u062A\u0648\u0633\u0639. \u0627\u0644\u062A\u0642\u062F\u0645 \u064A\u062D\u062A\u0633\u0628 \u0627\u0644\u0639\u0645\u0644 \u0627\u0644\u0645\u0643\u062A\u0645\u0644 \u0648\u0627\u0644\u0645\u062A\u062D\u0642\u0642 \u0645\u0646\u0647 \u0641\u0642\u0637.", stages: ["\u0627\u0644\u0627\u0646\u0637\u0644\u0627\u0642", "\u0627\u0644\u0638\u0647\u0648\u0631", "\u0627\u0644\u062A\u062D\u0648\u064A\u0644", "\u0627\u0644\u0646\u0645\u0648", "\u0627\u0644\u062A\u0648\u0633\u0639"], taglines: ["\u0627\u0641\u062A\u062D \u0623\u0628\u0648\u0627\u0628\u0643 \u0639\u0644\u0649 \u0627\u0644\u0625\u0646\u062A\u0631\u0646\u062A", "\u0643\u0646 \u0633\u0647\u0644 \u0627\u0644\u0627\u0643\u062A\u0634\u0627\u0641", "\u062D\u0648\u0651\u0644 \u0627\u0644\u0627\u0647\u062A\u0645\u0627\u0645 \u0625\u0644\u0649 \u0639\u0645\u0644\u0627\u0621", "\u0627\u0639\u0645\u0644 \u0628\u0630\u0643\u0627\u0621 \u0648\u0627\u062D\u062A\u0641\u0638 \u0628\u0639\u0645\u0644\u0627\u0626\u0643", "\u0642\u0650\u0633 \u0648\u0643\u0631\u0651\u0631 \u0648\u062A\u0648\u0633\u0651\u0639"], objectives: ["\u0642\u062F\u0651\u0645 \u0644\u0644\u0639\u0645\u0644\u0627\u0621 \u0645\u0643\u0627\u0646\u064B\u0627 \u0645\u0648\u062B\u0648\u0642\u064B\u0627 \u0644\u0644\u062A\u0639\u0631\u0641 \u0639\u0644\u064A\u0643 \u0648\u0627\u0644\u062A\u0648\u0627\u0635\u0644 \u0645\u0639\u0643.", "\u0627\u0638\u0647\u0631 \u062D\u064A\u062B \u064A\u0628\u062D\u062B \u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0627\u0644\u0642\u0631\u064A\u0628\u0648\u0646 \u0648\u064A\u0642\u0631\u0631\u0648\u0646.", "\u0627\u062C\u0639\u0644 \u0627\u0644\u0633\u0624\u0627\u0644 \u0623\u0648 \u0627\u0644\u062D\u062C\u0632 \u0623\u0648 \u0627\u0644\u0634\u0631\u0627\u0621 \u0633\u0647\u0644\u064B\u0627 \u0648\u062A\u0627\u0628\u0639 \u0643\u0644 \u0645\u0631\u0629.", "\u0646\u0638\u0651\u0645 \u0639\u0645\u0644 \u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u062D\u062A\u0649 \u0644\u0627 \u064A\u0636\u064A\u0639 \u0634\u064A\u0621 \u0648\u064A\u0639\u0648\u062F \u0627\u0644\u0639\u0645\u0644\u0627\u0621.", "\u0627\u0633\u062A\u062E\u062F\u0645 \u0623\u0631\u0642\u0627\u0645\u064B\u0627 \u062D\u0642\u064A\u0642\u064A\u0629 \u0644\u062A\u0642\u0631\u0631 \u0623\u064A\u0646 \u062A\u0633\u062A\u062B\u0645\u0631."], why: ["\u0628\u062F\u0648\u0646 \u0627\u0644\u0623\u0633\u0627\u0633\u064A\u0627\u062A \u064A\u0636\u064A\u0639 \u0643\u0644 \u0627\u0633\u062A\u062B\u0645\u0627\u0631 \u0622\u062E\u0631: \u0644\u0627 \u064A\u0633\u062A\u0637\u064A\u0639 \u0627\u0644\u0646\u0627\u0633 \u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646\u0643 \u0623\u0648 \u0627\u0644\u062A\u0648\u0627\u0635\u0644 \u0645\u0639\u0643.", "\u064A\u0628\u062D\u062B \u0645\u0639\u0638\u0645 \u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0642\u0628\u0644 \u0627\u0644\u0632\u064A\u0627\u0631\u0629. \u0625\u0646 \u0644\u0645 \u064A\u062C\u062F\u0648\u0643 \u0627\u062E\u062A\u0627\u0631\u0648\u0627 \u063A\u064A\u0631\u0643.", "\u0627\u0644\u0632\u0627\u0626\u0631 \u0627\u0644\u0630\u064A \u0644\u0627 \u064A\u062A\u062E\u0630 \u062E\u0637\u0648\u0629 \u062A\u0627\u0644\u064A\u0629 \u064A\u0636\u064A\u0639. \u0627\u0644\u062F\u0639\u0648\u0627\u062A \u0627\u0644\u0648\u0627\u0636\u062D\u0629 \u0648\u0627\u0644\u0631\u062F \u0627\u0644\u0633\u0631\u064A\u0639 \u064A\u0643\u0633\u0628\u0627\u0646\u0647.", "\u0627\u0644\u0639\u0645\u064A\u0644 \u0627\u0644\u0639\u0627\u0626\u062F \u0623\u0642\u0644 \u062A\u0643\u0644\u0641\u0629. \u0627\u0644\u0623\u0646\u0638\u0645\u0629 \u062A\u0648\u0641\u0631 \u0648\u0642\u062A\u0643.", "\u0627\u0644\u0646\u0645\u0648 \u0627\u0644\u0630\u064A \u062A\u0642\u064A\u0633\u0647 \u0646\u0645\u0648 \u064A\u0645\u0643\u0646\u0643 \u062A\u0643\u0631\u0627\u0631\u0647."], overall: "\u0627\u0644\u062A\u0642\u062F\u0645 \u0627\u0644\u0639\u0627\u0645", of: (a, b) => `${a} \u0645\u0646 ${b} \u0645\u0647\u0627\u0645`, verified: "\u0625\u0646\u062C\u0627\u0632\u0627\u062A \u0645\u062A\u062D\u0642\u0642 \u0645\u0646\u0647\u0627", stageOf: (i) => `\u0627\u0644\u0645\u0631\u062D\u0644\u0629 ${i} \u0645\u0646 5`, done: "\u0645\u0643\u062A\u0645\u0644\u0629", current: "\u0627\u0644\u0645\u0631\u062D\u0644\u0629 \u0627\u0644\u062D\u0627\u0644\u064A\u0629", upcoming: "\u0642\u0627\u062F\u0645\u0629", empty: "\u0644\u0627 \u0645\u0647\u0627\u0645 \u0641\u064A \u0647\u0630\u0647 \u0627\u0644\u0645\u0631\u062D\u0644\u0629 \u0644\u0646\u0634\u0627\u0637\u0643.", objective: "\u0627\u0644\u0647\u062F\u0641", completed: "\u0627\u0644\u0645\u0643\u062A\u0645\u0644", remaining: "\u0627\u0644\u0645\u062A\u0628\u0642\u064A", recommended: "\u064A\u0645\u0643\u0646 \u0644\u0640AuraDigital \u0627\u0644\u0645\u0633\u0627\u0639\u062F\u0629", examples: "\u0623\u0639\u0645\u0627\u0644 \u062D\u0642\u064A\u0642\u064A\u0629 \u0645\u0646 AuraDigital", effort: "\u0627\u0644\u062C\u0647\u062F \u0627\u0644\u0645\u0642\u062F\u0651\u0631", next: "\u0627\u0644\u062E\u0637\u0648\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629 \u0627\u0644\u0645\u0642\u062A\u0631\u062D\u0629", progress: "\u062A\u0642\u062F\u0645 \u0627\u0644\u0645\u0631\u062D\u0644\u0629", effortLevels: { done: "\u0627\u0644\u0645\u0631\u062D\u0644\u0629 \u0645\u0643\u062A\u0645\u0644\u0629", light: "\u062E\u0641\u064A\u0641 \u2014 1\u20132 \u0645\u0647\u0627\u0645 \u0645\u062A\u0628\u0642\u064A\u0629", moderate: "\u0645\u062A\u0648\u0633\u0637 \u2014 3\u20134 \u0645\u0647\u0627\u0645 \u0645\u062A\u0628\u0642\u064A\u0629", heavy: "\u0643\u0628\u064A\u0631 \u2014 5 \u0645\u0647\u0627\u0645 \u0623\u0648 \u0623\u0643\u062B\u0631" }, effortNote: "\u0628\u0646\u0627\u0621\u064B \u0639\u0644\u0649 \u0627\u0644\u0645\u0647\u0627\u0645 \u0627\u0644\u0645\u062A\u0628\u0642\u064A\u0629. \u062A\u064F\u0624\u0643\u064E\u0651\u062F \u0645\u0648\u0627\u0639\u064A\u062F \u0627\u0644\u062A\u0633\u0644\u064A\u0645 \u0641\u064A \u0643\u0644 \u0639\u0631\u0636 \u0633\u0639\u0631.", optional: "\u0627\u062E\u062A\u064A\u0627\u0631\u064A", diy: "\u064A\u0645\u0643\u0646\u0643 \u062A\u0646\u0641\u064A\u0630 \u0643\u0644 \u062E\u0637\u0648\u0629 \u0628\u0646\u0641\u0633\u0643 \u2014 \u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0627\u062E\u062A\u064A\u0627\u0631\u064A\u0629.", request: "\u0627\u0637\u0644\u0628", view: "\u0645\u0627 \u0627\u0644\u0630\u064A \u0633\u062A\u062D\u0635\u0644 \u0639\u0644\u064A\u0647", openTask: "\u0627\u0641\u062A\u062D \u0627\u0644\u0645\u0647\u0645\u0629", noneDone: "\u0644\u0627 \u0634\u064A\u0621 \u0645\u0643\u062A\u0645\u0644 \u0647\u0646\u0627 \u0628\u0639\u062F.", allDone: "\u0643\u0644 \u0627\u0644\u0645\u0647\u0627\u0645 \u0647\u0646\u0627 \u0645\u0643\u062A\u0645\u0644\u0629.", askStage: "\u0627\u0633\u0623\u0644 \u0623\u0648\u0631\u064A \u0639\u0646 \u0647\u0630\u0647 \u0627\u0644\u0645\u0631\u062D\u0644\u0629", explainTitle: "\u0623\u0648\u0631\u064A \u0639\u0646 \u0647\u0630\u0647 \u0627\u0644\u0645\u0631\u062D\u0644\u0629", explain: { matters: "\u0644\u0645\u0627\u0630\u0627 \u062A\u0647\u0645", did: "\u0645\u0627 \u0623\u0646\u062C\u0632\u062A\u0647", doNext: "\u0645\u0627\u0630\u0627 \u062A\u0641\u0639\u0644 \u0628\u0639\u062F \u0630\u0644\u0643", help: "\u0623\u064A\u0646 \u062A\u0633\u0627\u0639\u062F AuraDigital", optional: "\u0647\u0644 \u0647\u064A \u0627\u062E\u062A\u064A\u0627\u0631\u064A\u0629\u061F" }, didNone: "\u0644\u0645 \u062A\u0643\u062A\u0645\u0644 \u0623\u064A \u0645\u0647\u0645\u0629 \u0641\u064A \u0647\u0630\u0647 \u0627\u0644\u0645\u0631\u062D\u0644\u0629 \u0628\u0639\u062F.", didSome: (n, list) => `${n} \u0645\u0643\u062A\u0645\u0644\u0629: ${list}.`, nextNone: "\u0644\u0627 \u0634\u064A\u0621 \u0645\u062A\u0628\u0642\u064D \u0647\u0646\u0627 \u2014 \u0627\u0646\u062A\u0642\u0644 \u0625\u0644\u0649 \u0627\u0644\u0645\u0631\u062D\u0644\u0629 \u0627\u0644\u062A\u0627\u0644\u064A\u0629.", helpNone: "\u0644\u0627 \u062D\u0627\u062C\u0629 \u0644\u062E\u062F\u0645\u0629 \u0645\u0646 AuraDigital \u0641\u064A \u0647\u0630\u0647 \u0627\u0644\u0645\u0631\u062D\u0644\u0629.", helpSome: (list) => `${list}. \u0643\u0644 \u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0627\u062E\u062A\u064A\u0627\u0631\u064A\u0629\u061B \u064A\u0645\u0643\u0646\u0643 \u0627\u062A\u0628\u0627\u0639 \u0627\u0644\u062E\u0637\u0648\u0627\u062A \u0628\u0646\u0641\u0633\u0643.`, optYes: "\u062A\u062A\u0636\u0645\u0646 \u0647\u0630\u0647 \u0627\u0644\u0645\u0631\u062D\u0644\u0629 \u0645\u0647\u0627\u0645 \u0627\u062E\u062A\u064A\u0627\u0631\u064A\u0629 \u064A\u0645\u0643\u0646\u0643 \u062A\u062E\u0637\u064A\u0647\u0627.", optNo: "\u0647\u0630\u0647 \u0627\u0644\u0645\u0647\u0627\u0645 \u062C\u0632\u0621 \u0645\u0646 \u062E\u0637\u062A\u0643 \u0627\u0644\u0623\u0633\u0627\u0633\u064A\u0629\u060C \u0648\u0623\u0646\u062A \u062A\u062E\u062A\u0627\u0631 \u0645\u0646 \u064A\u0646\u0641\u0630\u0647\u0627.", taskDetail: "\u062A\u0641\u0627\u0635\u064A\u0644 \u0627\u0644\u0645\u0647\u0645\u0629", stagesLabel: "\u0645\u0631\u0627\u062D\u0644 \u0627\u0644\u0646\u0645\u0648", inReview: "\u0642\u064A\u062F \u0627\u0644\u0645\u0631\u0627\u062C\u0639\u0629", locked: "\u0642\u0627\u062F\u0645\u0629" },
-  studio: { title: "Aura Studio", intro: "\u0645\u0633\u0627\u062D\u0629 \u0639\u0645\u0644\u064A\u0627\u062A\u0643: \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0648\u0627\u0644\u062A\u0633\u0644\u064A\u0645 \u0648\u0627\u0644\u0645\u0648\u0642\u0639 \u0648\u0627\u0644\u0642\u0627\u0626\u0645\u0629 \u0648\u0627\u0644\u0631\u0633\u0627\u0626\u0644.", tabs: { pipeline: "\u0645\u0633\u0627\u0631 \u0627\u0644\u0639\u0645\u0644\u0627\u0621", delivery: "\u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0648\u0627\u0644\u062A\u0633\u0644\u064A\u0645", website: "\u0627\u0644\u0645\u0648\u0642\u0639", menu: "AuraMenu", inbox: "\u0627\u0644\u0648\u0627\u0631\u062F", analytics: "\u0627\u0644\u062A\u062D\u0644\u064A\u0644\u0627\u062A" }, readOnly: "\u064A\u0645\u0643\u0646\u0643 \u0639\u0631\u0636 \u0647\u0630\u0647 \u0627\u0644\u0645\u0633\u0627\u062D\u0629. \u0627\u0637\u0644\u0628 \u0645\u0646 \u0627\u0644\u0645\u0627\u0644\u0643 \u0635\u0644\u0627\u062D\u064A\u0629 \u0627\u0644\u062A\u0639\u062F\u064A\u0644.", pipeline: { filters: "\u0627\u0644\u062A\u0635\u0641\u064A\u0629", add: "\u0623\u0636\u0641 \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u064B\u0627", search: "\u0627\u0628\u062D\u062B \u0641\u064A \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A", allSources: "\u0643\u0644 \u0627\u0644\u0645\u0635\u0627\u062F\u0631", allPeople: "\u0627\u0644\u062C\u0645\u064A\u0639", unassigned: "\u063A\u064A\u0631 \u0645\u064F\u0633\u0646\u062F", empty: "\u0644\u0627 \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0628\u0639\u062F", emptyText: "\u0633\u062C\u0651\u0644 \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0645\u0646 \u0627\u0644\u0645\u0643\u0627\u0644\u0645\u0627\u062A \u0648\u0627\u0644\u0631\u0633\u0627\u0626\u0644 \u0648\u0627\u0644\u0632\u064A\u0627\u0631\u0627\u062A. \u0627\u0644\u0627\u0644\u062A\u0642\u0627\u0637 \u0627\u0644\u062A\u0644\u0642\u0627\u0626\u064A \u0645\u0646 \u0645\u0648\u0642\u0639\u0643 \u063A\u064A\u0631 \u0645\u062A\u0635\u0644 \u0628\u0639\u062F.", none: "\u0644\u0627 \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u062A\u0637\u0627\u0628\u0642 \u0627\u0644\u062A\u0635\u0641\u064A\u0629.", stageEmpty: "\u0641\u0627\u0631\u063A", count: (n) => n === 1 ? "\u0627\u0633\u062A\u0641\u0633\u0627\u0631 \u0648\u0627\u062D\u062F" : n === 2 ? "\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u0646" : `${n} \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A`, value: "\u0627\u0644\u0642\u064A\u0645\u0629", configure: "\u0639\u062F\u0651\u0644 \u0627\u0644\u0645\u0631\u0627\u062D\u0644", archived: "\u0627\u0644\u0645\u0624\u0631\u0634\u0641\u0629", showArchived: "\u0627\u0639\u0631\u0636 \u0627\u0644\u0623\u0631\u0634\u064A\u0641", hideArchived: "\u0627\u0644\u0639\u0648\u062F\u0629 \u0625\u0644\u0649 \u0627\u0644\u0645\u0633\u0627\u0631", moveTo: "\u0627\u0646\u0642\u0644 \u0625\u0644\u0649", archive: "\u0623\u0631\u0634\u0641\u0629", restore: "\u0627\u0633\u062A\u0639\u0627\u062F\u0629", confirmArchive: "\u0623\u0631\u0634\u0641\u0629 \u0647\u0630\u0627 \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u061F \u064A\u0645\u0643\u0646\u0643 \u0627\u0633\u062A\u0639\u0627\u062F\u062A\u0647 \u0644\u0627\u062D\u0642\u064B\u0627." }, lead: { name: "\u0627\u0644\u0627\u0633\u0645", contact: "\u0627\u0644\u0647\u0627\u062A\u0641 \u0623\u0648 \u0627\u0644\u0628\u0631\u064A\u062F", source: "\u0627\u0644\u0645\u0635\u062F\u0631", interest: "\u0645\u0647\u062A\u0645 \u0628\u0640", value: "\u0627\u0644\u0642\u064A\u0645\u0629 \u0627\u0644\u062A\u0642\u062F\u064A\u0631\u064A\u0629", stage: "\u0627\u0644\u0645\u0631\u062D\u0644\u0629", assignee: "\u0627\u0644\u0645\u0633\u0624\u0648\u0644", note: "\u0645\u0644\u0627\u062D\u0638\u0629", notes: "\u0627\u0644\u0645\u0644\u0627\u062D\u0638\u0627\u062A", addNote: "\u0623\u0636\u0641 \u0645\u0644\u0627\u062D\u0638\u0629", save: "\u062D\u0641\u0638", cancel: "\u0625\u0644\u063A\u0627\u0621", create: "\u0623\u0636\u0641", saved: "\u062A\u0645 \u0627\u0644\u062D\u0641\u0638", noNotes: "\u0644\u0627 \u0645\u0644\u0627\u062D\u0638\u0627\u062A \u0628\u0639\u062F.", created: "\u0623\u064F\u0646\u0634\u0626", updated: "\u062D\u064F\u062F\u0651\u062B", close: "\u0625\u063A\u0644\u0627\u0642" }, sources: { website: "\u0627\u0644\u0645\u0648\u0642\u0639", phone: "\u0627\u0644\u0647\u0627\u062A\u0641", whatsapp: "\u0648\u0627\u062A\u0633\u0627\u0628", instagram: "\u0625\u0646\u0633\u062A\u063A\u0631\u0627\u0645", email: "\u0627\u0644\u0628\u0631\u064A\u062F", walk_in: "\u0632\u064A\u0627\u0631\u0629", referral: "\u062A\u0648\u0635\u064A\u0629", other: "\u0623\u062E\u0631\u0649" }, stagesEditor: { title: "\u0645\u0631\u0627\u062D\u0644 \u0627\u0644\u0645\u0633\u0627\u0631", hint: "\u0623\u0639\u062F \u0627\u0644\u062A\u0633\u0645\u064A\u0629 \u0623\u0648 \u0623\u0636\u0641 \u0623\u0648 \u0627\u062D\u0630\u0641 \u0627\u0644\u0645\u0631\u0627\u062D\u0644. \u0644\u0627 \u064A\u0645\u0643\u0646 \u062D\u0630\u0641 \u0645\u0631\u062D\u0644\u0629 \u0641\u064A\u0647\u0627 \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A.", add: "\u0623\u0636\u0641 \u0645\u0631\u062D\u0644\u0629", remove: "\u0627\u062D\u0630\u0641", save: "\u0627\u062D\u0641\u0638 \u0627\u0644\u0645\u0631\u0627\u062D\u0644", name: "\u0627\u0633\u0645 \u0627\u0644\u0645\u0631\u062D\u0644\u0629" }, delivery: { active: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0627\u0644\u0646\u0634\u0637\u0629", completed: "\u0627\u0644\u0645\u0643\u062A\u0645\u0644\u0629", deadlines: "\u0627\u0644\u0645\u0648\u0627\u0639\u064A\u062F \u0627\u0644\u0642\u0627\u062F\u0645\u0629", approvals: "\u0628\u0627\u0646\u062A\u0638\u0627\u0631 \u0645\u0648\u0627\u0641\u0642\u062A\u0643", revisions: "\u0627\u0644\u062A\u0639\u062F\u064A\u0644\u0627\u062A \u0627\u0644\u0645\u0637\u0644\u0648\u0628\u0629", messages: "\u0631\u0633\u0627\u0626\u0644 \u0627\u0644\u0639\u0645\u0644\u0627\u0621", none: "\u0644\u0627 \u0634\u064A\u0621 \u0627\u0644\u0622\u0646.", revisionsNone: "\u0644\u0627 \u062A\u0639\u062F\u064A\u0644\u0627\u062A \u0645\u0641\u062A\u0648\u062D\u0629. \u0644\u0637\u0644\u0628 \u062A\u063A\u064A\u064A\u0631 \u0623\u0631\u0633\u0644 \u0637\u0644\u0628\u064B\u0627 \u0644\u0644\u0641\u0631\u064A\u0642.", messagesNone: "\u062A\u062A\u0645 \u0627\u0644\u0645\u0631\u0627\u0633\u0644\u0627\u062A \u0645\u0639 \u0641\u0631\u064A\u0642 AuraDigital \u0639\u0628\u0631 \u0637\u0644\u0628\u0627\u062A\u0643.", requestChange: "\u0627\u0637\u0644\u0628 \u062A\u0639\u062F\u064A\u0644\u064B\u0627", reviewMenu: "\u0631\u0627\u062C\u0639 \u0627\u0644\u0642\u0627\u0626\u0645\u0629", open: "\u0627\u0641\u062A\u062D", overdue: "\u0645\u062A\u0623\u062E\u0631" }, website: { title: "\u0645\u0648\u0642\u0639\u0643", preview: "\u0627\u0641\u062A\u062D \u0627\u0644\u0645\u0648\u0642\u0639 \u0627\u0644\u0645\u0628\u0627\u0634\u0631", domain: "\u0627\u0644\u0646\u0637\u0627\u0642", status: "\u062D\u0627\u0644\u0629 \u0627\u0644\u0646\u0634\u0631", published: "\u0645\u0646\u0634\u0648\u0631", inProgress: "\u0642\u064A\u062F \u0627\u0644\u0625\u0639\u062F\u0627\u062F", unknown: "\u0627\u0644\u062D\u0627\u0644\u0629 \u063A\u064A\u0631 \u0645\u062A\u062A\u0628\u0639\u0629", actions: "\u0625\u062C\u0631\u0627\u0621\u0627\u062A \u0627\u0644\u0645\u062D\u062A\u0648\u0649", change: "\u0627\u0637\u0644\u0628 \u062A\u0639\u062F\u064A\u0644 \u0645\u062D\u062A\u0648\u0649", newPage: "\u0627\u0637\u0644\u0628 \u0635\u0641\u062D\u0629 \u062C\u062F\u064A\u062F\u0629", seo: "\u0627\u0633\u0623\u0644 \u0639\u0646 \u0627\u0644\u0638\u0647\u0648\u0631 \u0641\u064A Google", none: "\u0644\u0627 \u064A\u0648\u062C\u062F \u0645\u0648\u0642\u0639 \u0645\u0631\u062A\u0628\u0637 \u0628\u0647\u0630\u0627 \u0627\u0644\u0646\u0634\u0627\u0637", noneText: "\u0623\u0636\u0641 \u0645\u0648\u0642\u0639\u0643 \u0625\u0644\u0649 \u0645\u0644\u0641 \u0627\u0644\u0646\u0634\u0627\u0637 \u0623\u0648 \u0627\u0637\u0644\u0628 \u0645\u0646 AuraDigital \u0628\u0646\u0627\u0621\u0647.", addSite: "\u0623\u0636\u0641 \u0625\u0644\u0649 \u0627\u0644\u0645\u0644\u0641", build: "\u0627\u0637\u0644\u0628 \u0645\u0648\u0642\u0639\u064B\u0627", secure: "HTTPS", notOwned: "\u062A\u0638\u0647\u0631 \u0647\u0646\u0627 \u0641\u0642\u0637 \u0627\u0644\u0645\u0648\u0627\u0642\u0639 \u0627\u0644\u0645\u0631\u062A\u0628\u0637\u0629 \u0628\u0647\u0630\u0627 \u0627\u0644\u0646\u0634\u0627\u0637." }, menu: { unavailable: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645 \u063A\u064A\u0631 \u0645\u062A\u0627\u062D\u0629 \u0628\u0639\u062F. \u064A\u0645\u0643\u0646 \u0644\u0640AuraDigital \u0625\u0639\u062F\u0627\u062F \u0642\u0627\u0626\u0645\u062A\u0643 \u0644\u0643.", title: "AuraMenu", drafts: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", open: "\u0627\u0641\u062A\u062D \u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", live: "\u0642\u0648\u0627\u0626\u0645 \u0644\u062F\u0649 AuraDigital", none: "\u0644\u0627 \u062A\u0648\u062C\u062F AuraMenu \u0645\u0631\u062A\u0628\u0637\u0629 \u0628\u0647\u0630\u0627 \u0627\u0644\u0646\u0634\u0627\u0637", noneText: "\u0627\u0628\u062F\u0623 \u0645\u0633\u0648\u062F\u0629 \u0642\u0627\u0626\u0645\u0629 \u062E\u0627\u0635\u0629 \u0623\u0648 \u0627\u0637\u0644\u0628 \u0645\u0646 \u0627\u0644\u0641\u0631\u064A\u0642 \u0625\u0639\u062F\u0627\u062F\u0647\u0627.", start: "\u0627\u0628\u062F\u0623 \u0645\u0633\u0648\u062F\u0629 \u0642\u0627\u0626\u0645\u0629", request: "\u0627\u0637\u0644\u0628 AuraMenu", manage: "\u0627\u0641\u062A\u062D", notRestaurant: "\u0635\u064F\u0645\u0645\u062A AuraMenu \u0644\u0644\u0645\u0637\u0627\u0639\u0645 \u0648\u0627\u0644\u0645\u0642\u0627\u0647\u064A." }, inbox: { title: "\u0627\u0644\u0648\u0627\u0631\u062F", lead: "\u0645\u062D\u0627\u062F\u062B\u0627\u062A\u0643 \u0641\u064A \u0645\u0643\u0627\u0646 \u0648\u0627\u062D\u062F \u2014 \u0645\u0646 \u0627\u0644\u0642\u0646\u0648\u0627\u062A \u0627\u0644\u0645\u062A\u0635\u0644\u0629 \u0641\u0639\u0644\u064B\u0627 \u0641\u0642\u0637.", channels: "\u0627\u0644\u0642\u0646\u0648\u0627\u062A", notConnected: "\u063A\u064A\u0631 \u0645\u062A\u0635\u0644", connected: "\u0645\u062A\u0635\u0644", connectHint: "\u0627\u0637\u0644\u0628 \u0645\u0646 AuraDigital \u0631\u0628\u0637 \u0647\u0630\u0647 \u0627\u0644\u0642\u0646\u0627\u0629.", fromPipeline: "\u0622\u062E\u0631 \u0645\u0644\u0627\u062D\u0638\u0627\u062A \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A", empty: "\u0644\u0627 \u0645\u062D\u0627\u062F\u062B\u0627\u062A \u0628\u0639\u062F.", auri: "\u0645\u062D\u0627\u062F\u062B\u0629 \u0623\u0648\u0631\u064A", teamRequests: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0625\u0644\u0649 AuraDigital" }, analytics: { title: "\u0627\u0644\u062A\u062D\u0644\u064A\u0644\u0627\u062A", lead: "\u0623\u0631\u0642\u0627\u0645 \u0645\u062A\u062D\u0642\u0642 \u0645\u0646\u0647\u0627 \u0641\u0642\u0637\u060C \u0645\u0639 \u0645\u0635\u062F\u0631\u0647\u0627 \u0648\u0641\u062A\u0631\u062A\u0647\u0627.", range: "\u0622\u062E\u0631 30 \u064A\u0648\u0645\u064B\u0627", pipeline: "\u0627\u0644\u0645\u0633\u0627\u0631", bySource: "\u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u062D\u0633\u0628 \u0627\u0644\u0645\u0635\u062F\u0631", byStage: "\u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0627\u0644\u0645\u0641\u062A\u0648\u062D\u0629 \u062D\u0633\u0628 \u0627\u0644\u0645\u0631\u062D\u0644\u0629", won: "\u0627\u0644\u0645\u0643\u0633\u0648\u0628\u0629", conversion: "\u0646\u0633\u0628\u0629 \u0627\u0644\u0643\u0633\u0628", roadmap: "\u0625\u0646\u062C\u0627\u0632 \u0627\u0644\u062E\u0637\u0629", services: "\u0627\u0644\u062E\u062F\u0645\u0627\u062A", site: "\u0632\u064A\u0627\u0631\u0627\u062A \u0627\u0644\u0645\u0648\u0642\u0639", siteNone: "\u062A\u062D\u0644\u064A\u0644\u0627\u062A \u0627\u0644\u0645\u0648\u0642\u0639 \u063A\u064A\u0631 \u0645\u062A\u0635\u0644\u0629. \u0633\u062A\u0638\u0647\u0631 \u0627\u0644\u0623\u0631\u0642\u0627\u0645 \u0628\u0639\u062F \u0625\u0639\u062F\u0627\u062F \u0627\u0644\u062A\u062A\u0628\u0639 \u0648\u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646\u0647.", srcLeads: "\u0627\u0644\u0645\u0635\u062F\u0631: \u0645\u0633\u0627\u0631 Aura Studio (\u0625\u062F\u062E\u0627\u0644\u0627\u062A \u0641\u0631\u064A\u0642\u0643)", srcRoadmap: "\u0627\u0644\u0645\u0635\u062F\u0631: \u062E\u0627\u0631\u0637\u0629 \u0646\u0645\u0648\u0643", srcServices: "\u0627\u0644\u0645\u0635\u062F\u0631: \u0633\u062C\u0644\u0627\u062A \u062E\u062F\u0645\u0627\u062A AuraDigital", noLeads: "\u0633\u062C\u0651\u0644 \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0644\u0631\u0624\u064A\u0629 \u0646\u0633\u0628\u0629 \u0627\u0644\u062A\u062D\u0648\u064A\u0644." } },
+  studio: { title: "Aura Studio", intro: "\u0645\u0633\u0627\u062D\u0629 \u0639\u0645\u0644\u064A\u0627\u062A\u0643: \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0648\u0627\u0644\u062A\u0633\u0644\u064A\u0645 \u0648\u0627\u0644\u0645\u0648\u0642\u0639 \u0648\u0627\u0644\u0642\u0627\u0626\u0645\u0629 \u0648\u0627\u0644\u0631\u0633\u0627\u0626\u0644.", tabs: { pipeline: "\u0645\u0633\u0627\u0631 \u0627\u0644\u0639\u0645\u0644\u0627\u0621", delivery: "\u0627\u0644\u062E\u062F\u0645\u0627\u062A \u0648\u0627\u0644\u062A\u0633\u0644\u064A\u0645", website: "\u0627\u0644\u0645\u0648\u0642\u0639", menu: "AuraMenu", inbox: "\u0627\u0644\u0648\u0627\u0631\u062F", analytics: "\u0627\u0644\u062A\u062D\u0644\u064A\u0644\u0627\u062A" }, readOnly: "\u064A\u0645\u0643\u0646\u0643 \u0639\u0631\u0636 \u0647\u0630\u0647 \u0627\u0644\u0645\u0633\u0627\u062D\u0629. \u0627\u0637\u0644\u0628 \u0645\u0646 \u0627\u0644\u0645\u0627\u0644\u0643 \u0635\u0644\u0627\u062D\u064A\u0629 \u0627\u0644\u062A\u0639\u062F\u064A\u0644.", pipeline: { filters: "\u0627\u0644\u062A\u0635\u0641\u064A\u0629", add: "\u0623\u0636\u0641 \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u064B\u0627", search: "\u0627\u0628\u062D\u062B \u0641\u064A \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A", allSources: "\u0643\u0644 \u0627\u0644\u0645\u0635\u0627\u062F\u0631", allPeople: "\u0627\u0644\u062C\u0645\u064A\u0639", unassigned: "\u063A\u064A\u0631 \u0645\u064F\u0633\u0646\u062F", empty: "\u0644\u0627 \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0628\u0639\u062F", emptyText: "\u0633\u062C\u0651\u0644 \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0645\u0646 \u0627\u0644\u0645\u0643\u0627\u0644\u0645\u0627\u062A \u0648\u0627\u0644\u0631\u0633\u0627\u0626\u0644 \u0648\u0627\u0644\u0632\u064A\u0627\u0631\u0627\u062A. \u0627\u0644\u0627\u0644\u062A\u0642\u0627\u0637 \u0627\u0644\u062A\u0644\u0642\u0627\u0626\u064A \u0645\u0646 \u0645\u0648\u0642\u0639\u0643 \u063A\u064A\u0631 \u0645\u062A\u0635\u0644 \u0628\u0639\u062F.", none: "\u0644\u0627 \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u062A\u0637\u0627\u0628\u0642 \u0627\u0644\u062A\u0635\u0641\u064A\u0629.", stageEmpty: "\u0641\u0627\u0631\u063A", count: (n) => n === 1 ? "\u0627\u0633\u062A\u0641\u0633\u0627\u0631 \u0648\u0627\u062D\u062F" : n === 2 ? "\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u0646" : `${n} \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A`, value: "\u0627\u0644\u0642\u064A\u0645\u0629", configure: "\u0639\u062F\u0651\u0644 \u0627\u0644\u0645\u0631\u0627\u062D\u0644", archived: "\u0627\u0644\u0645\u0624\u0631\u0634\u0641\u0629", showArchived: "\u0627\u0639\u0631\u0636 \u0627\u0644\u0623\u0631\u0634\u064A\u0641", hideArchived: "\u0627\u0644\u0639\u0648\u062F\u0629 \u0625\u0644\u0649 \u0627\u0644\u0645\u0633\u0627\u0631", moveTo: "\u0627\u0646\u0642\u0644 \u0625\u0644\u0649", archive: "\u0623\u0631\u0634\u0641\u0629", restore: "\u0627\u0633\u062A\u0639\u0627\u062F\u0629", confirmArchive: "\u0623\u0631\u0634\u0641\u0629 \u0647\u0630\u0627 \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u061F \u064A\u0645\u0643\u0646\u0643 \u0627\u0633\u062A\u0639\u0627\u062F\u062A\u0647 \u0644\u0627\u062D\u0642\u064B\u0627." }, lead: { name: "\u0627\u0644\u0627\u0633\u0645", contact: "\u0627\u0644\u0647\u0627\u062A\u0641 \u0623\u0648 \u0627\u0644\u0628\u0631\u064A\u062F", source: "\u0627\u0644\u0645\u0635\u062F\u0631", interest: "\u0645\u0647\u062A\u0645 \u0628\u0640", value: "\u0627\u0644\u0642\u064A\u0645\u0629 \u0627\u0644\u062A\u0642\u062F\u064A\u0631\u064A\u0629", stage: "\u0627\u0644\u0645\u0631\u062D\u0644\u0629", assignee: "\u0627\u0644\u0645\u0633\u0624\u0648\u0644", note: "\u0645\u0644\u0627\u062D\u0638\u0629", notes: "\u0627\u0644\u0645\u0644\u0627\u062D\u0638\u0627\u062A", addNote: "\u0623\u0636\u0641 \u0645\u0644\u0627\u062D\u0638\u0629", save: "\u062D\u0641\u0638", cancel: "\u0625\u0644\u063A\u0627\u0621", create: "\u0623\u0636\u0641", saved: "\u062A\u0645 \u0627\u0644\u062D\u0641\u0638", noNotes: "\u0644\u0627 \u0645\u0644\u0627\u062D\u0638\u0627\u062A \u0628\u0639\u062F.", created: "\u0623\u064F\u0646\u0634\u0626", updated: "\u062D\u064F\u062F\u0651\u062B", close: "\u0625\u063A\u0644\u0627\u0642" }, sources: { website: "\u0627\u0644\u0645\u0648\u0642\u0639", phone: "\u0627\u0644\u0647\u0627\u062A\u0641", whatsapp: "\u0648\u0627\u062A\u0633\u0627\u0628", instagram: "\u0625\u0646\u0633\u062A\u063A\u0631\u0627\u0645", email: "\u0627\u0644\u0628\u0631\u064A\u062F", walk_in: "\u0632\u064A\u0627\u0631\u0629", referral: "\u062A\u0648\u0635\u064A\u0629", other: "\u0623\u062E\u0631\u0649" }, stagesEditor: { title: "\u0645\u0631\u0627\u062D\u0644 \u0627\u0644\u0645\u0633\u0627\u0631", hint: "\u0623\u0639\u062F \u0627\u0644\u062A\u0633\u0645\u064A\u0629 \u0623\u0648 \u0623\u0636\u0641 \u0623\u0648 \u0627\u062D\u0630\u0641 \u0627\u0644\u0645\u0631\u0627\u062D\u0644. \u0644\u0627 \u064A\u0645\u0643\u0646 \u062D\u0630\u0641 \u0645\u0631\u062D\u0644\u0629 \u0641\u064A\u0647\u0627 \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A.", add: "\u0623\u0636\u0641 \u0645\u0631\u062D\u0644\u0629", remove: "\u0627\u062D\u0630\u0641", save: "\u0627\u062D\u0641\u0638 \u0627\u0644\u0645\u0631\u0627\u062D\u0644", name: "\u0627\u0633\u0645 \u0627\u0644\u0645\u0631\u062D\u0644\u0629" }, delivery: { active: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0627\u0644\u0646\u0634\u0637\u0629", completed: "\u0627\u0644\u0645\u0643\u062A\u0645\u0644\u0629", deadlines: "\u0627\u0644\u0645\u0648\u0627\u0639\u064A\u062F \u0627\u0644\u0642\u0627\u062F\u0645\u0629", approvals: "\u0628\u0627\u0646\u062A\u0638\u0627\u0631 \u0645\u0648\u0627\u0641\u0642\u062A\u0643", revisions: "\u0627\u0644\u062A\u0639\u062F\u064A\u0644\u0627\u062A \u0627\u0644\u0645\u0637\u0644\u0648\u0628\u0629", messages: "\u0631\u0633\u0627\u0626\u0644 \u0627\u0644\u0639\u0645\u0644\u0627\u0621", none: "\u0644\u0627 \u0634\u064A\u0621 \u0627\u0644\u0622\u0646.", revisionsNone: "\u0644\u0627 \u062A\u0639\u062F\u064A\u0644\u0627\u062A \u0645\u0641\u062A\u0648\u062D\u0629. \u0644\u0637\u0644\u0628 \u062A\u063A\u064A\u064A\u0631 \u0623\u0631\u0633\u0644 \u0637\u0644\u0628\u064B\u0627 \u0644\u0644\u0641\u0631\u064A\u0642.", messagesNone: "\u062A\u062A\u0645 \u0627\u0644\u0645\u0631\u0627\u0633\u0644\u0627\u062A \u0645\u0639 \u0641\u0631\u064A\u0642 AuraDigital \u0639\u0628\u0631 \u0637\u0644\u0628\u0627\u062A\u0643.", requestChange: "\u0627\u0637\u0644\u0628 \u062A\u0639\u062F\u064A\u0644\u064B\u0627", reviewMenu: "\u0631\u0627\u062C\u0639 \u0627\u0644\u0642\u0627\u0626\u0645\u0629", open: "\u0627\u0641\u062A\u062D", overdue: "\u0645\u062A\u0623\u062E\u0631" }, website: { title: "\u0645\u0648\u0642\u0639\u0643", preview: "\u0627\u0641\u062A\u062D \u0627\u0644\u0645\u0648\u0642\u0639 \u0627\u0644\u0645\u0628\u0627\u0634\u0631", domain: "\u0627\u0644\u0646\u0637\u0627\u0642", status: "\u062D\u0627\u0644\u0629 \u0627\u0644\u0646\u0634\u0631", published: "\u0645\u0646\u0634\u0648\u0631", inProgress: "\u0642\u064A\u062F \u0627\u0644\u0625\u0639\u062F\u0627\u062F", unknown: "\u0627\u0644\u062D\u0627\u0644\u0629 \u063A\u064A\u0631 \u0645\u062A\u062A\u0628\u0639\u0629", actions: "\u0625\u062C\u0631\u0627\u0621\u0627\u062A \u0627\u0644\u0645\u062D\u062A\u0648\u0649", change: "\u0627\u0637\u0644\u0628 \u062A\u0639\u062F\u064A\u0644 \u0645\u062D\u062A\u0648\u0649", newPage: "\u0627\u0637\u0644\u0628 \u0635\u0641\u062D\u0629 \u062C\u062F\u064A\u062F\u0629", seo: "\u0627\u0633\u0623\u0644 \u0639\u0646 \u0627\u0644\u0638\u0647\u0648\u0631 \u0641\u064A Google", none: "\u0644\u0627 \u064A\u0648\u062C\u062F \u0645\u0648\u0642\u0639 \u0645\u0631\u062A\u0628\u0637 \u0628\u0647\u0630\u0627 \u0627\u0644\u0646\u0634\u0627\u0637", noneText: "\u0623\u0636\u0641 \u0645\u0648\u0642\u0639\u0643 \u0625\u0644\u0649 \u0645\u0644\u0641 \u0627\u0644\u0646\u0634\u0627\u0637 \u0623\u0648 \u0627\u0637\u0644\u0628 \u0645\u0646 AuraDigital \u0628\u0646\u0627\u0621\u0647.", addSite: "\u0623\u0636\u0641 \u0625\u0644\u0649 \u0627\u0644\u0645\u0644\u0641", build: "\u0627\u0637\u0644\u0628 \u0645\u0648\u0642\u0639\u064B\u0627", secure: "HTTPS", notOwned: "\u062A\u0638\u0647\u0631 \u0647\u0646\u0627 \u0641\u0642\u0637 \u0627\u0644\u0645\u0648\u0627\u0642\u0639 \u0627\u0644\u0645\u0631\u062A\u0628\u0637\u0629 \u0628\u0647\u0630\u0627 \u0627\u0644\u0646\u0634\u0627\u0637." }, menu: { unavailable: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645 \u063A\u064A\u0631 \u0645\u062A\u0627\u062D\u0629 \u0628\u0639\u062F. \u064A\u0645\u0643\u0646 \u0644\u0640AuraDigital \u0625\u0639\u062F\u0627\u062F \u0642\u0627\u0626\u0645\u062A\u0643 \u0644\u0643.", title: "AuraMenu", drafts: "\u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", open: "\u0627\u0641\u062A\u062D \u0645\u0633\u0648\u062F\u0627\u062A \u0627\u0644\u0642\u0648\u0627\u0626\u0645", live: "\u0642\u0648\u0627\u0626\u0645 \u0644\u062F\u0649 AuraDigital", none: "\u0644\u0627 \u062A\u0648\u062C\u062F AuraMenu \u0645\u0631\u062A\u0628\u0637\u0629 \u0628\u0647\u0630\u0627 \u0627\u0644\u0646\u0634\u0627\u0637", noneText: "\u0627\u0628\u062F\u0623 \u0645\u0633\u0648\u062F\u0629 \u0642\u0627\u0626\u0645\u0629 \u062E\u0627\u0635\u0629 \u0623\u0648 \u0627\u0637\u0644\u0628 \u0645\u0646 \u0627\u0644\u0641\u0631\u064A\u0642 \u0625\u0639\u062F\u0627\u062F\u0647\u0627.", start: "\u0627\u0628\u062F\u0623 \u0645\u0633\u0648\u062F\u0629 \u0642\u0627\u0626\u0645\u0629", request: "\u0627\u0637\u0644\u0628 AuraMenu", manage: "\u0627\u0641\u062A\u062D", notRestaurant: "\u0635\u064F\u0645\u0645\u062A AuraMenu \u0644\u0644\u0645\u0637\u0627\u0639\u0645 \u0648\u0627\u0644\u0645\u0642\u0627\u0647\u064A." }, inbox: { title: "\u0627\u0644\u0648\u0627\u0631\u062F", lead: "\u0645\u062D\u0627\u062F\u062B\u0627\u062A\u0643 \u0641\u064A \u0645\u0643\u0627\u0646 \u0648\u0627\u062D\u062F \u2014 \u0645\u0646 \u0627\u0644\u0642\u0646\u0648\u0627\u062A \u0627\u0644\u0645\u062A\u0635\u0644\u0629 \u0641\u0639\u0644\u064B\u0627 \u0641\u0642\u0637.", channels: "\u0627\u0644\u0642\u0646\u0648\u0627\u062A", notConnected: "\u063A\u064A\u0631 \u0645\u062A\u0635\u0644", connected: "\u0645\u062A\u0635\u0644", connectHint: "\u0627\u0637\u0644\u0628 \u0645\u0646 AuraDigital \u0631\u0628\u0637 \u0647\u0630\u0647 \u0627\u0644\u0642\u0646\u0627\u0629.", fromPipeline: "\u0622\u062E\u0631 \u0645\u0644\u0627\u062D\u0638\u0627\u062A \u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A", empty: "\u0644\u0627 \u0645\u062D\u0627\u062F\u062B\u0627\u062A \u0628\u0639\u062F.", auri: "\u0645\u062D\u0627\u062F\u062B\u0629 \u0623\u0648\u0631\u064A", teamRequests: "\u0627\u0644\u0637\u0644\u0628\u0627\u062A \u0625\u0644\u0649 AuraDigital" }, analytics: { simulator: "\u0645\u062D\u0627\u0643\u064A \u0627\u0644\u0646\u0645\u0648", simulatorNote: "\u0642\u062F\u0651\u0631 \u0623\u062B\u0631 \u0632\u064A\u0627\u062F\u0629 \u0627\u0644\u0632\u0648\u0627\u0631 \u0623\u0648 \u062A\u062D\u0633\u064A\u0646 \u0627\u0644\u062A\u062D\u0648\u064A\u0644. \u0623\u0631\u0642\u0627\u0645 \u062A\u0648\u0636\u064A\u062D\u064A\u0629 \u062A\u062F\u062E\u0644\u0647\u0627 \u0628\u0646\u0641\u0633\u0643.", title: "\u0627\u0644\u062A\u062D\u0644\u064A\u0644\u0627\u062A", lead: "\u0623\u0631\u0642\u0627\u0645 \u0645\u062A\u062D\u0642\u0642 \u0645\u0646\u0647\u0627 \u0641\u0642\u0637\u060C \u0645\u0639 \u0645\u0635\u062F\u0631\u0647\u0627 \u0648\u0641\u062A\u0631\u062A\u0647\u0627.", range: "\u0622\u062E\u0631 30 \u064A\u0648\u0645\u064B\u0627", pipeline: "\u0627\u0644\u0645\u0633\u0627\u0631", bySource: "\u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u062D\u0633\u0628 \u0627\u0644\u0645\u0635\u062F\u0631", byStage: "\u0627\u0644\u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0627\u0644\u0645\u0641\u062A\u0648\u062D\u0629 \u062D\u0633\u0628 \u0627\u0644\u0645\u0631\u062D\u0644\u0629", won: "\u0627\u0644\u0645\u0643\u0633\u0648\u0628\u0629", conversion: "\u0646\u0633\u0628\u0629 \u0627\u0644\u0643\u0633\u0628", roadmap: "\u0625\u0646\u062C\u0627\u0632 \u0627\u0644\u062E\u0637\u0629", services: "\u0627\u0644\u062E\u062F\u0645\u0627\u062A", site: "\u0632\u064A\u0627\u0631\u0627\u062A \u0627\u0644\u0645\u0648\u0642\u0639", siteNone: "\u062A\u062D\u0644\u064A\u0644\u0627\u062A \u0627\u0644\u0645\u0648\u0642\u0639 \u063A\u064A\u0631 \u0645\u062A\u0635\u0644\u0629. \u0633\u062A\u0638\u0647\u0631 \u0627\u0644\u0623\u0631\u0642\u0627\u0645 \u0628\u0639\u062F \u0625\u0639\u062F\u0627\u062F \u0627\u0644\u062A\u062A\u0628\u0639 \u0648\u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646\u0647.", srcLeads: "\u0627\u0644\u0645\u0635\u062F\u0631: \u0645\u0633\u0627\u0631 Aura Studio (\u0625\u062F\u062E\u0627\u0644\u0627\u062A \u0641\u0631\u064A\u0642\u0643)", srcRoadmap: "\u0627\u0644\u0645\u0635\u062F\u0631: \u062E\u0627\u0631\u0637\u0629 \u0646\u0645\u0648\u0643", srcServices: "\u0627\u0644\u0645\u0635\u062F\u0631: \u0633\u062C\u0644\u0627\u062A \u062E\u062F\u0645\u0627\u062A AuraDigital", noLeads: "\u0633\u062C\u0651\u0644 \u0627\u0633\u062A\u0641\u0633\u0627\u0631\u0627\u062A \u0644\u0631\u0624\u064A\u0629 \u0646\u0633\u0628\u0629 \u0627\u0644\u062A\u062D\u0648\u064A\u0644." } },
   state: { skip: "\u0627\u0646\u062A\u0642\u0644 \u0625\u0644\u0649 \u0627\u0644\u0645\u062D\u062A\u0648\u0649", loading: "\u062C\u0627\u0631\u064D \u0627\u0644\u062A\u062D\u0645\u064A\u0644\u2026", error: "\u062D\u062F\u062B \u062E\u0637\u0623 \u0623\u062B\u0646\u0627\u0621 \u062A\u062D\u0645\u064A\u0644 \u0647\u0630\u0627 \u0627\u0644\u0642\u0633\u0645.", retry: "\u0623\u0639\u062F \u0627\u0644\u0645\u062D\u0627\u0648\u0644\u0629", offline: "\u064A\u0628\u062F\u0648 \u0623\u0646\u0643 \u063A\u064A\u0631 \u0645\u062A\u0635\u0644. \u062A\u062D\u0642\u0642 \u0645\u0646 \u0627\u0644\u0627\u062A\u0635\u0627\u0644 \u0648\u062D\u0627\u0648\u0644 \u0645\u062C\u062F\u062F\u064B\u0627.", timeout: "\u0627\u0633\u062A\u063A\u0631\u0642 \u0627\u0644\u062E\u0627\u062F\u0645 \u0648\u0642\u062A\u064B\u0627 \u0637\u0648\u064A\u0644\u064B\u0627 \u0644\u0644\u0631\u062F." }
 };
 var ALL = { en: EN, tr: TR, fr: FR, ar: AR };
@@ -2155,9 +2167,10 @@ function mountAuriChat({ host, lang: lang2, esc: esc3, link: link2, me: me2, wor
   };
   log = [greeting(), ...log.filter((m) => !m.greeting)];
   save();
+  const mountedAt = log.length;
   history2?.load().then((messages) => {
     if (!messages?.length || !host.isConnected) return;
-    log = [greeting(), ...messages.map((m) => ({ role: m.role, text: m.text }))];
+    log = [greeting(), ...messages.map((m) => ({ role: m.role, text: m.text })), ...log.slice(mountedAt)];
     save();
     draw();
   }).catch(() => {
@@ -2450,6 +2463,443 @@ function mirrorArrows(root, rtl) {
   arrowObserver.observe(root, { childList: true, subtree: true });
 }
 
+// src/http.js
+var ApiError = class extends Error {
+  constructor(status, message, headers = {}) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.headers = headers;
+  }
+};
+
+// src/growth-engine.js
+var FORMULA_VERSION = "aura-funnel-1";
+var capabilities = [
+  { id: "website", level: 1, service: "Website Development", dependencies: [], priority: 1 },
+  { id: "domain", level: 1, service: "Domains and Hosting", dependencies: [], priority: 1 },
+  { id: "email", level: 1, service: "Business Email", dependencies: ["domain"], priority: 2 },
+  { id: "seo", level: 2, service: "SEO", dependencies: ["website"], priority: 2 },
+  { id: "discovery", level: 2, service: "Business Discovery", dependencies: [], priority: 2 },
+  { id: "leads", level: 3, service: "Lead Capture", dependencies: ["website"], priority: 2 },
+  { id: "crm", level: 3, service: "CRM", dependencies: ["leads"], priority: 3 },
+  { id: "automation", level: 4, service: "AI Automation", dependencies: ["crm"], priority: 3 },
+  { id: "analytics", level: 5, service: "Analytics", dependencies: ["website"], priority: 2 },
+  { id: "retention", level: 5, service: "Customer Retention", dependencies: ["crm"], priority: 3 },
+  { id: "branding", level: 1, service: "Brand identity", dependencies: [], priority: 3 },
+  { id: "hosting", level: 1, service: "Hosting and security", dependencies: ["website"], priority: 3 },
+  { id: "ads", level: 2, service: "Search advertising", dependencies: ["leads"], priority: 3, optional: true },
+  { id: "reviews", level: 2, service: "Online reviews", dependencies: ["discovery"], priority: 3 },
+  { id: "whatsapp", level: 3, service: "WhatsApp integration", dependencies: [], priority: 3 },
+  { id: "conversion", level: 3, service: "Conversion optimization", dependencies: ["leads"], priority: 3 },
+  { id: "followups", level: 4, service: "Automated follow-ups", dependencies: ["crm"], priority: 3, optional: true },
+  { id: "menu", level: 1, service: "Digital menu", dependencies: [], priority: 2, industry: "restaurant" }
+];
+function diagnose(profile) {
+  const existing = new Set(profile.capabilities || []);
+  if (profile.website) existing.add("website");
+  const relevant = capabilities.filter((c) => !c.industry || c.industry === profile.industry);
+  const demand = [profile.goals, profile.difficulties].join(" ");
+  const visibility = /visibility|search|traffic|local|reservations|customers|görünür|visibilité|عملاء/i.test(demand);
+  const conversion = /leads|sales|convert|bookings|ventes|satış|مبيعات/i.test(demand);
+  const automation = /automat|follow.up|manual|messag|otomasyon|أتمتة/i.test(demand);
+  const missions = relevant.filter((c) => !existing.has(c.id)).map((c) => {
+    const [, reason, nextAction] = missionGuide[c.id];
+    const prioritized = visibility && ["discovery", "seo", "reviews"].includes(c.id) || conversion && ["leads", "whatsapp", "crm"].includes(c.id) || automation && ["automation", "followups"].includes(c.id) || profile.industry === "restaurant" && ["discovery", "menu"].includes(c.id) || profile.industry === "ecommerce" && ["analytics", "conversion"].includes(c.id) || profile.industry === "salon" && ["whatsapp", "reviews", "discovery", "retention"].includes(c.id) || profile.industry === "retail" && ["discovery", "reviews", "website"].includes(c.id) || profile.industry === "professional" && ["website", "leads", "crm"].includes(c.id);
+    const optional = c.optional === true || profile.budget === 0 && c.id === "automation";
+    return {
+      ...c,
+      priority: prioritized && !optional ? 1 : c.priority,
+      optional,
+      objective: c.service,
+      description: reason,
+      reason,
+      estimatedCost: null,
+      currency: profile.currency || "USD",
+      expectedBenefit: reason,
+      nextAction,
+      completionSource: "customer_reported"
+    };
+  });
+  const strengths = relevant.filter((c) => existing.has(c.id)).map((c) => c.service);
+  return {
+    ruleVersion: "aura-readiness-2",
+    source: "customer_entered",
+    strengths,
+    missing: missions.map((c) => c.id),
+    readiness: Math.round(strengths.length / relevant.length * 100),
+    budget: profile.budget ?? null,
+    currency: profile.currency || "USD",
+    missions,
+    notice: "Readiness measures reported capabilities. Cost requires an approved quote. No purchase is required to complete a mission."
+  };
+}
+function number2(value, key, min, max) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < min || value > max) throw new ApiError(400, `Invalid ${key}.`);
+  return value;
+}
+function simulate(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new ApiError(400, "Simulator inputs required.");
+  const inputs = {};
+  if (raw.solutions !== void 0 && (!Array.isArray(raw.solutions) || raw.solutions.length > capabilities.length || raw.solutions.some((id) => !capabilities.some((c) => c.id === id)))) throw new ApiError(400, "Invalid selected digital solutions.");
+  inputs.solutions = [...new Set(raw.solutions || [])];
+  for (const [k, max] of Object.entries({ visits: 1e9, leads: 1e9, customerValue: 1e9, monthlyCost: 1e9, setupCost: 1e9 })) inputs[k] = number2(raw[k], k, 0, max);
+  inputs.closeRate = number2(raw.closeRate, "closeRate", 0, 100);
+  inputs.margin = number2(raw.margin, "margin", 0, 100);
+  if (inputs.leads > inputs.visits) throw new ApiError(400, "Leads cannot exceed visits in this website funnel.");
+  inputs.currency = ["USD", "EUR", "TRY", "TND"].includes(raw.currency) ? raw.currency : "USD";
+  if (!Array.isArray(raw.assumptions) || raw.assumptions.length !== 3) throw new ApiError(400, "Provide three scenario assumptions.");
+  inputs.assumptions = raw.assumptions.map((a, i) => {
+    if (!a || typeof a !== "object") throw new ApiError(400, "Invalid scenario.");
+    return { name: ["conservative", "base", "ambitious"][i], trafficLift: number2(a.trafficLift, "trafficLift", 0, 300), leadRateLift: number2(a.leadRateLift, "leadRateLift", 0, 300), closeRateLift: number2(a.closeRateLift, "closeRateLift", 0, 300) };
+  });
+  const baselineCustomers = inputs.leads * inputs.closeRate / 100, baselineRevenue = baselineCustomers * inputs.customerValue;
+  const scenarios = inputs.assumptions.map((a) => {
+    const visits = inputs.visits * (1 + a.trafficLift / 100), leadRate = inputs.visits ? inputs.leads / inputs.visits : 0;
+    const leads = visits * Math.min(1, leadRate * (1 + a.leadRateLift / 100)), customers = leads * Math.min(1, inputs.closeRate / 100 * (1 + a.closeRateLift / 100));
+    const revenue = customers * inputs.customerValue, additionalRevenue = revenue - baselineRevenue, contributionProfit = additionalRevenue * inputs.margin / 100, netMonthly = contributionProfit - inputs.monthlyCost;
+    const firstYearCost = inputs.setupCost + 12 * inputs.monthlyCost;
+    if ([revenue, additionalRevenue, contributionProfit, netMonthly, firstYearCost, 12 * contributionProfit].some((value) => !Number.isSafeInteger(Math.round(value * 100)))) throw new ApiError(400, "Reduce the input amounts; the result exceeds safe monetary precision.");
+    return { name: a.name, visits, leads, customers, additionalCustomers: customers - baselineCustomers, additionalLeads: leads - inputs.leads, revenue, additionalRevenue, contributionProfit, monthlyCost: inputs.monthlyCost, setupCost: inputs.setupCost, netMonthly, firstYearROI: firstYearCost ? (12 * contributionProfit - firstYearCost) / firstYearCost * 100 : null, paybackMonths: netMonthly > 0 ? inputs.setupCost / netMonthly : null };
+  });
+  return { formulaVersion: FORMULA_VERSION, inputs, baseline: { customers: baselineCustomers, revenue: baselineRevenue }, scenarios, source: "customer_entered_and_assumptions", notice: "Illustrative monthly funnel, not guaranteed growth. Apply one combined lift per funnel stage; overlapping service effects must not be added. Revenue uses a consistent customer-value period. Contribution excludes fixed overhead, taxes and financing." };
+}
+
+// src/hub/business-view.js
+var C = {
+  en: {
+    title: "My Business",
+    lead: "The details AuraDigital and Auri use for your roadmap, website, menu and requests.",
+    complete: (n) => `Profile ${n}% complete`,
+    completeHint: "A complete profile means fewer questions on every request.",
+    identity: "Business",
+    contact: "Contact",
+    hours: "Opening hours",
+    online: "Online presence",
+    brand: "Brand",
+    context: "Goals & context",
+    existing: "What you already have",
+    logo: "Logo",
+    uploadLogo: "Upload logo",
+    changeLogo: "Change logo",
+    removeLogo: "Remove",
+    logoHint: "Square images look best. JPEG, PNG or WebP.",
+    name: "Business name",
+    industry: "Category",
+    details: "What you offer",
+    phone: "Phone",
+    email: "Business email",
+    address: "Address",
+    city: "City",
+    country: "Country",
+    hoursField: "Hours",
+    hoursHint: "For example: Mon\u2013Fri 9:00\u201318:00, Sat 10:00\u201316:00, Sun closed.",
+    website: "Website",
+    social: { instagram: "Instagram", facebook: "Facebook", tiktok: "TikTok", linkedin: "LinkedIn", maps: "Google Maps", whatsapp: "WhatsApp link" },
+    socialHint: "Paste full links starting with https://",
+    colors: "Brand colors",
+    colorsHint: "Up to three colors used on your website and menu.",
+    addColor: "Add color",
+    goals: "Main goal",
+    stage: "Business stage",
+    acquisition: "How customers find you",
+    difficulties: "Main difficulties",
+    tools: "Tools you use",
+    timeline: "Timeline",
+    budget: "Approximate budget",
+    currency: "Currency",
+    save: "Save changes",
+    saved: "Business details saved.",
+    unsaved: "You have unsaved changes.",
+    readOnly: "You can view these details. Ask the owner for edit access.",
+    none: "Not added yet",
+    remove: "Remove"
+  },
+  tr: {
+    title: "\u0130\u015Fletmem",
+    lead: "AuraDigital ve Auri\u2019nin yol haritas\u0131, web sitesi, men\xFC ve talepler i\xE7in kulland\u0131\u011F\u0131 bilgiler.",
+    complete: (n) => `Profil %${n} tamamland\u0131`,
+    completeHint: "Eksiksiz bir profil, her talepte daha az soru demektir.",
+    identity: "\u0130\u015Fletme",
+    contact: "\u0130leti\u015Fim",
+    hours: "\xC7al\u0131\u015Fma saatleri",
+    online: "Online varl\u0131k",
+    brand: "Marka",
+    context: "Hedefler ve ba\u011Flam",
+    existing: "Halihaz\u0131rda sahip olduklar\u0131",
+    logo: "Logo",
+    uploadLogo: "Logo y\xFCkle",
+    changeLogo: "Logoyu de\u011Fi\u015Ftir",
+    removeLogo: "Kald\u0131r",
+    logoHint: "Kare g\xF6rseller en iyi g\xF6r\xFCn\xFCr. JPEG, PNG veya WebP.",
+    name: "\u0130\u015Fletme ad\u0131",
+    industry: "Kategori",
+    details: "Ne sunuyorsunuz",
+    phone: "Telefon",
+    email: "\u0130\u015Fletme e-postas\u0131",
+    address: "Adres",
+    city: "\u015Eehir",
+    country: "\xDClke",
+    hoursField: "Saatler",
+    hoursHint: "\xD6rne\u011Fin: Pzt\u2013Cum 9:00\u201318:00, Cmt 10:00\u201316:00, Paz kapal\u0131.",
+    website: "Web sitesi",
+    social: { instagram: "Instagram", facebook: "Facebook", tiktok: "TikTok", linkedin: "LinkedIn", maps: "Google Haritalar", whatsapp: "WhatsApp ba\u011Flant\u0131s\u0131" },
+    socialHint: "https:// ile ba\u015Flayan tam ba\u011Flant\u0131lar\u0131 yap\u0131\u015Ft\u0131r\u0131n",
+    colors: "Marka renkleri",
+    colorsHint: "Web sitenizde ve men\xFCn\xFCzde kullan\u0131lan en fazla \xFC\xE7 renk.",
+    addColor: "Renk ekle",
+    goals: "Ana hedef",
+    stage: "\u0130\u015Fletme a\u015Famas\u0131",
+    acquisition: "M\xFC\u015Fteriler sizi nas\u0131l buluyor",
+    difficulties: "Ana zorluklar",
+    tools: "Kulland\u0131\u011F\u0131n\u0131z ara\xE7lar",
+    timeline: "Zaman \xE7izelgesi",
+    budget: "Yakla\u015F\u0131k b\xFCt\xE7e",
+    currency: "Para birimi",
+    save: "De\u011Fi\u015Fiklikleri kaydet",
+    saved: "\u0130\u015Fletme bilgileri kaydedildi.",
+    unsaved: "Kaydedilmemi\u015F de\u011Fi\u015Fiklikler var.",
+    readOnly: "Bu bilgileri g\xF6r\xFCnt\xFCleyebilirsiniz. D\xFCzenleme yetkisi i\xE7in sahibine ba\u015Fvurun.",
+    none: "Hen\xFCz eklenmedi",
+    remove: "Kald\u0131r"
+  },
+  fr: {
+    title: "Mon activit\xE9",
+    lead: "Les informations qu\u2019AuraDigital et Auri utilisent pour votre feuille de route, site, menu et demandes.",
+    complete: (n) => `Profil compl\xE9t\xE9 \xE0 ${n} %`,
+    completeHint: "Un profil complet \xE9vite de r\xE9p\xE9ter les m\xEAmes questions.",
+    identity: "Activit\xE9",
+    contact: "Contact",
+    hours: "Horaires",
+    online: "Pr\xE9sence en ligne",
+    brand: "Marque",
+    context: "Objectifs et contexte",
+    existing: "Ce que vous avez d\xE9j\xE0",
+    logo: "Logo",
+    uploadLogo: "Ajouter un logo",
+    changeLogo: "Changer le logo",
+    removeLogo: "Supprimer",
+    logoHint: "Les images carr\xE9es rendent le mieux. JPEG, PNG ou WebP.",
+    name: "Nom de l\u2019activit\xE9",
+    industry: "Cat\xE9gorie",
+    details: "Ce que vous proposez",
+    phone: "T\xE9l\xE9phone",
+    email: "E-mail professionnel",
+    address: "Adresse",
+    city: "Ville",
+    country: "Pays",
+    hoursField: "Horaires",
+    hoursHint: "Par exemple : lun\u2013ven 9h\u201318h, sam 10h\u201316h, dim ferm\xE9.",
+    website: "Site web",
+    social: { instagram: "Instagram", facebook: "Facebook", tiktok: "TikTok", linkedin: "LinkedIn", maps: "Google Maps", whatsapp: "Lien WhatsApp" },
+    socialHint: "Collez des liens complets commen\xE7ant par https://",
+    colors: "Couleurs de marque",
+    colorsHint: "Jusqu\u2019\xE0 trois couleurs pour votre site et menu.",
+    addColor: "Ajouter une couleur",
+    goals: "Objectif principal",
+    stage: "Stade de l\u2019activit\xE9",
+    acquisition: "Comment les clients vous trouvent",
+    difficulties: "Difficult\xE9s principales",
+    tools: "Outils utilis\xE9s",
+    timeline: "D\xE9lai",
+    budget: "Budget approximatif",
+    currency: "Devise",
+    save: "Enregistrer",
+    saved: "Informations enregistr\xE9es.",
+    unsaved: "Modifications non enregistr\xE9es.",
+    readOnly: "Vous pouvez consulter ces informations. Demandez un acc\xE8s en \xE9criture au propri\xE9taire.",
+    none: "Non renseign\xE9",
+    remove: "Supprimer"
+  },
+  ar: {
+    title: "\u0646\u0634\u0627\u0637\u064A",
+    lead: "\u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644 \u0627\u0644\u062A\u064A \u062A\u0633\u062A\u062E\u062F\u0645\u0647\u0627 AuraDigital \u0648\u0623\u0648\u0631\u064A \u0644\u0644\u062E\u0637\u0629 \u0648\u0627\u0644\u0645\u0648\u0642\u0639 \u0648\u0627\u0644\u0642\u0627\u0626\u0645\u0629 \u0648\u0627\u0644\u0637\u0644\u0628\u0627\u062A.",
+    complete: (n) => `\u0627\u0644\u0645\u0644\u0641 \u0645\u0643\u062A\u0645\u0644 \u0628\u0646\u0633\u0628\u0629 ${n}%`,
+    completeHint: "\u0627\u0644\u0645\u0644\u0641 \u0627\u0644\u0645\u0643\u062A\u0645\u0644 \u064A\u0639\u0646\u064A \u0623\u0633\u0626\u0644\u0629 \u0623\u0642\u0644 \u0641\u064A \u0643\u0644 \u0637\u0644\u0628.",
+    identity: "\u0627\u0644\u0646\u0634\u0627\u0637",
+    contact: "\u0627\u0644\u062A\u0648\u0627\u0635\u0644",
+    hours: "\u0633\u0627\u0639\u0627\u062A \u0627\u0644\u0639\u0645\u0644",
+    online: "\u0627\u0644\u062D\u0636\u0648\u0631 \u0627\u0644\u0631\u0642\u0645\u064A",
+    brand: "\u0627\u0644\u0639\u0644\u0627\u0645\u0629",
+    context: "\u0627\u0644\u0623\u0647\u062F\u0627\u0641 \u0648\u0627\u0644\u0633\u064A\u0627\u0642",
+    existing: "\u0645\u0627 \u0644\u062F\u064A\u0643 \u0628\u0627\u0644\u0641\u0639\u0644",
+    logo: "\u0627\u0644\u0634\u0639\u0627\u0631",
+    uploadLogo: "\u0631\u0641\u0639 \u0634\u0639\u0627\u0631",
+    changeLogo: "\u062A\u063A\u064A\u064A\u0631 \u0627\u0644\u0634\u0639\u0627\u0631",
+    removeLogo: "\u0625\u0632\u0627\u0644\u0629",
+    logoHint: "\u0627\u0644\u0635\u0648\u0631 \u0627\u0644\u0645\u0631\u0628\u0639\u0629 \u0647\u064A \u0627\u0644\u0623\u0641\u0636\u0644. JPEG \u0623\u0648 PNG \u0623\u0648 WebP.",
+    name: "\u0627\u0633\u0645 \u0627\u0644\u0646\u0634\u0627\u0637",
+    industry: "\u0627\u0644\u0641\u0626\u0629",
+    details: "\u0645\u0627 \u0627\u0644\u0630\u064A \u062A\u0642\u062F\u0645\u0647",
+    phone: "\u0627\u0644\u0647\u0627\u062A\u0641",
+    email: "\u0628\u0631\u064A\u062F \u0627\u0644\u0646\u0634\u0627\u0637",
+    address: "\u0627\u0644\u0639\u0646\u0648\u0627\u0646",
+    city: "\u0627\u0644\u0645\u062F\u064A\u0646\u0629",
+    country: "\u0627\u0644\u062F\u0648\u0644\u0629",
+    hoursField: "\u0627\u0644\u0633\u0627\u0639\u0627\u062A",
+    hoursHint: "\u0645\u062B\u0644\u064B\u0627: \u0627\u0644\u0625\u062B\u0646\u064A\u0646\u2013\u0627\u0644\u062C\u0645\u0639\u0629 9:00\u201318:00\u060C \u0627\u0644\u0633\u0628\u062A 10:00\u201316:00\u060C \u0627\u0644\u0623\u062D\u062F \u0645\u063A\u0644\u0642.",
+    website: "\u0627\u0644\u0645\u0648\u0642\u0639",
+    social: { instagram: "\u0625\u0646\u0633\u062A\u063A\u0631\u0627\u0645", facebook: "\u0641\u064A\u0633\u0628\u0648\u0643", tiktok: "\u062A\u064A\u0643 \u062A\u0648\u0643", linkedin: "\u0644\u064A\u0646\u0643\u062F\u0625\u0646", maps: "\u062E\u0631\u0627\u0626\u0637 Google", whatsapp: "\u0631\u0627\u0628\u0637 \u0648\u0627\u062A\u0633\u0627\u0628" },
+    socialHint: "\u0627\u0644\u0635\u0642 \u0631\u0648\u0627\u0628\u0637 \u0643\u0627\u0645\u0644\u0629 \u062A\u0628\u062F\u0623 \u0628\u0640 https://",
+    colors: "\u0623\u0644\u0648\u0627\u0646 \u0627\u0644\u0639\u0644\u0627\u0645\u0629",
+    colorsHint: "\u062D\u062A\u0649 \u062B\u0644\u0627\u062B\u0629 \u0623\u0644\u0648\u0627\u0646 \u0644\u0645\u0648\u0642\u0639\u0643 \u0648\u0642\u0627\u0626\u0645\u062A\u0643.",
+    addColor: "\u0623\u0636\u0641 \u0644\u0648\u0646\u064B\u0627",
+    goals: "\u0627\u0644\u0647\u062F\u0641 \u0627\u0644\u0631\u0626\u064A\u0633\u064A",
+    stage: "\u0645\u0631\u062D\u0644\u0629 \u0627\u0644\u0646\u0634\u0627\u0637",
+    acquisition: "\u0643\u064A\u0641 \u064A\u062C\u062F\u0643 \u0627\u0644\u0639\u0645\u0644\u0627\u0621",
+    difficulties: "\u0623\u0647\u0645 \u0627\u0644\u0635\u0639\u0648\u0628\u0627\u062A",
+    tools: "\u0627\u0644\u0623\u062F\u0648\u0627\u062A \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645\u0629",
+    timeline: "\u0627\u0644\u0645\u062F\u0629",
+    budget: "\u0627\u0644\u0645\u064A\u0632\u0627\u0646\u064A\u0629 \u0627\u0644\u062A\u0642\u0631\u064A\u0628\u064A\u0629",
+    currency: "\u0627\u0644\u0639\u0645\u0644\u0629",
+    save: "\u062D\u0641\u0638 \u0627\u0644\u062A\u063A\u064A\u064A\u0631\u0627\u062A",
+    saved: "\u062A\u0645 \u062D\u0641\u0638 \u062A\u0641\u0627\u0635\u064A\u0644 \u0627\u0644\u0646\u0634\u0627\u0637.",
+    unsaved: "\u0644\u062F\u064A\u0643 \u062A\u063A\u064A\u064A\u0631\u0627\u062A \u063A\u064A\u0631 \u0645\u062D\u0641\u0648\u0638\u0629.",
+    readOnly: "\u064A\u0645\u0643\u0646\u0643 \u0639\u0631\u0636 \u0647\u0630\u0647 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644. \u0627\u0637\u0644\u0628 \u0645\u0646 \u0627\u0644\u0645\u0627\u0644\u0643 \u0635\u0644\u0627\u062D\u064A\u0629 \u0627\u0644\u062A\u0639\u062F\u064A\u0644.",
+    none: "\u0644\u0645 \u064A\u064F\u0636\u0641 \u0628\u0639\u062F",
+    remove: "\u0625\u0632\u0627\u0644\u0629"
+  }
+};
+var SOCIAL = ["instagram", "facebook", "tiktok", "linkedin", "maps", "whatsapp"];
+function profileCompleteness(profile, logo, { ignoreLogo = false } = {}) {
+  const checks = [
+    profile.name,
+    profile.industry && profile.industry !== "other",
+    profile.industryDetails,
+    profile.phone,
+    profile.email,
+    profile.address || profile.city,
+    profile.hours,
+    profile.website,
+    profile.social && Object.keys(profile.social).length,
+    ...ignoreLogo ? [] : [logo],
+    profile.brandColors?.length,
+    profile.goals
+  ];
+  return Math.round(checks.filter(Boolean).length / checks.length * 100);
+}
+async function renderBusiness({ host, lang: lang2, esc: esc3, api: api2, endpoint: endpoint2, workspace: workspace2, cap: cap2, resizePhoto: resizePhoto2, toast: toast2, onSaved }) {
+  const c = C[lang2] || C.en;
+  const canWrite = workspace2.permissions.includes("profile:write");
+  const profile = structuredClone(workspace2.profile || {});
+  let logo = null;
+  try {
+    ({ logo } = await api2(endpoint2("logo")));
+  } catch {
+  }
+  if (!host.isConnected) return;
+  let colors = [...profile.brandColors || []];
+  const field2 = (key, label, { type = "text", value = profile[key] ?? "", max = 200, hint = "", area = false, attrs = "" } = {}) => `<label class="os-field"><span>${esc3(label)}</span>${area ? `<textarea name="${key}" rows="3" maxlength="${max}" ${canWrite ? "" : "readonly"} ${attrs}>${esc3(value)}</textarea>` : `<input name="${key}" type="${type}" value="${esc3(value)}" maxlength="${max}" ${canWrite ? "" : "readonly"} ${attrs}>`}${hint ? `<small>${esc3(hint)}</small>` : ""}</label>`;
+  const section = (id, title, iconName, body) => `<section class="os-card os-biz-section" aria-labelledby="biz-${id}"><header class="os-card-head"><div><h2 id="biz-${id}">${icon2(iconName, 18)} ${esc3(title)}</h2></div></header>${body}</section>`;
+  const draw = () => {
+    const pct = profileCompleteness({ ...profile, brandColors: colors }, logo);
+    host.innerHTML = `<div class="os-business">
+   <header class="os-biz-head">
+    <div class="os-biz-logo">${logo ? `<img src="${esc3(logo)}" alt="${esc3(c.logo)}" width="88" height="88">` : `<span aria-hidden="true">${esc3(String(profile.name || "?").trim().slice(0, 2).toUpperCase())}</span>`}</div>
+    <div class="os-biz-title"><p class="os-eyebrow">${esc3(industryLabel(lang2, profile.industry || "other"))}${profile.city ? " \xB7 " + esc3(profile.city) : ""}</p><h1>${esc3(profile.name || c.title)}</h1><p class="os-muted">${esc3(c.lead)}</p></div>
+    <div class="os-biz-meter" role="group" aria-label="${esc3(c.complete(pct))}"><strong>${esc3(c.complete(pct))}</strong><span class="os-bar"><i style="width:${pct}%"></i></span><small>${esc3(c.completeHint)}</small></div>
+   </header>
+   ${canWrite ? "" : `<p class="os-notice">${icon2("lock", 16)}<span>${esc3(c.readOnly)}</span></p>`}
+   <form class="os-biz-form" data-biz-form novalidate>
+    <div class="os-biz-grid">
+     ${section("identity", c.identity, "business", `<div class="os-biz-logo-row"><div class="os-biz-logo is-sm">${logo ? `<img src="${esc3(logo)}" alt="" width="56" height="56">` : icon2("business", 22)}</div><div><strong>${esc3(c.logo)}</strong><small class="os-muted">${esc3(c.logoHint)}</small>
+       ${canWrite ? `<div class="os-inline-actions"><label class="os-btn is-quiet is-sm">${esc3(logo ? c.changeLogo : c.uploadLogo)}<input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" data-logo></label>${logo ? `<button type="button" class="os-btn is-quiet is-sm" data-logo-remove>${esc3(c.removeLogo)}</button>` : ""}</div>` : ""}</div></div>
+      ${field2("name", c.name, { max: 120, attrs: "required" })}
+      <label class="os-field"><span>${esc3(c.industry)}</span><select name="industry" ${canWrite ? "" : "disabled"}>${INDUSTRY_IDS.map((id) => `<option value="${id}" ${profile.industry === id ? "selected" : ""}>${esc3(industryLabel(lang2, id))}</option>`).join("")}</select></label>
+      ${field2("industryDetails", c.details, { area: true, max: 1600 })}`)}
+     ${section("contact", c.contact, "phone", `${field2("phone", c.phone, { type: "tel", max: 40, attrs: 'autocomplete="tel"' })}${field2("email", c.email, { type: "email", max: 254, attrs: 'autocomplete="email"' })}
+      ${field2("address", c.address, { area: true, max: 300 })}<div class="os-field-row">${field2("city", c.city, { max: 100 })}${field2("country", c.country, { max: 80 })}</div>`)}
+     ${section("hours", c.hours, "clock", field2("hours", c.hoursField, { area: true, max: 600, hint: c.hoursHint }))}
+     ${section("online", c.online, "globe", `${field2("website", c.website, { type: "url", max: 500, attrs: 'placeholder="https://"' })}
+      <div class="os-field-row is-wrap">${SOCIAL.map((k) => field2("social." + k, c.social[k], { type: "url", value: profile.social?.[k] || "", max: 500, attrs: 'placeholder="https://"' })).join("")}</div><small class="os-muted">${esc3(c.socialHint)}</small>`)}
+     ${section("brand", c.brand, "spark", `<p class="os-muted">${esc3(c.colorsHint)}</p><div class="os-colors">${colors.map((col, i) => `<label class="os-color"><span class="sr-only">${esc3(c.colors)} ${i + 1}</span><input type="color" value="${esc3(col)}" data-color="${i}" ${canWrite ? "" : "disabled"}><code>${esc3(col)}</code>${canWrite ? `<button type="button" class="os-link" data-color-remove="${i}">${esc3(c.remove)}</button>` : ""}</label>`).join("")}
+      ${canWrite && colors.length < 3 ? `<button type="button" class="os-btn is-quiet is-sm" data-color-add>${icon2("plus", 16)}<span>${esc3(c.addColor)}</span></button>` : ""}${!colors.length && !canWrite ? `<p class="os-muted">${esc3(c.none)}</p>` : ""}</div>`)}
+     ${section("context", c.context, "journey", `${field2("goals", c.goals, { area: true, max: 1600 })}<div class="os-field-row">${field2("stage", c.stage, { max: 80 })}${field2("timeline", c.timeline, { max: 200 })}</div>
+      ${field2("acquisition", c.acquisition, { area: true, max: 1200 })}${field2("difficulties", c.difficulties, { area: true, max: 1600 })}${field2("tools", c.tools, { area: true, max: 1200 })}
+      <div class="os-field-row">${field2("budget", c.budget, { type: "number", value: profile.budget ?? "", attrs: 'min="0" step="any"' })}<label class="os-field"><span>${esc3(c.currency)}</span><select name="currency" ${canWrite ? "" : "disabled"}>${["USD", "EUR", "TRY", "TND"].map((x) => `<option ${profile.currency === x ? "selected" : ""}>${x}</option>`).join("")}</select></label></div>`)}
+     ${section("existing", c.existing, "check", `<div class="os-checks">${capabilities.filter((x) => !x.industry || x.industry === profile.industry).map((x) => `<label class="os-check"><input type="checkbox" name="capabilities" value="${x.id}" ${(profile.capabilities || []).includes(x.id) ? "checked" : ""} ${canWrite ? "" : "disabled"}><span>${esc3(cap2(x.id))}</span></label>`).join("")}</div>`)}
+    </div>
+    ${canWrite ? `<div class="os-biz-save" data-save-bar><span class="os-muted" data-dirty role="status"></span><p class="os-error" role="alert"></p><button class="os-btn is-primary">${esc3(c.save)}</button></div>` : ""}
+   </form></div>`;
+    bind();
+  };
+  function collect(form) {
+    const data = new FormData(form);
+    for (const key of ["name", "industry", "industryDetails", "phone", "email", "address", "city", "country", "hours", "website", "goals", "stage", "timeline", "acquisition", "difficulties", "tools", "currency"]) if (data.has(key)) profile[key] = String(data.get(key)).trim();
+    const budget = data.get("budget");
+    profile.budget = budget === "" || budget === null ? null : Number(budget);
+    profile.social = Object.fromEntries(SOCIAL.map((k) => [k, String(data.get("social." + k) || "").trim()]).filter(([, v]) => v));
+    profile.capabilities = data.getAll("capabilities");
+    profile.brandColors = colors;
+  }
+  function bind() {
+    const form = host.querySelector("[data-biz-form]");
+    if (!canWrite) return;
+    const dirty = host.querySelector("[data-dirty]");
+    form.addEventListener("input", () => {
+      dirty.textContent = c.unsaved;
+      host.querySelector("[data-save-bar]").classList.add("is-dirty");
+    });
+    host.querySelectorAll("[data-color]").forEach((input) => input.addEventListener("input", () => {
+      colors[Number(input.dataset.color)] = input.value.toUpperCase();
+      input.nextElementSibling.textContent = input.value.toUpperCase();
+    }));
+    host.querySelectorAll("[data-color-remove]").forEach((b) => b.addEventListener("click", () => {
+      collect(form);
+      colors.splice(Number(b.dataset.colorRemove), 1);
+      draw();
+      host.querySelector("[data-dirty]").textContent = c.unsaved;
+    }));
+    host.querySelector("[data-color-add]")?.addEventListener("click", () => {
+      collect(form);
+      colors.push(colors.length ? "#D8F56A" : "#003D2B");
+      draw();
+      host.querySelector("[data-dirty]").textContent = c.unsaved;
+    });
+    host.querySelector("[data-logo]")?.addEventListener("change", async (e) => {
+      const alert = host.querySelector("[role=alert]");
+      try {
+        collect(form);
+        const data = await resizePhoto2(e.target.files[0]);
+        ({ logo } = await api2(endpoint2("logo"), "PUT", { logo: data }));
+        draw();
+      } catch (error) {
+        alert.textContent = error.message;
+      }
+    });
+    host.querySelector("[data-logo-remove]")?.addEventListener("click", async () => {
+      try {
+        collect(form);
+        await api2(endpoint2("logo"), "DELETE");
+        logo = null;
+        draw();
+      } catch (error) {
+        host.querySelector("[role=alert]").textContent = error.message;
+      }
+    });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const alert = form.querySelector("[role=alert]"), submit = form.querySelector(".os-biz-save button");
+      alert.textContent = "";
+      collect(form);
+      if (!profile.name) {
+        form.elements.name.focus();
+        return;
+      }
+      submit.disabled = true;
+      try {
+        await api2(endpoint2("profile"), "PUT", { profile, mode: workspace2.organization.mode, version: workspace2.organization.version });
+        toast2(c.saved);
+        await onSaved();
+      } catch (error) {
+        alert.textContent = error.message;
+        submit.disabled = false;
+      }
+    });
+  }
+  draw();
+}
+
 // src/hub/aura-command.js
 var TERMINAL = /^(completed|cancelled|canceled|rejected|delivered)$/;
 var chartRange = "30d";
@@ -2484,7 +2934,7 @@ var within = (value, from, to) => {
   const d = parseDate(value);
   return d && d >= from && d < to;
 };
-function renderAuraCommand({ host, lang: lang2, esc: esc3, link: link2, requestLink: requestLink2, me: me2, workspace: workspace2, snapshot, connected, leads, missionTitle: missionTitle2, next, eligible = [], continueLabel, attention, canAsk, canRequest, onAsk, onPrepare }) {
+function renderAuraCommand({ host, lang: lang2, esc: esc3, link: link2, requestLink: requestLink2, me: me2, workspace: workspace2, snapshot, connected, leads, missionTitle: missionTitle2, next, eligible = [], continueLabel, attention, canAsk, canRequest, onAsk, onChat = onAsk, onPrepare }) {
   const c = osCopy(lang2), d = dashCopy(lang2);
   const profile = workspace2.profile || {};
   const perms = workspace2.permissions || [];
@@ -2543,8 +2993,23 @@ function renderAuraCommand({ host, lang: lang2, esc: esc3, link: link2, requestL
     })
   ].join("");
   const events = activityEvents({ leads: leadList, workspace: workspace2, snapshot, connected, missionTitle: missionTitle2, link: link2, c }).slice(0, 7);
+  const soon = Date.now() + 7 * 864e5;
+  const today = [
+    ...connected?.totals?.invoicesDue ? [{ attention: true, tag: c.today.tag, title: c.billing.invoices(connected.totals.invoicesDue), label: c.billing.open, href: "/account", icon: "orders" }] : [],
+    ...active.filter((i) => {
+      const d2 = parseDate(i.due);
+      return d2 && d2.getTime() < soon;
+    }).slice(0, 2).map((i) => ({ attention: true, tag: c.today.tag, title: c.today.due(i.title, shortDate(lang2, i.due)), label: c.services.details, href: i.href, icon: "clock" })),
+    ...(() => {
+      const stale = leadList.filter((l) => !l.archived && l.stage !== "won" && parseDate(l.updatedAt) && Date.now() - parseDate(l.updatedAt).getTime() > 3 * 864e5);
+      return stale.length ? [{ attention: true, tag: c.today.tag, title: c.today.stale(stale.length), label: c.today.openPipeline, href: link2("studio", { view: "pipeline" }), icon: "user" }] : [];
+    })()
+  ];
+  const completeness = profileCompleteness(profile, null, { ignoreLogo: true });
   const nextList = [
     ...attention ? [{ attention: true, title: attention.name, label: attention.label, href: attention.href }] : [],
+    ...today,
+    ...completeness < 70 && perms.includes("profile:write") ? [{ attention: true, tag: c.today.profileTag, title: c.today.profile(completeness), label: c.today.completeProfile, href: link2("profile"), icon: "business" }] : [],
     ...eligible.slice(0, attention ? 2 : 3).map((m) => ({ mission: m, title: missionTitle2(m), why: guideText(m.capability, 1, lang2, missionGuide[m.capability]?.[1] ?? m.reason) || "", href: link2("journey", { task: m.id }), service: missionGuide[m.capability]?.[0] }))
   ];
   const auriLine = attention ? c.auri.attention(attention.name) : next ? c.auri.next(missionTitle2(next)) : (workspace2.missions || []).length ? c.auri.idle : c.auri.setup;
@@ -2554,8 +3019,10 @@ function renderAuraCommand({ host, lang: lang2, esc: esc3, link: link2, requestL
    <div class="os-hero-text"><p class="os-eyebrow">${esc3(c.sections.command)} \xB7 ${esc3(c.sections.commandTag)}</p>
     <h1 id="os-greeting">${esc3(c.greet.line(part, first))} <span>${esc3(c.greet.sub(workspace2.organization.name))}</span></h1></div>
    ${quick.length ? `<nav class="os-quick" aria-label="${esc3(c.sections.command)}">${quick.map((q) => q.ask ? `<button type="button" class="os-btn is-quiet" data-os-ask="">${icon2(q.icon)}<span>${esc3(q.label)}</span></button>` : `<a class="os-btn ${q.primary ? "is-primary" : "is-quiet"}" href="${esc3(q.href)}">${icon2(q.icon)}<span>${esc3(q.label)}</span></a>`).join("")}</nav>` : ""}
+   ${canAsk ? `<form class="os-askbar" data-os-askbar><label class="sr-only" for="os-askbar-q">${esc3(c.auri.ask)}</label>${icon2("auri", 18)}<input id="os-askbar-q" name="q" maxlength="500" autocomplete="off" placeholder="${esc3(c.auri.placeholder)}"><button class="os-btn is-primary is-sm">${esc3(c.auri.ask)}</button></form>` : ""}
   </section>
   <section class="os-kpis" aria-label="${esc3(c.chart.title)}">${kpis}</section>
+  <p class="os-updated">${icon2("clock", 14)} ${esc3(c.today.updated((/* @__PURE__ */ new Date()).toLocaleTimeString(lang2, { hour: "2-digit", minute: "2-digit" })))}</p>
   <div class="os-command-grid">
    <div class="os-col">
     <section class="os-card os-perf" aria-labelledby="os-perf-title">
@@ -2583,8 +3050,8 @@ function renderAuraCommand({ host, lang: lang2, esc: esc3, link: link2, requestL
     <section class="os-card" aria-labelledby="os-next-title">
      <header class="os-card-head"><div><h2 id="os-next-title">${esc3(c.next.title)}</h2></div></header>
      ${nextList.length ? `<ul class="os-next">${nextList.map((n, i) => `<li class="${n.attention ? "is-attention" : ""}">
-      <span class="os-next-mark">${n.attention ? icon2("alert", 16) : `<b>${i + 1 - (attention ? 1 : 0)}</b>`}</span>
-      <div><small>${esc3(n.attention ? c.next.attention : c.next.roadmap)}</small><strong>${esc3(n.title)}</strong>${n.why ? `<p>${esc3(n.why)}</p>` : ""}
+      <span class="os-next-mark">${n.attention ? icon2(n.icon || "alert", 16) : `<b>${i + 1 - nextList.filter((x) => x.attention).length}</b>`}</span>
+      <div><small>${esc3(n.attention ? n.tag || c.next.attention : c.next.roadmap)}</small><strong>${esc3(n.title)}</strong>${n.why ? `<p>${esc3(n.why)}</p>` : ""}
        <div class="os-next-actions">${n.attention ? `<a class="os-link" href="${esc3(n.href)}">${esc3(n.label)}</a>` : `<a class="os-link" href="${esc3(n.href)}">${esc3(c.next.open)}</a>${canRequest && n.service ? `<button type="button" class="os-link" data-os-prepare="${esc3(n.mission.id)}">${esc3(c.next.prepare)}</button>` : ""}`}</div></div></li>`).join("")}</ul>` : emptyState({ esc: esc3, iconName: "check", title: c.next.empty, tone: "good" })}
     </section>
     <section class="os-card" aria-labelledby="os-svc-title">
@@ -2642,6 +3109,14 @@ function renderAuraCommand({ host, lang: lang2, esc: esc3, link: link2, requestL
     bookings: c.auri.promptBookings(bookingLabel(c, profile.industry))
   };
   host.querySelectorAll("[data-os-ask]").forEach((b) => b.addEventListener("click", () => onAsk(prompts[b.dataset.osAsk] || null)));
+  host.querySelector("[data-os-askbar]")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const q = String(new FormData(e.currentTarget).get("q") || "").trim();
+    if (q) {
+      onChat(q.slice(0, 500));
+      e.currentTarget.reset();
+    }
+  });
   host.querySelectorAll("[data-os-prepare]").forEach((b) => b.addEventListener("click", () => onPrepare(workspace2.missions.find((m) => m.id === b.dataset.osPrepare))));
 }
 
@@ -3269,444 +3744,8 @@ async function analytics(ctx) {
     return [name, list.filter((m) => m.status === "done").length, list.length];
   }).map(([n, d, t2]) => [`${n} (${d}/${t2})`, d]), Math.max(1, ...c.journey.stages.map((_, i) => missions.filter((m) => Math.max(1, Math.min(5, Number(m.level) || 1)) === i + 1).length)))}
     <p class="os-source">${esc3(a.srcRoadmap)}</p></section>
+   <section class="os-card"><header class="os-card-head"><div><h2>${esc3(a.simulator)}</h2><p>${esc3(a.simulatorNote)}</p></div></header><a class="os-btn is-quiet is-sm" href="${esc3(link2("simulator"))}">${icon2("analytics", 16)}<span>${esc3(a.simulator)}</span></a></section>
   </div>`;
-}
-
-// src/http.js
-var ApiError = class extends Error {
-  constructor(status, message, headers = {}) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-    this.headers = headers;
-  }
-};
-
-// src/growth-engine.js
-var FORMULA_VERSION = "aura-funnel-1";
-var capabilities = [
-  { id: "website", level: 1, service: "Website Development", dependencies: [], priority: 1 },
-  { id: "domain", level: 1, service: "Domains and Hosting", dependencies: [], priority: 1 },
-  { id: "email", level: 1, service: "Business Email", dependencies: ["domain"], priority: 2 },
-  { id: "seo", level: 2, service: "SEO", dependencies: ["website"], priority: 2 },
-  { id: "discovery", level: 2, service: "Business Discovery", dependencies: [], priority: 2 },
-  { id: "leads", level: 3, service: "Lead Capture", dependencies: ["website"], priority: 2 },
-  { id: "crm", level: 3, service: "CRM", dependencies: ["leads"], priority: 3 },
-  { id: "automation", level: 4, service: "AI Automation", dependencies: ["crm"], priority: 3 },
-  { id: "analytics", level: 5, service: "Analytics", dependencies: ["website"], priority: 2 },
-  { id: "retention", level: 5, service: "Customer Retention", dependencies: ["crm"], priority: 3 },
-  { id: "branding", level: 1, service: "Brand identity", dependencies: [], priority: 3 },
-  { id: "hosting", level: 1, service: "Hosting and security", dependencies: ["website"], priority: 3 },
-  { id: "ads", level: 2, service: "Search advertising", dependencies: ["leads"], priority: 3, optional: true },
-  { id: "reviews", level: 2, service: "Online reviews", dependencies: ["discovery"], priority: 3 },
-  { id: "whatsapp", level: 3, service: "WhatsApp integration", dependencies: [], priority: 3 },
-  { id: "conversion", level: 3, service: "Conversion optimization", dependencies: ["leads"], priority: 3 },
-  { id: "followups", level: 4, service: "Automated follow-ups", dependencies: ["crm"], priority: 3, optional: true },
-  { id: "menu", level: 1, service: "Digital menu", dependencies: [], priority: 2, industry: "restaurant" }
-];
-function diagnose(profile) {
-  const existing = new Set(profile.capabilities || []);
-  if (profile.website) existing.add("website");
-  const relevant = capabilities.filter((c) => !c.industry || c.industry === profile.industry);
-  const demand = [profile.goals, profile.difficulties].join(" ");
-  const visibility = /visibility|search|traffic|local|reservations|customers|görünür|visibilité|عملاء/i.test(demand);
-  const conversion = /leads|sales|convert|bookings|ventes|satış|مبيعات/i.test(demand);
-  const automation = /automat|follow.up|manual|messag|otomasyon|أتمتة/i.test(demand);
-  const missions = relevant.filter((c) => !existing.has(c.id)).map((c) => {
-    const [, reason, nextAction] = missionGuide[c.id];
-    const prioritized = visibility && ["discovery", "seo", "reviews"].includes(c.id) || conversion && ["leads", "whatsapp", "crm"].includes(c.id) || automation && ["automation", "followups"].includes(c.id) || profile.industry === "restaurant" && ["discovery", "menu"].includes(c.id) || profile.industry === "ecommerce" && ["analytics", "conversion"].includes(c.id) || profile.industry === "salon" && ["whatsapp", "reviews", "discovery", "retention"].includes(c.id) || profile.industry === "retail" && ["discovery", "reviews", "website"].includes(c.id) || profile.industry === "professional" && ["website", "leads", "crm"].includes(c.id);
-    const optional = c.optional === true || profile.budget === 0 && c.id === "automation";
-    return {
-      ...c,
-      priority: prioritized && !optional ? 1 : c.priority,
-      optional,
-      objective: c.service,
-      description: reason,
-      reason,
-      estimatedCost: null,
-      currency: profile.currency || "USD",
-      expectedBenefit: reason,
-      nextAction,
-      completionSource: "customer_reported"
-    };
-  });
-  const strengths = relevant.filter((c) => existing.has(c.id)).map((c) => c.service);
-  return {
-    ruleVersion: "aura-readiness-2",
-    source: "customer_entered",
-    strengths,
-    missing: missions.map((c) => c.id),
-    readiness: Math.round(strengths.length / relevant.length * 100),
-    budget: profile.budget ?? null,
-    currency: profile.currency || "USD",
-    missions,
-    notice: "Readiness measures reported capabilities. Cost requires an approved quote. No purchase is required to complete a mission."
-  };
-}
-function number2(value, key, min, max) {
-  if (typeof value !== "number" || !Number.isFinite(value) || value < min || value > max) throw new ApiError(400, `Invalid ${key}.`);
-  return value;
-}
-function simulate(raw) {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new ApiError(400, "Simulator inputs required.");
-  const inputs = {};
-  if (raw.solutions !== void 0 && (!Array.isArray(raw.solutions) || raw.solutions.length > capabilities.length || raw.solutions.some((id) => !capabilities.some((c) => c.id === id)))) throw new ApiError(400, "Invalid selected digital solutions.");
-  inputs.solutions = [...new Set(raw.solutions || [])];
-  for (const [k, max] of Object.entries({ visits: 1e9, leads: 1e9, customerValue: 1e9, monthlyCost: 1e9, setupCost: 1e9 })) inputs[k] = number2(raw[k], k, 0, max);
-  inputs.closeRate = number2(raw.closeRate, "closeRate", 0, 100);
-  inputs.margin = number2(raw.margin, "margin", 0, 100);
-  if (inputs.leads > inputs.visits) throw new ApiError(400, "Leads cannot exceed visits in this website funnel.");
-  inputs.currency = ["USD", "EUR", "TRY", "TND"].includes(raw.currency) ? raw.currency : "USD";
-  if (!Array.isArray(raw.assumptions) || raw.assumptions.length !== 3) throw new ApiError(400, "Provide three scenario assumptions.");
-  inputs.assumptions = raw.assumptions.map((a, i) => {
-    if (!a || typeof a !== "object") throw new ApiError(400, "Invalid scenario.");
-    return { name: ["conservative", "base", "ambitious"][i], trafficLift: number2(a.trafficLift, "trafficLift", 0, 300), leadRateLift: number2(a.leadRateLift, "leadRateLift", 0, 300), closeRateLift: number2(a.closeRateLift, "closeRateLift", 0, 300) };
-  });
-  const baselineCustomers = inputs.leads * inputs.closeRate / 100, baselineRevenue = baselineCustomers * inputs.customerValue;
-  const scenarios = inputs.assumptions.map((a) => {
-    const visits = inputs.visits * (1 + a.trafficLift / 100), leadRate = inputs.visits ? inputs.leads / inputs.visits : 0;
-    const leads = visits * Math.min(1, leadRate * (1 + a.leadRateLift / 100)), customers = leads * Math.min(1, inputs.closeRate / 100 * (1 + a.closeRateLift / 100));
-    const revenue = customers * inputs.customerValue, additionalRevenue = revenue - baselineRevenue, contributionProfit = additionalRevenue * inputs.margin / 100, netMonthly = contributionProfit - inputs.monthlyCost;
-    const firstYearCost = inputs.setupCost + 12 * inputs.monthlyCost;
-    if ([revenue, additionalRevenue, contributionProfit, netMonthly, firstYearCost, 12 * contributionProfit].some((value) => !Number.isSafeInteger(Math.round(value * 100)))) throw new ApiError(400, "Reduce the input amounts; the result exceeds safe monetary precision.");
-    return { name: a.name, visits, leads, customers, additionalCustomers: customers - baselineCustomers, additionalLeads: leads - inputs.leads, revenue, additionalRevenue, contributionProfit, monthlyCost: inputs.monthlyCost, setupCost: inputs.setupCost, netMonthly, firstYearROI: firstYearCost ? (12 * contributionProfit - firstYearCost) / firstYearCost * 100 : null, paybackMonths: netMonthly > 0 ? inputs.setupCost / netMonthly : null };
-  });
-  return { formulaVersion: FORMULA_VERSION, inputs, baseline: { customers: baselineCustomers, revenue: baselineRevenue }, scenarios, source: "customer_entered_and_assumptions", notice: "Illustrative monthly funnel, not guaranteed growth. Apply one combined lift per funnel stage; overlapping service effects must not be added. Revenue uses a consistent customer-value period. Contribution excludes fixed overhead, taxes and financing." };
-}
-
-// src/hub/business-view.js
-var C = {
-  en: {
-    title: "My Business",
-    lead: "The details AuraDigital and Auri use for your roadmap, website, menu and requests.",
-    complete: (n) => `Profile ${n}% complete`,
-    completeHint: "A complete profile means fewer questions on every request.",
-    identity: "Business",
-    contact: "Contact",
-    hours: "Opening hours",
-    online: "Online presence",
-    brand: "Brand",
-    context: "Goals & context",
-    existing: "What you already have",
-    logo: "Logo",
-    uploadLogo: "Upload logo",
-    changeLogo: "Change logo",
-    removeLogo: "Remove",
-    logoHint: "Square images look best. JPEG, PNG or WebP.",
-    name: "Business name",
-    industry: "Category",
-    details: "What you offer",
-    phone: "Phone",
-    email: "Business email",
-    address: "Address",
-    city: "City",
-    country: "Country",
-    hoursField: "Hours",
-    hoursHint: "For example: Mon\u2013Fri 9:00\u201318:00, Sat 10:00\u201316:00, Sun closed.",
-    website: "Website",
-    social: { instagram: "Instagram", facebook: "Facebook", tiktok: "TikTok", linkedin: "LinkedIn", maps: "Google Maps", whatsapp: "WhatsApp link" },
-    socialHint: "Paste full links starting with https://",
-    colors: "Brand colors",
-    colorsHint: "Up to three colors used on your website and menu.",
-    addColor: "Add color",
-    goals: "Main goal",
-    stage: "Business stage",
-    acquisition: "How customers find you",
-    difficulties: "Main difficulties",
-    tools: "Tools you use",
-    timeline: "Timeline",
-    budget: "Approximate budget",
-    currency: "Currency",
-    save: "Save changes",
-    saved: "Business details saved.",
-    unsaved: "You have unsaved changes.",
-    readOnly: "You can view these details. Ask the owner for edit access.",
-    none: "Not added yet",
-    remove: "Remove"
-  },
-  tr: {
-    title: "\u0130\u015Fletmem",
-    lead: "AuraDigital ve Auri\u2019nin yol haritas\u0131, web sitesi, men\xFC ve talepler i\xE7in kulland\u0131\u011F\u0131 bilgiler.",
-    complete: (n) => `Profil %${n} tamamland\u0131`,
-    completeHint: "Eksiksiz bir profil, her talepte daha az soru demektir.",
-    identity: "\u0130\u015Fletme",
-    contact: "\u0130leti\u015Fim",
-    hours: "\xC7al\u0131\u015Fma saatleri",
-    online: "Online varl\u0131k",
-    brand: "Marka",
-    context: "Hedefler ve ba\u011Flam",
-    existing: "Halihaz\u0131rda sahip olduklar\u0131",
-    logo: "Logo",
-    uploadLogo: "Logo y\xFCkle",
-    changeLogo: "Logoyu de\u011Fi\u015Ftir",
-    removeLogo: "Kald\u0131r",
-    logoHint: "Kare g\xF6rseller en iyi g\xF6r\xFCn\xFCr. JPEG, PNG veya WebP.",
-    name: "\u0130\u015Fletme ad\u0131",
-    industry: "Kategori",
-    details: "Ne sunuyorsunuz",
-    phone: "Telefon",
-    email: "\u0130\u015Fletme e-postas\u0131",
-    address: "Adres",
-    city: "\u015Eehir",
-    country: "\xDClke",
-    hoursField: "Saatler",
-    hoursHint: "\xD6rne\u011Fin: Pzt\u2013Cum 9:00\u201318:00, Cmt 10:00\u201316:00, Paz kapal\u0131.",
-    website: "Web sitesi",
-    social: { instagram: "Instagram", facebook: "Facebook", tiktok: "TikTok", linkedin: "LinkedIn", maps: "Google Haritalar", whatsapp: "WhatsApp ba\u011Flant\u0131s\u0131" },
-    socialHint: "https:// ile ba\u015Flayan tam ba\u011Flant\u0131lar\u0131 yap\u0131\u015Ft\u0131r\u0131n",
-    colors: "Marka renkleri",
-    colorsHint: "Web sitenizde ve men\xFCn\xFCzde kullan\u0131lan en fazla \xFC\xE7 renk.",
-    addColor: "Renk ekle",
-    goals: "Ana hedef",
-    stage: "\u0130\u015Fletme a\u015Famas\u0131",
-    acquisition: "M\xFC\u015Fteriler sizi nas\u0131l buluyor",
-    difficulties: "Ana zorluklar",
-    tools: "Kulland\u0131\u011F\u0131n\u0131z ara\xE7lar",
-    timeline: "Zaman \xE7izelgesi",
-    budget: "Yakla\u015F\u0131k b\xFCt\xE7e",
-    currency: "Para birimi",
-    save: "De\u011Fi\u015Fiklikleri kaydet",
-    saved: "\u0130\u015Fletme bilgileri kaydedildi.",
-    unsaved: "Kaydedilmemi\u015F de\u011Fi\u015Fiklikler var.",
-    readOnly: "Bu bilgileri g\xF6r\xFCnt\xFCleyebilirsiniz. D\xFCzenleme yetkisi i\xE7in sahibine ba\u015Fvurun.",
-    none: "Hen\xFCz eklenmedi",
-    remove: "Kald\u0131r"
-  },
-  fr: {
-    title: "Mon activit\xE9",
-    lead: "Les informations qu\u2019AuraDigital et Auri utilisent pour votre feuille de route, site, menu et demandes.",
-    complete: (n) => `Profil compl\xE9t\xE9 \xE0 ${n} %`,
-    completeHint: "Un profil complet \xE9vite de r\xE9p\xE9ter les m\xEAmes questions.",
-    identity: "Activit\xE9",
-    contact: "Contact",
-    hours: "Horaires",
-    online: "Pr\xE9sence en ligne",
-    brand: "Marque",
-    context: "Objectifs et contexte",
-    existing: "Ce que vous avez d\xE9j\xE0",
-    logo: "Logo",
-    uploadLogo: "Ajouter un logo",
-    changeLogo: "Changer le logo",
-    removeLogo: "Supprimer",
-    logoHint: "Les images carr\xE9es rendent le mieux. JPEG, PNG ou WebP.",
-    name: "Nom de l\u2019activit\xE9",
-    industry: "Cat\xE9gorie",
-    details: "Ce que vous proposez",
-    phone: "T\xE9l\xE9phone",
-    email: "E-mail professionnel",
-    address: "Adresse",
-    city: "Ville",
-    country: "Pays",
-    hoursField: "Horaires",
-    hoursHint: "Par exemple : lun\u2013ven 9h\u201318h, sam 10h\u201316h, dim ferm\xE9.",
-    website: "Site web",
-    social: { instagram: "Instagram", facebook: "Facebook", tiktok: "TikTok", linkedin: "LinkedIn", maps: "Google Maps", whatsapp: "Lien WhatsApp" },
-    socialHint: "Collez des liens complets commen\xE7ant par https://",
-    colors: "Couleurs de marque",
-    colorsHint: "Jusqu\u2019\xE0 trois couleurs pour votre site et menu.",
-    addColor: "Ajouter une couleur",
-    goals: "Objectif principal",
-    stage: "Stade de l\u2019activit\xE9",
-    acquisition: "Comment les clients vous trouvent",
-    difficulties: "Difficult\xE9s principales",
-    tools: "Outils utilis\xE9s",
-    timeline: "D\xE9lai",
-    budget: "Budget approximatif",
-    currency: "Devise",
-    save: "Enregistrer",
-    saved: "Informations enregistr\xE9es.",
-    unsaved: "Modifications non enregistr\xE9es.",
-    readOnly: "Vous pouvez consulter ces informations. Demandez un acc\xE8s en \xE9criture au propri\xE9taire.",
-    none: "Non renseign\xE9",
-    remove: "Supprimer"
-  },
-  ar: {
-    title: "\u0646\u0634\u0627\u0637\u064A",
-    lead: "\u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644 \u0627\u0644\u062A\u064A \u062A\u0633\u062A\u062E\u062F\u0645\u0647\u0627 AuraDigital \u0648\u0623\u0648\u0631\u064A \u0644\u0644\u062E\u0637\u0629 \u0648\u0627\u0644\u0645\u0648\u0642\u0639 \u0648\u0627\u0644\u0642\u0627\u0626\u0645\u0629 \u0648\u0627\u0644\u0637\u0644\u0628\u0627\u062A.",
-    complete: (n) => `\u0627\u0644\u0645\u0644\u0641 \u0645\u0643\u062A\u0645\u0644 \u0628\u0646\u0633\u0628\u0629 ${n}%`,
-    completeHint: "\u0627\u0644\u0645\u0644\u0641 \u0627\u0644\u0645\u0643\u062A\u0645\u0644 \u064A\u0639\u0646\u064A \u0623\u0633\u0626\u0644\u0629 \u0623\u0642\u0644 \u0641\u064A \u0643\u0644 \u0637\u0644\u0628.",
-    identity: "\u0627\u0644\u0646\u0634\u0627\u0637",
-    contact: "\u0627\u0644\u062A\u0648\u0627\u0635\u0644",
-    hours: "\u0633\u0627\u0639\u0627\u062A \u0627\u0644\u0639\u0645\u0644",
-    online: "\u0627\u0644\u062D\u0636\u0648\u0631 \u0627\u0644\u0631\u0642\u0645\u064A",
-    brand: "\u0627\u0644\u0639\u0644\u0627\u0645\u0629",
-    context: "\u0627\u0644\u0623\u0647\u062F\u0627\u0641 \u0648\u0627\u0644\u0633\u064A\u0627\u0642",
-    existing: "\u0645\u0627 \u0644\u062F\u064A\u0643 \u0628\u0627\u0644\u0641\u0639\u0644",
-    logo: "\u0627\u0644\u0634\u0639\u0627\u0631",
-    uploadLogo: "\u0631\u0641\u0639 \u0634\u0639\u0627\u0631",
-    changeLogo: "\u062A\u063A\u064A\u064A\u0631 \u0627\u0644\u0634\u0639\u0627\u0631",
-    removeLogo: "\u0625\u0632\u0627\u0644\u0629",
-    logoHint: "\u0627\u0644\u0635\u0648\u0631 \u0627\u0644\u0645\u0631\u0628\u0639\u0629 \u0647\u064A \u0627\u0644\u0623\u0641\u0636\u0644. JPEG \u0623\u0648 PNG \u0623\u0648 WebP.",
-    name: "\u0627\u0633\u0645 \u0627\u0644\u0646\u0634\u0627\u0637",
-    industry: "\u0627\u0644\u0641\u0626\u0629",
-    details: "\u0645\u0627 \u0627\u0644\u0630\u064A \u062A\u0642\u062F\u0645\u0647",
-    phone: "\u0627\u0644\u0647\u0627\u062A\u0641",
-    email: "\u0628\u0631\u064A\u062F \u0627\u0644\u0646\u0634\u0627\u0637",
-    address: "\u0627\u0644\u0639\u0646\u0648\u0627\u0646",
-    city: "\u0627\u0644\u0645\u062F\u064A\u0646\u0629",
-    country: "\u0627\u0644\u062F\u0648\u0644\u0629",
-    hoursField: "\u0627\u0644\u0633\u0627\u0639\u0627\u062A",
-    hoursHint: "\u0645\u062B\u0644\u064B\u0627: \u0627\u0644\u0625\u062B\u0646\u064A\u0646\u2013\u0627\u0644\u062C\u0645\u0639\u0629 9:00\u201318:00\u060C \u0627\u0644\u0633\u0628\u062A 10:00\u201316:00\u060C \u0627\u0644\u0623\u062D\u062F \u0645\u063A\u0644\u0642.",
-    website: "\u0627\u0644\u0645\u0648\u0642\u0639",
-    social: { instagram: "\u0625\u0646\u0633\u062A\u063A\u0631\u0627\u0645", facebook: "\u0641\u064A\u0633\u0628\u0648\u0643", tiktok: "\u062A\u064A\u0643 \u062A\u0648\u0643", linkedin: "\u0644\u064A\u0646\u0643\u062F\u0625\u0646", maps: "\u062E\u0631\u0627\u0626\u0637 Google", whatsapp: "\u0631\u0627\u0628\u0637 \u0648\u0627\u062A\u0633\u0627\u0628" },
-    socialHint: "\u0627\u0644\u0635\u0642 \u0631\u0648\u0627\u0628\u0637 \u0643\u0627\u0645\u0644\u0629 \u062A\u0628\u062F\u0623 \u0628\u0640 https://",
-    colors: "\u0623\u0644\u0648\u0627\u0646 \u0627\u0644\u0639\u0644\u0627\u0645\u0629",
-    colorsHint: "\u062D\u062A\u0649 \u062B\u0644\u0627\u062B\u0629 \u0623\u0644\u0648\u0627\u0646 \u0644\u0645\u0648\u0642\u0639\u0643 \u0648\u0642\u0627\u0626\u0645\u062A\u0643.",
-    addColor: "\u0623\u0636\u0641 \u0644\u0648\u0646\u064B\u0627",
-    goals: "\u0627\u0644\u0647\u062F\u0641 \u0627\u0644\u0631\u0626\u064A\u0633\u064A",
-    stage: "\u0645\u0631\u062D\u0644\u0629 \u0627\u0644\u0646\u0634\u0627\u0637",
-    acquisition: "\u0643\u064A\u0641 \u064A\u062C\u062F\u0643 \u0627\u0644\u0639\u0645\u0644\u0627\u0621",
-    difficulties: "\u0623\u0647\u0645 \u0627\u0644\u0635\u0639\u0648\u0628\u0627\u062A",
-    tools: "\u0627\u0644\u0623\u062F\u0648\u0627\u062A \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645\u0629",
-    timeline: "\u0627\u0644\u0645\u062F\u0629",
-    budget: "\u0627\u0644\u0645\u064A\u0632\u0627\u0646\u064A\u0629 \u0627\u0644\u062A\u0642\u0631\u064A\u0628\u064A\u0629",
-    currency: "\u0627\u0644\u0639\u0645\u0644\u0629",
-    save: "\u062D\u0641\u0638 \u0627\u0644\u062A\u063A\u064A\u064A\u0631\u0627\u062A",
-    saved: "\u062A\u0645 \u062D\u0641\u0638 \u062A\u0641\u0627\u0635\u064A\u0644 \u0627\u0644\u0646\u0634\u0627\u0637.",
-    unsaved: "\u0644\u062F\u064A\u0643 \u062A\u063A\u064A\u064A\u0631\u0627\u062A \u063A\u064A\u0631 \u0645\u062D\u0641\u0648\u0638\u0629.",
-    readOnly: "\u064A\u0645\u0643\u0646\u0643 \u0639\u0631\u0636 \u0647\u0630\u0647 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644. \u0627\u0637\u0644\u0628 \u0645\u0646 \u0627\u0644\u0645\u0627\u0644\u0643 \u0635\u0644\u0627\u062D\u064A\u0629 \u0627\u0644\u062A\u0639\u062F\u064A\u0644.",
-    none: "\u0644\u0645 \u064A\u064F\u0636\u0641 \u0628\u0639\u062F",
-    remove: "\u0625\u0632\u0627\u0644\u0629"
-  }
-};
-var SOCIAL = ["instagram", "facebook", "tiktok", "linkedin", "maps", "whatsapp"];
-function profileCompleteness(profile, logo) {
-  const checks = [
-    profile.name,
-    profile.industry && profile.industry !== "other",
-    profile.industryDetails,
-    profile.phone,
-    profile.email,
-    profile.address || profile.city,
-    profile.hours,
-    profile.website,
-    profile.social && Object.keys(profile.social).length,
-    logo,
-    profile.brandColors?.length,
-    profile.goals
-  ];
-  return Math.round(checks.filter(Boolean).length / checks.length * 100);
-}
-async function renderBusiness({ host, lang: lang2, esc: esc3, api: api2, endpoint: endpoint2, workspace: workspace2, cap: cap2, resizePhoto: resizePhoto2, toast: toast2, onSaved }) {
-  const c = C[lang2] || C.en;
-  const canWrite = workspace2.permissions.includes("profile:write");
-  const profile = structuredClone(workspace2.profile || {});
-  let logo = null;
-  try {
-    ({ logo } = await api2(endpoint2("logo")));
-  } catch {
-  }
-  if (!host.isConnected) return;
-  let colors = [...profile.brandColors || []];
-  const field2 = (key, label, { type = "text", value = profile[key] ?? "", max = 200, hint = "", area = false, attrs = "" } = {}) => `<label class="os-field"><span>${esc3(label)}</span>${area ? `<textarea name="${key}" rows="3" maxlength="${max}" ${canWrite ? "" : "readonly"} ${attrs}>${esc3(value)}</textarea>` : `<input name="${key}" type="${type}" value="${esc3(value)}" maxlength="${max}" ${canWrite ? "" : "readonly"} ${attrs}>`}${hint ? `<small>${esc3(hint)}</small>` : ""}</label>`;
-  const section = (id, title, iconName, body) => `<section class="os-card os-biz-section" aria-labelledby="biz-${id}"><header class="os-card-head"><div><h2 id="biz-${id}">${icon2(iconName, 18)} ${esc3(title)}</h2></div></header>${body}</section>`;
-  const draw = () => {
-    const pct = profileCompleteness({ ...profile, brandColors: colors }, logo);
-    host.innerHTML = `<div class="os-business">
-   <header class="os-biz-head">
-    <div class="os-biz-logo">${logo ? `<img src="${esc3(logo)}" alt="${esc3(c.logo)}" width="88" height="88">` : `<span aria-hidden="true">${esc3(String(profile.name || "?").trim().slice(0, 2).toUpperCase())}</span>`}</div>
-    <div class="os-biz-title"><p class="os-eyebrow">${esc3(industryLabel(lang2, profile.industry || "other"))}${profile.city ? " \xB7 " + esc3(profile.city) : ""}</p><h1>${esc3(profile.name || c.title)}</h1><p class="os-muted">${esc3(c.lead)}</p></div>
-    <div class="os-biz-meter" role="group" aria-label="${esc3(c.complete(pct))}"><strong>${esc3(c.complete(pct))}</strong><span class="os-bar"><i style="width:${pct}%"></i></span><small>${esc3(c.completeHint)}</small></div>
-   </header>
-   ${canWrite ? "" : `<p class="os-notice">${icon2("lock", 16)}<span>${esc3(c.readOnly)}</span></p>`}
-   <form class="os-biz-form" data-biz-form novalidate>
-    <div class="os-biz-grid">
-     ${section("identity", c.identity, "business", `<div class="os-biz-logo-row"><div class="os-biz-logo is-sm">${logo ? `<img src="${esc3(logo)}" alt="" width="56" height="56">` : icon2("business", 22)}</div><div><strong>${esc3(c.logo)}</strong><small class="os-muted">${esc3(c.logoHint)}</small>
-       ${canWrite ? `<div class="os-inline-actions"><label class="os-btn is-quiet is-sm">${esc3(logo ? c.changeLogo : c.uploadLogo)}<input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" data-logo></label>${logo ? `<button type="button" class="os-btn is-quiet is-sm" data-logo-remove>${esc3(c.removeLogo)}</button>` : ""}</div>` : ""}</div></div>
-      ${field2("name", c.name, { max: 120, attrs: "required" })}
-      <label class="os-field"><span>${esc3(c.industry)}</span><select name="industry" ${canWrite ? "" : "disabled"}>${INDUSTRY_IDS.map((id) => `<option value="${id}" ${profile.industry === id ? "selected" : ""}>${esc3(industryLabel(lang2, id))}</option>`).join("")}</select></label>
-      ${field2("industryDetails", c.details, { area: true, max: 1600 })}`)}
-     ${section("contact", c.contact, "phone", `${field2("phone", c.phone, { type: "tel", max: 40, attrs: 'autocomplete="tel"' })}${field2("email", c.email, { type: "email", max: 254, attrs: 'autocomplete="email"' })}
-      ${field2("address", c.address, { area: true, max: 300 })}<div class="os-field-row">${field2("city", c.city, { max: 100 })}${field2("country", c.country, { max: 80 })}</div>`)}
-     ${section("hours", c.hours, "clock", field2("hours", c.hoursField, { area: true, max: 600, hint: c.hoursHint }))}
-     ${section("online", c.online, "globe", `${field2("website", c.website, { type: "url", max: 500, attrs: 'placeholder="https://"' })}
-      <div class="os-field-row is-wrap">${SOCIAL.map((k) => field2("social." + k, c.social[k], { type: "url", value: profile.social?.[k] || "", max: 500, attrs: 'placeholder="https://"' })).join("")}</div><small class="os-muted">${esc3(c.socialHint)}</small>`)}
-     ${section("brand", c.brand, "spark", `<p class="os-muted">${esc3(c.colorsHint)}</p><div class="os-colors">${colors.map((col, i) => `<label class="os-color"><span class="sr-only">${esc3(c.colors)} ${i + 1}</span><input type="color" value="${esc3(col)}" data-color="${i}" ${canWrite ? "" : "disabled"}><code>${esc3(col)}</code>${canWrite ? `<button type="button" class="os-link" data-color-remove="${i}">${esc3(c.remove)}</button>` : ""}</label>`).join("")}
-      ${canWrite && colors.length < 3 ? `<button type="button" class="os-btn is-quiet is-sm" data-color-add>${icon2("plus", 16)}<span>${esc3(c.addColor)}</span></button>` : ""}${!colors.length && !canWrite ? `<p class="os-muted">${esc3(c.none)}</p>` : ""}</div>`)}
-     ${section("context", c.context, "journey", `${field2("goals", c.goals, { area: true, max: 1600 })}<div class="os-field-row">${field2("stage", c.stage, { max: 80 })}${field2("timeline", c.timeline, { max: 200 })}</div>
-      ${field2("acquisition", c.acquisition, { area: true, max: 1200 })}${field2("difficulties", c.difficulties, { area: true, max: 1600 })}${field2("tools", c.tools, { area: true, max: 1200 })}
-      <div class="os-field-row">${field2("budget", c.budget, { type: "number", value: profile.budget ?? "", attrs: 'min="0" step="any"' })}<label class="os-field"><span>${esc3(c.currency)}</span><select name="currency" ${canWrite ? "" : "disabled"}>${["USD", "EUR", "TRY", "TND"].map((x) => `<option ${profile.currency === x ? "selected" : ""}>${x}</option>`).join("")}</select></label></div>`)}
-     ${section("existing", c.existing, "check", `<div class="os-checks">${capabilities.filter((x) => !x.industry || x.industry === profile.industry).map((x) => `<label class="os-check"><input type="checkbox" name="capabilities" value="${x.id}" ${(profile.capabilities || []).includes(x.id) ? "checked" : ""} ${canWrite ? "" : "disabled"}><span>${esc3(cap2(x.id))}</span></label>`).join("")}</div>`)}
-    </div>
-    ${canWrite ? `<div class="os-biz-save" data-save-bar><span class="os-muted" data-dirty role="status"></span><p class="os-error" role="alert"></p><button class="os-btn is-primary">${esc3(c.save)}</button></div>` : ""}
-   </form></div>`;
-    bind();
-  };
-  function collect(form) {
-    const data = new FormData(form);
-    for (const key of ["name", "industry", "industryDetails", "phone", "email", "address", "city", "country", "hours", "website", "goals", "stage", "timeline", "acquisition", "difficulties", "tools", "currency"]) if (data.has(key)) profile[key] = String(data.get(key)).trim();
-    const budget = data.get("budget");
-    profile.budget = budget === "" || budget === null ? null : Number(budget);
-    profile.social = Object.fromEntries(SOCIAL.map((k) => [k, String(data.get("social." + k) || "").trim()]).filter(([, v]) => v));
-    profile.capabilities = data.getAll("capabilities");
-    profile.brandColors = colors;
-  }
-  function bind() {
-    const form = host.querySelector("[data-biz-form]");
-    if (!canWrite) return;
-    const dirty = host.querySelector("[data-dirty]");
-    form.addEventListener("input", () => {
-      dirty.textContent = c.unsaved;
-      host.querySelector("[data-save-bar]").classList.add("is-dirty");
-    });
-    host.querySelectorAll("[data-color]").forEach((input) => input.addEventListener("input", () => {
-      colors[Number(input.dataset.color)] = input.value.toUpperCase();
-      input.nextElementSibling.textContent = input.value.toUpperCase();
-    }));
-    host.querySelectorAll("[data-color-remove]").forEach((b) => b.addEventListener("click", () => {
-      collect(form);
-      colors.splice(Number(b.dataset.colorRemove), 1);
-      draw();
-      host.querySelector("[data-dirty]").textContent = c.unsaved;
-    }));
-    host.querySelector("[data-color-add]")?.addEventListener("click", () => {
-      collect(form);
-      colors.push(colors.length ? "#D8F56A" : "#003D2B");
-      draw();
-      host.querySelector("[data-dirty]").textContent = c.unsaved;
-    });
-    host.querySelector("[data-logo]")?.addEventListener("change", async (e) => {
-      const alert = host.querySelector("[role=alert]");
-      try {
-        collect(form);
-        const data = await resizePhoto2(e.target.files[0]);
-        ({ logo } = await api2(endpoint2("logo"), "PUT", { logo: data }));
-        draw();
-      } catch (error) {
-        alert.textContent = error.message;
-      }
-    });
-    host.querySelector("[data-logo-remove]")?.addEventListener("click", async () => {
-      try {
-        collect(form);
-        await api2(endpoint2("logo"), "DELETE");
-        logo = null;
-        draw();
-      } catch (error) {
-        host.querySelector("[role=alert]").textContent = error.message;
-      }
-    });
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const alert = form.querySelector("[role=alert]"), submit = form.querySelector(".os-biz-save button");
-      alert.textContent = "";
-      collect(form);
-      if (!profile.name) {
-        form.elements.name.focus();
-        return;
-      }
-      submit.disabled = true;
-      try {
-        await api2(endpoint2("profile"), "PUT", { profile, mode: workspace2.organization.mode, version: workspace2.organization.version });
-        toast2(c.saved);
-        await onSaved();
-      } catch (error) {
-        alert.textContent = error.message;
-        submit.disabled = false;
-      }
-    });
-  }
-  draw();
 }
 
 // src/hub/server-errors.js
@@ -4138,7 +4177,7 @@ function authScreen({ signup, forgot, reset }) {
   const ic = { user: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>', mail: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="m3 6 9 7 9-7"/></svg>', lock: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' };
   const pw = mode2 === "forgot" ? "" : `<label class="ad-field"><span>${esc2(t(reset ? "newPassword" : "password"))}</span><span class="ad-input">${ic.lock}<input name="password" type="password" required ${mode2 !== "login" ? 'minlength="12" ' : ""}maxlength="72" autocomplete="${mode2 === "login" ? "current-password" : "new-password"}"><button type="button" class="ad-eye" data-eye aria-pressed="false">${al("show")}</button></span>${mode2 !== "login" ? `<span class="ad-hint" id="ad-pw-hint">${al("pwHint")}</span><span class="ad-meter" aria-hidden="true"><i></i></span>` : ""}</label>`;
   const tabs = mode2 === "login" || mode2 === "signup" ? `<nav class="ad-tabs" aria-label="Account"><a href="/hub/login${authQuery}" ${mode2 === "login" ? 'aria-current="page"' : ""}>${al("signInTab")}</a><a href="/hub/signup${authQuery}" ${mode2 === "signup" ? 'aria-current="page"' : ""}>${al("signupTab")}</a></nav>` : "";
-  const googleBlock = mode2 === "login" || mode2 === "signup" ? `<button type="button" class="ad-google" data-google ${authCapabilities.google ? "" : 'aria-disabled="true"'}>${googleIcon}<span>${al("google")}</span></button>${authCapabilities.google ? "" : `<p class="ad-note">${al("googleSoon")}</p>`}<div class="ad-or"><span>${al("or")}</span></div>` : "";
+  const googleBlock = (mode2 === "login" || mode2 === "signup") && authCapabilities.google ? `<button type="button" class="ad-google" data-google>${googleIcon}<span>${al("google")}</span></button><div class="ad-or"><span>${al("or")}</span></div>` : "";
   const termsBox = mode2 === "login" || mode2 === "signup" ? `<label class="ad-check"><input type="checkbox" name="terms" ${mode2 === "signup" ? "required" : ""}><span>${al("terms")}</span></label>` : "";
   app.innerHTML = `<div class="ad-auth">
  <aside class="ad-side"><a href="/" class="ad-logo"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>
@@ -4537,7 +4576,8 @@ function renderShell() {
     menuDrafts: { label: oc.nav.menuDrafts, icon: "menuDrafts" },
     orders: { label: oc.nav.orders, icon: "orders", href: "/account" },
     team: { label: oc.nav.team, icon: "team" },
-    settings: { label: oc.nav.settings, icon: "settings" }
+    settings: { label: oc.nav.settings, icon: "settings" },
+    support: { label: oc.nav.support, icon: "chat" }
   };
   const labelOf = (p) => items[p]?.label || labels3[p] || l[p] || t(p);
   const navItem = (p, mobile = false) => `<a class="nav-item os-nav-item ${active === p ? "active" : ""}" data-tip="${esc2(labelOf(p))}" href="${esc2(items[p]?.href || link(p))}"
@@ -4546,11 +4586,11 @@ function renderShell() {
   const groups = workspace ? [
     [oc.nav.groups[0], ["home", "profile", "journey", "studio", "services", "site", "analytics", ...can("auri:use") ? ["assistant"] : []]],
     [oc.nav.groups[1], ["requests", ...feature("menuDrafts") ? ["menuDrafts"] : [], "orders"]],
-    [oc.nav.groups[2], [...workspace.organization.owner ? ["team"] : [], "settings"]]
+    [oc.nav.groups[2], [...workspace.organization.owner ? ["team"] : [], "settings", "support"]]
   ] : [
     [oc.nav.groups[0], ["home", "journey", "services", "assistant"]],
     [oc.nav.groups[1], ["requests", "orders"]],
-    [oc.nav.groups[2], ["settings"]]
+    [oc.nav.groups[2], ["settings", "support"]]
   ];
   const mobileMain = workspace ? ["home", "journey", "studio"] : ["home", "journey", "services"];
   const sheetItems = groups.flatMap(([, list]) => list).filter((p) => !mobileMain.includes(p));
@@ -4746,6 +4786,7 @@ async function home() {
     canRequest: workspace.permissions.includes("roadmap:write"),
     attention: item ? { name: menu2 ? ui.menuReady : item.name, label: menu2 ? ui.reviewMenu : ui.openRequest, href: link(menu2 ? "menuDrafts" : "requests", menu2 ? { draft: item.id } : { request: item.id }) } : null,
     onAsk: (question) => openAuri(question || void 0, { direct: true }),
+    onChat: (question) => openAuri(question),
     onPrepare: letAuriDo
   });
 }
@@ -4883,10 +4924,28 @@ async function myWork() {
   const ui = hubLabels(lang), host = document.querySelector("#page-content"), id = workspace.organization.id;
   const task = workspace.missions.find((m) => m.id === query.get("task"));
   if (query.has("new") && workspace.permissions.includes("roadmap:write")) {
-    return renderRequestForm({ host, lang, esc: esc2, me, workspace, service: query.get("service"), task: task ? missionTitle(task) : "", draft: requestDrafts.get(id) || "", back: link("requests"), submitted: (request2) => {
+    const result2 = renderRequestForm({ host, lang, esc: esc2, me, workspace, service: query.get("service"), task: task ? missionTitle(task) : "", draft: requestDrafts.get(id) || "", back: link("requests"), submitted: (request2) => {
       requestDrafts.delete(id);
       navigate("requests", { request: request2 }, true);
     } });
+    const select2 = host.querySelector("select[name=service]");
+    if (select2) {
+      const picks = [["Web Design", "site"], ["Website Care", "note"], ["AuraMenu", "menu"], ["SEO / Google Maps", "search"], ["AI & Automation", "chat"], ["Branding", "spark"], ["Business Email", "mail"], ["NFC Card", "phone"]].filter(([v]) => [...select2.options].some((o) => o.value === v));
+      const row = document.createElement("div");
+      row.className = "os-service-picks";
+      row.setAttribute("role", "group");
+      row.setAttribute("aria-label", select2.closest("label")?.firstChild?.textContent?.trim() || "Service");
+      row.innerHTML = picks.map(([v, ic]) => `<button type="button" class="os-pick" data-pick="${esc2(v)}" aria-pressed="${select2.value === v}">${icon2(ic, 18)}<span>${esc2(v)}</span></button>`).join("");
+      select2.closest("form")?.prepend(row);
+      row.querySelectorAll("[data-pick]").forEach((b) => b.onclick = () => {
+        select2.value = b.dataset.pick;
+        select2.dispatchEvent(new Event("change", { bubbles: true }));
+        row.querySelectorAll("[data-pick]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        host.querySelector("[name=message]")?.focus();
+      });
+      select2.addEventListener("change", () => row.querySelectorAll("[data-pick]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.pick === select2.value))));
+    }
+    return result2;
   }
   const serviceRecord = query.get("serviceRecord");
   if (serviceRecord && page === "services") {
@@ -4900,9 +4959,23 @@ async function myWork() {
   if (request) {
     const record = await api(endpoint("work/" + encodeURIComponent(request)));
     if (!host.isConnected) return;
-    host.innerHTML = `<section class="panel"><h2>${esc2(record.name)}</h2><p>${esc2(workStatus(record))}</p><p>${esc2(record.id)}</p>
-  <a class="secondary" href="${esc2(link("services"))}">${esc2(ui.services)}</a>
-  ${workspace.permissions.includes("auri:use") ? `<a class="secondary" href="${esc2(link("assistant", { request }))}">${esc2(ui.assistant)}</a>` : ""}</section>`;
+    const r = osCopy(lang).requestDetail, stage = deliveryStage(record.productionStatus || record.status), steps2 = osCopy(lang).services.stages;
+    host.innerHTML = `<section class="os-card os-request">
+   <header class="os-request-head"><div><p class="os-eyebrow">${esc2(r.kicker)}</p><h2>${esc2(record.name)}</h2></div><span class="os-pill ${stage === 3 ? "is-good" : stage === 2 ? "is-info" : "is-warn"}">${esc2(workStatus(record))}</span></header>
+   <ol class="os-request-steps" aria-label="${esc2(r.progress)}">${steps2.map((label, i) => `<li class="${i < stage ? "is-past" : i === stage ? "is-now" : ""}" ${i === stage ? 'aria-current="step"' : ""}><span>${i < stage ? icon2("check", 14) : i + 1}</span><strong>${esc2(label)}</strong></li>`).join("")}</ol>
+   <dl class="os-facts os-request-facts"><div><dt>${esc2(r.sent)}</dt><dd>${esc2(record.createdAt ? (/* @__PURE__ */ new Date(String(record.createdAt).replace(" ", "T") + (String(record.createdAt).length === 19 ? "Z" : ""))).toLocaleDateString(lang, { day: "numeric", month: "long", year: "numeric" }) : "\u2014")}</dd></div>
+    <div><dt>${esc2(r.due)}</dt><dd>${esc2(record.dueDate ? new Date(record.dueDate).toLocaleDateString(lang, { day: "numeric", month: "long", year: "numeric" }) : r.dueUnset)}</dd></div>
+    <div><dt>${esc2(r.reference)}</dt><dd><code>${esc2(record.id)}</code></dd></div></dl>
+   <p class="os-muted">${esc2(r.note)}</p>
+   <div class="os-inline-actions">
+    ${workspace.permissions.includes("auri:use") ? `<a class="os-btn is-primary is-sm" href="${esc2(link("assistant", { request }))}">${esc2(ui.assistant)}</a>` : ""}
+    ${workspace.permissions.includes("roadmap:write") ? `<button type="button" class="os-btn is-quiet is-sm" data-request-update>${esc2(r.update)}</button>` : ""}
+    <a class="os-btn is-quiet is-sm" href="${esc2(link("requests"))}">${esc2(r.all)}</a></div></section>`;
+    host.querySelector("[data-request-update]")?.addEventListener("click", () => {
+      requestDrafts.set(id, `${r.regarding} ${record.id} (${record.name}):
+`);
+      navigate("requests", { new: "1", service: record.name });
+    });
     return;
   }
   if (page === "services" && !service) {
@@ -5020,6 +5093,12 @@ async function renderPage() {
     return growthDashboard();
   }
   if (page === "tasks") return journey();
+  const moved = { insights: ["studio", { view: "analytics" }], reports: ["studio", { view: "analytics" }], projects: ["requests"], websites: ["studio", { view: "website" }], hosting: ["services", { offer: "hosting" }], files: ["services"], rewards: ["journey"], resources: ["home"] }[page];
+  if (moved) {
+    navigate(moved[0], moved[1] || {}, true);
+    return;
+  }
+  if (page === "support") return renderHelp();
   if (page === "insights") {
     content(`<section class="panel"><h2>${esc2(t("reports"))}</h2><a class="secondary" href="${esc2(link("simulator"))}">${esc2(t("simulator"))}</a></section>`);
     return;
@@ -5048,6 +5127,20 @@ async function renderPage() {
  <h2>${esc2(t("contact"))}</h2><p>${esc2(t("supportText"))}</p>
  ${workspace.permissions.includes("auri:use") ? `<a class="growth-primary" href="${esc2(link("assistant"))}">${esc2(label.assistant)} \u2197</a>` : ""}
  <a class="growth-secondary" href="/contact">${esc2(t("contact"))}</a></div></section>`);
+}
+function renderHelp() {
+  const h = osCopy(lang).help, canAsk = workspace?.permissions.includes("auri:use"), canRequest = workspace?.permissions.includes("roadmap:write");
+  content(`<div class="os-help">
+  <section class="os-help-grid">
+   ${canAsk ? `<button type="button" class="os-help-card" data-help-auri>${icon2("auri", 22)}<strong>${esc2(h.auri)}</strong><span>${esc2(h.auriNote)}</span></button>` : ""}
+   <a class="os-help-card" href="https://wa.me/905385507674" target="_blank" rel="noopener">${icon2("whatsapp", 22)}<strong>WhatsApp</strong><span>+90 538 550 76 74</span></a>
+   <a class="os-help-card" href="mailto:info@auradigitalworks.com">${icon2("mail", 22)}<strong>${esc2(h.email)}</strong><span>info@auradigitalworks.com</span></a>
+   ${canRequest ? `<a class="os-help-card" href="${esc2(requestLink())}">${icon2("requests", 22)}<strong>${esc2(h.request)}</strong><span>${esc2(h.requestNote)}</span></a>` : ""}
+  </section>
+  <section class="os-card"><h2>${esc2(h.faqTitle)}</h2><div class="os-faq">${h.faq.map(([q, a]) => `<details><summary>${esc2(q)}</summary><p>${esc2(a)}</p></details>`).join("")}</div>
+   <p class="os-source"><a class="os-link" href="/help">${esc2(h.center)}</a></p></section>
+ </div>`);
+  document.querySelector("[data-help-auri]")?.addEventListener("click", () => openAuri());
 }
 async function askAuri(question, missionId, requestId, serviceKey, offer) {
   const id = workspace.organization.id;

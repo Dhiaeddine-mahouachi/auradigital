@@ -23,7 +23,7 @@ import { osCopy, industryLabel, INDUSTRY_IDS } from './os-copy.js';
 import { renderBusiness } from './business-view.js';
 import { localizeError } from './server-errors.js';
 import { serviceItems } from './aura-command.js';
-import { icon as osIcon, mirrorArrows } from './os-ui.js';
+import { icon as osIcon, mirrorArrows, deliveryStage } from './os-ui.js';
 import { simulate, capabilities, diagnose } from '../growth-engine.js';
 const app=document.querySelector('#app'),notice=document.querySelector('#notice');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -207,7 +207,8 @@ function authScreen({signup,forgot,reset}){
  const ic={user:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',mail:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="m3 6 9 7 9-7"/></svg>',lock:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'};
  const pw=mode==='forgot'?'':`<label class="ad-field"><span>${esc(t(reset?'newPassword':'password'))}</span><span class="ad-input">${ic.lock}<input name="password" type="password" required ${mode!=='login'?'minlength="12" ':''}maxlength="72" autocomplete="${mode==='login'?'current-password':'new-password'}"><button type="button" class="ad-eye" data-eye aria-pressed="false">${al('show')}</button></span>${mode!=='login'?`<span class="ad-hint" id="ad-pw-hint">${al('pwHint')}</span><span class="ad-meter" aria-hidden="true"><i></i></span>`:''}</label>`;
  const tabs=mode==='login'||mode==='signup'?`<nav class="ad-tabs" aria-label="Account"><a href="/hub/login${authQuery}" ${mode==='login'?'aria-current="page"':''}>${al('signInTab')}</a><a href="/hub/signup${authQuery}" ${mode==='signup'?'aria-current="page"':''}>${al('signupTab')}</a></nav>`:'';
- const googleBlock=mode==='login'||mode==='signup'?`<button type="button" class="ad-google" data-google ${authCapabilities.google?'':'aria-disabled="true"'}>${googleIcon}<span>${al('google')}</span></button>${authCapabilities.google?'':`<p class="ad-note">${al('googleSoon')}</p>`}<div class="ad-or"><span>${al('or')}</span></div>`:'';
+ // Google sign-in is only offered once it is configured; no "coming soon" notice.
+ const googleBlock=(mode==='login'||mode==='signup')&&authCapabilities.google?`<button type="button" class="ad-google" data-google>${googleIcon}<span>${al('google')}</span></button><div class="ad-or"><span>${al('or')}</span></div>`:'';
  const termsBox=mode==='login'||mode==='signup'?`<label class="ad-check"><input type="checkbox" name="terms" ${mode==='signup'?'required':''}><span>${al('terms')}</span></label>`:'';
  app.innerHTML=`<div class="ad-auth">
  <aside class="ad-side"><a href="/" class="ad-logo"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>
@@ -399,6 +400,7 @@ function renderShell(){
   orders:{label:oc.nav.orders,icon:'orders',href:'/account'},
   team:{label:oc.nav.team,icon:'team'},
   settings:{label:oc.nav.settings,icon:'settings'},
+  support:{label:oc.nav.support,icon:'chat'},
  };
  const labelOf=p=>items[p]?.label||labels[p]||l[p]||t(p);
  const navItem=(p,mobile=false)=>`<a class="nav-item os-nav-item ${active===p?'active':''}" data-tip="${esc(labelOf(p))}" href="${esc(items[p]?.href||link(p))}"
@@ -409,11 +411,11 @@ function renderShell(){
  const groups=workspace?[
   [oc.nav.groups[0],['home','profile','journey','studio','services','site','analytics',...(can('auri:use')?['assistant']:[])]],
   [oc.nav.groups[1],['requests',...(feature('menuDrafts')?['menuDrafts']:[]),'orders']],
-  [oc.nav.groups[2],[...(workspace.organization.owner?['team']:[]),'settings']],
+  [oc.nav.groups[2],[...(workspace.organization.owner?['team']:[]),'settings','support']],
  ]:[
   [oc.nav.groups[0],['home','journey','services','assistant']],
   [oc.nav.groups[1],['requests','orders']],
-  [oc.nav.groups[2],['settings']],
+  [oc.nav.groups[2],['settings','support']],
  ];
  const mobileMain=workspace?['home','journey','studio']:['home','journey','services'];
  const sheetItems=groups.flatMap(([,list])=>list).filter(p=>!mobileMain.includes(p));
@@ -555,7 +557,7 @@ async function home(){
  renderAuraCommand({host,lang,esc,link,requestLink,me,workspace,snapshot,connected,leads,missionTitle,next,eligible,continueLabel:ui.continue,
   canAsk:workspace.permissions.includes('auri:use'),canRequest:workspace.permissions.includes('roadmap:write'),
   attention:item?{name:menu?ui.menuReady:item.name,label:menu?ui.reviewMenu:ui.openRequest,href:link(menu?'menuDrafts':'requests',menu?{draft:item.id}:{request:item.id})}:null,
-  onAsk:question=>openAuri(question||undefined,{direct:true}),onPrepare:letAuriDo});
+  onAsk:question=>openAuri(question||undefined,{direct:true}),onChat:question=>openAuri(question),onPrepare:letAuriDo});
 }
 async function studio(){
  return renderAuraStudio({host:document.querySelector('#page-content'),lang,esc,link,requestLink,api,endpoint,workspace,me,toast,
@@ -641,7 +643,18 @@ async function myWork(){
  const ui=hubLabels(lang),host=document.querySelector('#page-content'),id=workspace.organization.id;
  const task=workspace.missions.find(m=>m.id===query.get('task'));
  if(query.has('new')&&workspace.permissions.includes('roadmap:write')){
-  return renderRequestForm({host,lang,esc,me,workspace,service:query.get('service'),task:task?missionTitle(task):'',draft:requestDrafts.get(id)||'',back:link('requests'),submitted:request=>{requestDrafts.delete(id);navigate('requests',{request},true);}});
+  const result=renderRequestForm({host,lang,esc,me,workspace,service:query.get('service'),task:task?missionTitle(task):'',draft:requestDrafts.get(id)||'',back:link('requests'),submitted:request=>{requestDrafts.delete(id);navigate('requests',{request},true);}});
+  // Quick service picker above the form (sets the same "service" field).
+  const select=host.querySelector('select[name=service]');
+  if(select){
+   const picks=[['Web Design','site'],['Website Care','note'],['AuraMenu','menu'],['SEO / Google Maps','search'],['AI & Automation','chat'],['Branding','spark'],['Business Email','mail'],['NFC Card','phone']].filter(([v])=>[...select.options].some(o=>o.value===v));
+   const row=document.createElement('div');row.className='os-service-picks';row.setAttribute('role','group');row.setAttribute('aria-label',select.closest('label')?.firstChild?.textContent?.trim()||'Service');
+   row.innerHTML=picks.map(([v,ic])=>`<button type="button" class="os-pick" data-pick="${esc(v)}" aria-pressed="${select.value===v}">${osIcon(ic,18)}<span>${esc(v)}</span></button>`).join('');
+   select.closest('form')?.prepend(row);
+   row.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{select.value=b.dataset.pick;select.dispatchEvent(new Event('change',{bubbles:true}));row.querySelectorAll('[data-pick]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));host.querySelector('[name=message]')?.focus();});
+   select.addEventListener('change',()=>row.querySelectorAll('[data-pick]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.pick===select.value))));
+  }
+  return result;
  }
  const serviceRecord=query.get('serviceRecord');
  if(serviceRecord&&page==='services'){
@@ -655,9 +668,19 @@ async function myWork(){
  if(request){
   const record=await api(endpoint('work/'+encodeURIComponent(request)));
   if(!host.isConnected)return;
-  host.innerHTML=`<section class="panel"><h2>${esc(record.name)}</h2><p>${esc(workStatus(record))}</p><p>${esc(record.id)}</p>
-  <a class="secondary" href="${esc(link('services'))}">${esc(ui.services)}</a>
-  ${workspace.permissions.includes('auri:use')?`<a class="secondary" href="${esc(link('assistant',{request}))}">${esc(ui.assistant)}</a>`:''}</section>`;
+  const r=osCopy(lang).requestDetail,stage=deliveryStage(record.productionStatus||record.status),steps=osCopy(lang).services.stages;
+  host.innerHTML=`<section class="os-card os-request">
+   <header class="os-request-head"><div><p class="os-eyebrow">${esc(r.kicker)}</p><h2>${esc(record.name)}</h2></div><span class="os-pill ${stage===3?'is-good':stage===2?'is-info':'is-warn'}">${esc(workStatus(record))}</span></header>
+   <ol class="os-request-steps" aria-label="${esc(r.progress)}">${steps.map((label,i)=>`<li class="${i<stage?'is-past':i===stage?'is-now':''}" ${i===stage?'aria-current="step"':''}><span>${i<stage?osIcon('check',14):i+1}</span><strong>${esc(label)}</strong></li>`).join('')}</ol>
+   <dl class="os-facts os-request-facts"><div><dt>${esc(r.sent)}</dt><dd>${esc(record.createdAt?new Date(String(record.createdAt).replace(' ','T')+(String(record.createdAt).length===19?'Z':'')).toLocaleDateString(lang,{day:'numeric',month:'long',year:'numeric'}):'—')}</dd></div>
+    <div><dt>${esc(r.due)}</dt><dd>${esc(record.dueDate?new Date(record.dueDate).toLocaleDateString(lang,{day:'numeric',month:'long',year:'numeric'}):r.dueUnset)}</dd></div>
+    <div><dt>${esc(r.reference)}</dt><dd><code>${esc(record.id)}</code></dd></div></dl>
+   <p class="os-muted">${esc(r.note)}</p>
+   <div class="os-inline-actions">
+    ${workspace.permissions.includes('auri:use')?`<a class="os-btn is-primary is-sm" href="${esc(link('assistant',{request}))}">${esc(ui.assistant)}</a>`:''}
+    ${workspace.permissions.includes('roadmap:write')?`<button type="button" class="os-btn is-quiet is-sm" data-request-update>${esc(r.update)}</button>`:''}
+    <a class="os-btn is-quiet is-sm" href="${esc(link('requests'))}">${esc(r.all)}</a></div></section>`;
+  host.querySelector('[data-request-update]')?.addEventListener('click',()=>{requestDrafts.set(id,`${r.regarding} ${record.id} (${record.name}):\n`);navigate('requests',{new:'1',service:record.name});});
   return;
  }
  if(page==='services'&&!service){
@@ -730,6 +753,10 @@ async function renderPage(){
  if(page==='menuDrafts')return renderMenuDrafts({host:document.querySelector('#page-content'),api,endpoint,profile:workspace.profile,canWrite:workspace.permissions.includes('roadmap:write'),draftId:query.get('draft'),reviewLabel:label.reviewed,onDraft:id=>navigate('menuDrafts',{draft:id}),onReviewed:()=>navigate('home')});
  if(page==='journey'){if(selectedMission&&!workspace.missions.some(m=>m.id===selectedMission))throw new Error(label.unavailable);return growthDashboard();}
  if(page==='tasks')return journey();
+ // Old addresses from earlier Hub versions go to their current home.
+ const moved={insights:['studio',{view:'analytics'}],reports:['studio',{view:'analytics'}],projects:['requests'],websites:['studio',{view:'website'}],hosting:['services',{offer:'hosting'}],files:['services'],rewards:['journey'],resources:['home']}[page];
+ if(moved){navigate(moved[0],moved[1]||{},true);return;}
+ if(page==='support')return renderHelp();
  if(page==='insights'){
   content(`<section class="panel"><h2>${esc(t('reports'))}</h2><a class="secondary" href="${esc(link('simulator'))}">${esc(t('simulator'))}</a></section>`);
   return;
@@ -754,6 +781,20 @@ async function renderPage(){
  <h2>${esc(t('contact'))}</h2><p>${esc(t('supportText'))}</p>
  ${workspace.permissions.includes('auri:use')?`<a class="growth-primary" href="${esc(link('assistant'))}">${esc(label.assistant)} ↗</a>`:''}
  <a class="growth-secondary" href="/contact">${esc(t('contact'))}</a></div></section>`);
+}
+function renderHelp(){
+ const h=osCopy(lang).help,canAsk=workspace?.permissions.includes('auri:use'),canRequest=workspace?.permissions.includes('roadmap:write');
+ content(`<div class="os-help">
+  <section class="os-help-grid">
+   ${canAsk?`<button type="button" class="os-help-card" data-help-auri>${osIcon('auri',22)}<strong>${esc(h.auri)}</strong><span>${esc(h.auriNote)}</span></button>`:''}
+   <a class="os-help-card" href="https://wa.me/905385507674" target="_blank" rel="noopener">${osIcon('whatsapp',22)}<strong>WhatsApp</strong><span>+90 538 550 76 74</span></a>
+   <a class="os-help-card" href="mailto:info@auradigitalworks.com">${osIcon('mail',22)}<strong>${esc(h.email)}</strong><span>info@auradigitalworks.com</span></a>
+   ${canRequest?`<a class="os-help-card" href="${esc(requestLink())}">${osIcon('requests',22)}<strong>${esc(h.request)}</strong><span>${esc(h.requestNote)}</span></a>`:''}
+  </section>
+  <section class="os-card"><h2>${esc(h.faqTitle)}</h2><div class="os-faq">${h.faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
+   <p class="os-source"><a class="os-link" href="/help">${esc(h.center)}</a></p></section>
+ </div>`);
+ document.querySelector('[data-help-auri]')?.addEventListener('click',()=>openAuri());
 }
 async function askAuri(question,missionId,requestId,serviceKey,offer) {
  const id=workspace.organization.id;

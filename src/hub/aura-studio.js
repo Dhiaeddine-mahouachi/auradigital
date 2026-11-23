@@ -364,5 +364,6 @@ async function analytics(ctx) {
    <section class="os-card"><header class="os-card-head"><div><h2>${esc(a.roadmap)}</h2></div></header>
     ${bars(c.journey.stages.map((name, i) => { const list = missions.filter(m => Math.max(1, Math.min(5, Number(m.level) || 1)) === i + 1); return [name, list.filter(m => m.status === 'done').length, list.length]; }).map(([n, d, t]) => [`${n} (${d}/${t})`, d]), Math.max(1, ...c.journey.stages.map((_, i) => missions.filter(m => Math.max(1, Math.min(5, Number(m.level) || 1)) === i + 1).length)))}
     <p class="os-source">${esc(a.srcRoadmap)}</p></section>
+   <section class="os-card"><header class="os-card-head"><div><h2>${esc(a.simulator)}</h2><p>${esc(a.simulatorNote)}</p></div></header><a class="os-btn is-quiet is-sm" href="${esc(link('simulator'))}">${icon('analytics', 16)}<span>${esc(a.simulator)}</span></a></section>
   </div>`;
 }
