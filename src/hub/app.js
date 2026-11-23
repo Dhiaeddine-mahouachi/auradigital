@@ -1,3 +1,4 @@
+import { takeGoogleNotice, googleNoticeText } from './google-notice.js';
 import { accountSettingsCopy, renderAccountSettings } from './settings-view.js';
 import { renderServices, renderServiceOffer, serviceOffer, serviceShortcuts, renderServiceDetails, serviceLabels, serviceSummary, serviceDate, serviceStatus } from './service-view.js';
 import { mountGuide } from './guide-view.js';
@@ -49,6 +50,7 @@ function resumeShop(){
  return true;
 }
 if(flowToken)history.replaceState(null,'',location.pathname+location.search);
+let googleNotice=takeGoogleNotice();
 const t=k=>k==='menuDrafts'?({en:'Menu drafts',ar:'مسودات القوائم',tr:'Menü taslakları',fr:'Brouillons de menus'})[lang]:copy[lang][k]||copy.en[k]||k,cap=k=>capabilityNames[lang][k]||capabilities.find(c=>c.id===k)?.service||k;
 const toast=message=>{notice.textContent=message;notice.classList.add('visible');setTimeout(()=>notice.classList.remove('visible'),7000);};
 const setupScope='setup';
@@ -122,6 +124,7 @@ function render(){
  if(page==='onboarding'&&(!workspace||(!workspace.missions.length&&workspace.permissions.includes('profile:write')&&workspace.permissions.includes('roadmap:write')))){openFirstLogin();return;}
  if(editing){renderSetup();return;}
  renderShell();
+ if(googleNotice){toast(googleNoticeText(googleNotice,lang));googleNotice='';}
 }
 const intakeKey=()=>`aura-intake:${me.id}:${workspace?.organization.id||'new'}`;
 function openFirstLogin(){
@@ -245,6 +248,7 @@ function authScreen({signup,forgot,reset}){
  </main></div>`;
  bindCommon();mountTurnstile();
  const form=document.querySelector('#auth-form'),err=form.querySelector('[role="alert"]');
+ if(googleNotice&&err){err.textContent=googleNoticeText(googleNotice,lang);googleNotice='';}
  const pwInput=form.querySelector('input[name="password"]');
  form.querySelector('[data-eye]')?.addEventListener('click',e=>{const b=e.currentTarget,shown=pwInput.type==='text';pwInput.type=shown?'password':'text';b.textContent=shown?al('show'):al('hide');b.setAttribute('aria-pressed',String(!shown));});
  if(pwInput&&mode!=='login')pwInput.addEventListener('input',()=>{const n=pwInput.value.length,m=form.querySelector('.ad-meter i'),h=form.querySelector('#ad-pw-hint');const lvl=n<12?1:n<16?2:3;m.style.width=Math.min(100,n/16*100)+'%';m.dataset.level=lvl;h.textContent=n?`${al(lvl===1?'weak':lvl===2?'ok':'strong')} · ${n}/12+`:al('pwHint');});
