@@ -1,3 +1,4 @@
+import { auriCharacter } from './auri-companion.js';
 import { guideText } from './mission-copy.js';
 // Aura Journey — "Know how to grow". The illustrated five-stage Growth Vision.
 // Stage progress is derived only from the workspace's missions (status set by
@@ -133,7 +134,7 @@ export function renderAuraJourney({ host, lang, esc, link, requestLink, workspac
     ${examples.length ? `<section class="os-stage-examples"><h3>${esc(j.examples)}</h3><div>${examples.map(e => `<a href="${esc(e.href)}" class="os-example"><img src="${esc(e.img)}" alt="" loading="lazy" decoding="async" width="320" height="200"><span><strong>${esc(e.name)}</strong><small>${esc(e.kind[lang] || e.kind.en)}</small></span></a>`).join('')}</div></section>` : ''}
    </section>
    <aside class="os-journey-auri" aria-labelledby="os-jauri-title">
-    <div class="os-auri-row"><span class="os-auri-face is-floating" aria-hidden="true"><img src="/media/auri/level-${Math.max(1, Math.min(7, workspace.auri?.level || 1))}-128.webp" alt="" width="56" height="56"></span><h2 id="os-jauri-title">${esc(j.explainTitle)}</h2></div>
+    <div class="os-auri-row"><span class="os-auri-face is-floating" aria-hidden="true">${auriCharacter(Math.max(1, Math.min(7, workspace.auri?.level || 1)),{variant:'face'})}</span><h2 id="os-jauri-title">${esc(j.explainTitle)}</h2></div>
     <dl class="os-explain">${auriExplain.map(([q, a]) => `<div><dt>${esc(q)}</dt><dd>${esc(a)}</dd></div>`).join('')}</dl>
     ${canAsk ? `<button type="button" class="os-btn is-primary is-sm" data-ask-stage>${icon('auri', 16)}<span>${esc(j.askStage)}</span></button>` : ''}
    </aside>

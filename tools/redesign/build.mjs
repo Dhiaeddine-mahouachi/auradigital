@@ -111,6 +111,12 @@ globalThis.window = globalThis.window || { addEventListener() {}, removeEventLis
 await import(pathToFileURL(path.join(HERE, 'components.gen.js')).href);
 const css = designs.find((d) => d.name === 'Main').helmet;
 const stripFonts = (x) => x.replace(/<link[^>]*fonts\.(googleapis|gstatic)\.com[^>]*>\s*/g, '');
+// Live Auri dock (media/auri/live): belly screen per page, special behaviour for 404/Packages.
+const AURI_DOCK = { Main: 'data-screen="logo"', About: 'data-screen="logo"', Solutions: 'data-screen="automation"',
+  Packages: 'data-screen="roadmap" data-page="packages"', Shop: 'data-screen="marketing"', AuraMenu: 'data-screen="website"',
+  Weddings: 'data-screen="website"', Work: 'data-screen="website"', Help: 'data-screen="support"', Contact: 'data-screen="support"',
+  NotFound: 'data-page="404"' };
+const auriDock = (attrs) => `<script type="module" src="/media/auri/live/auri-site.js?v=${VERSION}" data-auto ${attrs}></script>`;
 for (const [name, file, title, description] of PAGES) {
   const d = designs.find((x) => x.name === name);
   const html = renderToString(h(runtime.registry[name], {}));
@@ -138,7 +144,7 @@ ${stripFonts(extraCss).trim()}
 <body>
 <div id="app" data-page="${name}">${html}</div>
 <noscript><p style="font-family:Inter,sans-serif;padding:16px">WhatsApp +90 538 550 76 74 · info@auradigitalworks.com</p></noscript>
-<script src="/redesign/app.js?v=${VERSION}" defer></script>
+<script src="/redesign/app.js?v=${VERSION}" defer></script>${AURI_DOCK[name] ? auriDock(AURI_DOCK[name]) : ''}
 <script src="/redesign/i18n.js?v=${VERSION}" defer></script>
 </body>
 </html>
@@ -169,7 +175,7 @@ for (const [file, active] of SHELLS) {
   src = swap(src, 'css', `\n<link rel="stylesheet" href="/redesign/fonts.css?v=${VERSION}">\n${shellCss.trim()}\n`);
   src = swap(src, 'header', chrome('Header', active));
   src = swap(src, 'footer', chrome('Footer', active) + chrome('Auri', active));
-  src = swap(src, 'js', `<script src="/redesign/app.js?v=${VERSION}" defer></script><script src="/redesign/i18n.js?v=${VERSION}" defer></script>`);
+  src = swap(src, 'js', `<script src="/redesign/app.js?v=${VERSION}" defer></script>${auriDock('data-screen="marketing"')}<script src="/redesign/i18n.js?v=${VERSION}" defer></script>`);
   fs.writeFileSync(fp, src);
   console.log('chrome', file);
 }
