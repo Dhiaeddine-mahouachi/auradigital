@@ -165,6 +165,13 @@
     } catch (err) {}
   }, true);
 
+  // Keep the language choices first in the mobile navigation drawer.
+  // The drawer is created dynamically, so a scoped flex order works after every render.
+  var mobileLanguageStyle = document.createElement('style');
+  mobileLanguageStyle.id = 'aura-mobile-language-first';
+  mobileLanguageStyle.textContent = '@media(max-width:1180px){div.mob.pop:has(> .lang-switch[aria-label="Language"]){display:flex!important;flex-direction:column!important}div.mob.pop > .lang-switch[aria-label="Language"]{order:-1!important;margin-top:0!important;margin-bottom:12px!important;padding:8px 0;align-self:stretch;flex-shrink:0}}';
+  document.head.appendChild(mobileLanguageStyle);
+
   window.AuraI18n = { setLang: function (l) { return setLang(l, true); }, get lang() { return lang; } };
   setLang(initialLang(), false);
 })();
