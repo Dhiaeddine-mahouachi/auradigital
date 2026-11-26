@@ -131,8 +131,7 @@
 .nfc-list .sh-card{padding:12px;border-radius:20px;background:var(--white);border:1px solid var(--line);display:flex;flex-direction:column;gap:4px;transition:border-color .2s,transform .3s}
 .nfc-list .sh-card.on{border-color:var(--forest);box-shadow:0 0 0 1px var(--forest)}
 .nfc-list .sh-cimg{display:grid;place-items:center;aspect-ratio:4/5;border:0;border-radius:14px;background:var(--sage-2);padding:12px;cursor:pointer;margin-bottom:6px}
-.nfc-list .sh-cimg img{max-height:100%;width:auto;max-width:100%;border-radius:8px;box-shadow:0 10px 22px -12px rgba(14,43,30,.5);transition:transform .35s}
-.nfc-list .sh-card:hover .sh-cimg img{transform:translateY(-4px) rotate(-1.5deg)}
+.nfc-list .sh-cimg img{max-height:100%;width:auto;max-width:100%;border-radius:8px;box-shadow:0 10px 22px -12px rgba(14,43,30,.5)}
 .sh-cfoot{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:14px;font-weight:600}
 .sh-cfoot .sh-add{height:36px;padding:0 12px;font-size:13px}
 .cart-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;align-items:start}
@@ -157,6 +156,17 @@
 @media(max-width:620px){.cart-line{grid-template-columns:60px minmax(0,1fr) 40px;grid-template-areas:"i n x" "i q s"}.cart-line img{grid-area:i;width:60px;height:60px}.cart-info{grid-area:n}.cart-line .qty{grid-area:q;justify-self:start}.cart-sum{grid-area:s}.cart-x{grid-area:x}.nfc-actions .btn{flex:1}.nfc-list{--cols:2 !important}}
 @media(max-width:620px){.grid.nfc-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.nfc-slide,.nfc-card{transition:none}}
+
+.nfc-list .sh-cimg{perspective:1000px}
+.gflip{position:relative;display:grid;place-items:center;width:100%;height:100%;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.gflip img{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.gflip .gb{transform:rotateY(180deg) !important}
+.gflip .gf{transform:none !important}
+.sh-cimg.flipped .gflip{transform:rotateY(180deg)}
+@media(hover:hover){.nfc-list .sh-card:hover .gflip{transform:rotateY(180deg)}.nfc-list .sh-card:hover .sh-cimg.flipped .gflip{transform:none}}
+.sh-cname{border:0;background:none;padding:0;text-align:start;font:inherit;font-weight:600;color:var(--ink);cursor:pointer}
+.sh-cname:hover{text-decoration:underline;text-underline-offset:3px}
+@media(prefers-reduced-motion:reduce){.gflip{transition:none}}
 </style>
 </helmet>
 <div>
@@ -198,10 +208,10 @@
           <div class="sh-grid">
             <sc-for list="{{ items }}" as="s" hint-placeholder-count="9">
               <div class="{{ s.cls }}">
-                <div style="display: flex; gap: 6px; flex-wrap: wrap"><span class="tag">{{ s.cat }}</span><sc-if value="{{ s.popular }}" hint-placeholder-val="{{ false }}"><span class="tag acid">Popular</span></sc-if></div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap"><span class="tag">{{ s.cat }}</span><sc-if value="{{ s.popular }}" hint-placeholder-val="{{ false }}"><span class="tag acid">Popular</span></sc-if><sc-if value="{{ s.sale }}" hint-placeholder-val="{{ false }}"><span class="sale-chip">−10% sale</span></sc-if></div>
                 <h3>{{ s.name }}</h3>
                 <p>{{ s.desc }}</p>
-                <div class="sh-foot"><span><small class="muted">Price</small><b>{{ s.price }}</b></span><button type="button" class="{{ s.btnCls }}" onClick="{{ s.toggle }}" aria-pressed="{{ s.added }}">{{ s.btnLabel }}</button></div>
+                <div class="sh-foot"><span><small class="muted">Price</small><sc-if value="{{ s.sale }}" hint-placeholder-val="{{ false }}"><s class="was">{{ s.was }}</s></sc-if><b>{{ s.price }}</b></span><button type="button" class="{{ s.btnCls }}" onClick="{{ s.toggle }}" aria-pressed="{{ s.added }}">{{ s.btnLabel }}</button></div>
               </div>
             </sc-for>
           </div>
@@ -274,8 +284,8 @@
       <div class="grid nfc-list" style="--cols: 5">
         <sc-for list="{{ cardList }}" as="k" hint-placeholder-count="10">
           <div class="{{ k.cls }}">
-            <button type="button" class="sh-cimg" onClick="{{ k.pick }}" aria-label="See {{ k.name }}"><img src="{{ k.img }}" alt="{{ k.alt }}" loading="lazy"></button>
-            <b>{{ k.name }}</b>
+            <button type="button" class="{{ k.imgCls }}" onClick="{{ k.flip }}" aria-label="{{ k.flipLabel }}" aria-pressed="{{ k.flipped }}"><span class="gflip"><img class="gf" src="{{ k.img }}" alt="{{ k.alt }}" loading="lazy"><img class="gb" src="{{ k.back }}" alt="" loading="lazy"></span></button>
+            <button type="button" class="sh-cname" onClick="{{ k.pick }}">{{ k.name }}</button>
             <span class="muted" style="font-size: 13px">{{ k.category }}</span>
             <div class="sh-cfoot"><span>{{ unitPrice }}</span><button type="button" class="sh-add" onClick="{{ k.add }}">{{ k.addLabel }}</button></div>
           </div>
@@ -352,7 +362,7 @@
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { cat: 'All', cart: ['growth'], q: '', tab: 'services', ccat: 'All', cq: '', sel: 'oliva-bistro', finish: 'Matte', qty: 1, flip: false, nfc: [], toast: '', user: null };
+    this.state = { cat: 'All', cart: ['growth'], q: '', tab: 'services', ccat: 'All', cq: '', sel: 'oliva-bistro', finish: 'Matte', qty: 1, flip: false, nfc: [], toast: '', user: null, gflip: '' };
     this.track = null; this.step = 0;
   }
   loadNfc() {
@@ -392,12 +402,20 @@ class Component extends DCLogic {
     this.onStore = () => this.setState({ nfc: this.loadNfc() });
     try { window.addEventListener('hashchange', this.onHash); window.addEventListener('storage', this.onStore); } catch (e) {}
     this.setState({ nfc: this.loadNfc() });
+    this.hold = 0;
+    let still = false; try { still = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    if (!still) this.auto = setInterval(() => {
+      if (this.state.tab !== 'cards' || Date.now() - this.hold < 9000 || document.hidden) return;
+      const t = this.track; if (!t) return;
+      const r = t.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
+      this.setState({ flip: !this.state.flip });
+    }, 3200);
     try {
       fetch('/api/customer/session', { credentials: 'same-origin', headers: { Accept: 'application/json' } })
         .then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && d.user) this.setState({ user: { name: String(d.user.name || d.user.email || 'Customer') } }); }).catch(() => {});
     } catch (e) {}
   }
-  componentWillUnmount() { try { window.removeEventListener('hashchange', this.onHash); window.removeEventListener('storage', this.onStore); } catch (e) {} }
+  componentWillUnmount() { clearInterval(this.auto); try { window.removeEventListener('hashchange', this.onHash); window.removeEventListener('storage', this.onStore); } catch (e) {} }
   goTo(i, smooth) {
     const t = this.track; if (!t || !t.children[i]) return;
     const c = t.children[i];
@@ -438,7 +456,12 @@ class Component extends DCLogic {
       { id: 'security-hardening', cat: 'Infrastructure', name: 'Security hardening', desc: 'Advanced security review and hardening.', v: 3500, bill: 'once' },
       { id: 'erp-essential', cat: 'Systems', name: 'ERP Essential', desc: 'Custom ERP for your operations.', v: 49900, bill: 'once' },
       { id: 'erp-business', cat: 'Systems', name: 'ERP Business', desc: 'ERP with more modules and users.', v: 79900, bill: 'once' }
-    ].map((x) => ({ ...x, price: '₺' + x.v.toLocaleString('en-US') + (x.bill === 'month' ? '/mo' : x.bill === 'year' ? '/yr' : '') }));
+    ].map((x) => {
+      const sale = x.cat === 'Websites' && Date.now() < Date.parse('2026-12-16T23:59:59+03:00');
+      const v = sale ? Math.round(x.v * 0.9) : x.v;
+      const per = x.bill === 'month' ? '/mo' : x.bill === 'year' ? '/yr' : '';
+      return { ...x, v, sale, was: '₺' + x.v.toLocaleString('en-US') + per, price: '₺' + v.toLocaleString('en-US') + per };
+    });
     const cats = ['All', 'Websites', 'Add-ons', 'Care', 'Grow', 'Products', 'Infrastructure', 'Systems'];
     const on = 'background: #0B0F0C; color: #FFFFFF; border: 1px solid #0B0F0C; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
     const off = 'background: #FFFFFF; color: #0B0F0C; border: 1px solid #D9D6CB; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
@@ -471,7 +494,7 @@ class Component extends DCLogic {
     const waText = 'Hello AuraDigital, I would like to order NFC cards:\n' + nfcItems.map((i) => { const k = CARDS.find((c) => c.s === i.themeId); return '• ' + i.quantity + ' × ' + (k ? k.n : i.themeId) + ' (' + i.finish + ')'; }).join('\n');
     const nfcVals = {
       isCart: s.tab === 'cart',
-      trackRef: (el) => { this.track = el; },
+      trackRef: (el) => { this.track = el; if (el && !el._held) { el._held = 1; ['pointerdown', 'wheel', 'keydown', 'touchstart'].forEach((ev) => el.addEventListener(ev, () => { this.hold = Date.now(); }, { passive: true })); } },
       onTrack: (e) => {
         const t = e.currentTarget; const first = t.children[0]; if (!first) return;
         const gap = t.children[1] ? t.children[1].offsetLeft - first.offsetLeft : first.clientWidth;
@@ -480,9 +503,9 @@ class Component extends DCLogic {
       },
       onKeys: (e) => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); const rtl = document.documentElement.dir === 'rtl'; const d = (e.key === 'ArrowRight') !== rtl ? 1 : -1; const n = Math.max(0, Math.min(slides.length - 1, idx + d)); this.setState({ sel: slides[n].s, flip: false }); this.goTo(n); } },
       slides: slides.map((k, i) => ({ front: hd(k, 'front'), back: hd(k, 'back'), label: k.n + (i === idx ? (s.flip ? ', back. Tap to see the front.' : ', front. Tap to see the back.') : ''), on: i === idx, cls: 'nfc-slide' + (i === idx ? ' on' : '') + (i === idx && s.flip ? ' flipped' : ''), pick: pick(k, i) })),
-      prev: () => { const n = Math.max(0, idx - 1); this.setState({ sel: slides[n].s, flip: false }); this.goTo(n); },
-      next: () => { const n = Math.min(slides.length - 1, idx + 1); this.setState({ sel: slides[n].s, flip: false }); this.goTo(n); },
-      flip: () => this.setState({ flip: !s.flip }), flipped: s.flip, flipLabel: s.flip ? 'Show front' : 'Show back',
+      prev: () => { this.hold = Date.now(); const n = Math.max(0, idx - 1); this.setState({ sel: slides[n].s, flip: false }); this.goTo(n); },
+      next: () => { this.hold = Date.now(); const n = Math.min(slides.length - 1, idx + 1); this.setState({ sel: slides[n].s, flip: false }); this.goTo(n); },
+      flip: () => { this.hold = Date.now(); this.setState({ flip: !s.flip }); }, flipped: s.flip, flipLabel: s.flip ? 'Show front' : 'Show back',
       pos: idx + 1, slideTotal: slides.length,
       cur: { name: cur.n, category: cur.c },
       unitPrice: fmtT(PRICE),
@@ -514,7 +537,7 @@ class Component extends DCLogic {
       cq: s.cq, onCq: (e) => { this.setState({ cq: e.target.value }); if (this.track) this.track.scrollLeft = 0; },
       cardCats: ['All'].concat(Object.keys(GROUPS)).map((g) => ({ label: g, on: g === s.ccat, style: g === s.ccat ? on : off, pick: () => { this.setState({ ccat: g }); if (this.track) this.track.scrollLeft = 0; } })),
       cardCount: cardList.length + ' design' + (cardList.length === 1 ? '' : 's') + '. Tap one to see it above.',
-      cardList: cardList.map((k, i) => ({ name: k.n, category: k.c, img: hd(k, 'front'), alt: k.n + ' NFC card design', cls: 'sh-card' + (k.s === cur.s ? ' on' : ''), addLabel: nfcItems.some((x) => x.themeId === k.s) ? '✓ In cart' : '+ Add', pick: () => { this.setState({ sel: k.s, flip: false }); this.goTo(i, false); try { document.getElementById('cards').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }, add: () => { this.addNfc(k.s, 'Matte', 1); showToast('1 × ' + k.n + ' added.'); } })),
+      cardList: cardList.map((k, i) => ({ name: k.n, category: k.c, img: hd(k, 'front'), back: hd(k, 'back'), alt: k.n + ' NFC card design', cls: 'sh-card' + (k.s === cur.s ? ' on' : ''), imgCls: 'sh-cimg' + (s.gflip === k.s ? ' flipped' : ''), flipped: s.gflip === k.s, flipLabel: k.n + (s.gflip === k.s ? ': showing the back. Tap to see the front.' : ': tap to see the back.'), flip: () => this.setState({ gflip: s.gflip === k.s ? '' : k.s }), addLabel: nfcItems.some((x) => x.themeId === k.s) ? '✓ In cart' : '+ Add', pick: () => { this.hold = Date.now(); this.setState({ sel: k.s, flip: false }); this.goTo(i, false); try { document.getElementById('cards').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }, add: () => { this.addNfc(k.s, 'Matte', 1); showToast('1 × ' + k.n + ' added.'); } })),
       q: s.q, onQ: (e) => this.setState({ q: e.target.value }),
       cats: cats.map((c) => ({ label: c, on: c === s.cat, style: c === s.cat ? on : off, pick: () => this.setState({ cat: c }) })),
       resultText: list.length + ' service' + (list.length === 1 ? '' : 's') + (q ? ' matching “' + s.q + '”' : ''),

@@ -12,6 +12,16 @@
 <style>body{margin:0}</style>
 </helmet>
 <header class="{{ topCls }}" onMouseLeave="{{ closeAll }}">
+  <sc-if value="{{ saleOn }}" hint-placeholder-val="{{ true }}">
+  <a class="salebar" href="Packages.dc.html" aria-label="{{ saleAria }}">
+    <span class="wrap salebar-in">
+      <span class="sale-badge">−10%</span>
+      <span class="sale-txt"><b>Website sale</b><span class="sale-long"> · 10% off every website package</span></span>
+      <span class="sale-clock" aria-hidden="true"><span class="sale-unit"><b>{{ cd.d }}</b><i>d</i></span><span class="sale-unit"><b>{{ cd.h }}</b><i>h</i></span><span class="sale-unit"><b>{{ cd.m }}</b><i>m</i></span><span class="sale-unit sale-s"><b>{{ cd.s }}</b><i>s</i></span></span>
+      <span class="sale-cta">See prices<svg viewBox="0 0 24 24" aria-hidden="true" class="ad-flip"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+    </span>
+  </a>
+  </sc-if>
   <div class="wrap top-in">
     <a class="logo" href="Main.dc.html" aria-label="AuraDigital home"><i><img src="/_blob/15ec3fa6439e3bb5e1bdb565a3cf95f0" alt="" width="22" height="11"></i>AuraDigital</a>
     <nav class="nav desk" aria-label="Main">
@@ -21,7 +31,7 @@
       <a class="{{ cls.work }}" href="Work.dc.html" onMouseEnter="{{ closeAll }}">Our work</a>
     </nav>
     <div class="top-end">
-      <span class="desk lang-switch" role="group" aria-label="Language"><button type="button" class="lang-btn" data-set-lang="en" lang="en" aria-label="English">EN</button><button type="button" class="lang-btn" data-set-lang="tr" lang="tr" aria-label="Türkçe">TR</button><button type="button" class="lang-btn" data-set-lang="ar" lang="ar" aria-label="العربية">AR</button></span>
+      <span class="lang-switch lang-top" role="group" aria-label="Language"><button type="button" class="lang-btn" data-set-lang="en" lang="en" aria-label="English">EN</button><button type="button" class="lang-btn" data-set-lang="tr" lang="tr" aria-label="Türkçe">TR</button><button type="button" class="lang-btn" data-set-lang="ar" lang="ar" aria-label="العربية">AR</button></span>
       <a class="cart-btn" href="Shop.dc.html#cart" aria-label="{{ cartLabel }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6.2"></path><circle cx="10" cy="20.5" r="1.3"></circle><circle cx="17" cy="20.5" r="1.3"></circle></svg><sc-if value="{{ hasCart }}" hint-placeholder-val="{{ false }}"><span class="cart-n">{{ cartCount }}</span></sc-if></a>
       <a class="btn btn-ghost btn-sm desk" href="HubApp.dc.html">Log in</a>
       <a class="btn btn-acid btn-sm desk" href="Hub.dc.html">Start your path</a>
@@ -69,13 +79,13 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["home","solutions","products","shop","packages","work","help","about","contact","hub"],"default":"home"},"$preview":{"width":1440,"height":120}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { open: null, drawer: false, cart: 0 }; }
+  constructor(props) { super(props); this.state = { open: null, drawer: false, cart: 0, now: 0, scrolled: false }; }
   readCart() {
     try { const d = JSON.parse(localStorage.getItem('aura.shop.cart.v1') || 'null'); const n = d && Array.isArray(d.items) ? d.items.reduce((a, i) => a + (Number(i.quantity) || 0), 0) : 0; this.setState({ cart: n }); } catch (e) {}
   }
   componentDidMount() {
     this.onKey = (e) => { if (e.key === 'Escape') this.setState({ open: null, drawer: false }); };
-    this.onScroll = () => { if (this.state.open) this.setState({ open: null }); };
+    this.onScroll = () => { const sc = window.scrollY > 24; if (sc !== this.state.scrolled) this.setState({ scrolled: sc }); if (this.state.open) this.setState({ open: null }); };
     this.onDoc = (e) => { if (this.state.open && !(e.target.closest && e.target.closest('.top'))) this.setState({ open: null }); };
     this.onCart = () => this.readCart();
     try {
@@ -86,19 +96,29 @@ class Component extends DCLogic {
       window.addEventListener('aura-cart', this.onCart);
     } catch (e) {}
     this.readCart();
+    this.setState({ now: Date.now(), scrolled: window.scrollY > 24 });
+    this.tick = setInterval(() => this.setState({ now: Date.now() }), 1000);
   }
   componentWillUnmount() {
     try {
       window.removeEventListener('keydown', this.onKey); window.removeEventListener('scroll', this.onScroll);
       document.removeEventListener('pointerdown', this.onDoc); window.removeEventListener('storage', this.onCart); window.removeEventListener('aura-cart', this.onCart);
     } catch (e) {}
+    clearInterval(this.tick);
   }
   renderVals() {
     const s = this.state;
     const a = this.props.active ?? 'home';
     const c = (k) => 'nl' + (a === k ? ' on' : '');
     return {
-      topCls: 'top' + (s.drawer ? ' open' : ''),
+      topCls: 'top' + (s.drawer ? ' open' : '') + (s.scrolled ? ' scrolled sale-folded' : ''),
+      ...(() => {
+        const END = Date.parse('2026-12-16T23:59:59+03:00');
+        const left = s.now ? Math.max(0, END - s.now) : END - Date.parse('2026-11-26T22:30:00+03:00');
+        const p2 = (n) => String(n).padStart(2, '0');
+        const d = Math.floor(left / 864e5), h = Math.floor(left / 36e5) % 24, m = Math.floor(left / 6e4) % 60, sec = Math.floor(left / 1e3) % 60;
+        return { saleOn: left > 0, cd: { d: String(d), h: p2(h), m: p2(m), s: s.now ? p2(sec) : '00' }, saleAria: 'Website sale: 10% off every website package until 16 December. ' + d + ' days left. See prices.' };
+      })(),
       isSol: s.open === 'sol', isProd: s.open === 'prod', drawer: s.drawer,
       openSol: () => this.setState({ open: 'sol' }),
       openProd: () => this.setState({ open: 'prod' }),

@@ -510,3 +510,9 @@ Create an account ||| Hesap oluştur ||| أنشئ حسابًا
 Shipping ||| Teslimat ||| الشحن
 Payment ||| Ödeme ||| الدفع
 You place the order, then pay by bank transfer with your order reference. We verify the payment before printing. ||| Siparişi verirsiniz, ardından sipariş referansınızla banka havalesi yaparsınız. Baskıdan önce ödemeyi doğrularız. ||| تقدّم الطلب، ثم تدفع بتحويل بنكي مع رقم مرجع الطلب. نتحقق من الدفع قبل الطباعة.
+Website sale ||| Web sitesi indirimi ||| تخفيضات المواقع
+· 10% off every website package ||| · Tüm web sitesi paketlerinde %10 indirim ||| · خصم 10% على كل باقات المواقع
+See prices ||| Fiyatları gör ||| شاهد الأسعار
+−10% sale ||| %10 indirim ||| خصم 10%
+−10% until Dec 16 ||| 16 Aralık’a kadar %10 indirim ||| خصم 10% حتى 16 ديسمبر
+Website sale: 20 days only, until Dec 16 ||| Web sitesi indirimi: yalnızca 20 gün, 16 Aralık’a kadar ||| تخفيضات المواقع: 20 يومًا فقط حتى 16 ديسمبر

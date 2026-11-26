@@ -175,6 +175,8 @@
 .way h3{font-size:30px;letter-spacing:-.035em;line-height:1.1}
 .way p{color:var(--ink-2);font-size:16px;max-width:42ch}
 .way-auri{background:var(--sage)}
+.pill-sale b{animation:salenudge 2.4s cubic-bezier(.3,1.6,.5,1) infinite;display:inline-block}
+@media(prefers-reduced-motion:reduce){.pill-sale b{animation:none}}
 .way-team{background:var(--white);border:1px solid var(--line)}
 .chat{margin-top:auto;display:flex;flex-direction:column;gap:8px;font-size:14px}
 .chat span{padding:10px 14px;border-radius:16px;max-width:85%;background:var(--white)}
@@ -311,7 +313,7 @@
   <div class="aura" aria-hidden="true"></div>
   <div class="wrap">
     <div class="hero-copy">
-      <sc-if value="{{ showOffer }}" hint-placeholder-val="{{ true }}"><a class="pill rv" style="--d:0s" href="Packages.dc.html"><b>10% off</b>All website packages until Nov 28</a></sc-if>
+      <sc-if value="{{ showOffer }}" hint-placeholder-val="{{ true }}"><a class="pill rv pill-sale" style="--d:0s" href="Packages.dc.html"><b>−10%</b>Website sale: 20 days only, until Dec 16</a></sc-if>
       <h1 class="split" style="margin-top: 28px">Grow your business <span class="hl">one clear step</span> at a time.</h1>
       <p class="lead rv" style="--d:.55s">Tell Auri what you run. You get a free growth plan, and our team builds it with you.</p>
       <form class="{{ mailCls }}" style="--d:.65s" onSubmit="{{ mailSubmit }}" novalidate>
@@ -526,7 +528,7 @@ class Component extends DCLogic {
       [['Baklava', 'Pistachio, 4 pieces', '₺140'], ['San Sebastián', 'Burnt cheesecake', '₺170'], ['Künefe', 'Served warm', '₺190'], ['Sütlaç', 'Oven-baked', '₺110']]
     ];
     const b = B[s.biz];
-    let offer = true; try { offer = Date.now() < Date.parse('2026-11-28T16:11:00+03:00'); } catch (e) {}
+    let offer = true; try { offer = Date.now() < Date.parse('2026-12-16T23:59:59+03:00'); } catch (e) {}
     return {
       showOffer: offer,
       segRef: (el) => { this.seg = el; }, pillRef: (el) => { this.pill = el; }, faceRef: (el) => { this.face = el; },

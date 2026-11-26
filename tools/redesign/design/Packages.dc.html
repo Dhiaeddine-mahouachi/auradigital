@@ -17,6 +17,10 @@
 .pk{padding:34px;gap:12px}
 .pk h3{font-size:24px}
 .pk-price{font-size:46px;font-weight:600;letter-spacing:-.045em;line-height:1;margin:10px 0 6px}
+.pk-was{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:15px}
+.pk-was s{color:var(--ink-3)}
+.pk.dark .pk-was s{color:var(--on-forest-2)}
+.pk.dark .sale-chip{background:var(--acid);color:var(--ink)}
 .pk-price small{font-size:14px;font-weight:400;letter-spacing:0;color:var(--ink-3)}
 .pk .btn{width:100%}
 .pk.best{background:var(--acid);border-color:var(--acid);box-shadow:0 40px 80px -40px rgba(16,20,15,.45)}
@@ -59,6 +63,7 @@
               <sc-if value="{{ t.best }}" hint-placeholder-val="{{ false }}"><span class="tag acid">Most chosen</span></sc-if>
             </div>
             <p>{{ t.desc }}</p>
+            <sc-if value="{{ t.sale }}" hint-placeholder-val="{{ false }}"><div class="pk-was"><s>{{ t.was }}</s><span class="sale-chip">−10% until Dec 16</span></div></sc-if>
             <div class="pk-price">{{ t.price }} <small>{{ t.note }}</small></div>
             <a class="{{ t.btn }}" href="Hub.dc.html">Choose {{ t.name }}</a>
             <ul class="chk" style="margin-top: 10px">
@@ -123,7 +128,11 @@ class Component extends DCLogic {
     const btn = ['btn btn-main', 'btn btn-main', 'btn btn-acid'];
     return {
       modes: ['Build once', 'Monthly care'].map((l, i) => ({ label: l, on: i === s.mode, pick: () => this.setState({ mode: i }) })),
-      tiers: list.map((t, i) => ({ ...t, best: !!t.best, cls: cls[i], btn: btn[i] })),
+      tiers: list.map((t, i) => {
+        const sale = s.mode === 0 && Date.now() < Date.parse('2026-12-16T23:59:59+03:00');
+        const v = Number(t.price.replace(/[^0-9]/g, ''));
+        return { ...t, sale, was: t.price, price: sale ? '₺' + Math.round(v * 0.9).toLocaleString('en-US') : t.price, best: !!t.best, cls: cls[i], btn: btn[i] };
+      }),
       footnote: s.mode === 0 ? 'Prices in TRY, one-time. Hosting, domain and baseline security ₺2,000/year when not included. Taxes confirmed in your proposal.' : 'Prices in TRY per month. Managed Growth (₺12,900/month) adds priority support and ads management.',
       rows: [
         { label: 'Pages', a: 'Up to 3', b: '4–10', c: 'Website + dashboard' },
