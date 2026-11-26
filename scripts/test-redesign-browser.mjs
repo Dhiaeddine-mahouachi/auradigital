@@ -25,7 +25,7 @@ try {
       assert.deepEqual(errors, [], `${path} @${width} JS errors`);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       assert.ok(overflow <= 1, `${path} @${width} horizontal overflow ${overflow}px`);
-      assert.ok(await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('800 40px "Inter Tight"'); }), `${path} brand font`);
+      assert.ok(await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('600 40px "Geist"'); }), `${path} brand font`);
       assert.ok(await page.evaluate(() => { const i = document.querySelector('img[src*="ad-monogram"]'); return !!i && i.complete && i.naturalWidth > 0; }), `${path} logo`);
       if (path === '/index.html') await page.screenshot({ path: `test-output/redesign-home-${width}.png` });
       await page.close();
@@ -35,11 +35,11 @@ try {
   // Header menus and mobile drawer
   { const { page } = await open('/index.html');
     await page.getByRole('button', { name: /^Solutions/ }).hover();
-    assert.ok(await page.getByText('Not sure what you need?').isVisible(), 'solutions mega-menu');
+    assert.ok(await page.getByText('Not sure where to start?').isVisible(), 'solutions mega-menu');
     await page.close(); }
   { const { page } = await open('/index.html', 390);
     await page.getByRole('button', { name: 'Open menu' }).click();
-    assert.ok(await page.locator('div.mob a[href="/contact"]').isVisible(), 'mobile drawer');
+    assert.ok(await page.locator('nav.mnav a[href="/contact"]').isVisible(), 'mobile drawer');
     await page.screenshot({ path: 'test-output/redesign-mobile-menu.png' });
     await page.close(); }
 
@@ -117,15 +117,19 @@ try {
     assert.match(await page.locator('aside').textContent(), /₺1,950\/month/);
     await page.close(); }
 
-  // NFC card shop tab and deep link
+  // NFC card shop: swipe viewer, collection filter, shared cart, sign-in before payment
   { const { page } = await open('/service-shop.html?tab=cards');
-    const cardSel = 'main a[href^="/shop/cards/"], main a[href^="https://wa.me/"][href*="NFC%20card%20design"]';
-    await page.waitForFunction((sel) => document.querySelectorAll(sel).length >= 58, cardSel);
-    assert.ok(await page.locator('main a[href^="/shop/cards/"]').count() >= 8, 'shop-listed designs link to the shop');
+    await page.waitForFunction(() => document.querySelectorAll('.nfc-slide').length >= 58);
+    await page.getByRole('button', { name: 'Next design' }).click();
+    await page.waitForFunction(() => document.querySelector('.nfc-count b')?.textContent === '2');
     await page.getByRole('button', { name: 'Food & drink' }).click();
-    const n = await page.locator(cardSel).count();
+    const n = await page.locator('.nfc-slide').count();
     assert.ok(n > 0 && n < 58, 'collection filter ' + n);
-    assert.ok(await page.locator('a[href="/account"]').first().isVisible(), 'account link');
+    await page.getByRole('button', { name: 'Buy now' }).click();
+    await page.waitForFunction(() => document.querySelectorAll('.cart-line').length === 1);
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('aura.shop.cart.v1')));
+    assert.equal(stored.version, 1); assert.equal(stored.items.length, 1);
+    assert.match(await page.locator('.cart-box a.btn-main').getAttribute('href'), /^\/account\/login\?next=%2Fshop%2Fcheckout$/, 'sign in before payment');
     await page.screenshot({ path: 'test-output/redesign-cards.png' });
     await page.close(); }
 

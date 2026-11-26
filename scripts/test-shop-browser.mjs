@@ -27,7 +27,7 @@ try {
   assert.equal(await page.locator('[data-orientation="Vertical"]').count(), 0);
   assert.equal(await page.locator('[name="orientation"]').count(), 0);
   assert.equal(await page.locator('.shop-hero-card').count(), 2);
-  assert.ok(await page.locator('[data-chrome="Header"] a[href="/service-shop"]').count() >= 1, 'new site header is mounted');
+  assert.ok(await page.locator('[data-chrome="Header"] header.top a.cart-btn').count() >= 1, 'new site header is mounted');
   assert.equal(await page.locator('link[href*="style.css"], link[href*="emerald-gloss"], script[src*="/script.js"]').count(), 0, 'no retired stylesheets or scripts');
   const first = page.locator('.shop-scene').first();
   await first.hover(); assert.equal(await first.getAttribute('data-flipped'), 'true');
@@ -130,7 +130,7 @@ try {
     if (width === 390) {
       const header = mobile.page.locator('[data-chrome="Header"]');
       await header.getByRole('button', { name: 'Open menu' }).click();
-      for (const path of ['/shop', '/service-shop', '/aura-menu', '/aura-weddings']) assert.equal(await header.locator(`a[href="${path}"]`).last().isVisible(), true, path);
+      for (const path of ['/service-shop', '/service-shop?tab=cards', '/aura-menu', '/aura-weddings']) assert.equal(await header.locator(`a[href="${path}"]`).last().isVisible(), true, path);
       await header.getByRole('button', { name: 'Close menu' }).click();
       assert.equal(await mobile.page.locator('.shop-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length), 2);
       await mobile.page.getByRole('button', { name: 'Filters', exact: false }).click();
