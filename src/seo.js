@@ -88,6 +88,8 @@ const PAGE_SEO = {
 
 const NOINDEX_PATHS = new Set([
   "/404.html",
+  "/auri-preview/",
+  "/auri-preview/index.html",
   "/nfc-status.html",
   "/nfc-status",
 ]);
@@ -102,6 +104,7 @@ export const SEO_REDIRECTS = new Map([
   ["/aurapops-showcase.html", "https://aurapops.online/"],
   ["/home", "/"],
   ["/index.html", "/"],
+  ["/auri-preview", "/auri-preview/"],
   ["/services.html", "/solutions"],
   ["/hizmetler", "/solutions"],
   ["/portfolio.html", "/portfolio"],
@@ -210,6 +213,7 @@ function canonicalPath(pathname) {
 
 const SEO_ASSETS = new Map([
   ["/", "/index.html"],
+  ["/auri-preview/", "/auri-preview/index.html"],
   ["/portfolio", "/portfolio.html"],
   ["/aura-menu", "/aura-menu.html"],
   ["/aura-weddings", "/aura-weddings.html"],
