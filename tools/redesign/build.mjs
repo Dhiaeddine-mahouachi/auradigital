@@ -19,17 +19,17 @@ const ROUTES = {
   'Contact.dc.html': '/contact', 'Weddings.dc.html': '/aura-weddings', 'NotFound.dc.html': '/', 'Hub.dc.html': '/hub/signup', 'HubApp.dc.html': '/hub', 'Mobile.dc.html': '/'
 };
 const PAGES = [
-  ['Main', 'index.html', 'AuraDigital — Websites, AI & growth for your business', 'Websites, QR menus, Google visibility and WhatsApp automation for businesses in Türkiye and beyond — planned by AI, delivered by our Istanbul team.'],
+  ['Main', 'index.html', 'AuraDigital — Websites, AI & growth for your business', 'Websites, QR menus, Google visibility and WhatsApp automation for growing businesses, planned with AI and built by our team.'],
   ['Solutions', 'solutions.html', 'Solutions — AuraDigital', 'Build, grow, automate and manage your business with AuraDigital.'],
   ['Shop', 'service-shop.html', 'Service Shop — AuraDigital', 'Choose websites, care plans, ads, AuraMenu, NFC cards and more with clear prices.'],
   ['Packages', 'packages.html', 'Packages & prices — AuraDigital', 'Launch ₺6,750 · Growth ₺13,400 · System ₺22,400. Care plans from ₺1,950/month.'],
   ['AuraMenu', 'aura-menu.html', 'AuraMenu — QR digital menus — AuraDigital', 'QR digital menus in Turkish, English and Arabic. Self-service ₺1,599 or done-for-you ₺2,500.'],
   ['Work', 'portfolio.html', 'Our work — AuraDigital', 'Websites, products and campaigns built by AuraDigital.'],
   ['Help', 'help.html', 'Help Center — AuraDigital', 'Answers about websites, AuraHub, payments, AuraMenu and WhatsApp automation.'],
-  ['About', 'about.html', 'About — AuraDigital', 'An Istanbul-based digital agency combining AI with a hands-on team.'],
+  ['About', 'about.html', 'About — AuraDigital', 'A digital studio combining AI with a hands-on team.'],
   ['Weddings', 'aura-weddings.html', 'AuraWeddings — Digital wedding invitations | AuraDigital', 'Luxury digital wedding invitations with animated opening, RSVP, countdown, map, gallery and music in Arabic, English, Turkish and French.'],
   ['NotFound', '404.html', 'Page not found — AuraDigital', 'This page could not be found. Continue to AuraDigital services, prices or contact.'],
-  ['Contact', 'contact.html', 'Contact — AuraDigital', 'WhatsApp +90 538 550 76 74 · info@auradigitalworks.com · Istanbul, Türkiye.']
+  ['Contact', 'contact.html', 'Contact — AuraDigital', 'WhatsApp +90 538 550 76 74 · info@auradigitalworks.com.']
 ];
 const COMPONENTS = ['Header', 'Footer', 'Auri', ...PAGES.map((p) => p[0])];
 const BLOBS = {
@@ -109,7 +109,9 @@ await esbuild({ entryPoints: [path.join(HERE, 'entry.gen.js')], bundle: true, mi
 // 2) pre-render each page in Node
 globalThis.window = globalThis.window || { addEventListener() {}, removeEventListener() {} };
 await import(pathToFileURL(path.join(HERE, 'components.gen.js')).href);
-const css = designs.find((d) => d.name === 'Main').helmet;
+// Shared stylesheet = a page helmet that only holds the shared placeholders.
+const css = designs.find((d) => d.name === 'About').helmet;
+if (!/^\s*<link[\s\S]*<\/style>\s*$/.test(css)) throw new Error('About.dc.html helmet must contain only <!--FONTS--> and <!--CSS-->');
 const stripFonts = (x) => x.replace(/<link[^>]*fonts\.(googleapis|gstatic)\.com[^>]*>\s*/g, '');
 // Live Auri dock (media/auri/live): belly screen per page, special behaviour for 404/Packages.
 const AURI_DOCK = { Main: 'data-screen="logo"', About: 'data-screen="logo"', Solutions: 'data-screen="automation"',
@@ -135,16 +137,17 @@ for (const [name, file, title, description] of PAGES) {
 <link rel="icon" href="/media/redesign/ad-icon-512.png">
 <link rel="apple-touch-icon" href="/media/redesign/ad-icon-512.png">
 <link rel="manifest" href="/site.webmanifest">
-<link rel="preload" href="/fonts/redesign/inter-tight-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/redesign/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/redesign/geist-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/redesign/geist-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/redesign/fonts.css?v=${VERSION}">
+<script src="/redesign/motion.js?v=${VERSION}"></script>
 ${stripFonts(css).trim()}
 ${stripFonts(extraCss).trim()}
 </head>
 <body>
 <div id="app" data-page="${name}">${html}</div>
-<noscript><p style="font-family:Inter,sans-serif;padding:16px">WhatsApp +90 538 550 76 74 · info@auradigitalworks.com</p></noscript>
-<script src="/redesign/app.js?v=${VERSION}" defer></script>${AURI_DOCK[name] ? auriDock(AURI_DOCK[name]) : ''}
+<noscript><p style="font-family:Geist,sans-serif;padding:16px">WhatsApp +90 538 550 76 74 · info@auradigitalworks.com</p></noscript>
+<script src="/redesign/app.js?v=${VERSION}" defer></script>
 <script src="/redesign/i18n.js?v=${VERSION}" defer></script>
 </body>
 </html>
@@ -158,9 +161,14 @@ ${stripFonts(extraCss).trim()}
 // 3) mount the shared header, footer and Auri on app-style pages (shop, NFC tools)
 const SHELLS = [['shop/index.html', 'shop']];
 const shellCss = stripFonts(css)
-  .replace(/body\{margin:0;background:#FFFFFF\}/, '.ad-chrome{font-family:Inter,system-ui,sans-serif;line-height:1.55;color:#0B0F0C}')
-  .replace(/(^|\n)a\{color:#0B0F0C;text-decoration:none\}/, '$1.ad-chrome a{color:#0B0F0C;text-decoration:none}')
-  .replace(/section\{padding-left:18px !important;padding-right:18px !important;padding-top:64px !important\}/, '.ad-chrome section{padding-left:18px !important;padding-right:18px !important;padding-top:64px !important}')
+  .replace(/(^|\n)body\{[^}]*\}/, '$1.ad-chrome{font:16px/1.6 var(--f);color:#10140F;-webkit-font-smoothing:antialiased}')
+  .replace(/(^|\n)a\{color:inherit;text-decoration:none\}/, '$1.ad-chrome a{color:inherit;text-decoration:none}')
+  .replace(/(^|\n)\*,\*::before,\*::after\{box-sizing:border-box\}/, '$1.ad-chrome *,.ad-chrome *::before,.ad-chrome *::after{box-sizing:border-box}')
+  .replace(/(^|\n)html\{scroll-behavior:smooth\}/, '$1')
+  .replace(/(^|\n)img\{max-width:100%\}/, '$1.ad-chrome img{max-width:100%}')
+  .replace(/(^|\n)button,input,select,textarea\{[^}]*\}/, '$1')
+  .replace(/(^|\n)h1,h2,h3,h4\{[^}]*\}/, '$1.ad-chrome h1,.ad-chrome h2,.ad-chrome h3,.ad-chrome h4{margin:0;font-weight:600;letter-spacing:-.035em}')
+  .replace(/(^|\n)p\{margin:0\}/, '$1.ad-chrome p{margin:0}')
   .replace('<style>', '<style data-ad-chrome>');
 const chrome = (name, active) => `<div class="ad-chrome" data-chrome="${name}" data-active="${active}">${renderToString(h(runtime.registry[name], { active }))}</div>`;
 const swap = (src, tag, html) => {
@@ -175,7 +183,7 @@ for (const [file, active] of SHELLS) {
   src = swap(src, 'css', `\n<link rel="stylesheet" href="/redesign/fonts.css?v=${VERSION}">\n${shellCss.trim()}\n`);
   src = swap(src, 'header', chrome('Header', active));
   src = swap(src, 'footer', chrome('Footer', active) + chrome('Auri', active));
-  src = swap(src, 'js', `<script src="/redesign/app.js?v=${VERSION}" defer></script>${auriDock('data-screen="marketing"')}<script src="/redesign/i18n.js?v=${VERSION}" defer></script>`);
+  src = swap(src, 'js', `<script src="/redesign/motion.js?v=${VERSION}"></script><script src="/redesign/app.js?v=${VERSION}" defer></script><script src="/redesign/i18n.js?v=${VERSION}" defer></script>`);
   fs.writeFileSync(fp, src);
   console.log('chrome', file);
 }

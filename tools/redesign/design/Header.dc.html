@@ -11,153 +11,99 @@
 <!--FONTS-->
 <style>body{margin:0}</style>
 </helmet>
-<div onMouseLeave="{{ closeAll }}" style="position: relative; z-index: 50; font-family: Inter, system-ui, sans-serif; color: #0B0F0C; background: #FFFFFF">
-  <div style="background: #0E2B1E; color: #F3EEDC; font-size: 13px">
-    <div style="max-width: 1320px; margin: 0 auto; padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; gap: 14px; white-space: nowrap; overflow: hidden">
-      <div style="display: flex; align-items: center; gap: 18px; min-width: 0">
-        <a href="mailto:info@auradigitalworks.com" style="color: #F3EEDC; display: inline-flex; align-items: center; gap: 7px; font-weight: 500"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E1E100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3z"></path><path d="M3 6l9 7 9-7"></path></svg>info@auradigitalworks.com</a>
-        <a class="hide-sm" href="tel:+905385507674" style="color: #F3EEDC; display: inline-flex; align-items: center; gap: 7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E1E100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"></path></svg>+90 538 550 76 74</a>
-        <span class="desk wide" style="color: #A9B8AE">Istanbul, Türkiye</span>
-      </div>
-      <div style="display: flex; align-items: center; gap: 10px">
-        <span class="desk" style="background: #E1E100; color: #0B0F0C; border-radius: 999px; padding: 2px 9px; font-size: 11px; font-weight: 700">NEW</span>
-        <span class="desk">Auri builds your free growth roadmap in AuraHub.</span>
-        <a href="Hub.dc.html" style="color: #E1E100; font-weight: 600">Try it free →</a>
-      </div>
-    </div>
-  </div>
-  <div style="border-bottom: 1px solid #ECEAE2">
-    <div style="max-width: 1320px; margin: 0 auto; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px">
-      <div style="display: flex; align-items: center; gap: 20px">
-        <a href="Main.dc.html" aria-label="AuraDigital home" style="display: flex; align-items: center; gap: 10px; color: #0B0F0C">
-          <span style="width: 38px; height: 38px; border-radius: 10px; background: #E1E100; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><img src="/_blob/15ec3fa6439e3bb5e1bdb565a3cf95f0" alt="" width="28" height="14" style="width: 28px; height: auto; display: block"></span>
-          <span style="font-family: 'Inter Tight', sans-serif; font-weight: 800; font-size: 21px; letter-spacing: -0.03em">AuraDigital</span>
-        </a>
-        <nav class="desk" aria-label="Main" style="display: flex; align-items: center; gap: 2px">
-          <button class="{{ cls.sol }}" onMouseEnter="{{ openSol }}" onClick="{{ openSol }}" aria-expanded="{{ isSol }}">Solutions <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
-          <button class="{{ cls.prod }}" onMouseEnter="{{ openProd }}" onClick="{{ openProd }}" aria-expanded="{{ isProd }}">Products <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
-          <a class="{{ cls.shop }}" href="Shop.dc.html" onMouseEnter="{{ closeAll }}">Shop</a>
-          <a class="{{ cls.packages }}" href="Packages.dc.html" onMouseEnter="{{ closeAll }}">Packages</a>
-          <a class="{{ cls.work }}" href="Work.dc.html" onMouseEnter="{{ closeAll }}">Our Work</a>
-          <a class="{{ cls.help }}" href="Help.dc.html" onMouseEnter="{{ closeAll }}">Help</a>
-          <a class="{{ cls.about }}" href="About.dc.html" onMouseEnter="{{ closeAll }}">About</a>
-          <a class="{{ cls.contact }}" href="Contact.dc.html" onMouseEnter="{{ closeAll }}">Contact</a>
-        </nav>
-      </div>
-      <div style="display: flex; align-items: center; gap: 8px">
-        <span class="desk lang-switch" role="group" aria-label="Language" style="display: flex; gap: 2px; font-size: 13px; font-weight: 600; border: 1px solid #E6E4DC; border-radius: 999px; padding: 3px">
-          <button type="button" class="lang-btn" data-set-lang="en" lang="en" aria-label="English">EN</button><button type="button" class="lang-btn" data-set-lang="tr" lang="tr" aria-label="Türkçe">TR</button><button type="button" class="lang-btn" data-set-lang="ar" lang="ar" aria-label="العربية">AR</button>
-        </span>
-        <a class="nl desk" href="HubApp.dc.html">Log in</a>
-        <a class="btn btn-dark desk" href="Hub.dc.html" style="white-space: nowrap; background: #0B0F0C; color: #FFFFFF; font-weight: 600; font-size: 15px; padding: 12px 20px; border-radius: 999px; min-height: 46px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px">Start your path <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
-        <a class="mob" href="Hub.dc.html" style="display: inline-flex; background: #0B0F0C; color: #FFFFFF; font-weight: 600; font-size: 14px; padding: 0 16px; border-radius: 999px; height: 44px; align-items: center; white-space: nowrap">Start</a>
-        <button class="mob" onClick="{{ toggleDrawer }}" aria-label="{{ drawerLabel }}" aria-expanded="{{ drawer }}" style="width: 46px; height: 46px; border-radius: 12px; border: 1px solid #E6E4DC; background: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B0F0C" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="{{ burger }}"></path></svg>
-        </button>
-      </div>
+<header class="{{ topCls }}" onMouseLeave="{{ closeAll }}">
+  <div class="wrap top-in">
+    <a class="logo" href="Main.dc.html" aria-label="AuraDigital home"><i><img src="/_blob/15ec3fa6439e3bb5e1bdb565a3cf95f0" alt="" width="22" height="11"></i>AuraDigital</a>
+    <nav class="nav desk" aria-label="Main">
+      <button type="button" class="{{ cls.sol }}" onMouseEnter="{{ openSol }}" onClick="{{ openSol }}" aria-expanded="{{ isSol }}">Solutions <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+      <button type="button" class="{{ cls.prod }}" onMouseEnter="{{ openProd }}" onClick="{{ openProd }}" aria-expanded="{{ isProd }}">Products <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+      <a class="{{ cls.packages }}" href="Packages.dc.html" onMouseEnter="{{ closeAll }}">Pricing</a>
+      <a class="{{ cls.work }}" href="Work.dc.html" onMouseEnter="{{ closeAll }}">Our work</a>
+    </nav>
+    <div class="top-end">
+      <span class="desk lang-switch" role="group" aria-label="Language"><button type="button" class="lang-btn" data-set-lang="en" lang="en" aria-label="English">EN</button><button type="button" class="lang-btn" data-set-lang="tr" lang="tr" aria-label="Türkçe">TR</button><button type="button" class="lang-btn" data-set-lang="ar" lang="ar" aria-label="العربية">AR</button></span>
+      <a class="btn btn-ghost btn-sm desk" href="HubApp.dc.html">Log in</a>
+      <a class="btn btn-main btn-sm desk" href="Hub.dc.html">Start your path</a>
+      <button type="button" class="burger mob" onClick="{{ toggleDrawer }}" aria-label="{{ drawerLabel }}" aria-expanded="{{ drawer }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ burger }}"></path></svg></button>
     </div>
   </div>
 
   <sc-if value="{{ isSol }}" hint-placeholder-val="{{ false }}">
-    <div class="pop" style="position: absolute; left: 0; right: 0; top: 100%; background: #FFFFFF; border-bottom: 1px solid #ECEAE2; box-shadow: 0 40px 60px -40px rgba(11,15,12,.35)">
-      <div style="max-width: 1320px; margin: 0 auto; padding: 28px; display: flex; gap: 28px; flex-wrap: wrap">
-        <div style="flex: 999 1 720px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
-          <sc-for list="{{ mega }}" as="col" hint-placeholder-count="4">
-            <div style="display: flex; flex-direction: column; gap: 2px">
-              <a href="{{ col.href }}" style="font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #4B5650; padding: 0 12px 10px">{{ col.title }}</a>
-              <sc-for list="{{ col.items }}" as="it" hint-placeholder-count="3">
-                <a class="mi" href="{{ col.href }}" style="display: block; padding: 10px 12px; border-radius: 12px">
-                  <span style="display: block; font-weight: 600; font-size: 15px">{{ it.n }}</span>
-                  <span style="display: block; font-size: 13px; color: #4B5650; line-height: 1.4">{{ it.d }}</span>
-                </a>
-              </sc-for>
-            </div>
-          </sc-for>
-        </div>
-        <a href="Hub.dc.html" style="flex: 1 1 280px; background: #E1E100; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; min-height: 220px; color: #0B0F0C">
-          <span style="font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase">Not sure what you need?</span>
-          <span style="font-family: 'Inter Tight', sans-serif; font-size: 28px; font-weight: 800; line-height: 1.05; letter-spacing: -0.03em">Let Auri build your roadmap — free.</span>
-          <span style="font-weight: 600">Start your path →</span>
-        </a>
+    <div class="mega desk">
+      <div class="wrap mega-in">
+        <sc-for list="{{ mega }}" as="col" hint-placeholder-count="4">
+          <div class="mega-col">
+            <span>{{ col.title }}</span>
+            <sc-for list="{{ col.items }}" as="it" hint-placeholder-count="3">
+              <a class="mi" href="{{ col.href }}"><b>{{ it.n }}</b><small>{{ it.d }}</small></a>
+            </sc-for>
+          </div>
+        </sc-for>
+        <a class="mega-cta" href="Hub.dc.html"><span class="muted">Not sure where to start?</span><b>Let Auri plan your path. It’s free.</b><span class="btn btn-main btn-sm" style="align-self: flex-start">Start your path</span></a>
       </div>
     </div>
   </sc-if>
 
   <sc-if value="{{ isProd }}" hint-placeholder-val="{{ false }}">
-    <div class="pop" style="position: absolute; left: 0; right: 0; top: 100%; background: #FFFFFF; border-bottom: 1px solid #ECEAE2; box-shadow: 0 40px 60px -40px rgba(11,15,12,.35)">
-      <div style="max-width: 1320px; margin: 0 auto; padding: 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px">
+    <div class="mega desk">
+      <div class="wrap mega-in" style="grid-template-columns: repeat(4, minmax(0, 1fr))">
         <sc-for list="{{ products }}" as="p" hint-placeholder-count="4">
-          <a href="{{ p.href }}" style="{{ p.style }}">
-            <span style="font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #4B5650">{{ p.tag }}</span>
-            <span style="font-family: 'Inter Tight', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: -0.03em">{{ p.n }}</span>
-            <span style="font-size: 14px; color: #2E3832">{{ p.d }}</span>
-            <span style="margin-top: auto; font-weight: 600; font-size: 14px">Explore →</span>
-          </a>
+          <a class="mprod" href="{{ p.href }}"><span class="tag" style="align-self: flex-start">{{ p.tag }}</span><b>{{ p.n }}</b><small>{{ p.d }}</small></a>
         </sc-for>
       </div>
     </div>
   </sc-if>
 
   <sc-if value="{{ drawer }}" hint-placeholder-val="{{ false }}">
-    <div class="mob pop" style="position: absolute; left: 0; right: 0; top: 100%; height: calc(100dvh - 110px); overflow-y: auto; background: #FFFFFF; border-top: 1px solid #ECEAE2; padding: 14px 18px 28px; flex-direction: column; gap: 6px; box-sizing: border-box">
-      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
-        <sc-for list="{{ mobileTiles }}" as="t" hint-placeholder-count="4">
-          <a href="{{ t.href }}" style="{{ t.style }}"><strong style="font-size: 16px">{{ t.n }}</strong><span style="font-size: 12px; color: #2E3832">{{ t.d }}</span></a>
-        </sc-for>
-      </div>
-      <div style="display: flex; flex-direction: column; margin-top: 8px">
-        <sc-for list="{{ mobileLinks }}" as="m" hint-placeholder-count="7">
-          <a href="{{ m.href }}" style="display: flex; justify-content: space-between; align-items: center; font-family: 'Inter Tight', sans-serif; font-size: 20px; font-weight: 700; padding: 14px 4px; border-bottom: 1px solid #F1F0EA; min-height: 52px; box-sizing: border-box">{{ m.n }}<span aria-hidden="true" style="font-size: 18px; color: #9AA39D">›</span></a>
-        </sc-for>
-      </div>
-      <a href="Hub.dc.html" style="margin-top: 16px; background: #0B0F0C; color: #FFFFFF; text-align: center; font-weight: 600; padding: 16px; border-radius: 14px; display: block">Start your path →</a>
-      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px">
-        <a href="https://wa.me/905385507674" style="background: #E3F1E6; text-align: center; font-weight: 600; padding: 14px; border-radius: 14px">WhatsApp</a>
-        <a href="HubApp.dc.html" style="border: 1px solid #D9D6CB; text-align: center; font-weight: 600; padding: 14px; border-radius: 14px">Log in</a>
-      </div>
-      <div class="lang-switch" role="group" aria-label="Language" style="display: flex; justify-content: center; gap: 6px; margin-top: 14px; font-size: 13px; font-weight: 600"><button type="button" class="lang-btn lang-btn-lg" data-set-lang="en" lang="en" aria-label="English">EN</button><button type="button" class="lang-btn lang-btn-lg" data-set-lang="tr" lang="tr" aria-label="Türkçe">TR</button><button type="button" class="lang-btn lang-btn-lg" data-set-lang="ar" lang="ar" aria-label="العربية">AR</button></div>
-    </div>
+    <nav class="mnav mob" aria-label="Mobile">
+      <sc-for list="{{ mobileLinks }}" as="m" hint-placeholder-count="8">
+        <a class="ml" href="{{ m.href }}">{{ m.n }}<span aria-hidden="true" class="muted">›</span></a>
+      </sc-for>
+      <div class="mbtns"><a class="btn btn-ghost" href="HubApp.dc.html">Log in</a><a class="btn btn-main" href="Hub.dc.html">Start your path</a></div>
+      <a class="btn btn-ghost" href="https://wa.me/905385507674" style="margin-top: 10px">WhatsApp us</a>
+      <div class="lang-switch" role="group" aria-label="Language"><button type="button" class="lang-btn lang-btn-lg" data-set-lang="en" lang="en" aria-label="English">EN</button><button type="button" class="lang-btn lang-btn-lg" data-set-lang="tr" lang="tr" aria-label="Türkçe">TR</button><button type="button" class="lang-btn lang-btn-lg" data-set-lang="ar" lang="ar" aria-label="العربية">AR</button></div>
+    </nav>
   </sc-if>
-</div>
+</header>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["home","solutions","products","shop","packages","work","help","about","contact","hub"],"default":"home"},"$preview":{"width":1440,"height":120}}'>
 class Component extends DCLogic {
   constructor(props) { super(props); this.state = { open: null, drawer: false }; }
+  componentDidMount() {
+    this.onKey = (e) => { if (e.key === 'Escape') this.setState({ open: null, drawer: false }); };
+    try { window.addEventListener('keydown', this.onKey); } catch (e) {}
+  }
+  componentWillUnmount() { try { window.removeEventListener('keydown', this.onKey); } catch (e) {} }
   renderVals() {
     const s = this.state;
     const a = this.props.active ?? 'home';
-    const c = (k) => 'nl' + (a === k ? ' nlon' : '');
-    const card = 'border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 8px; min-height: 210px; box-sizing: border-box; color: #0B0F0C; background: ';
+    const c = (k) => 'nl' + (a === k ? ' on' : '');
     return {
+      topCls: 'top' + (s.drawer ? ' open' : ''),
       isSol: s.open === 'sol', isProd: s.open === 'prod', drawer: s.drawer,
       openSol: () => this.setState({ open: 'sol' }),
       openProd: () => this.setState({ open: 'prod' }),
       closeAll: () => this.setState({ open: null }),
-      toggleDrawer: () => this.setState({ drawer: !s.drawer }),
+      toggleDrawer: () => { const d = !s.drawer; this.setState({ drawer: d }); try { document.body.style.overflow = d ? 'hidden' : ''; } catch (e) {} },
       drawerLabel: s.drawer ? 'Close menu' : 'Open menu',
       burger: s.drawer ? 'M6 6l12 12M18 6L6 18' : 'M4 7h16M4 12h16M4 17h16',
-      cls: { sol: c('solutions'), prod: c('products'), shop: c('shop'), packages: c('packages'), work: c('work'), help: c('help'), about: c('about'), contact: c('contact') },
+      cls: { sol: c('solutions'), prod: c('products'), packages: c('packages'), work: c('work') },
       mega: [
-        { title: 'Build', href: 'Solutions.dc.html', items: [{ n: 'Websites', d: 'Custom, fast, mobile-first' }, { n: 'Online stores', d: 'Sell products online' }, { n: 'Brand & creative', d: 'Logo, visuals, video' }] },
-        { title: 'Grow', href: 'Solutions.dc.html', items: [{ n: 'Google Maps & SEO', d: 'Get found locally' }, { n: 'Ads', d: 'Google & Meta campaigns' }, { n: 'NFC review cards', d: 'More Google reviews' }] },
-        { title: 'Automate', href: 'Solutions.dc.html', items: [{ n: 'WhatsApp AI', d: 'Instant replies & bookings' }, { n: 'AI sales agent', d: 'Qualify leads 24/7' }, { n: 'Business email', d: 'you@yourbrand.com' }] },
-        { title: 'Manage', href: 'Solutions.dc.html', items: [{ n: 'AuraHub', d: 'Your business dashboard' }, { n: 'Hosting & security', d: 'Always online, protected' }, { n: 'ERP / CRM', d: 'Custom business systems' }] }
+        { title: 'Build', href: 'Solutions.dc.html', items: [{ n: 'Websites', d: 'Fast, mobile-first, yours' }, { n: 'Online stores', d: 'Sell products online' }, { n: 'Brand & creative', d: 'Logo, visuals, video' }] },
+        { title: 'Get found', href: 'Solutions.dc.html', items: [{ n: 'Google Maps & SEO', d: 'Show up nearby' }, { n: 'Ads', d: 'Google & Meta campaigns' }, { n: 'NFC review cards', d: 'More Google reviews' }] },
+        { title: 'Automate', href: 'Solutions.dc.html', items: [{ n: 'WhatsApp AI', d: 'Instant replies & bookings' }, { n: 'AI sales agent', d: 'Qualify leads day and night' }, { n: 'Business email', d: 'you@yourbrand.com' }] },
+        { title: 'Manage', href: 'Solutions.dc.html', items: [{ n: 'AuraHub', d: 'Your business dashboard' }, { n: 'Hosting & security', d: 'Always online, protected' }, { n: 'Help Center', d: 'Guides and answers' }] }
       ],
       products: [
-        { n: 'AuraMenu', tag: 'Restaurants', d: 'QR digital menus in TR, EN and AR.', href: 'AuraMenu.dc.html', style: card + '#E3F1E6' },
-        { n: 'AuraWeddings', tag: 'Couples', d: 'Digital invitations with RSVP and countdown.', href: 'https://auradigitalworks.com/aura-weddings', style: card + '#F3EEDC' },
-        { n: 'AuraPops', tag: 'Creators', d: 'One link for profile, links, menu and QR.', href: 'https://aurapops.online', style: card + '#ECE8FF' },
-        { n: 'NFC card shop', tag: '58 designs', d: 'Business, review and menu cards — order online.', href: 'Shop.dc.html?tab=cards', style: card + '#E3EEFB' }
+        { n: 'AuraMenu', tag: 'Restaurants', d: 'QR menus in Turkish, English and Arabic.', href: 'AuraMenu.dc.html' },
+        { n: 'NFC cards', tag: 'Shop', d: 'Review, business and menu cards. Order online.', href: 'Shop.dc.html?tab=cards' },
+        { n: 'AuraWeddings', tag: 'Couples', d: 'Digital invitations with RSVP and countdown.', href: 'https://auradigitalworks.com/aura-weddings' },
+        { n: 'AuraPops', tag: 'Creators', d: 'One link for profile, links, menu and QR.', href: 'https://aurapops.online' }
       ],
-      mobileTiles: [
-        { n: 'Build', d: 'Websites & stores', href: 'Solutions.dc.html', bg: '#F3EEDC' },
-        { n: 'Grow', d: 'Maps, ads, reviews', href: 'Solutions.dc.html', bg: '#E3EEFB' },
-        { n: 'AuraMenu', d: 'QR menus', href: 'AuraMenu.dc.html', bg: '#E3F1E6' },
-        { n: 'Packages', d: 'From ₺6,750', href: 'Packages.dc.html', bg: '#FBFAD2' }
-      ].map((t) => ({ ...t, style: 'border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 2px; min-height: 72px; box-sizing: border-box; background: ' + t.bg })),
       mobileLinks: [
-        { n: 'Solutions', href: 'Solutions.dc.html' }, { n: 'Shop — services & NFC cards', href: 'Shop.dc.html' }, { n: 'NFC card shop', href: 'https://auradigitalworks.com/shop' }, { n: 'AuraWeddings', href: 'https://auradigitalworks.com/aura-weddings' }, { n: 'My account & orders', href: 'https://auradigitalworks.com/account' },
-        { n: 'Our Work', href: 'Work.dc.html' }, { n: 'Help Center', href: 'Help.dc.html' }, { n: 'About us', href: 'About.dc.html' }, { n: 'Contact', href: 'Contact.dc.html' }
+        { n: 'Solutions', href: 'Solutions.dc.html' }, { n: 'Service shop', href: 'Shop.dc.html' }, { n: 'AuraMenu', href: 'AuraMenu.dc.html' },
+        { n: 'Pricing', href: 'Packages.dc.html' }, { n: 'Our work', href: 'Work.dc.html' }, { n: 'Help Center', href: 'Help.dc.html' },
+        { n: 'About', href: 'About.dc.html' }, { n: 'Contact', href: 'Contact.dc.html' }
       ]
     };
   }
