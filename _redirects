@@ -14,3 +14,7 @@
 
 /aurapops.html https://aurapops.online/ 301
 
+
+# Replace legacy Auri image URLs in already-cached markup.
+/media/auri/official-auri.webp /media/auri/studio-v1/avatar.webp 302
+/media/landing/hub-auri.png /media/auri/studio-v1/full.webp 302

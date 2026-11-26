@@ -26,9 +26,18 @@ export async function shopServer() {
   const server = createServer(async (req, res) => {
     try {
       const chunks = []; for await (const chunk of req) chunks.push(chunk);
-      const request = new Request(`http://127.0.0.1:${server.address().port}${req.url}`, { method: req.method, headers: req.headers, ...(['GET', 'HEAD'].includes(req.method) ? {} : { body: Buffer.concat(chunks) }) });
+      // Translate the production secure cookie only on this in-memory HTTP
+      // browser fixture, so browser tests can use the real session handlers.
+      const headers = new Headers(req.headers);
+      const cookie = headers.get('Cookie');
+      if (cookie) headers.set('Cookie', cookie.replace(/(^|;\s*)aura_qa_customer=/g, '$1__Host-aura_customer='));
+      const request = new Request(`http://127.0.0.1:${server.address().port}${req.url}`, { method: req.method, headers, ...(['GET', 'HEAD'].includes(req.method) ? {} : { body: Buffer.concat(chunks) }) });
       const response = await handleShop(request, fixture.env) || await fixture.env.ASSETS.fetch(request);
-      res.writeHead(response.status, Object.fromEntries(response.headers)); res.end(Buffer.from(await response.arrayBuffer()));
+      const outgoing = Object.fromEntries(response.headers);
+      const cookies = response.headers.getSetCookie();
+      if (cookies.length) outgoing['set-cookie'] = cookies.map(value => value.startsWith('__Host-aura_customer=') ?
+        value.replace('__Host-aura_customer=', 'aura_qa_customer=').replace(/; Secure(?=;|$)/, '') : value);
+      res.writeHead(response.status, outgoing); res.end(Buffer.from(await response.arrayBuffer()));
     } catch (error) { res.writeHead(error instanceof ApiError ? error.status : 500, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: error.message })); }
   });
   await new Promise(done => server.listen(0, '127.0.0.1', done));

@@ -1,5 +1,5 @@
 // <auri-character> — AuraHub's Auri. Renders the live layered character
-// (media/auri/live) in place of the old still image, everywhere the Hub uses
+// from Studio artwork everywhere the Hub uses
 // auriCharacter(): login, onboarding, the corner companion, the AI Workspace,
 // service buttons and chat avatars.
 //
@@ -9,7 +9,7 @@
 //   data-variant      login | guide | face (live head) | avatar (small, still head)
 // The <img> inside stays as the fallback when JavaScript modules can't run.
 
-import { createAuri } from './live/auri-live.js';
+import { createAuri } from './live/auri-live.js?v=studio-v1';
 import { phaseToState } from './live/auri-state.js';
 
 // Hub page → belly screen.

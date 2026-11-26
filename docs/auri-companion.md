@@ -7,33 +7,20 @@ uses the existing scoped model integration where `HUB_AURI_AI_ENABLED=true` is c
 and falls back to rules when the model is disabled or unavailable. Read aloud uses the
 device's speech synthesis and starts only when clicked.
 
-## Character and Spline
+## Studio model and Hub artwork
 
-`media/auri/auri.glb` is the master model with separate pivots for the helmet assembly,
-eyes and arms, plus modular body, equipment and hover parts. The model was built from the
-Auri evolution reference using Blender. Open Spline's **Open / Import** dialog or drag
-the GLB into the scene. See [Spline's import documentation](https://docs.spline.design/importing-content/how-to-import-content).
+Auri's production model lives in `src/auri-studio/components/auri.js` and the
+interactive showroom is served at `/auri-preview/index.html`. The Hub and
+website assistant use transparent WebP layers and stills rendered from the same
+model. They keep the face and joints movable with SVG, so the Hub does not need
+WebGL to animate Auri. The growth form and motion still come from the verified
+level and request phase.
 
-The GLB imports meshes and materials. Levels and motion are applied by the Hub runtime.
-Use groups named Torso, Feet, Legs, Arms, BuilderKit, OperatorKit,
-StrategistKit and MasterKit to configure the seven appearances in Spline.
-
-To rebuild the model and posters, run `blender -b -P scripts/build-auri-model.py` from
-the repository root, then convert `/tmp/auri-level-{1..7}.png` to same-named WebPs in
-`media/auri/` with WebP quality 84. `npm run build:hub` compiles the Hub and lazy Three.js viewer.
-Production displays GPU-safe animated WebP sequences baked from the rigged GLB: six
-states across seven Auri levels. This avoids constructing a WebGL context in visitors'
-browsers (some graphics drivers previously froze the entire Hub). The underlying still
-posters remain available when animations fail to load, the tab is hidden, data-saving is
-active or reduced-motion is requested. Animations switch based on the real Hub request
-phase, and stop offscreen.
-
-To regenerate: run `npm run build:hub`, then `node scripts/bake-auri-animation.mjs`
-(requires Playwright and a compatible installed Chromium or Chrome), then install Pillow
-and run `python scripts/pack-auri-animation.py`. The baker uses a local-only fixture
-under `scripts/`; production never runs the 3D viewer. Inspect all seven levels and
-states after rebaking. Run `node scripts/test-auri-animation-browser.mjs` against a local
-static test origin before deploying.
+Run `npm run build:auri-studio` to regenerate the browser bundle. To regenerate
+the Hub artwork, use `node scripts/render-auri-parts.mjs` with Chromium and
+Python Pillow installed. If necessary, set `AURI_CHROME` to a Chromium binary.
+This refreshes the named crops and their SVG coordinates together. Update the
+Studio asset revision in the website and Hub entry points when publishing changed art.
 
 ## Hub placement and first task
 

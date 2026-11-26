@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { catalogue } from '../pricing/catalogue.js';
+import { permanentSeoRedirect, serveSeoAsset } from '../src/seo.js';
 
 const root = new URL('../', import.meta.url);
 const read = (f) => readFileSync(new URL(f, root), 'utf8');
@@ -63,7 +64,7 @@ test('contact form posts to the CRM endpoint with an idempotency key and honeypo
 test('Auri talks to the AI endpoint and always has a local fallback', () => {
   assert.match(bundle, /\/api\/ai\/session/);
   assert.match(bundle, /\/api\/ai\/message/);
-  assert.match(bundle, /pointermove/, 'eyes follow the cursor');
+  assert.match(read('media/auri/live/auri-live.js'), /pointermove/, 'eyes follow the cursor in the live dock');
   assert.match(bundle, /text:[A-Za-z_$]+\|\|[A-Za-z_$]+\.text/, 'falls back to the built-in answer');
 });
 
@@ -114,4 +115,22 @@ test('320px homepage and portfolio cards use fluid grid minimums', () => {
   assert.match(read('tools/redesign/design/Work.dc.html'), /minmax\(min\(100%, 380px\), 1fr\)/);
   assert.match(read('index.html'), /business-hero-card/);
   assert.match(read('tools/redesign/inject/index.head.html'), /rgba\(222,232,13,\.28\)/);
+});
+
+test('Auri Studio is served through the Worker with no indexing', async () => {
+  const origin = 'https://auradigitalworks.com';
+  const redirect = permanentSeoRedirect(new Request(origin + '/auri-preview'));
+  assert.equal(redirect.headers.get('Location'), origin + '/auri-preview/');
+  const assetRequests = [];
+  const env = { ASSETS: { fetch(request) {
+    assetRequests.push(new URL(request.url).pathname);
+    return new Response(read('auri-preview/index.html'), { headers: { 'Content-Type': 'text/html' } });
+  } } };
+  for (const path of ['/auri-preview/', '/auri-preview/index.html']) {
+    const response = await serveSeoAsset(new Request(origin + path), env);
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('X-Robots-Tag'), /noindex/);
+    assert.match(await response.text(), /Auri 3D Studio/);
+  }
+  assert.deepEqual(assetRequests, ['/auri-preview/index.html', '/auri-preview/index.html']);
 });

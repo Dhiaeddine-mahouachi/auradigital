@@ -2,7 +2,8 @@ import {watchAuri} from './auri-controller.js';
 
 export const auriCharacter=(level=1,{variant}={})=>{
  const value=Number.isInteger(level)&&level>=1&&level<=7?level:1;
- return `<auri-character class="auri" aria-hidden="true" ${['login','guide','avatar','face'].includes(variant)?`data-variant="${variant}"`:''} level="${value}"><img alt="" width="256" height="256" loading="lazy" decoding="async" src="/media/auri/official-auri.webp"></auri-character>`;
+ const full=variant==='login'||variant==='guide'||(value>1&&variant!=='avatar'&&variant!=='face');
+ return `<auri-character class="auri" aria-hidden="true" ${['login','guide','avatar','face'].includes(variant)?`data-variant="${variant}"`:''} level="${value}"><img alt="" width="256" height="256" loading="lazy" decoding="async" src="/media/auri/studio-v1/${full?'full':'avatar'}.webp"></auri-character>`;
 };
 
 export function connectAuri(host,scope,labels){

@@ -40,7 +40,7 @@ const BLOBS = {
   'fa3669d6d8c834adc34efe0134c2a8e4': '/project-mutlu.png',
   'bbfed3b8644e412d33db8b05e7af370e': '/project-fifty.png',
   'c75b79c2c529830827d989d110e51421': '/media/landing/auramenu-live-20261116.png',
-  '1437b95a8ce24a7792bbdd5c8a3e183d': '/media/landing/hub-growth-vision.png',
+  '1437b95a8ce24a7792bbdd5c8a3e183d': '/media/landing/hub-growth-vision-studio.webp',
   '501c0abc1436e5b3a9193647e75297ad': '/media/landing/hub-my-services.png',
   '383fb40db1c79ce6236032f6e8f54ce3': '/media/landing/hub-requests.png',
   '60a21c95f5ece87c0a7657028a59d3c0': '/media/redesign/work-bentwalad.jpg',
@@ -116,7 +116,7 @@ const AURI_DOCK = { Main: 'data-screen="logo"', About: 'data-screen="logo"', Sol
   Packages: 'data-screen="roadmap" data-page="packages"', Shop: 'data-screen="marketing"', AuraMenu: 'data-screen="website"',
   Weddings: 'data-screen="website"', Work: 'data-screen="website"', Help: 'data-screen="support"', Contact: 'data-screen="support"',
   NotFound: 'data-page="404"' };
-const auriDock = (attrs) => `<script type="module" src="/media/auri/live/auri-site.js?v=${VERSION}" data-auto ${attrs}></script>`;
+const auriDock = (attrs) => `<script type="module" src="/media/auri/live/auri-site.js?v=studio-v1" data-auto ${attrs}></script>`;
 for (const [name, file, title, description] of PAGES) {
   const d = designs.find((x) => x.name === name);
   const html = renderToString(h(runtime.registry[name], {}));

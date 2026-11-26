@@ -119,7 +119,7 @@ test('the Hub loads the live character and maps pages to belly screens', async (
   const hub = await readFile(new URL('../hub/index.html', import.meta.url), 'utf8');
   assert.match(hub, /\/media\/auri\/character\.js\?v=live-/);
   const source = await readFile(new URL('../media/auri/character.js', import.meta.url), 'utf8');
-  assert.match(source, /from '\.\/live\/auri-live\.js'/);
+  assert.match(source, /from '\.\/live\/auri-live\.js\?v=studio-v1'/);
   assert.match(source, /phaseToState/);
 });
 
