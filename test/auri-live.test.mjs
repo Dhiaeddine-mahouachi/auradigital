@@ -94,7 +94,7 @@ test('live Auri is on the public pages, and only there', async () => {
     const tags = html.match(/<script type="module" src="\/media\/auri\/live\/auri-site\.js[^"]*"[^>]*>/g) || [];
     assert.equal(tags.length, 1, file);
     assert.match(tags[0], /data-auto/, file);
-    assert.match(html, /compact\.css\?v=compact-v2/, file);
+    assert.match(html, /compact\.css\?v=compact-v3/, file);
     assert.match(html, /class="auri-launcher-portrait" src="\/media\/auri\/studio-v1\/full\.webp"/, file);
     assert.doesNotMatch(html, /class="auri-eye"/, file);
     if (screen) assert.match(tags[0], new RegExp(`data-screen="${screen}"`), file);

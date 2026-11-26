@@ -118,7 +118,7 @@ const AURI_DOCK = { Main: 'data-screen="logo"', About: 'data-screen="logo"', Sol
   Packages: 'data-screen="roadmap" data-page="packages"', Shop: 'data-screen="marketing"', AuraMenu: 'data-screen="website"',
   Weddings: 'data-screen="website"', Work: 'data-screen="website"', Help: 'data-screen="support"', Contact: 'data-screen="support"',
   NotFound: 'data-page="404"' };
-const auriStylesheet = '<link rel="stylesheet" href="/media/auri/live/compact.css?v=compact-v2">';
+const auriStylesheet = '<link rel="stylesheet" href="/media/auri/live/compact.css?v=compact-v3">';
 const auriDock = (attrs) => `<script type="module" src="/media/auri/live/auri-site.js?v=compact-v2" data-auto ${attrs}></script>`;
 for (const [name, file, title, description] of PAGES) {
   const d = designs.find((x) => x.name === name);

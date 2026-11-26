@@ -126,3 +126,14 @@
     onScroll(); look();
   });
 })();
+
+// Auri unread badge: hide it for good once the visitor opens Auri.
+(function () {
+  var root = document.documentElement;
+  try { if (localStorage.getItem('auri-seen') === '1') root.classList.add('auri-seen'); } catch (e) {}
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest || !e.target.closest('.auri-fab, #chatLauncher, .auri-site-dock')) return;
+    root.classList.add('auri-seen');
+    try { localStorage.setItem('auri-seen', '1'); } catch (e2) {}
+  }, true);
+})();

@@ -111,7 +111,7 @@ class Component extends DCLogic {
     const a = this.props.active ?? 'home';
     const c = (k) => 'nl' + (a === k ? ' on' : '');
     return {
-      topCls: 'top' + (s.drawer ? ' open' : '') + (s.scrolled ? ' scrolled sale-folded' : ''),
+      topCls: 'top' + (s.drawer ? ' open' : '') + (s.scrolled ? ' scrolled' : ''),
       ...(() => {
         const END = Date.parse('2026-12-16T23:59:59+03:00');
         const left = s.now ? Math.max(0, END - s.now) : END - Date.parse('2026-11-26T22:30:00+03:00');

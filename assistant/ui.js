@@ -7,7 +7,7 @@ const copy={
 };
 const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assistant/ui.css?v=auri-compact-v2';document.head.append(stylesheet);
 if (!document.querySelector('link[href*="/media/auri/live/compact.css"]')) {
- const compact=document.createElement('link');compact.rel='stylesheet';compact.href='/media/auri/live/compact.css?v=compact-v2';document.head.append(compact);
+ const compact=document.createElement('link');compact.rel='stylesheet';compact.href='/media/auri/live/compact.css?v=compact-v3';document.head.append(compact);
 }
 const portrait='<img class="auri-launcher-portrait" src="/media/auri/studio-v1/full.webp" width="26" height="37" alt="">';
 const head='<span class="aura-bot aura-official" aria-hidden="true"><img src="/media/auri/studio-v1/avatar.webp" width="26" height="26" alt=""></span>';

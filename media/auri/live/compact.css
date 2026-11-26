@@ -11,21 +11,25 @@
   height:var(--auri-launcher-size);
   aspect-ratio:1;
   padding:0;
-  border:1px solid #16543d;
-  border-radius:14px;
-  background:#0b2a1e;
-  box-shadow:0 5px 14px #05251a36;
+  position:relative;
+  border:0;
+  border-radius:16px;
+  background:#e1e100;
+  box-shadow:0 12px 26px -12px #0e2b1e8c,inset 0 0 0 1px #0e2b1e1a;
   cursor:pointer;
 }
+.auri-site-dock>.auri-live{overflow:hidden}
 .auri-fab:focus-visible,#chatLauncher:focus-visible,.auri-site-dock>.auri-live:focus-visible{
   outline:2px solid #168658;
   outline-offset:3px;
 }
+/* Head-only Auri on the acid tile; the body is cropped away. */
 .auri-launcher-portrait{
   display:block;
-  width:calc(var(--auri-launcher-viewport) * .703);
-  height:calc(var(--auri-launcher-viewport) * 1.03);
-  object-fit:contain;
+  width:calc(var(--auri-launcher-size) * .84);
+  height:calc(var(--auri-launcher-size) * .62);
+  object-fit:cover;
+  object-position:50% 4%;
 }
 #chatLauncher,.auri-site-dock{
   position:fixed;
@@ -35,11 +39,35 @@
 #chatLauncher,.auri-site-dock{z-index:85}
 .auri-site-dock[hidden]{display:none}
 .auri-site-dock>.auri-live>.auri-rig{
-  width:var(--auri-launcher-viewport);
-  height:calc(var(--auri-launcher-viewport) * 1.15);
-  overflow:hidden;
+  position:absolute;
+  width:calc(var(--auri-launcher-size) * 1.24);
+  height:calc(var(--auri-launcher-size) * 1.426);
+  left:50%;
+  top:calc(var(--auri-launcher-size) * .15);
+  transform:translateX(-50%);
+  overflow:visible;
+  clip-path:inset(-10% -10% 59% -10%);
 }
+/* Red "1" until the visitor opens Auri (html.auri-seen is set on first open). */
+:is(.auri-fab,#chatLauncher,.auri-site-dock)::after{
+  content:"1";
+  position:absolute;
+  top:-7px;
+  right:-7px;
+  min-width:20px;
+  height:20px;
+  border-radius:999px;
+  background:#e5484d;
+  color:#fff;
+  font:700 12px/20px Geist,system-ui,sans-serif;
+  text-align:center;
+  box-shadow:0 0 0 2px #fff;
+  pointer-events:none;
+}
+html.auri-seen :is(.auri-fab,#chatLauncher,.auri-site-dock)::after{display:none}
+[dir=rtl] :is(.auri-fab,#chatLauncher,.auri-site-dock)::after{right:auto;left:-7px}
 .auri-launcher-unread{
+  display:none;
   position:absolute;
   top:-2px;
   right:-2px;
@@ -49,6 +77,7 @@
   background:#e1e100;
 }
 html.auri-live-docked :is(.auri-fab,#chatLauncher){visibility:hidden;pointer-events:none}
+html.auri-live-docked :is(.auri-fab,#chatLauncher)::after{display:none}
 @media(max-width:640px){
   :root{
     --auri-launcher-size:44px;

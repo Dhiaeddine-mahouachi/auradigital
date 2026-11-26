@@ -130,29 +130,29 @@ export const pageKnowledge = [
     "id": "repo-page-contact-0",
     "title": "contact · published page 1",
     "category": "contact",
-    "content": "Contact We usually reply within the day Let’s build something great. Tell us about your business. Pick the way that suits you. WhatsApp is usually the fastest. WhatsApp +90 538 550 76 74 Start a chat Call us +90 538 550 76 74 Call now Email info@auradigitalworks.com Write to us Help Center Answers to common questions Browse answers Send us a message It goes straight to our team. Fields with * are required. What do you need? * Website Online store / booking AuraMenu Care & maintenance Google & ads WhatsApp automation NFC cards ERP / custom system Something else Budget range (optional) Under ₺10,000 ₺10,000–25,000 ₺25,000–50,000 ₺50,000+ Not sure yet Full name * Business name Email * Phone / WhatsApp * Tell us about your project * 0/2000 Best way to reach you WhatsApp Phone Email Language EN TR AR I agree that AuraDigital may store these details to answer my request, as described in the privacy notice (KVKK). * Website We never share your details. Send message Book a free call Pick a day and time. We’ll confirm on WhatsApp. Day Fri 27 Sat 28 Mon 30 Tue 1 Wed 2 Thu 3 Time (GMT+3) 10:00 12:00 14:00 16:00 18:00 20:00 Request Fri 27, 12:00 Quick answers Is the first call free? Yes, with no obligation. Do you work remotely? Yes, with businesses wherever they are. Languages? Türkçe, English, العربية, Français. Prices? Websites from ₺6,750. See pricing Visit our platforms. Product AuraMenu auramenu.space Product AuraPops aurapops.online Product AuraWeddings auradigitalworks.com/aura-weddings Our game Bent Walad bentwalad.online Client Mutlu Nakliyat mutlunakliyat.site Client Yurt",
+    "content": "Contact We usually reply within the day Let’s build something great. Tell us about your business. Pick the way that suits you. WhatsApp is usually the fastest. WhatsApp +90 538 550 76 74 Start a chat Call us +90 538 550 76 74 Call now Email info@auradigitalworks.com Write to us Help Center Answers to common questions Browse answers Send us a message It goes straight to our team. Fields with * are required. What do you need? * Website Online store / booking AuraMenu Care & maintenance Google & ads WhatsApp automation NFC cards ERP / custom system Something else Budget range (optional) Under ₺10,000 ₺10,000–25,000 ₺25,000–50,000 ₺50,000+ Not sure yet Full name * Business name Email * Phone / WhatsApp * Tell us about your project * 0/2000 Best way to reach you WhatsApp Phone Email Language EN TR AR I agree that AuraDigital may store these details to answer my request, as described in the privacy notice (KVKK). * Website We never share your details. Send message Book a free call Pick a day and time. We’ll confirm on WhatsApp. Day Sat 28 Mon 30 Tue 1 Wed 2 Thu 3 Fri 4 Time (GMT+3) 10:00 12:00 14:00 16:00 18:00 20:00 Request Sat 28, 12:00 Quick answers Is the first call free? Yes, with no obligation. Do you work remotely? Yes, with businesses wherever they are. Languages? Türkçe, English, العربية, Français. Prices? Websites from ₺6,750. See pricing Visit our platforms. Product AuraMenu auramenu.space Product AuraPops aurapops.online Product AuraWeddings auradigitalworks.com/aura-weddings Our game Bent Walad bentwalad.online Client Mutlu Nakliyat mutlunakliyat.site Client Yurt Oto",
     "source_url": "https://auradigitalworks.com/contact",
     "source_type": "repository-page",
-    "verified_at": "2026-11-26T19:52:19.685Z",
+    "verified_at": "2026-11-26T22:13:54.053Z",
     "status": "active",
     "language": "en",
     "visibility": "public",
     "priority": 50,
-    "source_digest": "4cb77ec7a324b5de7e023aa660218b949353a9cdbe9cfa45a7c399eab624507b"
+    "source_digest": "644d2352d654168e53dfeae7995ef7a12141486e1c21e956e5f6ffc2c0ced54c"
   },
   {
     "id": "repo-page-contact-1",
     "title": "contact · published page 2",
     "category": "contact",
-    "content": "Oto Elektrik yurtotoelektrikerhançı.com Founder Dhia Mahouachi dhiamahouachi.website",
+    "content": "Elektrik yurtotoelektrikerhançı.com Founder Dhia Mahouachi dhiamahouachi.website",
     "source_url": "https://auradigitalworks.com/contact",
     "source_type": "repository-page",
-    "verified_at": "2026-11-26T19:52:19.685Z",
+    "verified_at": "2026-11-26T22:13:54.053Z",
     "status": "active",
     "language": "en",
     "visibility": "public",
     "priority": 50,
-    "source_digest": "4cb77ec7a324b5de7e023aa660218b949353a9cdbe9cfa45a7c399eab624507b"
+    "source_digest": "644d2352d654168e53dfeae7995ef7a12141486e1c21e956e5f6ffc2c0ced54c"
   },
   {
     "id": "repo-page-solutions-0",
