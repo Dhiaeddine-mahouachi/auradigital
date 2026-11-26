@@ -284,9 +284,9 @@ p{margin:0}
 .case{display:flex;flex-direction:column;gap:14px}
 .case .browser{margin:0;aspect-ratio:16/10;flex:none;transition:transform .3s}
 .case:hover .browser{transform:translateY(-4px)}
-.case span{margin-top:-8px}
-.case b{font-size:18px;letter-spacing:-.02em;font-weight:600}
-.case span{font-size:14px;color:var(--ink-3)}
+.case>span{margin-top:-8px}
+.case>b{font-size:18px;letter-spacing:-.02em;font-weight:600}
+.case>span{font-size:14px;color:var(--ink-3)}
 @media(max-width:900px){.work{grid-template-columns:minmax(0,1fr)}}
 
 /* Final */
@@ -330,6 +330,51 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
 .reel figcaption img{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.85)}
 .reel figcaption b{display:block;font-size:15px;font-weight:600}
 @media(max-width:620px){.reel-wrap{margin-top:40px}.reel{aspect-ratio:4/5;border-radius:24px}.reel figcaption{left:12px;right:12px;bottom:12px;font-size:12.5px}}
+
+.bw{height:calc(100% - 32px);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(80% 90% at 30% 20%,#FFD84D,#FF8A3D 55%,#E2483B);font-family:var(--f-ar);color:#1B0F0A;overflow:hidden}
+.bw::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(27,15,10,.18) 1.2px,transparent 1.4px);background-size:14px 14px}
+.bw>*{position:relative}
+.bw-title{font-size:clamp(36px,5vw,64px);font-weight:600;line-height:1;background:#fff;padding:6px 22px 12px;border-radius:18px;border:3px solid #1B0F0A;box-shadow:6px 6px 0 #1B0F0A;transform:rotate(-2deg)}
+.bw-letter{position:absolute;top:16px;left:18px;width:56px;height:56px;border-radius:16px;background:#1B0F0A;color:#FFD84D;display:grid;place-items:center;font-size:30px;font-weight:600;transform:rotate(-6deg)}
+.bw-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:80%}
+.bw-chips i{font-style:normal;font-size:14px;font-weight:600;background:rgba(255,255,255,.9);border:2px solid #1B0F0A;border-radius:999px;padding:2px 12px}
+.bw-timer{position:absolute;bottom:14px;right:16px;display:flex;align-items:center;gap:6px;font:600 14px var(--f);direction:ltr}
+.bw-timer svg{width:26px;height:26px;transform:rotate(-90deg)}
+.bw-timer circle{fill:none;stroke:rgba(27,15,10,.2);stroke-width:4}
+.bw-timer .t{stroke:#1B0F0A;stroke-dasharray:94.2;stroke-dashoffset:30;animation:tick 8s linear infinite}
+@keyframes tick{from{stroke-dashoffset:0}to{stroke-dashoffset:94.2}}
+.case .browser img{aspect-ratio:16/10;object-fit:cover}
+
+/* ===== Auri: live face ===== */
+.auri{display:block;overflow:visible}
+.auri .a-head{transform-box:view-box;transform-origin:60px 70px;transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+.auri .a-eyes{transition:transform .12s linear}
+.auri .a-open{transform-box:fill-box;transform-origin:center;transition:transform .09s,opacity .2s}
+.auri .a-happy,.auri .a-load{opacity:0;transition:opacity .2s}
+.auri.blink .a-open{transform:scaleY(.08)}
+.auri.happy .a-open,.auri.loading .a-open{opacity:0}
+.auri.happy .a-happy{opacity:1}
+.auri.loading .a-load{opacity:1}
+.auri .a-load circle{transform-box:fill-box;transform-origin:center;animation:aload 1s ease-in-out infinite}
+.auri .a-load circle:nth-child(2){animation-delay:.15s}.auri .a-load circle:nth-child(3){animation-delay:.3s}
+@keyframes aload{0%,100%{transform:translateY(0);opacity:.45}40%{transform:translateY(-5px);opacity:1}}
+.auri.happy .a-head{animation:hop .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes hop{0%{transform:translateY(0)}40%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+.auri-line .auri{width:46px;height:46px;flex:none}
+.who-av .auri{width:40px;height:40px}
+.reel figcaption .auri{width:40px;height:40px;flex:none}
+.auri-fab{position:fixed;right:20px;bottom:20px;z-index:50;width:76px;height:76px;border:0;padding:2px;border-radius:24px;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);box-shadow:0 1px 2px rgba(16,20,15,.08),0 18px 40px -14px rgba(16,40,25,.45);cursor:pointer;animation:bob 4s ease-in-out infinite;transition:transform .2s}
+.auri-fab:hover{transform:translateY(-3px) scale(1.04)}
+.auri-fab .auri{width:100%;height:100%}
+@keyframes bob{0%,100%{translate:0 0}50%{translate:0 -4px}}
+.auri-bubble{position:fixed;right:20px;bottom:104px;z-index:50;width:min(300px,calc(100vw - 40px));background:var(--white);border:1px solid var(--line);border-radius:20px 20px 6px 20px;padding:16px;box-shadow:var(--float);display:flex;flex-direction:column;gap:10px;font-size:14.5px;opacity:0;transform:translateY(10px) scale(.97);transform-origin:100% 100%;pointer-events:none;transition:opacity .3s,transform .3s cubic-bezier(.3,1.3,.5,1)}
+.auri-bubble.open{opacity:1;transform:none;pointer-events:auto}
+.auri-bubble b{font-size:15px}
+.auri-bubble .row2{display:flex;gap:8px}
+.auri-bubble .x{position:absolute;top:8px;right:8px;width:28px;height:28px;border:0;background:none;border-radius:8px;cursor:pointer;color:var(--ink-3);font-size:18px;line-height:1}
+.auri-bubble .x:hover{background:rgba(16,20,15,.06)}
+@media(max-width:620px){.auri-fab{width:60px;height:60px;right:14px;bottom:14px;border-radius:20px}.auri-bubble{right:14px;bottom:84px}}
+@media(prefers-reduced-motion:reduce){.auri-fab{animation:none}.auri .a-load circle,.auri.happy .a-head{animation:none}}
 /* ================= MOTION ================= */
 .progress{position:fixed;left:0;top:0;height:2px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--forest),var(--acid));z-index:60}
 /* living aura */
@@ -442,7 +487,7 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
     <div class="hero-copy">
       <a class="offer rv" style="--d:0s" href="#"><b>10% off</b>All website packages until Nov 28</a>
       <h1 id="h1" class="split" aria-label="Grow your business one clear step at a time.">Grow your business one clear step at a time.</h1>
-      <p class="lead rv" style="--d:.55s">Tell Auri what you run. You get a free growth plan, and our Istanbul team builds it with you.</p>
+      <p class="lead rv" style="--d:.55s">Tell Auri what you run. You get a free growth plan, and our team builds it with you.</p>
     </div>
 
     <div class="planner rv glow" id="planner" style="--d:.75s" aria-label="Your growth path">
@@ -462,13 +507,13 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
         <span class="dot" aria-hidden="true"></span><ol class="stops" id="stops"></ol>
       </div>
       <div class="planner-foot">
-        <p class="auri-line"><img src="img/auri.webp" alt="Auri"><span id="auriSays"></span></p>
+        <p class="auri-line"><span class="auri-slot" data-size="46" id="pathAuri"></span><span id="auriSays"></span></p>
         <span class="muted" style="font-size:14px">Free plan. No tech skills needed.</span>
       </div>
     </div>
 
-    <div class="reel-wrap"><figure class="reel" id="reel"><video src="media/aura-hero.mp4" poster="media/aura-hero-poster.jpg" autoplay muted loop playsinline preload="metadata" aria-label="AuraDigital showreel"></video><figcaption><img src="img/auri.webp" alt=""><span><b>Built in Istanbul</b>Websites, menus, ads and automation for real businesses</span></figcaption></figure></div>
-    <div class="clients rv"  style="margin-top:56px"><span>Live for businesses in Istanbul</span><strong>Mutlu Nakliyat</strong><strong>Erhan Oto Elektrik</strong></div>
+    <div class="reel-wrap"><figure class="reel" id="reel"><video src="media/aura-hero.mp4" poster="media/aura-hero-poster.jpg" autoplay muted loop playsinline preload="metadata" aria-label="AuraDigital showreel"></video><figcaption><span class="auri-slot" data-light></span><span><b>Built by a real team</b>Websites, menus, ads and automation for real businesses</span></figcaption></figure></div>
+    <div class="clients rv"  style="margin-top:56px"><span>Live for real businesses</span><strong>Mutlu Nakliyat</strong><strong>Erhan Oto Elektrik</strong></div>
   </div>
 </section>
 
@@ -540,7 +585,7 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
             <div class="hcard"><div class="hcard-top"><div><small class="cap">Stage 3 of 5 · Current stage</small><h5>Convert</h5></div><div class="sp"><small>Stage progress</small><b>2 of 4 tasks</b></div></div>
               <p class="obj"><b>Objective</b> Turn people who find you into paying customers.</p>
               <div class="tasks"><span class="tk d"><i></i>WhatsApp business profile</span><span class="tk d"><i></i>Menu linked on Google Maps</span><span class="tk"><i></i>Online reservations</span><span class="tk"><i></i>Automatic WhatsApp replies</span></div></div>
-            <div class="hcard dk"><div class="who"><span class="who-av"><img src="img/auri.webp" alt=""></span><b>Auri on this stage</b></div>
+            <div class="hcard dk"><div class="who"><span class="who-av"><span class="auri-slot"></span></span><b>Auri on this stage</b></div>
               <small class="cap y">Why it matters</small><p>Most of your WhatsApp chats ask about tables. Online reservations turn those chats into bookings.</p>
               <small class="cap y">What you've done</small><p>WhatsApp profile and menu on Maps are live.</p></div>
           </div>
@@ -558,12 +603,12 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
       <div class="rv glow way way-auri">
         <h3>With Auri</h3>
         <p>Answer a few questions. Auri builds your plan, sets up your tools and guides each step at your pace.</p>
-        <div class="chat seq" data-seq><span class="me">I have a small bakery in Beşiktaş.</span><span class="typing" aria-hidden="true"><i></i><i></i><i></i></span><span class="bot">Great. Your first step is a Google Maps profile and an AuraMenu, so people find you and see prices.</span></div>
+        <div class="chat seq" data-seq><span class="me">I have a small bakery.</span><span class="typing" aria-hidden="true"><i></i><i></i><i></i></span><span class="bot">Great. Your first step is a Google Maps profile and an AuraMenu, so people find you and see prices.</span></div>
         <a class="btn btn-main" href="#" style="align-self:flex-start;margin-top:8px">Start with Auri</a>
       </div>
       <div class="rv glow way way-team">
         <h3>With our team</h3>
-        <p>Tell us what you need. Our Istanbul team designs, builds and launches it for you.</p>
+        <p>Tell us what you need. Our team designs, builds and launches it for you.</p>
         <div class="promise">
           <div><svg viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>A written proposal with scope and price before any work</div>
           <div><svg viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>A real person on WhatsApp, in Turkish, English or Arabic</div>
@@ -577,11 +622,14 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
 
 <section class="sec" id="work" style="padding-top:0">
   <div class="wrap">
-    <div class="sec-head" style="flex-direction:row;justify-content:space-between;align-items:flex-end;max-width:none;flex-wrap:wrap"><h2 style="max-width:620px">Launched for real businesses in Istanbul.</h2><a class="btn btn-ghost" href="#">See all work</a></div>
+    <div class="sec-head" style="flex-direction:row;justify-content:space-between;align-items:flex-end;max-width:none;flex-wrap:wrap"><h2 style="max-width:620px">Launched for real businesses.</h2><a class="btn btn-ghost" href="#">See all work</a></div>
     <div class="work">
       
       <a class="case rv" href="#"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>mutlunakliyat.site</span></div><img src="img/mutlu.webp" alt="Mutlu Nakliyat website" loading="lazy"></div><b>Mutlu Nakliyat</b><span>Moving company. Website, Google profile and Meta ads.</span></a>
-      <a class="case rv" href="#"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>yurtotoelektrik</span></div><img src="img/erhan.webp" alt="Erhan Oto Elektrik website" loading="lazy"></div><b>Erhan Oto Elektrik</b><span>Auto-electrical workshop in Fatih. Website and Maps.</span></a>
+      <a class="case rv" href="#"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>yurtotoelektrik</span></div><img src="img/erhan.webp" alt="Erhan Oto Elektrik website" loading="lazy"></div><b>Erhan Oto Elektrik</b><span>Auto-electrical workshop. Website and Google Maps.</span></a>
+    
+      <a class="case rv" href="https://auramenu.space"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>auramenu.space</span></div><img src="img/auramenu.webp" alt="AuraMenu digital menu on a phone" loading="lazy"></div><b>AuraMenu</b><span>Our QR menu product. Multilingual menus restaurants update in seconds.</span></a>
+      <a class="case rv" href="https://bentwalad.online"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>bentwalad.online</span></div><div class="bw" lang="ar" dir="rtl"><span class="bw-letter">م</span><b class="bw-title">بنت ولد</b><span class="bw-chips"><i>بنت</i><i>ولد</i><i>حيوان</i><i>نبات</i><i>جماد</i><i>بلاد</i></span><span class="bw-timer"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15"/><circle class="t" cx="18" cy="18" r="15"/></svg>0:42</span></div></div><b>Bent Walad</b><span>Our Arabic multiplayer word game, with live rooms and scoring.</span></a>
     </div>
   </div>
 </section>
@@ -596,16 +644,18 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
 </section>
 </main>
 
+<div class="auri-bubble" id="auriBubble" role="dialog" aria-label="Auri"><button class="x" id="auriClose" aria-label="Close">×</button><b>Hi, I’m Auri.</b><span class="muted">Tell me what you run and I’ll build your free growth plan in two minutes.</span><div class="row2"><a class="btn btn-main btn-sm" href="#">Start your path</a><a class="btn btn-ghost btn-sm" href="#">WhatsApp us</a></div></div>
+<button class="auri-fab" id="auriFab" aria-label="Talk to Auri" aria-expanded="false" aria-controls="auriBubble"><span class="auri-slot"></span></button>
 <footer>
   <div class="wrap">
     <div class="foot">
-      <div><span class="logo"><i><img src="img/ad-monogram.png" alt=""></i>AuraDigital</span><p>Websites, menus, visibility and automation for businesses in Türkiye and beyond.</p></div>
+      <div><span class="logo"><i><img src="img/ad-monogram.png" alt=""></i>AuraDigital</span><p>Websites, menus, visibility and automation for growing businesses.</p></div>
       <div><h4>Solutions</h4><ul><li><a href="#">Launch online</a></li><li><a href="#">Get found</a></li><li><a href="#">Automate</a></li><li><a href="#">AuraHub</a></li></ul></div>
       <div><h4>Products</h4><ul><li><a href="#">AuraMenu</a></li><li><a href="#">NFC review cards</a></li><li><a href="#">AuraPops</a></li><li><a href="#">AuraWeddings</a></li></ul></div>
       <div><h4>Resources</h4><ul><li><a href="#">Pricing</a></li><li><a href="#">Our work</a></li><li><a href="#">Help Center</a></li></ul></div>
       <div><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Contact</a></li><li><a href="#">WhatsApp</a></li></ul></div>
     </div>
-    <div class="base"><span>© 2026 AuraDigital, Istanbul</span><span>Privacy  ·  Terms  ·  KVKK  ·  English</span></div>
+    <div class="base"><span>© 2026 AuraDigital</span><span>Privacy  ·  Terms  ·  KVKK  ·  English</span></div>
   </div>
 </footer>
 
@@ -649,6 +699,8 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
       '<li class="stop"><span class="node"></span><span class="stage">' + esc(st) + '</span><span class="svc">' + esc(svc) + '</span><span class="why">' + esc(why) + '</span></li>').join('');
     says.innerHTML = '<b>Auri:</b> For ' + esc(p.who) + ', your first step is ' + esc(p.stops[0][1]) + '.';
     requestAnimationFrame(() => requestAnimationFrame(() => track.classList.add('on')));
+    const pa = document.querySelector('#pathAuri .auri');
+    if (pa) { pa.classList.remove('happy'); pa.classList.add('loading'); setTimeout(() => { pa.classList.remove('loading'); pa.classList.add('happy'); setTimeout(() => pa.classList.remove('happy'), 1500); }, 1500); }
   };
   seg.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
@@ -662,6 +714,53 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
 
   /* ===== motion ===== */
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ===== Auri live face ===== */
+  const AURI_SVG = '<svg class="auri" viewBox="0 0 120 120" aria-hidden="true"><g class="a-head">'
+    + '<ellipse cx="60" cy="112" rx="30" ry="4" fill="rgba(16,20,15,.12)"/>'
+    + '<rect x="6" y="50" width="16" height="32" rx="8" fill="#17704B"/><rect x="10" y="57" width="8" height="18" rx="4" fill="#8EE6BC"/>'
+    + '<rect x="98" y="50" width="16" height="32" rx="8" fill="#17704B"/><rect x="102" y="57" width="8" height="18" rx="4" fill="#8EE6BC"/>'
+    + '<rect x="16" y="20" width="88" height="86" rx="36" fill="#F2EFE4"/>'
+    + '<path d="M30 40c4-10 14-16 26-17" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity=".9"/>'
+    + '<rect x="26" y="38" width="68" height="50" rx="22" fill="#0B0F0C"/>'
+    + '<path d="M34 50c2-5 7-8 13-8" stroke="rgba(255,255,255,.18)" stroke-width="3" stroke-linecap="round" fill="none"/>'
+    + '<g class="a-eyes">'
+    + '<g class="a-open"><ellipse cx="47" cy="63" rx="6.5" ry="9" fill="#8EE6BC"/><ellipse cx="73" cy="63" rx="6.5" ry="9" fill="#8EE6BC"/><circle cx="49" cy="59" r="2" fill="#E9FFF4"/><circle cx="75" cy="59" r="2" fill="#E9FFF4"/></g>'
+    + '<g class="a-happy" fill="none" stroke="#8EE6BC" stroke-width="5" stroke-linecap="round"><path d="M40 66q7-11 14 0"/><path d="M66 66q7-11 14 0"/></g>'
+    + '<g class="a-load" fill="#8EE6BC"><circle cx="48" cy="64" r="4"/><circle cx="60" cy="64" r="4"/><circle cx="72" cy="64" r="4"/></g>'
+    + '</g></g></svg>';
+  const faces = [];
+  document.querySelectorAll('.auri-slot').forEach((slot) => { slot.innerHTML = AURI_SVG; faces.push(slot.firstChild); });
+  const setMood = (mood, ms) => faces.forEach((f) => { f.classList.remove('happy', 'loading'); if (mood) f.classList.add(mood); if (ms) setTimeout(() => f.classList.remove(mood), ms); });
+  // eyes + head follow the cursor
+  let px = innerWidth / 2, py = innerHeight / 3, faceTick = false;
+  const look = () => {
+    faceTick = false;
+    faces.forEach((f) => {
+      const b = f.getBoundingClientRect(); if (b.bottom < 0 || b.top > innerHeight) return;
+      const cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+      const dx = px - cx, dy = py - cy, d = Math.hypot(dx, dy) || 1, k = Math.min(1, d / 260);
+      const ex = dx / d * 7 * k, ey = dy / d * 5 * k;
+      f.querySelector('.a-eyes').style.transform = 'translate(' + ex.toFixed(1) + 'px,' + ey.toFixed(1) + 'px)';
+      f.querySelector('.a-head').style.transform = 'rotate(' + (dx / d * 6 * k).toFixed(1) + 'deg) translate(' + (ex * .3).toFixed(1) + 'px,' + (ey * .3).toFixed(1) + 'px)';
+    });
+  };
+  if (!reduce) {
+    addEventListener('pointermove', (e) => { px = e.clientX; py = e.clientY; if (!faceTick) { faceTick = true; requestAnimationFrame(look); } }, {passive: true});
+    addEventListener('scroll', () => { if (!faceTick) { faceTick = true; requestAnimationFrame(look); } }, {passive: true});
+    // natural blinking, each face on its own rhythm
+    faces.forEach((f) => { const blink = () => { f.classList.add('blink'); setTimeout(() => f.classList.remove('blink'), 130); setTimeout(blink, 2600 + Math.random() * 3800); }; setTimeout(blink, 800 + Math.random() * 2500); });
+    // happy when hovering a main action
+    document.querySelectorAll('.btn-main,.btn-acid').forEach((b) => { b.addEventListener('pointerenter', () => setMood('happy')); b.addEventListener('pointerleave', () => setMood(null)); });
+  }
+  look();
+  // floating Auri: opens a short greeting
+  const fab = document.getElementById('auriFab'), bubble = document.getElementById('auriBubble');
+  const openBubble = (o) => { bubble.classList.toggle('open', o); fab.setAttribute('aria-expanded', String(o)); if (o) setMood('happy', 1400); };
+  fab.addEventListener('click', () => openBubble(!bubble.classList.contains('open')));
+  document.getElementById('auriClose').addEventListener('click', () => openBubble(false));
+  let greeted = false;
+  addEventListener('scroll', () => { if (!greeted && innerWidth > 820 && scrollY > innerHeight * 1.3) { greeted = true; openBubble(true); setTimeout(() => openBubble(false), 7000); } }, {passive: true});
+
   // split headline into words
   const h1 = document.getElementById('h1');
   h1.innerHTML = h1.textContent.trim().split(/\s+/).map((w, i) => '<span class="w" aria-hidden="true" style="--i:' + i + '">' + esc(w) + '</span>').join(' ');
