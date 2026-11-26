@@ -128,7 +128,7 @@ test('the Hub loads the live character and maps pages to belly screens', async (
 
 test('live Auri files are not held in the 7-day media cache', async () => {
   const { readFile } = await import('node:fs/promises');
-  const headers = await readFile(new URL('../_headers', import.meta.url), 'utf8');
+  const headers = (await readFile(new URL('../_headers', import.meta.url), 'utf8')).replace(/\r\n/g, '\n');
   assert.match(headers, /\/media\/auri\/live\/\*\n\s+! Cache-Control/);
 });
 
