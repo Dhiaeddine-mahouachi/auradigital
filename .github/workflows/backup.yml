@@ -1,0 +1,71 @@
+name: Weekly database backup
+
+# Exports the production D1 database every Monday 04:17 Istanbul time (and on demand from the
+# Actions tab), encrypts it, and keeps it as a workflow artifact for 35 days.
+#
+# This repository is PUBLIC, so the export is encrypted with AES-256 before upload and the
+# unencrypted file never leaves the runner. Without BACKUP_PASSPHRASE the backup is useless,
+# so keep that passphrase in your password manager too.
+#
+# Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, BACKUP_PASSPHRASE (30+ random characters).
+# Decrypt: openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -in <file>.sql.enc -out backup.sql
+
+on:
+  schedule:
+    - cron: '17 1 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Check secrets
+        id: creds
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ ${#BACKUP_PASSPHRASE} -lt 20 ]; then
+            echo "::warning::Backup skipped: set CLOUDFLARE_API_TOKEN and a BACKUP_PASSPHRASE of 20+ characters."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: steps.creds.outputs.ready == 'true'
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        if: steps.creds.outputs.ready == 'true'
+        with:
+          node-version: 22
+          cache: npm
+      - if: steps.creds.outputs.ready == 'true'
+        run: npm ci --ignore-scripts
+      - name: Export and encrypt
+        if: steps.creds.outputs.ready == 'true'
+        id: export
+        run: |
+          set -euo pipefail
+          umask 077
+          stamp=$(date -u +%Y-%m-%d)
+          npx wrangler d1 export auradigital-db --remote --output "$RUNNER_TEMP/backup.sql"
+          test -s "$RUNNER_TEMP/backup.sql"
+          lines=$(wc -l < "$RUNNER_TEMP/backup.sql")
+          mkdir -p out
+          openssl enc -aes-256-cbc -pbkdf2 -iter 600000 -salt \
+            -in "$RUNNER_TEMP/backup.sql" -out "out/auradigital-db-$stamp.sql.enc" -pass env:BACKUP_PASSPHRASE
+          shred -u "$RUNNER_TEMP/backup.sql"
+          echo "name=auradigital-db-$stamp" >> "$GITHUB_OUTPUT"
+          echo "Exported $lines lines, encrypted to out/auradigital-db-$stamp.sql.enc"
+      - uses: actions/upload-artifact@v4
+        if: steps.creds.outputs.ready == 'true'
+        with:
+          name: ${{ steps.export.outputs.name }}
+          path: out/*.sql.enc
+          retention-days: 35
+          if-no-files-found: error
