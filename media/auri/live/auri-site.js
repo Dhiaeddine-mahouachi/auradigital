@@ -1,4 +1,4 @@
-// Auri live — website dock (opt-in). Not loaded by any page yet.
+// Auri live — opt-in website dock for the Studio character.
 //
 // Adds a small floating Auri in the bottom-right corner that opens the
 // EXISTING chat (it clicks the current launcher, it does not create a new
@@ -8,7 +8,7 @@
 //   <script type="module" src="/media/auri/live/auri-site.js"></script>
 //   (or import { mountAuriDock } and call it yourself)
 
-import { createAuri } from './auri-live.js';
+import { createAuri } from './auri-live.js?v=studio-v1';
 import { speakingDuration } from './auri-state.js';
 
 // The dock takes the exact place of the existing launcher. The old button is

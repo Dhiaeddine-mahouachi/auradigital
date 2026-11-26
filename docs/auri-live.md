@@ -1,27 +1,20 @@
 # Auri live character
 
-A layered, animated Auri that matches the emerald Auri reference sheet (large
-cream helmet with a dark emerald cap, big glossy black visor, glowing mint eyes,
-glowing ring side lights, chunky torso with a large belly screen, thick arms with
-glowing cuffs, short legs). By request, the character carries **no letters or
-logo marks**: the side lights are plain glowing rings and the belly badge is a
-light strip. The home belly screen shows a heartbeat pulse instead of a logo.
+Auri uses the cream, emerald, black, mint and yellow character from
+Auri 3D Studio. Transparent WebP layers rendered from the Studio model give
+Auri the same helmet, visor, limbs and chest bars across the website and Hub.
 
-* Preview: `/auri-preview/index.html` (noindex, not linked from the site)
-* Component: `media/auri/live/auri-live.js` (ES module, no dependencies)
-* State rules: `media/auri/live/auri-state.js` (pure, unit-tested)
-* Website dock: `media/auri/live/auri-site.js` (opt-in)
-* Hub bridge: `src/hub/auri-live-bridge.js` (mirrors `auri-controller.js` phases)
+* Full model and motion lab: `/auri-preview/index.html`
+* Lightweight live component: `media/auri/live/auri-live.js`
+* Shared art: `media/auri/studio-v1/`
+* State rules: `media/auri/live/auri-state.js`
+* Website dock: `media/auri/live/auri-site.js`
+* Hub state bridge: `src/hub/auri-live-bridge.js`
 
-## Why a layered SVG rig
-
-* The reference is a flattened image. It has no separate parts, so it can't be articulated as it is.
-* The existing `media/auri/auri.glb` is a different design (yellow eyes, round
-  dark torso, no belly screen). Its WebGL viewer is already switched off because it
-  froze tabs on some drivers (`media/auri/character.js`).
-* Auri was therefore redrawn as vector parts with their own pivots: head, face/eyes, left
-  arm, right arm, body, belly screen, legs and side lights. Motion uses transforms and
-  opacity, the component is about 38 KB minified (13 KB gzipped) with no images, and it stays sharp at 64–440 px.
+An SVG wrapper animates the rendered pieces, so the dock and Hub do not need a
+WebGL context. A new-design still remains visible during startup and if a layer
+fails to load. Render the layers from the Studio rig with
+`node scripts/render-auri-parts.mjs`.
 
 ## API
 
@@ -77,7 +70,7 @@ Auri only cancels speech it started itself, so the Hub's existing "read aloud" i
 
 ### Belly screen
 
-The modes are logo, CRM, analytics, website, marketing, automation, support, roadmap
+The modes are growth bars (logo), CRM, analytics, website, marketing, automation, support, roadmap
 and security. States override the mode while they last: processing (thinking), message
 (speaking), success (celebrate), help, a calm amber warning (error) and a dimmed moon
 (sleep). Working keeps the mode and adds the operation label and a progress bar.
@@ -90,14 +83,14 @@ already authorized for. Public pages must never pass customer data.
 
 | Place | How | Belly screen |
 | --- | --- | --- |
-| Home, About | corner dock | heartbeat pulse |
+| Home, About | corner dock | yellow growth bars |
 | Solutions | corner dock | automation |
 | Packages | corner dock + one hint per visit after 25 s (desktop only) | roadmap |
 | Service shop, Shop | corner dock | marketing |
 | AuraMenu, AuraWeddings, Portfolio | corner dock | website |
 | Help, Contact | corner dock | support |
 | 404 | corner dock, concerned, "Go to the home page" button | warning |
-| AuraHub login / sign-up | side panel (desktop), above the form (mobile) | heartbeat pulse |
+| AuraHub login / sign-up | side panel (desktop), above the form (mobile) | yellow growth bars |
 | AuraHub (every page) | the existing `<auri-character>` element, now live | follows the Hub page |
 
 Not included: wedding invitation pages (guests' pages), NFC builder/status (order flows),
@@ -125,8 +118,8 @@ Growth levels from verified milestones still show:
 * Level 2: head and body
 * Level 3: arms and legs added
 * Level 4: business belly screens turn on
-* Levels 5–6: brighter side lights and glow
-* Level 7: gold accents
+* Levels 5–6: brighter background glow
+* Level 7: the full character with its highest verified growth level
 
 Small places use `variant="face"` (a live head) or `variant="avatar"` (a still head, used
 in chat bubbles).
@@ -187,11 +180,8 @@ that stays inside the character (`contain: layout style`). No page reflow was me
 
 ## Limitations / assets that would improve fidelity
 
-* This is a 2.5D front view. Turning the head is simulated with offsets and tilt, and there
-  are no true 3/4 or side views. A rigged model of the **new** design (separate
-  head/arms/legs, belly screen as its own material) would be needed for real turns.
-* There's no mouth or lip-sync, as the brief asks. With audio, the eyes, the side lights
-  and the sound waves follow the real loudness. With device voices, they follow word boundaries.
+* The embedded character animates from the front. The Studio supports true 3D camera turns and prop poses.
+* The embedded mouth and sound waves react to speech rhythm and measured audio level.
 * Device voices depend on the browser and OS. The most human-sounding ones are in Edge and
   Chrome (desktop and Android) and on Apple devices with enhanced voices installed. For the
   same human voice everywhere, use `ttsUrl`.

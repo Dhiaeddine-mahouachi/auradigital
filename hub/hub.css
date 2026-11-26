@@ -112,11 +112,6 @@ auri-character{display:inline-grid;place-items:center;aspect-ratio:1;animation:n
 auri-character>img,auri-character>canvas{grid-area:1/1;width:100%;height:100%;object-fit:contain;pointer-events:none}
 auri-character>img{transform:translate(var(--auri-look,0px,0px));transition:transform .18s ease-out}
 @media(prefers-reduced-motion:reduce){auri-character>img{transform:none;transition:none}}
-/* The native animated WebP is a safe 3D-rendered fallback: no runtime WebGL. */
-auri-character[data-motion-ready]>img:not(.auri-motion){visibility:hidden}
-auri-character[data-phase='sleeping']>img{opacity:.72}
-@media(prefers-reduced-motion:reduce){auri-character>img.auri-motion{display:none}auri-character>img:not(.auri-motion){visibility:visible!important}}
-auri-character[data-rendered] img{visibility:hidden}
 auri-character[data-live]>img{display:none}
 auri-character[data-live]{position:relative}
 .ac-hero-auri auri-character,.ax-msg-avatar auri-character,.ax-avatar auri-character{width:100%;height:100%}
@@ -1447,29 +1442,3 @@ a.hx-list-row:hover{border-color:#0B0F0C;background:#FFFFFF}
 .hub-boot-error pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#F7F6F0;border-radius:12px;padding:12px;font-size:.78rem;color:#2E3832;max-height:180px;overflow:auto}
 .hub-boot-error button{min-height:44px;padding:10px 18px;border-radius:999px;border:1px solid #0B0F0C;background:#0B0F0C;color:#fff;font-weight:650;cursor:pointer}
 .hub-boot-error button+button{background:#fff;color:#0B0F0C;border-color:#D9D6CB}
-
-/* Official cream/emerald Auri. Character is always visible, without runtime WebGL. */
-auri-character[data-brand="official"]{position:relative;isolation:isolate}
-auri-character[data-brand="official"]>img{visibility:visible!important;display:block!important;max-width:100%;max-height:100%;animation:auriOfficialIdle 3.4s ease-in-out infinite;transform-origin:50% 75%;filter:drop-shadow(0 4px 8px rgba(16,185,129,.2))}
-auri-character[data-brand="official"][data-phase="welcome"]>img,
-auri-character[data-brand="official"][data-variant="login"]>img{animation:auriOfficialWelcome 1.5s ease-in-out 1, auriOfficialIdle 3.4s 1.5s ease-in-out infinite}
-auri-character[data-brand="official"][data-phase="thinking"]>img,
-auri-character[data-brand="official"][data-phase="listening"]>img{animation:auriOfficialThink 1.6s ease-in-out infinite}
-auri-character[data-brand="official"][data-phase="working"]>img,
-auri-character[data-brand="official"][data-phase="typing"]>img,
-auri-character[data-brand="official"][data-phase="drafting"]>img{animation:auriOfficialWork .85s ease-in-out infinite}
-auri-character[data-brand="official"][data-phase="speaking"]>img{animation:auriOfficialTalk .48s ease-in-out infinite}
-auri-character[data-brand="official"][data-phase="happy"]>img,
-auri-character[data-brand="official"][data-phase="success"]>img,
-auri-character[data-brand="official"][data-phase="evolving"]>img{animation:auriOfficialCelebrate .8s ease-in-out 2}
-auri-character[data-brand="official"][data-phase="error"]>img{animation:auriOfficialError .6s ease-in-out 2}
-auri-character[data-brand="official"][data-phase="sleeping"]>img{animation:auriOfficialIdle 5s ease-in-out infinite;opacity:.72}
-auri-character[data-brand="official"][data-visible="false"]>img{animation-play-state:paused!important}
-@keyframes auriOfficialIdle{0%,100%{transform:translate(var(--auri-look,0px,0px)) translateY(0) rotate(0deg)}50%{transform:translate(var(--auri-look,0px,0px)) translateY(-4px) rotate(1.4deg)}}
-@keyframes auriOfficialWelcome{0%,100%{transform:translateY(0) rotate(0deg)}18%{transform:translateY(-8px) rotate(-9deg)}40%{transform:translateY(-5px) rotate(9deg)}70%{transform:translateY(-3px) rotate(-7deg)}}
-@keyframes auriOfficialThink{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-3px) rotate(-5deg)}}
-@keyframes auriOfficialWork{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-2px) rotate(2deg)}}
-@keyframes auriOfficialTalk{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-1px) scale(1.03,.985)}}
-@keyframes auriOfficialCelebrate{0%,100%{transform:translateY(0) rotate(0deg)}35%{transform:translateY(-12px) rotate(-9deg)}65%{transform:translateY(-7px) rotate(8deg)}}
-@keyframes auriOfficialError{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px) rotate(-3deg)}75%{transform:translateX(3px) rotate(3deg)}}
-@media(prefers-reduced-motion:reduce){auri-character[data-brand="official"]>img{animation:none!important;transform:none!important;filter:none}}

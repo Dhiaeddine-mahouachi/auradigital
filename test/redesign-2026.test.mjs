@@ -63,7 +63,7 @@ test('contact form posts to the CRM endpoint with an idempotency key and honeypo
 test('Auri talks to the AI endpoint and always has a local fallback', () => {
   assert.match(bundle, /\/api\/ai\/session/);
   assert.match(bundle, /\/api\/ai\/message/);
-  assert.match(bundle, /pointermove/, 'eyes follow the cursor');
+  assert.match(read('media/auri/live/auri-live.js'), /pointermove/, 'eyes follow the cursor in the live dock');
   assert.match(bundle, /text:[A-Za-z_$]+\|\|[A-Za-z_$]+\.text/, 'falls back to the built-in answer');
 });
 
