@@ -1,8 +1,9 @@
 import {watchAuri} from './auri-controller.js';
+import { auriStill, displayLevel } from '../../media/auri/live/auri-still.js';
 
 export const auriCharacter=(level=1,{variant}={})=>{
  const value=Number.isInteger(level)&&level>=1&&level<=7?level:1;
- return `<auri-character class="auri" aria-hidden="true" ${['login','guide','avatar','face'].includes(variant)?`data-variant="${variant}"`:''} level="${value}"><img alt="" width="256" height="256" loading="lazy" decoding="async" src="/media/auri/official-auri.webp"></auri-character>`;
+ return `<auri-character class="auri" aria-hidden="true" ${['login','guide','avatar','face'].includes(variant)?`data-variant="${variant}"`:''} level="${value}">${auriStill(displayLevel(value,variant))}</auri-character>`;
 };
 
 export function connectAuri(host,scope,labels){

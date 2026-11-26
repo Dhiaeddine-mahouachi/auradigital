@@ -163,10 +163,11 @@ try {
  await heading(mobile,'What you’ll get').waitFor();
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  await screenshot(mobile,'aura-command-service-mobile');
- await mobile.locator('.command-bottom-nav [data-page=journey]').click();
+ await mobile.getByRole('button',{name:'Open navigation',exact:true}).click();
+ await mobile.locator('#sidebar [data-page=journey]').click();
  assert.equal(await mobile.locator('.vision-stage').count(),5);
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
- assert(await mobile.locator('.command-bottom-nav').evaluate(node=>node.clientHeight<80));
+ assert.equal(await mobile.locator('[data-os-menu]').getAttribute('aria-expanded'),'false');
  await screenshot(mobile,'AuraHub-Mobile-Roadmap');
  await mobile.locator('.vision-task').first().click();
  await mobile.locator('[data-ask-task]').click();

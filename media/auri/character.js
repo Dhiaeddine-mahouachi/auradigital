@@ -1,5 +1,5 @@
 // <auri-character> — AuraHub's Auri. Renders the live layered character
-// (media/auri/live) in place of the old still image, everywhere the Hub uses
+// from Studio artwork everywhere the Hub uses
 // auriCharacter(): login, onboarding, the corner companion, the AI Workspace,
 // service buttons and chat avatars.
 //
@@ -7,9 +7,10 @@
 //   level="1..7"      growth level from verified milestones (D1)
 //   data-phase="…"    set by connectAuri() from runAuri/pulseAuri around real requests
 //   data-variant      login | guide | face (live head) | avatar (small, still head)
-// The <img> inside stays as the fallback when JavaScript modules can't run.
+// The studio still is visible until the layered animation is ready.
 
-import { createAuri } from './live/auri-live.js';
+import { createAuri } from './live/auri-live.js?v=compact-v2';
+import { displayLevel, updateAuriStill } from './live/auri-still.js?v=compact-v2';
 import { phaseToState } from './live/auri-state.js';
 
 // Hub page → belly screen.
@@ -30,12 +31,13 @@ class AuriCharacter extends HTMLElement {
     if (this.auri) return;
     const variant = this.dataset.variant || '';
     const avatar = variant === 'avatar' || this.hasAttribute('still');
-    this.dataset.live = '';
+    this.dataset.live = 'loading';
     try {
       this.auri = createAuri(this, {
         size: 'fill',
         still: avatar,
-        level: avatar || variant === 'face' ? 1 : this.level(),
+        level: this.level(),
+        externalStill: true,
         follow: !avatar,
         followRadius: variant === 'login' ? 900 : 420,
         sleepAfter: avatar ? 0 : 120000,
@@ -50,6 +52,10 @@ class AuriCharacter extends HTMLElement {
       console.error(error);
       return;
     }
+    const instance = this.auri;
+    instance.ready.then(loaded => {
+      if (loaded && this.auri === instance) this.dataset.live = 'ready';
+    });
     this.attributeChangedCallback();
     if (variant === 'login') this.stopLogin = watchLoginForm(this.auri);
   }
@@ -63,16 +69,15 @@ class AuriCharacter extends HTMLElement {
   }
 
   level() {
-    const value = Number(this.getAttribute('level'));
-    // Outside a workspace (login, guide) Auri appears with its full body.
-    if (['login', 'guide'].includes(this.dataset.variant)) return Math.max(value || 0, 6);
-    return Number.isInteger(value) && value >= 1 && value <= 7 ? value : 1;
+    return this.hasAttribute('still') ? 1 : displayLevel(Number(this.getAttribute('level')), this.dataset.variant);
   }
 
   attributeChangedCallback(name) {
     if (!this.auri) return;
     if (!name || name === 'level') {
-      if (!['avatar', 'face'].includes(this.dataset.variant) && !this.hasAttribute('still')) this.auri.setOptions({ level: this.level() });
+      const level = this.level();
+      this.auri.setOptions({ level });
+      if (name && this.dataset.live !== 'ready') updateAuriStill(this.querySelector(':scope > .auri-still'), level);
     }
     if (!name || name === 'data-phase') {
       const phase = this.dataset.phase;

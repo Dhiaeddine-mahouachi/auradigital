@@ -143,7 +143,7 @@ html[dir=rtl] body:has(.os-shell){font-family:'IBM Plex Sans Arabic',Inter,syste
 .os-auri-row{display:flex;gap:14px;align-items:flex-start}
 .os-auri-row h2{margin:2px 0 4px;font:700 1rem var(--os-display)}
 .os-auri-row p{margin:0;font-size:.88rem;line-height:1.5}
-.os-auri-face{display:grid;place-items:center;width:56px;height:56px;flex:none;border-radius:16px;background:rgba(216,245,106,.14);box-shadow:inset 0 0 0 1px rgba(216,245,106,.35)}
+.os-auri-face{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:16px;background:rgba(216,245,106,.14);box-shadow:inset 0 0 0 1px rgba(216,245,106,.35)}
 .os-auri-face img{width:48px;height:48px;object-fit:contain;animation:os-float 4.5s ease-in-out infinite}
 @keyframes os-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .os-auri-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
@@ -471,8 +471,8 @@ main.auri-setup.os-chat-setup{max-width:1180px;margin:0 auto;padding:clamp(12px,
 .os-chat-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,340px);gap:20px;align-items:start}
 .os-chat{display:flex;flex-direction:column;min-height:min(78dvh,760px);background:var(--os-surface);border:1px solid var(--os-line);border-radius:22px;box-shadow:var(--os-shadow);overflow:hidden}
 .os-chat-head{display:flex!important;align-items:center;gap:12px;padding:14px 18px!important;margin:0!important;border-bottom:1px solid var(--os-line);text-align:start!important;background:linear-gradient(150deg,var(--os-forest),var(--os-emerald))}
-.os-chat-head .auri-setup-character{width:44px;height:44px;flex:none;border-radius:14px;background:rgba(216,245,106,.14);display:grid;place-items:center;overflow:hidden}
-.os-chat-head .auri-setup-character :is(.auri,img){width:40px!important;height:40px!important;margin:0!important}
+.os-chat-head .auri-setup-character{width:40px;height:40px;flex:none;border-radius:14px;background:rgba(216,245,106,.14);display:grid;place-items:center;overflow:hidden}
+.os-chat-head .auri-setup-character .auri{width:34px;height:34px;margin:0!important}
 .os-chat-head strong{display:block;color:#fff;font:700 1rem var(--os-display)}
 .os-chat-head small{display:flex;align-items:center;gap:6px;color:#CFE0D3;font-size:.78rem}
 .os-chat-progress{display:flex;gap:4px;margin:0 0 0 auto;padding:0;list-style:none}

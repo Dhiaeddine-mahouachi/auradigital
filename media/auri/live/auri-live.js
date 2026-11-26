@@ -21,12 +21,30 @@ import {
   normalizeState, canAuto, speakingDuration, shouldGreet,
 } from './auri-state.js';
 
+import { AURI_LAYERS } from '../studio-v1/layers.js';
+import { AURI_ART, auriViewBox, updateAuriStill } from './auri-still.js?v=compact-v2';
+
 export { STATES, EXPRESSIONS, SCREEN_MODES };
+
+const loadedArtwork = new WeakMap();
+
+function loadArtwork(doc) {
+  if (!loadedArtwork.has(doc)) {
+    const loads = Object.keys(AURI_LAYERS).map(name => new Promise((resolve, reject) => {
+      const img = doc.createElement('img');
+      img.onload = () => img.decode ? img.decode().then(resolve, reject) : resolve();
+      img.onerror = reject;
+      img.src = AURI_ART + name + '.webp';
+    }));
+    loadedArtwork.set(doc, Promise.all(loads).then(() => true, () => false));
+  }
+  return loadedArtwork.get(doc);
+}
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
   ink: '#06140F', deep: '#0B3D2E', main: '#10B981', light: '#34D399', pale: '#A7F3D0',
-  glow: '#ECFDF5', eye: '#A6FFD6', ring: '#5CF2B5', warm: '#FDE68A', cream: '#F6F2E7', creamShade: '#D9D3C2',
+  glow: '#ECFDF5', eye: '#A8FFB5', ring: '#A8FFB5', warm: '#E1E100', cream: '#F7F5EE',
 };
 let uid = 0;
 
@@ -35,6 +53,10 @@ const CSS = `
 .auri-live{position:relative;display:inline-block;width:var(--auri-size,220px);aspect-ratio:400/460;
  -webkit-tap-highlight-color:transparent;user-select:none;vertical-align:bottom;contain:layout style}
 .auri-live>svg{display:block;width:100%;height:100%;overflow:visible}
+.auri-live>.auri-rig{visibility:hidden}
+.auri-live[data-art-ready]>.auri-rig{visibility:visible}
+.auri-live>.auri-still{position:absolute;inset:0;pointer-events:none}
+.auri-live[data-art-ready]>.auri-still{display:none}
 .auri-live[data-fill]{position:absolute;inset:0;width:auto;height:auto;aspect-ratio:auto}
 .auri-live[data-interactive]{cursor:pointer}
 .auri-live:focus{outline:none}
@@ -64,124 +86,68 @@ function injectStyles(doc) {
 
 /* ---------------------------------------------------------------- svg rig */
 function rigMarkup(id) {
-  const g = n => `${n}-${id}`;
-  const HELMET = 'M200,14 C292,14 352,62 352,138 C352,214 300,250 200,250 C100,250 48,214 48,138 C48,62 108,14 200,14Z';
-  const BODY = 'M112,238 Q200,224 288,238 Q336,250 336,320 Q336,388 292,408 Q200,428 108,408 Q64,388 64,320 Q64,250 112,238Z';
-  const ear = (cx, s) => `<g data-p="ear${s}">
-   <ellipse cx="${cx}" cy="160" rx="30" ry="46" fill="url(#${g('ear')})" stroke="#0A2E23" stroke-width="4"/>
-   <ellipse data-p="ringGlow${s}" cx="${cx}" cy="160" rx="21" ry="34" fill="none" stroke="${C.ring}" stroke-width="14" opacity=".4"/>
-   <ellipse data-p="ring${s}" cx="${cx}" cy="160" rx="21" ry="34" fill="none" stroke="${C.ring}" stroke-width="5"/>
-   <ellipse cx="${cx}" cy="160" rx="10" ry="17" fill="#0E3F31"/>
-   <ellipse cx="${cx - 3 * Math.sign(200 - cx)}" cy="150" rx="4" ry="7" fill="#fff" opacity=".10"/>
+  const glow = `auri-eye-${id}`;
+  const back = `auri-back-${id}`;
+  const visor = `auri-visor-${id}`;
+  const belly = `auri-belly-${id}`;
+  const image = name => {
+    const [x, y, width, height] = AURI_LAYERS[name];
+    return `<image href="${AURI_ART}${name}.webp" x="${x}" y="${y}" width="${width}" height="${height}" preserveAspectRatio="none"/>`;
+  };
+  const eye = side => `<g data-p="eye${side}">
+    <ellipse data-p="glow${side}" rx="24" ry="25" fill="url(#${glow})"/>
+    <rect data-p="halo${side}" fill="none" stroke="${C.ring}" stroke-width="3.5"/>
+    <rect data-p="pill${side}" fill="${C.eye}"/>
+    <path data-p="line${side}" fill="none" stroke="${C.eye}" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
   </g>`;
-  const arm = (s, x, px, rot) => `<g data-p="arm${s}" class="auri-part"><g transform="rotate(${rot} ${px} 280)">
-   <rect x="${x}" y="262" width="54" height="98" rx="27" fill="url(#${g('cream')})"/>
-   <path d="M${x + 6},272 Q${x + 4},300 ${x + 8},326" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".45"/>
-   <rect x="${x - 2}" y="328" width="58" height="48" rx="24" fill="url(#${g('lower')})"/>
-   <rect data-p="cuffGlow${s}" x="${x}" y="321" width="54" height="10" rx="5" fill="${C.light}" opacity=".3"/>
-   <rect data-p="cuff${s}" x="${x + 1}" y="323" width="52" height="6" rx="3" fill="${C.light}"/>
-  </g></g>`;
   return `
 <defs>
- <radialGradient id="${g('cream')}" cx="35%" cy="25%" r="85%">
-  <stop offset="0" stop-color="#FFFFFB"/><stop offset=".5" stop-color="${C.cream}"/><stop offset=".85" stop-color="#D8D2C1"/><stop offset="1" stop-color="#B9B3A2"/>
- </radialGradient>
- <linearGradient id="${g('visor')}" x1="0" y1="0" x2="0" y2="1">
-  <stop offset="0" stop-color="#1A2622"/><stop offset=".35" stop-color="#070C0A"/><stop offset="1" stop-color="#010302"/>
- </linearGradient>
- <linearGradient id="${g('screen')}" x1="0" y1="0" x2="0" y2="1">
-  <stop offset="0" stop-color="#0B2119"/><stop offset="1" stop-color="#030B08"/>
- </linearGradient>
- <radialGradient id="${g('ear')}" cx="45%" cy="35%" r="75%">
-  <stop offset="0" stop-color="#16533F"/><stop offset="1" stop-color="#062019"/>
- </radialGradient>
- <linearGradient id="${g('lower')}" x1="0" y1="0" x2="0" y2="1">
-  <stop offset="0" stop-color="#12503D"/><stop offset="1" stop-color="#05231A"/>
- </linearGradient>
- <linearGradient id="${g('cap')}" x1="0" y1="0" x2="0" y2="1">
-  <stop offset="0" stop-color="#145641"/><stop offset="1" stop-color="#0A3326"/>
- </linearGradient>
- <radialGradient id="${g('eyeglow')}"><stop offset="0" stop-color="${C.light}" stop-opacity=".75"/><stop offset=".55" stop-color="${C.main}" stop-opacity=".22"/><stop offset="1" stop-color="${C.main}" stop-opacity="0"/></radialGradient>
- <radialGradient id="${g('back')}"><stop offset="0" stop-color="${C.main}" stop-opacity=".22"/><stop offset="1" stop-color="${C.main}" stop-opacity="0"/></radialGradient>
- <clipPath id="${g('helmet')}"><path d="${HELMET}"/></clipPath>
- <clipPath id="${g('visorclip')}"><rect x="80" y="68" width="240" height="166" rx="72"/></clipPath>
- <clipPath id="${g('screenclip')}"><rect x="106" y="260" width="188" height="124" rx="20"/></clipPath>
- <clipPath id="${g('bodyclip')}"><path d="${BODY}"/></clipPath>
+ <radialGradient id="${glow}"><stop offset="0" stop-color="${C.eye}" stop-opacity=".6"/><stop offset=".6" stop-color="${C.ring}" stop-opacity=".12"/><stop offset="1" stop-color="${C.ring}" stop-opacity="0"/></radialGradient>
+ <radialGradient id="${back}"><stop offset="0" stop-color="${C.main}" stop-opacity=".16"/><stop offset="1" stop-color="${C.main}" stop-opacity="0"/></radialGradient>
+ <clipPath id="${visor}"><rect x="105" y="39" width="190" height="126" rx="46"/></clipPath>
+ <clipPath id="${belly}"><rect x="160" y="221" width="80" height="60" rx="7"/></clipPath>
 </defs>
-<ellipse data-p="back" cx="200" cy="230" rx="210" ry="230" fill="url(#${g('back')})"/>
-<ellipse data-p="shadow" cx="200" cy="446" rx="104" ry="11" fill="#000" opacity=".3"/>
+<ellipse data-p="back" cx="200" cy="224" rx="163" ry="224" fill="url(#${back})"/>
+<ellipse data-p="shadow" cx="200" cy="438" rx="80" ry="8" fill="#000" opacity=".23"/>
 <g data-p="root" class="auri-part">
- <g data-p="legL" class="auri-part">
-  <rect x="142" y="388" width="50" height="38" rx="18" fill="url(#${g('cream')})"/>
-  <rect x="137" y="414" width="60" height="24" rx="12" fill="url(#${g('lower')})"/>
- </g>
- <g data-p="legR" class="auri-part">
-  <rect x="208" y="388" width="50" height="38" rx="18" fill="url(#${g('cream')})"/>
-  <rect x="203" y="414" width="60" height="24" rx="12" fill="url(#${g('lower')})"/>
- </g>
+ <g data-p="legL" class="auri-part">${image('legL')}</g>
+ <g data-p="legR" class="auri-part">${image('legR')}</g>
  <g data-p="body" class="auri-part">
-  <path d="${BODY}" fill="url(#${g('cream')})"/>
-  <g clip-path="url(#${g('bodyclip')})">
-   <path d="M56,356 Q200,396 344,356 L344,440 L56,440Z" fill="url(#${g('lower')})"/>
-   <path d="M330,270 Q340,320 326,380" fill="none" stroke="${C.light}" stroke-width="3" opacity=".35"/>
+  ${image('body')}
+  <g data-p="screen" clip-path="url(#${belly})">
+   <rect data-p="screenBackdrop" x="160" y="221" width="80" height="60" fill="#0b251c"/>
+   <g data-p="screenContent" transform="translate(160.4 221.15) scale(.60)"></g>
   </g>
-  <rect x="96" y="250" width="208" height="144" rx="28" fill="#08281E"/>
-  <rect data-p="screenGlowWide" x="99" y="253" width="202" height="138" rx="25" fill="none" stroke="${C.light}" stroke-width="9" opacity=".18"/>
-  <rect data-p="screenGlow" x="100" y="254" width="200" height="136" rx="24" fill="none" stroke="${C.light}" stroke-width="3"/>
-  <rect x="106" y="260" width="188" height="124" rx="20" fill="url(#${g('screen')})"/>
-  <g data-p="screen" clip-path="url(#${g('screenclip')})"><g transform="translate(118.2 260) scale(1.24)" data-p="screenContent"></g></g>
-  <path d="M114,268 Q200,256 286,268" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".07"/>
-  <rect data-p="badge" x="186" y="400" width="28" height="5" rx="2.5" fill="${C.light}"/>
  </g>
- ${arm('L', 56, 84, 13)}
- ${arm('R', 290, 316, -13)}
- <ellipse data-p="neck" cx="200" cy="244" rx="82" ry="12" fill="#06261C"/>
+ <g data-p="armL" class="auri-part">${image('armL')}</g>
+ <g data-p="armR" class="auri-part">${image('armR')}</g>
  <g data-p="head" class="auri-part">
-  <path d="${HELMET}" fill="url(#${g('cream')})"/>
-  <g clip-path="url(#${g('helmet')})">
-   <path d="M118,14 Q200,-12 282,14 L262,64 Q200,52 138,64Z" fill="url(#${g('cap')})"/>
-   <path d="M136,26 Q200,10 264,26" fill="none" stroke="#fff" stroke-width="3" opacity=".12" stroke-linecap="round"/>
-   <path d="M48,206 Q200,272 352,206 L352,260 L48,260Z" fill="#000" opacity=".08"/>
-   <path d="M340,90 Q356,140 336,200" fill="none" stroke="${C.light}" stroke-width="4" opacity=".28"/>
+  ${image('head')}
+  <g clip-path="url(#${visor})">
+   ${eye('L')}${eye('R')}
+   <path data-p="mouth" fill="none" stroke="${C.eye}" stroke-width="2.7" stroke-linecap="round"/>
+   <g data-p="dots" opacity="0"><circle cx="192" cy="125" r="2.5" fill="${C.eye}"/><circle cx="200" cy="125" r="2.5" fill="${C.eye}"/><circle cx="208" cy="125" r="2.5" fill="${C.eye}"/></g>
   </g>
-  <path d="M84,60 Q96,30 140,24" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".55"/>
-  <rect x="80" y="68" width="240" height="166" rx="72" fill="url(#${g('visor')})" stroke="#0A3326" stroke-width="7"/>
-  <rect x="86" y="74" width="228" height="154" rx="66" fill="none" stroke="#2C4A40" stroke-width="1.5" opacity=".6"/>
-  <g clip-path="url(#${g('visorclip')})">
-   <path d="M104,104 Q140,78 208,80" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" opacity=".10"/>
-   <ellipse cx="282" cy="96" rx="10" ry="5" fill="#fff" opacity=".08"/>
-   <g data-p="eyes">
-    <g data-p="eyeL"><ellipse data-p="glowL" rx="56" ry="66" fill="url(#${g('eyeglow')})"/><rect data-p="haloL" fill="none" stroke="${C.ring}" stroke-width="8" opacity=".35"/><rect data-p="pillL" fill="${C.eye}"/>
-     <path data-p="lineL" fill="none" stroke="${C.eye}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0"/></g>
-    <g data-p="eyeR"><ellipse data-p="glowR" rx="56" ry="66" fill="url(#${g('eyeglow')})"/><rect data-p="haloR" fill="none" stroke="${C.ring}" stroke-width="8" opacity=".35"/><rect data-p="pillR" fill="${C.eye}"/>
-     <path data-p="lineR" fill="none" stroke="${C.eye}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0"/></g>
-   </g>
-   <g data-p="dots" opacity="0"><circle cx="182" cy="208" r="5" fill="${C.eye}"/><circle cx="200" cy="208" r="5" fill="${C.eye}"/><circle cx="218" cy="208" r="5" fill="${C.eye}"/></g>
-  </g>
-  ${ear(50, 'L')}
-  ${ear(350, 'R')}
  </g>
 </g>
-<g data-p="fx">
- <g data-p="sparkles" opacity="0"></g>
- <g data-p="zzz" opacity="0" font-family="Inter,system-ui,sans-serif" font-weight="800" fill="${C.pale}">
-  <text data-z="0" x="330" y="46" font-size="24">z</text><text data-z="1" x="352" y="22" font-size="18">z</text><text data-z="2" x="370" y="4" font-size="14">z</text>
- </g>
- <g data-p="waves" opacity="0" fill="none" stroke="${C.light}" stroke-width="4" stroke-linecap="round">
-  <path data-w="0" d="M394,138 Q406,160 394,182"/><path data-w="1" d="M408,124 Q426,160 408,196"/>
- </g>
+<g data-p="sparkles" opacity="0"></g>
+<g data-p="zzz" opacity="0" font-family="Inter,system-ui,sans-serif" font-weight="800" fill="${C.pale}">
+ <text x="309" y="46" font-size="24">z</text><text x="330" y="25" font-size="18">z</text><text x="352" y="10" font-size="14">z</text>
+</g>
+<g data-p="waves" opacity="0" fill="none" stroke="${C.light}" stroke-width="3" stroke-linecap="round">
+ <path d="M349,87 Q358,102 349,117"/><path d="M360,80 Q372,102 360,124"/>
 </g>`;
 }
 
 /* --------------------------------------------------------- eye expressions */
 // pill: rounded rectangle eye (w,h, dx/dy offset, rot). line: stroked path.
-const P = (w, h, dx = 0, dy = 0, rot = 0) => ({ kind: 'pill', w, h, dx, dy, rot });
-const L = d => ({ kind: 'line', d });
+const P = (w, h, dx = 0, dy = 0, rot = 0) => ({ kind: 'pill', w: w * .48, h: h * .47, dx: dx * .5, dy: dy * .5, rot });
+const L = d => ({ kind: 'line', d: d.replace(/-?\d+/g, value => Number(value) * .55) });
 const ARC_UP = 'M-23,10 Q0,-22 23,10';
 const ARC_SOFT = 'M-22,7 Q0,-15 22,7';
 const ARC_DOWN = 'M-22,-5 Q0,14 22,-5';
 const FACES = {
-  neutral: [P(40, 62), P(40, 62)],
+  neutral: [P(38, 62), P(38, 62)],
   happy: [L(ARC_UP), L(ARC_UP)],
   excited: [L('M-17,-19 L14,0 L-17,19'), L('M17,-19 L-14,0 L17,19')],
   thinking: [P(38, 54, 5, -16), P(38, 54, 5, -16)],
@@ -194,8 +160,8 @@ const FACES = {
   concerned: [P(38, 54, 0, 6, 14), P(38, 54, 0, 6, -14)],
 };
 const DOT_FACES = new Set(['thinking', 'typing']);
-const EYE_X = [158, 242];
-const EYE_Y = 150;
+const EYE_X = [164, 236];
+const EYE_Y = 99;
 
 /* ------------------------------------------------------------ belly screen */
 // Every view is a static SVG fragment (132×100 local units) plus a small
@@ -213,15 +179,8 @@ function esc(value) {
 
 function buildViews() {
   const v = {};
-  v.logo = {
-    svg: `<circle data-s="halo" cx="66" cy="50" r="34" fill="${C.main}" opacity=".12"/>
-      <path d="M6,50 L40,50 L48,36 L58,68 L70,26 L80,58 L88,50 L126,50" fill="none" stroke="${C.deep}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path data-s="pulse" d="M6,50 L40,50 L48,36 L58,68 L70,26 L80,58 L88,50 L126,50" fill="none" stroke="${C.light}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="60 240"/>`,
-    update(t, n) {
-      n.pulse.setAttribute('stroke-dashoffset', (-(t * 110) % 300).toFixed(1));
-      n.halo.setAttribute('opacity', (.08 + .08 * (Math.sin(t * 2) + 1) / 2).toFixed(3));
-    },
-  };
+  // The logo mode uses the yellow growth bars rendered into the torso.
+  v.logo = { svg: '', update() {} };
   v.crm = {
     svg: `${head('CRM', person(13, 11, .9))}
       ${[30, 46, 62].map((y, i) => `${person(14, y + 1)}<rect x="24" y="${y - 3}" width="${30 - i * 6}" height="4" rx="2" fill="${C.pale}" opacity=".55"/><circle data-s="lead${i}" cx="62" cy="${y - 1}" r="3" fill="${C.light}"/>`).join('')}
@@ -408,14 +367,15 @@ export function createAuri(host, options = {}) {
   const opts = {
     size: 220, follow: true, followRadius: 520, interactive: false, label: 'Auri, your AuraDigital assistant',
     sleepAfter: 90000, greet: false, greetKey: 'auri-greeted', align: 'center', reducedMotion: 'auto',
-    screen: 'logo', level: null, still: false, ...options,
+    screen: 'logo', level: null, still: false, externalStill: false, ...options,
   };
 
   const root = doc.createElement('div');
   root.className = 'auri-live';
   root.dataset.align = opts.align;
   const svg = doc.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 400 460');
+  svg.setAttribute('class', 'auri-rig');
+  svg.setAttribute('viewBox', auriViewBox(6));
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('focusable', 'false');
   svg.innerHTML = rigMarkup(id);
@@ -423,8 +383,19 @@ export function createAuri(host, options = {}) {
   bubble.className = 'auri-bubble';
   bubble.setAttribute('role', 'status');
   bubble.setAttribute('aria-live', 'polite');
+  const fallback = opts.externalStill ? null : doc.createElementNS(NS, 'svg');
+  if (fallback) {
+    fallback.setAttribute('class', 'auri-still');
+    fallback.setAttribute('aria-hidden', 'true');
+    fallback.setAttribute('focusable', 'false');
+    root.append(fallback);
+  }
   root.append(svg, bubble);
   host.append(root);
+  const ready = loadArtwork(doc).then(loaded => {
+    if (loaded) root.dataset.artReady = '';
+    return loaded;
+  });
 
   const part = {};
   svg.querySelectorAll('[data-p]').forEach(el => { part[el.dataset.p] = el; });
@@ -578,7 +549,7 @@ export function createAuri(host, options = {}) {
   }
 
   function screenFor() {
-    const mode = opts.level != null && opts.level < 4 ? 'logo' : s.screen;
+    const mode = (opts.level != null && opts.level < 4) || (typeof opts.size === 'number' && opts.size <= 84) ? 'logo' : s.screen;
     if (s.state === 'working') return mode;
     return STATE_SCREEN[s.state] || mode;
   }
@@ -589,15 +560,14 @@ export function createAuri(host, options = {}) {
   function applyLevel() {
     const lv = opts.level == null ? 6 : clamp(Math.round(opts.level), 1, 7);
     const show = (el, on) => { if (el) el.style.display = on ? '' : 'none'; };
-    show(part.body, lv >= 2); show(part.neck, lv >= 2);
+    show(part.body, lv >= 2);
     [part.armL, part.armR, part.legL, part.legR].forEach(el => show(el, lv >= 3));
     show(part.shadow, lv >= 2);
-    svg.setAttribute('viewBox', lv === 1 ? '24 4 352 262' : '0 0 400 460');
-    root.style.aspectRatio = lv === 1 ? '352 / 262' : '';
+    svg.setAttribute('viewBox', auriViewBox(lv));
+    root.style.aspectRatio = lv === 1 ? '290 / 186' : '';
+    updateAuriStill(fallback, lv);
     s.glowBoost = lv >= 5 ? (lv >= 6 ? .1 : .05) : -.08;
     op(part.back, lv >= 6 ? 1 : .55);
-    const accent = lv === 7 ? C.warm : C.light;
-    [part.cuffL, part.cuffR, part.cuffGlowL, part.cuffGlowR, part.badge].forEach(el => el?.setAttribute('fill', accent));
     kick();
   }
 
@@ -778,24 +748,19 @@ export function createAuri(host, options = {}) {
     const p = s.pose;
     y += p.y; rot += p.rot; headRot += p.headRot; headY += p.headY; armL += p.armL; armR += p.armR;
 
-    tf(part.root, `translate(0 ${y.toFixed(2)}) rotate(${rot.toFixed(2)} 200 430)`);
-    tf(part.body, `translate(200 395) scale(${(1 - squash * .4).toFixed(4)} ${(1 + squash).toFixed(4)}) translate(-200 -395)`);
-    tf(part.head, `translate(${headX.toFixed(2)} ${(headY - squash * 120).toFixed(2)}) rotate(${headRot.toFixed(2)} 200 240)`);
-    tf(part.armL, `translate(0 ${(-squash * 60).toFixed(2)}) rotate(${armL.toFixed(2)} 84 280)`);
-    tf(part.armR, `translate(0 ${(-squash * 60).toFixed(2)}) rotate(${armR.toFixed(2)} 316 280)`);
+    tf(part.root, `translate(0 ${y.toFixed(2)}) rotate(${rot.toFixed(2)} 200 429)`);
+    tf(part.body, `translate(200 335) scale(${(1 - squash * .4).toFixed(4)} ${(1 + squash).toFixed(4)}) translate(-200 -335)`);
+    tf(part.head, `translate(${headX.toFixed(2)} ${(headY - squash * 120).toFixed(2)}) rotate(${headRot.toFixed(2)} 200 190)`);
+    tf(part.armL, `translate(0 ${(-squash * 60).toFixed(2)}) rotate(${armL.toFixed(2)} 126 208)`);
+    tf(part.armR, `translate(0 ${(-squash * 60).toFixed(2)}) rotate(${armR.toFixed(2)} 274 208)`);
     const lift = Math.min(0, y);
     tf(part.legL, `translate(0 ${(-lift * .15).toFixed(2)})`);
     tf(part.legR, `translate(0 ${(-lift * .15).toFixed(2)})`);
-    tf(part.shadow, `translate(200 446) scale(${(1 + lift / 160).toFixed(3)} 1) translate(-200 -446)`);
+    tf(part.shadow, `translate(200 438) scale(${(1 + lift / 160).toFixed(3)} 1) translate(-200 -438)`);
     op(part.shadow, .28 * (1 + lift / 120));
 
-    // side lights + screen glow
-    const glow = clamp(p.glow + (s.glowBoost || 0) + .12 * Math.sin(t * 1.9) * m + (st === 'speaking' ? .2 * s.voice : 0), .1, 1);
-    const ring = clamp(.35 + glow * .8, 0, 1); op(part.ringL, ring); op(part.ringR, ring); op(part.ringGlowL, .45 * ring); op(part.ringGlowR, .45 * ring);
-    op(part.cuffL, .45 + .55 * glow); op(part.cuffR, .45 + .55 * glow); op(part.cuffGlowL, .35 * glow); op(part.cuffGlowR, .35 * glow);
-    op(part.screenGlow, .45 + .55 * glow); op(part.screenGlowWide, .25 * glow);
     op(part.screen, 1 - p.dim);
-    op(part.badge, .4 + .5 * glow);
+    op(part.back, clamp(.35 + p.glow * .45 + (s.glowBoost || 0), .1, 1));
 
     // eyes
     drawEyes(t, st, still);
@@ -826,7 +791,7 @@ export function createAuri(host, options = {}) {
       s.blinkAt = t + 2.6 + Math.random() * 3.4;
     }
     const blinking = t < s.blinkUntil;
-    const gx = s.gaze[0] * 13, gy = s.gaze[1] * 9;
+    const gx = s.gaze[0] * 9, gy = s.gaze[1] * 6;
     const k = still ? 1 : .3;
     const hoverAge = t - s.hoverAt;
     const perk = st === 'idle' && hoverAge < .9 && !s.expression ? Math.sin(clamp(hoverAge / .9, 0, 1) * Math.PI) : 0;
@@ -855,6 +820,9 @@ export function createAuri(host, options = {}) {
       tf(eye.line, `translate(${(EYE_X[i] + gx).toFixed(2)} ${(EYE_Y + gy).toFixed(2)})`);
     });
     const dots = DOT_FACES.has(name) || st === 'thinking';
+    const mouth = st === 'speaking' ? 4 + 5 * s.voice : st === 'sleep' ? 1 : 4;
+    part.mouth.setAttribute('d', `M${194 + gx * .45},${120 + gy * .45} q6,${mouth.toFixed(2)} 12,0`);
+    op(part.mouth, dots ? 0 : 1);
     op(part.dots, dots ? 1 : 0);
     if (dots) [...part.dots.children].forEach((c, i) => op(c, still ? .8 : ((Math.sin(t * 6 - i * .9) + 1) / 2) * .8 + .2));
   }
@@ -868,12 +836,13 @@ export function createAuri(host, options = {}) {
       s.viewSince = t;
     }
     const v = views[name];
+    part.screenBackdrop.style.display = name === 'logo' ? 'none' : '';
     const vt = still ? 1.2 : t;
     v.update(vt, v.nodes, s);
     op(v.g, still ? 1 : clamp((t - s.viewSince) / .25, 0, 1));
     const modeView = !STATE_SCREEN[s.state] || s.state === 'working';
-    chip.style.display = modeView && s.screenData?.stats?.length && s.screen !== 'logo' ? '' : 'none';
-    demo.style.display = modeView && s.demo && s.screen !== 'logo' && !s.screenData?.stats?.length ? '' : 'none';
+    chip.style.display = modeView && s.screenData?.stats?.length && name !== 'logo' ? '' : 'none';
+    demo.style.display = modeView && s.demo && name !== 'logo' && !s.screenData?.stats?.length ? '' : 'none';
     const working = s.state === 'working';
     overlay.style.display = working ? '' : 'none';
     if (working) {
@@ -1064,13 +1033,15 @@ export function createAuri(host, options = {}) {
   applyInteractive();
   if (!opts.still) scheduleSleep();
   // Greet once per session, and only from a character the visitor can see.
-  if (opts.greet) win.setTimeout(() => {
-    if (!s.destroyed && root.getClientRects().length && shouldGreet(win.sessionStorage, opts.greetKey)) autoState('welcome');
-  }, 450);
+  if (opts.greet) ready.then(loaded => {
+    if (loaded && !s.destroyed) win.setTimeout(() => {
+      if (!s.destroyed && root.getClientRects().length && shouldGreet(win.sessionStorage, opts.greetKey)) autoState('welcome');
+    }, 450);
+  });
   kick();
 
   return {
-    element: root,
+    element: root, ready,
     setState, setScreen, setExpression, setSize, setOptions, setVoiceLevel, speak, stopVoice, run, destroy,
     say: (text, o) => showBubble(text, o), hush: hideBubble,
     lookAt(x, y) { if (x == null) resetGaze(); else { setGazeFromPointer(x, y); kick(); } },

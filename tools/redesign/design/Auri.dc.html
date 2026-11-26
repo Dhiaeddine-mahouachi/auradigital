@@ -11,74 +11,77 @@
 <!--FONTS-->
 <style>body{margin:0}</style>
 </helmet>
-<div class="auri-wrap {{ chatOpenClass }}">
+<div class="auri-wrap {{ chatOpenClass }}" style="position: fixed; right: var(--auri-launcher-inset, 22px); bottom: max(var(--auri-launcher-inset, 22px), env(safe-area-inset-bottom)); z-index: 80; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; font-family: Inter, system-ui, sans-serif; color: #0B0F0C">
   <sc-if value="{{ open }}" hint-placeholder-val="{{ false }}">
-    <div class="pop auri-panel" role="dialog" aria-label="Chat with Auri">
-      <div class="auri-head">
-        <span class="face"><svg class="{{ faceCls }}" viewBox="0 0 120 120" aria-hidden="true"><g class="a-head"><rect x="6" y="50" width="16" height="32" rx="8" fill="#17704B"></rect><rect x="10" y="57" width="8" height="18" rx="4" fill="#8EE6BC"></rect><rect x="98" y="50" width="16" height="32" rx="8" fill="#17704B"></rect><rect x="102" y="57" width="8" height="18" rx="4" fill="#8EE6BC"></rect><rect x="16" y="20" width="88" height="86" rx="36" fill="#F2EFE4"></rect><path d="M30 40c4-10 14-16 26-17" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity=".9"></path><rect x="26" y="38" width="68" height="50" rx="22" fill="#0B0F0C"></rect><path d="M34 50c2-5 7-8 13-8" stroke="rgba(255,255,255,.18)" stroke-width="3" stroke-linecap="round" fill="none"></path><g class="a-eyes"><g class="a-open"><ellipse cx="47" cy="63" rx="6.5" ry="9" fill="#8EE6BC"></ellipse><ellipse cx="73" cy="63" rx="6.5" ry="9" fill="#8EE6BC"></ellipse><circle cx="49" cy="59" r="2" fill="#E9FFF4"></circle><circle cx="75" cy="59" r="2" fill="#E9FFF4"></circle></g><g class="a-happy" fill="none" stroke="#8EE6BC" stroke-width="5" stroke-linecap="round"><path d="M40 66q7-11 14 0"></path><path d="M66 66q7-11 14 0"></path></g><g class="a-load" fill="#8EE6BC"><circle cx="48" cy="64" r="4"></circle><circle cx="60" cy="64" r="4"></circle><circle cx="72" cy="64" r="4"></circle></g></g></g></svg></span>
-        <div style="flex: 1"><div style="font-weight: 600">Auri</div><div style="font-size: 12px; color: #A9BAAE">{{ statusText }}</div></div>
-        <button type="button" onClick="{{ reset }}" aria-label="Restart conversation"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg></button>
-        <button type="button" onClick="{{ toggle }}" aria-label="Close chat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    <div class="pop auri-panel" role="dialog" aria-label="Chat with Auri" style="width: 380px; max-width: calc(100vw - 44px); height: 590px; max-height: calc(100vh - 120px); background: #FFFFFF; border: 1px solid #E6E4DC; border-radius: 26px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 40px 90px -30px rgba(11,15,12,.45)">
+      <div style="background: #0E2B1E; color: #F3EEDC; padding: 14px 16px; display: flex; align-items: center; gap: 12px">
+        <span style="width: 34px; height: 34px; border-radius: 10px; background: #17553b; display: flex; align-items: center; justify-content: center; flex: 0 0 auto">
+          <img src="/media/auri/studio-v1/avatar.webp" width="27" height="20" alt="" style="object-fit:contain">
+        </span>
+        <div style="flex: 1">
+          <div style="font-weight: 700">Auri</div>
+          <div style="font-size: 12px; color: #A8D8B4">{{ statusText }}</div>
+          <a href="/auri-preview/index.html" style="color:#E1E100;font-size:12px;text-decoration:underline">{{ studioLabel }}</a>
+        </div>
+        <button onClick="{{ reset }}" aria-label="Restart conversation" style="width: 36px; height: 36px; border-radius: 10px; border: 1px solid rgba(243,238,220,.25); background: transparent; color: #F3EEDC; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg></button>
+        <button onClick="{{ toggle }}" aria-label="Close chat" style="width: 36px; height: 36px; border-radius: 10px; border: 1px solid rgba(243,238,220,.25); background: transparent; color: #F3EEDC; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
       </div>
-      <div ref="{{ boxRef }}" aria-live="polite" style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #FCFCF7">
+
+      <div ref="{{ boxRef }}" aria-live="polite" style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #FAF9F5">
         <sc-for list="{{ msgs }}" as="m" hint-placeholder-count="2">
           <div dir="{{ m.dir }}" class="pop" style="{{ m.style }}">
             <span style="white-space: pre-line">{{ m.text }}</span>
             <sc-if value="{{ m.hasLinks }}" hint-placeholder-val="{{ false }}">
               <span style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px">
                 <sc-for list="{{ m.links }}" as="l" hint-placeholder-count="2">
-                  <a class="btn btn-main btn-sm" href="{{ l.href }}" style="height: 34px; font-size: 13px">{{ l.label }}</a>
+                  <a href="{{ l.href }}" style="background: #0B0F0C; color: #FFFFFF; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 999px">{{ l.label }} →</a>
                 </sc-for>
               </span>
             </sc-if>
           </div>
         </sc-for>
         <sc-if value="{{ typing }}" hint-placeholder-val="{{ false }}">
-          <div style="align-self: flex-start; background: #FFFFFF; border: 1px solid #E6E8DC; border-radius: 16px 16px 16px 4px; padding: 12px 16px; display: flex; gap: 5px">
-            <span class="dot" style="width: 7px; height: 7px; border-radius: 50%; background: #0E2B1E"></span><span class="dot" style="width: 7px; height: 7px; border-radius: 50%; background: #0E2B1E; animation-delay: .2s"></span><span class="dot" style="width: 7px; height: 7px; border-radius: 50%; background: #0E2B1E; animation-delay: .4s"></span>
+          <div style="align-self: flex-start; background: #FFFFFF; border: 1px solid #E6E4DC; border-radius: 16px 16px 16px 4px; padding: 12px 16px; display: flex; gap: 5px">
+            <span class="dot" style="width: 7px; height: 7px; border-radius: 50%; background: #0E2B1E"></span>
+            <span class="dot" style="width: 7px; height: 7px; border-radius: 50%; background: #0E2B1E; animation-delay: .2s"></span>
+            <span class="dot" style="width: 7px; height: 7px; border-radius: 50%; background: #0E2B1E; animation-delay: .4s"></span>
           </div>
         </sc-if>
       </div>
+
       <div style="padding: 10px 12px 0; display: flex; gap: 6px; overflow-x: auto; background: #FFFFFF">
         <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4">
-          <button type="button" onClick="{{ c.send }}" style="flex: 0 0 auto; border: 1px solid #D5D8C8; background: #FFFFFF; border-radius: 999px; padding: 8px 12px; font-size: 13px; cursor: pointer; min-height: 36px">{{ c.label }}</button>
+          <button onClick="{{ c.send }}" style="flex: 0 0 auto; border: 1px solid #D9D6CB; background: #FFFFFF; color: #0B0F0C; border-radius: 999px; padding: 8px 12px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: Inter, sans-serif; min-height: 36px">{{ c.label }}</button>
         </sc-for>
       </div>
       <form onSubmit="{{ submit }}" style="display: flex; gap: 8px; padding: 10px 12px 12px; background: #FFFFFF">
-        <label for="auri-input" class="sr">Message Auri</label>
-        <input id="auri-input" value="{{ draft }}" onChange="{{ onDraft }}" maxlength="2000" placeholder="Ask Auri anything…" autocomplete="off" style="flex: 1; min-width: 0; border: 1px solid #D5D8C8; background: #FCFCF7; border-radius: 14px; padding: 12px 14px; font-size: 15px">
-        <button type="submit" aria-label="Send message" style="width: 46px; height: 46px; border-radius: 14px; border: 0; background: #10140F; color: #E1E100; cursor: pointer; display: grid; place-items: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+        <label for="auri-input" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap">Message Auri</label>
+        <input id="auri-input" value="{{ draft }}" onChange="{{ onDraft }}" maxlength="2000" placeholder="Ask Auri anything…" autocomplete="off" style="flex: 1; min-width: 0; border: 1px solid #D9D6CB; background: #FAF9F5; border-radius: 14px; padding: 12px 14px; font-size: 15px; font-family: Inter, sans-serif; color: #0B0F0C">
+        <button type="submit" aria-label="Send message" style="width: 46px; height: 46px; border-radius: 14px; border: 0; background: #0B0F0C; color: #E1E100; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
       </form>
-      <div style="font-size: 11px; color: #6B7168; text-align: center; padding: 0 12px 10px; background: #FFFFFF">Auri is an AI assistant. Prices are confirmed in your proposal.</div>
+      <div style="font-size: 11px; color: #5C665F; text-align: center; padding: 0 12px 10px; background: #FFFFFF">Auri is an AI assistant · prices are confirmed in your proposal</div>
     </div>
   </sc-if>
+
   <sc-if value="{{ showTeaser }}" hint-placeholder-val="{{ true }}">
-    <button type="button" onClick="{{ toggle }}" class="pop hide-sm auri-teaser">Hi! I’m Auri. Need help choosing?</button>
+    <button onClick="{{ toggle }}" class="pop hide-sm" style="background: #FFFFFF; border: 1px solid #E6E4DC; border-radius: 18px 18px 4px 18px; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #0B0F0C; cursor: pointer; box-shadow: 0 20px 40px -20px rgba(11,15,12,.4); font-family: Inter, sans-serif; max-width: 240px; text-align: left">Hi! I'm Auri. Need help choosing?</button>
   </sc-if>
-  <button type="button" ref="{{ fabRef }}" onClick="{{ toggle }}" aria-label="{{ fabLabel }}" class="auri-fab"><svg class="{{ faceCls }}" viewBox="0 0 120 120" aria-hidden="true"><g class="a-head"><rect x="6" y="50" width="16" height="32" rx="8" fill="#17704B"></rect><rect x="10" y="57" width="8" height="18" rx="4" fill="#8EE6BC"></rect><rect x="98" y="50" width="16" height="32" rx="8" fill="#17704B"></rect><rect x="102" y="57" width="8" height="18" rx="4" fill="#8EE6BC"></rect><rect x="16" y="20" width="88" height="86" rx="36" fill="#F2EFE4"></rect><path d="M30 40c4-10 14-16 26-17" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity=".9"></path><rect x="26" y="38" width="68" height="50" rx="22" fill="#0B0F0C"></rect><path d="M34 50c2-5 7-8 13-8" stroke="rgba(255,255,255,.18)" stroke-width="3" stroke-linecap="round" fill="none"></path><g class="a-eyes"><g class="a-open"><ellipse cx="47" cy="63" rx="6.5" ry="9" fill="#8EE6BC"></ellipse><ellipse cx="73" cy="63" rx="6.5" ry="9" fill="#8EE6BC"></ellipse><circle cx="49" cy="59" r="2" fill="#E9FFF4"></circle><circle cx="75" cy="59" r="2" fill="#E9FFF4"></circle></g><g class="a-happy" fill="none" stroke="#8EE6BC" stroke-width="5" stroke-linecap="round"><path d="M40 66q7-11 14 0"></path><path d="M66 66q7-11 14 0"></path></g><g class="a-load" fill="#8EE6BC"><circle cx="48" cy="64" r="4"></circle><circle cx="60" cy="64" r="4"></circle><circle cx="72" cy="64" r="4"></circle></g></g></g></svg><sc-if value="{{ unread }}" hint-placeholder-val="{{ true }}"><span class="unread">1</span></sc-if></button>
+  <button onClick="{{ toggle }}" aria-label="{{ fabLabel }}" class="auri-fab" type="button" style="position: relative">
+    <img class="auri-launcher-portrait" src="/media/auri/studio-v1/full.webp" width="26" height="37" alt="">
+    <sc-if value="{{ unread }}" hint-placeholder-val="{{ true }}"><span class="auri-launcher-unread" aria-hidden="true"></span></sc-if>
+  </button>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"startOpen":{"editor":"boolean","default":false},"$preview":{"width":440,"height":720}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { open: !!props.startOpen, seen: !!props.startOpen, typing: false, draft: '', lang: 'en', msgs: [this.greet('en')], eye: { x: 0, y: 0 } };
+    this.state = { open: !!props.startOpen, seen: !!props.startOpen, typing: false, draft: '', lang: 'en', msgs: [this.greet('en')] };
   }
   apiAvailable() {
     try { return !!(window.AURA_LIVE_API || /(^|\.)auradigitalworks\.com$/.test(location.hostname)); } catch (e) { return false; }
   }
   componentDidMount() {
-    this.onMove = (e) => {
-      if (this.raf) return;
-      this.raf = requestAnimationFrame(() => {
-        this.raf = 0;
-        const el = this.fab; if (!el || !el.getBoundingClientRect) return;
-        const r = el.getBoundingClientRect();
-        const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
-        const d = Math.hypot(dx, dy) || 1, k = Math.min(1, d / 260);
-        this.setState({ eye: { x: (dx / d) * 6 * k, y: (dy / d) * 5 * k } });
-      });
-    };
     this.teaserTimer = setTimeout(() => this.setState({ teaserGone: true }), 9000);
     // Follow the site language switcher (redesign/i18n.js).
     this.onLang = () => {
@@ -93,8 +96,8 @@ class Component extends DCLogic {
     try { const l = document.documentElement.lang; return l === 'tr' || l === 'ar' ? l : 'en'; } catch (e) { return 'en'; }
   }
   componentWillUnmount() {
-    try { window.removeEventListener('pointermove', this.onMove); window.removeEventListener('aura:lang', this.onLang); } catch (e) {}
-    clearTimeout(this.timer); clearTimeout(this.teaserTimer); if (this.raf) cancelAnimationFrame(this.raf);
+    try { window.removeEventListener('aura:lang', this.onLang); } catch (e) {}
+    clearTimeout(this.timer); clearTimeout(this.teaserTimer);
   }
   greet(l) {
     const t = {
@@ -218,13 +221,12 @@ class Component extends DCLogic {
     } else {
       await new Promise((res) => { clearTimeout(this.timer); this.timer = setTimeout(res, 600 + Math.min(900, q.length * 12)); });
     }
-    this.setState({ typing: false, happy: true, msgs: this.state.msgs.concat([{ role: 'bot', text: reply || local.text, links: local.links }]) });
-    clearTimeout(this.happyT); this.happyT = setTimeout(() => this.setState({ happy: false }), 1600);
+    this.setState({ typing: false, msgs: this.state.msgs.concat([{ role: 'bot', text: reply || local.text, links: local.links }]) });
   }
   renderVals() {
     const s = this.state;
-    const botS = 'align-self: flex-start; max-width: 86%; background: #FFFFFF; border: 1px solid #E6E8DC; border-radius: 16px 16px 16px 4px; padding: 11px 14px; font-size: 14px; line-height: 1.5';
-    const userS = 'align-self: flex-end; max-width: 86%; background: #0E2B1E; color: #EEF1E4; border-radius: 16px 16px 4px 16px; padding: 11px 14px; font-size: 14px; line-height: 1.5';
+    const botS = 'align-self: flex-start; max-width: 86%; background: #FFFFFF; border: 1px solid #E6E4DC; border-radius: 16px 16px 16px 4px; padding: 11px 14px; font-size: 14px; line-height: 1.5';
+    const userS = 'align-self: flex-end; max-width: 86%; background: #0E2B1E; color: #F3EEDC; border-radius: 16px 16px 4px 16px; padding: 11px 14px; font-size: 14px; line-height: 1.5';
     const chipSets = {
       en: ['I have a restaurant', 'Prices', 'WhatsApp automation', 'How long does it take?', 'Talk to a human'],
       tr: ['Restoranım var', 'Fiyatlar', 'WhatsApp otomasyonu', 'Ne kadar sürer?', 'Ekiple konuşmak istiyorum'],
@@ -236,10 +238,9 @@ class Component extends DCLogic {
       showTeaser: !s.open && !s.seen && !s.teaserGone,
       unread: !s.seen,
       fabLabel: s.open ? 'Close Auri chat' : 'Open Auri chat',
-      statusText: s.typing ? 'Thinking…' : 'Online in English, Türkçe and العربية',
-      faceCls: 'auri' + (s.typing ? ' loading' : s.happy ? ' happy' : ''),
-      fabRef: (el) => { this.fab = el; },
-      toggle: () => { const o = !s.open; this.setState({ open: o, seen: true, happy: o }); if (o) { clearTimeout(this.happyT); this.happyT = setTimeout(() => this.setState({ happy: false }), 1200); } },
+      statusText: s.typing ? 'Typing…' : '● Online · EN · TR · العربية',
+      studioLabel: ({ en: 'Auri 3D Studio', tr: 'Auri 3D Stüdyo', ar: 'استوديو أوري ثلاثي الأبعاد' })[s.lang] || 'Auri 3D Studio',
+      toggle: () => this.setState({ open: !s.open, seen: true }),
       reset: () => this.setState({ msgs: [this.greet(s.lang)], typing: false, draft: '' }),
       typing: s.typing,
       draft: s.draft,

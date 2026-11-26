@@ -82,29 +82,46 @@ test('the most human-sounding voice in the right language is chosen', async () =
   assert.equal(pickHumanVoice({}, 'en'), null);
 });
 
-test('Auri face is on every public page, and only there', async () => {
+test('live Auri is on the public pages, and only there', async () => {
   const { readFile } = await import('node:fs/promises');
-  for (const file of ['index.html', 'about.html', 'solutions.html', 'packages.html', 'service-shop.html', 'shop/index.html',
-    'aura-menu.html', 'aura-weddings.html', 'portfolio.html', 'help.html', 'contact.html', '404.html']) {
+  const withAuri = {
+    'index.html': 'logo', 'about.html': 'logo', 'solutions.html': 'automation', 'packages.html': 'roadmap',
+    'service-shop.html': 'marketing', 'shop/index.html': 'marketing', 'aura-menu.html': 'website',
+    'aura-weddings.html': 'website', 'portfolio.html': 'website', 'help.html': 'support', 'contact.html': 'support', '404.html': null,
+  };
+  for (const [file, screen] of Object.entries(withAuri)) {
     const html = await readFile(new URL('../' + file, import.meta.url), 'utf8');
-    assert.match(html, /class="auri-fab"/, file);
-    assert.match(html, /\/redesign\/motion\.js\?v=/, file);
-    // The face is drawn in SVG with eyes only, never a letter.
-    assert.doesNotMatch(html, /auri-site\.js/, file);
+    const tags = html.match(/<script type="module" src="\/media\/auri\/live\/auri-site\.js[^"]*"[^>]*>/g) || [];
+    assert.equal(tags.length, 1, file);
+    assert.match(tags[0], /data-auto/, file);
+    assert.match(html, /compact\.css\?v=compact-v2/, file);
+    assert.match(html, /class="auri-launcher-portrait" src="\/media\/auri\/studio-v1\/full\.webp"/, file);
+    assert.doesNotMatch(html, /class="auri-eye"/, file);
+    if (screen) assert.match(tags[0], new RegExp(`data-screen="${screen}"`), file);
   }
+  // Guests' wedding invitations, order flows and staff tools stay without the dock.
   for (const file of ['weddings/signature.html', 'weddings/royal-ivory.html', 'nfc-builder.html', 'nfc-status.html', 'hub/index.html']) {
     const html = await readFile(new URL('../' + file, import.meta.url), 'utf8');
-    assert.doesNotMatch(html, /auri-fab/, file);
+    assert.doesNotMatch(html, /auri-site\.js/, file);
   }
 });
 
-test('the page build loads the shared motion script that animates Auri', async () => {
+test('the page build keeps the Auri dock when pages are regenerated', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const build = await readFile(new URL('../tools/redesign/build.mjs', import.meta.url), 'utf8');
+  assert.match(build, /const AURI_DOCK = \{/);
+  assert.match(build, /AURI_DOCK\[name\] \? auriDock\(AURI_DOCK\[name\]\)/);
+  assert.match(build, /swap\(src, 'js', `[^`]*auriDock\('data-screen="marketing"'\)/);
+  for (const page of ['Main', 'About', 'Solutions', 'Packages', 'Shop', 'AuraMenu', 'Weddings', 'Work', 'Help', 'Contact', 'NotFound']) {
+    assert.match(build, new RegExp(`\\b${page}: '`), page);
+  }
+});
+
+test('the page build loads the shared motion script', async () => {
   const { readFile } = await import('node:fs/promises');
   const build = await readFile(new URL('../tools/redesign/build.mjs', import.meta.url), 'utf8');
   assert.match(build, /\/redesign\/motion\.js\?v=\$\{VERSION\}/);
   const motion = await readFile(new URL('../redesign/motion.js', import.meta.url), 'utf8');
-  assert.match(motion, /pointermove/, 'eyes follow the cursor');
-  assert.match(motion, /auraMood/, 'happy and loading moods');
   assert.match(motion, /prefers-reduced-motion/);
 });
 
@@ -113,7 +130,7 @@ test('the Hub loads the live character and maps pages to belly screens', async (
   const hub = await readFile(new URL('../hub/index.html', import.meta.url), 'utf8');
   assert.match(hub, /\/media\/auri\/character\.js\?v=live-/);
   const source = await readFile(new URL('../media/auri/character.js', import.meta.url), 'utf8');
-  assert.match(source, /from '\.\/live\/auri-live\.js'/);
+  assert.match(source, /from '\.\/live\/auri-live\.js\?v=compact-v2'/);
   assert.match(source, /phaseToState/);
 });
 
@@ -121,4 +138,14 @@ test('live Auri files are not held in the 7-day media cache', async () => {
   const { readFile } = await import('node:fs/promises');
   const headers = await readFile(new URL('../_headers', import.meta.url), 'utf8');
   assert.match(headers, /\/media\/auri\/live\/\*\n\s+! Cache-Control/);
+});
+
+test('AuraHub first paint uses the same Studio forms as the live rig', async () => {
+  const { auriCharacter } = await import('../src/hub/auri-companion.js');
+  assert.match(auriCharacter(1), /class="auri-still"[^>]*>[\s\S]*avatar\.webp/);
+  const levelTwo = auriCharacter(2);
+  assert.match(levelTwo, /body\.webp[\s\S]*avatar\.webp/);
+  assert.doesNotMatch(levelTwo, /full\.webp/);
+  assert.match(auriCharacter(1, { variant: 'login' }), /full\.webp/);
+  assert.match(auriCharacter(7, { variant: 'avatar' }), /avatar\.webp/);
 });

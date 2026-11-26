@@ -1,4 +1,4 @@
-// Auri live — website dock (opt-in). Not loaded by any page yet.
+// Auri live — opt-in website dock for the Studio character.
 //
 // Adds a small floating Auri in the bottom-right corner that opens the
 // EXISTING chat (it clicks the current launcher, it does not create a new
@@ -8,23 +8,8 @@
 //   <script type="module" src="/media/auri/live/auri-site.js"></script>
 //   (or import { mountAuriDock } and call it yourself)
 
-import { createAuri } from './auri-live.js';
+import { createAuri } from './auri-live.js?v=compact-v2';
 import { speakingDuration } from './auri-state.js';
-
-// The dock takes the exact place of the existing launcher. The old button is
-// kept (invisible, same footprint) so the existing chat panel still opens
-// right above Auri and every chat feature keeps working.
-const DOCK_CSS = `
-.auri-dock{position:fixed;right:22px;bottom:22px;z-index:85;pointer-events:none;display:flex;justify-content:flex-end}
-.auri-dock .auri-live{pointer-events:auto}
-html.auri-live-docked .auri-fab,html.auri-live-docked #chatLauncher{opacity:0!important;pointer-events:none!important;
- width:84px!important;height:97px!important;animation:none!important}
-@media (max-width:640px){
- .auri-dock{right:14px;bottom:max(14px,env(safe-area-inset-bottom))}
- html.auri-live-docked .auri-fab,html.auri-live-docked #chatLauncher{width:64px!important;height:74px!important}
-}
-@media print{.auri-dock{display:none}}
-`;
 
 // Existing launchers, in order of preference: the redesign landing FAB and the
 // classic assistant/ui.js launcher.
@@ -35,18 +20,27 @@ export function mountAuriDock({
   doc = document, size, launcher, onActivate, observeRequests = true, greetMessage, screen, page,
 } = {}) {
   const win = doc.defaultView;
-  if (!doc.getElementById('auri-dock-styles')) {
-    const style = doc.createElement('style');
-    style.id = 'auri-dock-styles';
-    style.textContent = DOCK_CSS;
-    doc.head.append(style);
-  }
+  let stylesheet = doc.querySelector('link[href*="/media/auri/live/compact.css"]');
+  const styled = stylesheet?.sheet ? Promise.resolve(true) : new Promise(resolve => {
+    const existing = Boolean(stylesheet);
+    if (!stylesheet) {
+      stylesheet = doc.createElement('link');
+      stylesheet.rel = 'stylesheet';
+      stylesheet.href = '/media/auri/live/compact.css?v=compact-v2';
+    }
+    stylesheet.addEventListener('load', () => resolve(true), { once: true });
+    stylesheet.addEventListener('error', () => resolve(false), { once: true });
+    if (!existing) doc.head.append(stylesheet);
+  });
   const compact = win.matchMedia('(max-width: 640px)');
   const dock = doc.createElement('div');
-  dock.className = 'auri-dock';
+  dock.className = 'auri-dock auri-site-dock';
+  dock.hidden = true;
+  if (typeof size === 'number') dock.style.setProperty('--auri-launcher-size', `${size}px`);
   doc.body.append(dock);
   const auri = createAuri(dock, {
-    size: size || (compact.matches ? 64 : 84),
+    size: size ?? (compact.matches ? 44 : 48),
+    externalStill: true,
     interactive: true,
     align: 'end',
     greet: true,
@@ -54,11 +48,19 @@ export function mountAuriDock({
     sleepAfter: 120000,
     label: 'Open the AuraDigital assistant',
   });
-  const resize = () => { if (!size) auri.setSize(compact.matches ? 64 : 84); };
+  const resize = () => { if (size == null) auri.setSize(compact.matches ? 44 : 48); };
   compact.addEventListener?.('change', resize);
 
   const findLauncher = () => launcher || LAUNCHERS.map(sel => doc.querySelector(sel)).find(Boolean);
-  if (findLauncher()) doc.documentElement.classList.add('auri-live-docked');
+  // Keep the identical still interactive until the animated art can paint.
+  Promise.all([auri.ready, styled]).then(([loaded, applied]) => {
+    if (!loaded || !applied || !dock.isConnected) return;
+    const target = findLauncher();
+    const transferFocus = target === doc.activeElement;
+    dock.hidden = false;
+    if (target) doc.documentElement.classList.add('auri-live-docked');
+    if (transferFocus) auri.element.focus({ preventScroll: true });
+  });
   const offActivate = auri.on('activate', () => {
     if (onActivate) return onActivate(auri);
     const target = findLauncher();
