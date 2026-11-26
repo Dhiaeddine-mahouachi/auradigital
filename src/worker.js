@@ -1,4 +1,4 @@
-import { assertMenuTemplate, isStandardDesign, standardIds, standardDesignsEnabled, normalizeItemMetadata, normalizeCategoryMetadata, menuItems, normalizeMenuPresentation, getMenuPresentation, saveMenuPresentation } from "./auramenu-designs.js";
+import { assertMenuTemplate, isCollectionDesign, standardIds, premiumIds, menuDesignAccess, standardDesignsEnabled, normalizeItemMetadata, normalizeCategoryMetadata, menuItems, normalizeMenuPresentation, getMenuPresentation, saveMenuPresentation } from "./auramenu-designs.js";
 import { getHubStats } from "./hub-admin-stats.js";
 import { authenticatedCustomer } from './customer-accounts.ts';
 import { authorize } from './business-hub.js';
@@ -771,8 +771,8 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   const planId = body.planId || 'starter';
   const plan = Object.hasOwn(MENU_PLANS, planId) ? MENU_PLANS[planId] : null;
   if (!plan) return json({ error: 'Choose a valid AuraMenu plan.' }, 400, corsHeaders);
-  assertMenuTemplate(templateId, {enabled:standardDesignsEnabled(env),planId});
-  const presentation = isStandardDesign(templateId) ? normalizeMenuPresentation(body) : null;
+  assertMenuTemplate(templateId, menuDesignAccess(env));
+  const presentation = isCollectionDesign(templateId) ? normalizeMenuPresentation(body) : null;
   await ensureMenuBilling(db);
   const optionSummary = [
     "[AURAMENU OPTIONS]",
@@ -905,7 +905,7 @@ async function getPublishedAuraMenu(request, db, slug, corsHeaders) {
   const row = await db.prepare("SELECT * FROM auramenu_requests WHERE lower(trim(slug)) = lower(?) LIMIT 1").bind(slug).first();
   const published = row && (await menuEntitlement(db, row)).live;
   if (!row || !published) return json({ error: "Menü henüz yayında değil." }, 404, corsHeaders);
-  const presentation = isStandardDesign(row.template_id) ? await getMenuPresentation(db,row.id) : {};
+  const presentation = isCollectionDesign(row.template_id) ? await getMenuPresentation(db,row.id) : {};
   return json({ menu: { ...mapAuraMenuRequest(row, true), ...presentation } }, 200, {
     "Cache-Control": "no-store",
     ...corsHeaders,
@@ -934,9 +934,9 @@ async function handleAuraMenuAdmin(request, db, id, env) {
   if (status === "approved" && payment !== "paid") {
     return json({ error: "Menüyü yayınlamadan önce ödemeyi onaylayın." }, 409);
   }
-  if (status === 'approved' && current.status !== 'approved' && isStandardDesign(current.template_id)) {
+  if (status === 'approved' && current.status !== 'approved' && isCollectionDesign(current.template_id)) {
     const billing = await menuBilling(db,id);
-    assertMenuTemplate(current.template_id, {enabled:standardDesignsEnabled(env),planId:billing?.planId});
+    assertMenuTemplate(current.template_id, menuDesignAccess(env,{id,billing,pending:current.status === 'pending',paid:current.payment_status === 'paid'}));
   }
   if (status === 'approved' || (payment === 'paid' && current.payment_status !== 'paid')) await activateMenuBilling(db,id);
   const ownerNote = body.ownerNote === undefined ? current.owner_note : qsClean(body.ownerNote, 500);
@@ -1066,7 +1066,7 @@ export default {
         if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 
         if (url.pathname === "/api/auramenu/designs" && request.method === "GET") {
-          return json({ standard: standardDesignsEnabled(env) ? standardIds : [] }, 200, {
+          return json({ standard: standardDesignsEnabled(env) ? standardIds : [], premium: premiumIds }, 200, {
             ...corsHeaders, "Cache-Control": "no-store",
           });
         }

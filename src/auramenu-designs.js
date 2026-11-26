@@ -2,28 +2,35 @@ import { ApiError } from './http.js';
 
 const legacy = ['modern','orbit','maison','taste3d'];
 export const standardIds = Object.freeze(Array.from({length:15},(_,index) => 'std-' + String(index+1).padStart(2,'0')));
-const tiers = new Map(standardIds.map(id => [id,'standard']));
-const plans = new Map([['starter','standard'],['pro','standard'],['onetime','standard']]);
-const available = new Map([['standard',['standard']],['premium',['standard','premium']]]);
+export const premiumIds = Object.freeze(Array.from({length:15},(_,index) => 'pre-' + (index+16)));
+const standardSet = new Set(standardIds);
+const premiumSet = new Set(premiumIds);
 const languages = ['en','tr','ar'];
 const fonts = ['sans','serif','mono','editorial','condensed'];
 const colors = ['primary','secondary','background','text','accent'];
-const toggles = ['images','prices','information','socials','play'];
+const toggles = ['images','prices','information','socials','play','motion','ornaments'];
 const linkNames = ['directions','instagram','facebook','tiktok','whatsapp','website','review'];
 const isObject = value => value && typeof value === 'object' && !Array.isArray(value);
 const clean = (value,max) => typeof value === 'string' ? value.trim().slice(0,max) : '';
 
-export const isStandardDesign = id => tiers.has(id);
+export const isCollectionDesign = id => standardSet.has(id) || premiumSet.has(id);
 export const standardDesignsEnabled = env => env.AURAMENU_STANDARD_ENABLED === 'true';
-export function assertMenuTemplate(id, {enabled,planId,currentId} = {}) {
+
+export function menuDesignAccess(env,{id,billing,pending = false,paid = false} = {}) {
+  const standard = standardDesignsEnabled(env);
+  const eligiblePeriod = pending || (paid && billing?.active);
+  const grants = typeof env.AURAMENU_PREMIUM_MENU_IDS === 'string' ? env.AURAMENU_PREMIUM_MENU_IDS : '';
+  const premium = env.AURAMENU_PREMIUM_ENABLED === 'true' && Boolean(
+    id && billing && eligiblePeriod && grants.split(',').some(grant => grant.trim() === id)
+  );
+  return {standard:standard || premium,premium};
+}
+
+export function assertMenuTemplate(id,{standard = false,premium = false,currentId} = {}) {
   if (legacy.includes(id)) return id;
-  const tier = tiers.get(id);
-  if (!tier) throw new ApiError(400,'Choose a valid AuraMenu template.');
-  if (id === currentId) return id;
-  if (!enabled || !available.get(plans.get(planId ?? 'starter'))?.includes(tier)) {
-    throw new ApiError(403,'This template is unavailable for your menu plan.');
-  }
-  return id;
+  if (!isCollectionDesign(id)) throw new ApiError(400,'Choose a valid AuraMenu template.');
+  if (id === currentId || (premiumSet.has(id) ? premium : standard)) return id;
+  throw new ApiError(403,'This template is unavailable for your menu plan.');
 }
 function safeUrl(value,{strict = false} = {}) {
   const input = clean(value,2048);
@@ -72,6 +79,7 @@ export function normalizeItemMetadata(item) {
 }
 export function normalizeCategoryMetadata(category, normalizeSections, depth) {
   const result = translate(category.translations);
+  if (category.visible === false) result.visible = false;
   const description = localText(category.description,300);
   const imageUrl = safeUrl(category.imageUrl);
   if (description) result.description = description;

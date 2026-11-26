@@ -1,4 +1,4 @@
-import { assertMenuTemplate, isStandardDesign, standardDesignsEnabled, normalizeItemMetadata, normalizeCategoryMetadata, menuItems, normalizeMenuPresentation, getMenuPresentation, saveMenuPresentation } from "./auramenu-designs.js";
+import { assertMenuTemplate, isCollectionDesign, premiumIds, menuDesignAccess, standardDesignsEnabled, normalizeItemMetadata, normalizeCategoryMetadata, menuItems, normalizeMenuPresentation, getMenuPresentation, saveMenuPresentation } from "./auramenu-designs.js";
 import { menuBilling } from './menu-billing.js';
 import { ApiError, json, readJson } from './http.js';
 import { getAuthenticatedAdmin, sameOrigin } from './security.js';
@@ -206,7 +206,15 @@ export async function handleAuraMenuDashboard(request, env) {
   await ensure(env.DB);
 
   const headers = cors(request);
-  const presentationFor = row => isStandardDesign(row.template_id) || standardDesignsEnabled(env) ? getMenuPresentation(env.DB,row.id) : {};
+  const presentationFor = row => isCollectionDesign(row.template_id) || standardDesignsEnabled(env) ? getMenuPresentation(env.DB,row.id) : {};
+  const designsFor = (row,billing) => menuDesignAccess(env,{
+    id:row.id,billing,pending:row.status === 'pending' && !billing?.paidUntil,paid:row.payment_status === 'paid',
+  });
+  const dashboardMenu = async (row,access,billing) => {
+    const designAccess = designsFor(row,billing);
+    return {...publicMenu(row,access,billing),...await presentationFor(row),
+      designAccess:{standard:designAccess.standard,premium:designAccess.premium ? premiumIds : []}};
+  };
   if (u.pathname.startsWith('/api/auramenu/dashboard')) {
     if (headers === null) return json({ error: 'Bu kaynaktan talep kabul edilmiyor.' }, 403);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers });
@@ -220,7 +228,7 @@ export async function handleAuraMenuDashboard(request, env) {
       if (!access) return json({ error: 'Dashboard access denied.' }, 401, headers);
       const row = await rowFor(env.DB, claim[1]);
       if (!row) return json({ error: 'Dashboard access denied.' }, 401, headers);
-      return json({ token, menu: { ...publicMenu(row, access, await menuBilling(env.DB, row.id)), ...await presentationFor(row) } }, 200, headers);
+      return json({ token, menu: await dashboardMenu(row,access,await menuBilling(env.DB,row.id)) }, 200, headers);
     }
 
     const match = u.pathname.match(/^\/api\/auramenu\/dashboard\/([a-f0-9-]+)(?:\/(access-request))?$/i);
@@ -265,7 +273,7 @@ export async function handleAuraMenuDashboard(request, env) {
     }
 
     if (!action && request.method === 'GET') {
-      return json({ menu: { ...publicMenu(row, tokenAccess, billing), ...await presentationFor(row) } }, 200, { 'Cache-Control': 'no-store', ...headers });
+      return json({ menu: await dashboardMenu(row,tokenAccess,billing) }, 200, { 'Cache-Control': 'no-store', ...headers });
     }
 
     if (!action && request.method === 'PATCH') {
@@ -278,11 +286,11 @@ export async function handleAuraMenuDashboard(request, env) {
       }
       const body = await readJson(request, BODY_BYTES);
       const template = assertMenuTemplate(body.templateId ?? row.template_id,{
-        enabled:standardDesignsEnabled(env),planId:billing?.planId,currentId:row.template_id,
+        ...designsFor(row,billing),currentId:row.template_id,
       });
       const categories = normalizeCategories(body.categories);
       const imageInserts = await replaceImages(env.DB, id, categories, new URL(request.url).origin);
-      const presentation = isStandardDesign(template) ? normalizeMenuPresentation(body) : null;
+      const presentation = isCollectionDesign(template) ? normalizeMenuPresentation(body) : null;
       const lang = ['tr', 'en', 'ar'].includes(String(body.menuLanguage))
         ? String(body.menuLanguage)
         : row.menu_language;
@@ -319,7 +327,7 @@ export async function handleAuraMenuDashboard(request, env) {
       const updated = await rowFor(env.DB,id);
 
       return json(
-        { menu: { ...publicMenu(updated, await accessFor(env.DB, id), billing), ...await presentationFor(updated) } },
+        { menu: await dashboardMenu(updated,await accessFor(env.DB,id),billing) },
         200,
         { 'Cache-Control': 'no-store', ...headers }
       );
