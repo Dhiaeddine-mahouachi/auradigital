@@ -49,7 +49,10 @@ test('discontinued social media retainers are not offered', () => {
 test('navigation reaches the real AuraHub and every new route', () => {
   const home = read('index.html');
   for (const href of ['/hub/signup', '/hub', '/solutions', '/service-shop', '/packages', '/portfolio', '/help', '/about', '/contact', '/aura-menu']) assert.ok(home.includes('href="' + href + '"'), 'home links ' + href);
-  for (const site of ['https://auramenu.space', 'https://aurapops.online', 'https://bentwalad.online', 'https://decorationgateaux.shop', 'https://mutlunakliyat.site']) assert.ok(home.includes(site), 'home links ' + site);
+  // The simplified homepage keeps product sites in the footer; client sites live on Our Work.
+  for (const site of ['https://auramenu.space', 'https://aurapops.online', 'https://bentwalad.online']) assert.ok(home.includes(site), 'home links ' + site);
+  const work = read('portfolio.html');
+  for (const site of ['https://decorationgateaux.shop']) assert.ok(work.includes(site), 'work links ' + site);
 });
 
 test('contact form posts to the CRM endpoint with an idempotency key and honeypot', () => {
@@ -83,10 +86,9 @@ test('shop page lists every NFC card design and links to the account-linked shop
   }
   assert.ok(bundle.includes('/shop/cards/'));
   assert.ok(read('service-shop.html').includes('href="/account"') || bundle.includes('"/account"'));
-  // The homepage only links cards that the public shop lists (horizontal designs).
+  // The homepage no longer shows a card carousel; any card it does link must be publicly listed.
   const listed = seed.filter((c) => c.orientation === "Horizontal").map((c) => c.slug);
   const linked = [...read("index.html").matchAll(/href="\/shop\/cards\/([a-z0-9-]+)"/g)].map((m) => m[1]);
-  assert.ok(linked.length >= 4);
   for (const slug of linked) assert.ok(listed.includes(slug), "homepage links unlisted card " + slug);
 });
 

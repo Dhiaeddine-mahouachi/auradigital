@@ -363,3 +363,11 @@ Request Mon 23, 12:00 → ||| Pzt 23, 12:00 için talep et → ||| اطلب ال
 Booking module ||| Randevu modülü ||| وحدة الحجز
 Tell us about your business ||| Bize işletmenizden bahsedin ||| أخبرنا عن نشاطك التجاري
 A few sentences are enough. Auri will use them to personalize your roadmap. ||| Birkaç cümle yeterli. Auri bunları büyüme planınızı kişiselleştirmek için kullanacak. ||| بضع جمل تكفي. سيستخدمها أوري لتخصيص خطة نمو نشاطك.
+# 2026-11-26 simplified homepage
+Trusted by local businesses in Istanbul ||| İstanbul'daki yerel işletmelerin tercihi ||| موثوق من الشركات المحلية في إسطنبول
+Start with ||| Şununla başlayın ||| ابدأ بـ
+Website packages ||| Web sitesi paketleri ||| باقات المواقع
+Requests & billing ||| Talepler ve faturalar ||| الطلبات والفواتير
+approve designs, follow status, pay invoices ||| tasarımları onaylayın, durumu takip edin, faturaları ödeyin ||| وافق على التصاميم، تابع الحالة، وادفع الفواتير
+Questions? Visit the Help Center → ||| Sorularınız mı var? Yardım Merkezi'ni ziyaret edin → ||| لديك أسئلة؟ زر مركز المساعدة ←
+Do it yourself with Auri, or let our Istanbul team build it for you. Start free. ||| Auri ile kendiniz yapın ya da İstanbul ekibimiz sizin için kursun. Ücretsiz başlayın. ||| نفّذها بنفسك مع Auri، أو دع فريقنا في إسطنبول يبنيها لك. ابدأ مجانًا.

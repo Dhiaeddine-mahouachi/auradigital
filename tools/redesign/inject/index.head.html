@@ -19,6 +19,17 @@
 #aura-sale-bar .aura-sale-timer time{min-width:116px;font-size:11px;padding:4px 8px;margin-left:3px}
 #aura-sale-bar .aura-sale-cta{font-size:12px}
 }
+
+/* One rotating bar on the homepage: offer <-> Auri roadmap. Hides the header's top strip while the offer runs. */
+#aura-sale-bar{display:grid;overflow:hidden}
+#aura-sale-bar>.aura-sale-inner{grid-area:1/1;width:100%;animation:auraBarA 12s infinite}
+#aura-sale-bar>.aura-sale-alt{animation-name:auraBarB;pointer-events:none}
+#aura-sale-bar:hover>.aura-sale-inner{animation-play-state:paused}
+@keyframes auraBarA{0%,44%{opacity:1;transform:none;visibility:visible}50%,94%{opacity:0;transform:translateY(-8px);visibility:hidden}100%{opacity:1;transform:none;visibility:visible}}
+@keyframes auraBarB{0%,44%{opacity:0;transform:translateY(8px);visibility:hidden;pointer-events:none}50%,94%{opacity:1;transform:none;visibility:visible;pointer-events:auto}100%{opacity:0;visibility:hidden}}
+.business-hero-categories{margin-bottom:20px}
+body:has(#aura-sale-bar) #app[data-page="Main"]>div>div:first-child>div:first-child{display:none}
+@media(prefers-reduced-motion:reduce){#aura-sale-bar>.aura-sale-inner{animation:none}#aura-sale-bar>.aura-sale-alt{display:none}}
 </style>
 
 <style>
