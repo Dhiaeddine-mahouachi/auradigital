@@ -22,21 +22,21 @@ import {
 } from './auri-state.js';
 
 import { AURI_LAYERS } from '../studio-v1/layers.js';
+import { AURI_ART, auriViewBox, updateAuriStill } from './auri-still.js?v=compact-v2';
 
 export { STATES, EXPRESSIONS, SCREEN_MODES };
 
-const ARTWORK = '/media/auri/studio-v1/';
 const loadedArtwork = new WeakMap();
 
 function loadArtwork(doc) {
   if (!loadedArtwork.has(doc)) {
     const loads = Object.keys(AURI_LAYERS).map(name => new Promise((resolve, reject) => {
       const img = doc.createElement('img');
-      img.onload = resolve;
+      img.onload = () => img.decode ? img.decode().then(resolve, reject) : resolve();
       img.onerror = reject;
-      img.src = ARTWORK + name + '.webp';
+      img.src = AURI_ART + name + '.webp';
     }));
-    loadedArtwork.set(doc, Promise.all(loads).catch(() => null));
+    loadedArtwork.set(doc, Promise.all(loads).then(() => true, () => false));
   }
   return loadedArtwork.get(doc);
 }
@@ -52,10 +52,11 @@ let uid = 0;
 const CSS = `
 .auri-live{position:relative;display:inline-block;width:var(--auri-size,220px);aspect-ratio:400/460;
  -webkit-tap-highlight-color:transparent;user-select:none;vertical-align:bottom;contain:layout style}
-.auri-live>svg{display:block;width:100%;height:100%;overflow:visible;visibility:hidden}
-.auri-live[data-art-ready]>svg{visibility:visible}
-.auri-live>.auri-art-fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
-.auri-live[data-art-ready]>.auri-art-fallback{display:none}
+.auri-live>svg{display:block;width:100%;height:100%;overflow:visible}
+.auri-live>.auri-rig{visibility:hidden}
+.auri-live[data-art-ready]>.auri-rig{visibility:visible}
+.auri-live>.auri-still{position:absolute;inset:0;pointer-events:none}
+.auri-live[data-art-ready]>.auri-still{display:none}
 .auri-live[data-fill]{position:absolute;inset:0;width:auto;height:auto;aspect-ratio:auto}
 .auri-live[data-interactive]{cursor:pointer}
 .auri-live:focus{outline:none}
@@ -91,7 +92,7 @@ function rigMarkup(id) {
   const belly = `auri-belly-${id}`;
   const image = name => {
     const [x, y, width, height] = AURI_LAYERS[name];
-    return `<image href="${ARTWORK}${name}.webp" x="${x}" y="${y}" width="${width}" height="${height}" preserveAspectRatio="none"/>`;
+    return `<image href="${AURI_ART}${name}.webp" x="${x}" y="${y}" width="${width}" height="${height}" preserveAspectRatio="none"/>`;
   };
   const eye = side => `<g data-p="eye${side}">
     <ellipse data-p="glow${side}" rx="24" ry="25" fill="url(#${glow})"/>
@@ -366,14 +367,15 @@ export function createAuri(host, options = {}) {
   const opts = {
     size: 220, follow: true, followRadius: 520, interactive: false, label: 'Auri, your AuraDigital assistant',
     sleepAfter: 90000, greet: false, greetKey: 'auri-greeted', align: 'center', reducedMotion: 'auto',
-    screen: 'logo', level: null, still: false, ...options,
+    screen: 'logo', level: null, still: false, externalStill: false, ...options,
   };
 
   const root = doc.createElement('div');
   root.className = 'auri-live';
   root.dataset.align = opts.align;
   const svg = doc.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 400 460');
+  svg.setAttribute('class', 'auri-rig');
+  svg.setAttribute('viewBox', auriViewBox(6));
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('focusable', 'false');
   svg.innerHTML = rigMarkup(id);
@@ -381,13 +383,19 @@ export function createAuri(host, options = {}) {
   bubble.className = 'auri-bubble';
   bubble.setAttribute('role', 'status');
   bubble.setAttribute('aria-live', 'polite');
-  const fallback = doc.createElement('img');
-  fallback.className = 'auri-art-fallback';
-  fallback.alt = '';
-  fallback.setAttribute('aria-hidden', 'true');
-  root.append(fallback, svg, bubble);
-  loadArtwork(doc).then(result => { if (result) root.dataset.artReady = ''; });
+  const fallback = opts.externalStill ? null : doc.createElementNS(NS, 'svg');
+  if (fallback) {
+    fallback.setAttribute('class', 'auri-still');
+    fallback.setAttribute('aria-hidden', 'true');
+    fallback.setAttribute('focusable', 'false');
+    root.append(fallback);
+  }
+  root.append(svg, bubble);
   host.append(root);
+  const ready = loadArtwork(doc).then(loaded => {
+    if (loaded) root.dataset.artReady = '';
+    return loaded;
+  });
 
   const part = {};
   svg.querySelectorAll('[data-p]').forEach(el => { part[el.dataset.p] = el; });
@@ -555,9 +563,9 @@ export function createAuri(host, options = {}) {
     show(part.body, lv >= 2);
     [part.armL, part.armR, part.legL, part.legR].forEach(el => show(el, lv >= 3));
     show(part.shadow, lv >= 2);
-    svg.setAttribute('viewBox', lv === 1 ? '55 15 290 186' : '0 0 400 460');
+    svg.setAttribute('viewBox', auriViewBox(lv));
     root.style.aspectRatio = lv === 1 ? '290 / 186' : '';
-    fallback.src = ARTWORK + (lv === 1 ? 'avatar.webp' : 'full.webp');
+    updateAuriStill(fallback, lv);
     s.glowBoost = lv >= 5 ? (lv >= 6 ? .1 : .05) : -.08;
     op(part.back, lv >= 6 ? 1 : .55);
     kick();
@@ -1025,13 +1033,15 @@ export function createAuri(host, options = {}) {
   applyInteractive();
   if (!opts.still) scheduleSleep();
   // Greet once per session, and only from a character the visitor can see.
-  if (opts.greet) win.setTimeout(() => {
-    if (!s.destroyed && root.getClientRects().length && shouldGreet(win.sessionStorage, opts.greetKey)) autoState('welcome');
-  }, 450);
+  if (opts.greet) ready.then(loaded => {
+    if (loaded && !s.destroyed) win.setTimeout(() => {
+      if (!s.destroyed && root.getClientRects().length && shouldGreet(win.sessionStorage, opts.greetKey)) autoState('welcome');
+    }, 450);
+  });
   kick();
 
   return {
-    element: root,
+    element: root, ready,
     setState, setScreen, setExpression, setSize, setOptions, setVoiceLevel, speak, stopVoice, run, destroy,
     say: (text, o) => showBubble(text, o), hush: hideBubble,
     lookAt(x, y) { if (x == null) resetGaze(); else { setGazeFromPointer(x, y); kick(); } },

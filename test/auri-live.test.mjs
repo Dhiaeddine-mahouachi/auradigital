@@ -94,6 +94,9 @@ test('live Auri is on the public pages, and only there', async () => {
     const tags = html.match(/<script type="module" src="\/media\/auri\/live\/auri-site\.js[^"]*"[^>]*>/g) || [];
     assert.equal(tags.length, 1, file);
     assert.match(tags[0], /data-auto/, file);
+    assert.match(html, /compact\.css\?v=compact-v2/, file);
+    assert.match(html, /class="auri-launcher-portrait" src="\/media\/auri\/studio-v1\/full\.webp"/, file);
+    assert.doesNotMatch(html, /class="auri-eye"/, file);
     if (screen) assert.match(tags[0], new RegExp(`data-screen="${screen}"`), file);
   }
   // Guests' wedding invitations, order flows and staff tools stay without the dock.
@@ -119,7 +122,7 @@ test('the Hub loads the live character and maps pages to belly screens', async (
   const hub = await readFile(new URL('../hub/index.html', import.meta.url), 'utf8');
   assert.match(hub, /\/media\/auri\/character\.js\?v=live-/);
   const source = await readFile(new URL('../media/auri/character.js', import.meta.url), 'utf8');
-  assert.match(source, /from '\.\/live\/auri-live\.js\?v=studio-v1'/);
+  assert.match(source, /from '\.\/live\/auri-live\.js\?v=compact-v2'/);
   assert.match(source, /phaseToState/);
 });
 
@@ -127,4 +130,14 @@ test('live Auri files are not held in the 7-day media cache', async () => {
   const { readFile } = await import('node:fs/promises');
   const headers = await readFile(new URL('../_headers', import.meta.url), 'utf8');
   assert.match(headers, /\/media\/auri\/live\/\*\n\s+! Cache-Control/);
+});
+
+test('AuraHub first paint uses the same Studio forms as the live rig', async () => {
+  const { auriCharacter } = await import('../src/hub/auri-companion.js');
+  assert.match(auriCharacter(1), /class="auri-still"[^>]*>[\s\S]*avatar\.webp/);
+  const levelTwo = auriCharacter(2);
+  assert.match(levelTwo, /body\.webp[\s\S]*avatar\.webp/);
+  assert.doesNotMatch(levelTwo, /full\.webp/);
+  assert.match(auriCharacter(1, { variant: 'login' }), /full\.webp/);
+  assert.match(auriCharacter(7, { variant: 'avatar' }), /avatar\.webp/);
 });

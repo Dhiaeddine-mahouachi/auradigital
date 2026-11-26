@@ -116,7 +116,8 @@ const AURI_DOCK = { Main: 'data-screen="logo"', About: 'data-screen="logo"', Sol
   Packages: 'data-screen="roadmap" data-page="packages"', Shop: 'data-screen="marketing"', AuraMenu: 'data-screen="website"',
   Weddings: 'data-screen="website"', Work: 'data-screen="website"', Help: 'data-screen="support"', Contact: 'data-screen="support"',
   NotFound: 'data-page="404"' };
-const auriDock = (attrs) => `<script type="module" src="/media/auri/live/auri-site.js?v=studio-v1" data-auto ${attrs}></script>`;
+const auriStylesheet = '<link rel="stylesheet" href="/media/auri/live/compact.css?v=compact-v2">';
+const auriDock = (attrs) => `<script type="module" src="/media/auri/live/auri-site.js?v=compact-v2" data-auto ${attrs}></script>`;
 for (const [name, file, title, description] of PAGES) {
   const d = designs.find((x) => x.name === name);
   const html = renderToString(h(runtime.registry[name], {}));
@@ -140,6 +141,7 @@ for (const [name, file, title, description] of PAGES) {
 <link rel="stylesheet" href="/redesign/fonts.css?v=${VERSION}">
 ${stripFonts(css).trim()}
 ${stripFonts(extraCss).trim()}
+${AURI_DOCK[name] ? auriStylesheet : ''}
 </head>
 <body>
 <div id="app" data-page="${name}">${html}</div>
