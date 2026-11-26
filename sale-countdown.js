@@ -13,6 +13,7 @@
       banner.remove();
       return false;
     }
+    if (clock.hasAttribute("data-static")) return true;
     const days = Math.floor(remaining / 86400000);
     const hours = Math.floor(remaining / 3600000) % 24;
     const minutes = Math.floor(remaining / 60000) % 60;

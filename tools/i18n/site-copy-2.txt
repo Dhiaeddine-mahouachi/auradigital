@@ -371,3 +371,16 @@ Requests & billing ||| Talepler ve faturalar ||| الطلبات والفواتي
 approve designs, follow status, pay invoices ||| tasarımları onaylayın, durumu takip edin, faturaları ödeyin ||| وافق على التصاميم، تابع الحالة، وادفع الفواتير
 Questions? Visit the Help Center → ||| Sorularınız mı var? Yardım Merkezi'ni ziyaret edin → ||| لديك أسئلة؟ زر مركز المساعدة ←
 Do it yourself with Auri, or let our Istanbul team build it for you. Start free. ||| Auri ile kendiniz yapın ya da İstanbul ekibimiz sizin için kursun. Ücretsiz başlayın. ||| نفّذها بنفسك مع Auri، أو دع فريقنا في إسطنبول يبنيها لك. ابدأ مجانًا.
+# 2026-11-26 homepage v2
+Website approved ||| Web sitesi onaylandı ||| تمت الموافقة على الموقع
+Launching this week ||| Bu hafta yayında ||| الإطلاق هذا الأسبوع
+View project → ||| Projeyi görüntüle → ||| عرض المشروع ←
+Written proposal before any work ||| Her işten önce yazılı teklif ||| عرض مكتوب قبل أي عمل
+Turkish, English & Arabic ||| Türkçe, İngilizce ve Arapça ||| التركية والإنجليزية والعربية
+Real team in Istanbul ||| İstanbul'da gerçek bir ekip ||| فريق حقيقي في إسطنبول
+Websites delivered from 5 days ||| 5 günden başlayan teslimat ||| تسليم المواقع ابتداءً من 5 أيام
+From idea to launch in 4 steps. ||| 4 adımda fikirden lansmana. ||| من الفكرة إلى الإطلاق في 4 خطوات.
+What do you want to do today? ||| Bugün ne yapmak istiyorsunuz? ||| ماذا تريد أن تفعل اليوم؟
+Real businesses. Real launches. ||| Gerçek işletmeler. Gerçek lansmanlar. ||| أعمال حقيقية. إطلاقات حقيقية.
+Your whole business, one dashboard. ||| Tüm işiniz, tek panelde. ||| عملك كله في لوحة واحدة.
+Make your next move count. ||| Bir sonraki adımınız fark yaratsın. ||| اجعل خطوتك القادمة مؤثرة.
