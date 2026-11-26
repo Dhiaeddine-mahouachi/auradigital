@@ -10,99 +10,120 @@
 <helmet>
 <!--FONTS-->
 <!--CSS-->
+<style>
+.wk-filters{display:inline-flex;gap:2px;padding:4px;border-radius:999px;background:rgba(16,20,15,.06);margin-top:30px;flex-wrap:wrap}
+.wk-filters button{border:0;background:transparent;height:42px;padding:0 18px;border-radius:999px;cursor:pointer;font-size:14px;font-weight:500;color:var(--ink-2)}
+.wk-filters button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.wk{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:12px;border-radius:20px;padding:10px;border:1.5px solid transparent;transition:border-color .2s,background .2s}
+.wk:hover{background:var(--white)}
+.wk.on{border-color:var(--ink);background:var(--white)}
+.wk:focus-visible{outline:2px solid var(--forest);outline-offset:3px}
+.wk .browser{display:block}
+.wk img,.wk .bw{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top}
+.wk-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0 4px}
+.wk-meta b{font-size:18px;font-weight:600;letter-spacing:-.02em}
+.wk-what{font-size:14px;color:var(--ink-3);padding:0 4px 4px}
+.wk-case{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:56px;align-items:center}
+.wk-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.wk-facts div{border:1px solid rgba(238,241,228,.16);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.wk-facts small{color:var(--on-forest-2);font-size:12px}
+.wk-facts b{font-size:14px;font-weight:500}
+.wk-big{border-color:rgba(238,241,228,.15);box-shadow:0 50px 100px -40px rgba(0,0,0,.6)}
+.wk-big img,.wk-big .bw{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top}
+.bw{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(80% 90% at 30% 20%,#FFD84D,#FF8A3D 55%,#E2483B);font-family:var(--f-ar);color:#1B0F0A;overflow:hidden}
+.bw::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(27,15,10,.18) 1.2px,transparent 1.4px);background-size:14px 14px}
+.bw>*{position:relative}
+.bw-title{font-size:clamp(30px,4vw,56px);font-weight:600;line-height:1;background:#fff;padding:6px 22px 12px;border-radius:18px;border:3px solid #1B0F0A;box-shadow:6px 6px 0 #1B0F0A;transform:rotate(-2deg)}
+.bw-letter{position:absolute;top:14px;left:16px;width:48px;height:48px;border-radius:14px;background:#1B0F0A;color:#FFD84D;display:grid;place-items:center;font-size:26px;font-weight:600;transform:rotate(-6deg)}
+.bw-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:80%}
+.bw-chips i{font-style:normal;font-size:13px;font-weight:600;background:rgba(255,255,255,.9);border:2px solid #1B0F0A;border-radius:999px;padding:2px 11px}
+@media(max-width:900px){.wk-case{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:620px){.wk-facts{grid-template-columns:minmax(0,1fr)}}
+</style>
 </helmet>
-<div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.55; overflow-x: clip">
-  <dc-import name="Header" active="work" hint-size="100%,124px"></dc-import>
-
-  <section style="padding: 80px 28px 0; background: linear-gradient(180deg, #F7F6F0, #FFFFFF)">
-    <div style="max-width: 1264px; margin: 0 auto">
-      <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #4B5650">Our Work</span>
-      <h1 class="disp" style="font-size: clamp(52px, 7vw, 100px); line-height: .94; font-weight: 800; margin: 14px 0 0; max-width: 1000px">Work that makes businesses <span class="serif">look serious.</span></h1>
-      <div style="margin-top: 32px; display: flex; gap: 16px; align-items: stretch; flex-wrap: wrap">
-        <div style="flex: 0 0 auto; width: 236px; max-width: 100%; aspect-ratio: 9 / 16; border-radius: 26px; overflow: hidden; background: #0E2B1E"><video src="/_blob/233759ed42982a0d8433c928be70677d" autoplay="" muted="" loop="" playsinline="" aria-label="AuraDigital portfolio showreel" style="width: 100%; height: 100%; object-fit: cover; display: block"></video></div>
-        <img class="hide-sm" src="/_blob/fa3669d6d8c834adc34efe0134c2a8e4" alt="Mutlu Nakliyat website" style="flex: 1 1 300px; min-width: 0; height: 420px; object-fit: cover; object-position: top; border-radius: 26px">
-        <img class="hide-sm" src="/_blob/18b435ab4d0c6ef6d3d0aea85fc0f2fe" alt="Décoration Gâteaux website" style="flex: 1 1 300px; min-width: 0; height: 420px; object-fit: cover; object-position: top; border-radius: 26px">
+<div>
+  <dc-import name="Header" active="work" hint-size="100%,68px"></dc-import>
+  <section class="phero">
+    <div class="aura" aria-hidden="true"></div>
+    <div class="wrap">
+      <span class="pill rv"><b>Our work</b>Client projects and our own products</span>
+      <h1 class="split" style="margin-top: 24px">Work that makes businesses <span class="hl">look serious.</span></h1>
+      <div class="wk-filters rv" role="group" aria-label="Filter work">
+        <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4"><button type="button" onClick="{{ f.pick }}" aria-pressed="{{ f.on }}">{{ f.label }}</button></sc-for>
       </div>
-      <div role="group" aria-label="Filter work" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 36px">
-        <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
-          <button onClick="{{ f.pick }}" aria-pressed="{{ f.on }}" style="{{ f.style }}">{{ f.label }}</button>
+    </div>
+  </section>
+
+  <section class="sec-sm" style="padding-top: 0">
+    <div class="wrap">
+      <div class="grid" style="--cols: 3">
+        <sc-for list="{{ items }}" as="w" hint-placeholder-count="5">
+          <button type="button" class="{{ w.cls }}" onClick="{{ w.open }}" aria-pressed="{{ w.on }}">
+            <span class="browser"><span class="browser-bar"><i></i><i></i><i></i><span>{{ w.domain }}</span></span>
+              <sc-if value="{{ w.isBw }}" hint-placeholder-val="{{ false }}"><div class="bw" lang="ar" dir="rtl"><span class="bw-letter">م</span><b class="bw-title">بنت ولد</b><span class="bw-chips"><i>بنت</i><i>ولد</i><i>حيوان</i><i>نبات</i><i>جماد</i><i>بلاد</i></span></div></sc-if>
+              <sc-if value="{{ w.hasImg }}" hint-placeholder-val="{{ true }}"><img src="{{ w.img }}" alt="{{ w.alt }}" loading="lazy"></sc-if>
+            </span>
+            <span class="wk-meta"><b>{{ w.name }}</b><span class="tag">{{ w.kind }}</span></span>
+            <span class="wk-what">{{ w.what }}</span>
+          </button>
         </sc-for>
       </div>
     </div>
   </section>
 
-  <section style="padding: 36px 28px 0">
-    <div style="max-width: 1264px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 20px">
-      <sc-for list="{{ items }}" as="w" hint-placeholder-count="6">
-        <button class="lift" onClick="{{ w.open }}" aria-pressed="{{ w.on }}" style="{{ w.card }}">
-          <img src="{{ w.img }}" alt="{{ w.alt }}" style="width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block">
-          <span style="padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; text-align: left">
-            <span style="display: flex; justify-content: space-between; gap: 10px; align-items: center"><span class="disp" style="font-size: 24px; font-weight: 700">{{ w.name }}</span><span style="font-size: 12px; font-weight: 700; background: {{ w.badgeBg }}; padding: 4px 10px; border-radius: 999px">{{ w.kind }}</span></span>
-            <span style="font-size: 15px; color: #4B5650">{{ w.what }}</span>
-            <span style="display: flex; gap: 6px; flex-wrap: wrap">
-              <sc-for list="{{ w.tags }}" as="t" hint-placeholder-count="2"><span style="font-size: 12px; font-weight: 600; border: 1px solid #DAD7CB; border-radius: 999px; padding: 3px 10px">{{ t }}</span></sc-for>
-            </span>
-          </span>
-        </button>
-      </sc-for>
-    </div>
-  </section>
-
-  <section style="padding: 48px 28px 0">
-    <div class="pop" style="max-width: 1264px; margin: 0 auto; background: #0E2B1E; color: #F3EEDC; border-radius: 36px; padding: 48px; display: flex; gap: 40px; flex-wrap: wrap; align-items: center">
-      <div style="flex: 1 1 380px">
-        <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #E1E100">Case study</span>
-        <h2 class="disp" style="font-size: 52px; line-height: 1; font-weight: 800; margin: 12px 0 0">{{ sel.name }}</h2>
-        <p style="font-size: 17px; color: #B9C7BC; margin: 14px 0 0">{{ sel.story }}</p>
-        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 26px">
-          <div style="background: rgba(243,238,220,.07); border-radius: 16px; padding: 14px"><div style="font-size: 12px; color: #A9B8AE">Challenge</div><div style="font-weight: 600; margin-top: 4px; font-size: 14px">{{ sel.c }}</div></div>
-          <div style="background: rgba(243,238,220,.07); border-radius: 16px; padding: 14px"><div style="font-size: 12px; color: #A9B8AE">What we built</div><div style="font-weight: 600; margin-top: 4px; font-size: 14px">{{ sel.b }}</div></div>
-          <div style="background: rgba(243,238,220,.07); border-radius: 16px; padding: 14px"><div style="font-size: 12px; color: #A9B8AE">Status</div><div style="font-weight: 600; margin-top: 4px; font-size: 14px">{{ sel.status }}</div></div>
+  <section class="sec green" id="case">
+    <div class="wrap wk-case pop">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <span class="tag acid" style="align-self: flex-start">Case study</span>
+        <h2 style="font-size: clamp(34px, 4.4vw, 60px); line-height: 1.02; letter-spacing: -.045em">{{ sel.name }}</h2>
+        <p style="font-size: 17px; color: #A9BAAE; max-width: 520px">{{ sel.story }}</p>
+        <div class="wk-facts">
+          <div><small>Challenge</small><b>{{ sel.c }}</b></div>
+          <div><small>What we built</small><b>{{ sel.b }}</b></div>
+          <div><small>Status</small><b>{{ sel.status }}</b></div>
         </div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px"><a class="btn" href="Contact.dc.html" style="background: #E1E100; color: #0B0F0C; font-weight: 700; padding: 14px 22px; border-radius: 999px; display: inline-flex; align-items: center; min-height: 50px; box-sizing: border-box">Get something like this →</a><sc-if value="{{ sel.hasUrl }}" hint-placeholder-val="{{ true }}"><a class="btn" href="{{ sel.url }}" style="border: 1px solid rgba(243,238,220,.4); color: #F3EEDC; font-weight: 600; padding: 14px 22px; border-radius: 999px; display: inline-flex; align-items: center; min-height: 50px; box-sizing: border-box">Visit live site ↗</a></sc-if></div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px"><a class="btn btn-acid" href="Contact.dc.html">Get something like this</a><sc-if value="{{ sel.hasUrl }}" hint-placeholder-val="{{ true }}"><a class="btn btn-line" href="{{ sel.url }}">Visit live site</a></sc-if></div>
       </div>
-      <img src="{{ sel.img }}" alt="{{ sel.alt }}" style="flex: 999 1 480px; min-width: 0; width: 100%; border-radius: 22px; aspect-ratio: 16 / 10; object-fit: cover">
-    </div>
-  </section>
-
-  <section style="padding: 110px 28px 120px">
-    <div style="max-width: 1264px; margin: 0 auto; text-align: center">
-      <h2 class="disp" style="font-size: clamp(44px, 5.4vw, 76px); line-height: .95; font-weight: 800; margin: 0">Your business <span class="serif">could be next.</span></h2>
-      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px">
-        <a class="btn btn-dark" href="Hub.dc.html" style="background: #0B0F0C; color: #FFFFFF; font-weight: 600; font-size: 17px; padding: 18px 28px; border-radius: 999px; display: inline-flex; align-items: center; min-height: 58px; box-sizing: border-box">Start your path →</a>
-        <a class="btn" href="Contact.dc.html" style="border: 2px solid #0B0F0C; font-weight: 600; font-size: 17px; padding: 16px 26px; border-radius: 999px; display: inline-flex; align-items: center; min-height: 58px; box-sizing: border-box">Talk to our team</a>
+      <div class="browser wk-big">
+        <span class="browser-bar"><i></i><i></i><i></i><span>{{ sel.domain }}</span></span>
+        <sc-if value="{{ sel.isBw }}" hint-placeholder-val="{{ false }}"><div class="bw" lang="ar" dir="rtl"><span class="bw-letter">م</span><b class="bw-title">بنت ولد</b><span class="bw-chips"><i>بنت</i><i>ولد</i><i>حيوان</i><i>نبات</i><i>جماد</i><i>بلاد</i></span></div></sc-if>
+        <sc-if value="{{ sel.hasImg }}" hint-placeholder-val="{{ true }}"><img src="{{ sel.img }}" alt="{{ sel.alt }}"></sc-if>
       </div>
     </div>
   </section>
 
-  <dc-import name="Footer" hint-size="100%,640px"></dc-import>
+  <section class="sec">
+    <div class="wrap">
+      <div class="card soft rv" style="align-items: center; text-align: center; padding: clamp(40px, 6vw, 88px) 24px; gap: 14px">
+        <h2 style="font-size: clamp(34px, 4.6vw, 64px); line-height: 1.02; letter-spacing: -.045em">Your business could be next.</h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px"><a class="btn btn-main" href="Hub.dc.html">Start your path</a><a class="btn btn-ghost" href="Contact.dc.html">Talk to our team</a></div>
+      </div>
+    </div>
+  </section>
+
+  <dc-import name="Footer" hint-size="100%,520px"></dc-import>
   <dc-import name="Auri" hint-size="0px,0px"></dc-import>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3900}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { f: 'All', sel: 'gateaux' }; }
+  constructor(props) { super(props); this.state = { f: 'All', sel: 'mutlu' }; }
   renderVals() {
     const s = this.state;
     const W = [
-      { id: 'gateaux', name: 'Décoration Gâteaux', kind: 'Client', group: 'Websites', what: 'Cake & dessert brand — gallery website and social presence.', tags: ['Website', 'Gallery'], img: '/_blob/18b435ab4d0c6ef6d3d0aea85fc0f2fe', url: 'https://decorationgateaux.shop', story: 'A home-grown cake brand needed a place to show its creations and take orders beyond Instagram.', c: 'Orders only via DMs', b: 'Responsive gallery website' },
-      { id: 'mutlu', name: 'Mutlu Nakliyat', kind: 'Client', group: 'Marketing', what: 'Istanbul moving company — website, Google Business Profile and Meta ads.', tags: ['Website', 'Google Maps', 'Ads'], img: '/_blob/fa3669d6d8c834adc34efe0134c2a8e4', url: 'https://mutlunakliyat.site', story: 'A moving company in a crowded Istanbul market needed to be found first and look trustworthy.', c: 'Low online visibility', b: 'Site, Maps profile, Meta ads' },
-      { id: 'erhan', name: 'Yurt Oto Elektrik', kind: 'Client', group: 'Websites', what: 'Auto-electrical workshop in Fatih — Turkish one-page site with services, gallery and Maps.', tags: ['Website', 'Google Maps'], img: '/_blob/e62003c87bc3e54eb3e4c978d7561582', url: 'https://xn--yurtotoelektrikerhankcr-8qdb.com/', story: 'A trusted local workshop with no website — customers could not find hours, services or directions.', c: 'No web presence', b: 'One-page site, reviews, Maps' },
-      { id: 'menu', name: 'AuraMenu', kind: 'Product', group: 'Products', what: 'Our QR digital-menu platform for restaurants — Turkish-first and multilingual.', tags: ['SaaS', 'QR menus'], img: '/_blob/c75b79c2c529830827d989d110e51421', url: 'https://auramenu.space', story: 'Our own restaurant product: menus with custom designs, three languages and an approval workflow.', c: 'Printed menus go stale', b: 'QR menu platform' },
-      { id: 'bent', name: 'Bent Walad', kind: 'Product', group: 'Products', what: 'Arabic-first multiplayer word game with rooms and scoring.', tags: ['Web app', 'Multiplayer'], img: '/_blob/60a21c95f5ece87c0a7657028a59d3c0', url: 'https://bentwalad.online', story: 'A real-time Arabic word game with comic styling — built and run by us.', c: 'Real-time play for Arabic users', b: 'Rooms, scoring, comic UI' },
-      { id: 'fifty', name: 'Fifty', kind: 'Concept', group: 'Websites', what: 'Brand & experience landing-page concept.', tags: ['Concept', 'Brand'], img: '/_blob/bbfed3b8644e412d33db8b05e7af370e', url: '', story: 'A concept exploring a bold, playful brand presence for an experience business.', c: 'Stand out instantly', b: 'Landing page concept' }
+      { id: 'mutlu', name: 'Mutlu Nakliyat', kind: 'Client', group: 'Marketing', domain: 'mutlunakliyat.site', what: 'Moving company. Website, Google Business Profile and Meta ads.', img: '/media/redesign/work-mutlu.webp', url: 'https://mutlunakliyat.site', story: 'A moving company in a crowded market needed to be found first and look trustworthy.', c: 'Low online visibility', b: 'Site, Maps profile, Meta ads' },
+      { id: 'erhan', name: 'Yurt Oto Elektrik', kind: 'Client', group: 'Websites', domain: 'yurtotoelektrikerhançı.com', what: 'Auto-electrical workshop. One-page site with services, gallery and Maps.', img: '/media/redesign/work-erhan.webp', url: 'https://xn--yurtotoelektrikerhankcr-8qdb.com/', story: 'A trusted local workshop with no website. Customers could not find hours, services or directions.', c: 'No web presence', b: 'One-page site, reviews, Maps' },
+      { id: 'menu', name: 'AuraMenu', kind: 'Product', group: 'Products', domain: 'auramenu.space', what: 'Our QR menu platform for restaurants, Turkish-first and multilingual.', img: '/media/redesign/work-auramenu.webp', url: 'https://auramenu.space', story: 'Our own restaurant product: menus with custom designs, three languages and an approval workflow.', c: 'Printed menus go stale', b: 'QR menu platform' },
+      { id: 'bent', name: 'Bent Walad', kind: 'Product', group: 'Products', domain: 'bentwalad.online', what: 'Arabic-first multiplayer word game with rooms and scoring.', img: '', bw: true, url: 'https://bentwalad.online', story: 'A real-time Arabic word game with comic styling, built and run by us.', c: 'Real-time play for Arabic users', b: 'Rooms, scoring, comic UI' },
+      { id: 'fifty', name: 'Fifty', kind: 'Concept', group: 'Websites', domain: 'concept', what: 'Brand and experience landing-page concept.', img: '/media/redesign/work-fifty.webp', url: '', story: 'A concept exploring a bold, playful brand presence for an experience business.', c: 'Stand out instantly', b: 'Landing page concept' }
     ];
     const F = ['All', 'Websites', 'Marketing', 'Products'];
-    const on = 'background: #0B0F0C; color: #FFFFFF; border: 1px solid #0B0F0C; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
-    const off = 'background: #FFFFFF; color: #0B0F0C; border: 1px solid #D9D6CB; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
-    const card = 'padding: 0; display: flex; flex-direction: column; border-radius: 24px; overflow: hidden; border: 1px solid #ECEAE2; background: #FFFFFF; cursor: pointer; font-family: Inter, sans-serif; color: #0B0F0C';
-    const cardOn = 'padding: 0; display: flex; flex-direction: column; border-radius: 24px; overflow: hidden; border: 2px solid #0B0F0C; background: #FFFFFF; cursor: pointer; font-family: Inter, sans-serif; color: #0B0F0C';
-    const badge = { Client: '#E3F1E6', Product: '#ECE8FF', Concept: '#F3EEDC' };
-    const sel0 = W.find((w) => w.id === s.sel) || W[0]; const sel = { ...sel0, status: sel0.url ? 'Live' : 'Concept' };
+    const sel0 = W.find((w) => w.id === s.sel) || W[0];
+    const sel = { ...sel0, status: sel0.url ? 'Live' : 'Concept', alt: sel0.name + ' preview', hasUrl: !!sel0.url, isBw: !!sel0.bw, hasImg: !sel0.bw };
     return {
-      filters: F.map((f) => ({ label: f, on: f === s.f, style: f === s.f ? on : off, pick: () => this.setState({ f }) })),
-      items: W.filter((w) => s.f === 'All' || w.group === s.f).map((w) => ({ ...w, alt: w.name + '', on: w.id === s.sel, card: w.id === s.sel ? cardOn : card, badgeBg: badge[w.kind], open: () => this.setState({ sel: w.id }) })),
-      sel: { ...sel, alt: sel.name + ' preview', hasUrl: !!sel.url }
+      filters: F.map((f) => ({ label: f, on: f === s.f, pick: () => this.setState({ f }) })),
+      items: W.filter((w) => s.f === 'All' || w.group === s.f).map((w) => ({ ...w, alt: w.name + ' preview', on: w.id === s.sel, cls: 'wk' + (w.id === s.sel ? ' on' : ''), isBw: !!w.bw, hasImg: !w.bw, open: () => { this.setState({ sel: w.id }); try { document.getElementById('case').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} } })),
+      sel
     };
   }
 }

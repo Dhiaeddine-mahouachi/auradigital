@@ -52,7 +52,8 @@ test('navigation reaches the real AuraHub and every new route', () => {
   // The simplified homepage keeps product sites in the footer; client sites live on Our Work.
   for (const site of ['https://auramenu.space', 'https://aurapops.online', 'https://bentwalad.online']) assert.ok(home.includes(site), 'home links ' + site);
   const work = read('portfolio.html');
-  for (const site of ['https://decorationgateaux.shop']) assert.ok(work.includes(site), 'work links ' + site);
+  for (const site of ['https://mutlunakliyat.site', 'https://auramenu.space', 'https://bentwalad.online']) assert.ok(work.includes(site), 'work links ' + site);
+  assert.ok(!work.includes('decorationgateaux'), 'Décoration Gâteaux is not shown');
 });
 
 test('contact form posts to the CRM endpoint with an idempotency key and honeypot', () => {
@@ -92,28 +93,30 @@ test('shop page lists every NFC card design and links to the account-linked shop
   for (const slug of linked) assert.ok(listed.includes(slug), "homepage links unlisted card " + slug);
 });
 
-test('landing page shows the contact email at the top', () => {
-  const home = read('index.html');
-  const top = home.slice(home.indexOf('<div id="app"'), home.indexOf('<main'));
-  assert.match(top, /mailto:info@auradigitalworks\.com/);
+import { existsSync as __ex } from 'node:fs';
+function require_exists(p) { return __ex(new URL('../' + p, import.meta.url)); }
+
+test('landing page starts with an email that carries over to AuraHub sign-up', () => {
+  const main = read('tools/redesign/design/Main.dc.html');
+  assert.match(main, /sessionStorage\.setItem\('aura-start-email'/);
+  assert.match(main, /location\.assign\('Hub\.dc\.html'\)/);
+  const boot = read('hub/boot.js');
+  assert.match(boot, /'aura-start-email'/);
+  assert.match(boot, /15 \* 60 \* 1000|900000/, 'the saved email expires');
 });
 
-
-test('mobile Auri chat stays above the sale banner and fits the viewport', () => {
+test('mobile Auri chat sits above the page and fits the viewport', () => {
   const css = read('tools/redesign/design/css.txt');
   const auri = read('tools/redesign/design/Auri.dc.html');
-  const promo = read('tools/redesign/inject/index.head.html');
-  assert.match(promo, /#aura-sale-bar\{[^}]*z-index:100/);
   assert.match(auri, /class="auri-wrap \{\{ chatOpenClass \}\}"/);
   assert.match(auri, /chatOpenClass: s\.open \? "auri-chat-open"/);
   assert.match(css, /\.auri-wrap\.auri-chat-open\{z-index:160 !important\}/);
-  assert.match(css, /box-sizing:border-box !important;width:100vw !important/);
-  assert.match(css, /\.auri-panel input,\.auri-panel textarea\{font-size:16px !important\}/);
+  assert.ok(!require_exists('tools/redesign/inject/index.head.html'), 'old sale bar is gone');
 });
 
-test('320px homepage and portfolio cards use fluid grid minimums', () => {
-  assert.match(read('tools/redesign/design/Main.dc.html'), /minmax\(min\(100%, 330px\), 1fr\)/);
-  assert.match(read('tools/redesign/design/Work.dc.html'), /minmax\(min\(100%, 380px\), 1fr\)/);
-  assert.match(read('index.html'), /business-hero-card/);
-  assert.match(read('tools/redesign/inject/index.head.html'), /rgba\(222,232,13,\.28\)/);
+test('grids collapse without fixed minimums at 320px', () => {
+  const css = read('tools/redesign/design/css.txt');
+  assert.match(css, /grid-template-columns:repeat\(var\(--cols,3\),minmax\(0,1fr\)\)/);
+  assert.match(read('tools/redesign/design/Main.dc.html'), /\.bento \.tile\{grid-column:1\/-1/);
 });
+

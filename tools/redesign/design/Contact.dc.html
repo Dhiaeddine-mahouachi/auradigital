@@ -10,149 +10,114 @@
 <helmet>
 <!--FONTS-->
 <!--CSS-->
+<style>
+.ct-layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px;align-items:start}
+.ct-form{padding:clamp(24px,3.4vw,44px)}
+.ct-group{display:flex;flex-direction:column;gap:10px;font-size:14px;font-weight:500}
+.ct-chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line-2);background:var(--white);border-radius:999px;padding:0 16px;min-height:42px;font-size:14px;cursor:pointer;transition:background .2s,border-color .2s}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.ct-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.field .bad{border:2px solid var(--err)}
+.ct-consent{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--ink-2);cursor:pointer}
+.ct-consent input{width:20px;height:20px;margin-top:2px;accent-color:#0E2B1E;flex:none}
+.ct-err{background:#FBE6E4;color:var(--err);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:500}
+.ct-lbl{font-size:13px;color:var(--on-forest-2);margin-top:4px}
+.ct-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.ct-slots button{border:1px solid rgba(238,241,228,.2);background:rgba(238,241,228,.06);color:var(--on-forest);border-radius:10px;min-height:42px;font-size:13px;cursor:pointer}
+.ct-slots button[aria-pressed="true"]{background:var(--acid);border-color:var(--acid);color:var(--ink);font-weight:600}
+.ct-qa{display:flex;flex-direction:column;gap:2px;font-size:15px;padding-top:12px;border-top:1px solid var(--line)}
+.ct-qa span{color:var(--ink-2)}
+@media(max-width:980px){.ct-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:620px){.ct-grid{grid-template-columns:minmax(0,1fr)}}
+</style>
 </helmet>
-<div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.55; overflow-x: clip">
-  <dc-import name="Header" active="contact" hint-size="100%,124px"></dc-import>
-
-  <section style="padding: 80px 28px 0; background: linear-gradient(180deg, #F7F6F0, #FFFFFF)">
-    <div style="max-width: 1264px; margin: 0 auto">
-      <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #4B5650">Contact</span>
-      <h1 class="disp" style="font-size: clamp(56px, 7.4vw, 110px); line-height: .92; font-weight: 800; margin: 14px 0 0">Let's build something <span class="serif">great.</span></h1>
-      <p style="font-size: 20px; color: #4B5650; max-width: 620px; margin: 22px 0 0">Tell us about your business. Pick the way that suits you — WhatsApp is usually the fastest.</p>
-
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 44px">
-        <a class="lift" href="https://wa.me/905385507674?text=Merhaba%20AuraDigital%2C%20I%27d%20like%20to%20talk%20about%20my%20business." style="background: #E3F1E6; border-radius: 26px; padding: 26px; display: flex; flex-direction: column; gap: 10px; min-height: 200px; box-sizing: border-box">
-          <span style="width: 48px; height: 48px; border-radius: 14px; background: #0E2B1E; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E1E100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.4 8.4 0 0 1-12.4 7.4L3.5 20.5l1.6-4.4A8.4 8.4 0 1 1 20.5 11.6z"></path><path d="M9 9.5c.3 1.6 1.9 3.6 3.6 4.3l1.2-1 1.8.8-.4 1.6c-3 .3-6.7-3.2-6.6-6.2l1.6-.4.8 1.8-1 .9"></path></svg></span>
-          <strong class="disp" style="font-size: 24px">WhatsApp</strong>
-          <span style="color: #2E3832">+90 538 550 76 74</span>
-          <span style="margin-top: auto; font-weight: 600">Start a chat →</span>
-        </a>
-        <a class="lift" href="tel:+905385507674" style="background: #E3EEFB; border-radius: 26px; padding: 26px; display: flex; flex-direction: column; gap: 10px; min-height: 200px; box-sizing: border-box">
-          <span style="width: 48px; height: 48px; border-radius: 14px; background: #0E2B1E; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E1E100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"></path></svg></span>
-          <strong class="disp" style="font-size: 24px">Call us</strong>
-          <span style="color: #2E3832">+90 538 550 76 74</span>
-          <span style="margin-top: auto; font-weight: 600">Call now →</span>
-        </a>
-        <a class="lift" href="mailto:info@auradigitalworks.com" style="background: #ECE8FF; border-radius: 26px; padding: 26px; display: flex; flex-direction: column; gap: 10px; min-height: 200px; box-sizing: border-box">
-          <span style="width: 48px; height: 48px; border-radius: 14px; background: #0E2B1E; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E1E100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3z"></path><path d="M3 6l9 7 9-7"></path></svg></span>
-          <strong class="disp" style="font-size: 24px">Email</strong>
-          <span style="color: #2E3832">info@auradigitalworks.com</span>
-          <span style="margin-top: auto; font-weight: 600">Write to us →</span>
-        </a>
-        <a class="lift" href="https://www.google.com/maps/search/?api=1&amp;query=Istanbul%2C%20T%C3%BCrkiye" style="background: #F3EEDC; border-radius: 26px; padding: 26px; display: flex; flex-direction: column; gap: 10px; min-height: 200px; box-sizing: border-box">
-          <span style="width: 48px; height: 48px; border-radius: 14px; background: #0E2B1E; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E1E100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5"></circle></svg></span>
-          <strong class="disp" style="font-size: 24px">Istanbul</strong>
-          <span style="color: #2E3832">Türkiye · serving Türkiye, the Gulf and beyond</span>
-          <span style="margin-top: auto; font-weight: 600">Open in Maps →</span>
-        </a>
+<div>
+  <dc-import name="Header" active="contact" hint-size="100%,68px"></dc-import>
+  <section class="phero">
+    <div class="aura" aria-hidden="true"></div>
+    <div class="wrap">
+      <span class="pill rv"><b>Contact</b>We usually reply within the day</span>
+      <h1 class="split" style="margin-top: 24px">Let’s build something <span class="hl">great.</span></h1>
+      <p class="lead rv">Tell us about your business. Pick the way that suits you. WhatsApp is usually the fastest.</p>
+      <div class="grid ct-ways" style="--cols: 4; margin-top: 40px">
+        <a class="card glow rv" href="https://wa.me/905385507674?text=Merhaba%20AuraDigital%2C%20I%27d%20like%20to%20talk%20about%20my%20business."><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></span><h3>WhatsApp</h3><p>+90 538 550 76 74</p><span class="link" style="align-self: flex-start; margin-top: auto">Start a chat</span></a>
+        <a class="card glow rv" href="tel:+905385507674"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></span><h3>Call us</h3><p>+90 538 550 76 74</p><span class="link" style="align-self: flex-start; margin-top: auto">Call now</span></a>
+        <a class="card glow rv" href="mailto:info@auradigitalworks.com"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg></span><h3>Email</h3><p>info@auradigitalworks.com</p><span class="link" style="align-self: flex-start; margin-top: auto">Write to us</span></a>
+        <a class="card glow rv" href="Help.dc.html"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></span><h3>Help Center</h3><p>Answers to common questions</p><span class="link" style="align-self: flex-start; margin-top: auto">Browse answers</span></a>
       </div>
     </div>
   </section>
 
-  <section id="form" style="padding: 100px 28px 0">
-    <div style="max-width: 1264px; margin: 0 auto; display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start">
-      <div class="box-sm" style="flex: 999 1 640px; min-width: 0; background: #F7F6F0; border-radius: 34px; padding: 44px; box-sizing: border-box">
+  <section class="sec-sm" id="form">
+    <div class="wrap ct-layout">
+      <div class="card ct-form">
         <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
-          <div class="pop" role="status" style="min-height: 520px; display: flex; flex-direction: column; justify-content: center; gap: 16px">
-            <span style="width: 72px; height: 72px; border-radius: 50%; background: #E1E100; display: flex; align-items: center; justify-content: center"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0B0F0C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg></span>
-            <strong class="disp" style="font-size: 44px; line-height: 1">Thank you, {{ firstName }}!</strong>
-            <span style="font-size: 18px; color: #2E3832">Your request is with our team{{ refText }}. We'll reach you by {{ f.via }}.</span>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px">
-              <a class="btn btn-dark" href="Hub.dc.html" style="background: #0B0F0C; color: #FFFFFF; font-weight: 600; padding: 15px 24px; border-radius: 999px">Build my free roadmap →</a>
-              <a class="btn" href="https://wa.me/905385507674" style="border: 2px solid #0B0F0C; font-weight: 600; padding: 13px 22px; border-radius: 999px">Also message on WhatsApp</a>
-            </div>
+          <div class="pop" role="status" style="display: flex; flex-direction: column; gap: 14px; align-items: flex-start; padding: 20px 0">
+            <span class="ic" style="width: 56px; height: 56px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span>
+            <h2 style="font-size: 36px; letter-spacing: -.04em">Thank you, {{ firstName }}!</h2>
+            <p style="font-size: 17px">Your request is with our team{{ refText }}. We’ll reach you by {{ f.via }}.</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap"><a class="btn btn-main" href="Hub.dc.html">Build my free roadmap</a><a class="btn btn-ghost" href="https://wa.me/905385507674">Also message on WhatsApp</a></div>
           </div>
         </sc-if>
         <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
-          <form onSubmit="{{ submit }}" novalidate="" style="display: flex; flex-direction: column; gap: 22px">
-            <div>
-              <h2 class="disp" style="font-size: 40px; line-height: 1; font-weight: 800; margin: 0">Send us a <span class="serif">message</span></h2>
-              <p style="color: #4B5650; margin: 10px 0 0">It goes straight to our team's CRM. Fields with * are required.</p>
+          <form onSubmit="{{ submit }}" novalidate="" style="display: flex; flex-direction: column; gap: 26px">
+            <div><h2 style="font-size: clamp(28px, 3vw, 40px); letter-spacing: -.04em">Send us a message</h2><p style="margin-top: 6px">It goes straight to our team. Fields with * are required.</p></div>
+            <div class="ct-group"><span id="svc-l">What do you need? *</span><div class="ct-chips" role="group" aria-labelledby="svc-l"><sc-for list="{{ services }}" as="o" hint-placeholder-count="8"><button type="button" class="chip" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}">{{ o.label }}</button></sc-for></div></div>
+            <div class="ct-group"><span id="bud-l">Budget range <small class="muted">(optional)</small></span><div class="ct-chips" role="group" aria-labelledby="bud-l"><sc-for list="{{ budgets }}" as="o" hint-placeholder-count="5"><button type="button" class="chip" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}">{{ o.label }}</button></sc-for></div></div>
+            <div class="ct-grid">
+              <label class="field" for="c-name">Full name *<input id="c-name" class="{{ inp.name }}" autocomplete="name" value="{{ f.name }}" onInput="{{ set.name }}" placeholder="Your name"></label>
+              <label class="field" for="c-biz">Business name<input id="c-biz" class="{{ inp.biz }}" autocomplete="organization" value="{{ f.biz }}" onInput="{{ set.biz }}" placeholder="e.g. Lumen Café"></label>
+              <label class="field" for="c-email">Email *<input id="c-email" class="{{ inp.email }}" type="email" autocomplete="email" value="{{ f.email }}" onInput="{{ set.email }}" placeholder="you@business.com"></label>
+              <label class="field" for="c-phone">Phone / WhatsApp *<input id="c-phone" class="{{ inp.phone }}" type="tel" autocomplete="tel" value="{{ f.phone }}" onInput="{{ set.phone }}" placeholder="+90 5xx xxx xx xx"></label>
             </div>
-
-            <div style="display: flex; flex-direction: column; gap: 10px">
-              <span id="svc-l" style="font-weight: 700; font-size: 15px">1 · What do you need? *</span>
-              <div role="group" aria-labelledby="svc-l" style="display: flex; gap: 8px; flex-wrap: wrap">
-                <sc-for list="{{ services }}" as="o" hint-placeholder-count="8"><button type="button" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}" style="{{ o.style }}">{{ o.label }}</button></sc-for>
-              </div>
+            <label class="field" for="c-msg">Tell us about your project *<textarea id="c-msg" class="{{ inp.msg }}" value="{{ f.msg }}" onInput="{{ set.msg }}" rows="5" maxlength="2000" placeholder="What does your business do, and what would you like to achieve?"></textarea><span class="hint" style="text-align: end">{{ msgCount }}/2000</span></label>
+            <div class="ct-grid">
+              <div class="ct-group"><span id="via-l">Best way to reach you</span><div class="ct-chips" role="group" aria-labelledby="via-l"><sc-for list="{{ vias }}" as="o" hint-placeholder-count="3"><button type="button" class="chip" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}">{{ o.label }}</button></sc-for></div></div>
+              <div class="ct-group"><span id="lang-l">Language</span><div class="ct-chips" role="group" aria-labelledby="lang-l"><sc-for list="{{ langs }}" as="o" hint-placeholder-count="3"><button type="button" class="chip" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}">{{ o.label }}</button></sc-for></div></div>
             </div>
-
-            <div style="display: flex; flex-direction: column; gap: 10px">
-              <span id="bud-l" style="font-weight: 700; font-size: 15px">2 · Budget range <span style="font-weight: 400; color: #4B5650">(optional)</span></span>
-              <div role="group" aria-labelledby="bud-l" style="display: flex; gap: 8px; flex-wrap: wrap">
-                <sc-for list="{{ budgets }}" as="o" hint-placeholder-count="5"><button type="button" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}" style="{{ o.style }}">{{ o.label }}</button></sc-for>
-              </div>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 12px">
-              <span style="font-weight: 700; font-size: 15px">3 · Your details</span>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px">
-                <div style="display: flex; flex-direction: column; gap: 6px"><label for="c-name" style="font-weight: 600; font-size: 14px">Full name *</label><input id="c-name" autocomplete="name" value="{{ f.name }}" onChange="{{ set.name }}" placeholder="Your name" style="{{ inp.name }}"></div>
-                <div style="display: flex; flex-direction: column; gap: 6px"><label for="c-biz" style="font-weight: 600; font-size: 14px">Business name</label><input id="c-biz" autocomplete="organization" value="{{ f.biz }}" onChange="{{ set.biz }}" placeholder="e.g. Café Aura" style="{{ inp.biz }}"></div>
-                <div style="display: flex; flex-direction: column; gap: 6px"><label for="c-email" style="font-weight: 600; font-size: 14px">Email *</label><input id="c-email" type="email" autocomplete="email" value="{{ f.email }}" onChange="{{ set.email }}" placeholder="you@business.com" style="{{ inp.email }}"></div>
-                <div style="display: flex; flex-direction: column; gap: 6px"><label for="c-phone" style="font-weight: 600; font-size: 14px">Phone / WhatsApp *</label><input id="c-phone" type="tel" autocomplete="tel" value="{{ f.phone }}" onChange="{{ set.phone }}" placeholder="+90 5xx xxx xx xx" style="{{ inp.phone }}"></div>
-              </div>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 6px"><label for="c-msg" style="font-weight: 700; font-size: 15px">4 · Tell us about your project *</label><textarea id="c-msg" value="{{ f.msg }}" onChange="{{ set.msg }}" rows="5" maxlength="2000" placeholder="What does your business do, and what would you like to achieve?" style="{{ inp.msg }}"></textarea><span style="font-size: 12px; color: #4B5650; align-self: flex-end">{{ msgCount }}/2000</span></div>
-
-            <div style="display: flex; gap: 18px; flex-wrap: wrap">
-              <div style="display: flex; flex-direction: column; gap: 8px"><span id="via-l" style="font-weight: 600; font-size: 14px">Best way to reach you</span><div role="group" aria-labelledby="via-l" style="display: flex; gap: 6px"><sc-for list="{{ vias }}" as="o" hint-placeholder-count="3"><button type="button" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}" style="{{ o.style }}">{{ o.label }}</button></sc-for></div></div>
-              <div style="display: flex; flex-direction: column; gap: 8px"><span id="lang-l" style="font-weight: 600; font-size: 14px">Language</span><div role="group" aria-labelledby="lang-l" style="display: flex; gap: 6px"><sc-for list="{{ langs }}" as="o" hint-placeholder-count="3"><button type="button" onClick="{{ o.pick }}" aria-pressed="{{ o.on }}" style="{{ o.style }}">{{ o.label }}</button></sc-for></div></div>
-            </div>
-
-            <label style="display: flex; gap: 12px; align-items: flex-start; font-size: 14px; color: #2E3832; cursor: pointer"><input type="checkbox" checked="{{ f.consent }}" onChange="{{ toggleConsent }}" style="width: 20px; height: 20px; margin-top: 2px; accent-color: #0E2B1E"><span>I agree that AuraDigital may store these details to answer my request, as described in the privacy notice (KVKK). *</span></label>
-            <div aria-hidden="true" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap"><label for="c-web">Website</label><input id="c-web" tabindex="-1" autocomplete="off" value="{{ f.website }}" onChange="{{ set.website }}"></div>
-
-            <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}"><div role="alert" style="background: #FBE3E0; color: #9A1C14; border-radius: 14px; padding: 14px 16px; font-size: 15px; font-weight: 500">{{ err }}</div></sc-if>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap">
-              <span style="font-size: 13px; color: #4B5650">We never share your details. No spam.</span>
-              <button type="submit" disabled="{{ sending }}" class="btn btn-dark" style="background: #0B0F0C; color: #FFFFFF; border: 0; font-weight: 700; font-size: 17px; padding: 18px 32px; border-radius: 999px; cursor: pointer; font-family: Inter, sans-serif; min-height: 58px">{{ sendLabel }}</button>
-            </div>
+            <label class="ct-consent"><input type="checkbox" checked="{{ f.consent }}" onChange="{{ toggleConsent }}"><span>I agree that AuraDigital may store these details to answer my request, as described in the privacy notice (KVKK). *</span></label>
+            <div aria-hidden="true" style="position: absolute; inset-inline-start: 0; top: 0; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); opacity: 0"><label for="c-web">Website</label><input id="c-web" tabindex="-1" autocomplete="off" value="{{ f.website }}" onInput="{{ set.website }}"></div>
+            <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}"><div role="alert" class="ct-err">{{ err }}</div></sc-if>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap"><span class="muted" style="font-size: 14px">We never share your details.</span><button type="submit" disabled="{{ sending }}" class="btn btn-main">{{ sendLabel }}</button></div>
           </form>
         </sc-if>
       </div>
 
-      <aside style="flex: 1 1 340px; display: flex; flex-direction: column; gap: 16px">
-        <div style="background: #0E2B1E; color: #F3EEDC; border-radius: 28px; padding: 28px">
-          <strong class="disp" style="font-size: 26px">Book a free call</strong>
-          <p style="color: #B9C7BC; font-size: 15px; margin: 8px 0 16px">Pick a day and time — we'll confirm on WhatsApp.</p>
-          <span id="day-l" style="font-size: 13px; color: #A9B8AE">Day</span>
-          <div role="group" aria-labelledby="day-l" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 6px">
-            <sc-for list="{{ days }}" as="d" hint-placeholder-count="6"><button type="button" onClick="{{ d.pick }}" aria-pressed="{{ d.on }}" style="{{ d.style }}">{{ d.label }}</button></sc-for>
-          </div>
-          <span id="time-l" style="display: block; font-size: 13px; color: #A9B8AE; margin-top: 14px">Time (Istanbul)</span>
-          <div role="group" aria-labelledby="time-l" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 6px">
-            <sc-for list="{{ times }}" as="t" hint-placeholder-count="6"><button type="button" onClick="{{ t.pick }}" aria-pressed="{{ t.on }}" style="{{ t.style }}">{{ t.label }}</button></sc-for>
-          </div>
-          <a class="btn" href="{{ bookHref }}" style="margin-top: 18px; display: block; text-align: center; background: #E1E100; color: #0B0F0C; font-weight: 700; padding: 15px; border-radius: 14px">{{ bookLabel }}</a>
+      <aside style="display: flex; flex-direction: column; gap: 18px">
+        <div class="card dark" style="gap: 12px">
+          <h3>Book a free call</h3>
+          <p>Pick a day and time. We’ll confirm on WhatsApp.</p>
+          <span id="day-l" class="ct-lbl">Day</span>
+          <div class="ct-slots" role="group" aria-labelledby="day-l"><sc-for list="{{ days }}" as="d" hint-placeholder-count="6"><button type="button" onClick="{{ d.pick }}" aria-pressed="{{ d.on }}">{{ d.label }}</button></sc-for></div>
+          <span id="time-l" class="ct-lbl">Time (GMT+3)</span>
+          <div class="ct-slots" role="group" aria-labelledby="time-l"><sc-for list="{{ times }}" as="t" hint-placeholder-count="6"><button type="button" onClick="{{ t.pick }}" aria-pressed="{{ t.on }}">{{ t.label }}</button></sc-for></div>
+          <a class="btn btn-acid" href="{{ bookHref }}" style="margin-top: 6px">{{ bookLabel }}</a>
         </div>
-        <div style="border: 1px solid #E6E4DC; border-radius: 28px; padding: 26px">
-          <strong class="disp" style="font-size: 22px">Quick answers</strong>
-          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px; font-size: 15px">
-            <div><strong style="display: block">Is the first call free?</strong><span style="color: #4B5650">Yes — no obligation.</span></div>
-            <div><strong style="display: block">Do you work outside Istanbul?</strong><span style="color: #4B5650">Yes, fully remote across Türkiye, the Gulf and beyond.</span></div>
-            <div><strong style="display: block">Languages?</strong><span style="color: #4B5650">Türkçe, English, العربية, Français.</span></div>
-            <div><strong style="display: block">Prices?</strong><span style="color: #4B5650">Websites from ₺6,750. <a href="Packages.dc.html" style="color: #0B0F0C; text-decoration: underline">See packages</a></span></div>
-          </div>
+        <div class="card" style="gap: 14px">
+          <h3>Quick answers</h3>
+          <div class="ct-qa"><b>Is the first call free?</b><span>Yes, with no obligation.</span></div>
+          <div class="ct-qa"><b>Do you work remotely?</b><span>Yes, with businesses wherever they are.</span></div>
+          <div class="ct-qa"><b>Languages?</b><span>Türkçe, English, العربية, Français.</span></div>
+          <div class="ct-qa"><b>Prices?</b><span>Websites from ₺6,750. <a class="link" href="Packages.dc.html">See pricing</a></span></div>
         </div>
       </aside>
     </div>
   </section>
 
-  <section style="padding: 110px 28px 120px">
-    <div style="max-width: 1264px; margin: 0 auto">
-      <h2 class="disp" style="font-size: clamp(36px, 4.4vw, 56px); line-height: 1; font-weight: 800; margin: 0">Visit our <span class="serif">platforms.</span></h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 32px">
-        <sc-for list="{{ sites }}" as="w" hint-placeholder-count="6">
-          <a class="lift" href="{{ w.href }}" style="{{ w.style }}"><span style="font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #4B5650">{{ w.tag }}</span><strong class="disp" style="font-size: 22px">{{ w.name }}</strong><span style="font-size: 14px; color: #2E3832">{{ w.domain }} ↗</span></a>
+  <section class="sec">
+    <div class="wrap">
+      <div class="sec-head rv"><h2>Visit our platforms.</h2></div>
+      <div class="grid" style="--cols: 4">
+        <sc-for list="{{ sites }}" as="w" hint-placeholder-count="7">
+          <a class="card glow" href="{{ w.href }}"><span class="tag" style="align-self: flex-start">{{ w.tag }}</span><h3>{{ w.name }}</h3><p>{{ w.domain }}</p></a>
         </sc-for>
       </div>
     </div>
   </section>
 
-  <dc-import name="Footer" hint-size="100%,640px"></dc-import>
+  <dc-import name="Footer" hint-size="100%,520px"></dc-import>
   <dc-import name="Auri" hint-size="0px,0px"></dc-import>
 </div>
 </x-dc>
@@ -176,43 +141,40 @@ class Component extends DCLogic {
     const s = this.state, f = s.f;
     const setF = (k) => (e) => this.setState({ f: { ...this.state.f, [k]: e.target.value }, err: '', bad: { ...this.state.bad, [k]: false } });
     const pick = (k, v) => () => this.setState({ f: { ...this.state.f, [k]: v }, err: '' });
-    const chip = (on) => 'border-radius: 999px; padding: 10px 16px; font-size: 14px; cursor: pointer; font-family: Inter, sans-serif; min-height: 44px; ' + (on ? 'background: #0B0F0C; color: #FFFFFF; border: 1px solid #0B0F0C; font-weight: 600' : 'background: #FFFFFF; color: #0B0F0C; border: 1px solid #D9D6CB');
-    const dark = (on) => 'border-radius: 10px; padding: 10px 6px; font-size: 13px; cursor: pointer; font-family: Inter, sans-serif; min-height: 42px; ' + (on ? 'background: #E1E100; color: #0B0F0C; border: 0; font-weight: 700' : 'background: rgba(243,238,220,.08); color: #F3EEDC; border: 1px solid rgba(243,238,220,.2)');
-    const input = (k) => 'border-radius: 14px; padding: 15px; font-size: 16px; font-family: Inter, sans-serif; background: #FFFFFF; color: #0B0F0C; resize: vertical; border: ' + (s.bad[k] ? '2px solid #C5221F' : '1px solid #D9D6CB');
+    const input = (k) => (s.bad[k] ? 'bad' : '');
     const services = ['Website', 'Online store / booking', 'AuraMenu', 'Care & maintenance', 'Google & ads', 'WhatsApp automation', 'NFC cards', 'ERP / custom system', 'Something else'];
     const budgets = ['Under ₺10,000', '₺10,000–25,000', '₺25,000–50,000', '₺50,000+', 'Not sure yet'];
     const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const days = []; const now = new Date();
     for (let i = 1; days.length < 6 && i < 10; i++) { const d = new Date(now.getTime() + i * 86400000); if (d.getDay() !== 0) days.push(dayNames[(d.getDay() + 6) % 7] + ' ' + d.getDate()); }
     const times = ['10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
-    const bookText = 'Merhaba AuraDigital! I would like to book a free call on ' + days[s.day] + ' at ' + times[s.time] + ' (Istanbul time).';
+    const bookText = 'Merhaba AuraDigital! I would like to book a free call on ' + days[s.day] + ' at ' + times[s.time] + ' (GMT+3).';
     return {
       f, sent: s.sent, notSent: !s.sent, err: s.err, hasErr: !!s.err, sending: s.sending,
-      sendLabel: s.sending ? 'Sending…' : 'Send message →',
+      sendLabel: s.sending ? 'Sending…' : 'Send message',
       firstName: f.name.trim().split(' ')[0] || 'there',
       refText: s.ref ? ' (reference ' + s.ref + ')' : '',
       msgCount: f.msg.length,
       set: { name: setF('name'), biz: setF('biz'), email: setF('email'), phone: setF('phone'), msg: setF('msg'), website: setF('website') },
       inp: { name: input('name'), biz: input('biz'), email: input('email'), phone: input('phone'), msg: input('msg') },
       toggleConsent: () => this.setState({ f: { ...this.state.f, consent: !this.state.f.consent }, err: '' }),
-      services: services.map((x) => ({ label: x, on: f.service === x, style: chip(f.service === x), pick: pick('service', x) })),
-      budgets: budgets.map((x) => ({ label: x, on: f.budget === x, style: chip(f.budget === x), pick: pick('budget', f.budget === x ? '' : x) })),
-      vias: ['WhatsApp', 'Phone', 'Email'].map((x) => ({ label: x, on: f.via === x, style: chip(f.via === x), pick: pick('via', x) })),
-      langs: [['en', 'EN'], ['tr', 'TR'], ['ar', 'AR']].map((x) => ({ label: x[1], on: f.lang === x[0], style: chip(f.lang === x[0]), pick: pick('lang', x[0]) })),
-      days: days.map((d, i) => ({ label: d, on: i === s.day, style: dark(i === s.day), pick: () => this.setState({ day: i }) })),
-      times: times.map((t, i) => ({ label: t, on: i === s.time, style: dark(i === s.time), pick: () => this.setState({ time: i }) })),
-      bookLabel: 'Request ' + days[s.day] + ', ' + times[s.time] + ' →',
+      services: services.map((x) => ({ label: x, on: f.service === x, pick: pick('service', x) })),
+      budgets: budgets.map((x) => ({ label: x, on: f.budget === x, pick: pick('budget', f.budget === x ? '' : x) })),
+      vias: ['WhatsApp', 'Phone', 'Email'].map((x) => ({ label: x, on: f.via === x, pick: pick('via', x) })),
+      langs: [['en', 'EN'], ['tr', 'TR'], ['ar', 'AR']].map((x) => ({ label: x[1], on: f.lang === x[0], pick: pick('lang', x[0]) })),
+      days: days.map((d, i) => ({ label: d, on: i === s.day, pick: () => this.setState({ day: i }) })),
+      times: times.map((t, i) => ({ label: t, on: i === s.time, pick: () => this.setState({ time: i }) })),
+      bookLabel: 'Request ' + days[s.day] + ', ' + times[s.time],
       bookHref: 'https://wa.me/905385507674?text=' + encodeURIComponent(bookText),
       sites: [
         ['AuraMenu', 'Product', 'auramenu.space', 'https://auramenu.space', '#E3F1E6'],
         ['AuraPops', 'Product', 'aurapops.online', 'https://aurapops.online', '#ECE8FF'],
         ['AuraWeddings', 'Product', 'auradigitalworks.com/aura-weddings', 'https://auradigitalworks.com/aura-weddings', '#F3EEDC'],
         ['Bent Walad', 'Our game', 'bentwalad.online', 'https://bentwalad.online', '#FBFAD2'],
-        ['Décoration Gâteaux', 'Client', 'decorationgateaux.shop', 'https://decorationgateaux.shop', '#FCE9DC'],
         ['Mutlu Nakliyat', 'Client', 'mutlunakliyat.site', 'https://mutlunakliyat.site', '#E3EEFB'],
         ['Yurt Oto Elektrik', 'Client', 'yurtotoelektrikerhançı.com', 'https://xn--yurtotoelektrikerhankcr-8qdb.com/', '#F1F0EA'],
         ['Dhia Mahouachi', 'Founder', 'dhiamahouachi.website', 'https://dhiamahouachi.website', '#E3F1E6']
-      ].map((w) => ({ name: w[0], tag: w[1], domain: w[2], href: w[3], style: 'border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 6px; background: ' + w[4] })),
+      ].map((w) => ({ name: w[0], tag: w[1], domain: w[2], href: w[3] })),
       submit: async (e) => {
         e.preventDefault();
         if (this.state.sending || this.submitting) return;

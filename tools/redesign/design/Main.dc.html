@@ -295,6 +295,12 @@
 .reel figcaption .face-sm{width:40px;height:40px;border-radius:12px;background:var(--acid);padding:2px}
 .mail-note.err,.mailstart.err+.mail-note{color:var(--err)}
 
+.final-acid{background:var(--acid);margin:0 clamp(8px,1.2vw,20px) 24px;border-radius:var(--r-xl)}
+.final-acid .aura{display:none}
+.final-acid p{color:var(--ink)}
+.final-acid .btn-ghost{background:transparent;border-color:rgba(16,20,15,.35)}
+.bento .t-menu{background:var(--acid)}
+.stop:first-child .svc{background:linear-gradient(transparent 62%,var(--acid) 62%,var(--acid) 94%,transparent 94%);align-self:flex-start}
 </style>
 </helmet>
 <div>
@@ -305,7 +311,7 @@
   <div class="wrap">
     <div class="hero-copy">
       <sc-if value="{{ showOffer }}" hint-placeholder-val="{{ true }}"><a class="pill rv" style="--d:0s" href="Packages.dc.html"><b>10% off</b>All website packages until Nov 28</a></sc-if>
-      <h1 class="split" style="margin-top: 28px">Grow your business one clear step at a time.</h1>
+      <h1 class="split" style="margin-top: 28px">Grow your business <span class="hl">one clear step</span> at a time.</h1>
       <p class="lead rv" style="--d:.55s">Tell Auri what you run. You get a free growth plan, and our team builds it with you.</p>
       <form class="{{ mailCls }}" style="--d:.65s" onSubmit="{{ mailSubmit }}" novalidate>
         <label class="sr" for="startEmail">Your email</label>
@@ -439,21 +445,9 @@
   </div>
 </section>
 
-<section class="sec" id="work" style="padding-top:0">
-  <div class="wrap">
-    <div class="sec-head" style="flex-direction:row;justify-content:space-between;align-items:flex-end;max-width:none;flex-wrap:wrap"><h2 style="max-width:620px">Launched for real businesses.</h2><a class="btn btn-ghost" href="Work.dc.html">See all work</a></div>
-    <div class="work">
-      
-      <a class="case rv" href="https://mutlunakliyat.site"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>mutlunakliyat.site</span></div><img src="/media/redesign/work-mutlu.webp" alt="Mutlu Nakliyat website" loading="lazy"></div><b>Mutlu Nakliyat</b><span>Moving company. Website, Google profile and Meta ads.</span></a>
-      <a class="case rv" href="Work.dc.html"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>yurtotoelektrik</span></div><img src="/media/redesign/work-erhan.webp" alt="Erhan Oto Elektrik website" loading="lazy"></div><b>Erhan Oto Elektrik</b><span>Auto-electrical workshop. Website and Google Maps.</span></a>
-    
-      <a class="case rv" href="https://auramenu.space"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>auramenu.space</span></div><img src="/media/redesign/work-auramenu.webp" alt="AuraMenu digital menu on a phone" loading="lazy"></div><b>AuraMenu</b><span>Our QR menu product. Multilingual menus restaurants update in seconds.</span></a>
-      <a class="case rv" href="https://bentwalad.online"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>bentwalad.online</span></div><div class="bw" lang="ar" dir="rtl"><span class="bw-letter">م</span><b class="bw-title">بنت ولد</b><span class="bw-chips"><i>بنت</i><i>ولد</i><i>حيوان</i><i>نبات</i><i>جماد</i><i>بلاد</i></span><span class="bw-timer"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15"/><circle class="t" cx="18" cy="18" r="15"/></svg>0:42</span></div></div><b>Bent Walad</b><span>Our Arabic multiplayer word game, with live rooms and scoring.</span></a>
-    </div>
-  </div>
-</section>
 
-<section class="final">
+
+<section class="final final-acid">
   <div class="aura" aria-hidden="true"></div>
   <div class="wrap">
     <h2>Your first step takes two minutes.</h2>

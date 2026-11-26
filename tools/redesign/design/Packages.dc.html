@@ -10,57 +10,76 @@
 <helmet>
 <!--FONTS-->
 <!--CSS-->
-<style>td,th{padding:16px 18px;border-bottom:1px solid #ECEAE2;text-align:left}</style>
+<style>
+.pk-modes{display:inline-flex;gap:2px;padding:4px;border-radius:999px;background:rgba(16,20,15,.06);margin-top:30px}
+.pk-modes button{border:0;background:transparent;height:44px;padding:0 22px;border-radius:999px;cursor:pointer;font-size:15px;font-weight:500;color:var(--ink-2)}
+.pk-modes button[aria-selected="true"]{background:var(--ink);color:#fff}
+.pk{padding:34px;gap:12px}
+.pk h3{font-size:24px}
+.pk-price{font-size:46px;font-weight:600;letter-spacing:-.045em;line-height:1;margin:10px 0 6px}
+.pk-price small{font-size:14px;font-weight:400;letter-spacing:0;color:var(--ink-3)}
+.pk .btn{width:100%}
+.pk.best{background:var(--acid);border-color:var(--acid);box-shadow:0 40px 80px -40px rgba(16,20,15,.45)}
+.pk.best p,.pk.best .pk-price small,.pk.best .chk li{color:var(--ink)}
+.pk.best .tag.acid{background:var(--ink);color:var(--acid)}
+.pk.dark .pk-price small{color:var(--on-forest-2)}
+.pk-table{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-l);background:var(--white)}
+.pk-table table{width:100%;border-collapse:collapse;font-size:15px;min-width:620px}
+.pk-table th,.pk-table td{padding:16px 22px;text-align:start;border-bottom:1px solid var(--line)}
+.pk-table thead th{font-weight:600;background:var(--acid-mist)}
+.pk-table thead th:nth-child(3){background:var(--acid)}
+.pk-table tbody th{font-weight:500}
+.pk-table td{color:var(--ink-2)}
+.pk-table tr:last-child th,.pk-table tr:last-child td{border-bottom:0}
+</style>
 </helmet>
-<div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.55; overflow-x: clip">
-  <dc-import name="Header" active="packages" hint-size="100%,124px"></dc-import>
-
-  <section style="padding: 84px 28px 0; text-align: center; background: linear-gradient(180deg, #F7F6F0, #FFFFFF)">
-    <div style="max-width: 900px; margin: 0 auto">
-      <span style="font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #4B5650">Packages</span>
-      <h1 class="disp" style="font-size: clamp(52px, 6.6vw, 96px); line-height: .94; font-weight: 800; margin: 14px 0 0">Simple packages. <span class="serif">Clear prices.</span></h1>
-      <p style="font-size: 19px; color: #4B5650; margin: 20px auto 0; max-width: 560px">Everything you need to launch, in one bundle. Add more anytime from the Service Shop.</p>
-      <div role="tablist" aria-label="Package type" style="display: inline-flex; gap: 4px; background: #F1F0EA; padding: 5px; border-radius: 999px; margin-top: 32px">
+<div>
+  <dc-import name="Header" active="packages" hint-size="100%,68px"></dc-import>
+  <section class="phero center">
+    <div class="aura" aria-hidden="true"></div>
+    <div class="wrap">
+      <span class="pill rv"><b>Pricing</b>One-time packages and monthly care</span>
+      <h1 class="split" style="margin: 24px auto 0">Simple packages. <span class="hl">Clear prices.</span></h1>
+      <p class="lead rv">Everything you need to launch, in one bundle. Add more anytime from the service shop.</p>
+      <div class="pk-modes rv" role="tablist" aria-label="Package type">
         <sc-for list="{{ modes }}" as="m" hint-placeholder-count="2">
-          <button role="tab" aria-selected="{{ m.on }}" onClick="{{ m.pick }}" style="{{ m.style }}">{{ m.label }}</button>
+          <button type="button" role="tab" aria-selected="{{ m.on }}" onClick="{{ m.pick }}">{{ m.label }}</button>
         </sc-for>
       </div>
     </div>
   </section>
 
-  <section style="padding: 52px 28px 0">
-    <div style="max-width: 1264px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px">
-      <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="3">
-        <div class="lift" style="{{ t.card }}">
-          <div style="display: flex; justify-content: space-between; align-items: center">
-            <span class="disp" style="font-size: 26px; font-weight: 800">{{ t.name }}</span>
-            <sc-if value="{{ t.best }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 700; background: #0B0F0C; color: #E1E100; padding: 5px 12px; border-radius: 999px">Most chosen</span></sc-if>
+  <section class="sec-sm" style="padding-top: 8px">
+    <div class="wrap">
+      <div class="grid" style="--cols: 3; align-items: stretch">
+        <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="3">
+          <div class="{{ t.cls }}">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px">
+              <h3>{{ t.name }}</h3>
+              <sc-if value="{{ t.best }}" hint-placeholder-val="{{ false }}"><span class="tag acid">Most chosen</span></sc-if>
+            </div>
+            <p>{{ t.desc }}</p>
+            <div class="pk-price">{{ t.price }} <small>{{ t.note }}</small></div>
+            <a class="{{ t.btn }}" href="Hub.dc.html">Choose {{ t.name }}</a>
+            <ul class="chk" style="margin-top: 10px">
+              <sc-for list="{{ t.feats }}" as="f" hint-placeholder-count="5"><li>{{ f }}</li></sc-for>
+            </ul>
           </div>
-          <div style="font-size: 15px; margin-top: 8px; min-height: 48px; opacity: .85">{{ t.desc }}</div>
-          <div class="disp" style="font-size: 56px; font-weight: 800; line-height: 1; margin-top: 22px">{{ t.price }}</div>
-          <div style="font-size: 14px; opacity: .75; margin-top: 6px">{{ t.note }}</div>
-          <a class="btn" href="Hub.dc.html" style="{{ t.btn }}">Choose {{ t.name }}</a>
-          <div style="border-top: 2px dashed currentColor; opacity: .2; margin: 26px 0 20px"></div>
-          <div style="display: flex; flex-direction: column; gap: 12px">
-            <sc-for list="{{ t.feats }}" as="f" hint-placeholder-count="6">
-              <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto; margin-top: 3px"><path d="M5 12l5 5L20 7"></path></svg>{{ f }}</div>
-            </sc-for>
-          </div>
-        </div>
-      </sc-for>
+        </sc-for>
+      </div>
+      <p class="muted" style="text-align: center; font-size: 14px; margin-top: 22px">{{ footnote }}</p>
     </div>
-    <p style="text-align: center; font-size: 13px; color: #4B5650; margin-top: 18px">{{ footnote }}</p>
   </section>
 
-  <section style="padding: 110px 28px 0">
-    <div style="max-width: 1264px; margin: 0 auto">
-      <h2 class="disp" style="font-size: clamp(36px, 4.4vw, 56px); line-height: 1; font-weight: 800; margin: 0">Compare <span class="serif">side by side.</span></h2>
-      <div style="overflow-x: auto; margin-top: 32px; border: 1px solid #E6E4DC; border-radius: 24px">
-        <table style="width: 100%; min-width: 720px; border-collapse: collapse; font-size: 15px">
-          <thead><tr style="background: #F7F6F0"><th scope="col">Included</th><th scope="col">Launch</th><th scope="col" style="background: #FBFAD2">Growth</th><th scope="col">System</th></tr></thead>
+  <section class="sec">
+    <div class="wrap">
+      <div class="sec-head rv"><h2>Compare side by side.</h2></div>
+      <div class="pk-table rv">
+        <table>
+          <thead><tr><th scope="col">Included</th><th scope="col">Launch</th><th scope="col">Growth</th><th scope="col">System</th></tr></thead>
           <tbody>
             <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
-              <tr><th scope="row" style="font-weight: 500; color: #2E3832">{{ r.label }}</th><td>{{ r.a }}</td><td style="background: #FDFCE8">{{ r.b }}</td><td>{{ r.c }}</td></tr>
+              <tr><th scope="row">{{ r.label }}</th><td data-l="Launch">{{ r.a }}</td><td data-l="Growth">{{ r.b }}</td><td data-l="System">{{ r.c }}</td></tr>
             </sc-for>
           </tbody>
         </table>
@@ -68,20 +87,19 @@
     </div>
   </section>
 
-  <section style="padding: 110px 28px 120px">
-    <div class="box-sm" style="max-width: 1264px; margin: 0 auto; background: #ECE8FF; border-radius: 36px; padding: 52px; display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap">
-      <div style="max-width: 640px">
-        <h2 class="disp" style="font-size: 48px; line-height: 1; font-weight: 800; margin: 0">Need something <span class="serif">different?</span></h2>
-        <p style="font-size: 17px; color: #2E3832; margin: 12px 0 0">Scale Commerce (₺26,900) for online stores or booking, Business Platform (₺35,900) with CRM, and custom ERP from ₺49,900 — or tell us what you need.</p>
-      </div>
-      <div style="display: flex; gap: 10px; flex-wrap: wrap">
-        <a class="btn" href="Shop.dc.html" style="border: 2px solid #0B0F0C; color: #0B0F0C; font-weight: 600; padding: 14px 22px; border-radius: 999px; min-height: 52px; box-sizing: border-box; display: inline-flex; align-items: center">Open Service Shop</a>
-        <a class="btn btn-dark" href="Contact.dc.html" style="background: #0B0F0C; color: #FFFFFF; font-weight: 600; padding: 16px 24px; border-radius: 999px; min-height: 52px; box-sizing: border-box; display: inline-flex; align-items: center">Get a custom quote →</a>
+  <section class="sec" style="padding-top: 0">
+    <div class="wrap">
+      <div class="card dark rv" style="padding: clamp(32px, 5vw, 64px); flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 28px">
+        <div style="max-width: 640px; display: flex; flex-direction: column; gap: 12px">
+          <h2 style="font-size: clamp(32px, 4vw, 52px); line-height: 1.03; letter-spacing: -.045em">Need something different?</h2>
+          <p style="font-size: 17px">Scale Commerce (₺26,900) for online stores or booking, Business Platform (₺35,900) with CRM, and custom ERP from ₺49,900. Or tell us what you need.</p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap"><a class="btn btn-acid" href="Contact.dc.html">Get a custom quote</a><a class="btn btn-line" href="Shop.dc.html">Open service shop</a></div>
       </div>
     </div>
   </section>
 
-  <dc-import name="Footer" hint-size="100%,640px"></dc-import>
+  <dc-import name="Footer" hint-size="100%,520px"></dc-import>
   <dc-import name="Auri" hint-size="0px,0px"></dc-import>
 </div>
 </x-dc>
@@ -90,12 +108,6 @@ class Component extends DCLogic {
   constructor(props) { super(props); this.state = { mode: 0 }; }
   renderVals() {
     const s = this.state;
-    const on = 'background: #0B0F0C; color: #FFFFFF; border: 0; border-radius: 999px; padding: 12px 24px; font-size: 15px; font-weight: 600; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
-    const off = 'background: transparent; color: #0B0F0C; border: 0; border-radius: 999px; padding: 12px 24px; font-size: 15px; font-weight: 500; cursor: pointer; min-height: 44px; font-family: Inter, sans-serif';
-    const base = 'border-radius: 28px; padding: 34px; display: flex; flex-direction: column; box-sizing: border-box; ';
-    const cards = [base + 'background: #FFFFFF; border: 1px solid #E6E4DC; color: #0B0F0C', base + 'background: #E1E100; color: #0B0F0C; box-shadow: 0 40px 80px -40px rgba(11,15,12,.45)', base + 'background: #0E2B1E; color: #F3EEDC'];
-    const bBase = 'margin-top: 22px; text-align: center; font-weight: 700; padding: 16px; border-radius: 14px; display: block; ';
-    const btns = [bBase + 'background: #0B0F0C; color: #FFFFFF', bBase + 'background: #0B0F0C; color: #E1E100', bBase + 'background: #E1E100; color: #0B0F0C'];
     const build = [
       { name: 'Launch', price: '₺6,750', note: 'one-time', desc: 'A sharp small site to present your business and get contacted.', feats: ['Up to 3 pages', 'Responsive design', 'Contact form', 'WhatsApp integration', 'Basic SEO'] },
       { name: 'Growth', price: '₺13,400', note: 'one-time', desc: 'A premium multi-page site built to bring in leads.', feats: ['4–10 pages', 'Premium custom design', 'Lead forms', 'Animations', 'SEO-ready structure'], best: true },
@@ -107,10 +119,12 @@ class Component extends DCLogic {
       { name: 'Growth Care', price: '₺7,900', note: 'per month', desc: 'Ongoing improvements to grow your results.', feats: ['Everything in Business Care', '16 updates per month', 'Performance checks', 'SEO reporting', 'Scoped conversion improvements'] }
     ];
     const list = s.mode === 0 ? build : care;
+    const cls = ['card pk glow rv', 'card pk best rv', 'card pk dark rv'];
+    const btn = ['btn btn-main', 'btn btn-main', 'btn btn-acid'];
     return {
-      modes: ['Build once', 'Monthly growth'].map((l, i) => ({ label: l, on: i === s.mode, style: i === s.mode ? on : off, pick: () => this.setState({ mode: i }) })),
-      tiers: list.map((t, i) => ({ ...t, best: !!t.best, card: cards[i], btn: btns[i] })),
-      footnote: s.mode === 0 ? 'Prices in TRY, one-time. Hosting, domain & baseline security ₺2,000/year when not included. Taxes confirmed in your proposal.' : 'Prices in TRY per month. Managed Growth (₺12,900/mo) adds priority support and ads management.',
+      modes: ['Build once', 'Monthly care'].map((l, i) => ({ label: l, on: i === s.mode, pick: () => this.setState({ mode: i }) })),
+      tiers: list.map((t, i) => ({ ...t, best: !!t.best, cls: cls[i], btn: btn[i] })),
+      footnote: s.mode === 0 ? 'Prices in TRY, one-time. Hosting, domain and baseline security ₺2,000/year when not included. Taxes confirmed in your proposal.' : 'Prices in TRY per month. Managed Growth (₺12,900/month) adds priority support and ads management.',
       rows: [
         { label: 'Pages', a: 'Up to 3', b: '4–10', c: 'Website + dashboard' },
         { label: 'Design', a: 'Responsive', b: 'Premium custom', c: 'Premium custom' },
@@ -120,7 +134,8 @@ class Component extends DCLogic {
         { label: 'Animations', a: '—', b: '✓', c: '✓' },
         { label: 'Logins & user roles', a: '—', b: '—', c: '✓' },
         { label: 'First-year infrastructure', a: '₺2,000/yr extra', b: '₺2,000/yr extra', c: 'Included' }
-      ]    };
+      ]
+    };
   }
 }
 </script>

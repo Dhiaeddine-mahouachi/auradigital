@@ -11,24 +11,23 @@
 <!--FONTS-->
 <!--CSS-->
 </helmet>
-<div style="min-height: 100vh; background: #FFFFFF; color: #0B0F0C; font-family: Inter, system-ui, sans-serif; line-height: 1.55; overflow-x: clip">
-  <dc-import name="Header" active="none" hint-size="100%,124px"></dc-import>
-
-  <section style="padding: 96px 28px 120px; background: linear-gradient(180deg, #F7F6F0 0%, #FFFFFF 100%)">
-    <div style="max-width: 980px; margin: 0 auto; text-align: center">
-      <span style="display: inline-block; background: #E1E100; border-radius: 999px; padding: 6px 14px; font-weight: 800; font-size: 14px">404</span>
-      <h1 class="disp" style="font-size: clamp(46px, 7vw, 100px); line-height: .95; font-weight: 800; margin: 22px 0 0">This page <span class="serif">isn’t here.</span></h1>
-      <p style="font-size: 20px; color: #4B5650; max-width: 560px; margin: 20px auto 0">The link may have changed. Here are the most useful places to continue.</p>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 40px; text-align: left">
-        <a href="/" style="background: #F3EEDC; border-radius: 22px; padding: 22px; color: #0B0F0C; text-decoration: none"><strong class="disp" style="font-size: 20px">Home →</strong><div style="color: #4B5650; font-size: 14px">Start from the beginning</div></a>
-        <a href="/service-shop" style="background: #E3EEFB; border-radius: 22px; padding: 22px; color: #0B0F0C; text-decoration: none"><strong class="disp" style="font-size: 20px">Services →</strong><div style="color: #4B5650; font-size: 14px">Websites, menus, ads, NFC</div></a>
-        <a href="/packages" style="background: #ECE8FF; border-radius: 22px; padding: 22px; color: #0B0F0C; text-decoration: none"><strong class="disp" style="font-size: 20px">Prices →</strong><div style="color: #4B5650; font-size: 14px">Packages and care plans</div></a>
-        <a href="/contact" style="background: #E3F1E6; border-radius: 22px; padding: 22px; color: #0B0F0C; text-decoration: none"><strong class="disp" style="font-size: 20px">Contact →</strong><div style="color: #4B5650; font-size: 14px">WhatsApp or email us</div></a>
+<div>
+  <dc-import name="Header" active="none" hint-size="100%,68px"></dc-import>
+  <section class="phero" style="min-height: 70vh">
+    <div class="aura" aria-hidden="true"></div>
+    <div class="wrap">
+      <span class="pill"><b>404</b>Page not found</span>
+      <h1 class="split" style="margin-top: 24px">This page <span class="hl">isn’t here.</span></h1>
+      <p class="lead">The link may have changed. Here are the most useful places to continue.</p>
+      <div class="grid" style="--cols: 4; margin-top: 40px">
+        <a class="card glow" href="/"><h3>Home</h3><p>Start from the beginning</p></a>
+        <a class="card glow" href="/service-shop"><h3>Services</h3><p>Websites, menus, ads, NFC</p></a>
+        <a class="card glow" href="/packages"><h3>Pricing</h3><p>Packages and care plans</p></a>
+        <a class="card glow" href="/contact"><h3>Contact</h3><p>WhatsApp or email us</p></a>
       </div>
     </div>
   </section>
-
-  <dc-import name="Footer" hint-size="100%,640px"></dc-import>
+  <dc-import name="Footer" hint-size="100%,520px"></dc-import>
   <dc-import name="Auri" hint-size="0px,0px"></dc-import>
 </div>
 </x-dc>
