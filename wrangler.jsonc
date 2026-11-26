@@ -193,6 +193,8 @@
     ]
   },
   "vars": {
+    "AURAMENU_STANDARD_ENABLED": "true",
+    "AURAMENU_PREMIUM_ENABLED": "true",
     "GROWTH_OS_ENABLED": "true",
     "MENU_DRAFTS_ENABLED": "false",
     "CUSTOMER_IDENTITY_ENABLED": "true",

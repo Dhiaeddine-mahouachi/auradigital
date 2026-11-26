@@ -1,3 +1,4 @@
+import { assertMenuTemplate, isCollectionDesign, premiumIds, menuDesignAccess, standardDesignsEnabled, normalizeItemMetadata, normalizeCategoryMetadata, menuItems, normalizeMenuPresentation, getMenuPresentation, saveMenuPresentation } from "./auramenu-designs.js";
 import { menuBilling } from './menu-billing.js';
 import { ApiError, json, readJson } from './http.js';
 import { getAuthenticatedAdmin, sameOrigin } from './security.js';
@@ -143,7 +144,9 @@ function normalizeCategories(value) {
     throw new ApiError(400, '1 ile 12 kategori olmalıdır.');
   }
   let count = 0;
-  const categories = value.map((category, index) => {
+  let categoryCount = 0;
+  const normalizeSections = (sections, depth) => sections.map((category, index) => {
+    if (++categoryCount > 36) throw new ApiError(400,"Too many menu categories.");
     const name = clean(category?.name, 80);
     if (!name) throw new ApiError(400, `Kategori ${index + 1} için isim girin.`);
     const items = Array.isArray(category?.items) ? category.items : [];
@@ -151,6 +154,7 @@ function normalizeCategories(value) {
     return {
       name,
       emoji: clean(category?.emoji, 12),
+      ...normalizeCategoryMetadata(category, normalizeSections, depth),
       items: items.map((item, itemIndex) => {
         if (!item || typeof item !== 'object' || Array.isArray(item)) throw new ApiError(400, 'Invalid menu item.');
         const itemName = clean(item?.name, 100);
@@ -163,31 +167,31 @@ function normalizeCategories(value) {
           imageUrl: url(item.imageUrl),
           imageData: typeof item.imageData === 'string' ? item.imageData.trim() : '',
           featured: Boolean(item.featured),
+          ...normalizeItemMetadata(item),
         };
       }),
     };
   });
+  const categories = normalizeSections(value,0);
   if (count < 1 || count > 100) throw new ApiError(400, 'Menüde 1 ile 100 ürün olmalıdır.');
   return categories;
 }
 
 async function replaceImages(db, id, categories, origin) {
   const inserts = [];
-  for (const category of categories) {
-    for (const item of category.items) {
-      if (!item.imageData) {
-        delete item.imageData;
-        continue;
-      }
-      const image = decodeImage(item.imageData);
+  for (const item of menuItems(categories)) {
+    if (!item.imageData) {
       delete item.imageData;
-      const imageId = crypto.randomUUID();
-      item.imageUrl = `${origin}/api/auramenu/images/${imageId}`;
-      inserts.push(
-        db.prepare('INSERT INTO auramenu_images (id, request_id, content_type, image_bytes) VALUES (?, ?, ?, ?)')
-          .bind(imageId, id, image.contentType, image.bytes)
-      );
+      continue;
     }
+    const image = decodeImage(item.imageData);
+    delete item.imageData;
+    const imageId = crypto.randomUUID();
+    item.imageUrl = `${origin}/api/auramenu/images/${imageId}`;
+    inserts.push(
+      db.prepare('INSERT INTO auramenu_images (id, request_id, content_type, image_bytes) VALUES (?, ?, ?, ?)')
+        .bind(imageId, id, image.contentType, image.bytes)
+    );
   }
   if (inserts.length > 12) throw new ApiError(400, "At most 12 images per update.");
   return inserts;
@@ -202,6 +206,15 @@ export async function handleAuraMenuDashboard(request, env) {
   await ensure(env.DB);
 
   const headers = cors(request);
+  const presentationFor = row => isCollectionDesign(row.template_id) || standardDesignsEnabled(env) ? getMenuPresentation(env.DB,row.id) : {};
+  const designsFor = (row,billing) => menuDesignAccess(env,{
+    id:row.id,billing,pending:row.status === 'pending' && !billing?.paidUntil,paid:row.payment_status === 'paid',
+  });
+  const dashboardMenu = async (row,access,billing) => {
+    const designAccess = designsFor(row,billing);
+    return {...publicMenu(row,access,billing),...await presentationFor(row),
+      designAccess:{standard:designAccess.standard,premium:designAccess.premium ? premiumIds : []}};
+  };
   if (u.pathname.startsWith('/api/auramenu/dashboard')) {
     if (headers === null) return json({ error: 'Bu kaynaktan talep kabul edilmiyor.' }, 403);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers });
@@ -215,7 +228,7 @@ export async function handleAuraMenuDashboard(request, env) {
       if (!access) return json({ error: 'Dashboard access denied.' }, 401, headers);
       const row = await rowFor(env.DB, claim[1]);
       if (!row) return json({ error: 'Dashboard access denied.' }, 401, headers);
-      return json({ token, menu: publicMenu(row, access, await menuBilling(env.DB, row.id)) }, 200, headers);
+      return json({ token, menu: await dashboardMenu(row,access,await menuBilling(env.DB,row.id)) }, 200, headers);
     }
 
     const match = u.pathname.match(/^\/api\/auramenu\/dashboard\/([a-f0-9-]+)(?:\/(access-request))?$/i);
@@ -260,7 +273,7 @@ export async function handleAuraMenuDashboard(request, env) {
     }
 
     if (!action && request.method === 'GET') {
-      return json({ menu: publicMenu(row, tokenAccess, billing) }, 200, { 'Cache-Control': 'no-store', ...headers });
+      return json({ menu: await dashboardMenu(row,tokenAccess,billing) }, 200, { 'Cache-Control': 'no-store', ...headers });
     }
 
     if (!action && request.method === 'PATCH') {
@@ -272,11 +285,12 @@ export async function handleAuraMenuDashboard(request, env) {
         );
       }
       const body = await readJson(request, BODY_BYTES);
+      const template = assertMenuTemplate(body.templateId ?? row.template_id,{
+        ...designsFor(row,billing),currentId:row.template_id,
+      });
       const categories = normalizeCategories(body.categories);
       const imageInserts = await replaceImages(env.DB, id, categories, new URL(request.url).origin);
-      const template = ['modern', 'orbit', 'maison', 'taste3d'].includes(String(body.templateId))
-        ? String(body.templateId)
-        : row.template_id;
+      const presentation = isCollectionDesign(template) ? normalizeMenuPresentation(body) : null;
       const lang = ['tr', 'en', 'ar'].includes(String(body.menuLanguage))
         ? String(body.menuLanguage)
         : row.menu_language;
@@ -303,14 +317,17 @@ export async function handleAuraMenuDashboard(request, env) {
         id
       );
       // All validation finishes before writes; D1 batch is transactional.
-      const retained = categories.flatMap(c => c.items).map(i => i.imageUrl);
+      const retained = Array.from(menuItems(categories),item => item.imageUrl);
       const imageRows = await env.DB.prepare('SELECT id FROM auramenu_images WHERE request_id=?').bind(id).all();
       const deletions = (imageRows.results || []).filter(image => !retained.some(value => value.endsWith(`/api/auramenu/images/${image.id}`)))
         .map(image => env.DB.prepare('DELETE FROM auramenu_images WHERE id=? AND request_id=?').bind(image.id, id));
-      await env.DB.batch([...imageInserts, update, ...deletions]);
+      await env.DB.batch([...imageInserts, update, ...deletions,
+        ...(presentation && Object.keys(presentation).length ? [saveMenuPresentation(env.DB,id,presentation)] : []),
+      ]);
+      const updated = await rowFor(env.DB,id);
 
       return json(
-        { menu: publicMenu(await rowFor(env.DB, id), await accessFor(env.DB, id), billing) },
+        { menu: await dashboardMenu(updated,await accessFor(env.DB,id),billing) },
         200,
         { 'Cache-Control': 'no-store', ...headers }
       );
