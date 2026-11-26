@@ -1,3 +1,4 @@
+import { assertMenuTemplate, isStandardDesign, standardIds, standardDesignsEnabled, normalizeItemMetadata, normalizeCategoryMetadata, menuItems, normalizeMenuPresentation, getMenuPresentation, saveMenuPresentation } from "./auramenu-designs.js";
 import { getHubStats } from "./hub-admin-stats.js";
 import { authenticatedCustomer } from './customer-accounts.ts';
 import { authorize } from './business-hub.js';
@@ -625,7 +626,9 @@ function normalizeAuraMenuCategories(value) {
     throw new ApiError(400, "Menüde 1 ile 12 arasında kategori olmalıdır.");
   }
   let itemCount = 0;
-  const categories = value.map((category, categoryIndex) => {
+  let categoryCount = 0;
+  const normalizeSections = (sections, depth) => sections.map((category, categoryIndex) => {
+    if (++categoryCount > 36) throw new ApiError(400, "Too many menu categories.");
     if (!category || typeof category !== "object" || Array.isArray(category)) {
       throw new ApiError(400, `Kategori ${categoryIndex + 1} geçersiz.`);
     }
@@ -651,10 +654,12 @@ function normalizeAuraMenuCategories(value) {
         imageUrl: qsUrl(item.imageUrl),
         imageData,
         featured: Boolean(item.featured),
+        ...normalizeItemMetadata(item),
       };
     });
-    return { name, emoji: qsClean(category.emoji, 12), items };
+    return { name, emoji: qsClean(category.emoji, 12), items, ...normalizeCategoryMetadata(category, normalizeSections, depth) };
   });
+  const categories = normalizeSections(value, 0);
   if (itemCount < 1 || itemCount > 100) {
     throw new ApiError(400, "Menüde 1 ile 100 arasında ürün olmalıdır.");
   }
@@ -697,19 +702,17 @@ function decodeAuraMenuImage(dataUrl) {
 
 function prepareAuraMenuImages(categories, requestId, origin) {
   const images = [];
-  for (const category of categories) {
-    for (const item of category.items) {
-      const dataUrl = item.imageData;
-      delete item.imageData;
-      if (!dataUrl) continue;
-      if (images.length >= AURAMENU_MAX_IMAGES) {
-        throw new ApiError(400, "Bir menü talebine en fazla 12 ürün fotoğrafı ekleyebilirsiniz.");
-      }
-      const image = decodeAuraMenuImage(dataUrl);
-      const id = crypto.randomUUID();
-      item.imageUrl = `${origin}/api/auramenu/images/${id}`;
-      images.push({ id, requestId, ...image });
+  for (const item of menuItems(categories)) {
+    const dataUrl = item.imageData;
+    delete item.imageData;
+    if (!dataUrl) continue;
+    if (images.length >= AURAMENU_MAX_IMAGES) {
+      throw new ApiError(400, "Bir menü talebine en fazla 12 ürün fotoğrafı ekleyebilirsiniz.");
     }
+    const image = decodeAuraMenuImage(dataUrl);
+    const id = crypto.randomUUID();
+    item.imageUrl = `${origin}/api/auramenu/images/${id}`;
+    images.push({ id, requestId, ...image });
   }
   return images;
 }
@@ -757,8 +760,7 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   const contactName = qsClean(body.contactName, 100);
   const contactPhone = qsClean(body.contactPhone, 40);
   const email = qsClean(body.email, 160).toLowerCase();
-  const allowedTemplates = ["modern", "orbit", "maison", "taste3d"];
-  if (!allowedTemplates.includes(templateId) || !businessName || !contactName || !contactPhone) {
+  if (!businessName || !contactName || !contactPhone) {
     return json({ error: "İşletme, yetkili, telefon ve tasarım alanlarını kontrol edin." }, 400, corsHeaders);
   }
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -769,6 +771,8 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   const planId = body.planId || 'starter';
   const plan = Object.hasOwn(MENU_PLANS, planId) ? MENU_PLANS[planId] : null;
   if (!plan) return json({ error: 'Choose a valid AuraMenu plan.' }, 400, corsHeaders);
+  assertMenuTemplate(templateId, {enabled:standardDesignsEnabled(env),planId});
+  const presentation = isStandardDesign(templateId) ? normalizeMenuPresentation(body) : null;
   await ensureMenuBilling(db);
   const optionSummary = [
     "[AURAMENU OPTIONS]",
@@ -834,6 +838,7 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   };
   await ensureRequestDelivery(db);
   await db.batch([...outboxStatements(db,notification),requestInsert, menuBillingInsert(db, id, plan), ...imageInserts,
+    ...(presentation ? [saveMenuPresentation(db,id,presentation)] : []),
     db.prepare("INSERT INTO auramenu_edit_access (menu_id, token_hash) VALUES (?, ?)").bind(id, await tokenHash(token))
   ]);
   ctx.waitUntil(deliverRequestEmails(env,id).catch(()=>console.error(JSON.stringify({event:"request_email_processing_failed",requestId:id}))));
@@ -900,13 +905,14 @@ async function getPublishedAuraMenu(request, db, slug, corsHeaders) {
   const row = await db.prepare("SELECT * FROM auramenu_requests WHERE lower(trim(slug)) = lower(?) LIMIT 1").bind(slug).first();
   const published = row && (await menuEntitlement(db, row)).live;
   if (!row || !published) return json({ error: "Menü henüz yayında değil." }, 404, corsHeaders);
-  return json({ menu: mapAuraMenuRequest(row, true) }, 200, {
+  const presentation = isStandardDesign(row.template_id) ? await getMenuPresentation(db,row.id) : {};
+  return json({ menu: { ...mapAuraMenuRequest(row, true), ...presentation } }, 200, {
     "Cache-Control": "no-store",
     ...corsHeaders,
   });
 }
 
-async function handleAuraMenuAdmin(request, db, id) {
+async function handleAuraMenuAdmin(request, db, id, env) {
   if (request.method === "GET" && !id) {
     const rows = await db.prepare("SELECT * FROM auramenu_requests ORDER BY created_at DESC LIMIT 100").all();
     return json({ requests: await Promise.all((rows.results || []).map(async row => ({ ...mapAuraMenuRequest(row), ...(await menuEntitlement(db, row)) }))) }, 200, { "Cache-Control": "no-store" });
@@ -928,11 +934,16 @@ async function handleAuraMenuAdmin(request, db, id) {
   if (status === "approved" && payment !== "paid") {
     return json({ error: "Menüyü yayınlamadan önce ödemeyi onaylayın." }, 409);
   }
+  if (status === 'approved' && current.status !== 'approved' && isStandardDesign(current.template_id)) {
+    const billing = await menuBilling(db,id);
+    assertMenuTemplate(current.template_id, {enabled:standardDesignsEnabled(env),planId:billing?.planId});
+  }
   if (status === 'approved' || (payment === 'paid' && current.payment_status !== 'paid')) await activateMenuBilling(db,id);
   const ownerNote = body.ownerNote === undefined ? current.owner_note : qsClean(body.ownerNote, 500);
   const now = new Date().toISOString();
-  await db.prepare("UPDATE auramenu_requests SET status = ?, payment_status = ?, owner_note = ?, updated_at = ?, approved_at = ?, revision = revision + 1 WHERE id = ?")
-    .bind(status, payment, ownerNote, now, status === "approved" ? (current.approved_at || now) : null, id).run();
+  const mutation = await db.prepare("UPDATE auramenu_requests SET status = ?, payment_status = ?, owner_note = ?, updated_at = ?, approved_at = ?, revision = revision + 1 WHERE id = ? AND template_id = ?")
+    .bind(status, payment, ownerNote, now, status === "approved" ? (current.approved_at || now) : null, id, current.template_id).run();
+  if (!mutation.meta?.changes) return json({error:"Menu design changed. Reload before approving."},409);
   const updated = await db.prepare("SELECT * FROM auramenu_requests WHERE id = ? LIMIT 1").bind(id).first();
   return json({ request: mapAuraMenuRequest(updated) }, 200, { "Cache-Control": "no-store" });
 }
@@ -1053,6 +1064,12 @@ export default {
         const corsHeaders = auraMenuCors(request);
         if (corsHeaders === null) return json({ error: "Bu kaynaktan talep kabul edilmiyor." }, 403);
         if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+
+        if (url.pathname === "/api/auramenu/designs" && request.method === "GET") {
+          return json({ standard: standardDesignsEnabled(env) ? standardIds : [] }, 200, {
+            ...corsHeaders, "Cache-Control": "no-store",
+          });
+        }
 
         if (url.pathname === "/api/auramenu/pricing" && request.method === "GET") {
           const settings = await getPublicSettings(env.DB);
@@ -1254,7 +1271,7 @@ export default {
 
       const auraMenuAdmin = url.pathname.match(/^\/api\/admin\/auramenu(?:\/([a-f0-9-]+))?$/i);
       if (auraMenuAdmin) {
-        const response = await handleAuraMenuAdmin(request, env.DB, auraMenuAdmin[1] || null);
+        const response = await handleAuraMenuAdmin(request, env.DB, auraMenuAdmin[1] || null, env);
         await auditAdminResponse(response, request, env.DB, admin, "auramenu", auraMenuAdmin[1] || "collection");
         return response;
       }
