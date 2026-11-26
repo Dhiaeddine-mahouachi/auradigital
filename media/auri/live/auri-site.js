@@ -26,7 +26,7 @@ export function mountAuriDock({
     if (!stylesheet) {
       stylesheet = doc.createElement('link');
       stylesheet.rel = 'stylesheet';
-      stylesheet.href = '/media/auri/live/compact.css?v=compact-v3';
+      stylesheet.href = '/media/auri/live/compact.css?v=compact-v4';
     }
     stylesheet.addEventListener('load', () => resolve(true), { once: true });
     stylesheet.addEventListener('error', () => resolve(false), { once: true });
