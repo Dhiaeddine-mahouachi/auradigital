@@ -160,7 +160,7 @@ p{margin:0}
 .phone-in .ph-l{font-size:11px;background:var(--acid-mist);border-radius:999px;padding:2px 8px;color:var(--ink-2)}
 .phone-in .ph-tabs{display:flex;gap:4px}
 .phone-in .ph-tabs span{padding:4px 9px;border-radius:999px;font-size:11px;color:var(--ink-3)}
-.phone-in .ph-tabs span:first-child{background:var(--ink);color:#fff}
+.phone-in .ph-tabs span{transition:background .35s,color .35s}.phone-in .ph-tabs span.on{background:var(--ink);color:#fff}
 .phone-in .row{display:flex;justify-content:space-between;gap:8px;padding-top:9px;border-top:1px solid #F0F1EA}
 .phone-in .row small{display:block;color:var(--ink-3);font-size:11px}
 .phone-in .row b{white-space:nowrap}
@@ -175,8 +175,6 @@ p{margin:0}
 .nfc{margin-top:auto;position:relative;height:96px}
 .nfc-card{position:absolute;right:6px;bottom:0;width:150px;height:94px;border-radius:12px;background:var(--forest);color:var(--on-forest);padding:12px;font-size:12px;display:flex;flex-direction:column;justify-content:space-between;transform:rotate(-6deg);box-shadow:var(--lift)}
 .nfc-card b{color:var(--acid);font-size:14px}
-.nfc-wave{position:absolute;left:10px;bottom:22px;width:56px;height:56px;border-radius:50%;border:2px solid var(--line-2)}
-.nfc-wave+.nfc-wave{width:36px;height:36px;left:20px;bottom:32px;border-color:var(--forest)}
 @media(max-width:980px){.bento{grid-template-columns:repeat(2,minmax(0,1fr))}.t-web,.t-menu,.t-maps,.t-nfc,.t-wa{grid-column:span 2;grid-row:auto}.t-maps,.t-nfc,.t-wa{grid-column:span 1}}
 @media(max-width:620px){.bento{grid-template-columns:minmax(0,1fr);grid-auto-rows:auto}.bento .tile{grid-column:1/-1;grid-row:auto;padding:22px}.t-maps .maps-card,.wa,.nfc{margin-top:18px}.phone{width:200px}}
 
@@ -188,57 +186,82 @@ p{margin:0}
 .hubsec .ctas{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .hubsec .btn-ghost{background:transparent;color:var(--on-forest);border-color:rgba(238,241,228,.3)}
 .hubsec .btn-ghost:hover{border-color:var(--on-forest)}
-.app{margin-top:64px;background:#F6F7F1;color:var(--ink);border-radius:22px;overflow:hidden;box-shadow:0 60px 120px -40px rgba(0,0,0,.6);display:grid;grid-template-columns:240px minmax(0,1fr);font-size:13px;text-align:left}
-.app-side{background:var(--white);border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:2px}
-.app-side .logo{font-size:15px;margin:0 6px 18px}
-.app-side .logo i{width:26px;height:26px;border-radius:7px}.app-side .logo img{width:17px}
-.app-side .logo small{font-size:10px;font-weight:600;color:var(--ink-3);background:var(--acid-mist);border-radius:6px;padding:2px 6px;letter-spacing:.04em}
-.side-t{font-size:11px;color:var(--ink-3);margin:12px 10px 4px}
-.side-i{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:9px;color:var(--ink-2);font-weight:500}
-.side-i.on{background:var(--forest);color:var(--on-forest)}
-.side-i svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.side-i.on svg{stroke:var(--acid)}
-.app-main{padding:0 0 22px}
-.app-bar{height:56px;display:flex;align-items:center;gap:10px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--white)}
-.biz{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:5px 10px 5px 5px;font-weight:600}
-.biz i{width:22px;height:22px;border-radius:6px;background:var(--acid-soft);display:grid;place-items:center;font-style:normal;font-size:11px}
-.app-bar .sp{margin-left:auto;display:flex;gap:8px;align-items:center}
-.chipb{border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-weight:500}
-.chipb.y{background:var(--acid-soft);border-color:transparent}
-.av{width:30px;height:30px;border-radius:50%;background:var(--forest);color:var(--acid);display:grid;place-items:center;font-weight:600;font-size:12px}
-.app-body{padding:20px;display:flex;flex-direction:column;gap:14px}
-.gv{background:linear-gradient(135deg,#14402B,var(--forest));color:var(--on-forest);border-radius:18px;padding:22px}
-.gv-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.gv h4{margin:0;font-size:26px;letter-spacing:-.04em;font-weight:600}
-.gv p{color:var(--on-forest-2);font-size:13px;margin-top:4px}
-.gv-k{border:1px solid rgba(238,241,228,.16);border-radius:12px;padding:8px 12px;font-size:11px;color:var(--on-forest-2)}
-.gv-k b{display:block;font-size:20px;color:var(--on-forest);letter-spacing:-.03em}
-.gv-stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:18px}
-.gv-s{border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(238,241,228,.1)}
-.gv-s.done{background:rgba(142,230,188,.1);border-color:rgba(142,230,188,.35)}
-.gv-s.now{background:rgba(225,225,0,.08);border-color:var(--acid)}
-.gv-s b{display:block;font-size:14px;margin-top:6px}
-.gv-s small{color:var(--on-forest-2);font-size:11px}
-.gv-ic{width:34px;height:34px;margin:0 auto;border-radius:10px;display:grid;place-items:center;background:rgba(238,241,228,.08)}
-.gv-ic svg{width:18px;height:18px;stroke:var(--mint);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.gv-s.now .gv-ic svg{stroke:var(--acid)}
-.bar{height:4px;border-radius:2px;background:rgba(238,241,228,.14);margin-top:8px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--mint)}
-.gv-s.now .bar i{background:var(--acid)}
-.app-row{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px}
-.panel{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
-.panel h5{margin:0;font-size:13px;font-weight:600;display:flex;justify-content:space-between}
-.task{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;border:1px solid var(--line)}
-.task .ck{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line-2);flex:none;display:grid;place-items:center}
-.task.d .ck{background:var(--ok);border-color:var(--ok)}
-.task.d{color:var(--ink-3)}
-.task .tag{margin-left:auto;font-size:11px;border-radius:999px;padding:2px 8px;background:var(--acid-mist);color:var(--ink-2)}
-.panel.dark{background:var(--forest);border-color:var(--forest);color:var(--on-forest)}
-.panel.dark p{color:var(--on-forest-2);font-size:13px}
-.panel.dark .who{display:flex;align-items:center;gap:10px}
-.panel.dark .who img{width:38px;height:38px;border-radius:10px;background:rgba(238,241,228,.08)}
-@media(max-width:900px){.app{grid-template-columns:minmax(0,1fr)}.app-side{display:none}.gv-stages{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:-22px;padding:0 22px 4px;scrollbar-width:none}.gv-stages::-webkit-scrollbar{display:none}.gv-s{flex:0 0 132px;scroll-snap-align:start}.app-row{grid-template-columns:minmax(0,1fr)}.app-bar .chipb,.app-bar .muted{display:none}.gv-top>div:last-child{width:100%}.gv-k{flex:1}}
-@media(max-width:620px){.app-body{padding:14px}.gv{padding:18px}.gv-stages{margin-inline:-18px;padding:0 18px 4px}.gv h4{font-size:22px}.task{font-size:12.5px}.task .tag{display:none}.hubsec .ctas .btn{width:100%}.app{margin-top:44px}}
+.app{margin-top:64px;background:#F7F7F2;color:var(--ink);border-radius:22px;overflow:hidden;box-shadow:0 60px 120px -40px rgba(0,0,0,.6);display:grid;grid-template-columns:250px minmax(0,1fr);font-size:13px;text-align:left}
+.hs{background:var(--white);border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:1px}
+.hs-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;letter-spacing:-.03em;margin:0 6px 14px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.hs-logo i{width:28px;height:28px;border-radius:8px;background:var(--acid);display:grid;place-items:center}.hs-logo img{width:19px}
+.hs-logo small{font-size:9.5px;font-weight:600;letter-spacing:.12em;color:#5E6B60;background:#EEF1E4;border-radius:6px;padding:3px 6px}
+.hs-t{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#5E6B60;margin:14px 10px 6px}
+.hs-i{display:flex;align-items:center;gap:11px;height:35px;padding:0 11px;border-radius:9px;color:var(--ink);font-weight:500;font-size:13.5px}
+.hs-i.on{background:var(--forest);color:#fff}
+.hs-i svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.hs-i.on svg{stroke:var(--acid)}
+.hm{min-width:0}
+.hb{height:62px;display:flex;align-items:center;gap:14px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--white)}
+.hb-biz{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:12px;padding:6px 10px 6px 6px;font-weight:600}
+.hb-biz i{width:26px;height:26px;border-radius:8px;background:#E9EE9A;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700}
+.hb-biz svg{width:14px;height:14px;stroke:var(--ink);fill:none;stroke-width:2}
+.hb-title{font-weight:600;font-size:14px}
+.hb-end{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hb-btn{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:1px solid var(--line-2);border-radius:9px;font-weight:600}
+.hb-btn.y{background:#E9EE9A;border-color:transparent}
+.hb-btn svg,.hb-ic svg{width:14px;height:14px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linejoin:round}
+.hb-ic{position:relative;width:34px;height:34px;border:1px solid var(--line);border-radius:9px;display:grid;place-items:center}
+.hb-ic em{position:absolute;top:-6px;right:-6px;width:17px;height:17px;border-radius:50%;background:#B8321F;color:#fff;font-size:10px;font-style:normal;font-weight:700;display:grid;place-items:center;border:2px solid #fff}
+.hb-av{width:34px;height:34px;border-radius:50%;background:var(--forest);color:var(--acid);display:grid;place-items:center;font-weight:600}
+.hbody{padding:20px;display:flex;flex-direction:column;gap:16px}
+.gvx{background:radial-gradient(120% 140% at 0% 0%,#1D5639,var(--forest) 55%,#0A2117);color:#fff;border-radius:22px;padding:26px 26px 22px}
+.gvx-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.gvx h4{margin:0;font-size:34px;font-weight:700;letter-spacing:-.045em;line-height:1}
+.gvx-top p{margin-top:10px;max-width:520px;color:#CFDCD3;font-size:14px;line-height:1.55}
+.gvx-k{display:flex;gap:8px}
+.gvx-k>span{border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:10px 14px;min-width:150px;display:flex;flex-direction:column;gap:2px;background:rgba(255,255,255,.03)}
+.gvx-k small{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#CFDCD3;font-weight:500}
+.gvx-k b{font-size:26px;letter-spacing:-.04em;line-height:1.1}
+.gvx-k b i{font-style:normal;font-size:15px;color:#CFDCD3}
+.gvx-k em{font-style:normal;font-size:12px;color:#CFDCD3}
+.gvx-stages{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:22px}
+.gvx-line{position:absolute;left:10%;right:10%;top:22px;height:2px;background:rgba(255,255,255,.14)}
+.gvx-line i{display:block;height:100%;width:var(--lw,0%);background:var(--acid);transition:width 1.6s cubic-bezier(.2,.7,.2,1) .3s}
+.app.in .gvx-line i{--lw:50%}
+.gs{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;padding:10px 8px 14px;border-radius:16px;border:1px solid transparent}
+.gs.now{border-color:rgba(225,225,0,.55);background:rgba(255,255,255,.05)}
+.gs-n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;background:var(--forest);border:1.5px solid rgba(255,255,255,.45);position:relative;z-index:1}
+.gs.done .gs-n{background:var(--acid);border-color:var(--acid)}
+.gs.done .gs-n svg{width:13px;height:13px;stroke:var(--forest);fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.gs.now .gs-n{background:#fff;color:var(--forest);border-color:#fff;box-shadow:0 0 0 4px rgba(225,225,0,.35)}
+.gs-ill{width:100%;max-width:118px;margin:10px 0 6px}
+.gs-ill svg{width:100%;height:auto;display:block}
+.gs b{font-size:15.5px;font-weight:700;letter-spacing:-.025em}
+.gs small{font-size:11.5px;color:#CFDCD3;line-height:1.35}
+.gs-bar{width:80%;height:4px;border-radius:2px;background:rgba(255,255,255,.14);margin-top:10px;overflow:hidden}
+.gs-bar i{display:block;height:100%;background:var(--acid);transition:width 1.4s cubic-bezier(.2,.7,.2,1)}
+.app:not(.in) .gs-bar i{width:0!important}
+.gs em{font-style:normal;font-size:11.5px;color:#E6ECE7;margin-top:6px}
+.hrow{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px}
+.hcard{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.hcard-top{display:flex;justify-content:space-between;gap:10px}
+.cap{font-size:10.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:#5E6B60}
+.cap.y{color:var(--acid)}
+.hcard h5{margin:4px 0 0;font-size:24px;font-weight:700;letter-spacing:-.035em}
+.sp{text-align:right}.sp small{display:block;color:#5E6B60;font-size:12px}.sp b{font-size:15px}
+.obj{background:#EEF3E6;border-radius:12px;padding:11px 14px;font-size:13.5px}
+.obj b{color:var(--forest);margin-right:6px}
+.tasks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tk{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:12.5px}
+.tk i{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line-2);flex:none}
+.tk.d{color:#6B726A}.tk.d i{background:var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/10px no-repeat;border-color:var(--ok)}
+.hcard.dk{background:var(--forest);border-color:var(--forest);color:#fff;gap:8px}
+.hcard.dk p{color:#E6ECE7;font-size:13.5px;line-height:1.5}
+.who{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.who b{font-size:17px;letter-spacing:-.03em}
+.who-av{width:46px;height:46px;border-radius:14px;background:#2A5A40;display:grid;place-items:center;border:1px solid rgba(255,255,255,.15)}
+.who-av img{width:38px}
+@media(max-width:1100px){.app{grid-template-columns:210px minmax(0,1fr)}.hb-btn:not(.y){display:none}}
+@media(max-width:900px){.app{grid-template-columns:minmax(0,1fr)}.hs{display:none}.hb{padding:0 14px}.hb-title,.hb-ic:not(.bell){display:none}
+  .gvx-stages{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:-26px;padding:0 26px 4px;scrollbar-width:none}.gvx-stages::-webkit-scrollbar{display:none}
+  .gs{flex:0 0 150px;scroll-snap-align:start}.gvx-line{display:none}.hrow{grid-template-columns:minmax(0,1fr)}.gvx-k{width:100%}.gvx-k>span{flex:1;min-width:0}}
+@media(max-width:620px){.hbody{padding:12px}.gvx{padding:20px 18px}.gvx-stages{margin-inline:-18px;padding:0 18px 4px}.gvx h4{font-size:28px}.tasks{grid-template-columns:1fr}.hubsec .ctas .btn{width:100%}.app{margin-top:44px}.hcard-top{flex-direction:column}.sp{text-align:left}}
 
 /* Two ways */
 .ways{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
@@ -257,7 +280,7 @@ p{margin:0}
 @media(max-width:820px){.ways{grid-template-columns:minmax(0,1fr)}.way{min-height:0}}
 
 /* Work */
-.work{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.work{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
 .case{display:flex;flex-direction:column;gap:14px}
 .case .browser{margin:0;aspect-ratio:16/10;flex:none;transition:transform .3s}
 .case:hover .browser{transform:translateY(-4px)}
@@ -296,11 +319,105 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
   .clients{gap:6px 22px}.clients span{width:100%;text-align:center}
   .top .btn-main{display:none}
 }
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.track .draw{stroke-dashoffset:0}.stop{opacity:1;transform:none}}
+
+
+/* showreel: grows to full width as you scroll */
+.reel-wrap{margin-top:72px}
+.reel{position:relative;margin:0;border-radius:var(--r-xl);overflow:hidden;aspect-ratio:16/8;background:var(--forest);box-shadow:var(--float);transform:scale(var(--rs,.92));transform-origin:50% 0;will-change:transform}
+.reel video{width:100%;height:100%;object-fit:cover;display:block}
+.reel::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(14,43,30,.55));pointer-events:none}
+.reel figcaption{position:absolute;left:24px;bottom:22px;z-index:1;display:flex;align-items:center;gap:12px;padding:10px 16px 10px 10px;border-radius:18px;background:rgba(255,255,255,.14);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:14px}
+.reel figcaption img{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.85)}
+.reel figcaption b{display:block;font-size:15px;font-weight:600}
+@media(max-width:620px){.reel-wrap{margin-top:40px}.reel{aspect-ratio:4/5;border-radius:24px}.reel figcaption{left:12px;right:12px;bottom:12px;font-size:12.5px}}
+/* ================= MOTION ================= */
+.progress{position:fixed;left:0;top:0;height:2px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--forest),var(--acid));z-index:60}
+/* living aura */
+.aura{animation:drift 22s ease-in-out infinite alternate}
+.aura::after{content:"";position:absolute;inset:10% 20%;background:radial-gradient(30% 36% at 50% 50%,rgba(142,230,188,.35),transparent 70%);animation:orbit 16s ease-in-out infinite alternate}
+@keyframes drift{0%{transform:translate3d(-3%,0,0) scale(1)}50%{transform:translate3d(2%,-3%,0) scale(1.06)}100%{transform:translate3d(4%,2%,0) scale(1)}}
+@keyframes orbit{0%{transform:translate3d(-25%,10%,0)}100%{transform:translate3d(25%,-8%,0)}}
+/* headline: words rise out of a blur */
+.split .w{display:inline-block;opacity:0;transform:translateY(.35em);filter:blur(10px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1),filter .9s;transition-delay:calc(var(--i)*70ms + .1s)}
+.split.in .w{opacity:1;transform:none;filter:none}
+/* reveal on scroll */
+.rv{opacity:0;transform:translateY(28px);filter:blur(6px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1),filter .9s;transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none;filter:none}
+/* pointer spotlight */
+.glow{--mx:-999px;--my:-999px}
+.glow::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(420px circle at var(--mx) var(--my),var(--glowc,rgba(225,225,0,.16)),transparent 45%);opacity:0;transition:opacity .4s}
+.glow:hover::after{opacity:1}
+.planner,.way{position:relative}
+.t-wa{--glowc:rgba(142,230,188,.16)}
+.t-menu,.way-auri{--glowc:rgba(255,255,255,.55)}
+.tile>*,.way>*,.planner>*{position:relative;z-index:1}
+/* buttons: shine + arrow-free nudge */
+.btn{position:relative;overflow:hidden;transition:background .2s,border-color .2s,transform .2s}
+.btn:active{transform:scale(.97)}
+.btn-main::before,.btn-acid::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-120%);transition:transform .8s}
+.btn-main:hover::before,.btn-acid:hover::before{transform:translateX(120%)}
+/* segmented control: sliding pill */
+.seg{position:relative}
+.seg .pill{position:absolute;top:4px;left:0;height:38px;border-radius:999px;background:var(--white);box-shadow:0 1px 2px rgba(16,20,15,.08),0 4px 10px -4px rgba(16,20,15,.18);transition:transform .45s cubic-bezier(.3,.8,.2,1),width .45s cubic-bezier(.3,.8,.2,1);z-index:0}
+.seg button{position:relative;z-index:1}
+.seg.js button[aria-pressed="true"]{background:transparent;box-shadow:none}
+/* path travel dot */
+.track .dot{position:absolute;top:12px;left:12px;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--acid);box-shadow:0 0 0 4px rgba(225,225,0,.35),0 0 18px rgba(225,225,0,.9);opacity:0}
+.track.on .dot{animation:travel 1.6s cubic-bezier(.6,.1,.2,1) forwards}
+@keyframes travel{0%{opacity:1;left:1.2%}90%{opacity:1}100%{opacity:0;left:98.8%}}
+.track.on .stop .node{animation:pop .45s cubic-bezier(.3,1.6,.5,1) both;animation-delay:inherit}
+@keyframes pop{0%{transform:scale(.4)}100%{transform:scale(1)}}
+/* browser: slow living zoom */
+.t-web .browser img{animation:kb 14s ease-in-out infinite alternate;transform-origin:50% 0}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.07)}}
+/* chat sequences */
+.seq>span{opacity:0;transform:translateY(8px) scale(.98);transition:opacity .4s,transform .4s cubic-bezier(.3,1.3,.5,1)}
+.seq>span.show{opacity:1;transform:none}
+.typing{display:inline-flex!important;gap:4px;align-items:center;padding:12px 14px!important;width:max-content;background:rgba(238,241,228,.12)}
+.chat .typing{background:var(--white)}
+.seq>.typing:not(.show){position:absolute;visibility:hidden}
+.typing i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5;animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:.9;transform:translateY(-3px)}}
+.wa,.chat{position:relative}
+/* stars fill */
+.stars i{font-style:normal;color:var(--line-2);transition:color .3s}
+.in .stars i,.stars.in i{color:#C9A100}
+.stars i:nth-child(2){transition-delay:.12s}.stars i:nth-child(3){transition-delay:.24s}.stars i:nth-child(4){transition-delay:.36s}.stars i:nth-child(5){transition-delay:.48s}
+/* NFC tap */
+.nfc .nfc-card{animation:tap 3.2s cubic-bezier(.5,0,.2,1) infinite}
+@keyframes tap{0%,100%{transform:rotate(-6deg) translate(0,0)}35%,55%{transform:rotate(-2deg) translate(-64px,-6px)}}
+.nfc-dot{position:absolute;left:30px;bottom:38px;width:14px;height:14px;border-radius:50%;background:var(--forest)}
+.ripple{position:absolute;left:37px;bottom:45px;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid var(--forest);opacity:0;animation:ripple 3.2s ease-out infinite}
+.ripple:nth-child(2){animation-delay:.25s}.ripple:nth-child(3){animation-delay:.5s}
+@keyframes ripple{0%,30%{transform:scale(.6);opacity:0}40%{opacity:.7}100%{transform:scale(6);opacity:0}}
+/* phone list swap */
+.ph-list{transition:opacity .35s,transform .35s}
+.ph-list.out{opacity:0;transform:translateY(6px)}
+/* AuraHub: tilts flat as you scroll */
+.app-stage{perspective:1800px}
+.app{transform-origin:50% 0;transform:rotateX(var(--tilt,0deg)) scale(var(--sc,1));will-change:transform}
+.gs.now{animation:nowglow 2.6s ease-in-out infinite}
+@keyframes nowglow{0%,100%{box-shadow:0 0 0 0 rgba(225,225,0,0)}50%{box-shadow:0 0 0 4px rgba(225,225,0,.18)}}
+.task .ck{transition:background .4s,border-color .4s}
+/* work: lift + image drift */
+.case .browser img{transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.case:hover .browser img{transform:scale(1.05)}
+/* final: aura follows the pointer */
+.final .aura{left:calc(var(--fx,50%) - 60%);right:auto;width:120%;transition:left 1.2s cubic-bezier(.2,.7,.2,1)}
+@media(prefers-reduced-motion:reduce){
+  .rv,.split .w,.seq>span{opacity:1!important;transform:none!important;filter:none!important}
+  .seq>.typing{display:none!important}
+  .aura,.aura::after,.nfc-card,.ripple,.t-web .browser img,.gs.now{animation:none!important}
+  .app,.reel{transform:none!important}.app .gs-bar i{width:var(--w)!important}.app .gvx-line i{--lw:50%}
+  .progress,.glow::after,.track .dot{display:none}
+}
+@media(prefers-reduced-motion:reduce){.track .draw{stroke-dashoffset:0;transition:none}.stop{opacity:1;transform:none;transition:none}}
 </style>
 </head>
 <body>
 
+<div class="progress" id="progress" aria-hidden="true"></div>
 <header class="top" id="top">
   <div class="wrap">
     <a class="logo" href="#"><i><img src="img/ad-monogram.png" alt=""></i>AuraDigital</a>
@@ -323,12 +440,12 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
   <div class="aura" aria-hidden="true"></div>
   <div class="wrap">
     <div class="hero-copy">
-      <a class="offer" href="#"><b>10% off</b>All website packages until Nov 28</a>
-      <h1>Grow your business one clear step at a time.</h1>
-      <p class="lead">Tell Auri what you run. You get a free growth plan, and our Istanbul team builds it with you.</p>
+      <a class="offer rv" style="--d:0s" href="#"><b>10% off</b>All website packages until Nov 28</a>
+      <h1 id="h1" class="split" aria-label="Grow your business one clear step at a time.">Grow your business one clear step at a time.</h1>
+      <p class="lead rv" style="--d:.55s">Tell Auri what you run. You get a free growth plan, and our Istanbul team builds it with you.</p>
     </div>
 
-    <div class="planner" aria-label="Your growth path">
+    <div class="planner rv glow" id="planner" style="--d:.75s" aria-label="Your growth path">
       <div class="planner-head">
         <div class="pick"><span>I run a</span>
           <div class="seg" id="seg" role="group" aria-label="Business type">
@@ -342,7 +459,7 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
       </div>
       <div class="track" id="track">
         <svg class="line" viewBox="0 0 1000 24" preserveAspectRatio="none" aria-hidden="true"><path class="base" d="M12 12 H988"/><path class="draw" pathLength="1" d="M12 12 H988"/></svg>
-        <ol class="stops" id="stops"></ol>
+        <span class="dot" aria-hidden="true"></span><ol class="stops" id="stops"></ol>
       </div>
       <div class="planner-foot">
         <p class="auri-line"><img src="img/auri.webp" alt="Auri"><span id="auriSays"></span></p>
@@ -350,48 +467,51 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
       </div>
     </div>
 
-    <div class="clients" style="margin-top:56px"><span>Live for businesses in Istanbul</span><strong>Décoration Gâteaux</strong><strong>Mutlu Nakliyat</strong><strong>Erhan Oto Elektrik</strong></div>
+    <div class="reel-wrap"><figure class="reel" id="reel"><video src="media/aura-hero.mp4" poster="media/aura-hero-poster.jpg" autoplay muted loop playsinline preload="metadata" aria-label="AuraDigital showreel"></video><figcaption><img src="img/auri.webp" alt=""><span><b>Built in Istanbul</b>Websites, menus, ads and automation for real businesses</span></figcaption></figure></div>
+    <div class="clients rv"  style="margin-top:56px"><span>Live for businesses in Istanbul</span><strong>Mutlu Nakliyat</strong><strong>Erhan Oto Elektrik</strong></div>
   </div>
 </section>
 
 <section class="sec" id="build" style="padding-top:96px">
   <div class="wrap">
-    <div class="sec-head">
+    <div class="sec-head rv">
       <h2>Everything your path needs, built by one team.</h2>
       <p>Each step is a real product we launch for you, in Turkish, English and Arabic.</p>
     </div>
     <div class="bento">
-      <article class="tile t-web">
+      <article class="rv glow tile t-web">
         <h3>Websites that win trust</h3>
         <p>Fast, mobile-first sites with your Google Maps, WhatsApp and booking built in.</p>
-        <div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>decorationgateaux.shop</span></div><img src="img/gateaux.webp" alt="Décoration Gâteaux website built by AuraDigital" loading="lazy"></div>
+        <div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>mutlunakliyat.site</span></div><img src="img/mutlu.webp" alt="Mutlu Nakliyat website built by AuraDigital" loading="lazy"></div>
       </article>
-      <article class="tile t-menu">
+      <article class="rv glow tile t-menu">
         <h3>AuraMenu</h3>
         <p>A QR menu guests read in their language.</p>
         <div class="phone"><div class="phone-in">
           <div class="ph-h"><b>Lumen Café</b><span class="ph-l">TR EN AR</span></div>
-          <div class="ph-tabs"><span>Coffee</span><span>Breakfast</span><span>Sweets</span></div>
+          <div class="ph-tabs" id="phTabs"><span class="on">Coffee</span><span>Breakfast</span><span>Sweets</span></div>
+          <div class="ph-list" id="phList">
           <div class="row"><span>Flat white<small>Double shot</small></span><b>₺110</b></div>
           <div class="row"><span>Iced latte<small>Oat or whole milk</small></span><b>₺125</b></div>
           <div class="row"><span>Turkish coffee<small>With lokum</small></span><b>₺90</b></div>
           <div class="row"><span>Cold brew<small>18-hour steep</small></span><b>₺130</b></div>
+          </div>
         </div></div>
       </article>
-      <article class="tile t-maps">
+      <article class="rv glow tile t-maps">
         <h3>Found on Google</h3>
         <p>A complete Maps profile and local search.</p>
-        <div class="maps-card"><span class="maps-pin"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E1E100" stroke-width="2" stroke-linecap="round"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span><span><b>Lumen Café</b><span class="stars">★★★★★</span> <span class="muted" style="font-size:13px">4.8 · Open now</span></span></div>
+        <div class="maps-card"><span class="maps-pin"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E1E100" stroke-width="2" stroke-linecap="round"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span><span><b>Lumen Café</b><span class="stars"><i>★</i><i>★</i><i>★</i><i>★</i><i>★</i></span> <span class="muted" style="font-size:13px"><span class="count" data-to="4.8" data-dec="1">4.8</span> · Open now</span></span></div>
       </article>
-      <article class="tile t-wa">
+      <article class="rv glow tile t-wa">
         <h3>Replies while you work</h3>
         <p>WhatsApp answers, prices and bookings, day and night.</p>
-        <div class="wa"><span class="in">Merhaba, are you open tomorrow?</span><span class="out">Yes, 8:00 to 22:00. Shall I book a table?</span></div>
+        <div class="wa seq" data-seq><span class="in">Merhaba, are you open tomorrow?</span><span class="typing" aria-hidden="true"><i></i><i></i><i></i></span><span class="out">Yes, 8:00 to 22:00. Shall I book a table?</span></div>
       </article>
-      <article class="tile t-nfc">
+      <article class="rv glow tile t-nfc">
         <h3>Reviews in one tap</h3>
         <p>NFC cards that open your Google review page.</p>
-        <div class="nfc"><span class="nfc-wave"></span><span class="nfc-wave"></span><div class="nfc-card"><b>Lumen Café</b><span>Tap to review us</span></div></div>
+        <div class="nfc"><span class="ripple"></span><span class="ripple"></span><span class="ripple"></span><span class="nfc-dot"></span><div class="nfc-card"><b>Lumen Café</b><span>Tap to review us</span></div></div>
       </article>
     </div>
     <p class="note">Lumen Café is a demo business used to show the products.</p>
@@ -400,69 +520,48 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
 
 <section class="sec hubsec">
   <div class="wrap">
-    <div class="sec-head">
+    <div class="sec-head rv">
       <h2>Your path lives in AuraHub.</h2>
       <p>Every stage, request, payment and renewal in one place, with Auri and our team beside you.</p>
       <div class="ctas"><a class="btn btn-acid" href="#">Create your free account</a><a class="btn btn-ghost" href="#">Take a tour</a></div>
     </div>
-    <div class="app" aria-label="AuraHub preview">
-      <aside class="app-side">
-        <span class="logo"><i><img src="img/ad-monogram.png" alt=""></i>AuraDigital <small>HUB</small></span>
-        <span class="side-t">Workspace</span>
-        <span class="side-i"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overview</span>
-        <span class="side-i on"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>Growth roadmap</span>
-        <span class="side-i"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8"/></svg>Website &amp; AuraMenu</span>
-        <span class="side-i"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15v2M11 11v6M15 8v9M19 5v12"/></svg>Analytics</span>
-        <span class="side-i"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/></svg>Auri assistant</span>
-        <span class="side-t">Operate</span>
-        <span class="side-i"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></svg>Requests</span>
-        <span class="side-i"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Orders &amp; billing</span>
-      </aside>
-      <div class="app-main">
-        <div class="app-bar"><span class="biz"><i>L</i>Lumen Café</span><span class="muted">Aura Journey</span><span class="sp"><span class="chipb">+ New request</span><span class="chipb y">Auri</span><span class="av">S</span></span></div>
-        <div class="app-body">
-          <div class="gv">
-            <div class="gv-top"><div><h4>Growth Vision</h4><p>Five stages from opening your doors to scaling up. Progress counts only verified work.</p></div><div style="display:flex;gap:8px"><span class="gv-k">Overall progress<b>48%</b></span><span class="gv-k">Milestones<b>2/5</b></span></div></div>
-            <div class="gv-stages">
-              <div class="gv-s done"><span class="gv-ic"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11"/><path d="M10 21v-6h4v6"/></svg></span><b>Launch</b><small>6 of 6 tasks</small><div class="bar"><i style="width:100%"></i></div></div>
-              <div class="gv-s done"><span class="gv-ic"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span><b>Get found</b><small>4 of 4 tasks</small><div class="bar"><i style="width:100%"></i></div></div>
-              <div class="gv-s now"><span class="gv-ic"><svg viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></span><b>Convert</b><small>2 of 4 tasks</small><div class="bar"><i style="width:50%"></i></div></div>
-              <div class="gv-s"><span class="gv-ic"><svg viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></svg></span><b>Grow</b><small>0 of 2 tasks</small><div class="bar"><i style="width:0"></i></div></div>
-              <div class="gv-s"><span class="gv-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></span><b>Scale</b><small>0 of 2 tasks</small><div class="bar"><i style="width:0"></i></div></div>
-            </div>
-          </div>
-          <div class="app-row">
-            <div class="panel">
-              <h5>Convert · current stage <span class="muted">2 of 4 tasks</span></h5>
-              <div class="task d"><span class="ck"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>WhatsApp business profile<span class="tag">Done</span></div>
-              <div class="task d"><span class="ck"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>Menu linked on Google Maps<span class="tag">Done</span></div>
-              <div class="task"><span class="ck"></span>Online reservations<span class="tag">Recommended</span></div>
-              <div class="task"><span class="ck"></span>Automatic WhatsApp replies<span class="tag">Available</span></div>
-            </div>
-            <div class="panel dark">
-              <div class="who"><img src="img/auri.webp" alt=""><b>Auri on this stage</b></div>
-              <p>Most of your WhatsApp chats ask about tables. Online reservations would turn them into bookings.</p>
-              <a class="btn btn-acid btn-sm" href="#" style="align-self:flex-start">Add reservations</a>
-            </div>
+    <div class="app-stage"><div class="app" id="app" aria-label="AuraHub preview">
+      <aside class="hs"><span class="hs-logo"><i><img src="img/ad-monogram.png" alt=""></i>AuraDigital<small>AURAHUB</small></span><span class="hs-t">Workspace</span><span class="hs-i"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overview</span><span class="hs-i"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9h18"/><path d="M9 20v-6h6v6"/></svg>My Business</span><span class="hs-i on"><svg viewBox="0 0 24 24"><path d="M6 3v18"/><path d="M6 15c4 0 4-6 8-6h4"/><path d="M15 6l3 3-3 3"/></svg>Growth Roadmap</span><span class="hs-i"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="10" rx="1"/><rect x="17" y="4" width="4" height="6" rx="1"/></svg>Aura Studio</span><span class="hs-i"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg>My Services</span><span class="hs-i"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>Website &amp; AuraMenu</span><span class="hs-i"><svg viewBox="0 0 24 24"><path d="M4 20V10M9 20V4M14 20v-7M19 20V8"/></svg>Analytics</span><span class="hs-i"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.5 6 .9-4.4 4.2 1 6-5.3-2.8-5.3 2.8 1-6L3.3 9.4l6-.9z"/></svg>Auri Assistant</span><span class="hs-t">Operate</span><span class="hs-i"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></svg>Requests</span><span class="hs-i"><svg viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6"/></svg>Orders &amp; billing</span><span class="hs-t">Account</span><span class="hs-i"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c2 .6 3.2 2.3 3.5 5.2"/></svg>Team</span><span class="hs-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</span></aside>
+      <div class="hm">
+        <div class="hb"><span class="hb-biz"><i>L</i>Lumen Café<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span><b class="hb-title">Aura Journey</b>
+          <span class="hb-end"><span class="hb-btn">+ New request</span><span class="hb-btn y"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.5 6 .9-4.4 4.2 1 6-5.3-2.8-5.3 2.8 1-6L3.3 9.4l6-.9z"/></svg>Auri</span><span class="hb-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><span class="hb-ic bell"><svg viewBox="0 0 24 24"><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/><path d="M3.3 15.3A1 1 0 0 0 4 17h16a1 1 0 0 0 .7-1.7C19.4 14 18 12.5 18 8A6 6 0 0 0 6 8c0 4.5-1.4 6-2.7 7.3"/></svg><em>3</em></span><span class="hb-av">S</span></span></div>
+        <div class="hbody">
+          <section class="gvx">
+            <div class="gvx-top"><div><h4>Growth Vision</h4><p>Five stages from opening your doors to scaling up. Progress counts only completed and verified work.</p></div>
+              <div class="gvx-k"><span><small>Overall progress</small><b><span class="count" data-to="67">67</span>%</b><em>12 of 18 tasks</em></span><span><small>Verified milestones</small><b><span class="count" data-to="2">2</span><i>/5</i></b><em>Auri 4/7</em></span></div></div>
+            <div class="gvx-stages"><span class="gvx-line" aria-hidden="true"><i></i></span><div class="gs done"><span class="gs-n"><svg viewBox='0 0 24 24'><path d='M20 6 9 17l-5-5'/></svg></span><span class="gs-ill"><svg viewBox="0 0 120 90"><ellipse cx="60" cy="82" rx="44" ry="5" fill="#0A2117"/><rect x="26" y="40" width="68" height="40" rx="3" fill="#2C6B48"/><path d="M20 40h80l-6-12H26z" fill="#E1E100"/><path d="M20 40q6.7 8 13.3 0t13.3 0 13.4 0 13.3 0 13.4 0 13.3 0" fill="#E1E100"/><rect x="54" y="56" width="12" height="24" fill="#123826"/><rect x="34" y="50" width="12" height="9" rx="1" fill="#D9EDE0"/><rect x="74" y="50" width="12" height="9" rx="1" fill="#D9EDE0"/><path d="M58 28V8" stroke="#E1E100" stroke-width="2.5"/><path d="M58 8h14l-4 5 4 5H58z" fill="#E1E100"/><circle cx="86" cy="16" r="3" fill="#E1E100"/></svg></span><b>Launch</b><small>Open for business online</small><span class="gs-bar"><i style="--w:100%;width:100%"></i></span><em>6 of 6 tasks</em></div><div class="gs done"><span class="gs-n"><svg viewBox='0 0 24 24'><path d='M20 6 9 17l-5-5'/></svg></span><span class="gs-ill"><svg viewBox="0 0 120 90"><path d="M18 26l26-9 32 9 26-9v52l-26 9-32-9-26 9z" fill="#2C6B48"/><path d="M44 17v52M76 26v52" stroke="#1C4D34" stroke-width="2"/><path d="M60 22c-9 0-15 6-15 14 0 10 15 24 15 24s15-14 15-24c0-8-6-14-15-14z" fill="#E1E100"/><circle cx="60" cy="36" r="5.5" fill="#123826"/><circle cx="86" cy="62" r="11" fill="none" stroke="#D9EDE0" stroke-width="4"/><path d="M94 70l10 10" stroke="#D9EDE0" stroke-width="4" stroke-linecap="round"/></svg></span><b>Get Found</b><small>Be easy to discover</small><span class="gs-bar"><i style="--w:100%;width:100%"></i></span><em>4 of 4 tasks</em></div><div class="gs now"><span class="gs-n">3</span><span class="gs-ill"><svg viewBox="0 0 120 90"><rect x="16" y="14" width="56" height="34" rx="8" fill="#2C6B48"/><path d="M26 48v12l12-12z" fill="#2C6B48"/><path d="M26 26h8M38 26h8M50 26h8M26 36h8M38 36h8" stroke="#8FB8A0" stroke-width="2" stroke-linecap="round"/><rect x="50" y="36" width="54" height="36" rx="8" fill="#D9EDE0"/><circle cx="77" cy="54" r="10" fill="#E1E100"/><path d="M72 54l4 4 7-8" stroke="#123826" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>Convert</b><small>Turn interest into customers</small><span class="gs-bar"><i style="--w:50%;width:50%"></i></span><em>2 of 4 tasks</em></div><div class="gs "><span class="gs-n">4</span><span class="gs-ill"><svg viewBox="0 0 120 90"><path d="M14 80h92" stroke="#D9EDE0" stroke-width="2.5"/><rect x="22" y="56" width="12" height="24" rx="2" fill="#2C6B48"/><rect x="40" y="44" width="12" height="36" rx="2" fill="#2C6B48"/><rect x="58" y="30" width="12" height="50" rx="2" fill="#E1E100"/><path d="M20 46l20-6 18 4 26-26" stroke="#D9EDE0" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="84" cy="18" r="3.5" fill="#D9EDE0"/><path d="M84 80V52" stroke="#E1E100" stroke-width="2.5"/><path d="M84 62c0-10 8-14 16-14-1 10-8 14-16 14zM84 58c0-8-6-11-12-11 1 8 6 11 12 11z" fill="#E1E100"/></svg></span><b>Grow</b><small>Work smarter, keep customers</small><span class="gs-bar"><i style="--w:0%;width:0%"></i></span><em>0 of 2 tasks</em></div><div class="gs "><span class="gs-n">5</span><span class="gs-ill"><svg viewBox="0 0 120 90"><path d="M60 42L32 20M60 42l30-24M60 42L30 70M60 42l32 24" stroke="#8FB8A0" stroke-width="2" stroke-dasharray="3 4"/><rect x="20" y="10" width="20" height="16" rx="4" fill="#2C6B48"/><rect x="82" y="8" width="20" height="18" rx="4" fill="#E1E100"/><rect x="20" y="62" width="20" height="16" rx="4" fill="#D9EDE0"/><rect x="84" y="60" width="18" height="16" rx="4" fill="#2C6B48"/><circle cx="60" cy="42" r="13" fill="#E1E100"/><path d="M60 35v14M53 42h14" stroke="#123826" stroke-width="3" stroke-linecap="round"/><circle cx="106" cy="44" r="3" fill="#E1E100"/></svg></span><b>Scale</b><small>Measure, repeat, expand</small><span class="gs-bar"><i style="--w:0%;width:0%"></i></span><em>0 of 2 tasks</em></div></div>
+          </section>
+          <div class="hrow">
+            <div class="hcard"><div class="hcard-top"><div><small class="cap">Stage 3 of 5 · Current stage</small><h5>Convert</h5></div><div class="sp"><small>Stage progress</small><b>2 of 4 tasks</b></div></div>
+              <p class="obj"><b>Objective</b> Turn people who find you into paying customers.</p>
+              <div class="tasks"><span class="tk d"><i></i>WhatsApp business profile</span><span class="tk d"><i></i>Menu linked on Google Maps</span><span class="tk"><i></i>Online reservations</span><span class="tk"><i></i>Automatic WhatsApp replies</span></div></div>
+            <div class="hcard dk"><div class="who"><span class="who-av"><img src="img/auri.webp" alt=""></span><b>Auri on this stage</b></div>
+              <small class="cap y">Why it matters</small><p>Most of your WhatsApp chats ask about tables. Online reservations turn those chats into bookings.</p>
+              <small class="cap y">What you've done</small><p>WhatsApp profile and menu on Maps are live.</p></div>
           </div>
         </div>
       </div>
     </div>
-    <p class="note">AuraHub preview with demo data.</p>
+    </div><p class="note">AuraHub preview with demo data.</p>
   </div>
 </section>
 
 <section class="sec">
   <div class="wrap">
-    <div class="sec-head"><h2>Do it yourself, or let us do it.</h2><p>Every path works both ways. Switch whenever you like.</p></div>
+    <div class="sec-head rv"><h2>Do it yourself, or let us do it.</h2><p>Every path works both ways. Switch whenever you like.</p></div>
     <div class="ways">
-      <div class="way way-auri">
+      <div class="rv glow way way-auri">
         <h3>With Auri</h3>
         <p>Answer a few questions. Auri builds your plan, sets up your tools and guides each step at your pace.</p>
-        <div class="chat"><span class="me">I have a small bakery in Beşiktaş.</span><span class="bot">Great. Your first step is a Google Maps profile and an AuraMenu, so people find you and see prices.</span></div>
+        <div class="chat seq" data-seq><span class="me">I have a small bakery in Beşiktaş.</span><span class="typing" aria-hidden="true"><i></i><i></i><i></i></span><span class="bot">Great. Your first step is a Google Maps profile and an AuraMenu, so people find you and see prices.</span></div>
         <a class="btn btn-main" href="#" style="align-self:flex-start;margin-top:8px">Start with Auri</a>
       </div>
-      <div class="way way-team">
+      <div class="rv glow way way-team">
         <h3>With our team</h3>
         <p>Tell us what you need. Our Istanbul team designs, builds and launches it for you.</p>
         <div class="promise">
@@ -480,14 +579,14 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
   <div class="wrap">
     <div class="sec-head" style="flex-direction:row;justify-content:space-between;align-items:flex-end;max-width:none;flex-wrap:wrap"><h2 style="max-width:620px">Launched for real businesses in Istanbul.</h2><a class="btn btn-ghost" href="#">See all work</a></div>
     <div class="work">
-      <a class="case" href="#"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>decorationgateaux.shop</span></div><img src="img/gateaux.webp" alt="Décoration Gâteaux website" loading="lazy"></div><b>Décoration Gâteaux</b><span>Cake and dessert brand. Website and social media.</span></a>
-      <a class="case" href="#"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>mutlunakliyat.site</span></div><img src="img/mutlu.webp" alt="Mutlu Nakliyat website" loading="lazy"></div><b>Mutlu Nakliyat</b><span>Moving company. Website, Google profile and Meta ads.</span></a>
-      <a class="case" href="#"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>yurtotoelektrik</span></div><img src="img/erhan.webp" alt="Erhan Oto Elektrik website" loading="lazy"></div><b>Erhan Oto Elektrik</b><span>Auto-electrical workshop in Fatih. Website and Maps.</span></a>
+      
+      <a class="case rv" href="#"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>mutlunakliyat.site</span></div><img src="img/mutlu.webp" alt="Mutlu Nakliyat website" loading="lazy"></div><b>Mutlu Nakliyat</b><span>Moving company. Website, Google profile and Meta ads.</span></a>
+      <a class="case rv" href="#"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>yurtotoelektrik</span></div><img src="img/erhan.webp" alt="Erhan Oto Elektrik website" loading="lazy"></div><b>Erhan Oto Elektrik</b><span>Auto-electrical workshop in Fatih. Website and Maps.</span></a>
     </div>
   </div>
 </section>
 
-<section class="final">
+<section class="final" id="final">
   <div class="aura" aria-hidden="true"></div>
   <div class="wrap">
     <h2>Your first step takes two minutes.</h2>
@@ -554,12 +653,102 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
   seg.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
     seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-    render(b.dataset.k);
+    current = b.dataset.k; render(current);
   });
-  render('food');
+  let current = 'food';
   const burger = document.getElementById('burger'), mnav = document.getElementById('mnav');
   burger.addEventListener('click', () => { const o = mnav.classList.toggle('open'); burger.setAttribute('aria-expanded', String(o)); });
   mnav.addEventListener('click', (e) => { if (e.target.closest('a')) { mnav.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); } });
+
+  /* ===== motion ===== */
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // split headline into words
+  const h1 = document.getElementById('h1');
+  h1.innerHTML = h1.textContent.trim().split(/\s+/).map((w, i) => '<span class="w" aria-hidden="true" style="--i:' + i + '">' + esc(w) + '</span>').join(' ');
+  requestAnimationFrame(() => h1.classList.add('in'));
+  // reveal on scroll (stagger siblings)
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return;
+    const el = e.target;
+    if (!el.style.getPropertyValue('--d')) {
+      const sibs = [...el.parentElement.children].filter((c) => c.classList.contains('rv'));
+      el.style.setProperty('--d', (Math.max(0, sibs.indexOf(el)) * 0.08) + 's');
+    }
+    el.classList.add('in'); io.unobserve(el);
+  }), {threshold: 0.12, rootMargin: '0px 0px -6% 0px'});
+  document.querySelectorAll('.rv').forEach((el) => io.observe(el));
+  // the path draws after the planner arrives
+  setTimeout(() => render(current), reduce ? 0 : 1250);
+  // pointer spotlight
+  document.querySelectorAll('.glow').forEach((el) => el.addEventListener('pointermove', (e) => {
+    const b = el.getBoundingClientRect();
+    el.style.setProperty('--mx', (e.clientX - b.left) + 'px'); el.style.setProperty('--my', (e.clientY - b.top) + 'px');
+  }));
+  // sliding pill in the business switch
+  const pill = document.createElement('span'); pill.className = 'pill'; seg.prepend(pill); seg.classList.add('js');
+  const movePill = () => { const b = seg.querySelector('[aria-pressed="true"]'); pill.style.width = b.offsetWidth + 'px'; pill.style.transform = 'translate(' + b.offsetLeft + 'px,' + (b.offsetTop - 4) + 'px)'; };
+  movePill(); addEventListener('resize', movePill); seg.addEventListener('click', () => requestAnimationFrame(movePill));
+  document.fonts && document.fonts.ready.then(movePill);
+  // count-up numbers
+  const countUp = (el) => {
+    const to = parseFloat(el.dataset.to), dec = +(el.dataset.dec || 0), t0 = performance.now(), dur = 1400;
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = (to * e).toFixed(dec); if (k < 1) requestAnimationFrame(step); };
+    if (reduce) { el.textContent = to.toFixed(dec); return; } requestAnimationFrame(step); setTimeout(() => { el.textContent = to.toFixed(dec); }, dur + 200);
+  };
+  const io2 = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return; const el = e.target; io2.unobserve(el);
+    el.classList.add('in');
+    el.querySelectorAll('.count').forEach(countUp);
+    if (el.matches('[data-seq]')) playSeq(el);
+  }), {threshold: 0.15});
+  document.querySelectorAll('.t-maps, [data-seq], #app').forEach((el) => io2.observe(el));
+  // chat: message, typing, reply, loop
+  function playSeq(box) {
+    const parts = [...box.children];
+    const run = () => {
+      parts.forEach((p) => p.classList.remove('show'));
+      if (reduce) { parts.filter((p) => !p.classList.contains('typing')).forEach((p) => p.classList.add('show')); return; }
+      let t = 300;
+      parts.forEach((p) => {
+        if (p.classList.contains('typing')) { setTimeout(() => p.classList.add('show'), t); t += 1300; setTimeout(() => p.classList.remove('show'), t); }
+        else { setTimeout(() => p.classList.add('show'), t); t += 700; }
+      });
+      setTimeout(run, t + 5000);
+    };
+    run();
+  }
+  // phone menu cycles through categories
+  const menus = [
+    [['Flat white','Double shot','₺110'],['Iced latte','Oat or whole milk','₺125'],['Turkish coffee','With lokum','₺90'],['Cold brew','18-hour steep','₺130']],
+    [['Menemen','Eggs, tomato, pepper','₺180'],['Simit plate','Cheese, olives, jam','₺160'],['Avocado toast','Sourdough, chili','₺210'],['Granola bowl','Yogurt, honey','₺150']],
+    [['Baklava','Pistachio, 4 pieces','₺140'],['San Sebastián','Burnt cheesecake','₺170'],['Künefe','Served warm','₺190'],['Sütlaç','Oven-baked','₺110']]];
+  const phTabs = [...document.querySelectorAll('#phTabs span')], phList = document.getElementById('phList');
+  let mi = 0;
+  if (!reduce) setInterval(() => {
+    mi = (mi + 1) % menus.length; phList.classList.add('out');
+    phTabs.forEach((t, i) => t.classList.toggle('on', i === mi));
+    setTimeout(() => { phList.innerHTML = menus[mi].map((r) => '<div class="row"><span>' + esc(r[0]) + '<small>' + esc(r[1]) + '</small></span><b>' + esc(r[2]) + '</b></div>').join(''); phList.classList.remove('out'); }, 350);
+  }, 3200);
+  // scroll: progress bar + AuraHub tilt + final aura
+  const prog = document.getElementById('progress'), app = document.getElementById('app'), fin = document.getElementById('final');
+  let ticking = false;
+  const reel = document.getElementById('reel');
+  const onScroll = () => {
+    ticking = false;
+    if (!reduce) { const rr = reel.getBoundingClientRect(); const kr = Math.min(1, Math.max(0, (innerHeight - rr.top) / (innerHeight * 0.9))); reel.style.setProperty('--rs', (0.9 + 0.1 * kr).toFixed(3)); }
+    const max = document.documentElement.scrollHeight - innerHeight;
+    prog.style.transform = 'scaleX(' + (max > 0 ? scrollY / max : 0) + ')';
+    if (!reduce) {
+      const r = app.getBoundingClientRect();
+      const k = Math.min(1, Math.max(0, (innerHeight - r.top) / (innerHeight * 0.8)));
+      app.style.setProperty('--tilt', (22 * (1 - k)).toFixed(2) + 'deg');
+      app.style.setProperty('--sc', (0.9 + 0.1 * k).toFixed(3));
+    }
+  };
+  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, {passive: true});
+  onScroll();
+  fin.addEventListener('pointermove', (e) => { const b = fin.getBoundingClientRect(); fin.style.setProperty('--fx', ((e.clientX - b.left) / b.width * 100) + '%'); });
+
   const top = document.getElementById('top');
   addEventListener('scroll', () => top.classList.toggle('scrolled', scrollY > 8), {passive: true});
 }
