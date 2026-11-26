@@ -9,6 +9,7 @@ import { catalogue as PUBLIC_PRICING, getItem as getPublicPrice, quote as calcul
 import { queueRequestNotification } from "./notifications.js";
 import { checkResendHealth } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
+import { ownMenuImageUrl, PUBLIC_MENU_CACHE_CONTROL, PUBLIC_IMAGE_CACHE_CONTROL, readPublicCache, writePublicCache, writeLastGood, readLastGood, withHeaders } from "./auramenu-media.js";
 import { securityEvent } from "./security-policy.js";
 import { handleEmployeePortalApi } from "./employee-portal.js";
 import { handleAdditionalEmployeeApi } from "./employee-portals.js";
@@ -620,7 +621,7 @@ function auraMenuCors(request) {
   };
 }
 
-function normalizeAuraMenuCategories(value) {
+function normalizeAuraMenuCategories(value, origin = "") {
   if (!Array.isArray(value) || value.length < 1 || value.length > 12) {
     throw new ApiError(400, "Menüde 1 ile 12 arasında kategori olmalıdır.");
   }
@@ -648,7 +649,7 @@ function normalizeAuraMenuCategories(value) {
         name: itemName,
         description: qsClean(item.description, 300),
         price: qsClean(item.price, 40),
-        imageUrl: qsUrl(item.imageUrl),
+        imageUrl: ownMenuImageUrl(item.imageUrl, origin),
         imageData,
         featured: Boolean(item.featured),
       };
@@ -764,7 +765,7 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return json({ error: "Geçerli bir e-posta adresi girin." }, 400, corsHeaders);
   }
-  const categories = normalizeAuraMenuCategories(body.categories);
+  const categories = normalizeAuraMenuCategories(body.categories, new URL(request.url).origin);
   const serviceMode = body.serviceMode === "managed" ? "managed" : "self";
   const planId = body.planId || 'starter';
   const plan = Object.hasOwn(MENU_PLANS, planId) ? MENU_PLANS[planId] : null;
@@ -843,7 +844,10 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   });
 }
 
-async function getAuraMenuImage(request, db, id, corsHeaders) {
+async function getAuraMenuImage(request, db, id, corsHeaders, ctx) {
+  // Published photos never change (each upload gets a new id), so repeat views come from the edge cache.
+  const cached = await readPublicCache(request);
+  if (cached) return withHeaders(cached, corsHeaders);
   const row = await db.prepare("SELECT i.content_type, i.image_bytes, r.id AS menu_id, r.status, r.payment_status FROM auramenu_images i INNER JOIN auramenu_requests r ON r.id = i.request_id WHERE i.id = ? LIMIT 1")
     .bind(id).first();
   if (!row) return json({ error: "Fotoğraf bulunamadı." }, 404, corsHeaders);
@@ -863,15 +867,16 @@ async function getAuraMenuImage(request, db, id, corsHeaders) {
   if (!imageBytes || !AURAMENU_IMAGE_TYPES.has(row.content_type)) {
     return json({ error: "Fotoğraf okunamadı." }, 500, corsHeaders);
   }
-  return new Response(imageBytes, {
+  const response = new Response(imageBytes, {
     headers: {
       "Content-Type": row.content_type,
       "Content-Length": String(imageBytes.byteLength),
-      "Cache-Control": published ? "public, max-age=60" : "no-store",
+      "Cache-Control": published ? PUBLIC_IMAGE_CACHE_CONTROL : "no-store",
       "X-Content-Type-Options": "nosniff",
-      ...corsHeaders,
     },
   });
+  if (published) writePublicCache(request, response, ctx);
+  return withHeaders(response, corsHeaders);
 }
 
 async function getAuraMenuRequestStatus(request, db, id, corsHeaders) {
@@ -896,14 +901,29 @@ async function getAuraMenuRequestStatus(request, db, id, corsHeaders) {
   }, 200, { "Cache-Control": "no-store", ...corsHeaders });
 }
 
-async function getPublishedAuraMenu(request, db, slug, corsHeaders) {
-  const row = await db.prepare("SELECT * FROM auramenu_requests WHERE lower(trim(slug)) = lower(?) LIMIT 1").bind(slug).first();
-  const published = row && (await menuEntitlement(db, row)).live;
-  if (!row || !published) return json({ error: "Menü henüz yayında değil." }, 404, corsHeaders);
-  return json({ menu: mapAuraMenuRequest(row, true) }, 200, {
-    "Cache-Control": "no-store",
-    ...corsHeaders,
+async function getPublishedAuraMenu(request, db, slug, corsHeaders, ctx) {
+  // Published menus are public: serve repeat scans from the edge cache (max 60 s old)
+  // instead of reading D1 on every QR scan. CORS headers are added per request.
+  const cached = await readPublicCache(request);
+  if (cached) return withHeaders(cached, corsHeaders);
+  let row, published;
+  try {
+    row = await db.prepare("SELECT * FROM auramenu_requests WHERE lower(trim(slug)) = lower(?) LIMIT 1").bind(slug).first();
+    published = row && (await menuEntitlement(db, row)).live;
+  } catch (error) {
+    // Database unavailable: keep restaurants' menus readable from their last good copy.
+    const fallback = await readLastGood(request);
+    console.error(JSON.stringify({ event: "auramenu_menu_db_error", slug, fallback: Boolean(fallback), message: String(error?.message || error).slice(0, 200) }));
+    if (fallback) return withHeaders(fallback, corsHeaders);
+    return json({ error: "Menü geçici olarak açılamıyor. Lütfen biraz sonra tekrar deneyin." }, 503, { "Cache-Control": "no-store", "Retry-After": "30", ...corsHeaders });
+  }
+  if (!row || !published) return json({ error: "Menü henüz yayında değil." }, 404, { "Cache-Control": "no-store", ...corsHeaders });
+  const response = json({ menu: mapAuraMenuRequest(row, true) }, 200, {
+    "Cache-Control": PUBLIC_MENU_CACHE_CONTROL,
   });
+  writePublicCache(request, response, ctx);
+  writeLastGood(request, response, ctx);
+  return withHeaders(response, corsHeaders);
 }
 
 async function handleAuraMenuAdmin(request, db, id) {
@@ -1020,7 +1040,15 @@ export default {
     }
 
     try {
-      await ensureSchema(env.DB);
+      try {
+        await ensureSchema(env.DB);
+      } catch (schemaError) {
+        // Public menus, their photos and the health check must keep answering while D1 is down:
+        // they have their own cache/fallback paths. Every other route still fails as before.
+        const dbTolerant = (request.method === "GET" || request.method === "HEAD") &&
+          (url.pathname === "/api/health" || /^\/api\/auramenu\/(sites|images)\//.test(url.pathname));
+        if (!dbTolerant) throw schemaError;
+      }
 
       if (url.pathname.startsWith("/api/employee/")) {
         const additionalEmployeeResponse = await handleAdditionalEmployeeApi(request, env);
@@ -1077,7 +1105,7 @@ export default {
 
         const auraMenuImage = url.pathname.match(/^\/api\/auramenu\/images\/([a-f0-9-]+)$/i);
         if (auraMenuImage && request.method === "GET") {
-          return await getAuraMenuImage(request, env.DB, auraMenuImage[1], corsHeaders);
+          return await getAuraMenuImage(request, env.DB, auraMenuImage[1], corsHeaders, ctx);
         }
 
         const auraMenuStatus = url.pathname.match(/^\/api\/auramenu\/requests\/([a-f0-9-]+)$/i);
@@ -1087,7 +1115,7 @@ export default {
 
         const publishedAuraMenu = url.pathname.match(/^\/api\/auramenu\/sites\/([a-z0-9-]+)$/);
         if (publishedAuraMenu && request.method === "GET") {
-          return await getPublishedAuraMenu(request, env.DB, publishedAuraMenu[1], corsHeaders);
+          return await getPublishedAuraMenu(request, env.DB, publishedAuraMenu[1], corsHeaders, ctx);
         }
       }
 
@@ -1096,6 +1124,17 @@ export default {
 
       const quickPublic = url.pathname.match(/^\/api\/quicksite\/sites\/([a-z0-9-]+)$/);
       if (quickPublic && request.method === "GET") return await getQuickSiteProject(env.DB, "slug", quickPublic[1], true);
+
+      if (url.pathname === "/api/health" && (request.method === "GET" || request.method === "HEAD")) {
+        // For uptime monitors: confirms the Worker runs and the database answers. Reveals nothing else.
+        const started = Date.now();
+        try {
+          await env.DB.prepare("SELECT 1 AS ok").first();
+          return json({ ok: true, database: "ok", ms: Date.now() - started }, 200, { "Cache-Control": "no-store" });
+        } catch {
+          return json({ ok: false, database: "error" }, 503, { "Cache-Control": "no-store", "Retry-After": "30" });
+        }
+      }
 
       if (url.pathname === "/api/email-health" && request.method === "GET") {
         const admin = await getAuthenticatedAdmin(request,env.DB);

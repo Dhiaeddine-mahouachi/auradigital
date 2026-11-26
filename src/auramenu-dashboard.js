@@ -2,6 +2,7 @@ import { menuBilling } from './menu-billing.js';
 import { ApiError, json, readJson } from './http.js';
 import { getAuthenticatedAdmin, sameOrigin } from './security.js';
 import { ensureMenuAccess as ensure, tokenHash as sha256, menuTokenAccess as requireToken, newMenuToken } from './menu-ownership.js';
+import { ownMenuImageUrl } from './auramenu-media.js';
 
 const ORIGINS = new Set([
   'https://auramenu.space',
@@ -34,17 +35,6 @@ function cors(request) {
 
 function clean(value, max = 500) {
   return typeof value === 'string' ? value.trim().slice(0, max) : '';
-}
-
-function url(value) {
-  const text = clean(value, 800);
-  if (!text) return '';
-  try {
-    const parsed = new URL(text);
-    return ['http:', 'https:'].includes(parsed.protocol) ? parsed.toString() : '';
-  } catch {
-    return '';
-  }
 }
 
 function parse(value, fallback) {
@@ -138,7 +128,7 @@ function decodeImage(dataUrl) {
   return { contentType, bytes: bytes.buffer };
 }
 
-function normalizeCategories(value) {
+function normalizeCategories(value, origin = '') {
   if (!Array.isArray(value) || value.length < 1 || value.length > 12) {
     throw new ApiError(400, '1 ile 12 kategori olmalıdır.');
   }
@@ -160,7 +150,7 @@ function normalizeCategories(value) {
           name: itemName,
           description: clean(item.description, 300),
           price: clean(item.price, 40),
-          imageUrl: url(item.imageUrl),
+          imageUrl: ownMenuImageUrl(item.imageUrl, origin),
           imageData: typeof item.imageData === 'string' ? item.imageData.trim() : '',
           featured: Boolean(item.featured),
         };
@@ -272,7 +262,7 @@ export async function handleAuraMenuDashboard(request, env) {
         );
       }
       const body = await readJson(request, BODY_BYTES);
-      const categories = normalizeCategories(body.categories);
+      const categories = normalizeCategories(body.categories, new URL(request.url).origin);
       const imageInserts = await replaceImages(env.DB, id, categories, new URL(request.url).origin);
       const template = ['modern', 'orbit', 'maison', 'taste3d'].includes(String(body.templateId))
         ? String(body.templateId)
