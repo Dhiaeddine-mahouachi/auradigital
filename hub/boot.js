@@ -70,3 +70,30 @@
   }, 6000);
   setTimeout(function () { if (!started()) report('Timed out before the first screen', ''); show('Timed out before the first screen'); }, 15000);
 })();
+
+// Email handoff from the homepage "Start with your email" box. The address is
+// kept in sessionStorage (never in the URL) and only pre-fills the email field
+// on the sign-up / sign-in screens. It expires after 15 minutes.
+(function () {
+  'use strict';
+  var KEY = 'aura-start-email', raw;
+  try { raw = sessionStorage.getItem(KEY); } catch (e) { return; }
+  if (!raw) return;
+  var data; try { data = JSON.parse(raw); } catch (e) { data = null; }
+  if (!data || typeof data.email !== 'string' || Date.now() - (data.at || 0) > 15 * 60 * 1000) { try { sessionStorage.removeItem(KEY); } catch (e) {} return; }
+  if (!/^\/hub\/(signup|login)\/?$/.test(location.pathname)) return;
+  var fill = function () {
+    var input = document.querySelector('input[type="email"]');
+    if (!input || input.value) return false;
+    input.value = data.email;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  };
+  var start = function () {
+    var obs = new MutationObserver(function () { fill(); });
+    obs.observe(document.documentElement, { childList: true, subtree: true });
+    fill();
+    setTimeout(function () { obs.disconnect(); }, 20000);
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();

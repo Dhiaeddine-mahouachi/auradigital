@@ -363,18 +363,31 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
 .auri-line .auri{width:46px;height:46px;flex:none}
 .who-av .auri{width:40px;height:40px}
 .reel figcaption .auri{width:40px;height:40px;flex:none}
-.auri-fab{position:fixed;right:20px;bottom:20px;z-index:50;width:76px;height:76px;border:0;padding:2px;border-radius:24px;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);box-shadow:0 1px 2px rgba(16,20,15,.08),0 18px 40px -14px rgba(16,40,25,.45);cursor:pointer;animation:bob 4s ease-in-out infinite;transition:transform .2s}
+.auri-fab{position:fixed;right:20px;bottom:20px;z-index:50;width:56px;height:56px;border:0;padding:3px;border-radius:18px;background:var(--acid);box-shadow:0 1px 2px rgba(16,20,15,.08),0 18px 40px -14px rgba(16,40,25,.45);cursor:pointer;animation:bob 4s ease-in-out infinite;transition:transform .2s}
 .auri-fab:hover{transform:translateY(-3px) scale(1.04)}
 .auri-fab .auri{width:100%;height:100%}
+.auri-fab .auri ellipse[cx="60"][cy="112"]{display:none}
 @keyframes bob{0%,100%{translate:0 0}50%{translate:0 -4px}}
-.auri-bubble{position:fixed;right:20px;bottom:104px;z-index:50;width:min(300px,calc(100vw - 40px));background:var(--white);border:1px solid var(--line);border-radius:20px 20px 6px 20px;padding:16px;box-shadow:var(--float);display:flex;flex-direction:column;gap:10px;font-size:14.5px;opacity:0;transform:translateY(10px) scale(.97);transform-origin:100% 100%;pointer-events:none;transition:opacity .3s,transform .3s cubic-bezier(.3,1.3,.5,1)}
+.auri-bubble{position:fixed;right:20px;bottom:86px;z-index:50;width:min(300px,calc(100vw - 40px));background:var(--white);border:1px solid var(--line);border-radius:20px 20px 6px 20px;padding:16px;box-shadow:var(--float);display:flex;flex-direction:column;gap:10px;font-size:14.5px;opacity:0;transform:translateY(10px) scale(.97);transform-origin:100% 100%;pointer-events:none;transition:opacity .3s,transform .3s cubic-bezier(.3,1.3,.5,1)}
 .auri-bubble.open{opacity:1;transform:none;pointer-events:auto}
 .auri-bubble b{font-size:15px}
 .auri-bubble .row2{display:flex;gap:8px}
 .auri-bubble .x{position:absolute;top:8px;right:8px;width:28px;height:28px;border:0;background:none;border-radius:8px;cursor:pointer;color:var(--ink-3);font-size:18px;line-height:1}
 .auri-bubble .x:hover{background:rgba(16,20,15,.06)}
-@media(max-width:620px){.auri-fab{width:60px;height:60px;right:14px;bottom:14px;border-radius:20px}.auri-bubble{right:14px;bottom:84px}}
+@media(max-width:620px){.auri-fab{width:50px;height:50px;right:14px;bottom:14px;border-radius:16px}.auri-bubble{right:14px;bottom:74px}}
 @media(prefers-reduced-motion:reduce){.auri-fab{animation:none}.auri .a-load circle,.auri.happy .a-head{animation:none}}
+
+/* email start (Miro-style) */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mailstart{margin:32px auto 0;max-width:520px;display:flex;gap:6px;padding:6px;background:var(--white);border:1px solid var(--line-2);border-radius:999px;box-shadow:0 1px 2px rgba(16,20,15,.05),0 18px 40px -22px rgba(16,40,25,.35);transition:border-color .2s,box-shadow .2s}
+.mailstart:focus-within{border-color:var(--forest);box-shadow:0 0 0 4px rgba(225,225,0,.45),0 18px 40px -22px rgba(16,40,25,.35)}
+.mailstart input{flex:1;min-width:0;border:0;background:transparent;font:16px var(--f);color:var(--ink);padding:0 18px;outline:none}
+.mailstart input::placeholder{color:#8A8F86}
+.mailstart .btn{flex:none}
+.mailstart.err{border-color:#B8321F}
+.mail-note{margin-top:12px;font-size:14px;color:var(--ink-3)}
+.mail-note.err{color:#B8321F}
+@media(max-width:620px){.mailstart{flex-direction:column;border-radius:22px;padding:8px}.mailstart input{height:48px;padding:0 12px}.mailstart .btn{width:100%}}
 /* ================= MOTION ================= */
 .progress{position:fixed;left:0;top:0;height:2px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--forest),var(--acid));z-index:60}
 /* living aura */
@@ -488,6 +501,12 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
       <a class="offer rv" style="--d:0s" href="#"><b>10% off</b>All website packages until Nov 28</a>
       <h1 id="h1" class="split" aria-label="Grow your business one clear step at a time.">Grow your business one clear step at a time.</h1>
       <p class="lead rv" style="--d:.55s">Tell Auri what you run. You get a free growth plan, and our team builds it with you.</p>
+      <form class="mailstart rv" id="mailStart" style="--d:.65s" novalidate>
+        <label class="sr" for="startEmail">Your email</label>
+        <input id="startEmail" type="email" inputmode="email" autocomplete="email" placeholder="Enter your email" required maxlength="254">
+        <button class="btn btn-main" type="submit">Start free</button>
+      </form>
+      <p class="mail-note rv" id="mailNote" style="--d:.7s" aria-live="polite">Free growth plan. No tech skills needed.</p>
     </div>
 
     <div class="planner rv glow" id="planner" style="--d:.75s" aria-label="Your growth path">
@@ -753,6 +772,23 @@ footer{background:var(--forest);color:var(--on-forest);padding:72px 0 32px;margi
     document.querySelectorAll('.btn-main,.btn-acid').forEach((b) => { b.addEventListener('pointerenter', () => setMood('happy')); b.addEventListener('pointerleave', () => setMood(null)); });
   }
   look();
+
+  /* ===== start with your email ===== */
+  const mf = document.getElementById('mailStart'), me = document.getElementById('startEmail'), mn = document.getElementById('mailNote');
+  const SIGNUP = '/hub/signup', LIVE = 'auradigitalworks.com';
+  mf.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = me.value.trim();
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) && email.length <= 254;
+    mf.classList.toggle('err', !ok); mn.classList.toggle('err', !ok);
+    if (!ok) { mn.textContent = 'Enter a full email address, like name@business.com'; me.focus(); return; }
+    try { sessionStorage.setItem('aura-start-email', JSON.stringify({email, at: Date.now()})); } catch (err) {}
+    setMood('happy', 1200);
+    if (location.hostname.endsWith(LIVE)) { location.assign(SIGNUP); return; }
+    mn.textContent = 'On the live site this opens Create account with ' + email + ' already filled in.';
+  });
+  me.addEventListener('input', () => { if (mf.classList.contains('err')) { mf.classList.remove('err'); mn.classList.remove('err'); mn.textContent = 'Free growth plan. No tech skills needed.'; } });
+
   // floating Auri: opens a short greeting
   const fab = document.getElementById('auriFab'), bubble = document.getElementById('auriBubble');
   const openBubble = (o) => { bubble.classList.toggle('open', o); fab.setAttribute('aria-expanded', String(o)); if (o) setMood('happy', 1400); };
