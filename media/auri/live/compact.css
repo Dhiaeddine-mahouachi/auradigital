@@ -1,0 +1,59 @@
+:root{
+  --auri-launcher-size:48px;
+  --auri-launcher-inset:22px;
+  --auri-launcher-viewport:36px;
+}
+.auri-fab,#chatLauncher,.auri-site-dock>.auri-live{
+  box-sizing:border-box;
+  display:grid;
+  place-items:center;
+  width:var(--auri-launcher-size);
+  height:var(--auri-launcher-size);
+  aspect-ratio:1;
+  padding:0;
+  border:1px solid #16543d;
+  border-radius:14px;
+  background:#0b2a1e;
+  box-shadow:0 5px 14px #05251a36;
+  cursor:pointer;
+}
+.auri-fab:focus-visible,#chatLauncher:focus-visible,.auri-site-dock>.auri-live:focus-visible{
+  outline:2px solid #168658;
+  outline-offset:3px;
+}
+.auri-launcher-portrait{
+  display:block;
+  width:calc(var(--auri-launcher-viewport) * .703);
+  height:calc(var(--auri-launcher-viewport) * 1.03);
+  object-fit:contain;
+}
+#chatLauncher,.auri-site-dock{
+  position:fixed;
+  right:var(--auri-launcher-inset);
+  bottom:max(var(--auri-launcher-inset),env(safe-area-inset-bottom));
+}
+#chatLauncher,.auri-site-dock{z-index:85}
+.auri-site-dock[hidden]{display:none}
+.auri-site-dock>.auri-live>.auri-rig{
+  width:var(--auri-launcher-viewport);
+  height:calc(var(--auri-launcher-viewport) * 1.15);
+  overflow:hidden;
+}
+.auri-launcher-unread{
+  position:absolute;
+  top:-2px;
+  right:-2px;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#e1e100;
+}
+html.auri-live-docked :is(.auri-fab,#chatLauncher){visibility:hidden;pointer-events:none}
+@media(max-width:640px){
+  :root{
+    --auri-launcher-size:44px;
+    --auri-launcher-inset:14px;
+    --auri-launcher-viewport:32px;
+  }
+}
+@media print{.auri-site-dock,.auri-fab,#chatLauncher{display:none}}

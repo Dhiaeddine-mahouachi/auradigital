@@ -43,10 +43,42 @@ try {
     await page.screenshot({ path: 'test-output/redesign-mobile-menu.png' });
     await page.close(); }
 
+  // Slow art must leave the identical compact launcher visible and interactive.
+  { const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+    let release;
+    const delayed = new Promise(resolve => { release = resolve; });
+    await page.route('**/media/auri/studio-v1/head.webp', async route => {
+      await delayed;
+      await route.continue();
+    });
+    try {
+      await page.goto(origin + '/index.html', { waitUntil: 'domcontentloaded' });
+      const initial = page.getByRole('button', { name: 'Open Auri chat', exact: true });
+      const live = page.getByRole('button', { name: 'Open the AuraDigital assistant', exact: true });
+      await initial.waitFor();
+      await initial.locator('img').evaluate(img => img.decode());
+      assert.match(await initial.locator('img').getAttribute('src'), /studio-v1\/full\.webp$/);
+      assert.equal(await page.locator('ellipse.auri-eye').count(), 0);
+      const before = await initial.boundingBox();
+      assert.equal(before.width, 44);
+      assert.equal(before.height, 44);
+      assert.equal(await live.isVisible(), false);
+      release();
+      await live.waitFor();
+      assert.deepEqual(await live.boundingBox(), before);
+      assert.equal(await initial.isVisible(), false);
+      await live.click();
+      await page.getByRole('dialog', { name: 'Chat with Auri' }).waitFor();
+    } finally {
+      release();
+      await page.close();
+    }
+  }
+
   // Auri: offline answers, live AI, and fallback when the API fails
   { const { page } = await open('/index.html');
-    const fab = page.getByRole('button', { name: 'Open Auri chat' });
-    await fab.click({ force: true });
+    const fab = page.getByRole('button', { name: 'Open the AuraDigital assistant' });
+    await fab.click();
     await page.fill('#auri-input', 'how much is a website?');
     await page.keyboard.press('Enter');
     await page.waitForFunction(() => document.querySelector('[role=dialog]')?.textContent.includes('6,750'));
@@ -56,7 +88,7 @@ try {
     await page.route('**/api/ai/session', (r) => r.fulfill({ status: 201, contentType: 'application/json', body: '{"messages":[]}' }));
     await page.route('**/api/ai/message', (r) => (++n === 1 ? r.fulfill({ status: 200, contentType: 'application/json', body: '{"reply":"Live model reply","mode":"ai"}' }) : r.fulfill({ status: 503, body: 'down' })));
     await page.evaluate(() => { window.AURA_LIVE_API = true; });
-    await page.getByRole('button', { name: 'Open Auri chat' }).click({ force: true });
+    await page.getByRole('button', { name: 'Open the AuraDigital assistant' }).click();
     await page.fill('#auri-input', 'hello'); await page.keyboard.press('Enter');
     await page.waitForFunction(() => document.querySelector('[role=dialog]')?.textContent.includes('Live model reply'));
     await page.fill('#auri-input', 'prices'); await page.keyboard.press('Enter');

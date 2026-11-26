@@ -30,7 +30,6 @@ a{color:#0B0F0C;text-decoration:none}a:hover{color:#0E2B1E}
 @keyframes typing{0%,80%,100%{opacity:.25}40%{opacity:1}}
 @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
 .auri-float{animation:floaty 4.5s ease-in-out infinite}
-.auri-eye{transform-origin:center;transform-box:fill-box;animation:blink 5s infinite}
 .marquee-track{animation:marquee 36s linear infinite}
 .rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
 .pop{animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
@@ -58,8 +57,6 @@ section{padding-left:18px !important;padding-right:18px !important;padding-top:6
 .auri-panel input,.auri-panel textarea{font-size:16px !important}
 .auri-panel>div:first-child,.auri-panel form{flex-shrink:0}
 body:has(.auri-chat-open){overflow:hidden}
-.auri-fab{width:58px !important;height:58px !important}
-.auri-wrap{right:14px !important;bottom:14px !important}
 .disp{letter-spacing:-0.03em}
 }
 </style>

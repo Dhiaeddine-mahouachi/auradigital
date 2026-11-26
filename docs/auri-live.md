@@ -98,9 +98,9 @@ admin and employee portals. `test/auri-live.test.mjs` fails if this list drifts.
 
 ### Website dock
 
-The dock takes the old yellow button's exact place: 84×97 px on desktop and 64×74 px on
-phones, at the same corner offsets. The old button stays in the page, invisible and the
-same size, so the existing chat panel still opens right above Auri. On phones the existing
+The dock takes the old yellow button's exact place: 48×48 px on desktop and 44×44 px on
+phones, at the same corner offsets. The same-size still button stays visible and interactive until the
+animated artwork is ready, so the existing chat panel still opens right above Auri. On phones the existing
 chat is full screen and covers Auri while open. Auri reacts to both kinds of answer:
 replies from `/api/ai/message` (observed through a pass-through `fetch` wrapper) and the
 chat's built-in replies (observed in the panel; the visitor's own message is ignored).
@@ -173,7 +173,7 @@ same-origin and styles are injected (`style-src 'unsafe-inline'` is already allo
 | 1,500 create/destroy cycles | heap flat (±6 KB after warm-up), no DOM left |
 | Keyboard | `role=button`, `tabindex=0`, Enter/Space activate, visible focus ring |
 | Messages | bubble is `role=status`, `aria-live=polite` |
-| Touch | no cursor following, tap opens chat, compact 74 px dock |
+| Touch | no cursor following, tap opens chat, compact 44 px dock |
 
 Each animation frame writes SVG attributes, which triggers a small style and layout pass
 that stays inside the character (`contain: layout style`). No page reflow was measured.
