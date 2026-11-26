@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AuraDigital Design System</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="aura-ds.css">
+<style>
+/* Preview-page only: labels around the system. Everything else comes from aura-ds.css */
+.pv-tag{display:inline-block;font-size:12px;font-weight:500;color:var(--ad-grey-500);margin-bottom:var(--ad-s-2)}
+.pv-sub{border-top:1px solid var(--ad-grey-200);padding-top:var(--ad-s-6);margin-top:var(--ad-s-8)}
+.pv-sub:first-of-type{margin-top:0}
+.pv-swatch{border:1px solid var(--ad-grey-200);border-radius:var(--ad-r-md);overflow:hidden;background:var(--ad-bg)}
+.pv-swatch-c{height:96px}
+.pv-swatch-t{padding:var(--ad-s-3) var(--ad-s-4);display:flex;flex-direction:column;gap:2px;font-size:14px}
+.pv-swatch-t code{font-size:12px;color:var(--ad-grey-500)}
+.pv-greys{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border-radius:var(--ad-r-md);overflow:hidden;border:1px solid var(--ad-grey-200)}
+.pv-greys div{height:64px;padding:8px;font-size:12px;display:flex;align-items:flex-end}
+.pv-type-row{display:grid;grid-template-columns:180px minmax(0,1fr);gap:var(--ad-s-5);align-items:baseline;padding:var(--ad-s-4) 0;border-bottom:1px solid var(--ad-grey-200)}
+.pv-type-row code{font-size:12px;color:var(--ad-grey-500);line-height:1.5}
+.pv-space{display:flex;align-items:center;gap:var(--ad-s-4);font-size:13px;color:var(--ad-grey-500)}
+.pv-space b{display:block;height:16px;background:var(--ad-yellow);border-radius:3px}
+.pv-shape{height:120px;background:var(--ad-bg);border:1px solid var(--ad-grey-200);display:flex;align-items:flex-end;padding:var(--ad-s-3);font-size:13px;color:var(--ad-grey-500)}
+.pv-icons{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:var(--ad-s-3)}
+.pv-icons div{display:flex;flex-direction:column;align-items:center;gap:8px;padding:var(--ad-s-4) 0;border:1px solid var(--ad-grey-200);border-radius:var(--ad-r-sm);font-size:12px;color:var(--ad-grey-500)}
+.pv-icons .ad-icon{width:24px;height:24px;color:var(--ad-ink)}
+.pv-demo-note{font-size:12px;color:var(--ad-grey-500);text-align:center;margin-top:var(--ad-s-3)}
+.pv-rule{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--ad-s-5)}
+.pv-rule .ad-card h3{display:flex;align-items:center;gap:8px}
+@media(max-width:900px){.pv-icons{grid-template-columns:repeat(4,minmax(0,1fr))}.pv-type-row{grid-template-columns:minmax(0,1fr)}.pv-rule{grid-template-columns:minmax(0,1fr)}}
+
+/* Demo AuraHub UI (built from tokens, not a screenshot) */
+.hub{display:grid;grid-template-columns:200px minmax(0,1fr);min-height:520px;font-size:13px;text-align:start}
+.hub-side{border-inline-end:1px solid var(--ad-grey-200);padding:16px 12px;display:flex;flex-direction:column;gap:2px;background:var(--ad-grey-50)}
+.hub-side .ad-logo{font-size:15px;margin:0 6px 16px}
+.hub-side .ad-logo-mark{width:26px;height:26px;border-radius:6px}
+.hub-side .ad-logo-mark img{width:18px}
+.hub-nav{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:var(--ad-r-sm);color:var(--ad-grey-700);font-weight:500}
+.hub-nav .ad-icon{width:16px;height:16px}
+.hub-nav.on{background:var(--ad-green);color:var(--ad-on-green)}
+.hub-nav.on .ad-icon{color:var(--ad-yellow)}
+.hub-sec{font-size:11px;font-weight:500;color:var(--ad-grey-500);margin:14px 10px 6px}
+.hub-main{padding:22px 24px;display:flex;flex-direction:column;gap:16px;background:var(--ad-bg)}
+.hub-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.hub-top h3{font:700 22px/1.15 var(--ad-font-display);letter-spacing:-0.02em;margin:0}
+.hub-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.hub-kpi{border:1px solid var(--ad-grey-200);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.hub-kpi b{font:700 22px/1 var(--ad-font-display);letter-spacing:-0.02em}
+.hub-kpi em{font-style:normal;font-size:12px;color:var(--ad-success);font-weight:500}
+.hub-cols{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px}
+.hub-box{border:1px solid var(--ad-grey-200);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.hub-box h4{margin:0;font-size:13px;font-weight:500;display:flex;justify-content:space-between}
+.hub-stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.hub-stage{display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--ad-grey-500)}
+.hub-stage i{height:6px;border-radius:3px;background:var(--ad-grey-200)}
+.hub-stage.done i{background:var(--ad-green)}
+.hub-stage.now i{background:linear-gradient(90deg,var(--ad-yellow) 60%,var(--ad-grey-200) 60%)}
+.hub-stage.now{color:var(--ad-ink);font-weight:500}
+.hub-req{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--ad-grey-100)}
+.hub-req:first-of-type{border-top:0}
+.hub-auri{background:var(--ad-green);color:var(--ad-on-green);border:0}
+.hub-auri p{margin:0;color:var(--ad-on-green-muted);font-size:13px}
+.hub-auri .ad-btn{--h:34px;padding:0 14px;font-size:13px}
+.hub-chart{height:70px;display:flex;align-items:flex-end;gap:5px}
+.hub-chart span{flex:1;background:var(--ad-grey-200);border-radius:3px 3px 0 0}
+.hub-chart span.hi{background:var(--ad-green)}
+@media(max-width:900px){.hub{grid-template-columns:minmax(0,1fr)}.hub-side{display:none}.hub-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.hub-cols{grid-template-columns:minmax(0,1fr)}}
+
+/* Hero composition */
+.hero{padding:var(--ad-s-9) 0 0;text-align:center;background:linear-gradient(var(--ad-bg),var(--ad-surface))}
+.hero .ad-row{justify-content:center}
+.hero-shot{margin-top:var(--ad-s-8);position:relative}
+.hero-shot .ad-frame{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom:0}
+
+/* Phone menu demo */
+.menu{padding:18px 16px 22px;font-size:13px;display:flex;flex-direction:column;gap:12px}
+.menu-head{display:flex;justify-content:space-between;align-items:center}
+.menu-head b{font:700 17px/1 var(--ad-font-display)}
+.menu .ad-tabs{padding:3px;flex-wrap:nowrap}.menu .ad-tab{height:30px;padding:0 9px;font-size:12px}
+.menu-item{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--ad-grey-100)}
+.menu-item small{display:block;color:var(--ad-grey-500);font-size:12px}
+.menu-item b{white-space:nowrap}
+</style>
+</head>
+<body class="ad">
+
+<!-- Icon sprite: Lucide (ISC), 1.75 stroke via .ad-icon -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-dash" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.2 1.2 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.2-6.2 3.2L7 14.2 2 9.3l6.9-1z"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M14.1 5.6a2 2 0 0 0 1.8 0l3.7-1.9a1 1 0 0 1 1.4.9v12.8a1 1 0 0 1-.6.9l-4.5 2.3a2 2 0 0 1-1.8 0l-4.2-2.1a2 2 0 0 0-1.8 0l-3.7 1.8A1 1 0 0 1 3 19.4V6.6a1 1 0 0 1 .6-.9l4.5-2.3a2 2 0 0 1 1.8 0z"/><path d="M15 5.8v15"/><path d="M9 3.2v15"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/><path d="M3.3 15.3A1 1 0 0 0 4 17h16a1 1 0 0 0 .7-1.7C19.4 14 18 12.5 18 8A6 6 0 0 0 6 8c0 4.5-1.4 6-2.7 7.3"/></symbol>
+</svg>
+
+<div class="ad-bar">Design system preview · v1 · Direction A (clean, white)<a href="#foundations">Jump to foundations</a></div>
+
+<!-- ===== Header component ===== -->
+<header class="ad-header">
+  <div class="ad-container ad-header-in">
+    <a class="ad-logo" href="#top"><span class="ad-logo-mark"><img src="ad-monogram.png" alt=""></span>AuraDigital</a>
+    <nav class="ad-nav" aria-label="Main">
+      <div class="ad-nav-item">
+        <button class="ad-nav-btn" aria-haspopup="true">Solutions<svg class="ad-icon"><use href="#i-chev"/></svg></button>
+        <div class="ad-mega">
+          <a href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-monitor"/></svg></span><span><strong>Launch online</strong><span class="ad-small">Website, brand and business email</span></span></a>
+          <a href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-pin"/></svg></span><span><strong>Get more customers</strong><span class="ad-small">Google Maps, SEO and ads</span></span></a>
+          <a href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-chat"/></svg></span><span><strong>Automate replies</strong><span class="ad-small">WhatsApp AI and bookings</span></span></a>
+          <a href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-dash"/></svg></span><span><strong>Manage in one place</strong><span class="ad-small">AuraHub dashboard</span></span></a>
+        </div>
+      </div>
+      <div class="ad-nav-item">
+        <button class="ad-nav-btn" aria-haspopup="true">Products<svg class="ad-icon"><use href="#i-chev"/></svg></button>
+        <div class="ad-mega">
+          <a href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-qr"/></svg></span><span><strong>AuraMenu</strong><span class="ad-small">QR menus in 3 languages</span></span></a>
+          <a href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-phone"/></svg></span><span><strong>NFC review cards</strong><span class="ad-small">Tap to leave a Google review</span></span></a>
+          <a href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-spark"/></svg></span><span><strong>AuraPops</strong><span class="ad-small">One link for your profile</span></span></a>
+          <a href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-cal"/></svg></span><span><strong>AuraWeddings</strong><span class="ad-small">Digital invitations with RSVP</span></span></a>
+        </div>
+      </div>
+      <a class="ad-nav-btn" href="#pricing">Pricing</a>
+      <div class="ad-nav-item">
+        <button class="ad-nav-btn" aria-haspopup="true">Resources<svg class="ad-icon"><use href="#i-chev"/></svg></button>
+        <div class="ad-mega" style="width:min(420px,90vw);grid-template-columns:1fr">
+          <a href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-star"/></svg></span><span><strong>Our work</strong><span class="ad-small">Projects for real businesses</span></span></a>
+          <a href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-file"/></svg></span><span><strong>Help Center</strong><span class="ad-small">Guides and answers</span></span></a>
+          <a href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-users"/></svg></span><span><strong>About &amp; contact</strong><span class="ad-small">The team in Istanbul</span></span></a>
+        </div>
+      </div>
+    </nav>
+    <div class="ad-header-end">
+      <button class="ad-lang ad-hide-m"><svg class="ad-icon"><use href="#i-globe"/></svg>EN</button>
+      <a class="ad-btn ad-btn--secondary ad-btn--sm ad-hide-m" href="#">Log in</a>
+      <a class="ad-btn ad-btn--primary ad-btn--sm" href="#">Start your path</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ===== Composition: hero built only from the system ===== -->
+<section class="hero">
+  <div class="ad-container">
+    <div class="ad-head ad-head--center" style="margin-bottom:0">
+      <span class="ad-badge"><span class="ad-dot" style="color:var(--ad-success)"></span>New · Auri builds your free growth roadmap</span>
+      <h1 class="ad-display">Your business, <span class="ad-accent">built to grow.</span></h1>
+      <p class="ad-lead">Websites, digital menus, Google visibility and WhatsApp automation, planned by AI and delivered by our Istanbul team.</p>
+      <div class="ad-row" style="margin-top:var(--ad-s-2)">
+        <a class="ad-btn ad-btn--primary" href="#">Start your path<svg class="ad-icon"><use href="#i-arrow"/></svg></a>
+        <a class="ad-btn ad-btn--secondary" href="#">Talk to our team</a>
+      </div>
+      <p class="ad-small">Free roadmap · No tech skills needed</p>
+    </div>
+
+    <div class="hero-shot">
+      <div class="ad-frame">
+        <div class="ad-frame-bar"><i></i><i></i><i></i><span>auradigitalworks.com/hub</span></div>
+        <div class="hub">
+          <aside class="hub-side">
+            <span class="ad-logo"><span class="ad-logo-mark"><img src="ad-monogram.png" alt=""></span>AuraHub</span>
+            <span class="hub-nav on"><svg class="ad-icon"><use href="#i-dash"/></svg>Overview</span>
+            <span class="hub-nav"><svg class="ad-icon"><use href="#i-map"/></svg>Growth roadmap</span>
+            <span class="hub-nav"><svg class="ad-icon"><use href="#i-monitor"/></svg>Website &amp; menu</span>
+            <span class="hub-nav"><svg class="ad-icon"><use href="#i-trend"/></svg>Analytics</span>
+            <span class="hub-sec">Operate</span>
+            <span class="hub-nav"><svg class="ad-icon"><use href="#i-inbox"/></svg>Requests</span>
+            <span class="hub-nav"><svg class="ad-icon"><use href="#i-card"/></svg>Orders &amp; billing</span>
+            <span class="hub-nav"><svg class="ad-icon"><use href="#i-chat"/></svg>Ask Auri</span>
+          </aside>
+          <div class="hub-main">
+            <div class="hub-top">
+              <div><span class="ad-small">Lumen Café · Kadıköy</span><h3>Good morning, Selin.</h3></div>
+              <div class="ad-row"><span class="ad-badge ad-badge--success"><span class="ad-dot"></span>Website live</span><a class="ad-btn ad-btn--primary ad-btn--sm" href="#"><svg class="ad-icon"><use href="#i-plus"/></svg>New request</a></div>
+            </div>
+            <div class="hub-kpis">
+              <div class="hub-kpi"><span class="ad-small">Website visitors</span><b>1,284</b><em>+18% this month</em></div>
+              <div class="hub-kpi"><span class="ad-small">WhatsApp inquiries</span><b>96</b><em>+12 this week</em></div>
+              <div class="hub-kpi"><span class="ad-small">Reservations</span><b>41</b><em>+9 this week</em></div>
+              <div class="hub-kpi"><span class="ad-small">Google rating</span><b>4.8</b><em>27 new reviews</em></div>
+            </div>
+            <div class="hub-cols">
+              <div class="hub-box">
+                <h4>Growth roadmap <span class="ad-small">Stage 3 of 5</span></h4>
+                <div class="hub-stages">
+                  <span class="hub-stage done"><i></i>Launch</span><span class="hub-stage done"><i></i>Get found</span><span class="hub-stage now"><i></i>Convert</span><span class="hub-stage"><i></i>Grow</span><span class="hub-stage"><i></i>Scale</span>
+                </div>
+                <h4 style="margin-top:6px">Inquiries · last 12 weeks</h4>
+                <div class="hub-chart" aria-hidden="true"><span style="height:30%"></span><span style="height:38%"></span><span style="height:34%"></span><span style="height:46%"></span><span style="height:44%"></span><span style="height:52%"></span><span style="height:58%"></span><span style="height:55%"></span><span style="height:66%"></span><span style="height:72%"></span><span style="height:80%" class="hi"></span><span style="height:92%" class="hi"></span></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div class="hub-box">
+                  <h4>Requests</h4>
+                  <div class="hub-req"><span>New autumn menu</span><span class="ad-badge ad-badge--success">Approved</span></div>
+                  <div class="hub-req"><span>Homepage photos</span><span class="ad-badge ad-badge--warning">In review</span></div>
+                  <div class="hub-req"><span>NFC review cards × 10</span><span class="ad-badge">In production</span></div>
+                </div>
+                <div class="hub-box hub-auri">
+                  <h4 style="color:var(--ad-on-green)">Auri suggests</h4>
+                  <p>Add online reservations to turn more WhatsApp chats into tables.</p>
+                  <div class="ad-row"><a class="ad-btn ad-btn--on-dark" href="#">Set it up</a></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="ad-container"><p class="pv-demo-note">Product visual drawn from the design system with a fictional demo business (Lumen Café). Sharp at any size and translatable, unlike a screenshot.</p></div>
+
+<!-- ===== Proof row ===== -->
+<section class="ad-section--tight" style="padding-top:var(--ad-s-7)">
+  <div class="ad-container ad-proof">
+    <span class="ad-proof-item"><svg class="ad-icon"><use href="#i-file"/></svg>Written proposal before any work</span>
+    <span class="ad-proof-item"><svg class="ad-icon"><use href="#i-globe"/></svg>Turkish, English &amp; Arabic</span>
+    <span class="ad-proof-item"><svg class="ad-icon"><use href="#i-users"/></svg>Real team in Istanbul</span>
+    <span class="ad-proof-item"><svg class="ad-icon"><use href="#i-chat"/></svg>Support on WhatsApp</span>
+  </div>
+</section>
+
+<!-- ===== Foundations ===== -->
+<section class="ad-section" id="foundations">
+  <div class="ad-container">
+    <div class="ad-head">
+      <span class="pv-tag">Foundations</span>
+      <h2 class="ad-h1">The rules every page follows.</h2>
+      <p class="ad-lead">Five colors, seven text styles, one spacing scale, three corner sizes and two shadows. Nothing on the site is allowed outside these.</p>
+    </div>
+
+    <div class="pv-sub">
+      <h3 class="ad-h3">Color</h3>
+      <div class="ad-grid" style="--cols:5;margin-top:var(--ad-s-5)">
+        <div class="pv-swatch"><div class="pv-swatch-c" style="background:var(--ad-ink)"></div><div class="pv-swatch-t"><b>Ink</b><code>--ad-ink #0B0F0C</code><span class="ad-small">Text, main button</span></div></div>
+        <div class="pv-swatch"><div class="pv-swatch-c" style="background:var(--ad-green)"></div><div class="pv-swatch-t"><b>Forest green</b><code>--ad-green #0E2B1E</code><span class="ad-small">Brand, dark sections, icons</span></div></div>
+        <div class="pv-swatch"><div class="pv-swatch-c" style="background:var(--ad-yellow)"></div><div class="pv-swatch-t"><b>Acid yellow</b><code>--ad-yellow #E1E100</code><span class="ad-small">One highlight per screen</span></div></div>
+        <div class="pv-swatch"><div class="pv-swatch-c" style="background:var(--ad-bg);border-bottom:1px solid var(--ad-grey-200)"></div><div class="pv-swatch-t"><b>White</b><code>--ad-bg #FFFFFF</code><span class="ad-small">Page background</span></div></div>
+        <div class="pv-swatch"><div class="pv-swatch-c" style="background:var(--ad-surface)"></div><div class="pv-swatch-t"><b>Surface</b><code>--ad-surface #F7F7F4</code><span class="ad-small">Alternate sections</span></div></div>
+      </div>
+      <div class="pv-greys" style="margin-top:var(--ad-s-4)">
+        <div style="background:var(--ad-grey-50)">50</div><div style="background:var(--ad-grey-100)">100</div><div style="background:var(--ad-grey-200)">200 · borders</div><div style="background:var(--ad-grey-300)">300 · controls</div><div style="background:var(--ad-grey-500);color:#fff">500 · muted text</div><div style="background:var(--ad-grey-700);color:#fff">700 · body text</div>
+      </div>
+      <div class="ad-row" style="margin-top:var(--ad-s-4)"><span class="ad-badge ad-badge--success">Success #1F7A47</span><span class="ad-badge ad-badge--warning">Warning</span><span class="ad-badge ad-badge--danger">Danger #B42318</span><span class="ad-small">Status colors: only inside badges and messages.</span></div>
+    </div>
+
+    <div class="pv-sub">
+      <h3 class="ad-h3">Typography</h3>
+      <p class="ad-small" style="margin-top:6px">Inter Tight for headings, Inter for text, IBM Plex Sans Arabic for Arabic. The italic serif is allowed once: the hero.</p>
+      <div style="margin-top:var(--ad-s-4)">
+        <div class="pv-type-row"><code>Display<br>64 / 1.08 / Bold</code><p class="ad-display">Built to grow.</p></div>
+        <div class="pv-type-row"><code>H1<br>48 / 1.08 / Bold</code><p class="ad-h1">Your whole business, one dashboard.</p></div>
+        <div class="pv-type-row"><code>H2<br>32 / 1.25 / Bold</code><p class="ad-h2">From idea to launch in 4 steps</p></div>
+        <div class="pv-type-row"><code>H3<br>24 / 1.25 / Bold</code><p class="ad-h3">Get your growth roadmap</p></div>
+        <div class="pv-type-row"><code>Lead<br>18 / 1.6 / Regular</code><p class="ad-lead">A personal plan with clear steps in the right order.</p></div>
+        <div class="pv-type-row"><code>Body<br>16 / 1.6 / Regular</code><p class="ad-body">Every project starts with a written proposal that confirms scope, price and payment terms before any work begins.</p></div>
+        <div class="pv-type-row"><code>Small<br>14 / 1.6 / Regular</code><p class="ad-small">Free roadmap · No tech skills needed</p></div>
+      </div>
+    </div>
+
+    <div class="pv-sub">
+      <div class="ad-grid" style="--cols:2;gap:var(--ad-s-8)">
+        <div>
+          <h3 class="ad-h3">Spacing · 8px system</h3>
+          <div class="ad-stack" style="margin-top:var(--ad-s-5);gap:10px">
+            <div class="pv-space"><span style="width:56px">8</span><b style="width:8px"></b></div>
+            <div class="pv-space"><span style="width:56px">16</span><b style="width:16px"></b></div>
+            <div class="pv-space"><span style="width:56px">24</span><b style="width:24px"></b></div>
+            <div class="pv-space"><span style="width:56px">32</span><b style="width:32px"></b></div>
+            <div class="pv-space"><span style="width:56px">48</span><b style="width:48px"></b></div>
+            <div class="pv-space"><span style="width:56px">64</span><b style="width:64px"></b></div>
+            <div class="pv-space"><span style="width:56px">96</span><b style="width:96px"></b></div>
+            <div class="pv-space"><span style="width:56px">128</span><b style="width:128px"></b><span>section gap</span></div>
+          </div>
+        </div>
+        <div>
+          <h3 class="ad-h3">Corners &amp; shadows</h3>
+          <div class="ad-grid" style="--cols:3;margin-top:var(--ad-s-5);gap:var(--ad-s-4)">
+            <div class="pv-shape" style="border-radius:var(--ad-r-sm)">8 · inputs</div>
+            <div class="pv-shape" style="border-radius:var(--ad-r-md)">16 · cards</div>
+            <div class="pv-shape" style="border-radius:var(--ad-r-lg)">24 · sections</div>
+            <div class="pv-shape" style="border-radius:var(--ad-r-md);box-shadow:var(--ad-shadow-1);border-color:transparent">Shadow 1 · hover</div>
+            <div class="pv-shape" style="border-radius:var(--ad-r-md);box-shadow:var(--ad-shadow-2);border-color:transparent;grid-column:span 2">Shadow 2 · floating (menus, product frames)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pv-sub">
+      <h3 class="ad-h3">Icons · one set (Lucide), one weight</h3>
+      <div class="pv-icons" style="margin-top:var(--ad-s-5)">
+        <div><svg class="ad-icon"><use href="#i-monitor"/></svg>Website</div>
+        <div><svg class="ad-icon"><use href="#i-qr"/></svg>Menu</div>
+        <div><svg class="ad-icon"><use href="#i-pin"/></svg>Maps</div>
+        <div><svg class="ad-icon"><use href="#i-chat"/></svg>WhatsApp</div>
+        <div><svg class="ad-icon"><use href="#i-dash"/></svg>AuraHub</div>
+        <div><svg class="ad-icon"><use href="#i-phone"/></svg>NFC</div>
+        <div><svg class="ad-icon"><use href="#i-trend"/></svg>Growth</div>
+        <div><svg class="ad-icon"><use href="#i-shield"/></svg>Trust</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Components ===== -->
+<section class="ad-section ad-section--surface">
+  <div class="ad-container">
+    <div class="ad-head">
+      <span class="pv-tag">Components</span>
+      <h2 class="ad-h1">Every page is built from these.</h2>
+    </div>
+
+    <div class="ad-grid" style="--cols:2">
+      <div class="ad-card">
+        <span class="pv-tag">Buttons · 2 styles × 2 sizes</span>
+        <div class="ad-row"><a class="ad-btn ad-btn--primary" href="#">Start your path<svg class="ad-icon"><use href="#i-arrow"/></svg></a><a class="ad-btn ad-btn--secondary" href="#">Talk to our team</a></div>
+        <div class="ad-row"><a class="ad-btn ad-btn--primary ad-btn--sm" href="#">Start your path</a><a class="ad-btn ad-btn--secondary ad-btn--sm" href="#">Log in</a><a class="ad-link" href="#">Text link<svg class="ad-icon" style="width:16px;height:16px"><use href="#i-arrow"/></svg></a></div>
+      </div>
+      <div class="ad-card" style="background:var(--ad-green);border-color:var(--ad-green)">
+        <span class="pv-tag" style="color:var(--ad-on-green-muted)">On green: primary turns yellow</span>
+        <div class="ad-section--green" style="background:none;display:flex;flex-direction:column;gap:12px">
+          <div class="ad-row"><a class="ad-btn ad-btn--primary" href="#">Create free account</a><a class="ad-btn ad-btn--secondary" href="#">See the dashboard</a></div>
+        </div>
+      </div>
+
+      <div class="ad-card">
+        <span class="pv-tag">Tabs &amp; choice chips</span>
+        <div class="ad-tabs" role="tablist" id="pvTabs">
+          <button class="ad-tab" role="tab" aria-selected="true">Launch</button><button class="ad-tab" role="tab" aria-selected="false">Get customers</button><button class="ad-tab" role="tab" aria-selected="false">Automate</button><button class="ad-tab" role="tab" aria-selected="false">Manage</button>
+        </div>
+        <div class="ad-row" id="pvChips">
+          <button class="ad-chip" aria-pressed="true">Restaurant &amp; café</button><button class="ad-chip" aria-pressed="false">Local services</button><button class="ad-chip" aria-pressed="false">Retail</button><button class="ad-chip" aria-pressed="false">Creator</button>
+        </div>
+      </div>
+      <div class="ad-card">
+        <span class="pv-tag">Form fields</span>
+        <div class="ad-grid" style="--cols:2;gap:var(--ad-s-4)">
+          <label class="ad-field"><span class="ad-label">Business name</span><input class="ad-input" placeholder="Lumen Café"></label>
+          <label class="ad-field"><span class="ad-label">Business type</span><select class="ad-select"><option>Restaurant &amp; café</option><option>Local services</option></select></label>
+          <label class="ad-field ad-field--error"><span class="ad-label">WhatsApp number</span><input class="ad-input" value="+90 53"><span class="ad-hint">Enter a full number, e.g. +90 5XX XXX XX XX</span></label>
+          <label class="ad-field"><span class="ad-label">Email</span><input class="ad-input" type="email" placeholder="you@business.com"><span class="ad-hint">We never share it.</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ad-grid" style="--cols:4;margin-top:var(--ad-s-5)">
+      <a class="ad-card" href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-monitor"/></svg></span><h3 class="ad-h3" style="font-size:20px">Launch online</h3><p class="ad-small">Website, brand kit and business email that make people trust you.</p><span class="ad-link" style="margin-top:auto;align-self:flex-start">Learn more</span></a>
+      <a class="ad-card" href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-pin"/></svg></span><h3 class="ad-h3" style="font-size:20px">Get found</h3><p class="ad-small">Google Maps, local SEO and reviews with NFC cards.</p><span class="ad-link" style="margin-top:auto;align-self:flex-start">Learn more</span></a>
+      <a class="ad-card" href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-chat"/></svg></span><h3 class="ad-h3" style="font-size:20px">Reply 24/7</h3><p class="ad-small">WhatsApp AI that answers, shares prices and books.</p><span class="ad-link" style="margin-top:auto;align-self:flex-start">Learn more</span></a>
+      <a class="ad-card" href="#"><span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-dash"/></svg></span><h3 class="ad-h3" style="font-size:20px">Manage it all</h3><p class="ad-small">AuraHub tracks requests, payments and renewals.</p><span class="ad-link" style="margin-top:auto;align-self:flex-start">Learn more</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Pricing ===== -->
+<section class="ad-section" id="pricing">
+  <div class="ad-container">
+    <div class="ad-head ad-head--center">
+      <span class="pv-tag">Pricing cards</span>
+      <h2 class="ad-h1">Simple, one-time website packages.</h2>
+      <p class="ad-lead">Taxes and scope are confirmed in your written proposal.</p>
+    </div>
+    <div class="ad-grid" style="--cols:3;align-items:stretch">
+      <div class="ad-card ad-price"><span class="ad-label">Launch</span><span class="ad-price-amount">₺6,750 <small>one-time</small></span><p class="ad-small">A professional one-page site to get online fast.</p><ul class="ad-list"><li><svg class="ad-icon"><use href="#i-check"/></svg>Responsive website</li><li><svg class="ad-icon"><use href="#i-check"/></svg>Google Maps setup</li><li><svg class="ad-icon"><use href="#i-check"/></svg>WhatsApp button</li></ul><a class="ad-btn ad-btn--secondary" style="margin-top:auto" href="#">Choose Launch</a></div>
+      <div class="ad-card ad-price ad-price--featured"><div class="ad-row" style="justify-content:space-between"><span class="ad-label">Growth</span><span class="ad-badge ad-badge--brand">Most popular</span></div><span class="ad-price-amount">₺13,400 <small>one-time</small></span><p class="ad-small">A full multi-page site built to bring customers.</p><ul class="ad-list"><li><svg class="ad-icon"><use href="#i-check"/></svg>Everything in Launch</li><li><svg class="ad-icon"><use href="#i-check"/></svg>Multi-page site &amp; SEO</li><li><svg class="ad-icon"><use href="#i-check"/></svg>3 languages</li></ul><a class="ad-btn ad-btn--primary" style="margin-top:auto" href="#">Choose Growth</a></div>
+      <div class="ad-card ad-price"><span class="ad-label">System</span><span class="ad-price-amount">₺22,400 <small>one-time</small></span><p class="ad-small">Website plus automation and a business system.</p><ul class="ad-list"><li><svg class="ad-icon"><use href="#i-check"/></svg>Everything in Growth</li><li><svg class="ad-icon"><use href="#i-check"/></svg>WhatsApp automation</li><li><svg class="ad-icon"><use href="#i-check"/></svg>AuraHub workflows</li></ul><a class="ad-btn ad-btn--secondary" style="margin-top:auto" href="#">Choose System</a></div>
+    </div>
+    <p class="pv-demo-note">Prices are from your current FAQ; the feature lines are placeholders to replace with each package's real scope.</p>
+  </div>
+</section>
+
+<!-- ===== Testimonial + phone + FAQ ===== -->
+<section class="ad-section ad-section--surface">
+  <div class="ad-container ad-grid" style="--cols:2;gap:var(--ad-s-8);align-items:center">
+    <div class="ad-stack" style="gap:var(--ad-s-6)">
+      <div class="ad-quote ad-stack" style="gap:var(--ad-s-5)">
+        <span class="pv-tag">Testimonial layout · replace with a real client quote</span>
+        <blockquote>“Client’s quote goes here: one or two sentences about the result they got.”</blockquote>
+        <div class="ad-person"><span class="ad-avatar">AB</span><span><span class="ad-label" style="display:block">Client name</span><span class="ad-small">Role, business · Istanbul</span></span></div>
+      </div>
+      <div class="ad-faq">
+        <details open><summary>Do I need technical skills?<svg class="ad-icon"><use href="#i-plus"/></svg></summary><p>No. Auri guides you step by step, and our team can do everything for you.</p></details>
+        <details><summary>Can I talk to a real person?<svg class="ad-icon"><use href="#i-plus"/></svg></summary><p>Yes. Every plan includes access to the AuraDigital team.</p></details>
+        <details><summary>How do payments work?<svg class="ad-icon"><use href="#i-plus"/></svg></summary><p>Every project starts with a written proposal that confirms scope, price, taxes and payment terms before any work begins.</p></details>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center">
+      <div class="ad-phone">
+        <div class="ad-phone-screen">
+          <div class="menu">
+            <div class="menu-head"><b>Lumen Café</b><span class="ad-badge">TR · EN · AR</span></div>
+            <div class="ad-tabs"><button class="ad-tab" aria-selected="true">Coffee</button><button class="ad-tab" aria-selected="false">Breakfast</button><button class="ad-tab" aria-selected="false">Desserts</button></div>
+            <div class="menu-item"><span>Flat white<small>Double shot, steamed milk</small></span><b>₺110</b></div>
+            <div class="menu-item"><span>Iced latte<small>Oat or whole milk</small></span><b>₺125</b></div>
+            <div class="menu-item"><span>Turkish coffee<small>Served with lokum</small></span><b>₺90</b></div>
+            <div class="menu-item"><span>Cold brew<small>18-hour steep</small></span><b>₺130</b></div>
+            <a class="ad-btn ad-btn--primary ad-btn--sm" href="#" style="width:100%">Order on WhatsApp</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Dark section + RTL ===== -->
+<section class="ad-section ad-section--green">
+  <div class="ad-container ad-grid" style="--cols:2;gap:var(--ad-s-8);align-items:center">
+    <div class="ad-stack" style="gap:var(--ad-s-5)">
+      <span class="ad-icon-tile"><svg class="ad-icon"><use href="#i-dash"/></svg></span>
+      <h2 class="ad-h1">Your whole business, one dashboard.</h2>
+      <p class="ad-lead">Roadmap, requests, payments and renewals, with Auri and the real team in one inbox.</p>
+      <div class="ad-row"><a class="ad-btn ad-btn--primary" href="#">Create free account</a><a class="ad-btn ad-btn--secondary" href="#">See the dashboard</a></div>
+    </div>
+    <div class="ad-stack" dir="rtl" lang="ar" style="gap:var(--ad-s-4);text-align:right">
+      <span class="pv-tag" style="color:var(--ad-on-green-muted)">Arabic (RTL) sample</span>
+      <h2 class="ad-h1" style="font-family:var(--ad-font-ar);letter-spacing:0">عملك كله في لوحة واحدة.</h2>
+      <p class="ad-lead">خارطة طريق، طلبات، مدفوعات وتجديدات، مع Auri وفريقنا الحقيقي في مكان واحد.</p>
+      <div class="ad-row"><a class="ad-btn ad-btn--primary" href="#">ابدأ مسارك</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Rules ===== -->
+<section class="ad-section">
+  <div class="ad-container">
+    <div class="ad-head"><span class="pv-tag">Rules</span><h2 class="ad-h1">Do and don’t.</h2></div>
+    <div class="pv-rule">
+      <div class="ad-card"><h3 class="ad-h3" style="font-size:20px"><svg class="ad-icon" style="color:var(--ad-success)"><use href="#i-check"/></svg>Do</h3><ul class="ad-list">
+        <li><svg class="ad-icon"><use href="#i-check"/></svg>One primary button per screen: “Start your path”.</li>
+        <li><svg class="ad-icon"><use href="#i-check"/></svg>Yellow for one highlight per screen only.</li>
+        <li><svg class="ad-icon"><use href="#i-check"/></svg>Show the product (demo UI), never stock photos.</li>
+        <li><svg class="ad-icon"><use href="#i-check"/></svg>Headline ≤ 8 words, one supporting line, no paragraphs on the homepage.</li>
+        <li><svg class="ad-icon"><use href="#i-check"/></svg>Only tokens from aura-ds.css: no inline colors, sizes or shadows.</li>
+      </ul></div>
+      <div class="ad-card"><h3 class="ad-h3" style="font-size:20px"><svg class="ad-icon" style="color:var(--ad-danger)"><use href="#i-plus" transform="rotate(45 12 12)"/></svg>Don’t</h3><ul class="ad-list">
+        <li><svg class="ad-icon" style="color:var(--ad-danger)"><use href="#i-plus" transform="rotate(45 12 12)"/></svg>Pastel backgrounds per card, or more than 3 colors on a screen.</li>
+        <li><svg class="ad-icon" style="color:var(--ad-danger)"><use href="#i-plus" transform="rotate(45 12 12)"/></svg>The italic serif outside the hero.</li>
+        <li><svg class="ad-icon" style="color:var(--ad-danger)"><use href="#i-plus" transform="rotate(45 12 12)"/></svg>Empty states, test accounts or real names in product visuals.</li>
+        <li><svg class="ad-icon" style="color:var(--ad-danger)"><use href="#i-plus" transform="rotate(45 12 12)"/></svg>Ticking countdowns, pop-up bubbles on load, mixed icon styles.</li>
+        <li><svg class="ad-icon" style="color:var(--ad-danger)"><use href="#i-plus" transform="rotate(45 12 12)"/></svg>Invented testimonials or numbers.</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== Footer component ===== -->
+<footer class="ad-footer">
+  <div class="ad-container">
+    <div class="ad-grid" style="--cols:5">
+      <div class="ad-stack"><span class="ad-logo"><span class="ad-logo-mark"><img src="ad-monogram.png" alt=""></span>AuraDigital</span><p class="ad-small" style="color:var(--ad-on-green-muted)">Websites, menus, visibility and automation for businesses in Türkiye and beyond.</p></div>
+      <div><h4>Solutions</h4><ul><li><a href="#">Launch online</a></li><li><a href="#">Get customers</a></li><li><a href="#">Automate</a></li><li><a href="#">Manage</a></li></ul></div>
+      <div><h4>Products</h4><ul><li><a href="#">AuraMenu</a></li><li><a href="#">NFC review cards</a></li><li><a href="#">AuraPops</a></li><li><a href="#">AuraWeddings</a></li></ul></div>
+      <div><h4>Resources</h4><ul><li><a href="#">Pricing</a></li><li><a href="#">Our work</a></li><li><a href="#">Help Center</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Contact</a></li><li><a href="#">WhatsApp</a></li></ul></div>
+    </div>
+    <div class="ad-footer-base"><span>© 2026 AuraDigital · Istanbul, Türkiye</span><span>Privacy · Terms · KVKK · <svg class="ad-icon" style="width:16px;height:16px;vertical-align:-3px"><use href="#i-globe"/></svg> EN</span></div>
+  </div>
+</footer>
+
+<script>
+{
+  const group = (id, attr) => {
+    const root = document.getElementById(id);
+    if (!root) return;
+    root.addEventListener('click', (e) => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      root.querySelectorAll('button').forEach((x) => x.setAttribute(attr, String(x === b)));
+    });
+  };
+  group('pvTabs', 'aria-selected');
+  group('pvChips', 'aria-pressed');
+  document.querySelectorAll('.menu .ad-tabs, .ad-tabs:not(#pvTabs)').forEach((t) => t.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    t.querySelectorAll('button').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+  }));
+}
+</script>
+</body>
+</html>
