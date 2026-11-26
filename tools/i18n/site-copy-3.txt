@@ -464,3 +464,49 @@ Legal ||| Yasal ||| قانوني
 Fountains, carved arches ||| Çeşmeler, oymalı kemerler ||| نوافير وأقواس منحوتة
 Gatsby lines, champagne ||| Gatsby çizgileri, şampanya ||| خطوط غاتسبي وشمبانيا
 10% off ||| %10 indirim ||| خصم 10%
+NFC cards ||| NFC kartlar ||| بطاقات NFC
+Cart ||| Sepet ||| السلة
+per card ||| kart başı ||| للبطاقة
+NFC and QR on one PVC card. One tap opens your Google review page, menu or profile. ||| Tek PVC kartta NFC ve QR. Tek dokunuşla Google yorum sayfanızı, menünüzü veya profilinizi açar. ||| NFC وQR على بطاقة PVC واحدة. لمسة واحدة تفتح صفحة تقييمك على Google أو قائمتك أو ملفك.
+Finish ||| Yüzey ||| التشطيب
+Matte ||| Mat ||| مطفأ
+Glossy ||| Parlak ||| لامع
+Quantity ||| Adet ||| الكمية
+Total ||| Toplam ||| الإجمالي
+Add to cart ||| Sepete ekle ||| أضف إلى السلة
+Buy now ||| Hemen al ||| اشترِ الآن
+View cart ||| Sepeti gör ||| عرض السلة
+Show back ||| Arkasını göster ||| أظهر الخلف
+Show front ||| Önünü göster ||| أظهر الأمام
+Your link and details are added before printing. Matte or glossy, standard size. ||| Bağlantınız ve bilgileriniz baskıdan önce eklenir. Mat veya parlak, standart boyut. ||| تُضاف بياناتك ورابطك قبل الطباعة. مطفأ أو لامع، بالحجم القياسي.
+Your cart ||| Sepetiniz ||| سلتك
+Your cart is empty. ||| Sepetiniz boş. ||| سلتك فارغة.
+Pick a card design, choose matte or glossy, and add it here. ||| Bir kart tasarımı seçin, mat veya parlak belirleyin ve buraya ekleyin. ||| اختر تصميم بطاقة، وحدّد مطفأ أو لامع، ثم أضفها هنا.
+Browse NFC cards ||| NFC kartlara göz atın ||| تصفّح بطاقات NFC
+Order summary ||| Sipariş özeti ||| ملخص الطلب
+Cards ||| Kartlar ||| البطاقات
+Price per card ||| Kart başı fiyat ||| سعر البطاقة
+Subtotal ||| Ara toplam ||| المجموع الفرعي
+Taxes and delivery are confirmed at checkout. You sign in once, and your order is saved to your AuraDigital account. ||| Vergiler ve teslimat ödeme adımında netleşir. Bir kez giriş yaparsınız, siparişiniz AuraDigital hesabınıza kaydedilir. ||| تُؤكَّد الضرائب والتوصيل عند الدفع. تسجّل الدخول مرة واحدة، ويُحفَظ طلبك في حساب AuraDigital.
+Checkout ||| Ödemeye geç ||| إتمام الشراء
+Order on WhatsApp ||| WhatsApp’tan sipariş ver ||| اطلب عبر واتساب
+Keep shopping ||| Alışverişe devam et ||| تابع التسوق
++ Add ||| + Ekle ||| + أضف
+✓ In cart ||| ✓ Sepette ||| ✓ في السلة
+Try another word or pick a different collection. ||| Başka bir kelime deneyin veya farklı bir koleksiyon seçin. ||| جرّب كلمة أخرى أو اختر مجموعة مختلفة.
+Show all designs ||| Tüm tasarımları göster ||| أظهر كل التصاميم
+Shop ||| Mağaza ||| المتجر
+Every order is saved to your AuraDigital account. You pay only after you sign in. ||| Her sipariş AuraDigital hesabınıza kaydedilir. Ödemeyi yalnızca giriş yaptıktan sonra yaparsınız. ||| يُحفَظ كل طلب في حساب AuraDigital. ولا تدفع إلا بعد تسجيل الدخول.
+Your account ||| Hesabınız ||| حسابك
+Sign in to pay and track orders. ||| Ödemek ve siparişleri takip etmek için giriş yapın. ||| سجّل الدخول للدفع وتتبع الطلبات.
+Sign in ||| Giriş yap ||| تسجيل الدخول
+Signed in. Checkout is ready. ||| Giriş yapıldı. Ödeme hazır. ||| تم تسجيل الدخول. الدفع جاهز.
+My orders ||| Siparişlerim ||| طلباتي
+Signed in as ||| Giriş yapan: ||| تم الدخول باسم
+Continue to shipping and payment ||| Teslimat ve ödemeye geç ||| تابع إلى الشحن والدفع
+Sign in to pay. Your cart stays saved on this device. ||| Ödemek için giriş yapın. Sepetiniz bu cihazda kayıtlı kalır. ||| سجّل الدخول للدفع. تبقى سلتك محفوظة على هذا الجهاز.
+Sign in to check out ||| Ödeme için giriş yap ||| سجّل الدخول لإتمام الشراء
+Create an account ||| Hesap oluştur ||| أنشئ حسابًا
+Shipping ||| Teslimat ||| الشحن
+Payment ||| Ödeme ||| الدفع
+You place the order, then pay by bank transfer with your order reference. We verify the payment before printing. ||| Siparişi verirsiniz, ardından sipariş referansınızla banka havalesi yaparsınız. Baskıdan önce ödemeyi doğrularız. ||| تقدّم الطلب، ثم تدفع بتحويل بنكي مع رقم مرجع الطلب. نتحقق من الدفع قبل الطباعة.

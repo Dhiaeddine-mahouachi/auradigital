@@ -241,4 +241,41 @@ html.js .rv,html.js .split{opacity:1 !important;transform:none !important;filter
 .aura,.aura::after,.auri-fab,.auri .a-load circle,.auri.happy .a-head{animation:none !important}
 .progress,.glow::after{display:none}
 }
+
+/* palette v2 (2026-11-26): deeper, calmer colour. Sage paper, forest as the working colour, acid only as a highlight. No glare, no shine sweeps. */
+:root{--paper:#F1F4EB;--white:#FFFFFF;--ink:#0F1E16;--ink-2:#3E4A42;--ink-3:#64706A;--line:#DDE3D4;--line-2:#C9D2BF;--sage:#DCE7D3;--sage-2:#E8EFE0;--moss:#2E6A49;--acid-soft:#E9EEC4;--acid-mist:#EEF2DF}
+body{background:var(--paper);color:var(--ink)}
+.top{background:var(--paper);backdrop-filter:none;-webkit-backdrop-filter:none}
+.top.scrolled{box-shadow:0 1px 0 var(--line),0 10px 30px -24px rgba(14,43,30,.35)}
+.btn-main{background:var(--forest);color:#fff}
+.btn-main:hover{background:var(--moss)}
+.btn-ghost{background:transparent;border-color:var(--line-2)}
+.btn-ghost:hover{border-color:var(--forest);background:var(--white)}
+.btn-acid{box-shadow:inset 0 0 0 1px rgba(14,43,30,.14)}
+.btn-main::before,.btn-acid::before{display:none}
+.card{border-color:var(--line)}
+.card.soft{background:var(--sage)}
+.card.mist{background:var(--sage-2)}
+.ic{background:var(--sage);color:var(--forest)}
+.tag{background:var(--sage);color:var(--forest)}
+.tag.acid{background:var(--acid);color:var(--ink)}
+.pill{background:var(--white)}
+.aura{background:radial-gradient(42% 48% at 28% 34%,rgba(46,106,73,.16),transparent 70%),radial-gradient(34% 40% at 74% 28%,rgba(142,230,188,.26),transparent 70%),radial-gradient(30% 30% at 55% 62%,rgba(225,225,0,.12),transparent 72%);filter:blur(34px)}
+.aura::after{background:radial-gradient(30% 36% at 50% 50%,rgba(46,106,73,.12),transparent 70%)}
+.mega{background:var(--paper)}
+.mega-cta{background:var(--forest) !important;color:var(--on-forest)}
+.mega-cta .muted{color:var(--on-forest-2)}
+.mega-cta .btn-main{background:var(--acid);color:var(--ink)}
+.mi:hover,.mprod:hover{background:var(--sage-2)}
+.mnav{background:var(--paper)}
+.mnav>*{flex-shrink:0}
+.band-sage{background:var(--sage-2)}
+.cart-btn{position:relative;width:42px;height:42px;border-radius:999px;display:grid;place-items:center;border:1px solid var(--line-2);color:var(--ink);transition:border-color .2s,background .2s}
+.cart-btn:hover{border-color:var(--forest);background:var(--white)}
+.cart-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cart-n{position:absolute;top:-4px;inset-inline-end:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--acid);color:var(--ink);font-size:11.5px;font-weight:700;display:grid;place-items:center;box-shadow:0 0 0 2px var(--paper)}
+.cart-bump{animation:cartbump .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes cartbump{40%{transform:scale(1.25)}}
+.band-forest{background:var(--forest);color:var(--on-forest)}
+.band-forest p{color:var(--on-forest-2)}
 </style>

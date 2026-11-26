@@ -79,14 +79,18 @@ test('every redesigned route reaches the Worker (no static 404)', () => {
   }
 });
 
-test('shop page lists every NFC card design and links to the account-linked shop', async () => {
+test('shop page sells every NFC card design into the shared cart, and payment needs an account', async () => {
   const seed = JSON.parse(read('shop/catalog.seed.json'));
   for (const card of seed) {
     assert.ok(bundle.includes('"' + card.slug + '"'), 'card ' + card.slug + ' in shop');
-    assert.ok(existsSync(new URL('media/redesign/cards/' + card.slug + '.webp', root)), 'thumbnail for ' + card.slug);
+    for (const side of ['front', 'back']) assert.ok(existsSync(new URL('media/redesign/cards-hd/' + card.slug + '-' + side + '.webp', root)), side + ' image for ' + card.slug);
   }
-  assert.ok(bundle.includes('/shop/cards/'));
-  assert.ok(read('service-shop.html').includes('href="/account"') || bundle.includes('"/account"'));
+  const shop = read('tools/redesign/design/Shop.dc.html');
+  assert.match(shop, /'aura\.shop\.cart\.v1'/, 'same cart as the account-linked shop');
+  assert.match(shop, /\/api\/customer\/session/, 'checks sign-in');
+  assert.match(shop, /\/account\/login\?next=' \+ encodeURIComponent\('\/shop\/checkout'\)/, 'sign-in returns to checkout');
+  assert.doesNotMatch(shop, /waOrder/, 'no ordering around the account');
+  assert.ok(bundle.includes('"/account"'));
   // The homepage no longer shows a card carousel; any card it does link must be publicly listed.
   const listed = seed.filter((c) => c.orientation === "Horizontal").map((c) => c.slug);
   const linked = [...read("index.html").matchAll(/href="\/shop\/cards\/([a-z0-9-]+)"/g)].map((m) => m[1]);
