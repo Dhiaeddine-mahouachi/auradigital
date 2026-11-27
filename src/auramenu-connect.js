@@ -38,6 +38,24 @@ function fromMenuSite(request) {
   return MENU_ORIGINS.includes(origin) || origin === new URL(request.url).origin;
 }
 
+async function ensureOwners(db) {
+  await db.prepare('CREATE TABLE IF NOT EXISTS auramenu_menu_owners (menu_id TEXT PRIMARY KEY NOT NULL, customer_id TEXT NOT NULL, linked_at TEXT NOT NULL DEFAULT (datetime(\'now\')))').run();
+  await db.prepare('CREATE INDEX IF NOT EXISTS auramenu_menu_owners_customer ON auramenu_menu_owners(customer_id)').run();
+}
+
+// Owner of a menu (AuraDigital customer id) or null.
+export async function menuOwner(db, menuId) {
+  await ensureOwners(db);
+  return (await db.prepare('SELECT customer_id FROM auramenu_menu_owners WHERE menu_id = ?').bind(menuId).first())?.customer_id || null;
+}
+
+// Links an unowned menu to the signed-in customer. Never moves a menu that already has another owner.
+export async function linkMenuOwner(db, menuId, customerId) {
+  await ensureOwners(db);
+  await db.prepare('INSERT INTO auramenu_menu_owners (menu_id, customer_id) VALUES (?, ?) ON CONFLICT(menu_id) DO NOTHING').bind(menuId, customerId).run();
+  return (await menuOwner(db, menuId)) === customerId;
+}
+
 export async function auraMenuCustomer(request, env) {
   const value = cookieValue(request);
   if (!/^[a-f0-9]{64}$/.test(value)) return null;
@@ -101,6 +119,15 @@ export async function handleAuraMenuConnect(request, env) {
   if (path === '/api/auramenu/account/session' && request.method === 'GET') {
     const user = await auraMenuCustomer(request, env);
     return json({ user: user ? { email: user.email, name: user.name, emailVerified: true, account: 'auradigital' } : null }, 200, { 'Cache-Control': 'no-store' });
+  }
+
+  if (path === '/api/auramenu/account/menus' && request.method === 'GET') {
+    const user = await auraMenuCustomer(request, env);
+    if (!user) return json({ error: 'Sign in required.' }, 401, { 'Cache-Control': 'no-store' });
+    await ensureOwners(env.DB);
+    const rows = await env.DB.prepare('SELECT r.id, r.slug, r.business_name, r.status, r.payment_status, r.template_id, r.updated_at FROM auramenu_menu_owners o JOIN auramenu_requests r ON r.id = o.menu_id WHERE o.customer_id = ? ORDER BY r.updated_at DESC LIMIT 50').bind(user.id).all();
+    const menus = (rows.results || []).map(r => ({ id: r.id, slug: r.slug, businessName: r.business_name, status: r.status, paymentStatus: r.payment_status, templateId: r.template_id, updatedAt: r.updated_at }));
+    return json({ menus }, 200, { 'Cache-Control': 'no-store' });
   }
 
   if (path === '/api/auramenu/account/logout' && request.method === 'POST') {

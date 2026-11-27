@@ -2,7 +2,8 @@ import { assertMenuTemplate, isCollectionDesign, premiumIds, menuDesignAccess, s
 import { menuBilling } from './menu-billing.js';
 import { ApiError, json, readJson } from './http.js';
 import { getAuthenticatedAdmin, sameOrigin } from './security.js';
-import { ensureMenuAccess as ensure, tokenHash as sha256, menuTokenAccess as requireToken, newMenuToken } from './menu-ownership.js';
+import { ensureMenuAccess as ensure, tokenHash as sha256, menuTokenAccess as requireToken, menuOwnerAccess, newMenuToken } from './menu-ownership.js';
+import { auraMenuCustomer, linkMenuOwner } from './auramenu-connect.js';
 import { purgeCachedMenu } from './menu-cache.js';
 
 const ORIGINS = new Set([
@@ -225,11 +226,15 @@ export async function handleAuraMenuDashboard(request, env) {
       const body = await readJson(request, 8192);
       const token = typeof body.existingToken === 'string' ? body.existingToken : '';
       const tokenRequest = new Request(request.url, { headers: { 'X-Aura-Menu-Token': token } });
-      const access = await requireToken(tokenRequest, env.DB, claim[1]);
+      const byToken = await requireToken(tokenRequest, env.DB, claim[1]);
+      const access = byToken || await menuOwnerAccess(request, env.DB, claim[1]);
       if (!access) return json({ error: 'Dashboard access denied.' }, 401, headers);
       const row = await rowFor(env.DB, claim[1]);
       if (!row) return json({ error: 'Dashboard access denied.' }, 401, headers);
-      return json({ token, menu: await dashboardMenu(row,access,await menuBilling(env.DB,row.id)) }, 200, headers);
+      // A valid menu token + a signed-in AuraDigital account links an unowned menu to that account.
+      const customer = byToken ? await auraMenuCustomer(request, env) : null;
+      const owned = customer ? await linkMenuOwner(env.DB, claim[1], customer.id) : false;
+      return json({ token: byToken ? token : '', owned, menu: await dashboardMenu(row,access,await menuBilling(env.DB,row.id)) }, 200, headers);
     }
 
     const match = u.pathname.match(/^\/api\/auramenu\/dashboard\/([a-f0-9-]+)(?:\/(access-request))?$/i);

@@ -1,3 +1,4 @@
+import { auraMenuCustomer, menuOwner } from './auramenu-connect.js';
 export async function tokenHash(value) {
   const bytes = new TextEncoder().encode(value);
   const hash = await crypto.subtle.digest('SHA-256', bytes);
@@ -36,10 +37,17 @@ export function newMenuToken() {
   return Array.from(crypto.getRandomValues(new Uint8Array(32)), b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Access to manage a menu: the menu's token, or the AuraDigital account that owns the menu.
 export async function menuTokenAccess(request, db, id) {
-  const token = request.headers.get('X-Aura-Menu-Token') || '';
-  if (!/^[a-f0-9]{64}$/.test(token)) return null;
   await ensureMenuAccess(db);
+  const token = request.headers.get('X-Aura-Menu-Token') || '';
   const access = await db.prepare('SELECT * FROM auramenu_edit_access WHERE menu_id = ? LIMIT 1').bind(id).first();
-  return access?.token_hash && await tokenHash(token) === access.token_hash ? access : null;
+  if (/^[a-f0-9]{64}$/.test(token) && access?.token_hash && await tokenHash(token) === access.token_hash) return access;
+  return await menuOwnerAccess(request, db, id, access);
+}
+
+export async function menuOwnerAccess(request, db, id, access) {
+  const customer = await auraMenuCustomer(request, { DB: db });
+  if (!customer || (await menuOwner(db, id)) !== customer.id) return null;
+  return access || { menu_id: id, token_hash: '', request_status: 'none', access_until: null, paid_amount: 0 };
 }
