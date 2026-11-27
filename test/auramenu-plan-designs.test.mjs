@@ -38,4 +38,14 @@ test('design access follows the plan: Standard/Annual → standard only, Premium
   assert.equal((await save('pre-21')).status, 200);
   const access = (await (await call(dash, 'GET', undefined, owner)).json()).menu.designAccess;
   assert.equal(access.standard, false); assert.ok(access.premium.includes('pre-21'));
+  for (const planId of ['starter', 'annual']) {
+    const created = await make(planId, 'std-01');
+    assert.equal(created.status, 201);
+    const { request: standard, token: standardToken } = await created.json();
+    env.AURAMENU_PREMIUM_MENU_IDS = standard.id;
+    const path = '/api/auramenu/dashboard/' + standard.id;
+    const headers = { 'X-Aura-Menu-Token': standardToken };
+    assert.deepEqual((await (await call(path, 'GET', undefined, headers)).json()).menu.designAccess.premium, []);
+    assert.equal((await call(path, 'PATCH', { templateId: 'pre-16', categories: base.categories }, headers)).status, 403);
+  }
 });

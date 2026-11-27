@@ -61,6 +61,9 @@ test('feature gating, authenticated settings, plan checks, approval and existing
   assert.equal((await call(dashboard,'PATCH',premium,owner)).status,403);
   env.AURAMENU_PREMIUM_MENU_IDS = request.id;
   assert.equal((await call(dashboard,'PATCH',premium,{'X-Aura-Menu-Token':'different-restaurant-token'})).status,401);
+  assert.equal((await call(dashboard,'PATCH',premium,owner)).status,403);
+  // Existing one-time contracts can retain their explicit premium grant.
+  sqlite.prepare("UPDATE auramenu_billing SET plan_id='onetime' WHERE menu_id=?").run(request.id);
   assert.deepEqual((await (await call(dashboard,'GET',undefined,owner)).json()).menu.designAccess.premium,premiumIds);
   const premiumUpdate = await call(dashboard,'PATCH',premium,owner);
   assert.equal(premiumUpdate.status,200);
