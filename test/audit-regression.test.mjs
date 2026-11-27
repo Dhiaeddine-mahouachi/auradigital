@@ -1,4 +1,5 @@
 import test, { before, after } from 'node:test';
+import { menuSession } from './menu-session.mjs';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
@@ -21,7 +22,9 @@ function request(path, method='GET', body, headers={}) {
     headers: { Origin:'https://auradigitalworks.com', ...(body === undefined ? {} : {'Content-Type':'application/json'}), ...headers },
     body: body === undefined ? undefined : JSON.stringify(body) });
 }
-const call = (path, method, body, headers, customEnv=env) => app.fetch(request(path,method,body,headers),customEnv,ctx);
+let menuOwnerSession;
+const withMenuSession = async (path, method, headers) => (path === '/api/auramenu/requests' && method === 'POST' && !headers?.Cookie) ? { ...(headers || {}), Cookie: (menuOwnerSession ||= await menuSession(db)).Cookie } : headers;
+const call = async (path, method, body, headers, customEnv=env) => app.fetch(request(path,method,body,await withMenuSession(path,method,headers)),customEnv,ctx);
 const menuHeaders = key => ({ 'X-Aura-Menu-Token':tokens[key] });
 const cookie = value => ({ Cookie:value });
 

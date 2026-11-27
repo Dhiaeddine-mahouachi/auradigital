@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { menuSession } from './menu-session.mjs';
 import test from 'node:test';
 import { DatabaseSync } from 'node:sqlite';
 import { readFile } from 'node:fs/promises';
@@ -13,7 +14,9 @@ test('feature gating, authenticated settings, plan checks, approval and existing
   const DB = d1(sqlite);
   const limiter = {limit:async () => ({success:true})};
   const env = {DB,TRACK_RATE_LIMITER:limiter,LOGIN_RATE_LIMITER:limiter};
-  function call(path,method='GET',body,credentials={}) {
+  let creator;
+  async function call(path,method='GET',body,credentials={}) {
+    if (path === '/api/auramenu/requests' && method === 'POST' && !credentials.Cookie) credentials = { ...credentials, Cookie: (creator ||= await menuSession(DB)).Cookie };
     return app.fetch(new Request('https://auradigitalworks.com'+path,{
       method,body:body === undefined ? undefined : JSON.stringify(body),
       headers:{Origin:'https://auradigitalworks.com','Content-Type':'application/json',...credentials},

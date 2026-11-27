@@ -7,6 +7,8 @@ import { ensureRequestDelivery, requestFingerprint, outboxStatements, deliverReq
 import { MENU_PLANS, OFFERED_MENU_PLANS, ensureMenuBilling, menuBilling, menuBillingInsert, activateMenuBilling, menuEntitlement } from "./menu-billing.js";
 import { ApiError, json, readJson } from "./http.js";
 import { readCachedMenu, storeCachedMenu, purgeCachedMenu } from "./menu-cache.js";
+import { auraMenuCustomer } from "./auramenu-connect.js";
+import { ensureTeam } from "./auramenu-team.js";
 import { catalogue as PUBLIC_PRICING, getItem as getPublicPrice, quote as calculatePublicQuote } from "../pricing/catalogue.js";
 import { queueRequestNotification } from "./notifications.js";
 import { checkResendHealth } from "./customer-confirmation.js";
@@ -778,12 +780,15 @@ function mapAuraMenuRequest(row, publicSite = false) {
 }
 
 async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
+  // A menu is always registered to a signed-in AuraDigital account (no anonymous requests, no separate email codes).
+  const customer = await auraMenuCustomer(request, env);
+  if (!customer) return json({ error: "Sign in with your AuraDigital account to register your menu.", signIn: true }, 401, { "Cache-Control": "no-store", ...corsHeaders });
   const body = await readJson(request, AURAMENU_BODY_BYTES);
   const templateId = qsClean(body.templateId, 30);
   const businessName = qsClean(body.businessName, 100);
-  const contactName = qsClean(body.contactName, 100);
+  const contactName = qsClean(body.contactName, 100) || qsClean(customer.name, 100) || customer.email;
   const contactPhone = qsClean(body.contactPhone, 40);
-  const email = qsClean(body.email, 160).toLowerCase();
+  const email = qsClean(customer.email, 160).toLowerCase();
   if (!businessName || !contactName || !contactPhone) {
     return json({ error: "İşletme, yetkili, telefon ve tasarım alanlarını kontrol edin." }, 400, corsHeaders);
   }
@@ -844,6 +849,7 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
       .bind(image.id, image.requestId, image.contentType, image.bytes),
   );
   await ensureMenuAccess(db);
+  await ensureTeam(db);
   const token = newMenuToken();
   const notification = {
     submittedAt:new Date().toISOString(),
@@ -863,7 +869,8 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   await ensureRequestDelivery(db);
   await db.batch([...outboxStatements(db,notification),requestInsert, menuBillingInsert(db, id, plan), ...imageInserts,
     ...(presentation ? [saveMenuPresentation(db,id,presentation)] : []),
-    db.prepare("INSERT INTO auramenu_edit_access (menu_id, token_hash) VALUES (?, ?)").bind(id, await tokenHash(token))
+    db.prepare("INSERT INTO auramenu_edit_access (menu_id, token_hash) VALUES (?, ?)").bind(id, await tokenHash(token)),
+    db.prepare("INSERT INTO auramenu_menu_owners (menu_id, customer_id) VALUES (?, ?) ON CONFLICT(menu_id) DO NOTHING").bind(id, customer.id),
   ]);
   ctx.waitUntil(deliverRequestEmails(env,id).catch(()=>console.error(JSON.stringify({event:"request_email_processing_failed",requestId:id}))));
   return json({ token, request: { id, slug: requestedSlug, status: "pending", paymentStatus: "unpaid", billing: await menuBilling(db, id) } }, 201, {
