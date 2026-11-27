@@ -214,7 +214,7 @@ export async function handleAuraMenuDashboard(request, env) {
   });
   const dashboardMenu = async (row,access,billing) => {
     const designAccess = designsFor(row,billing);
-    return {...publicMenu(row,access,billing),...await presentationFor(row),
+    return {...publicMenu(row,access,billing),...await presentationFor(row),role:access?.role || 'owner',
       designAccess:{standard:designAccess.standard,premium:designAccess.premium ? premiumIds : []}};
   };
   if (u.pathname.startsWith('/api/auramenu/dashboard')) {
@@ -252,6 +252,7 @@ export async function handleAuraMenuDashboard(request, env) {
     }
 
     if (action === 'access-request' && request.method === 'POST') {
+      if (tokenAccess.role !== 'owner') return json({ error: 'Only the menu owner can manage the plan.' }, 403, headers);
       if (billing) return json({ error: 'Editing is included in your plan. Renew from the payment page.' },409,headers);
       if (active(tokenAccess)) {
         return json({ error: 'Düzenleme erişimi zaten aktif.' }, 409, { 'Cache-Control': 'no-store', ...headers });
@@ -290,13 +291,16 @@ export async function handleAuraMenuDashboard(request, env) {
           { 'Cache-Control': 'no-store', ...headers }
         );
       }
-      const body = await readJson(request, BODY_BYTES);
+      const submitted = await readJson(request, BODY_BYTES);
+      // Editors may change menu content only; everything else keeps its current value.
+      const body = tokenAccess.role === 'editor' ? { categories: submitted.categories } : submitted;
+      const contentOnly = tokenAccess.role === 'editor';
       const template = assertMenuTemplate(body.templateId ?? row.template_id,{
         ...designsFor(row,billing),currentId:row.template_id,
       });
       const categories = normalizeCategories(body.categories);
       const imageInserts = await replaceImages(env.DB, id, categories, new URL(request.url).origin);
-      const presentation = isCollectionDesign(template) ? normalizeMenuPresentation(body) : null;
+      const presentation = isCollectionDesign(template) && !contentOnly ? normalizeMenuPresentation(body) : null;
       const lang = ['tr', 'en', 'ar'].includes(String(body.menuLanguage))
         ? String(body.menuLanguage)
         : row.menu_language;
@@ -312,12 +316,12 @@ export async function handleAuraMenuDashboard(request, env) {
         template,
         lang,
         clean(body.businessName, 100) || row.business_name,
-        clean(body.tagline, 140),
-        clean(body.description, 600),
-        clean(body.address, 220),
-        clean(body.businessPhone, 40),
-        clean(body.whatsapp, 40),
-        clean(body.openingHours, 100),
+        contentOnly ? row.tagline : clean(body.tagline, 140),
+        contentOnly ? row.description : clean(body.description, 600),
+        contentOnly ? row.address : clean(body.address, 220),
+        contentOnly ? row.business_phone : clean(body.businessPhone, 40),
+        contentOnly ? row.whatsapp : clean(body.whatsapp, 40),
+        contentOnly ? row.opening_hours : clean(body.openingHours, 100),
         currency,
         JSON.stringify(categories),
         id

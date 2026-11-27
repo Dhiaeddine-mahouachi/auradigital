@@ -5,6 +5,7 @@
 import { ApiError, json, readJson } from './http.js';
 import { authenticatedCustomer, ensureCustomers, tokenHash } from './customer-accounts.ts';
 import { identityOrigin, isEmailVerified, randomToken } from './customer-identity.js';
+import { ensureTeam, menusFor, handleTeamAndDrafts } from './auramenu-team.js';
 
 export const AURAMENU_COOKIE = '__Host-auramenu_customer';
 const SESSION_SECONDS = 7 * 24 * 60 * 60, CODE_SECONDS = 120;
@@ -38,20 +39,15 @@ function fromMenuSite(request) {
   return MENU_ORIGINS.includes(origin) || origin === new URL(request.url).origin;
 }
 
-async function ensureOwners(db) {
-  await db.prepare('CREATE TABLE IF NOT EXISTS auramenu_menu_owners (menu_id TEXT PRIMARY KEY NOT NULL, customer_id TEXT NOT NULL, linked_at TEXT NOT NULL DEFAULT (datetime(\'now\')))').run();
-  await db.prepare('CREATE INDEX IF NOT EXISTS auramenu_menu_owners_customer ON auramenu_menu_owners(customer_id)').run();
-}
-
 // Owner of a menu (AuraDigital customer id) or null.
 export async function menuOwner(db, menuId) {
-  await ensureOwners(db);
+  await ensureTeam(db);
   return (await db.prepare('SELECT customer_id FROM auramenu_menu_owners WHERE menu_id = ?').bind(menuId).first())?.customer_id || null;
 }
 
 // Links an unowned menu to the signed-in customer. Never moves a menu that already has another owner.
 export async function linkMenuOwner(db, menuId, customerId) {
-  await ensureOwners(db);
+  await ensureTeam(db);
   await db.prepare('INSERT INTO auramenu_menu_owners (menu_id, customer_id) VALUES (?, ?) ON CONFLICT(menu_id) DO NOTHING').bind(menuId, customerId).run();
   return (await menuOwner(db, menuId)) === customerId;
 }
@@ -66,7 +62,7 @@ export async function auraMenuCustomer(request, env) {
 
 export async function handleAuraMenuConnect(request, env) {
   const url = new URL(request.url), path = url.pathname;
-  if (!path.startsWith('/api/auramenu/connect') && !path.startsWith('/api/auramenu/account/')) return null;
+  if (!path.startsWith('/api/auramenu/connect') && !path.startsWith('/api/auramenu/account/') && path !== '/api/auramenu/hub/menus') return null;
   await ensureConnect(env.DB);
 
   // 1. On auradigitalworks.com: signed-in AuraDigital customer → one-time code → back to auramenu.space.
@@ -124,10 +120,21 @@ export async function handleAuraMenuConnect(request, env) {
   if (path === '/api/auramenu/account/menus' && request.method === 'GET') {
     const user = await auraMenuCustomer(request, env);
     if (!user) return json({ error: 'Sign in required.' }, 401, { 'Cache-Control': 'no-store' });
-    await ensureOwners(env.DB);
-    const rows = await env.DB.prepare('SELECT r.id, r.slug, r.business_name, r.status, r.payment_status, r.template_id, r.updated_at FROM auramenu_menu_owners o JOIN auramenu_requests r ON r.id = o.menu_id WHERE o.customer_id = ? ORDER BY r.updated_at DESC LIMIT 50').bind(user.id).all();
-    const menus = (rows.results || []).map(r => ({ id: r.id, slug: r.slug, businessName: r.business_name, status: r.status, paymentStatus: r.payment_status, templateId: r.template_id, updatedAt: r.updated_at }));
-    return json({ menus }, 200, { 'Cache-Control': 'no-store' });
+    return json({ menus: await menusFor(env.DB, user.id) }, 200, { 'Cache-Control': 'no-store' });
+  }
+
+  if (path.startsWith('/api/auramenu/account/menus/') || path.startsWith('/api/auramenu/account/drafts')) {
+    if (!['GET', 'HEAD'].includes(request.method) && !fromMenuSite(request)) return json({ error: 'Forbidden origin.' }, 403);
+    const user = await auraMenuCustomer(request, env);
+    if (!user) return json({ error: 'Sign in required.' }, 401, { 'Cache-Control': 'no-store' });
+    return (await handleTeamAndDrafts(request, env, user)) || json({ error: 'Not found.' }, 404);
+  }
+
+  // AuraHub (auradigitalworks.com, AuraDigital session): the same menus, read-only list.
+  if (path === '/api/auramenu/hub/menus' && request.method === 'GET') {
+    const customer = await authenticatedCustomer(request, env);
+    if (!customer) return json({ error: 'Sign in required.' }, 401, { 'Cache-Control': 'no-store' });
+    return json({ menus: await menusFor(env.DB, customer.id), studio: menuOrigin(env) + '/studio.html' }, 200, { 'Cache-Control': 'no-store' });
   }
 
   if (path === '/api/auramenu/account/logout' && request.method === 'POST') {
