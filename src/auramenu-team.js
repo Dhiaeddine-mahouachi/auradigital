@@ -118,21 +118,33 @@ export async function handleTeamAndDrafts(request, env, user) {
       const data = JSON.stringify(body.data);
       if (new TextEncoder().encode(data).length > DRAFT_BYTES) throw new ApiError(413, 'Draft is too large to save to your account.');
       const name = String(body.name || '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 100);
-      const base = Number.isInteger(body.baseVersion) ? body.baseVersion : null;
-      const current = await db.prepare('SELECT version FROM auramenu_cloud_drafts WHERE customer_id = ? AND id = ?').bind(user.id, id).first();
-      if (current && base !== null && base !== current.version) return json({ error: 'This draft changed on another device.', version: current.version }, 409);
-      if (!current) {
-        const count = await db.prepare('SELECT COUNT(*) AS n FROM auramenu_cloud_drafts WHERE customer_id = ?').bind(user.id).first();
-        if ((count?.n || 0) >= MAX_DRAFTS) throw new ApiError(409, `You can keep up to ${MAX_DRAFTS} drafts.`);
-        await db.prepare('INSERT INTO auramenu_cloud_drafts (customer_id, id, name, data_json) VALUES (?, ?, ?, ?)').bind(user.id, id, name, data).run();
-        return json({ version: 1 }, 201, { 'Cache-Control': 'no-store' });
+      const base = body.baseVersion === undefined ? 0 : body.baseVersion;
+      if (!Number.isSafeInteger(base) || base < 0) throw new ApiError(400, 'Invalid draft version.');
+      if (base === 0) {
+        const created = await db.prepare(
+          'INSERT INTO auramenu_cloud_drafts (customer_id, id, name, data_json) ' +
+          'SELECT ?, ?, ?, ? WHERE (SELECT COUNT(*) FROM auramenu_cloud_drafts WHERE customer_id = ?) < ? ' +
+          'ON CONFLICT(customer_id, id) DO NOTHING'
+        ).bind(user.id, id, name, data, user.id, MAX_DRAFTS).run();
+        if (created.meta?.changes) return json({ version: 1 }, 201, { 'Cache-Control': 'no-store' });
+      } else {
+        const updated = await db.prepare("UPDATE auramenu_cloud_drafts SET name = ?, data_json = ?, version = version + 1, updated_at = datetime('now') WHERE customer_id = ? AND id = ? AND version = ?")
+          .bind(name, data, user.id, id, base).run();
+        if (updated.meta?.changes) return json({ version: base + 1 }, 200, { 'Cache-Control': 'no-store' });
       }
-      const updated = await db.prepare("UPDATE auramenu_cloud_drafts SET name = ?, data_json = ?, version = version + 1, updated_at = datetime('now') WHERE customer_id = ? AND id = ? AND version = ?").bind(name, data, user.id, id, current.version).run();
-      if (!updated.meta?.changes) return json({ error: 'This draft changed on another device.' }, 409);
-      return json({ version: current.version + 1 }, 200, { 'Cache-Control': 'no-store' });
+      const current = await db.prepare('SELECT version FROM auramenu_cloud_drafts WHERE customer_id = ? AND id = ?').bind(user.id, id).first();
+      if (!current && base === 0) throw new ApiError(409, `You can keep up to ${MAX_DRAFTS} drafts.`);
+      return json({ error: 'This draft changed on another device.', version: current?.version ?? 0 }, 409, { 'Cache-Control': 'no-store' });
     }
     if (request.method === 'DELETE') {
-      await db.prepare('DELETE FROM auramenu_cloud_drafts WHERE customer_id = ? AND id = ?').bind(user.id, id).run();
+      const version = url.searchParams.get('baseVersion');
+      if (version !== null && (!/^[1-9]\d*$/.test(version) || !Number.isSafeInteger(Number(version)))) {
+        throw new ApiError(400, 'Invalid draft version.');
+      }
+      const result = version === null
+        ? await db.prepare('DELETE FROM auramenu_cloud_drafts WHERE customer_id = ? AND id = ?').bind(user.id, id).run()
+        : await db.prepare('DELETE FROM auramenu_cloud_drafts WHERE customer_id = ? AND id = ? AND version = ?').bind(user.id, id, Number(version)).run();
+      if (version !== null && !result.meta?.changes) return json({ error: 'This draft changed on another device.' }, 409);
       return json({ ok: true });
     }
     return json({ error: 'Method not allowed.' }, 405);

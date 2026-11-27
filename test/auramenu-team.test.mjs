@@ -99,12 +99,21 @@ test('cloud drafts are private, versioned and limited', async (t) => {
   assert.equal((await call(url, 'GET', undefined, b.menu)).status, 404, 'other accounts cannot read it');
   assert.equal((await (await call(url, 'PUT', { name: 'x', data, baseVersion: 1 }, a.menu)).json()).version, 2);
   assert.equal((await call(url, 'PUT', { name: 'x', data, baseVersion: 1 }, a.menu)).status, 409, 'stale device gets a conflict');
+  const savedVersion = 2;
+  assert.equal((await (await call(url, 'PUT', { name: 'x', data }, a.menu)).json()).version, savedVersion);
+  assert.equal((await call(url + '?baseVersion=1', 'DELETE', undefined, a.menu)).status, 409);
+  assert.equal((await (await call(url, 'GET', undefined, a.menu)).json()).draft.version, savedVersion);
+  const concurrent = await Promise.all(['Device one', 'Device two'].map(name =>
+    call(url, 'PUT', { name, data, baseVersion: savedVersion }, a.menu)
+  ));
+  assert.deepEqual(concurrent.map(r => r.status).sort(), [200, 409]);
   assert.equal((await call(url, 'PUT', { data: { big: 'x'.repeat(300 * 1024) } }, a.menu)).status, 413);
   assert.equal((await call(url, 'PUT', { data: [] }, a.menu)).status, 400);
   assert.equal((await call(url, 'GET')).status, 401);
   for (const n of [1, 2, 3, 4]) assert.equal((await call(`/api/auramenu/account/drafts/d${n}`, 'PUT', { data }, a.menu)).status, 201);
   assert.equal((await call('/api/auramenu/account/drafts/d5', 'PUT', { data }, a.menu)).status, 409);
   assert.equal((await (await call('/api/auramenu/account/drafts', 'GET', undefined, a.menu)).json()).drafts.length, 5);
-  assert.equal((await call(url, 'DELETE', undefined, a.menu)).status, 200);
+  assert.equal((await call(url + '?baseVersion=3', 'DELETE', undefined, a.menu)).status, 200);
   assert.equal((await call(url, 'GET', undefined, a.menu)).status, 404);
+  assert.equal((await call(url, 'PUT', { data, baseVersion: 3 }, a.menu)).status, 409, 'a stale edit cannot recreate a removed draft');
 });
