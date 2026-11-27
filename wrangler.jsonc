@@ -215,5 +215,40 @@
       "0 3 * * *",
       "*/5 * * * *"
     ]
+  },
+  "env": {
+    "staging": {
+      "name": "auradigital-staging",
+      "keep_vars": false,
+      "workers_dev": true,
+      "preview_urls": false,
+      "routes": [],
+      "triggers": { "crons": [] },
+      "secrets": { "required": [] },
+      "d1_databases": [{
+        "binding": "DB",
+        "database_name": "auradigital-staging-db",
+        "database_id": "7d2935b7-e368-4d9c-87ae-6130e03a9290",
+        "migrations_dir": "migrations"
+      }],
+      "ratelimits": [
+        { "name": "CONTACT_RATE_LIMITER", "namespace_id": "1843714", "simple": { "limit": 5, "period": 60 } },
+        { "name": "LOGIN_RATE_LIMITER", "namespace_id": "1843711", "simple": { "limit": 5, "period": 60 } },
+        { "name": "TRACK_RATE_LIMITER", "namespace_id": "1843712", "simple": { "limit": 120, "period": 60 } },
+        { "name": "HUB_WRITE_RATE_LIMITER", "namespace_id": "1843715", "simple": { "limit": 60, "period": 60 } },
+        { "name": "AI_RATE_LIMITER", "namespace_id": "1843713", "simple": { "limit": 12, "period": 60 } }
+      ],
+      "vars": {
+        "AURA_ENVIRONMENT": "staging",
+        "AURAMENU_ORIGIN": "https://auramenu-staging.dhiamahouachi2025.workers.dev",
+        "AURAMENU_STANDARD_ENABLED": "true",
+        "AURAMENU_PREMIUM_ENABLED": "true",
+        "GROWTH_OS_ENABLED": "true",
+        "CUSTOMER_IDENTITY_ENABLED": "true",
+        "GOOGLE_LOGIN_ENABLED": "false",
+        "CUSTOMER_EMAIL_ENABLED": "false",
+        "CUSTOMER_AUTH_ORIGIN": "https://auradigital-staging.dhiamahouachi2025.workers.dev"
+      }
+    }
   }
 }

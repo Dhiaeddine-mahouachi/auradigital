@@ -21,8 +21,17 @@ async function ensureConnect(db) {
 }
 const sqlTime = (ms) => new Date(ms).toISOString().slice(0, 19).replace('T', ' ');
 function menuOrigin(env) {
+  const staging = stagingMenuOrigin(env);
+  if (staging) return staging;
   const configured = String(env.AURAMENU_ORIGIN || 'https://auramenu.space');
   return MENU_ORIGINS.includes(configured) ? configured : 'https://auramenu.space';
+}
+export function stagingMenuOrigin(env) {
+  if (env.AURA_ENVIRONMENT !== 'staging') return '';
+  const account = /^https:\/\/auradigital-staging\.([a-z0-9-]+)\.workers\.dev$/.exec(env.CUSTOMER_AUTH_ORIGIN || '');
+  if (!account) return '';
+  const expected = `https://auramenu-staging.${account[1]}.workers.dev`;
+  return env.AURAMENU_ORIGIN === expected ? expected : '';
 }
 function cookieValue(request) {
   return (request.headers.get('Cookie') || '').split(';').map(s => s.trim()).find(s => s.startsWith(AURAMENU_COOKIE + '='))?.slice(AURAMENU_COOKIE.length + 1) || '';
@@ -34,8 +43,9 @@ async function s256(verifier) {
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
   return btoa(String.fromCharCode(...digest)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
-function fromMenuSite(request) {
+function fromMenuSite(request, env) {
   const origin = request.headers.get('Origin');
+  if (env.AURA_ENVIRONMENT === 'staging') return Boolean(origin && origin === stagingMenuOrigin(env));
   return MENU_ORIGINS.includes(origin) || origin === new URL(request.url).origin;
 }
 
@@ -63,6 +73,9 @@ export async function auraMenuCustomer(request, env) {
 export async function handleAuraMenuConnect(request, env) {
   const url = new URL(request.url), path = url.pathname;
   if (!path.startsWith('/api/auramenu/connect') && !path.startsWith('/api/auramenu/account/') && path !== '/api/auramenu/hub/menus') return null;
+  if (env.AURA_ENVIRONMENT === 'staging' && !stagingMenuOrigin(env)) {
+    return json({ error: 'Staging account routing is unavailable.' }, 503);
+  }
   await ensureConnect(env.DB);
 
   // 1. On auradigitalworks.com: signed-in AuraDigital customer → one-time code → back to auramenu.space.
@@ -92,7 +105,7 @@ export async function handleAuraMenuConnect(request, env) {
 
   // 2. On auramenu.space: exchange the code (with the PKCE verifier) for an auramenu.space session.
   if (path === '/api/auramenu/connect/exchange' && request.method === 'POST') {
-    if (!fromMenuSite(request)) return json({ error: 'Forbidden origin.' }, 403);
+    if (!fromMenuSite(request, env)) return json({ error: 'Forbidden origin.' }, 403);
     if (env.LOGIN_RATE_LIMITER) {
       const limit = await env.LOGIN_RATE_LIMITER.limit({ key: 'auramenu-connect:' + (request.headers.get('CF-Connecting-IP') || 'unknown') });
       if (!limit.success) return json({ error: 'Too many attempts. Try again in a minute.' }, 429, { 'Retry-After': '60' });
@@ -124,7 +137,7 @@ export async function handleAuraMenuConnect(request, env) {
   }
 
   if (path.startsWith('/api/auramenu/account/menus/') || path.startsWith('/api/auramenu/account/drafts')) {
-    if (!['GET', 'HEAD'].includes(request.method) && !fromMenuSite(request)) return json({ error: 'Forbidden origin.' }, 403);
+    if (!['GET', 'HEAD'].includes(request.method) && !fromMenuSite(request, env)) return json({ error: 'Forbidden origin.' }, 403);
     const user = await auraMenuCustomer(request, env);
     if (!user) return json({ error: 'Sign in required.' }, 401, { 'Cache-Control': 'no-store' });
     return (await handleTeamAndDrafts(request, env, user)) || json({ error: 'Not found.' }, 404);
@@ -138,7 +151,7 @@ export async function handleAuraMenuConnect(request, env) {
   }
 
   if (path === '/api/auramenu/account/logout' && request.method === 'POST') {
-    if (!fromMenuSite(request)) return json({ error: 'Forbidden origin.' }, 403);
+    if (!fromMenuSite(request, env)) return json({ error: 'Forbidden origin.' }, 403);
     const value = cookieValue(request);
     if (/^[a-f0-9]{64}$/.test(value)) await env.DB.prepare('DELETE FROM customer_sessions WHERE token_hash = ?').bind(await tokenHash(value)).run();
     return json({ user: null }, 200, { 'Set-Cookie': sessionCookie('', 0), 'Cache-Control': 'no-store' });

@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DatabaseSync } from 'node:sqlite';
-import { readFile } from 'node:fs/promises';
+import { backup, DatabaseSync } from 'node:sqlite';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import app from '../src/worker-entry.js';
 import { d1 } from './d1.mjs';
 import { ensureCustomers, tokenHash } from '../src/customer-accounts.ts';
@@ -55,7 +58,9 @@ test('menus belong to the AuraDigital account that claims them; other accounts a
 
   const created = await call('/api/auramenu/requests', 'POST', {
     templateId: 'std-02', planId: 'annual', businessName: 'Cafe B', contactName: 'A',
-    contactPhone: '222', slug: 'cafe-b', categories: [{ name: 'Food', items: [{ name: 'Toast', price: '90' }] }],
+    contactPhone: '222', slug: 'cafe-b', categories: [{ name: 'Food', items: [{
+      name: 'Toast', price: '90', imageData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+X1gAAAABJRU5ErkJggg==',
+    }] }],
   }, a);
   assert.equal(created.status, 201);
   const { request: secondMenu } = await created.json();
@@ -90,4 +95,48 @@ test('menus belong to the AuraDigital account that claims them; other accounts a
   const published = (await (await call(publicPath)).json()).menu;
   assert.equal(published.categories[0].items[0].price, '95');
   assert.equal(published.categories[0].items[0].available, false);
+
+  const history = '/api/auramenu/dashboard/' + secondMenu.id + '/revisions';
+  const revisions = (await (await call(history, 'GET', undefined, a)).json()).revisions;
+  assert.deepEqual(revisions.map(revision => revision.action), ['update', 'publish']);
+  assert.ok(revisions.every(revision => revision.publishedAt && revision.actorId));
+  assert.equal((await call(history, 'GET', undefined, b)).status, 401);
+  const original = history + '/' + before.revision;
+  const preview = (await (await call(original, 'GET', undefined, a)).json()).menu;
+  assert.equal(preview.categories[0].items[0].price, '90');
+  const savedImage = new URL(preview.categories[0].items[0].imageUrl).pathname;
+  assert.equal((await call(savedImage)).status, 200);
+  assert.equal((await call(original, 'POST', { expectedRevision: before.revision }, a)).status, 409);
+  assert.equal((await (await call(publicPath)).json()).menu.revision, published.revision);
+  assert.equal((await call(original, 'POST', { expectedRevision: published.revision }, a)).status, 200);
+  const restored = (await (await call(publicPath)).json()).menu;
+  assert.equal(restored.revision, published.revision + 1);
+  assert.deepEqual(restored.categories, before.categories);
+  assert.equal((await call(savedImage)).status, 200);
+  assert.equal((await (await call(history, 'GET', undefined, a)).json()).revisions[0].sourceRevision, before.revision);
+
+  // Reopen an isolated backup through the Worker with an independent D1 adapter.
+  const directory = await mkdtemp(join(tmpdir(), 'auramenu-recovery-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const file = join(directory, 'restored.sqlite');
+  const accountId = sqlite.prepare('SELECT id FROM customer_users WHERE email=?').get('b@test.test').id;
+  const ownerId = sqlite.prepare('SELECT customer_id FROM auramenu_menu_owners WHERE menu_id=?').get(secondMenu.id).customer_id;
+  sqlite.prepare("INSERT INTO auramenu_menu_members(menu_id,customer_id,role,added_by) VALUES (?,?,'editor',?)").run(secondMenu.id, accountId, ownerId);
+  await backup(sqlite, file);
+  const recovered = new DatabaseSync(file);
+  t.after(() => recovered.close());
+  const restoredEnv = { ...env, DB: d1(recovered) };
+  const use = (worker, path, headers) => worker.fetch(new Request('https://auradigitalworks.com' + path, { headers }), restoredEnv, { waitUntil() {} });
+  assert.deepEqual((await (await use(app, publicPath)).json()).menu, restored);
+  const recoveredDashboard = (await (await use(app, '/api/auramenu/dashboard/' + secondMenu.id, b)).json()).menu;
+  assert.equal(recoveredDashboard.role, 'editor');
+  assert.equal(recoveredDashboard.billing.active, true);
+  assert.equal((await use(app, savedImage)).status, 200);
+  assert.equal((await (await use(app, history, a)).json()).revisions.length, 3);
+  if (process.env.AURAMENU_ROLLBACK_ENTRY) {
+    const previous = (await import(pathToFileURL(process.env.AURAMENU_ROLLBACK_ENTRY))).default;
+    assert.deepEqual((await (await use(previous, publicPath)).json()).menu, restored);
+    assert.equal((await use(previous, savedImage)).status, 200);
+    assert.equal((await (await use(app, history, a)).json()).revisions.length, 3);
+  }
 });

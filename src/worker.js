@@ -11,7 +11,8 @@ import { catalogue as PUBLIC_PRICING, getItem as getPublicPrice, quote as calcul
 import { queueRequestNotification } from "./notifications.js";
 import { checkResendHealth } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
-import { auraMenuCustomer } from "./auramenu-connect.js";
+import { auraMenuCustomer, stagingMenuOrigin } from "./auramenu-connect.js";
+import { capturePublication, ensurePublications } from "./auramenu-publications.js";
 import { ensureTeam } from "./auramenu-team.js";
 import { securityEvent } from "./security-policy.js";
 import { handleEmployeePortalApi } from "./employee-portal.js";
@@ -634,10 +635,13 @@ async function handleQuickSiteAdmin(request, db, id) {
   return json({ project: mapQuickSite(updated) }, 200, { "Cache-Control": "no-store" });
 }
 
-function auraMenuCors(request) {
+function auraMenuCors(request, env) {
   const origin = request.headers.get("Origin");
   if (!origin) return {};
-  if (!AURAMENU_ORIGINS.has(origin)) return null;
+  const allowed = env.AURA_ENVIRONMENT === "staging"
+    ? [stagingMenuOrigin(env), env.CUSTOMER_AUTH_ORIGIN].includes(origin)
+    : AURAMENU_ORIGINS.has(origin);
+  if (!allowed) return null;
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Headers": "Content-Type, X-Aura-Menu-Token",
@@ -950,7 +954,7 @@ async function getPublishedAuraMenu(request, db, slug, corsHeaders) {
   });
 }
 
-async function handleAuraMenuAdmin(request, db, id, env) {
+async function handleAuraMenuAdmin(request, db, id, env, admin) {
   if (request.method === "GET" && !id) {
     const rows = await db.prepare("SELECT * FROM auramenu_requests ORDER BY created_at DESC LIMIT 100").all();
     return json({ requests: await Promise.all((rows.results || []).map(async row => ({ ...mapAuraMenuRequest(row), ...(await menuEntitlement(db, row)) }))) }, 200, { "Cache-Control": "no-store" });
@@ -979,8 +983,14 @@ async function handleAuraMenuAdmin(request, db, id, env) {
   if (status === 'approved' || (payment === 'paid' && current.payment_status !== 'paid')) await activateMenuBilling(db,id);
   const ownerNote = body.ownerNote === undefined ? current.owner_note : qsClean(body.ownerNote, 500);
   const now = new Date().toISOString();
-  const mutation = await db.prepare("UPDATE auramenu_requests SET status = ?, payment_status = ?, owner_note = ?, updated_at = ?, approved_at = ?, revision = revision + 1 WHERE id = ? AND template_id = ?")
-    .bind(status, payment, ownerNote, now, status === "approved" ? (current.approved_at || now) : null, id, current.template_id).run();
+  await ensurePublications(db);
+  const update = db.prepare("UPDATE auramenu_requests SET status = ?, payment_status = ?, owner_note = ?, updated_at = ?, approved_at = ?, revision = revision + 1 WHERE id = ? AND revision = ?")
+    .bind(status, payment, ownerNote, now, status === "approved" ? (current.approved_at || now) : null, id, current.revision);
+  const [, mutation] = await db.batch([capturePublication(db, id, current.revision), update,
+    capturePublication(db, id, current.revision + 1, {
+      action: current.status === 'approved' ? 'update' : 'publish', type: 'admin', actor: admin.id, afterUpdate: true,
+    }),
+  ]);
   if (!mutation.meta?.changes) return json({error:"Menu design changed. Reload before approving."},409);
   await purgeCachedMenu(current.slug, new URL(request.url).origin);
   const updated = await db.prepare("SELECT * FROM auramenu_requests WHERE id = ? LIMIT 1").bind(id).first();
@@ -1110,7 +1120,7 @@ export default {
       }
 
       if (url.pathname.startsWith("/api/auramenu/")) {
-        const corsHeaders = auraMenuCors(request);
+        const corsHeaders = auraMenuCors(request, env);
         if (corsHeaders === null) return json({ error: "Bu kaynaktan talep kabul edilmiyor." }, 403);
         if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 
@@ -1320,7 +1330,7 @@ export default {
 
       const auraMenuAdmin = url.pathname.match(/^\/api\/admin\/auramenu(?:\/([a-f0-9-]+))?$/i);
       if (auraMenuAdmin) {
-        const response = await handleAuraMenuAdmin(request, env.DB, auraMenuAdmin[1] || null, env);
+        const response = await handleAuraMenuAdmin(request, env.DB, auraMenuAdmin[1] || null, env, admin);
         await auditAdminResponse(response, request, env.DB, admin, "auramenu", auraMenuAdmin[1] || "collection");
         return response;
       }
@@ -1376,7 +1386,7 @@ export default {
 
       return json({ error: "Not found." }, 404);
     } catch (error) {
-      const publicCors = url.pathname.startsWith("/api/auramenu/") ? auraMenuCors(request) : {};
+      const publicCors = url.pathname.startsWith("/api/auramenu/") ? auraMenuCors(request, env) : {};
       const corsHeaders = publicCors && publicCors !== null ? publicCors : {};
       if (error instanceof ApiError) {
         return json({ error: error.message }, error.status, {

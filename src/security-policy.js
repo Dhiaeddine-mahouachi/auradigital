@@ -79,6 +79,11 @@ export function secureResponse(response, request, env, ctx) {
   // Only public invitation HTML can be embedded by our same-origin product page.
   // Maps remain restricted to the invitation's existing Google Maps provider.
   const path = new URL(request.url).pathname;
+  if (response.status >= 500 &&
+      ((request.method === 'POST' && /^\/api\/auramenu\/dashboard\/[^/]+\/publish$/.test(path)) ||
+       (request.method === 'PATCH' && /^\/api\/admin\/auramenu\/[^/]+$/.test(path)))) {
+    securityEvent(request, 'auramenu_publication_failed', response.status, env, ctx);
+  }
   if (/^\/weddings\/[a-z0-9-]+\.html$/.test(path) && (headers.get('Content-Type') || '').includes('text/html') && response.ok) {
     headers.set('X-Frame-Options', 'SAMEORIGIN');
     const policy = headers.get('Content-Security-Policy').replace(/frame-ancestors\s+[^;]+/, "frame-ancestors 'self'");

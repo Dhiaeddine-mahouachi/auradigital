@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { secureResponse } from "../src/security-policy.js";
 import {
   hashBootstrapPassword,
   hashPassword,
@@ -9,6 +10,18 @@ import {
   validatePassword,
   verifyPassword,
 } from "../src/security.js";
+
+test('publication failures emit a credential-free monitoring event', (t) => {
+  const log = t.mock.method(console, 'log', () => {});
+  const request = new Request('https://auramenu.space/api/auramenu/dashboard/a1/publish?private=1', { method: 'POST' });
+  secureResponse(new Response(null, { status: 503 }), request, {}, {});
+  secureResponse(new Response(null, { status: 409 }), request, {}, {});
+  assert.equal(log.mock.callCount(), 1);
+  const record = JSON.parse(log.mock.calls[0].arguments[0]);
+  assert.equal(record.event, 'auramenu_publication_failed');
+  assert.equal(record.status, 503);
+  assert.doesNotMatch(JSON.stringify(record), /private=1|a1\/publish/);
+});
 
 test("password hashes are salted and verifiable", async () => {
   const password = "correct horse battery staple";
