@@ -78,3 +78,26 @@ test('malformed challenge or state is rejected', async () => {
   const f = await hubFixture();
   assert.equal((await call(f, 'https://aura.test/api/auramenu/connect?challenge=short&state=abc')).status, 400);
 });
+
+test('staging sign-in returns to AuraMenu staging and accepts the exchange only there', async () => {
+  const f = await hubFixture(), owner = await f.user('stage-chef@test.test', true), p = pkce();
+  const accountOrigin = 'https://growth-staging.auradigitalworks.com';
+  const menuOrigin = 'https://staging.auramenu.space';
+  f.env.CUSTOMER_AUTH_ORIGIN = accountOrigin;
+  const connect = accountOrigin + '/api/auramenu/connect?' + new URLSearchParams({ challenge: p.challenge, state: p.state });
+  await assert.rejects(call(f, connect, { cookie: owner.cookie }), { status: 503 });
+  f.env.AURAMENU_ORIGIN = menuOrigin;
+  const start = await call(f, connect, { cookie: owner.cookie });
+  const callback = new URL(start.headers.get('Location'));
+  assert.equal(callback.origin, menuOrigin);
+  assert.equal(callback.pathname, '/signin.html');
+  const handoff = new URLSearchParams(callback.hash.slice(1));
+  assert.equal(handoff.get('state'), p.state);
+  const options = { method: 'POST', body: { code: handoff.get('code'), verifier: p.verifier } };
+  const endpoint = '/api/auramenu/connect/exchange';
+  assert.equal((await call(f, menuOrigin + endpoint, { ...options, origin: 'https://auramenu.space' })).status, 403);
+  assert.equal((await call(f, accountOrigin + endpoint, { ...options, origin: menuOrigin })).status, 403);
+  const accepted = await call(f, menuOrigin + endpoint, { ...options, origin: menuOrigin });
+  assert.equal(accepted.status, 200);
+  assert.equal((await accepted.json()).user.email, owner.email);
+});

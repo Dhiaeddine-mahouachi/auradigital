@@ -34,6 +34,23 @@ test('a failed Ollama plan leaves no partial workspace, and concurrent retry sav
  assert.deepEqual(before.missions.map(m=>m.capability),['menu','discovery']);
  assert.equal(before.missions[0].planGoal,'Increase reservations');
  assert.equal(before.auri.verifiedMilestones,0);
+
+ const other=await fixture.user('retry@example.test',true);
+ const retry={...body,requestId:crypto.randomUUID()};
+ const batch=fixture.DB.batch.bind(fixture.DB);
+ let waiting=true;
+ t.mock.method(fixture.DB,'batch',async statements=>{
+  if(waiting&&statements[0].sql.startsWith('INSERT INTO organizations(')){
+   waiting=false;
+   assert.equal((await fixture.call(route,other,'POST',retry)).status,201);
+  }
+  return batch(statements);
+ });
+ const standardRetry=await fixture.call(route,other,'POST',{...retry,personalized:false});
+ assert.equal(standardRetry.status,200);
+ const saved=await (await fixture.call(route+'/'+retry.requestId,other)).json();
+ assert.deepEqual(saved.missions.map(m=>m.capability),['menu','discovery']);
+
  const count=calls;
  delete fixture.env.HUB_OLLAMA_URL;
  assert.equal((await fixture.call(route,actor,'POST',body)).status,200);

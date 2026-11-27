@@ -8,3 +8,5 @@
 - Preserve body limits, upload signature checks, URL allowlists, rate limits, generic errors, CSP, HSTS, and audit events.
 - Add a regression test for every security fix. Run `npm run check`, `npm test`, `npm audit --audit-level=high`, and `npm run deploy:check` before release.
 - Configure secrets in Cloudflare, keep D1 private, use HTTPS, encrypt backups, and review dependency updates.
+
+For new workspace service integrations, authorize the current user, workspace membership, action and product entitlement on the server. Require an explicit workspace-to-service link for legacy data. See the [platform API contracts](docs/API_CONTRACTS.md) and [recovery runbook](docs/RECOVERY.md).

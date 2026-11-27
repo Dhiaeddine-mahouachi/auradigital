@@ -9,6 +9,8 @@ import { identityOrigin, isEmailVerified, randomToken } from './customer-identit
 export const AURAMENU_COOKIE = '__Host-auramenu_customer';
 const SESSION_SECONDS = 7 * 24 * 60 * 60, CODE_SECONDS = 120;
 const MENU_ORIGINS = ['https://auramenu.space', 'https://www.auramenu.space'];
+const STAGING_MENU_ORIGIN = 'https://staging.auramenu.space';
+const STAGING_ACCOUNT_ORIGIN = /^https:\/\/[a-z0-9-]*staging[a-z0-9-]*\.auradigitalworks\.com$/;
 const CHALLENGE = /^[A-Za-z0-9_-]{43}$/, STATE = /^[A-Za-z0-9_-]{16,64}$/, VERIFIER = /^[A-Za-z0-9_-]{43,128}$/, CODE = /^[a-f0-9]{64}$/;
 const ready = new WeakSet();
 
@@ -20,6 +22,10 @@ async function ensureConnect(db) {
 }
 const sqlTime = (ms) => new Date(ms).toISOString().slice(0, 19).replace('T', ' ');
 function menuOrigin(env) {
+  if (STAGING_ACCOUNT_ORIGIN.test(env.CUSTOMER_AUTH_ORIGIN)) {
+    if (env.AURAMENU_ORIGIN === STAGING_MENU_ORIGIN) return STAGING_MENU_ORIGIN;
+    throw new ApiError(503, 'AuraMenu sign-in is unavailable in this environment.');
+  }
   const configured = String(env.AURAMENU_ORIGIN || 'https://auramenu.space');
   return MENU_ORIGINS.includes(configured) ? configured : 'https://auramenu.space';
 }
@@ -33,9 +39,14 @@ async function s256(verifier) {
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
   return btoa(String.fromCharCode(...digest)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
-function fromMenuSite(request) {
+function fromMenuSite(request, env) {
   const origin = request.headers.get('Origin');
-  return MENU_ORIGINS.includes(origin) || origin === new URL(request.url).origin;
+  const requestOrigin = new URL(request.url).origin;
+  if (STAGING_ACCOUNT_ORIGIN.test(env.CUSTOMER_AUTH_ORIGIN)) {
+    const allowed = menuOrigin(env);
+    return origin === allowed && requestOrigin === allowed;
+  }
+  return MENU_ORIGINS.includes(origin) || origin === requestOrigin;
 }
 
 async function ensureOwners(db) {
@@ -96,7 +107,7 @@ export async function handleAuraMenuConnect(request, env) {
 
   // 2. On auramenu.space: exchange the code (with the PKCE verifier) for an auramenu.space session.
   if (path === '/api/auramenu/connect/exchange' && request.method === 'POST') {
-    if (!fromMenuSite(request)) return json({ error: 'Forbidden origin.' }, 403);
+    if (!fromMenuSite(request, env)) return json({ error: 'Forbidden origin.' }, 403);
     if (env.LOGIN_RATE_LIMITER) {
       const limit = await env.LOGIN_RATE_LIMITER.limit({ key: 'auramenu-connect:' + (request.headers.get('CF-Connecting-IP') || 'unknown') });
       if (!limit.success) return json({ error: 'Too many attempts. Try again in a minute.' }, 429, { 'Retry-After': '60' });
@@ -131,7 +142,7 @@ export async function handleAuraMenuConnect(request, env) {
   }
 
   if (path === '/api/auramenu/account/logout' && request.method === 'POST') {
-    if (!fromMenuSite(request)) return json({ error: 'Forbidden origin.' }, 403);
+    if (!fromMenuSite(request, env)) return json({ error: 'Forbidden origin.' }, 403);
     const value = cookieValue(request);
     if (/^[a-f0-9]{64}$/.test(value)) await env.DB.prepare('DELETE FROM customer_sessions WHERE token_hash = ?').bind(await tokenHash(value)).run();
     return json({ user: null }, 200, { 'Set-Cookie': sessionCookie('', 0), 'Cache-Control': 'no-store' });

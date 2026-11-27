@@ -6,11 +6,18 @@ export function stagingConfig(production,{databaseId,hostname},root) {
  if(!/^[a-z0-9-]*staging[a-z0-9-]*\.auradigitalworks\.com$/.test(hostname||''))throw new Error('Supply an explicitly designated staging subdomain of auradigitalworks.com.');
  const config=structuredClone(production);
  config.name='auradigital-growth-staging';config.main=resolve(root,production.main);config.assets.directory=root;
- config.d1_databases=production.d1_databases.map(d=>({...d,database_id:databaseId,database_name:'auradigital-growth-staging-db',migrations_dir:resolve(root,d.migrations_dir)}));
- config.routes=[{pattern:hostname,custom_domain:true}];config.workers_dev=false;config.preview_urls=false;
+ config.d1_databases=production.d1_databases.map(d=>({binding:d.binding,database_id:databaseId,database_name:'auradigital-staging-db',migrations_dir:resolve(root,d.migrations_dir)}));
+ const menuHostname='staging.auramenu.space';
+ config.routes=[{pattern:hostname,custom_domain:true},{pattern:menuHostname+'/api/auramenu/*',zone_name:'auramenu.space'}];
+ config.workers_dev=false;config.preview_urls=false;
  config.ratelimits=config.ratelimits.map(r=>({...r,namespace_id:String(Number(r.namespace_id)+1000000)}));
- config.vars={GROWTH_OS_ENABLED:'true',CUSTOMER_IDENTITY_ENABLED:'true',CUSTOMER_AUTH_ORIGIN:'https://'+hostname,GOOGLE_LOGIN_ENABLED:'false',CUSTOMER_EMAIL_ENABLED:'false',AI_PROVIDER:'disabled'};
- delete config.ai;delete config.triggers;config.build={...config.build,cwd:root};
+ config.vars={GROWTH_OS_ENABLED:'true',MENU_DRAFTS_ENABLED:'true',CUSTOMER_IDENTITY_ENABLED:'true',CUSTOMER_AUTH_ORIGIN:'https://'+hostname,AURAMENU_ORIGIN:'https://'+menuHostname,GOOGLE_LOGIN_ENABLED:'false',CUSTOMER_EMAIL_ENABLED:'false',AI_PROVIDER:'disabled'};
+ config.keep_vars=false;
+ delete config.ai;
+ delete config.send_email;
+ delete config.secrets;
+ delete config.triggers;
+ config.build={...config.build,cwd:root};
  return config;
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
