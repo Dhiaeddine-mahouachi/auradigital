@@ -17,7 +17,7 @@ try{
  await page.locator('[data-product-name]').fill('Cheeseburger');await page.locator('[data-product-price]').fill('250');
  await page.locator('#private-menu-save').click();
  await page.waitForURL('**/hub/menu-drafts?*draft=*');
- await page.waitForFunction(()=>document.querySelector('#private-menu-list')?.value);
+ await page.waitForFunction(()=>{const v=document.querySelector('#private-menu-list')?.value;return !!v&&v!=='Loading…';});
  const id=await page.locator('#private-menu-list').inputValue();assert(id);
  await page.reload({waitUntil:'domcontentloaded'});
  await page.locator('#private-menu-list option[value="'+id+'"]').waitFor({state:'attached'});
