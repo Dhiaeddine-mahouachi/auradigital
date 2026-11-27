@@ -5,7 +5,8 @@ export const standardIds = Object.freeze(Array.from({length:15},(_,index) => 'st
 export const premiumIds = Object.freeze(Array.from({length:15},(_,index) => 'pre-' + (index+16)));
 const standardSet = new Set(standardIds);
 const premiumSet = new Set(premiumIds);
-const languages = ['en','tr','ar'];
+const languages = ['en','tr','ar','fr'];
+const weekDays = ['mon','tue','wed','thu','fri','sat','sun'];
 const fonts = ['sans','serif','mono','editorial','condensed'];
 const colors = ['primary','secondary','background','text','accent'];
 const toggles = ['images','prices','information','socials','play','motion','ornaments'];
@@ -61,6 +62,8 @@ export function normalizeItemMetadata(item) {
   for (const key of ['available','bestseller','seasonal','transparent']) {
     if (typeof item[key] === 'boolean') result[key] = item[key];
   }
+  // "limited" = still orderable, only a few left (shown as "Few left" on the menu).
+  if (item.available === 'limited') result.available = 'limited';
   const currency = clean(item.currency,3);
   if (/^[A-Z]{3}$/.test(currency)) result.currency = currency;
   const discountPrice = clean(item.discountPrice,40);
@@ -107,6 +110,26 @@ export function normalizeMenuPresentation({restaurant,design}) {
     for (const key of ['logo','cover','coverSmall']) {
       const value = safeUrl(restaurant[key],{strict:true});
       if (value) result[key] = value;
+    }
+    // Short kitchen video for the menu (direct MP4/WebM link) and an optional still image shown before it plays.
+    if (isObject(restaurant.video)) {
+      const src = safeUrl(restaurant.video.src,{strict:true});
+      if (src && /\.(mp4|webm|m4v)(?:$|[?#])/i.test(new URL(src).pathname + new URL(src).search)) {
+        const video = {src};
+        const poster = safeUrl(restaurant.video.poster,{strict:true});
+        if (poster) video.poster = poster;
+        result.video = video;
+      }
+    }
+    // Weekly opening hours: {mon:'09:00-23:00', tue:'', ...}; an empty day means closed.
+    if (isObject(restaurant.hours)) {
+      const hours = {};
+      for (const day of weekDays) {
+        const value = clean(restaurant.hours[day],11);
+        if (value === '' && day in restaurant.hours) hours[day] = '';
+        else if (/^([01]\d|2[0-3]):[0-5]\d-([01]\d|2[0-4]):[0-5]\d$/.test(value)) hours[day] = value;
+      }
+      if (Object.keys(hours).length) result.hours = hours;
     }
     if (isObject(restaurant.links)) result.links = Object.fromEntries(linkNames.flatMap(key => {
       const value = safeUrl(restaurant.links[key],{strict:true});
