@@ -11,6 +11,7 @@ import { auriProgress } from './auri-progression.js';
 import { draftFollowUp, explainRoadmap, recentAuriDrafts } from './hub-auri.js';
 import { eligibleMissions } from './roadmap.js';
 import { handleMenuDrafts } from './menu-drafts.js';
+import { handleWorkspaceAuraMenu } from './workspace-auramenu.js';
 import { handleLeads } from './hub-leads.js';
 import { handleProfilePhoto, profilePhoto, handleWorkspaceLogo } from './hub-profile-photo.js';
 import { handleAuriHistory } from './hub-auri-history.js';
@@ -150,6 +151,8 @@ export async function handleBusinessHub(request,env) {
  if(path==='/api/hub/onboarding/analyze'&&request.method==='POST')return analyzeOnboarding(request,env,user);
  const menuDraftResponse=await handleMenuDrafts(request,env,user,authorize);
  if(menuDraftResponse)return menuDraftResponse;
+ const workspaceAuraMenu=await handleWorkspaceAuraMenu(request,env,user);
+ if(workspaceAuraMenu)return workspaceAuraMenu;
  if(path==='/api/hub/workspaces'&&request.method==='GET') {
   // Only entitled memberships are included; pending invites are not shared workspaces.
   const owned=(await env.DB.prepare('SELECT id,name,mode FROM organizations WHERE owner_id=? ORDER BY created_at,id').bind(user.id).all()).results;
@@ -228,7 +231,9 @@ export async function handleBusinessHub(request,env) {
   const [auri,auriPreferencesForUser,evidence]=await Promise.all([
    auriProgress(env.DB,org,guard,missions.length>0),auriPreferences(env.DB,org,user),workspaceEvidence(env.DB,org,guard),
   ]);
-  return json({features:{menuDrafts:env.MENU_DRAFTS_ENABLED==='true'},auri,evidence,auriPreferences:auriPreferencesForUser,organization:{id:o.id,name:o.name,mode:o.mode,version:o.version,owner:o.owner_id===user.id},profile,analysis,missions,permissions:perms,billing});
+  const features={menuDrafts:env.MENU_DRAFTS_ENABLED==='true'};
+  if(env.WORKSPACE_AURAMENU_ENABLED==='true'&&o.owner_id===user.id)features.workspaceAuraMenuOrigin=env.AURAMENU_ORIGIN;
+  return json({features,auri,evidence,auriPreferences:auriPreferencesForUser,organization:{id:o.id,name:o.name,mode:o.mode,version:o.version,owner:o.owner_id===user.id},profile,analysis,missions,permissions:perms,billing});
  }
  if(section==='profile'&&request.method==='PUT') {
   const guard=await authorize(env.DB,org,user,'profile:write'),b=await readJson(request,16000),profile=validateProfile(b.profile);

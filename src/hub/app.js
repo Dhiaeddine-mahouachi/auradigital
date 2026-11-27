@@ -868,7 +868,7 @@ async function renderPage(){
  if(page==='onboarding'){navigate('journey',{},true);return;}
  if(page==='profile')return renderBusiness({host:document.querySelector('#page-content'),lang,esc,api,endpoint,workspace,cap,resizePhoto,toast,onSaved:()=>loadWorkspace()});
  if(page==='menuDrafts'&&!feature('menuDrafts')){const s=osCopy(lang).studio.menu;content(`<section class="os-card"><h2>${esc(s.title)}</h2><p class="os-muted">${esc(s.unavailable)}</p><div class="os-inline-actions">${workspace.permissions.includes('roadmap:write')?`<a class="os-btn is-primary is-sm" href="${esc(requestLink('AuraMenu'))}">${esc(s.request)}</a>`:''}<a class="os-btn is-quiet is-sm" href="${esc(link('home'))}">${esc(osCopy(lang).nav.overview)}</a></div></section>`);return;}
- if(page==='menuDrafts')return renderMenuDrafts({host:document.querySelector('#page-content'),api,endpoint,profile:workspace.profile,canWrite:workspace.permissions.includes('roadmap:write'),draftId:query.get('draft'),reviewLabel:label.reviewed,onDraft:id=>navigate('menuDrafts',{draft:id}),onReviewed:()=>navigate('home')});
+ if(page==='menuDrafts')return renderMenuDrafts({host:document.querySelector('#page-content'),api,endpoint,profile:workspace.profile,canWrite:workspace.permissions.includes('roadmap:write'),draftId:query.get('draft'),reviewLabel:label.reviewed,onDraft:id=>navigate('menuDrafts',{draft:id}),onReviewed:()=>navigate('home'),linkedMenuOrigin:workspace.features?.workspaceAuraMenuOrigin});
  if(page==='journey'){if(selectedMission&&!workspace.missions.some(m=>m.id===selectedMission))throw new Error(label.unavailable);return growthDashboard();}
  if(page==='tasks')return journey();
  // Old addresses from earlier Hub versions go to their current home.

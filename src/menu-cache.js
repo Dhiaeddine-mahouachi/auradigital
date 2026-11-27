@@ -34,6 +34,7 @@ export async function storeCachedMenu(origin, slug, payload) {
 export async function purgeCachedMenu(slug, origin) {
   const cache = edgeCache();
   if (!cache || !slug) return;
-  const origins = new Set([...ORIGINS, ...(origin ? [origin] : [])]);
+  const staging = origin === 'https://staging.auramenu.space' || origin === 'https://growth-staging.auradigitalworks.com';
+  const origins = staging ? [origin] : new Set([...ORIGINS, ...(origin ? [origin] : [])]);
   await Promise.all([...origins].map(o => cache.delete(cacheKey(o, slug)).catch(() => false)));
 }

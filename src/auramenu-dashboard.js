@@ -3,7 +3,7 @@ import { menuBilling } from './menu-billing.js';
 import { ApiError, json, readJson } from './http.js';
 import { getAuthenticatedAdmin, sameOrigin } from './security.js';
 import { ensureMenuAccess as ensure, tokenHash as sha256, menuTokenAccess as requireToken, menuOwnerAccess, newMenuToken } from './menu-ownership.js';
-import { auraMenuCustomer, linkMenuOwner } from './auramenu-connect.js';
+import { acceptsAuraMenuOrigin, auraMenuCustomer, linkMenuOwner } from './auramenu-connect.js';
 import { purgeCachedMenu } from './menu-cache.js';
 
 const ORIGINS = new Set([
@@ -22,10 +22,10 @@ const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const ACCESS_PRICE = 100;
 const MAX_ACCESS_DAYS = 30;
 
-function cors(request) {
+function cors(request, env) {
   const origin = request.headers.get('Origin');
   if (!origin) return {};
-  if (!ORIGINS.has(origin)) return null;
+  if (!acceptsAuraMenuOrigin(request, env, ORIGINS)) return null;
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Headers': 'Content-Type, X-Aura-Menu-Token',
@@ -207,7 +207,7 @@ export async function handleAuraMenuDashboard(request, env) {
 
   await ensure(env.DB);
 
-  const headers = cors(request);
+  const headers = cors(request, env);
   const presentationFor = row => isCollectionDesign(row.template_id) || standardDesignsEnabled(env) ? getMenuPresentation(env.DB,row.id) : {};
   const designsFor = (row,billing) => menuDesignAccess(env,{
     id:row.id,billing,pending:row.status === 'pending' && !billing?.paidUntil,paid:row.payment_status === 'paid',

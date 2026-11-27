@@ -7,10 +7,11 @@ test('staging preparation rejects production database IDs and production hostnam
 test('staging isolates storage and lets fixture users test private drafts without providers',()=>{
  const databaseId='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',hostname='growth-staging.auradigitalworks.com';
  const config=stagingConfig(production,{databaseId,hostname},'/repo');
- assert.deepEqual(config.routes,[{pattern:hostname,custom_domain:true},{pattern:'staging.auramenu.space/api/auramenu/*',zone_name:'auramenu.space'}]);
+ assert.deepEqual(config.routes,[{pattern:hostname,custom_domain:true}]);
  assert.deepEqual(config.d1_databases,[{binding:'DB',database_id:databaseId,database_name:'auradigital-staging-db',migrations_dir:'/repo/migrations'}]);
  assert.equal(config.vars.CUSTOMER_AUTH_ORIGIN,'https://'+hostname);
  assert.equal(config.vars.AURAMENU_ORIGIN,'https://staging.auramenu.space');
+ assert.equal(config.vars.WORKSPACE_AURAMENU_ENABLED,'true');
  assert.equal(config.vars.MENU_DRAFTS_ENABLED,'true');
  assert.equal(config.vars.CUSTOMER_EMAIL_ENABLED,'false');
  assert.equal(config.vars.GOOGLE_LOGIN_ENABLED,'false');

@@ -8,10 +8,11 @@ export function stagingConfig(production,{databaseId,hostname},root) {
  config.name='auradigital-growth-staging';config.main=resolve(root,production.main);config.assets.directory=root;
  config.d1_databases=production.d1_databases.map(d=>({binding:d.binding,database_id:databaseId,database_name:'auradigital-staging-db',migrations_dir:resolve(root,d.migrations_dir)}));
  const menuHostname='staging.auramenu.space';
- config.routes=[{pattern:hostname,custom_domain:true},{pattern:menuHostname+'/api/auramenu/*',zone_name:'auramenu.space'}];
+ config.routes=[{pattern:hostname,custom_domain:true}];
  config.workers_dev=false;config.preview_urls=false;
  config.ratelimits=config.ratelimits.map(r=>({...r,namespace_id:String(Number(r.namespace_id)+1000000)}));
- config.vars={GROWTH_OS_ENABLED:'true',MENU_DRAFTS_ENABLED:'true',CUSTOMER_IDENTITY_ENABLED:'true',CUSTOMER_AUTH_ORIGIN:'https://'+hostname,AURAMENU_ORIGIN:'https://'+menuHostname,GOOGLE_LOGIN_ENABLED:'false',CUSTOMER_EMAIL_ENABLED:'false',AI_PROVIDER:'disabled'};
+ config.vars={GROWTH_OS_ENABLED:'true',MENU_DRAFTS_ENABLED:'true',CUSTOMER_IDENTITY_ENABLED:'true',CUSTOMER_AUTH_ORIGIN:'https://'+hostname,AURAMENU_ORIGIN:'https://'+menuHostname,AURAMENU_STANDARD_ENABLED:'true',GOOGLE_LOGIN_ENABLED:'false',CUSTOMER_EMAIL_ENABLED:'false',AI_PROVIDER:'disabled'};
+ config.vars.WORKSPACE_AURAMENU_ENABLED='true';
  config.keep_vars=false;
  delete config.ai;
  delete config.send_email;

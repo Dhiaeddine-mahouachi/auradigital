@@ -11,6 +11,7 @@ import { catalogue as PUBLIC_PRICING, getItem as getPublicPrice, quote as calcul
 import { queueRequestNotification } from "./notifications.js";
 import { checkResendHealth } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
+import { acceptsAuraMenuOrigin } from "./auramenu-connect.js";
 import { securityEvent } from "./security-policy.js";
 import { handleEmployeePortalApi } from "./employee-portal.js";
 import { handleAdditionalEmployeeApi } from "./employee-portals.js";
@@ -632,10 +633,10 @@ async function handleQuickSiteAdmin(request, db, id) {
   return json({ project: mapQuickSite(updated) }, 200, { "Cache-Control": "no-store" });
 }
 
-function auraMenuCors(request) {
+function auraMenuCors(request, env) {
   const origin = request.headers.get("Origin");
   if (!origin) return {};
-  if (!AURAMENU_ORIGINS.has(origin)) return null;
+  if (!acceptsAuraMenuOrigin(request, env, AURAMENU_ORIGINS)) return null;
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Headers": "Content-Type, X-Aura-Menu-Token",
@@ -1092,7 +1093,7 @@ export default {
       }
 
       if (url.pathname.startsWith("/api/auramenu/")) {
-        const corsHeaders = auraMenuCors(request);
+        const corsHeaders = auraMenuCors(request, env);
         if (corsHeaders === null) return json({ error: "Bu kaynaktan talep kabul edilmiyor." }, 403);
         if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 
@@ -1358,7 +1359,7 @@ export default {
 
       return json({ error: "Not found." }, 404);
     } catch (error) {
-      const publicCors = url.pathname.startsWith("/api/auramenu/") ? auraMenuCors(request) : {};
+      const publicCors = url.pathname.startsWith("/api/auramenu/") ? auraMenuCors(request, env) : {};
       const corsHeaders = publicCors && publicCors !== null ? publicCors : {};
       if (error instanceof ApiError) {
         return json({ error: error.message }, error.status, {

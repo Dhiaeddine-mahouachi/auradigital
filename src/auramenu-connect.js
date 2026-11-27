@@ -29,6 +29,18 @@ function menuOrigin(env) {
   const configured = String(env.AURAMENU_ORIGIN || 'https://auramenu.space');
   return MENU_ORIGINS.includes(configured) ? configured : 'https://auramenu.space';
 }
+
+export function isStagingAuraMenuOrigin(request, env) {
+  return env.AURAMENU_ORIGIN === STAGING_MENU_ORIGIN
+    && new URL(request.url).origin === STAGING_MENU_ORIGIN
+    && request.headers.get('Origin') === STAGING_MENU_ORIGIN;
+}
+
+export function acceptsAuraMenuOrigin(request, env, productionOrigins) {
+  return STAGING_ACCOUNT_ORIGIN.test(env.CUSTOMER_AUTH_ORIGIN)
+    ? isStagingAuraMenuOrigin(request, env)
+    : productionOrigins.has(request.headers.get('Origin'));
+}
 function cookieValue(request) {
   return (request.headers.get('Cookie') || '').split(';').map(s => s.trim()).find(s => s.startsWith(AURAMENU_COOKIE + '='))?.slice(AURAMENU_COOKIE.length + 1) || '';
 }
@@ -43,8 +55,7 @@ function fromMenuSite(request, env) {
   const origin = request.headers.get('Origin');
   const requestOrigin = new URL(request.url).origin;
   if (STAGING_ACCOUNT_ORIGIN.test(env.CUSTOMER_AUTH_ORIGIN)) {
-    const allowed = menuOrigin(env);
-    return origin === allowed && requestOrigin === allowed;
+    return isStagingAuraMenuOrigin(request, env);
   }
   return MENU_ORIGINS.includes(origin) || origin === requestOrigin;
 }

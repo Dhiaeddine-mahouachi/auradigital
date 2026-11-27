@@ -1,6 +1,6 @@
 // Private draft editor. Uses the existing shared customer session and organization API.
 const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export async function renderMenuDrafts({ host, api, endpoint, profile, canWrite, draftId, reviewLabel, onDraft, onReviewed }) {
+export async function renderMenuDrafts({ host, api, endpoint, profile, canWrite, draftId, reviewLabel, onDraft, onReviewed, linkedMenuOrigin }) {
   let selected = null, working = null;
   const base = endpoint('menu-drafts');
   function message(text) { host.querySelector('#menu-save-status').textContent = text; }
@@ -62,6 +62,7 @@ export async function renderMenuDrafts({ host, api, endpoint, profile, canWrite,
     preview();
   }
   host.innerHTML=`<section class="panel"><h2>AuraMenu private drafts</h2><p>Create or continue a menu using your saved business profile. Drafts are visible only to authorized members of this business. Prices and descriptions must come from your business; no payment or publishing happens here.</p><label class="field">Saved menus<select id="private-menu-list"><option>Loading…</option></select></label>${canWrite?'<button id="private-menu-new" class="secondary" type="button">New private draft</button>':''}<div id="private-menu-editor"></div></section>`;
+  if(linkedMenuOrigin)renderLinkedMenus(host,api,endpoint('auramenu/menus'),linkedMenuOrigin);
   if(draftId){
    const response=await api(base+'/'+encodeURIComponent(draftId));
    if(!host.isConnected)return;
@@ -74,4 +75,36 @@ export async function renderMenuDrafts({ host, api, endpoint, profile, canWrite,
     if(onDraft){onDraft(event.target.value);return;}
     try{const response=await api(base+'/'+encodeURIComponent(event.target.value));selected=response.menu;working=structuredClone(selected.draft);editor();}catch(error){message(error.message);}
   };
+}
+
+async function renderLinkedMenus(host, api, path, origin) {
+  const panel = document.createElement('section');
+  panel.className = 'panel';
+  panel.innerHTML = '<h2>AuraMenu Studio</h2><div data-linked-menus></div><p role="status"></p>';
+  host.prepend(panel);
+  const content = panel.querySelector('[data-linked-menus]');
+  const notice = panel.querySelector('[role="status"]');
+  async function refresh() {
+    const { menus, availableMenus } = await api(path);
+    content.innerHTML = menus.length ? '<ul>' + menus.map(menu => `<li><strong>${esc(menu.businessName)}</strong> <a href="${esc(origin + menu.studioPath)}">Open Studio</a>${menu.publicPath ? ` · <a href="${esc(origin + menu.publicPath)}">View menu</a>` : ''}</li>`).join('') + '</ul>' : '<p>No linked menus in this workspace.</p>';
+    if(!availableMenus.length)return;
+    const form = document.createElement('form');
+    form.innerHTML = '<label class="field">Link one of your menus<select required><option value="">Choose a menu</option>' + availableMenus.map(menu => `<option value="${esc(menu.id)}">${esc(menu.businessName)}</option>`).join('') + '</select></label><button class="secondary">Link menu</button>';
+    content.append(form);
+    form.onsubmit = async event => {
+      event.preventDefault();
+      const button = form.querySelector('button');
+      button.disabled = true;
+      try {
+        await api(path,'POST',{ menuId:form.querySelector('select').value });
+        await refresh();
+        notice.textContent = 'Menu linked.';
+      } catch(error) {
+        notice.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    };
+  }
+  try { await refresh(); } catch(error) { notice.textContent = error.message; }
 }
