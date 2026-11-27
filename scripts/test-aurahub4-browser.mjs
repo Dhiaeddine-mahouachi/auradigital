@@ -54,7 +54,7 @@ try {
  await page.locator('#os-greeting').waitFor();
  assert.match(await page.locator('#os-greeting').innerText(), /Lumen Studio QA/);
  const nav = await page.locator('.sidebar nav a').allTextContents();
- assert.deepEqual(nav.map(s => s.trim()), ['Overview', 'My Business', 'Growth Roadmap', 'Aura Studio', 'My Services', 'Website & AuraMenu', 'Analytics', 'Auri Assistant', 'Requests', 'Menu drafts', 'Orders & billing', 'Team', 'Settings', 'Help & support']);
+ assert.deepEqual(nav.map(s => s.trim()), ['Overview', 'My Business', 'Growth Roadmap', 'Aura Studio', 'My Services', 'Website & AuraMenu', 'Analytics', 'Auri Assistant', 'Requests', 'AuraMenu', 'Menu drafts', 'Orders & billing', 'Team', 'Settings', 'Help & support']);
  assert.equal(await page.locator('[data-kpi=visitors]').getByText('Not connected').count(), 1, 'visitors has no source, so no number');
  assert.equal(await page.locator('[data-kpi=bookings] .os-kpi-value').count(), 0);
  assert.equal(await page.locator('[data-kpi=services] .os-kpi-value').innerText(), '2');
