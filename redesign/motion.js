@@ -137,3 +137,34 @@
     try { localStorage.setItem('auri-seen', '1'); } catch (e2) {}
   }, true);
 })();
+
+// Anonymous, cookie-free counts: one page view per load and a few key clicks (same /api/track the old site used).
+(function () {
+  if (!/(^|\.)auradigitalworks\.com$/.test(location.hostname) && !window.AURA_TRACK_LOCAL) return;
+  function send(path) {
+    try { fetch('/api/track', { method: 'POST', keepalive: true, credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: path }) }); } catch (e) {}
+  }
+  var p = location.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+  send(p === '' ? '/' : p);
+  var once = {};
+  function ev(name, unique) { if (unique && once[name]) return; once[name] = 1; send('event:' + name); }
+  document.addEventListener('click', function (e) {
+    var t = e.target && e.target.closest ? e.target : null; if (!t) return;
+    var a = t.closest('a[href], button'); if (!a) return;
+    var href = a.getAttribute('href') || '';
+    if (/wa\.me|whatsapp\.com/.test(href)) return ev('whatsapp');
+    if (a.closest('.salebar')) return ev('sale_bar');
+    if (a.matches('.auri-fab, #chatLauncher')) return ev('auri_open', true);
+    if (a.closest('.nfc-actions')) return ev(a.classList.contains('btn-acid') ? 'add_to_cart' : 'buy_now');
+    if (a.classList.contains('sh-add')) return ev('add_to_cart');
+    if (a.closest('.cart-box') && /^\/account\/(login|signup)/.test(href)) return ev('checkout_sign_in');
+    if (a.closest('.cart-box') && href === '/shop/checkout') return ev('checkout_continue');
+    if (a.closest('.planner') && a.classList.contains('btn-main')) return ev('start_path');
+    if (/^\/contact(\b|$|\?|#)/.test(href)) return ev('contact_click');
+  }, true);
+  document.addEventListener('submit', function (e) {
+    var f = e.target; if (!f || !f.closest) return;
+    if (f.classList.contains('mailstart')) ev('start_email', true);
+  }, true);
+  window.auraTrack = function (name) { ev(name, true); };
+})();

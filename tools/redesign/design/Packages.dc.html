@@ -110,7 +110,8 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3300}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { mode: 0 }; }
+  constructor(props) { super(props); this.state = { mode: 0, now: 0 }; }
+  componentDidMount() { this.setState({ now: Date.now() }); }
   renderVals() {
     const s = this.state;
     const build = [
@@ -129,7 +130,7 @@ class Component extends DCLogic {
     return {
       modes: ['Build once', 'Monthly care'].map((l, i) => ({ label: l, on: i === s.mode, pick: () => this.setState({ mode: i }) })),
       tiers: list.map((t, i) => {
-        const sale = s.mode === 0 && Date.now() < Date.parse('2026-12-16T23:59:59+03:00');
+        const sale = s.mode === 0 && s.now > 0 && s.now < Date.parse('2026-12-16T23:59:59+03:00');
         const v = Number(t.price.replace(/[^0-9]/g, ''));
         return { ...t, sale, was: t.price, price: sale ? '₺' + Math.round(v * 0.9).toLocaleString('en-US') : t.price, best: !!t.best, cls: cls[i], btn: btn[i] };
       }),

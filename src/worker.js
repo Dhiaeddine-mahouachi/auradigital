@@ -63,6 +63,29 @@ const TRACKABLE_PATHS = new Set([
   "/paketler",
   "/hakkimizda",
   "/iletisim",
+  "/solutions",
+  "/service-shop",
+  "/packages",
+  "/portfolio",
+  "/help",
+  "/about",
+  "/contact",
+  "/shop/checkout",
+]);
+
+// Key actions counted like page views (aggregate per day, no visitor identity). Kept out of visit totals.
+const TRACKABLE_EVENTS = new Set([
+  "event:start_email",
+  "event:start_path",
+  "event:add_to_cart",
+  "event:buy_now",
+  "event:checkout_sign_in",
+  "event:checkout_continue",
+  "event:contact_sent",
+  "event:contact_click",
+  "event:whatsapp",
+  "event:auri_open",
+  "event:sale_bar",
 ]);
 
 
@@ -1686,7 +1709,7 @@ async function getOverview(db) {
     db.prepare("SELECT COALESCE(SUM(amount),0) AS value FROM invoices WHERE status = 'paid'"),
     db.prepare("SELECT COALESCE(SUM(amount),0) AS value FROM expenses"),
     db.prepare("SELECT COALESCE(SUM(CASE WHEN interval = 'weekly' THEN amount * 4.33 ELSE amount END),0) AS value FROM subscriptions WHERE status = 'active'"),
-    db.prepare("SELECT COALESCE(SUM(views),0) AS value FROM analytics_daily WHERE date >= date('now','-29 day')"),
+    db.prepare("SELECT COALESCE(SUM(views),0) AS value FROM analytics_daily WHERE date >= date('now','-29 day') AND path NOT LIKE 'event:%'"),
     db.prepare("SELECT COUNT(*) AS value FROM quicksite_projects WHERE status = 'pending'"),
     db.prepare("SELECT COUNT(*) AS value FROM auramenu_requests WHERE status = 'pending'"),
     db.prepare("SELECT COUNT(*) AS value FROM nfc_requests WHERE status = 'pending'"),
@@ -1700,15 +1723,16 @@ async function getOverview(db) {
 }
 
 async function getAnalytics(db) {
-  const [daily, pages] = await db.batch([
-    db.prepare("SELECT date, SUM(views) AS views FROM analytics_daily WHERE date >= date('now','-29 day') GROUP BY date ORDER BY date ASC"),
-    db.prepare("SELECT path, SUM(views) AS views FROM analytics_daily WHERE date >= date('now','-29 day') GROUP BY path ORDER BY views DESC LIMIT 10"),
+  const [daily, pages, events] = await db.batch([
+    db.prepare("SELECT date, SUM(views) AS views FROM analytics_daily WHERE date >= date('now','-29 day') AND path NOT LIKE 'event:%' GROUP BY date ORDER BY date ASC"),
+    db.prepare("SELECT path, SUM(views) AS views FROM analytics_daily WHERE date >= date('now','-29 day') AND path NOT LIKE 'event:%' GROUP BY path ORDER BY views DESC LIMIT 10"),
+    db.prepare("SELECT substr(path, 7) AS name, SUM(views) AS count FROM analytics_daily WHERE date >= date('now','-29 day') AND path LIKE 'event:%' GROUP BY path ORDER BY count DESC"),
   ]);
-  return { daily: daily.results || [], pages: pages.results || [] };
+  return { daily: daily.results || [], pages: pages.results || [], events: events.results || [] };
 }
 
 function cleanPath(value) {
   if (typeof value !== "string") return "";
   const path = value.trim();
-  return TRACKABLE_PATHS.has(path) ? path : "";
+  return TRACKABLE_PATHS.has(path) || TRACKABLE_EVENTS.has(path) ? path : "";
 }

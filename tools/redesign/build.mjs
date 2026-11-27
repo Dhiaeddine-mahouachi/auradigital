@@ -20,16 +20,16 @@ const ROUTES = {
 };
 const PAGES = [
   ['Main', 'index.html', 'AuraDigital — Websites, AI & growth for your business', 'Websites, QR menus, Google visibility and WhatsApp automation for growing businesses, planned with AI and built by our team.'],
-  ['Solutions', 'solutions.html', 'Solutions — AuraDigital', 'Build, grow, automate and manage your business with AuraDigital.'],
-  ['Shop', 'service-shop.html', 'Service Shop — AuraDigital', 'Choose websites, care plans, ads, AuraMenu, NFC cards and more with clear prices.'],
+  ['Solutions', 'solutions.html', 'Solutions — AuraDigital', 'Websites, Google Maps visibility, ads, WhatsApp automation and AuraHub for growing businesses. See how a project runs, from free call to launch.'],
+  ['Shop', 'service-shop.html', 'Service Shop — AuraDigital', 'Websites, care plans, ads, AuraMenu and NFC review cards with clear prices. Swipe 58 NFC card designs, add to cart and pay securely from your account.'],
   ['Packages', 'packages.html', 'Packages & prices — AuraDigital', 'Launch ₺6,750 · Growth ₺13,400 · System ₺22,400. Care plans from ₺1,950/month.'],
   ['AuraMenu', 'aura-menu.html', 'AuraMenu — QR digital menus — AuraDigital', 'QR digital menus in Turkish, English and Arabic. Self-service ₺1,599 or done-for-you ₺2,500.'],
-  ['Work', 'portfolio.html', 'Our work — AuraDigital', 'Websites, products and campaigns built by AuraDigital.'],
+  ['Work', 'portfolio.html', 'Our work — AuraDigital', 'Live websites, Google profiles and ads for real businesses, plus our own products: AuraMenu, Bent Walad and more.'],
   ['Help', 'help.html', 'Help Center — AuraDigital', 'Answers about websites, AuraHub, payments, AuraMenu and WhatsApp automation.'],
-  ['About', 'about.html', 'About — AuraDigital', 'A digital studio combining AI with a hands-on team.'],
+  ['About', 'about.html', 'About — AuraDigital', 'AuraDigital combines its own AI with a hands-on team working in English, Turkish and Arabic. Every client gets AuraHub to follow each step.'],
   ['Weddings', 'aura-weddings.html', 'AuraWeddings — Digital wedding invitations | AuraDigital', 'Luxury digital wedding invitations with animated opening, RSVP, countdown, map, gallery and music in Arabic, English, Turkish and French.'],
   ['NotFound', '404.html', 'Page not found — AuraDigital', 'This page could not be found. Continue to AuraDigital services, prices or contact.'],
-  ['Contact', 'contact.html', 'Contact — AuraDigital', 'WhatsApp +90 538 550 76 74 · info@auradigitalworks.com.']
+  ['Contact', 'contact.html', 'Contact — AuraDigital', 'Talk to AuraDigital in English, Turkish or Arabic. WhatsApp +90 538 550 76 74, email info@auradigitalworks.com, or book a free call.']
 ];
 const COMPONENTS = ['Header', 'Footer', 'Auri', ...PAGES.map((p) => p[0])];
 const BLOBS = {

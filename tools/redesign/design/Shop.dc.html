@@ -362,7 +362,7 @@
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { cat: 'All', cart: ['growth'], q: '', tab: 'services', ccat: 'All', cq: '', sel: 'oliva-bistro', finish: 'Matte', qty: 1, flip: false, nfc: [], toast: '', user: null, gflip: '' };
+    this.state = { cat: 'All', cart: ['growth'], q: '', tab: 'services', ccat: 'All', cq: '', sel: 'oliva-bistro', finish: 'Matte', qty: 1, flip: false, nfc: [], toast: '', user: null, gflip: '', now: 0 };
     this.track = null; this.step = 0;
   }
   loadNfc() {
@@ -403,6 +403,7 @@ class Component extends DCLogic {
     } catch (e) {}
   }
   componentDidMount() {
+    this.setState({ now: Date.now() });
     this.readHash();
     this.onHash = () => this.readHash();
     this.onStore = () => this.setState({ nfc: this.loadNfc() });
@@ -463,7 +464,7 @@ class Component extends DCLogic {
       { id: 'erp-essential', cat: 'Systems', name: 'ERP Essential', desc: 'Custom ERP for your operations.', v: 49900, bill: 'once' },
       { id: 'erp-business', cat: 'Systems', name: 'ERP Business', desc: 'ERP with more modules and users.', v: 79900, bill: 'once' }
     ].map((x) => {
-      const sale = x.cat === 'Websites' && Date.now() < Date.parse('2026-12-16T23:59:59+03:00');
+      const sale = x.cat === 'Websites' && !!s.now && s.now < Date.parse('2026-12-16T23:59:59+03:00');
       const v = sale ? Math.round(x.v * 0.9) : x.v;
       const per = x.bill === 'month' ? '/mo' : x.bill === 'year' ? '/yr' : '';
       return { ...x, v, sale, was: '₺' + x.v.toLocaleString('en-US') + per, price: '₺' + v.toLocaleString('en-US') + per };

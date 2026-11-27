@@ -465,8 +465,9 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":7600}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { biz: 0, on: true, menu: 0, listOut: false, email: '', mailErr: false, mailMsg: '' }; }
+  constructor(props) { super(props); this.state = { biz: 0, on: true, menu: 0, listOut: false, email: '', mailErr: false, mailMsg: '', now: 0 }; }
   componentDidMount() {
+    this.setState({ now: Date.now() });
     this.state.on = false;
     this.setState({ on: false });
     setTimeout(() => this.drawPath(), 1250);
@@ -528,7 +529,7 @@ class Component extends DCLogic {
       [['Baklava', 'Pistachio, 4 pieces', '₺140'], ['San Sebastián', 'Burnt cheesecake', '₺170'], ['Künefe', 'Served warm', '₺190'], ['Sütlaç', 'Oven-baked', '₺110']]
     ];
     const b = B[s.biz];
-    let offer = true; try { offer = Date.now() < Date.parse('2026-12-16T23:59:59+03:00'); } catch (e) {}
+    const offer = !!s.now && s.now < Date.parse('2026-12-16T23:59:59+03:00');
     return {
       showOffer: offer,
       segRef: (el) => { this.seg = el; }, pillRef: (el) => { this.pill = el; }, faceRef: (el) => { this.face = el; },

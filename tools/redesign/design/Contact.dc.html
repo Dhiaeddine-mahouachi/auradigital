@@ -189,7 +189,7 @@ class Component extends DCLogic {
         if (cur.website) return;
         if (!this.live()) return this.setState({ sent: true, ref: '' });
         this.submitting = true; this.setState({ sending: true, err: '' });
-        try { const ref = await this.post(cur); this.submitting = false; this.setState({ sent: true, sending: false, ref }); }
+        try { const ref = await this.post(cur); this.submitting = false; try { window.auraTrack && window.auraTrack('contact_sent'); } catch (e) {} this.setState({ sent: true, sending: false, ref }); }
         catch (err) { this.submitting = false; this.setState({ sending: false, err: (err && err.message) || 'Could not send. Please use WhatsApp.' }); }
       }
     };
