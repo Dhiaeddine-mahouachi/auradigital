@@ -26,12 +26,13 @@ export function menuOrigin(env) {
   const configured = String(env.AURAMENU_ORIGIN || 'https://auramenu.space');
   return MENU_ORIGINS.includes(configured) ? configured : 'https://auramenu.space';
 }
+export const STAGING_MENU_DOMAIN = 'https://staging.auramenu.space';
 export function stagingMenuOrigin(env) {
   if (env.AURA_ENVIRONMENT !== 'staging') return '';
   const account = /^https:\/\/auradigital-staging\.([a-z0-9-]+)\.workers\.dev$/.exec(env.CUSTOMER_AUTH_ORIGIN || '');
   if (!account) return '';
   const expected = `https://auramenu-staging.${account[1]}.workers.dev`;
-  return env.AURAMENU_ORIGIN === expected ? expected : '';
+  return [expected, STAGING_MENU_DOMAIN].includes(env.AURAMENU_ORIGIN) ? env.AURAMENU_ORIGIN : '';
 }
 function cookieValue(request) {
   return (request.headers.get('Cookie') || '').split(';').map(s => s.trim()).find(s => s.startsWith(AURAMENU_COOKIE + '='))?.slice(AURAMENU_COOKIE.length + 1) || '';
