@@ -338,7 +338,7 @@ export async function handleAuraMenuDashboard(request, env) {
       await purgeCachedMenu(updated?.slug || row.slug, new URL(request.url).origin);
 
       return json(
-        { menu: await dashboardMenu(updated,await accessFor(env.DB,id),billing) },
+        { menu: await dashboardMenu(updated, { ...await accessFor(env.DB,id), role: tokenAccess.role }, billing) },
         200,
         { 'Cache-Control': 'no-store', ...headers }
       );

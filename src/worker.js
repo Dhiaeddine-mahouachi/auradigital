@@ -11,6 +11,8 @@ import { catalogue as PUBLIC_PRICING, getItem as getPublicPrice, quote as calcul
 import { queueRequestNotification } from "./notifications.js";
 import { checkResendHealth } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
+import { auraMenuCustomer } from "./auramenu-connect.js";
+import { ensureTeam } from "./auramenu-team.js";
 import { securityEvent } from "./security-policy.js";
 import { handleEmployeePortalApi } from "./employee-portal.js";
 import { handleAdditionalEmployeeApi } from "./employee-portals.js";
@@ -844,6 +846,12 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
       .bind(image.id, image.requestId, image.contentType, image.bytes),
   );
   await ensureMenuAccess(db);
+  const customer = await auraMenuCustomer(request, env);
+  const ownerInserts = [];
+  if (customer) {
+    await ensureTeam(db);
+    ownerInserts.push(db.prepare("INSERT INTO auramenu_menu_owners (menu_id, customer_id) VALUES (?, ?)").bind(id, customer.id));
+  }
   const token = newMenuToken();
   const notification = {
     submittedAt:new Date().toISOString(),
@@ -861,7 +869,7 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
     ],
   };
   await ensureRequestDelivery(db);
-  await db.batch([...outboxStatements(db,notification),requestInsert, menuBillingInsert(db, id, plan), ...imageInserts,
+  await db.batch([...outboxStatements(db,notification),requestInsert, menuBillingInsert(db, id, plan), ...imageInserts, ...ownerInserts,
     ...(presentation ? [saveMenuPresentation(db,id,presentation)] : []),
     db.prepare("INSERT INTO auramenu_edit_access (menu_id, token_hash) VALUES (?, ?)").bind(id, await tokenHash(token))
   ]);

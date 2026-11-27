@@ -51,4 +51,19 @@ test('menus belong to the AuraDigital account that claims them; other accounts a
   assert.equal((await call('/api/auramenu/account/menus')).status, 401);
   // A forged / AuraDigital-domain cookie name does not count as an AuraMenu session.
   assert.equal((await call(dash, 'GET', undefined, { Cookie: a.Cookie.replace('__Host-auramenu_customer', '__Host-aura_customer') })).status, 401);
+
+  const created = await call('/api/auramenu/requests', 'POST', {
+    templateId: 'std-02', planId: 'annual', businessName: 'Cafe B', contactName: 'A',
+    contactPhone: '222', slug: 'cafe-b', categories: [{ name: 'Food', items: [{ name: 'Toast', price: '90' }] }],
+  }, a);
+  assert.equal(created.status, 201);
+  const { request: secondMenu } = await created.json();
+  assert.equal((await call('/api/auramenu/dashboard/' + secondMenu.id, 'GET', undefined, a)).status, 200);
+  const studioMenus = await (await call('/api/auramenu/account/menus', 'GET', undefined, a)).json();
+  const hubMenus = await (await call('/api/auramenu/hub/menus', 'GET', undefined, {
+    Cookie: a.Cookie.replace('__Host-auramenu_customer', '__Host-aura_customer'),
+  })).json();
+  assert.deepEqual(studioMenus.menus, hubMenus.menus);
+  assert.deepEqual(studioMenus.menus.map(m => m.slug).sort(), ['cafe-a', 'cafe-b']);
+  assert.deepEqual((await (await call('/api/auramenu/account/menus', 'GET', undefined, b)).json()).menus, []);
 });

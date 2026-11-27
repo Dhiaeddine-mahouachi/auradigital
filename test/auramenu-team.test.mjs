@@ -56,13 +56,16 @@ test('owner adds manager and editor; each role can do only its part; outsiders s
   // Editor: content changes saved, other fields ignored, template unchanged, plan actions refused.
   const editorSave = await call(dash, 'PATCH', { templateId: 'std-05', businessName: 'Hacked', tagline: 'New', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '95' }] }] }, ed.menu);
   assert.equal(editorSave.status, 200);
+  assert.equal((await editorSave.json()).menu.role, 'editor');
   let row = await DB.prepare('SELECT template_id, business_name, tagline, categories_json FROM auramenu_requests WHERE id=?').bind(id).first();
   assert.equal(row.template_id, 'std-01'); assert.equal(row.business_name, 'Cafe A'); assert.equal(row.tagline, 'Old tagline');
   assert.match(row.categories_json, /"95"/);
   assert.equal((await (await call(dash, 'GET', undefined, ed.menu)).json()).menu.role, 'editor');
   assert.equal((await call(dash + '/access-request', 'POST', { days: 1 }, ed.menu)).status, 403);
   // Manager: may change info and design.
-  assert.equal((await call(dash, 'PATCH', { templateId: 'std-05', businessName: 'Cafe A+', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '95' }] }] }, mgr.menu)).status, 200);
+  const managerSave = await call(dash, 'PATCH', { templateId: 'std-05', businessName: 'Cafe A+', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '95' }] }] }, mgr.menu);
+  assert.equal(managerSave.status, 200);
+  assert.equal((await managerSave.json()).menu.role, 'manager');
   row = await DB.prepare('SELECT template_id, business_name FROM auramenu_requests WHERE id=?').bind(id).first();
   assert.equal(row.template_id, 'std-05'); assert.equal(row.business_name, 'Cafe A+');
   assert.equal((await call(dash + '/access-request', 'POST', { days: 1 }, mgr.menu)).status, 403);
