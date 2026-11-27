@@ -1123,7 +1123,9 @@ export default {
           });
         }
 
-        if (url.pathname === "/api/auramenu/requests" && request.method === "POST") {
+        // /register is the builder's path: on auramenu.space an older edge worker (not in this repo) intercepts
+        // POST /requests and demands an AuraPops email code. Both paths run the same AuraDigital-account check.
+        if ((url.pathname === "/api/auramenu/requests" || url.pathname === "/api/auramenu/register") && request.method === "POST") {
           const clientKey = request.headers.get("CF-Connecting-IP") || "unknown";
           const limit = await env.TRACK_RATE_LIMITER.limit({ key: `auramenu-request:${clientKey}` });
           if (!limit.success) return json({ error: "Çok fazla talep gönderildi. Lütfen biraz sonra tekrar deneyin." }, 429, corsHeaders);
