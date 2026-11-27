@@ -6,6 +6,7 @@ import { pricingFor, checkQuoteVersion } from './global-pricing.js';
 import { ensureRequestDelivery, requestFingerprint, outboxStatements, deliverRequestEmails } from "./request-delivery.js";
 import { MENU_PLANS, ensureMenuBilling, menuBilling, menuBillingInsert, activateMenuBilling, menuEntitlement } from "./menu-billing.js";
 import { ApiError, json, readJson } from "./http.js";
+import { readCachedMenu, storeCachedMenu, purgeCachedMenu } from "./menu-cache.js";
 import { catalogue as PUBLIC_PRICING, getItem as getPublicPrice, quote as calculatePublicQuote } from "../pricing/catalogue.js";
 import { queueRequestNotification } from "./notifications.js";
 import { checkResendHealth } from "./customer-confirmation.js";
@@ -925,12 +926,18 @@ async function getAuraMenuRequestStatus(request, db, id, corsHeaders) {
 }
 
 async function getPublishedAuraMenu(request, db, slug, corsHeaders) {
+  const origin = new URL(request.url).origin;
+  const cached = await readCachedMenu(origin, slug);
+  if (cached) return json(cached, 200, { "Cache-Control": "no-store", "X-Menu-Cache": "HIT", ...corsHeaders });
   const row = await db.prepare("SELECT * FROM auramenu_requests WHERE lower(trim(slug)) = lower(?) LIMIT 1").bind(slug).first();
   const published = row && (await menuEntitlement(db, row)).live;
   if (!row || !published) return json({ error: "Menü henüz yayında değil." }, 404, corsHeaders);
   const presentation = isCollectionDesign(row.template_id) ? await getMenuPresentation(db,row.id) : {};
-  return json({ menu: { ...mapAuraMenuRequest(row, true), ...presentation } }, 200, {
+  const payload = { menu: { ...mapAuraMenuRequest(row, true), ...presentation } };
+  await storeCachedMenu(origin, slug, payload);
+  return json(payload, 200, {
     "Cache-Control": "no-store",
+    "X-Menu-Cache": "MISS",
     ...corsHeaders,
   });
 }
@@ -967,6 +974,7 @@ async function handleAuraMenuAdmin(request, db, id, env) {
   const mutation = await db.prepare("UPDATE auramenu_requests SET status = ?, payment_status = ?, owner_note = ?, updated_at = ?, approved_at = ?, revision = revision + 1 WHERE id = ? AND template_id = ?")
     .bind(status, payment, ownerNote, now, status === "approved" ? (current.approved_at || now) : null, id, current.template_id).run();
   if (!mutation.meta?.changes) return json({error:"Menu design changed. Reload before approving."},409);
+  await purgeCachedMenu(current.slug, new URL(request.url).origin);
   const updated = await db.prepare("SELECT * FROM auramenu_requests WHERE id = ? LIMIT 1").bind(id).first();
   return json({ request: mapAuraMenuRequest(updated) }, 200, { "Cache-Control": "no-store" });
 }

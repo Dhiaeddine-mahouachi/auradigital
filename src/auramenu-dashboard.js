@@ -3,6 +3,7 @@ import { menuBilling } from './menu-billing.js';
 import { ApiError, json, readJson } from './http.js';
 import { getAuthenticatedAdmin, sameOrigin } from './security.js';
 import { ensureMenuAccess as ensure, tokenHash as sha256, menuTokenAccess as requireToken, newMenuToken } from './menu-ownership.js';
+import { purgeCachedMenu } from './menu-cache.js';
 
 const ORIGINS = new Set([
   'https://auramenu.space',
@@ -325,6 +326,7 @@ export async function handleAuraMenuDashboard(request, env) {
         ...(presentation && Object.keys(presentation).length ? [saveMenuPresentation(env.DB,id,presentation)] : []),
       ]);
       const updated = await rowFor(env.DB,id);
+      await purgeCachedMenu(updated?.slug || row.slug, new URL(request.url).origin);
 
       return json(
         { menu: await dashboardMenu(updated,await accessFor(env.DB,id),billing) },
