@@ -20,7 +20,7 @@ async function ensureConnect(db) {
   ready.add(db);
 }
 const sqlTime = (ms) => new Date(ms).toISOString().slice(0, 19).replace('T', ' ');
-function menuOrigin(env) {
+export function menuOrigin(env) {
   const staging = stagingMenuOrigin(env);
   if (staging) return staging;
   const configured = String(env.AURAMENU_ORIGIN || 'https://auramenu.space');
@@ -43,7 +43,7 @@ async function s256(verifier) {
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
   return btoa(String.fromCharCode(...digest)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
-function fromMenuSite(request, env) {
+export function fromMenuSite(request, env) {
   const origin = request.headers.get('Origin');
   if (env.AURA_ENVIRONMENT === 'staging') return Boolean(origin && origin === stagingMenuOrigin(env));
   return MENU_ORIGINS.includes(origin) || origin === new URL(request.url).origin;
@@ -127,7 +127,7 @@ export async function handleAuraMenuConnect(request, env) {
 
   if (path === '/api/auramenu/account/session' && request.method === 'GET') {
     const user = await auraMenuCustomer(request, env);
-    return json({ user: user ? { email: user.email, name: user.name, emailVerified: true, account: 'auradigital' } : null }, 200, { 'Cache-Control': 'no-store' });
+    return json({ user: user ? { email: user.email, name: user.name, emailVerified: await isEmailVerified(env.DB, user), account: 'auradigital' } : null }, 200, { 'Cache-Control': 'no-store' });
   }
 
   if (path === '/api/auramenu/account/menus' && request.method === 'GET') {

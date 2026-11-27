@@ -1,3 +1,4 @@
+import { menuOrigin } from './auramenu-connect.js';
 import { verifyTurnstile, turnstileSiteKey } from './turnstile.js';
 import { customerReturnPath } from './customer-return.js';
 import { ApiError, json, readJson } from './http.js';
@@ -32,10 +33,12 @@ async function rate(request,env,suffix) {
  const result=await env.LOGIN_RATE_LIMITER.limit({key:'identity:'+suffix+':'+(request.headers.get('CF-Connecting-IP')||'unknown')});
  if(!result.success)throw new ApiError(429,'Too many attempts. Please wait.',{'Retry-After':'60'});
 }
-export async function issueActionToken(env,user,purpose) {
+// app 'auramenu' sends links to AuraMenu's own branded pages (validated origin); tokens and accounts are shared.
+const appLink=(env,app,purpose,token)=>app==='auramenu'?`${menuOrigin(env)}/signin.html?mode=${purpose}#token=${token}`:`${identityOrigin(env)}/hub/${purpose}#token=${token}`;
+export async function issueActionToken(env,user,purpose,app=null) {
  const origin=identityOrigin(env),token=randomToken(),hash=await tokenHash(token);
  await env.DB.prepare('INSERT INTO customer_action_tokens(token_hash,customer_id,email,purpose,expires_at,created_at) VALUES(?,?,?,?,?,?)').bind(hash,user.id,user.email,purpose,now()+(purpose==='verify'?86400:1800),now()).run();
- try{await sendIdentityEmail(env,user.email,purpose==='verify'?'Verify your AuraDigital email':'Reset your AuraDigital password',`Open this secure link: ${origin}/hub/${purpose}#token=${token}\n\nThis link is single-use and expires in ${purpose==='verify'?'24 hours':'30 minutes'}. If you did not request it, ignore this message.`,hash);}catch(error){await env.DB.prepare('DELETE FROM customer_action_tokens WHERE token_hash=?').bind(hash).run();throw error;}
+ try{await sendIdentityEmail(env,user.email,app==='auramenu'?(purpose==='verify'?'AuraMenu: verify your email':'AuraMenu: reset your password'):(purpose==='verify'?'Verify your AuraDigital email':'Reset your AuraDigital password'),`Open this secure link: ${appLink(env,app,purpose,token)}\n\nThis link is single-use and expires in ${purpose==='verify'?'24 hours':'30 minutes'}. If you did not request it, ignore this message.`,hash);}catch(error){await env.DB.prepare('DELETE FROM customer_action_tokens WHERE token_hash=?').bind(hash).run();throw error;}
 }
 async function consumeAction(env,body,purpose) {
  if(typeof body.token!=='string'||!/^[a-f0-9]{64}$/.test(body.token))throw new ApiError(400,'Invalid or expired link.');
@@ -82,6 +85,8 @@ async function googleKeys() {
  cachedKeys=result.keys;keyExpiry=Date.now()+300000;return cachedKeys;
 }
 const flowCookie=(value,age=600)=>`__Host-aura_oidc=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${age}`;
+const appCookie=(value,age=600)=>`__Host-aura_oidc_app=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${age}`;
+const flowApp=request=>/(?:^|;\s*)__Host-aura_oidc_app=auramenu(?:;|$)/.test(request.headers.get('Cookie')||'')||/^\/api\/auramenu\/connect\?/.test(new URL(request.url).searchParams.get('next')||'')?'auramenu':null;
 async function google(request,env) {
  const url=new URL(request.url),origin=identityOrigin(env),callback=origin+'/api/customer/google/callback';
  if(!env.GOOGLE_CLIENT_ID||!env.GOOGLE_CLIENT_SECRET||env.GOOGLE_LOGIN_ENABLED!=='true')throw googleError(503,'Google sign-in is not configured and verified.','off');
@@ -95,7 +100,9 @@ async function google(request,env) {
   await env.DB.batch([env.DB.prepare('DELETE FROM customer_oidc_flows WHERE expires_at<=?').bind(now()),env.DB.prepare('INSERT INTO customer_oidc_flows(state_hash,binding_hash,verifier,nonce,customer_id,expires_at,return_path) VALUES(?,?,?,?,?,?,?)').bind(await tokenHash(state),await tokenHash(binding),verifier,nonce,user?.id||null,now()+600,customerReturnPath(url.searchParams.get('next'), env.GROWTH_OS_ENABLED==='true'?'/hub':'/account'))]);
   const u=new URL('https://accounts.google.com/o/oauth2/v2/auth');
   for(const [k,v] of Object.entries({client_id:env.GOOGLE_CLIENT_ID,redirect_uri:callback,response_type:'code',scope:'openid email profile',state,nonce,code_challenge:encode(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier)))),code_challenge_method:'S256',prompt:'select_account'}))u.searchParams.set(k,v);
-  return new Response(null,{status:303,headers:{Location:u.toString(),'Set-Cookie':flowCookie(binding),'Cache-Control':'no-store'}});
+  const startHeaders=new Headers({Location:u.toString(),'Cache-Control':'no-store'});startHeaders.append('Set-Cookie',flowCookie(binding));
+  if(/^\/api\/auramenu\/connect\?/.test(url.searchParams.get('next')||''))startHeaders.append('Set-Cookie',appCookie('auramenu'));
+  return new Response(null,{status:303,headers:startHeaders});
  }
  if(url.searchParams.get('error'))throw googleError(401,'Google sign-in was canceled.','canceled');
  const state=url.searchParams.get('state')||'',binding=(request.headers.get('Cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('__Host-aura_oidc='))?.slice('__Host-aura_oidc='.length)||'';
@@ -126,7 +133,7 @@ async function google(request,env) {
  }
  // Never overwrite a changed email on an established account merely from Google's email.
  const signed=await signInCustomer(env,{id:user.id,email:user.email,name:user.name,profile:JSON.parse(user.profile_json)});
- const headers=new Headers({'Location':origin+customerReturnPath(flow.return_path, env.GROWTH_OS_ENABLED==='true'?'/hub':'/account'),'Cache-Control':'no-store'});headers.append('Set-Cookie',signed.headers.get('Set-Cookie'));headers.append('Set-Cookie',flowCookie('',0));
+ const headers=new Headers({'Location':origin+customerReturnPath(flow.return_path, env.GROWTH_OS_ENABLED==='true'?'/hub':'/account'),'Cache-Control':'no-store'});headers.append('Set-Cookie',signed.headers.get('Set-Cookie'));headers.append('Set-Cookie',flowCookie('',0));headers.append('Set-Cookie',appCookie('',0));
  return new Response(null,{status:303,headers});
 }
 async function googleRedirecting(request,env) {
@@ -135,8 +142,9 @@ async function googleRedirecting(request,env) {
   let origin;try{origin=identityOrigin(env);}catch{throw error;}
   const code=error?.googleCode||(error?.status===429?'busy':'failed');
   if(!error?.googleCode&&error?.status!==429)console.error('Google sign-in failed',error?.message||error);
-  const headers=new Headers({Location:`${origin}${error?.googleTarget||'/hub/login'}?google=${code}`,'Cache-Control':'no-store'});
-  headers.append('Set-Cookie',flowCookie('',0));
+  const target=flowApp(request)==='auramenu'?`${menuOrigin(env)}/signin.html#google=${code}`:`${origin}${error?.googleTarget||'/hub/login'}?google=${code}`;
+  const headers=new Headers({Location:target,'Cache-Control':'no-store'});
+  headers.append('Set-Cookie',flowCookie('',0));headers.append('Set-Cookie',appCookie('',0));
   return new Response(null,{status:303,headers});
  }
 }
@@ -213,6 +221,7 @@ async function confirmEmailChange(env,body) {
  if(!changed.meta.changes&&entry?.current_confirmed&&entry?.new_confirmed&&!entry?.completed_by)throw new ApiError(409,'That address cannot be used. Start a new email change.');
  return json({success:true,complete:!!changed.meta.changes});
 }
+const appOf=request=>request.headers.get('X-Aura-App')==='auramenu'?'auramenu':null;
 export async function handleCustomerIdentity(request,env) {
  const path=new URL(request.url).pathname;
  if(!path.startsWith('/api/customer/'))return null;
@@ -239,13 +248,13 @@ export async function handleCustomerIdentity(request,env) {
  }
  if(action==='send'){
   const user=await authenticatedCustomer(request,env);if(!user)throw new ApiError(401,'Sign in to verify your email.');
-  if(!await isEmailVerified(env.DB,user))await issueActionToken(env,user,'verify');return json({sent:true});
+  if(!await isEmailVerified(env.DB,user))await issueActionToken(env,user,'verify',appOf(request));return json({sent:true});
  }
  if(env.CUSTOMER_EMAIL_ENABLED!=='true'||!env.RESEND_API_KEY)throw new ApiError(503,'Password recovery email is not configured and verified.');
  await verifyTurnstile(request,env,body.turnstileToken);
  if(typeof body.email!=='string'||body.email.length>254)throw new ApiError(400,'Enter your email.');
  const user=await env.DB.prepare('SELECT id,email FROM customer_users WHERE email=? COLLATE NOCASE AND active=1').bind(body.email.trim().toLowerCase()).first();
  // Reply identically for unknown accounts and provider failures; never log tokens or emails.
- if(user)try{await issueActionToken(env,user,'reset');}catch{console.warn(JSON.stringify({event:'identity_email_unavailable'}));}
+ if(user)try{await issueActionToken(env,user,'reset',appOf(request));}catch{console.warn(JSON.stringify({event:'identity_email_unavailable'}));}
  return json({message:'If an eligible account exists, a reset link will be sent.'});
 }

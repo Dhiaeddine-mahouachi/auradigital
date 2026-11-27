@@ -12,6 +12,7 @@ import { queueRequestNotification } from "./notifications.js";
 import { checkResendHealth } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
 import { auraMenuCustomer, stagingMenuOrigin } from "./auramenu-connect.js";
+import { isEmailVerified } from "./customer-identity.js";
 import { capturePublication, ensurePublications } from "./auramenu-publications.js";
 import { ensureTeam } from "./auramenu-team.js";
 import { securityEvent } from "./security-policy.js";
@@ -787,6 +788,7 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   // A menu is always registered to a signed-in AuraDigital account (no anonymous requests, no separate email codes).
   const customer = await auraMenuCustomer(request, env);
   if (!customer) return json({ error: "Sign in with your AuraDigital account to register your menu.", signIn: true }, 401, { "Cache-Control": "no-store", ...corsHeaders });
+  if (!(await isEmailVerified(db, customer))) return json({ error: "Verify your email to register your menu.", verify: true }, 403, { "Cache-Control": "no-store", ...corsHeaders });
   const body = await readJson(request, AURAMENU_BODY_BYTES);
   const templateId = qsClean(body.templateId, 30);
   const businessName = qsClean(body.businessName, 100);

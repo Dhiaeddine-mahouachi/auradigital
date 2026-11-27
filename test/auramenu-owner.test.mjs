@@ -21,16 +21,22 @@ test('menus belong to the AuraDigital account that claims them; other accounts a
   assert.equal((await call('/api/settings')).status, 200);
   sqlite.exec(await readFile(new URL('../migrations/0041_auramenu_design_settings.sql', import.meta.url), 'utf8'));
   await ensureCustomers(DB);
-  async function account(email) {
+  async function account(email, verified = true) {
     const id = crypto.randomUUID(), raw = (crypto.randomUUID() + crypto.randomUUID()).replaceAll('-', '');
     await DB.prepare("INSERT INTO customer_users(id,email,full_name,password_hash) VALUES(?,?,?,'!x')").bind(id, email, email).run();
     await DB.prepare("INSERT INTO customer_sessions(token_hash,customer_id,expires_at) VALUES(?,?,datetime('now','+1 day'))").bind(await tokenHash(raw), id).run();
+    await DB.prepare("CREATE TABLE IF NOT EXISTS customer_verified_emails (customer_id TEXT PRIMARY KEY, email TEXT NOT NULL, source TEXT NOT NULL DEFAULT 'email', verified_at TEXT NOT NULL DEFAULT (datetime('now')))").run();
+    if (verified) await DB.prepare("INSERT INTO customer_verified_emails(customer_id,email,source) VALUES(?,?,'email')").bind(id, email).run();
     return { Cookie: '__Host-auramenu_customer=' + raw };
   }
   const a = await account('a@test.test'), b = await account('b@test.test');
   // Registering without an account is refused.
   const anon = await call('/api/auramenu/requests', 'POST', { templateId: 'std-01', planId: 'starter', businessName: 'Cafe Z', contactPhone: '999', slug: 'cafe-z', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '80' }] }] });
   assert.equal(anon.status, 401); assert.equal((await anon.json()).signIn, true);
+  const unverified = await account('new@test.test', false);
+  const blocked = await call('/api/auramenu/register', 'POST', { templateId: 'std-01', planId: 'starter', businessName: 'Cafe W', contactPhone: '997', slug: 'cafe-w', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '80' }] }] }, unverified);
+  assert.equal(blocked.status, 403); assert.equal((await blocked.json()).verify, true);
+  assert.equal((await (await call('/api/auramenu/account/session', 'GET', undefined, unverified)).json()).user.emailVerified, false);
   const anon2 = await call('/api/auramenu/register', 'POST', { templateId: 'std-01', planId: 'starter', businessName: 'Cafe Y', contactPhone: '998', slug: 'cafe-y', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '80' }] }] });
   assert.equal(anon2.status, 401);
   const viaRegister = await call('/api/auramenu/register', 'POST', { templateId: 'std-01', planId: 'starter', businessName: 'Cafe Y', contactPhone: '998', slug: 'cafe-y', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '80' }] }] }, b);

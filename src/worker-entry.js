@@ -2,6 +2,7 @@ import { translateSiteCopy } from './site-translation.js';
 import { handleBusinessHub } from './business-hub.js';
 import { handleCustomerIdentity } from './customer-identity.js';
 import { handleAuraMenuConnect } from './auramenu-connect.js';
+import { handleAuraMenuAuth } from './auramenu-auth.js';
 import { handleGlobalPricing } from './global-pricing.js';
 import { handleShop } from './shop.ts';
 import { deliverRequestEmails } from "./request-delivery.js";
@@ -34,6 +35,8 @@ const router = {
     if (url.pathname === '/api/site-translation') return translateSiteCopy(request, env, ctx);
 
     if (env.GROWTH_OS_ENABLED === 'true' || env.CUSTOMER_IDENTITY_ENABLED === 'true') {
+      const menuAuthResponse = await handleAuraMenuAuth(request, env);
+      if (menuAuthResponse) return menuAuthResponse;
       const menuAccountResponse = await handleAuraMenuConnect(request, env);
       if (menuAccountResponse) return menuAccountResponse;
       const identityResponse = await handleCustomerIdentity(request, env);
