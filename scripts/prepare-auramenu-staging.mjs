@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 const revision = process.argv[2];
@@ -24,7 +24,10 @@ await replace('am2/signin.js', 'const ACCOUNTS = "https://auradigitalworks.com";
 await replace('config.js', 'publicBase: "https://auramenu.space"', 'publicBase: "https://staging.auramenu.space"');
 await replace('am2/studio.js', 'auramenu.space/', 'staging.auramenu.space/');
 await replace('studio.html', '<div class="st-top-actions">', '<div class="st-top-actions"><a class="am-btn am-btn--sm am-btn--ghost" href="https://growth-staging.auradigitalworks.com/hub/menu-drafts">AuraHub</a>');
-await writeFile(join(assets, '.assetsignore'), '.git\n.git/**\n.github/**\ndocs/**\ntests/**\nnode_modules/**\n_redirects\n');
+// The staging Worker handles menu slugs after checking real assets. The Pages
+// catch-all would rewrite sign-in, Studio and their scripts before that check.
+await rm(join(assets, '_redirects'), { force: true });
+await writeFile(join(assets, '.assetsignore'), '.git\n.git/**\n.github/**\ndocs/**\ntests/**\nnode_modules/**\n');
 
 const worker = join(preview, 'worker.js');
 await writeFile(worker, `export default {
