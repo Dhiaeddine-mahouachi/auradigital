@@ -1069,6 +1069,16 @@ export default {
       });
     }
 
+    if (url.pathname === "/api/auramenu/health" && request.method === "GET") {
+      const headers = { "Cache-Control": "no-store" };
+      try {
+        await env.DB.prepare("SELECT 1 FROM auramenu_requests LIMIT 1").first();
+        return json({ status: "ok" }, 200, headers);
+      } catch {
+        return json({ status: "unavailable" }, 503, headers);
+      }
+    }
+
     try {
       await ensureSchema(env.DB);
 
@@ -1114,7 +1124,7 @@ export default {
           const settings = await getPublicSettings(env.DB);
           const managedBuildPrice = Number(settings.qr_menu_price);
           return json({
-            selfBuildPrice: 399,
+            selfBuildPrice: MENU_PLANS.starter.amount,
             plans: OFFERED_MENU_PLANS,
             managedBuildPrice: Number.isFinite(managedBuildPrice) && managedBuildPrice > 0 ? managedBuildPrice : 2500,
             currency: "TRY",
