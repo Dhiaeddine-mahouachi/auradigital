@@ -91,7 +91,7 @@ test('first catalog request initializes missing shop schema and preserves subseq
     assert.equal(data.themes.length, horizontal.length);
     assert.equal(data.checkout.enabled, true);
     for (const theme of data.themes) { assert.equal(theme.status, 'demo'); assert.equal(theme.available, true); assert.equal(theme.approved, false); assert.equal(theme.priceMinor, 60000); }
-    assert.equal((await handleShop(request('/shop/cards/oliva-bistro'), env)).status, 404);
+    assert.equal((await handleShop(request('/shop/cards/oliva-bistro'), env)).status, 301);
     const edited = { ...restaurantCard, name: 'Preserved edit', status: 'archived' };
     sqlite.prepare('UPDATE shop_card_themes SET data_json = ? WHERE id = ?').run(JSON.stringify(edited), edited.id);
     assert.equal((await (await handleShop(request('/api/shop/catalog'), env)).json()).themes.length, horizontal.length - 1);
@@ -173,13 +173,18 @@ test('uploaded artwork upgrades legacy catalog rows without changing order ident
 test('shop routing serves unique metadata, proper HEAD, canonical redirect and real 404s', async () => {
   const { env, sqlite } = await shopFixture();
   try {
-    const page = await handleShop(request('/shop/cards/collection-restaurant-terracotta'), env), html = await page.text();
-    assert.match(html, /Restaurant Terracotta NFC &amp; QR Card/);
-    assert.match(html, /rel="canonical" href="https:\/\/auradigitalworks.com\/shop\/cards\/collection-restaurant-terracotta"/);
-    assert.equal((await handleShop(request('/shop/cards/not-a-theme'), env)).status, 404);
-    assert.equal((await handleShop(request('/shop/cart'), env)).headers.get('X-Robots-Tag'), 'noindex, nofollow');
-    assert.equal(await (await handleShop(request('/shop', 'HEAD'), env)).text(), '');
-    assert.equal((await handleShop(request('/shop/?category=Restaurants'), env)).headers.get('Location'), 'https://auradigitalworks.com/shop?category=Restaurants');
+    // One shop: catalogue, card pages and cart moved to /service-shop; checkout, orders and account stay here.
+    const card = await handleShop(request('/shop/cards/collection-restaurant-terracotta'), env);
+    assert.equal(card.status, 301);
+    assert.equal(card.headers.get('Location'), 'https://auradigitalworks.com/service-shop?card=collection-restaurant-terracotta#cards');
+    assert.equal((await handleShop(request('/shop'), env)).headers.get('Location'), 'https://auradigitalworks.com/service-shop#cards');
+    assert.equal((await handleShop(request('/shop/'), env)).headers.get('Location'), 'https://auradigitalworks.com/service-shop#cards');
+    assert.equal((await handleShop(request('/shop/cart'), env)).headers.get('Location'), 'https://auradigitalworks.com/service-shop#cart');
+    const checkout = await handleShop(request('/shop/checkout'), env), html = await checkout.text();
+    assert.equal(checkout.status, 200);
+    assert.equal(checkout.headers.get('X-Robots-Tag'), 'noindex, nofollow');
+    assert.match(html, /\/shop\/checkout\.css/);
+    assert.doesNotMatch(html, /shop-toolbar|\/shop\/shop\.css/);
     assert.equal(await handleShop(request('/nfc-studio'), env), null);
     const config = JSON.parse(await readFile(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
     for (const path of ['/shop', '/shop/', '/shop/cards/*', '/shop/cart']) assert.ok(config.assets.run_worker_first.includes(path));

@@ -11,11 +11,11 @@ export async function shopFixture() {
   sqlite.exec(await readFile(new URL('../migrations/0001_admin_security.sql', import.meta.url), 'utf8'));
   sqlite.exec(await readFile(new URL('../migrations/0022_shop_catalog.sql', import.meta.url), 'utf8'));
   const root = resolve(new URL('..', import.meta.url).pathname);
-  const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json' };
+  const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json', '.webp': 'image/webp', '.woff2': 'font/woff2', '.mp4': 'video/mp4' };
   const env = { DB: d1(sqlite), LOGIN_RATE_LIMITER: { async limit() { return { success: true }; } }, CONTACT_RATE_LIMITER: { async limit() { return { success: true }; } }, ASSETS: { async fetch(request) {
     const path = resolve(root, '.' + new URL(request.url).pathname);
     if (!path.startsWith(root + '/')) return new Response('Forbidden', { status: 403 });
-    try { const bytes = await readFile(path); return new Response(request.method === 'HEAD' ? null : bytes, { headers: { 'Content-Type': types[extname(path)] || 'application/octet-stream' } }); }
+    try { const bytes = await readFile(path).catch(() => (extname(path) ? Promise.reject(new Error('missing')) : readFile(path + '.html'))); const shown = extname(path) ? path : path + '.html'; return new Response(request.method === 'HEAD' ? null : bytes, { headers: { 'Content-Type': types[extname(shown)] || 'application/octet-stream' } }); }
     catch { return new Response('Not found', { status: 404 }); }
   } } };
   return { env, sqlite };

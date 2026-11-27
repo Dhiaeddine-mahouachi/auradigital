@@ -143,8 +143,15 @@ export async function handleShop(request: Request, env: Env): Promise<Response |
     }
     return json({ error: 'Method not allowed.' }, 405);
   }
-  if (path === '/shop/' && ['GET', 'HEAD'].includes(method)) { url.pathname = '/shop'; return Response.redirect(url.toString(), 301); }
-  const detail = /^\/shop\/cards\/([a-z0-9-]+)$/.exec(path);
+  // One shop: the card catalogue, card pages and cart live on /service-shop. Checkout, orders and accounts stay here.
+  const legacyCard = /^\/shop\/cards\/([a-z0-9-]+)$/.exec(path);
+  if (['GET', 'HEAD'].includes(method) && (path === '/shop' || path === '/shop/' || path === '/shop/cart' || legacyCard)) {
+    const target = new URL('/service-shop', url);
+    if (legacyCard) target.searchParams.set('card', legacyCard[1]);
+    target.hash = path === '/shop/cart' ? 'cart' : 'cards';
+    return Response.redirect(target.toString(), 301);
+  }
+  const detail = null as RegExpExecArray | null;
   const accountPage = ['/account', '/account/login', '/account/signup'].includes(path);
   const orderPage = /^\/shop\/orders\/[a-f0-9-]{36}$/.test(path);
   if (path !== '/shop' && path !== '/shop/cart' && path !== '/shop/checkout' && !accountPage && !orderPage && !detail) return null;

@@ -21,7 +21,7 @@ test('Old AuraPops pages redirect to aurapops.online and keep tracking parameter
 });
 
 test('Retired old-design pages redirect to their 2026 equivalents', () => {
-  for (const [from, to] of [['/services', '/solutions'], ['/services.html', '/solutions'], ['/hizmetler', '/solutions'], ['/websites', '/packages'], ['/spinflow', '/solutions'], ['/qr-menu', '/aura-menu'], ['/nfc', '/shop'], ['/nfc.html', '/shop']]) {
+  for (const [from, to] of [['/services', '/solutions'], ['/services.html', '/solutions'], ['/hizmetler', '/solutions'], ['/websites', '/packages'], ['/spinflow', '/solutions'], ['/qr-menu', '/aura-menu'], ['/nfc', '/service-shop'], ['/nfc.html', '/service-shop']]) {
     const response = permanentSeoRedirect(new Request(`https://auradigitalworks.com${from}`));
     assert.equal(response?.status, 301, from);
     assert.equal(response.headers.get('location'), `https://auradigitalworks.com${to}`, from);

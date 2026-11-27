@@ -265,6 +265,13 @@ body{background:var(--paper);color:var(--ink)}
 .mnav{background:var(--paper)}
 .mnav>*{flex-shrink:0}
 .band-sage{background:var(--sage-2)}
+.about-shots{margin:0;position:relative;padding:clamp(20px,3vw,40px) clamp(16px,3vw,40px) clamp(56px,6vw,80px);border-radius:40px;background:var(--forest);overflow:hidden}
+.about-shots .browser{box-shadow:0 30px 60px -30px rgba(0,0,0,.6)}
+.about-main{width:78%}
+.about-side{position:absolute;width:44%;right:clamp(16px,3vw,40px);bottom:clamp(40px,5vw,64px);transform:rotate(1.5deg)}
+.about-shots img{display:block;width:100%;height:auto}
+.about-shots figcaption{position:absolute;left:clamp(16px,3vw,40px);bottom:18px;color:var(--on-forest-2);font-size:14px}
+@media(max-width:700px){.about-main{width:100%}.about-side{position:relative;right:auto;bottom:auto;width:86%;margin:-18% 0 0 auto}.about-shots figcaption{position:static;margin-top:14px}}
 body:has(.top.open) :is(.auri-wrap,.auri-site-dock){display:none !important}
 /* sale bar: acid strip with a moving sheen, a nudging badge and a live countdown; folds away on scroll */
 .salebar{display:block;background:var(--acid);color:var(--ink);overflow:hidden;position:relative;height:44px}

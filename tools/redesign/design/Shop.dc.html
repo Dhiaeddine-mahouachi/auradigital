@@ -392,6 +392,12 @@ class Component extends DCLogic {
   }
   readHash() {
     try {
+      const card = new URLSearchParams(location.search).get('card');
+      if (card && /^[a-z0-9-]{1,80}$/.test(card) && !this.jumped) {
+        this.jumped = true;
+        this.setState({ tab: 'cards', sel: card, ccat: 'All', cq: '', jump: true });
+        return;
+      }
       if (location.hash === '#cart') this.setState({ tab: 'cart' });
       else if (/[?&]tab=cards/.test(location.search) || location.hash === '#cards') this.setState({ tab: 'cards' });
     } catch (e) {}
@@ -483,6 +489,7 @@ class Component extends DCLogic {
     const slides = cardList.length ? cardList : CARDS;
     let idx = slides.findIndex((k) => k.s === s.sel); if (idx < 0) idx = 0;
     const cur = slides[idx];
+    if (s.jump) setTimeout(() => { this.goTo(idx, false); this.setState({ jump: false }); }, 80);
     const pick = (k, i) => () => {
       if (k.s === cur.s) { this.setState({ flip: !s.flip }); return; }
       this.setState({ sel: k.s, flip: false }); this.goTo(i);

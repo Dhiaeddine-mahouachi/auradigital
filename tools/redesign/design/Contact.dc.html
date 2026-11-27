@@ -31,6 +31,12 @@
 .ct-qa span{color:var(--ink-2)}
 @media(max-width:980px){.ct-layout{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:620px){.ct-grid{grid-template-columns:minmax(0,1fr)}}
+
+.lang-card{gap:10px}
+.lang-badge{align-self:flex-start;height:28px;min-width:44px;padding:0 10px;border-radius:999px;background:var(--forest);color:var(--acid);font-weight:700;font-size:13px;display:grid;place-items:center}
+.lang-msg{font-size:16px;color:var(--ink)}
+.lang-card[dir=rtl]{text-align:right}
+.lang-card[dir=rtl] .lang-badge,.lang-card[dir=rtl] .link{align-self:flex-end}
 </style>
 </helmet>
 <div>
@@ -106,14 +112,10 @@
     </div>
   </section>
 
-  <section class="sec">
+  <section class="sec band-sage">
     <div class="wrap">
-      <div class="sec-head rv"><h2>Visit our platforms.</h2></div>
-      <div class="grid" style="--cols: 4">
-        <sc-for list="{{ sites }}" as="w" hint-placeholder-count="7">
-          <a class="card glow" href="{{ w.href }}"><span class="tag" style="align-self: flex-start">{{ w.tag }}</span><h3>{{ w.name }}</h3><p>{{ w.domain }}</p></a>
-        </sc-for>
-      </div>
+      <div class="sec-head rv"><h2>Talk to us in your language.</h2><p>Tap one and WhatsApp opens with the message ready. A real person replies.</p></div>
+      <div class="grid" style="--cols: 3"><a class="card glow lang-card rv" href="https://wa.me/905385507674?text=Hello%20AuraDigital%2C%20I%20would%20like%20to%20talk%20about%20my%20business." target="_blank" rel="noopener" lang="en" translate="no" data-no-translate><span class="lang-badge">EN</span><h3>English</h3><p class="lang-msg">“Hello AuraDigital, I would like to talk about my business.”</p><span class="link">Write in English</span></a><a class="card glow lang-card rv" href="https://wa.me/905385507674?text=Merhaba%20AuraDigital%2C%20i%C5%9Fletmem%20hakk%C4%B1nda%20konu%C5%9Fmak%20istiyorum." target="_blank" rel="noopener" lang="tr" translate="no" data-no-translate><span class="lang-badge">TR</span><h3>Türkçe</h3><p class="lang-msg">“Merhaba AuraDigital, işletmem hakkında konuşmak istiyorum.”</p><span class="link">Türkçe yazın</span></a><a class="card glow lang-card rv" href="https://wa.me/905385507674?text=%D9%85%D8%B1%D8%AD%D8%A8%D9%8B%D8%A7%20AuraDigital%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%AA%D8%AD%D8%AF%D8%AB%20%D8%B9%D9%86%20%D9%85%D8%B4%D8%B1%D9%88%D8%B9%D9%8A." target="_blank" rel="noopener" lang="ar" dir="rtl" translate="no" data-no-translate><span class="lang-badge">AR</span><h3>العربية</h3><p class="lang-msg">“مرحبًا AuraDigital، أود التحدث عن مشروعي.”</p><span class="link">اكتب بالعربية</span></a></div>
     </div>
   </section>
 

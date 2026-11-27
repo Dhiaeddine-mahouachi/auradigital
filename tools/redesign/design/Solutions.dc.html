@@ -26,6 +26,15 @@
 .ind-steps li span{width:24px;height:24px;border-radius:50%;background:var(--forest);color:var(--acid);font-size:12px;font-weight:600;display:grid;place-items:center;flex:none}
 @media(max-width:900px){.sol-panel{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:620px){.sol-items{grid-template-columns:minmax(0,1fr)}.sol-tabs{display:flex}.sol-tabs button{flex:1 1 40%;padding:0 10px}}
+
+.runs{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;position:relative}
+.runs::before{content:"";position:absolute;top:27px;left:6%;right:6%;height:2px;background:repeating-linear-gradient(90deg,rgba(225,225,0,.55) 0 8px,transparent 8px 16px)}
+.runs li{position:relative;background:rgba(238,241,228,.06);border:1px solid rgba(238,241,228,.12);border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.runs h3{font-size:19px;letter-spacing:-.02em;color:#fff;margin:0}
+.runs p{margin:0;font-size:15px;color:var(--on-forest-2)}
+.run-n{width:36px;height:36px;border-radius:999px;background:var(--acid);color:var(--ink);font-weight:700;display:grid;place-items:center;position:relative}
+@media(max-width:900px){.runs{grid-template-columns:repeat(2,minmax(0,1fr))}.runs::before{display:none}}
+@media(max-width:560px){.runs{grid-template-columns:minmax(0,1fr)}}
 </style>
 </helmet>
 <div>
@@ -69,12 +78,14 @@
 
   <section class="sec green">
     <div class="wrap">
-      <div class="sec-head center rv"><h2>Inside AuraHub.</h2><p>Real screens from the workspace every client gets.</p></div>
-      <div class="grid" style="--cols: 2">
-        <figure class="rv sol-shot"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>Growth roadmap</span></div><img src="/media/landing/hub-roadmap-20261126.webp" alt="AuraHub growth roadmap screen" loading="lazy" width="1896" height="902"></div></figure>
-        <figure class="rv sol-shot"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>Overview</span></div><img src="/media/landing/hub-overview-20261126.webp" alt="AuraHub overview screen" loading="lazy" width="1900" height="882"></div></figure>
-      </div>
-      <div style="display: flex; justify-content: center; margin-top: 40px"><a class="btn btn-acid" href="Hub.dc.html">Create your free account</a></div>
+      <div class="sec-head center rv"><h2>How a project runs.</h2><p>From your first message to launch day, you always know what happens next.</p></div>
+      <ol class="runs">
+        <li class="rv"><span class="run-n">1</span><h3>Tell us what you run</h3><p>A free call, a WhatsApp message or a plan from Auri. No obligation.</p></li>
+        <li class="rv"><span class="run-n">2</span><h3>Get a written proposal</h3><p>Scope, price and timeline in writing before any work starts.</p></li>
+        <li class="rv"><span class="run-n">3</span><h3>We design and build</h3><p>You approve the design and follow every step in AuraHub.</p></li>
+        <li class="rv"><span class="run-n">4</span><h3>Launch, then grow</h3><p>You go live. Monthly care keeps your site fast, safe and up to date.</p></li>
+      </ol>
+      <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 40px"><a class="btn btn-acid" href="Contact.dc.html">Book a free call</a><a class="btn btn-line" href="Packages.dc.html">See packages</a></div>
     </div>
   </section>
 
