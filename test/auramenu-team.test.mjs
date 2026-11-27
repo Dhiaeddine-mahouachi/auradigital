@@ -29,19 +29,20 @@ async function setup() {
     if (verified) await DB.prepare("INSERT INTO customer_verified_emails(customer_id,email,source) VALUES(?,?,'email')").bind(id, email).run();
     return { id, email, menu: { Cookie: '__Host-auramenu_customer=' + raw }, hub: { Cookie: '__Host-aura_customer=' + raw } };
   }
-  const post = await call('/api/auramenu/requests', 'POST', { templateId: 'std-01', planId: 'annual', businessName: 'Cafe A', contactName: 'A', contactPhone: '111', slug: 'cafe-a', tagline: 'Old tagline', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '80' }] }] });
+  const owner = await account('owner@test.test');
+  const post = await call('/api/auramenu/requests', 'POST', { templateId: 'std-01', planId: 'annual', businessName: 'Cafe A', contactName: 'A', contactPhone: '111', slug: 'cafe-a', tagline: 'Old tagline', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '80' }] }] }, owner.menu);
   assert.equal(post.status, 201);
   const { request, token } = await post.json();
-  return (shared = { DB, call, account, id: request.id, token });
+  return (shared = { DB, call, account, owner, id: request.id, token });
 }
 
 test('owner adds manager and editor; each role can do only its part; outsiders see nothing', async (t) => {
-  const { DB, call, account, id, token } = await setup();
+  const { DB, call, account, owner, id, token } = await setup();
   await DB.prepare("UPDATE auramenu_requests SET status='approved', payment_status='paid' WHERE id=?").bind(id).run();
   await activateMenuBilling(DB, id);
-  const owner = await account('owner@test.test'), mgr = await account('mgr@test.test'), ed = await account('ed@test.test'), out = await account('out@test.test'), unverified = await account('new@test.test', false);
+  const mgr = await account('mgr@test.test'), ed = await account('ed@test.test'), out = await account('out@test.test'), unverified = await account('new@test.test', false);
   const dash = '/api/auramenu/dashboard/' + id, members = `/api/auramenu/account/menus/${id}/members`;
-  assert.equal((await (await call(dash + '/claim', 'POST', { existingToken: token }, owner.menu)).json()).owned, true);
+  assert.equal((await (await call(dash + '/claim', 'POST', { existingToken: token }, owner.menu)).json()).owned, true, 'registering account already owns it');
 
   assert.equal((await call(members, 'POST', { email: 'mgr@test.test', role: 'manager' }, owner.menu)).status, 201);
   assert.equal((await call(members, 'POST', { email: 'ED@test.test', role: 'editor' }, owner.menu)).status, 201);

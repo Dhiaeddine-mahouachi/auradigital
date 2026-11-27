@@ -28,21 +28,19 @@ test('menus belong to the AuraDigital account that claims them; other accounts a
     return { Cookie: '__Host-auramenu_customer=' + raw };
   }
   const a = await account('a@test.test'), b = await account('b@test.test');
-  const post = await call('/api/auramenu/requests', 'POST', { templateId: 'std-01', planId: 'starter', businessName: 'Cafe A', contactName: 'A', contactPhone: '111', slug: 'cafe-a', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '80' }] }] });
+  // Registering without an account is refused.
+  const anon = await call('/api/auramenu/requests', 'POST', { templateId: 'std-01', planId: 'starter', businessName: 'Cafe Z', contactPhone: '999', slug: 'cafe-z', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '80' }] }] });
+  assert.equal(anon.status, 401); assert.equal((await anon.json()).signIn, true);
+  const post = await call('/api/auramenu/requests', 'POST', { templateId: 'std-01', planId: 'starter', businessName: 'Cafe A', contactPhone: '111', slug: 'cafe-a', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '80' }] }] }, a);
   assert.equal(post.status, 201);
   const { request, token } = await post.json();
   const dash = '/api/auramenu/dashboard/' + request.id, claim = dash + '/claim';
-
-  // Account alone is not enough before the menu is linked.
-  assert.equal((await call(dash, 'GET', undefined, a)).status, 401);
-  assert.equal((await call(claim, 'POST', { existingToken: '' }, a)).status, 401);
-  // Token + account A links the menu to A.
-  let r = await (await call(claim, 'POST', { existingToken: token }, a)).json();
-  assert.equal(r.owned, true); assert.equal(r.token, token);
-  // A now opens it on any device without the token; the token is not handed out again.
+  // The account that registered the menu owns it at once and opens it without the token.
   assert.equal((await call(dash, 'GET', undefined, a)).status, 200);
-  r = await (await call(claim, 'POST', { existingToken: '' }, a)).json();
-  assert.equal(r.token, ''); assert.equal(r.menu.businessName ?? r.menu.business_name ?? 'Cafe A', 'Cafe A');
+  const row = await DB.prepare('SELECT email, contact_name FROM auramenu_requests WHERE id=?').bind(request.id).first();
+  assert.equal(row.email, 'a@test.test');
+  let r = await (await call(claim, 'POST', { existingToken: '' }, a)).json();
+  assert.equal(r.token, '');
   // B cannot read or claim it, and cannot take ownership even with the token.
   assert.equal((await call(dash, 'GET', undefined, b)).status, 401);
   assert.equal((await call(claim, 'POST', { existingToken: '' }, b)).status, 401);
@@ -56,6 +54,8 @@ test('menus belong to the AuraDigital account that claims them; other accounts a
   // A forged / AuraDigital-domain cookie name does not count as an AuraMenu session.
   assert.equal((await call(dash, 'GET', undefined, { Cookie: a.Cookie.replace('__Host-auramenu_customer', '__Host-aura_customer') })).status, 401);
 
+  // Move the first fixture outside the normal duplicate submission window.
+  await DB.prepare("UPDATE auramenu_requests SET created_at=datetime('now','-3 minutes') WHERE id=?").bind(request.id).run();
   const created = await call('/api/auramenu/requests', 'POST', {
     templateId: 'std-02', planId: 'annual', businessName: 'Cafe B', contactName: 'A',
     contactPhone: '222', slug: 'cafe-b', categories: [{ name: 'Food', items: [{

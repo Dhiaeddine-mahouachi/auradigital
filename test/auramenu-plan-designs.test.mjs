@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { menuSession } from './menu-session.mjs';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { readFile } from 'node:fs/promises';
@@ -22,7 +23,7 @@ test('design access follows the plan: Standard/Annual → standard only, Premium
   assert.equal((await call('/api/settings')).status, 200);
   sqlite.exec(await readFile(new URL('../migrations/0041_auramenu_design_settings.sql', import.meta.url), 'utf8'));
   const base = { businessName: 'Cafe', contactName: 'A', contactPhone: '111', categories: [{ name: 'Food', items: [{ name: 'Bread', price: '80' }] }] };
-  let n = 0; const make = (planId, templateId) => call('/api/auramenu/requests', 'POST', { ...base, slug: 'cafe-' + (++n), contactPhone: '5550' + n, planId, templateId });
+  let n = 0; const make = async (planId, templateId) => call('/api/auramenu/requests', 'POST', { ...base, slug: 'cafe-' + (++n), contactPhone: '5550' + n, planId, templateId }, { Cookie: (await menuSession(DB)).Cookie });
   assert.equal((await make('starter', 'pre-16')).status, 403);
   assert.equal((await make('annual', 'pre-20')).status, 403);
   assert.equal((await make('pro', 'std-01')).status, 403);
