@@ -14,6 +14,7 @@ import { customerReturnPath } from '../customer-return.js';
 import { renderRoadmap, roadmapLabels } from './roadmap-view.js';
 import { eligibleMissions, missionGuide, missionState } from '../roadmap.js';
 import { renderMenuDrafts } from './menu-drafts.js';
+import { renderAuraMenus } from './auramenu-view.js';
 import { copy, capabilityNames } from './i18n.js';
 import { connectedRows, connectedList, dashCopy, navCopy, navIcon } from './dashboard-view.js';
 import { mountAuriChat, chatCopy } from './auri-chat.js';
@@ -432,6 +433,7 @@ function renderShell(){
   assistant:{label:oc.nav.assistant,icon:'auri'},
   requests:{label:oc.nav.requests,icon:'requests'},
   menuDrafts:{label:oc.nav.menuDrafts,icon:'menuDrafts'},
+  auramenu:{label:'AuraMenu',icon:'menuDrafts'},
   orders:{label:oc.nav.orders,icon:'orders',href:workspace?link('billing'):'/account'},
   billing:{label:oc.nav.orders,icon:'orders'},
   team:{label:oc.nav.team,icon:'team'},
@@ -446,11 +448,11 @@ function renderShell(){
  // lead the navigation; everything that existed before stays reachable.
  const groups=workspace?[
   [oc.nav.groups[0],['home','profile','journey','studio','services','site','analytics',...(can('auri:use')?['assistant']:[])]],
-  [oc.nav.groups[1],['requests',...(feature('menuDrafts')?['menuDrafts']:[]),'orders']],
+  [oc.nav.groups[1],['requests','auramenu',...(feature('menuDrafts')?['menuDrafts']:[]),'orders']],
   [oc.nav.groups[2],[...(workspace.organization.owner?['team']:[]),'settings','support']],
  ]:[
   [oc.nav.groups[0],['home','journey','services','assistant']],
-  [oc.nav.groups[1],['requests','orders']],
+  [oc.nav.groups[1],['requests','auramenu','orders']],
   [oc.nav.groups[2],['settings','support']],
  ];
  shellPages=groups.flatMap(([,list])=>list).map(p=>({label:labelOf(p),href:items[p]?.href||link(p),icon:items[p]?.icon||'overview'}));
@@ -861,6 +863,7 @@ async function renderPage(){
  if(!workspace&&page==='assistant')return renderAuriEmpty();
  if(!workspace&&(page==='services'||page==='requests'))return renderWorkEmpty(page);
  if(page==='support')return renderHelp();
+ if(page==='auramenu')return renderAuraMenus({host:document.querySelector('#page-content'),lang,esc});
  if(!workspace)return renderBuildCard(label);
  if(page==='studio')return studio();
  if(page==='services'||page==='requests')return myWork();
