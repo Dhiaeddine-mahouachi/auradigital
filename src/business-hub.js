@@ -60,10 +60,14 @@ function missionInserts(db,org,missions,condition,args,deferred=[]) {
   SELECT ?,?,?,?,?,COALESCE((SELECT MAX(position)+1 FROM business_missions WHERE organization_id=?),0) WHERE ${condition}
   ON CONFLICT(organization_id,capability) DO NOTHING`).bind(crypto.randomUUID(),org,mission.id,JSON.stringify(mission),deferred.includes(mission.id)?'postponed':'planned',org,...args));
 }
-function personalizedInserts(db,org,tasks) {
+function seedMissionsAfterWorkspaceWrite(db,org,tasks,deferred=[]) {
+ const records=tasks.map(task=>({
+  id:crypto.randomUUID(),capability:task.id,data:task,status:deferred.includes(task.id)?'postponed':'planned',
+ }));
+ // Keep this immediately after the workspace write in the same D1 batch.
  return db.prepare(`INSERT INTO business_missions(id,organization_id,capability,data_json,status,position)
-  SELECT json_extract(value,'$.recordId'),?,json_extract(value,'$.id'),json_remove(value,'$.recordId'),'planned',key
-  FROM json_each(?) WHERE changes()=1`).bind(org,JSON.stringify(tasks.map(task=>({...task,recordId:crypto.randomUUID()}))));
+  SELECT json_extract(value,'$.id'),?,json_extract(value,'$.capability'),json_extract(value,'$.data'),json_extract(value,'$.status'),key
+  FROM json_each(?) WHERE changes()=1`).bind(org,JSON.stringify(records));
 }
 async function owner(db,org,user) {
  await requireVerified(db,user);
@@ -180,8 +184,7 @@ export async function handleBusinessHub(request,env) {
 
   const [result]=await env.DB.batch([
    env.DB.prepare('INSERT INTO organizations(id,owner_id,name,profile_json,mode) SELECT ?,?,?,?,? WHERE (SELECT count(*) FROM organizations WHERE owner_id=?)<10 AND (?=0 OR NOT EXISTS(SELECT 1 FROM organizations WHERE owner_id=?)) ON CONFLICT(id) DO NOTHING').bind(id,user.id,profile.name,profileJson,body.mode,user.id,body.requestId?1:0,user.id),
-   ...(personalized?[personalizedInserts(env.DB,id,suggested)]:
-    missionInserts(env.DB,id,suggested,'EXISTS(SELECT 1 FROM organizations WHERE id=? AND owner_id=? AND version=1 AND profile_json=?)',[id,user.id,profileJson],deferred)),
+   seedMissionsAfterWorkspaceWrite(env.DB,id,suggested,deferred),
   ]);
   if(!result.meta.changes){
    if(body.requestId&&await env.DB.prepare('SELECT id FROM organizations WHERE id=? AND owner_id=? AND profile_json=? AND mode=?').bind(id,user.id,profileJson,body.mode).first())return json({id});
@@ -253,7 +256,7 @@ export async function handleBusinessHub(request,env) {
     env.DB.prepare(`UPDATE organizations SET name=?,profile_json=?,mode='auri',version=version+1,updated_at=datetime('now')
      WHERE id=? AND version=? AND ${guard.sql} AND ${profileGuard.sql} AND NOT EXISTS(SELECT 1 FROM business_missions WHERE organization_id=?)`)
      .bind(profile.name,JSON.stringify(profile),org,row.version,...guard.args,...profileGuard.args,org),
-    personalizedInserts(env.DB,org,plan),
+    seedMissionsAfterWorkspaceWrite(env.DB,org,plan),
    ]);
    if(!saved.meta.changes){
     await authorize(env.DB,org,user,'roadmap:write');
