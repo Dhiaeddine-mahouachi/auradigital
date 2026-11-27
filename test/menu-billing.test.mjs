@@ -34,3 +34,13 @@ test('expiry disables publishing, while legacy purchases retain their contract',
  assert.equal((await menuEntitlement(db,{id:'old',status:'approved',payment_status:'paid'})).live,true);
  const renew=await activateMenuBilling(db,'menu',true,'2020-01-01T00:00:00Z');assert.equal(renew.active,true);
 });
+test('annual plan charges 2500 TL per year with hosting included',async()=>{
+ const db=await setup('annual');const b=await menuBilling(db,'menu');assert.equal(b.dueAmount,2500);assert.equal(b.hostingAmount,0);
+ const first=await activateMenuBilling(db,'menu');assert.equal(first.dueAmount,2500);
+ const renewed=await activateMenuBilling(db,'menu',true,first.paidUntil);assert.equal(renewed.paidUntil,addMonths(first.paidUntil,12));
+});
+test('one-time plan is no longer offered but existing contracts keep their terms',async()=>{
+ const { OFFERED_MENU_PLANS } = await import('../src/menu-billing.js');
+ assert.deepEqual(OFFERED_MENU_PLANS.map(p=>[p.name,p.amount,p.interval]),[['Standard',399,'monthly'],['Premium',599,'monthly'],['Annual',2500,'yearly']]);
+ assert.equal(MENU_PLANS.onetime.legacy,true);
+});

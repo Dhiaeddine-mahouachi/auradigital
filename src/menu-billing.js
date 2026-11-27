@@ -1,9 +1,12 @@
 import { ApiError } from './http.js';
 export const MENU_PLANS = Object.freeze({
-  starter: { id: 'starter', name: 'Starter', amount: 399, interval: 'monthly', months: 1, hostingAmount: 0 },
-  pro: { id: 'pro', name: 'Pro', amount: 599, interval: 'monthly', months: 1, hostingAmount: 0 },
-  onetime: { id: 'onetime', name: 'One-time', amount: 2500, interval: 'one-time', months: 6, hostingAmount: 200 },
+  starter: { id: 'starter', name: 'Standard', amount: 399, interval: 'monthly', months: 1, hostingAmount: 0 },
+  pro: { id: 'pro', name: 'Premium', amount: 599, interval: 'monthly', months: 1, hostingAmount: 0 },
+  annual: { id: 'annual', name: 'Annual', amount: 2500, interval: 'yearly', months: 12, hostingAmount: 0 },
+  // No longer sold (replaced by Annual on 2026-11-27). Kept so existing one-time contracts renew on their original terms.
+  onetime: { id: 'onetime', name: 'One-time', amount: 2500, interval: 'one-time', months: 6, hostingAmount: 200, legacy: true },
 });
+export const OFFERED_MENU_PLANS = Object.freeze(Object.values(MENU_PLANS).filter(plan => !plan.legacy));
 export async function ensureMenuBilling(db) {
   await db.prepare("CREATE TABLE IF NOT EXISTS auramenu_billing (menu_id TEXT PRIMARY KEY NOT NULL, plan_id TEXT NOT NULL, amount INTEGER NOT NULL, interval TEXT NOT NULL, hosting_amount INTEGER NOT NULL DEFAULT 0, paid_until TEXT, updated_at TEXT NOT NULL DEFAULT (datetime('now')))").run();
 }

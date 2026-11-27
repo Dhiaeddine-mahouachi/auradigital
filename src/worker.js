@@ -4,7 +4,7 @@ import { authenticatedCustomer } from './customer-accounts.ts';
 import { authorize } from './business-hub.js';
 import { pricingFor, checkQuoteVersion } from './global-pricing.js';
 import { ensureRequestDelivery, requestFingerprint, outboxStatements, deliverRequestEmails } from "./request-delivery.js";
-import { MENU_PLANS, ensureMenuBilling, menuBilling, menuBillingInsert, activateMenuBilling, menuEntitlement } from "./menu-billing.js";
+import { MENU_PLANS, OFFERED_MENU_PLANS, ensureMenuBilling, menuBilling, menuBillingInsert, activateMenuBilling, menuEntitlement } from "./menu-billing.js";
 import { ApiError, json, readJson } from "./http.js";
 import { readCachedMenu, storeCachedMenu, purgeCachedMenu } from "./menu-cache.js";
 import { catalogue as PUBLIC_PRICING, getItem as getPublicPrice, quote as calculatePublicQuote } from "../pricing/catalogue.js";
@@ -793,7 +793,7 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   const categories = normalizeAuraMenuCategories(body.categories);
   const serviceMode = body.serviceMode === "managed" ? "managed" : "self";
   const planId = body.planId || 'starter';
-  const plan = Object.hasOwn(MENU_PLANS, planId) ? MENU_PLANS[planId] : null;
+  const plan = Object.hasOwn(MENU_PLANS, planId) && !MENU_PLANS[planId].legacy ? MENU_PLANS[planId] : null;
   if (!plan) return json({ error: 'Choose a valid AuraMenu plan.' }, 400, corsHeaders);
   assertMenuTemplate(templateId, menuDesignAccess(env));
   const presentation = isCollectionDesign(templateId) ? normalizeMenuPresentation(body) : null;
@@ -1107,7 +1107,7 @@ export default {
           const managedBuildPrice = Number(settings.qr_menu_price);
           return json({
             selfBuildPrice: 399,
-            plans: Object.values(MENU_PLANS),
+            plans: OFFERED_MENU_PLANS,
             managedBuildPrice: Number.isFinite(managedBuildPrice) && managedBuildPrice > 0 ? managedBuildPrice : 2500,
             currency: "TRY",
           }, 200, {
