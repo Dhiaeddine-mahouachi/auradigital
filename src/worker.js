@@ -795,7 +795,7 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   const planId = body.planId || 'starter';
   const plan = Object.hasOwn(MENU_PLANS, planId) && !MENU_PLANS[planId].legacy ? MENU_PLANS[planId] : null;
   if (!plan) return json({ error: 'Choose a valid AuraMenu plan.' }, 400, corsHeaders);
-  assertMenuTemplate(templateId, menuDesignAccess(env));
+  assertMenuTemplate(templateId, menuDesignAccess(env, { planId: plan.id }));
   const presentation = isCollectionDesign(templateId) ? normalizeMenuPresentation(body) : null;
   await ensureMenuBilling(db);
   const optionSummary = [

@@ -17,14 +17,15 @@ const clean = (value,max) => typeof value === 'string' ? value.trim().slice(0,ma
 export const isCollectionDesign = id => standardSet.has(id) || premiumSet.has(id);
 export const standardDesignsEnabled = env => env.AURAMENU_STANDARD_ENABLED === 'true';
 
-export function menuDesignAccess(env,{id,billing,pending = false,paid = false} = {}) {
-  const standard = standardDesignsEnabled(env);
+// Standard plans (starter, annual) get the standard designs; the Premium plan (pro) gets the premium designs only.
+// Older menus with a manual premium grant (AURAMENU_PREMIUM_MENU_IDS) keep both.
+export function menuDesignAccess(env,{id,billing,pending = false,paid = false,planId} = {}) {
+  const standardOn = standardDesignsEnabled(env), premiumOn = env.AURAMENU_PREMIUM_ENABLED === 'true';
+  if ((planId || billing?.planId) === 'pro') return {standard:false,premium:premiumOn};
   const eligiblePeriod = pending || (paid && billing?.active);
   const grants = typeof env.AURAMENU_PREMIUM_MENU_IDS === 'string' ? env.AURAMENU_PREMIUM_MENU_IDS : '';
-  const premium = env.AURAMENU_PREMIUM_ENABLED === 'true' && Boolean(
-    id && billing && eligiblePeriod && grants.split(',').some(grant => grant.trim() === id)
-  );
-  return {standard:standard || premium,premium};
+  const granted = premiumOn && Boolean(id && billing && eligiblePeriod && grants.split(',').some(grant => grant.trim() === id));
+  return {standard:standardOn || granted,premium:granted};
 }
 
 export function assertMenuTemplate(id,{standard = false,premium = false,currentId} = {}) {
