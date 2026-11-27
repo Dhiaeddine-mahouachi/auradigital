@@ -215,6 +215,8 @@ export async function handleAuraMenuDashboard(request, env) {
   const dashboardMenu = async (row,access,billing) => {
     const designAccess = designsFor(row,billing);
     return {...publicMenu(row,access,billing),...await presentationFor(row),role:access?.role || 'owner',
+      canPublish: row.status === 'pending' && row.payment_status === 'paid' && billing?.active === true &&
+        billing.planId !== 'onetime' && ['owner', 'manager'].includes(access?.role),
       designAccess:{standard:designAccess.standard,premium:designAccess.premium ? premiumIds : []}};
   };
   if (u.pathname.startsWith('/api/auramenu/dashboard')) {
@@ -237,7 +239,7 @@ export async function handleAuraMenuDashboard(request, env) {
       return json({ token: byToken ? token : '', owned, menu: await dashboardMenu(row,access,await menuBilling(env.DB,row.id)) }, 200, headers);
     }
 
-    const match = u.pathname.match(/^\/api\/auramenu\/dashboard\/([a-f0-9-]+)(?:\/(access-request))?$/i);
+    const match = u.pathname.match(/^\/api\/auramenu\/dashboard\/([a-f0-9-]+)(?:\/(access-request|publish))?$/i);
     if (!match) return json({ error: 'Not found.' }, 404, headers);
 
     const id = match[1];
@@ -249,6 +251,28 @@ export async function handleAuraMenuDashboard(request, env) {
     const billing = await menuBilling(env.DB, id);
     if (!tokenAccess) {
       return json({ error: 'Dashboard access denied.' }, 401, { 'Cache-Control': 'no-store', ...headers });
+    }
+
+    if (action === 'publish' && request.method === 'POST') {
+      const accountAccess = await menuOwnerAccess(request, env.DB, id);
+      if (!['owner', 'manager'].includes(accountAccess?.role)) {
+        return json({ error: 'An owner or manager account is required to publish.' }, 403, headers);
+      }
+      if (row.payment_status !== 'paid' || !billing?.active || billing.planId === 'onetime' ||
+          !['pending', 'approved'].includes(row.status)) {
+        return json({ error: 'This menu needs an active, confirmed subscription before publishing.' }, 409, headers);
+      }
+      if (row.status === 'approved') return json({ menu: await dashboardMenu(row, accountAccess, billing) }, 200, headers);
+      assertMenuTemplate(row.template_id, designsFor(row, billing));
+      const now = new Date().toISOString();
+      const result = await env.DB.prepare(
+        "UPDATE auramenu_requests SET status='approved', approved_at=?, updated_at=?, revision=revision+1 " +
+        "WHERE id=? AND status='pending' AND payment_status='paid' AND revision=? AND EXISTS (" +
+        "SELECT 1 FROM auramenu_billing WHERE menu_id=? AND plan_id=? AND paid_until>?)"
+      ).bind(now, now, id, row.revision, id, billing.planId, now).run();
+      if (!result.meta?.changes) return json({ error: 'Menu or subscription changed. Reload before publishing.' }, 409, headers);
+      await purgeCachedMenu(row.slug, u.origin);
+      return json({ menu: await dashboardMenu(await rowFor(env.DB, id), accountAccess, billing) }, 200, { 'Cache-Control': 'no-store', ...headers });
     }
 
     if (action === 'access-request' && request.method === 'POST') {

@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 import app from '../src/worker-entry.js';
 import { d1 } from './d1.mjs';
 import { ensureCustomers, tokenHash } from '../src/customer-accounts.ts';
+import { createSession } from '../src/security.js';
 
 test('menus belong to the AuraDigital account that claims them; other accounts are isolated', async (t) => {
   const sqlite = new DatabaseSync(':memory:'); t.after(() => sqlite.close());
@@ -66,4 +67,27 @@ test('menus belong to the AuraDigital account that claims them; other accounts a
   assert.deepEqual(studioMenus.menus, hubMenus.menus);
   assert.deepEqual(studioMenus.menus.map(m => m.slug).sort(), ['cafe-a', 'cafe-b']);
   assert.deepEqual((await (await call('/api/auramenu/account/menus', 'GET', undefined, b)).json()).menus, []);
+
+  const publicPath = '/api/auramenu/sites/cafe-b';
+  const publish = '/api/auramenu/dashboard/' + secondMenu.id + '/publish';
+  assert.equal((await call(publicPath)).status, 404);
+  assert.equal((await call(publish, 'POST', undefined, a)).status, 409);
+  sqlite.exec("INSERT INTO admin_users(id,username,display_name,password_hash,role) VALUES ('owner','owner','Owner','test','owner')");
+  const admin = { Cookie: '__Host-aura_admin=' + await createSession(DB, 'owner') };
+  assert.equal((await call('/api/admin/auramenu/' + secondMenu.id, 'PATCH', { paymentStatus: 'paid' }, admin)).status, 200);
+  assert.equal((await call(publicPath)).status, 404);
+  assert.equal((await call(publish, 'POST', undefined, b)).status, 401);
+  assert.equal((await call(publish, 'POST', undefined, a)).status, 200);
+  const before = (await (await call(publicPath)).json()).menu;
+  assert.equal(before.status, 'approved');
+  assert.equal((await call(publish, 'POST', undefined, a)).status, 200);
+  const unchanged = (await (await call(publicPath)).json()).menu;
+  assert.equal(unchanged.revision, before.revision);
+  const update = await call('/api/auramenu/dashboard/' + secondMenu.id, 'PATCH', {
+    categories: [{ name: 'Food', items: [{ name: 'Toast', price: '95', available: false }] }],
+  }, a);
+  assert.equal(update.status, 200);
+  const published = (await (await call(publicPath)).json()).menu;
+  assert.equal(published.categories[0].items[0].price, '95');
+  assert.equal(published.categories[0].items[0].available, false);
 });
