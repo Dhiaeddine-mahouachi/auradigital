@@ -228,7 +228,7 @@ function authScreen({signup,forgot,reset}){
  const tabs=mode==='login'||mode==='signup'?`<nav class="ad-tabs" aria-label="Account"><a href="/hub/login${authQuery}" ${mode==='login'?'aria-current="page"':''}>${al('signInTab')}</a><a href="/hub/signup${authQuery}" ${mode==='signup'?'aria-current="page"':''}>${al('signupTab')}</a></nav>`:'';
  // Google sign-in is only offered once it is configured; no "coming soon" notice.
  const googleBlock=(mode==='login'||mode==='signup')&&authCapabilities.google?`<button type="button" class="ad-google" data-google>${googleIcon}<span>${al('google')}</span></button><div class="ad-or"><span>${al('or')}</span></div>`:'';
- const termsBox=mode==='login'||mode==='signup'?`<label class="ad-check"><input type="checkbox" name="terms" ${mode==='signup'?'required':''}><span>${al('terms')}</span></label>`:'';
+ const termsBox=mode==='login'||mode==='signup'?`<label class="ad-check"><input type="checkbox" name="terms" ${mode==='signup'?'required':''}><span>${al('terms')} <a href="/terms" target="_blank" rel="noopener">Terms</a> · <a href="/privacy" target="_blank" rel="noopener">Privacy</a></span></label>`:'';
  app.innerHTML=`<div class="ad-auth">
  <aside class="ad-side"><a href="/" class="ad-logo"><span class="hub-brand-tile"><img src="/media/redesign/ad-monogram.png" alt="" width="27" height="13"></span><span>AuraDigital</span></a>
   <div class="ad-side-body"><h2>${al('side')}</h2><p>${al('sideSub')}</p><ul>${['b1','b2','b3','b4'].map(k=>`<li><span aria-hidden="true">✓</span>${al(k)}</li>`).join('')}</ul></div>
