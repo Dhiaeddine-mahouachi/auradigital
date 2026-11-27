@@ -88,6 +88,8 @@ const PAGE_SEO = {
 
 const NOINDEX_PATHS = new Set([
   "/404.html",
+  "/terms",
+  "/privacy",
   "/auri-preview/",
   "/auri-preview/index.html",
   "/nfc-status.html",

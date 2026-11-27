@@ -83,3 +83,14 @@ test('Google failures from an AuraMenu sign-in return to AuraMenu, not the AuraD
   const hub = await f.call('/api/customer/google/start?acceptTerms=true', null);
   assert.match(hub.headers.get('Location'), /^https:\/\/aura\.test\/hub\/login\?google=off$/);
 });
+
+test('draft legal pages are served at clean URLs with noindex', async () => {
+  const { serveSeoAsset } = await import('../src/seo.js');
+  const env = { ASSETS: { fetch: async (r) => new Response(`<html>${new URL(r.url).pathname}</html>`, { headers: { 'Content-Type': 'text/html' } }) } };
+  for (const page of ['terms', 'privacy']) {
+    const res = await serveSeoAsset(new Request(`https://auradigitalworks.com/${page}`), env);
+    assert.equal(res.status, 200);
+    assert.equal(await res.text(), `<html>/${page}.html</html>`);
+    assert.match(res.headers.get('X-Robots-Tag'), /noindex/);
+  }
+});
