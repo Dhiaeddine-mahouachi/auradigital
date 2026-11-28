@@ -101,6 +101,9 @@ export function secureResponse(response, request, env, ctx) {
   if ((headers.get('Content-Type') || '').includes('text/html') && (path === '/hub' || path.startsWith('/hub/') || path.startsWith('/account'))) {
     headers.set('Content-Security-Policy', turnstileCsp(headers.get('Content-Security-Policy')));
   }
+  // Staging HTML, redirects and API responses must never enter search indexes.
+  // Apply last so a route-specific robots policy cannot weaken staging isolation.
+  if (env?.AURA_ENVIRONMENT === 'staging') headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   if (new URL(request.url).pathname.startsWith('/api/admin/')) headers.set('Cache-Control', 'no-store');
   for (const name of ['Server', 'X-Powered-By']) headers.delete(name);
   if ([401, 403, 429].includes(response.status)) securityEvent(request, 'request_denied', response.status, env, ctx);
