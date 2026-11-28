@@ -7,12 +7,14 @@ import { ensureRequestDelivery, requestFingerprint, outboxStatements, deliverReq
 import { MENU_PLANS, OFFERED_MENU_PLANS, ensureMenuBilling, menuBilling, menuBillingInsert, activateMenuBilling, menuEntitlement } from "./menu-billing.js";
 import { ApiError, json, readJson } from "./http.js";
 import { readCachedMenu, storeCachedMenu, purgeCachedMenu } from "./menu-cache.js";
-import { auraMenuCustomer } from "./auramenu-connect.js";
-import { ensureTeam } from "./auramenu-team.js";
 import { catalogue as PUBLIC_PRICING, getItem as getPublicPrice, quote as calculatePublicQuote } from "../pricing/catalogue.js";
 import { queueRequestNotification } from "./notifications.js";
 import { checkResendHealth } from "./customer-confirmation.js";
 import { ensureMenuAccess, newMenuToken, tokenHash, menuTokenAccess } from "./menu-ownership.js";
+import { auraMenuCustomer, stagingMenuOrigin } from "./auramenu-connect.js";
+import { isEmailVerified } from "./customer-identity.js";
+import { capturePublication, ensurePublications } from "./auramenu-publications.js";
+import { ensureTeam } from "./auramenu-team.js";
 import { securityEvent } from "./security-policy.js";
 import { handleEmployeePortalApi } from "./employee-portal.js";
 import { handleAdditionalEmployeeApi } from "./employee-portals.js";
@@ -634,10 +636,13 @@ async function handleQuickSiteAdmin(request, db, id) {
   return json({ project: mapQuickSite(updated) }, 200, { "Cache-Control": "no-store" });
 }
 
-function auraMenuCors(request) {
+function auraMenuCors(request, env) {
   const origin = request.headers.get("Origin");
   if (!origin) return {};
-  if (!AURAMENU_ORIGINS.has(origin)) return null;
+  const allowed = env.AURA_ENVIRONMENT === "staging"
+    ? [stagingMenuOrigin(env), env.CUSTOMER_AUTH_ORIGIN].includes(origin)
+    : AURAMENU_ORIGINS.has(origin);
+  if (!allowed) return null;
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Headers": "Content-Type, X-Aura-Menu-Token",
@@ -783,6 +788,7 @@ async function createAuraMenuRequest(request, db, corsHeaders, env, ctx) {
   // A menu is always registered to a signed-in AuraDigital account (no anonymous requests, no separate email codes).
   const customer = await auraMenuCustomer(request, env);
   if (!customer) return json({ error: "Sign in with your AuraDigital account to register your menu.", signIn: true }, 401, { "Cache-Control": "no-store", ...corsHeaders });
+  if (!(await isEmailVerified(db, customer))) return json({ error: "Verify your email to register your menu.", verify: true }, 403, { "Cache-Control": "no-store", ...corsHeaders });
   const body = await readJson(request, AURAMENU_BODY_BYTES);
   const templateId = qsClean(body.templateId, 30);
   const businessName = qsClean(body.businessName, 100);
@@ -949,7 +955,7 @@ async function getPublishedAuraMenu(request, db, slug, corsHeaders) {
   });
 }
 
-async function handleAuraMenuAdmin(request, db, id, env) {
+async function handleAuraMenuAdmin(request, db, id, env, admin) {
   if (request.method === "GET" && !id) {
     const rows = await db.prepare("SELECT * FROM auramenu_requests ORDER BY created_at DESC LIMIT 100").all();
     return json({ requests: await Promise.all((rows.results || []).map(async row => ({ ...mapAuraMenuRequest(row), ...(await menuEntitlement(db, row)) }))) }, 200, { "Cache-Control": "no-store" });
@@ -978,8 +984,14 @@ async function handleAuraMenuAdmin(request, db, id, env) {
   if (status === 'approved' || (payment === 'paid' && current.payment_status !== 'paid')) await activateMenuBilling(db,id);
   const ownerNote = body.ownerNote === undefined ? current.owner_note : qsClean(body.ownerNote, 500);
   const now = new Date().toISOString();
-  const mutation = await db.prepare("UPDATE auramenu_requests SET status = ?, payment_status = ?, owner_note = ?, updated_at = ?, approved_at = ?, revision = revision + 1 WHERE id = ? AND template_id = ?")
-    .bind(status, payment, ownerNote, now, status === "approved" ? (current.approved_at || now) : null, id, current.template_id).run();
+  await ensurePublications(db);
+  const update = db.prepare("UPDATE auramenu_requests SET status = ?, payment_status = ?, owner_note = ?, updated_at = ?, approved_at = ?, revision = revision + 1 WHERE id = ? AND revision = ?")
+    .bind(status, payment, ownerNote, now, status === "approved" ? (current.approved_at || now) : null, id, current.revision);
+  const [, mutation] = await db.batch([capturePublication(db, id, current.revision), update,
+    capturePublication(db, id, current.revision + 1, {
+      action: current.status === 'approved' ? 'update' : 'publish', type: 'admin', actor: admin.id, afterUpdate: true,
+    }),
+  ]);
   if (!mutation.meta?.changes) return json({error:"Menu design changed. Reload before approving."},409);
   await purgeCachedMenu(current.slug, new URL(request.url).origin);
   const updated = await db.prepare("SELECT * FROM auramenu_requests WHERE id = ? LIMIT 1").bind(id).first();
@@ -1068,6 +1080,16 @@ export default {
       });
     }
 
+    if (url.pathname === "/api/auramenu/health" && request.method === "GET") {
+      const headers = { "Cache-Control": "no-store" };
+      try {
+        await env.DB.prepare("SELECT 1 FROM auramenu_requests LIMIT 1").first();
+        return json({ status: "ok" }, 200, headers);
+      } catch {
+        return json({ status: "unavailable" }, 503, headers);
+      }
+    }
+
     try {
       await ensureSchema(env.DB);
 
@@ -1099,7 +1121,7 @@ export default {
       }
 
       if (url.pathname.startsWith("/api/auramenu/")) {
-        const corsHeaders = auraMenuCors(request);
+        const corsHeaders = auraMenuCors(request, env);
         if (corsHeaders === null) return json({ error: "Bu kaynaktan talep kabul edilmiyor." }, 403);
         if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 
@@ -1113,7 +1135,7 @@ export default {
           const settings = await getPublicSettings(env.DB);
           const managedBuildPrice = Number(settings.qr_menu_price);
           return json({
-            selfBuildPrice: 399,
+            selfBuildPrice: MENU_PLANS.starter.amount,
             plans: OFFERED_MENU_PLANS,
             managedBuildPrice: Number.isFinite(managedBuildPrice) && managedBuildPrice > 0 ? managedBuildPrice : 2500,
             currency: "TRY",
@@ -1311,7 +1333,7 @@ export default {
 
       const auraMenuAdmin = url.pathname.match(/^\/api\/admin\/auramenu(?:\/([a-f0-9-]+))?$/i);
       if (auraMenuAdmin) {
-        const response = await handleAuraMenuAdmin(request, env.DB, auraMenuAdmin[1] || null, env);
+        const response = await handleAuraMenuAdmin(request, env.DB, auraMenuAdmin[1] || null, env, admin);
         await auditAdminResponse(response, request, env.DB, admin, "auramenu", auraMenuAdmin[1] || "collection");
         return response;
       }
@@ -1367,7 +1389,7 @@ export default {
 
       return json({ error: "Not found." }, 404);
     } catch (error) {
-      const publicCors = url.pathname.startsWith("/api/auramenu/") ? auraMenuCors(request) : {};
+      const publicCors = url.pathname.startsWith("/api/auramenu/") ? auraMenuCors(request, env) : {};
       const corsHeaders = publicCors && publicCors !== null ? publicCors : {};
       if (error instanceof ApiError) {
         return json({ error: error.message }, error.status, {

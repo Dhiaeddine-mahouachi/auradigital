@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { secureResponse } from "../src/security-policy.js";
 import {
   hashBootstrapPassword,
   hashPassword,
@@ -9,6 +10,18 @@ import {
   validatePassword,
   verifyPassword,
 } from "../src/security.js";
+
+test('publication failures emit a credential-free monitoring event', (t) => {
+  const log = t.mock.method(console, 'log', () => {});
+  const request = new Request('https://auramenu.space/api/auramenu/dashboard/a1/publish?private=1', { method: 'POST' });
+  secureResponse(new Response(null, { status: 503 }), request, {}, {});
+  secureResponse(new Response(null, { status: 409 }), request, {}, {});
+  assert.equal(log.mock.callCount(), 1);
+  const record = JSON.parse(log.mock.calls[0].arguments[0]);
+  assert.equal(record.event, 'auramenu_publication_failed');
+  assert.equal(record.status, 503);
+  assert.doesNotMatch(JSON.stringify(record), /private=1|a1\/publish/);
+});
 
 test("password hashes are salted and verifiable", async () => {
   const password = "correct horse battery staple";
@@ -68,4 +81,21 @@ test("same-origin validation supports Cloudflare-routed public requests", () => 
     },
   });
   assert.equal(sameOrigin(crossSite), false);
+});
+
+test('staging response indexing is disabled without changing production SEO', () => {
+  const request = new Request('https://auradigital-staging.example/');
+  for (const status of [200, 302, 404, 503]) {
+    const response = secureResponse(new Response(null, {
+      status, headers: { 'X-Robots-Tag': 'index, follow' }
+    }), request, { AURA_ENVIRONMENT: 'staging' }, {});
+    assert.equal(response.status, status);
+    assert.equal(response.headers.get('X-Robots-Tag'), 'noindex, nofollow, noarchive');
+  }
+  const production = secureResponse(new Response(null, {
+    headers: { 'X-Robots-Tag': 'index, follow' }
+  }), new Request('https://auradigitalworks.com/'), { AURA_ENVIRONMENT: 'production' }, {});
+  assert.equal(production.headers.get('X-Robots-Tag'), 'index, follow');
+  const unconfigured = secureResponse(new Response(null), request, {}, {});
+  assert.equal(unconfigured.headers.get('X-Robots-Tag'), null);
 });

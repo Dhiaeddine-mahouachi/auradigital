@@ -78,3 +78,41 @@ test('malformed challenge or state is rejected', async () => {
   const f = await hubFixture();
   assert.equal((await call(f, 'https://aura.test/api/auramenu/connect?challenge=short&state=abc')).status, 400);
 });
+
+test('staging PKCE returns to its isolated host and blocks a production origin', async () => {
+  const f = await hubFixture(), p = pkce();
+  const accounts = 'https://auradigital-staging.fixture.workers.dev';
+  const menu = 'https://auramenu-staging.fixture.workers.dev';
+  Object.assign(f.env, { AURA_ENVIRONMENT: 'staging', CUSTOMER_AUTH_ORIGIN: accounts, AURAMENU_ORIGIN: menu });
+  const customer = await f.user('staging-chef@test.test', true);
+  const result = await call(f, `${accounts}/api/auramenu/connect?challenge=${p.challenge}&state=${p.state}`, { cookie: customer.cookie });
+  const callback = new URL(result.headers.get('Location'));
+  assert.equal(callback.origin, menu);
+  const code = new URLSearchParams(callback.hash.slice(1)).get('code');
+  const body = { code, verifier: p.verifier };
+  const url = menu + '/api/auramenu/connect/exchange';
+  assert.equal((await call(f, url, { method: 'POST', origin: 'https://auramenu.space', body })).status, 403);
+  const authenticated = await call(f, url, { method: 'POST', origin: menu, body });
+  assert.equal(authenticated.status, 200);
+  assert.doesNotMatch(authenticated.headers.get('Set-Cookie'), /Domain=/);
+  f.env.AURAMENU_ORIGIN = 'https://auramenu.space';
+  assert.equal((await call(f, menu + '/api/auramenu/account/session')).status, 503);
+});
+
+test('staging accepts staging.auramenu.space but never the production menu host', async () => {
+  const f = await hubFixture(), p = pkce();
+  const accounts = 'https://auradigital-staging.fixture.workers.dev';
+  const menu = 'https://staging.auramenu.space';
+  Object.assign(f.env, { AURA_ENVIRONMENT: 'staging', CUSTOMER_AUTH_ORIGIN: accounts, AURAMENU_ORIGIN: menu });
+  const customer = await f.user('staging-domain@test.test', true);
+  const result = await call(f, `${accounts}/api/auramenu/connect?challenge=${p.challenge}&state=${p.state}`, { cookie: customer.cookie });
+  const callback = new URL(result.headers.get('Location'));
+  assert.equal(callback.origin, menu);
+  const code = new URLSearchParams(callback.hash.slice(1)).get('code');
+  const url = menu + '/api/auramenu/connect/exchange';
+  assert.equal((await call(f, url, { method: 'POST', origin: 'https://auramenu.space', body: { code, verifier: p.verifier } })).status, 403);
+  assert.equal((await call(f, url, { method: 'POST', origin: menu, body: { code, verifier: p.verifier } })).status, 200);
+  f.env.AURA_ENVIRONMENT = 'production';
+  f.env.AURAMENU_ORIGIN = 'https://staging.auramenu.space';
+  assert.notEqual((await call(f, `https://auradigitalworks.com/api/auramenu/connect?challenge=${p.challenge}&state=${p.state}`, { cookie: customer.cookie })).headers.get('Location')?.startsWith(menu), true);
+});

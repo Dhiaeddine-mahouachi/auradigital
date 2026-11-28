@@ -22,15 +22,18 @@ test('feature gating, authenticated settings, plan checks, approval and existing
       headers:{Origin:'https://auradigitalworks.com','Content-Type':'application/json',...credentials},
     }),env,{waitUntil() {}});
   }
+  assert.equal((await call('/api/auramenu/health')).status,503);
   assert.equal((await call('/api/settings')).status,200);
+  assert.deepEqual(await (await call('/api/auramenu/health')).json(), { status: 'ok' });
   sqlite.exec(await readFile(new URL('../migrations/0041_auramenu_design_settings.sql',import.meta.url),'utf8'));
   sqlite.exec("INSERT INTO admin_users(id,username,display_name,password_hash,role) VALUES ('owner','owner','Owner','test','owner')");
   const admin = {Cookie:'__Host-aura_admin=' + await createSession(DB,'owner')};
   sqlite.exec("INSERT INTO auramenu_requests(id,slug,template_id,business_name,contact_name,contact_phone,status,payment_status) VALUES ('legacy','legacy-cafe','modern','Legacy Cafe','Owner','111','approved','paid')");
   const site = '/api/auramenu/sites/';
   assert.equal((await (await call(site+'legacy-cafe')).json()).menu.templateId,'modern');
+  const imageData = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j9l4AAAAASUVORK5CYII=';
   const menu = {templateId:'std-08',planId:'starter',businessName:'New Cafe',contactName:'Owner',contactPhone:'222',
-    slug:'new-cafe',categories:[{name:'Food',items:[{name:'Bread',price:'80',discountPrice:'75',available:false}],
+    slug:'new-cafe',categories:[{name:'Food',items:[{name:'Bread',price:'80',discountPrice:'75',available:false,imageData}],
       subcategories:[{name:'Sides',items:[{name:'Salad',price:'70',allergens:[{ar:'سمسم',en:'Sesame'}]}]}]}],
     design:{primary:'#165943',radius:100,prices:false,play:false},
     restaurant:{logo:'https://example.com/logo.webp',links:{review:'https://www.google.com/maps/'}},
@@ -53,7 +56,11 @@ test('feature gating, authenticated settings, plan checks, approval and existing
   assert.equal((await call(dashboard,'PATCH',{...menu,templateId:'prem-01'},owner)).status,400);
   const update = await call(dashboard,'PATCH',{...menu,templateId:'std-02'},owner);
   assert.equal(update.status,200);
-  assert.equal((await update.json()).menu.design.radius,32);
+  const pending = (await update.json()).menu;
+  assert.equal(pending.design.radius,32);
+  const pendingImage = new URL(pending.categories[0].items[0].imageUrl).pathname;
+  assert.equal((await call(pendingImage)).status,404);
+  assert.equal((await call(pendingImage,'GET',undefined,owner)).status,200);
   assert.equal((await call(site+'new-cafe')).status,404);
   assert.deepEqual((await (await call('/api/auramenu/designs')).json()).premium,premiumIds);
   const premium = {...menu,templateId:'pre-30',design:{motion:false,ornaments:false}};
@@ -64,11 +71,15 @@ test('feature gating, authenticated settings, plan checks, approval and existing
   assert.equal((await call(dashboard,'PATCH',premium,owner)).status,403);
   env.AURAMENU_PREMIUM_MENU_IDS = request.id;
   assert.equal((await call(dashboard,'PATCH',premium,{'X-Aura-Menu-Token':'different-restaurant-token'})).status,401);
+  assert.equal((await call(dashboard,'PATCH',premium,owner)).status,403);
+  // Existing one-time contracts can retain their explicit premium grant.
+  sqlite.prepare("UPDATE auramenu_billing SET plan_id='onetime' WHERE menu_id=?").run(request.id);
   assert.deepEqual((await (await call(dashboard,'GET',undefined,owner)).json()).menu.designAccess.premium,premiumIds);
   const premiumUpdate = await call(dashboard,'PATCH',premium,owner);
   assert.equal(premiumUpdate.status,200);
   assert.equal((await premiumUpdate.json()).menu.design.motion,false);
   const approval = '/api/admin/auramenu/'+request.id;
+  assert.equal((await call(approval,'PATCH',{status:'approved',paymentStatus:'unpaid'},admin)).status,409);
   env.AURAMENU_STANDARD_ENABLED = 'false';
   env.AURAMENU_PREMIUM_ENABLED = 'false';
   assert.equal((await call(approval,'PATCH',{status:'approved',paymentStatus:'paid'},admin)).status,403);
@@ -84,7 +95,11 @@ test('feature gating, authenticated settings, plan checks, approval and existing
   assert.equal(published.categories[0].items[0].discountPrice,'75');
   assert.equal(published.categories[0].subcategories[0].items[0].allergens[0].ar,'سمسم');
   assert.equal(Object.hasOwn(published,'contactPhone'),false);
+  const publicImage = await call(new URL(published.categories[0].items[0].imageUrl).pathname);
+  assert.equal(publicImage.status,200);
+  assert.equal(publicImage.headers.get('Content-Type'),'image/png');
   assert.equal((await call(dashboard,'PATCH',{...menu,templateId:'std-03'},owner)).status,403);
+  assert.equal((await (await call(site+'new-cafe')).json()).menu.revision,published.revision);
   const legacy = (await (await call(site+'legacy-cafe')).json()).menu;
   assert.equal(legacy.templateId,'modern');
   assert.equal(Object.hasOwn(legacy,'design'),false);

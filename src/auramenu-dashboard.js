@@ -1,10 +1,11 @@
-import { assertMenuTemplate, isCollectionDesign, premiumIds, menuDesignAccess, standardDesignsEnabled, normalizeItemMetadata, normalizeCategoryMetadata, menuItems, normalizeMenuPresentation, getMenuPresentation, saveMenuPresentation } from "./auramenu-designs.js";
+import { assertMenuTemplate, isCollectionDesign, premiumIds, menuDesignAccess, standardDesignsEnabled, normalizeItemMetadata, normalizeCategoryMetadata, menuItems, normalizeMenuPresentation, getMenuPresentation } from "./auramenu-designs.js";
 import { menuBilling } from './menu-billing.js';
 import { ApiError, json, readJson } from './http.js';
 import { getAuthenticatedAdmin, sameOrigin } from './security.js';
 import { ensureMenuAccess as ensure, tokenHash as sha256, menuTokenAccess as requireToken, menuOwnerAccess, newMenuToken } from './menu-ownership.js';
-import { auraMenuCustomer, linkMenuOwner } from './auramenu-connect.js';
+import { auraMenuCustomer, linkMenuOwner, stagingMenuOrigin } from './auramenu-connect.js';
 import { purgeCachedMenu } from './menu-cache.js';
+import { capturePublication, ensurePublications, livePublication, publicationSummary, revisionColumns, revisionPresentation } from './auramenu-publications.js';
 
 const ORIGINS = new Set([
   'https://auramenu.space',
@@ -22,10 +23,13 @@ const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const ACCESS_PRICE = 100;
 const MAX_ACCESS_DAYS = 30;
 
-function cors(request) {
+function cors(request, env) {
   const origin = request.headers.get('Origin');
   if (!origin) return {};
-  if (!ORIGINS.has(origin)) return null;
+  const allowed = env.AURA_ENVIRONMENT === 'staging'
+    ? [stagingMenuOrigin(env), env.CUSTOMER_AUTH_ORIGIN].includes(origin)
+    : ORIGINS.has(origin);
+  if (!allowed) return null;
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Headers': 'Content-Type, X-Aura-Menu-Token',
@@ -179,7 +183,7 @@ function normalizeCategories(value) {
   return categories;
 }
 
-async function replaceImages(db, id, categories, origin) {
+async function replaceImages(db, id, revision, categories, origin) {
   const inserts = [];
   for (const item of menuItems(categories)) {
     if (!item.imageData) {
@@ -191,8 +195,9 @@ async function replaceImages(db, id, categories, origin) {
     const imageId = crypto.randomUUID();
     item.imageUrl = `${origin}/api/auramenu/images/${imageId}`;
     inserts.push(
-      db.prepare('INSERT INTO auramenu_images (id, request_id, content_type, image_bytes) VALUES (?, ?, ?, ?)')
-        .bind(imageId, id, image.contentType, image.bytes)
+      db.prepare(`INSERT INTO auramenu_images (id, request_id, content_type, image_bytes)
+        SELECT ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM auramenu_requests WHERE id=? AND revision=?)`)
+        .bind(imageId, id, image.contentType, image.bytes, id, revision)
     );
   }
   if (inserts.length > 12) throw new ApiError(400, "At most 12 images per update.");
@@ -207,7 +212,7 @@ export async function handleAuraMenuDashboard(request, env) {
 
   await ensure(env.DB);
 
-  const headers = cors(request);
+  const headers = cors(request, env);
   const presentationFor = row => isCollectionDesign(row.template_id) || standardDesignsEnabled(env) ? getMenuPresentation(env.DB,row.id) : {};
   const designsFor = (row,billing) => menuDesignAccess(env,{
     id:row.id,billing,pending:row.status === 'pending' && !billing?.paidUntil,paid:row.payment_status === 'paid',
@@ -215,6 +220,8 @@ export async function handleAuraMenuDashboard(request, env) {
   const dashboardMenu = async (row,access,billing) => {
     const designAccess = designsFor(row,billing);
     return {...publicMenu(row,access,billing),...await presentationFor(row),role:access?.role || 'owner',
+      canPublish: row.status === 'pending' && row.payment_status === 'paid' && billing?.active === true &&
+        billing.planId !== 'onetime' && ['owner', 'manager'].includes(access?.role),
       designAccess:{standard:designAccess.standard,premium:designAccess.premium ? premiumIds : []}};
   };
   if (u.pathname.startsWith('/api/auramenu/dashboard')) {
@@ -237,11 +244,12 @@ export async function handleAuraMenuDashboard(request, env) {
       return json({ token: byToken ? token : '', owned, menu: await dashboardMenu(row,access,await menuBilling(env.DB,row.id)) }, 200, headers);
     }
 
-    const match = u.pathname.match(/^\/api\/auramenu\/dashboard\/([a-f0-9-]+)(?:\/(access-request))?$/i);
+    const match = u.pathname.match(/^\/api\/auramenu\/dashboard\/([a-f0-9-]+)(?:\/(access-request|publish|revisions)(?:\/([1-9][0-9]{0,14}))?)?$/i);
     if (!match) return json({ error: 'Not found.' }, 404, headers);
 
     const id = match[1];
     const action = match[2];
+    if (match[3] && action !== 'revisions') return json({ error: 'Not found.' }, 404, headers);
     const row = await rowFor(env.DB, id);
     if (!row) return json({ error: 'Menü bulunamadı.' }, 404, headers);
 
@@ -249,6 +257,77 @@ export async function handleAuraMenuDashboard(request, env) {
     const billing = await menuBilling(env.DB, id);
     if (!tokenAccess) {
       return json({ error: 'Dashboard access denied.' }, 401, { 'Cache-Control': 'no-store', ...headers });
+    }
+
+    if (action === 'revisions') {
+      const customer = await auraMenuCustomer(request, env);
+      const access = customer && await menuOwnerAccess(request, env.DB, id);
+      if (!access) return json({ error: 'Account access required.' }, 403, headers);
+      const db = env.DB;
+      await ensurePublications(db);
+      const version = match[3] && Number(match[3]);
+      const privateHeaders = { ...headers, 'Cache-Control': 'no-store' };
+      if (!version && request.method === 'GET') {
+        const before = Number(u.searchParams.get('before') || Number.MAX_SAFE_INTEGER);
+        if (!Number.isSafeInteger(before) || before < 1) throw new ApiError(400, 'Invalid revision cursor.');
+        const { results } = await db.prepare(`SELECT revision,published_at,action,actor_type,actor_id,source_revision
+          FROM auramenu_publications WHERE menu_id=? AND revision<? ORDER BY revision DESC LIMIT 31`).bind(id, before).all();
+        return json({ revisions: results.slice(0, 30).map(publicationSummary),
+          nextBefore: results.length === 31 ? results[29].revision : null }, 200, privateHeaders);
+      }
+      if (!version || !['GET', 'POST'].includes(request.method)) return json({ error: 'Method not allowed.' }, 405, privateHeaders);
+      const snapshot = await db.prepare('SELECT * FROM auramenu_publications WHERE menu_id=? AND revision=?').bind(id, version).first();
+      if (!snapshot) return json({ error: 'Revision not found.' }, 404, privateHeaders);
+      const content = JSON.parse(snapshot.content_json);
+      if (request.method === 'GET') {
+        return json({ revision: publicationSummary(snapshot),
+          menu: { ...publicMenu({ ...row, ...content, revision: version }), ...JSON.parse(snapshot.presentation_json) } }, 200, privateHeaders);
+      }
+      if (!['owner', 'manager'].includes(access.role)) return json({ error: 'Only an owner or manager can restore a menu.' }, 403, privateHeaders);
+      const { expectedRevision } = await readJson(request, 512);
+      if (expectedRevision !== row.revision || row.status !== 'approved' || row.payment_status !== 'paid' || (billing && !billing.active)) {
+        return json({ error: 'The public menu or subscription changed. Reload before restoring.' }, 409, privateHeaders);
+      }
+      assertMenuTemplate(content.template_id, { ...designsFor(row, billing), currentId: row.template_id });
+      const now = new Date().toISOString();
+      const [,,mutation] = await db.batch([
+        capturePublication(db, id, row.revision),
+        revisionPresentation(db, id, row.revision, snapshot.presentation_json, true),
+        db.prepare(`UPDATE auramenu_requests AS r SET ${revisionColumns.map(column => column + '=?').join(',')},
+          updated_at=?, revision=revision+1 WHERE id=? AND revision=? AND ${livePublication}`)
+          .bind(...revisionColumns.map(column => content[column]), now, id, row.revision),
+        capturePublication(db, id, row.revision + 1, { action: 'restore', type: 'customer', actor: customer.id, source: version, afterUpdate: true }),
+      ]);
+      if (!mutation.meta?.changes) return json({ error: 'The public menu changed. Reload before restoring.' }, 409, privateHeaders);
+      await purgeCachedMenu(row.slug, u.origin);
+      return json({ menu: await dashboardMenu(await rowFor(db, id), access, billing) }, 200, privateHeaders);
+    }
+
+    if (action === 'publish' && request.method === 'POST') {
+      const accountAccess = await menuOwnerAccess(request, env.DB, id);
+      if (!['owner', 'manager'].includes(accountAccess?.role)) {
+        return json({ error: 'An owner or manager account is required to publish.' }, 403, headers);
+      }
+      if (row.payment_status !== 'paid' || !billing?.active || billing.planId === 'onetime' ||
+          !['pending', 'approved'].includes(row.status)) {
+        return json({ error: 'This menu needs an active, confirmed subscription before publishing.' }, 409, headers);
+      }
+      if (row.status === 'approved') return json({ menu: await dashboardMenu(row, accountAccess, billing) }, 200, headers);
+      assertMenuTemplate(row.template_id, designsFor(row, billing));
+      const now = new Date().toISOString();
+      await ensurePublications(env.DB);
+      const customer = await auraMenuCustomer(request, env);
+      const update = env.DB.prepare(
+        "UPDATE auramenu_requests SET status='approved', approved_at=?, updated_at=?, revision=revision+1 " +
+        "WHERE id=? AND status='pending' AND payment_status='paid' AND revision=? AND EXISTS (" +
+        "SELECT 1 FROM auramenu_billing WHERE menu_id=? AND plan_id=? AND paid_until>?)"
+      ).bind(now, now, id, row.revision, id, billing.planId, now);
+      const [result] = await env.DB.batch([update,
+        capturePublication(env.DB, id, row.revision + 1, { action: 'publish', type: 'customer', actor: customer?.id, afterUpdate: true }),
+      ]);
+      if (!result.meta?.changes) return json({ error: 'Menu or subscription changed. Reload before publishing.' }, 409, headers);
+      await purgeCachedMenu(row.slug, u.origin);
+      return json({ menu: await dashboardMenu(await rowFor(env.DB, id), accountAccess, billing) }, 200, { 'Cache-Control': 'no-store', ...headers });
     }
 
     if (action === 'access-request' && request.method === 'POST') {
@@ -299,7 +378,8 @@ export async function handleAuraMenuDashboard(request, env) {
         ...designsFor(row,billing),currentId:row.template_id,
       });
       const categories = normalizeCategories(body.categories);
-      const imageInserts = await replaceImages(env.DB, id, categories, new URL(request.url).origin);
+      await ensurePublications(env.DB);
+      const imageInserts = await replaceImages(env.DB, id, row.revision, categories, new URL(request.url).origin);
       const presentation = isCollectionDesign(template) && !contentOnly ? normalizeMenuPresentation(body) : null;
       const lang = ['tr', 'en', 'ar'].includes(String(body.menuLanguage))
         ? String(body.menuLanguage)
@@ -311,7 +391,7 @@ export async function handleAuraMenuDashboard(request, env) {
       const update = env.DB.prepare(
         "UPDATE auramenu_requests SET template_id=?, menu_language=?, business_name=?, tagline=?, description=?, " +
         "address=?, business_phone=?, whatsapp=?, opening_hours=?, currency=?, categories_json=?, " +
-        "updated_at=datetime('now'), revision=revision+1 WHERE id=?"
+        "updated_at=datetime('now'), revision=revision+1 WHERE id=? AND revision=?"
       ).bind(
         template,
         lang,
@@ -324,21 +404,27 @@ export async function handleAuraMenuDashboard(request, env) {
         contentOnly ? row.opening_hours : clean(body.openingHours, 100),
         currency,
         JSON.stringify(categories),
-        id
+        id,
+        row.revision
       );
       // All validation finishes before writes; D1 batch is transactional.
-      const retained = Array.from(menuItems(categories),item => item.imageUrl);
-      const imageRows = await env.DB.prepare('SELECT id FROM auramenu_images WHERE request_id=?').bind(id).all();
-      const deletions = (imageRows.results || []).filter(image => !retained.some(value => value.endsWith(`/api/auramenu/images/${image.id}`)))
-        .map(image => env.DB.prepare('DELETE FROM auramenu_images WHERE id=? AND request_id=?').bind(image.id, id));
-      await env.DB.batch([...imageInserts, update, ...deletions,
-        ...(presentation && Object.keys(presentation).length ? [saveMenuPresentation(env.DB,id,presentation)] : []),
+      const customer = await auraMenuCustomer(request, env);
+      const operations = [capturePublication(env.DB, id, row.revision), ...imageInserts];
+      if (presentation && Object.keys(presentation).length) {
+        operations.push(revisionPresentation(env.DB, id, row.revision, JSON.stringify(presentation)));
+      }
+      // Images are immutable so snapshots keep their original media references.
+      const result = await env.DB.batch([...operations, update,
+        capturePublication(env.DB, id, row.revision + 1, {
+          action: 'update', type: customer ? 'customer' : 'legacy-token', actor: customer?.id, afterUpdate: true,
+        }),
       ]);
+      if (!result[operations.length].meta?.changes) return json({ error: 'The menu changed. Reload before saving.' }, 409, headers);
       const updated = await rowFor(env.DB,id);
       await purgeCachedMenu(updated?.slug || row.slug, new URL(request.url).origin);
 
       return json(
-        { menu: await dashboardMenu(updated,await accessFor(env.DB,id),billing) },
+        { menu: await dashboardMenu(updated, { ...await accessFor(env.DB,id), role: tokenAccess.role }, billing) },
         200,
         { 'Cache-Control': 'no-store', ...headers }
       );

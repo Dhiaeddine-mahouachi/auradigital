@@ -88,6 +88,8 @@ const PAGE_SEO = {
 
 const NOINDEX_PATHS = new Set([
   "/404.html",
+  "/terms",
+  "/privacy",
   "/auri-preview/",
   "/auri-preview/index.html",
   "/nfc-status.html",
@@ -130,6 +132,8 @@ export const SEO_REDIRECTS = new Map([
   ["/service-shop.html", "/service-shop"],
   ["/help.html", "/help"],
   ["/yardim", "/help"],
+  ["/terms.html", "/terms"],
+  ["/privacy.html", "/privacy"],
 ]);
 
 export function permanentSeoRedirect(request) {
@@ -225,6 +229,8 @@ const SEO_ASSETS = new Map([
   ["/solutions", "/solutions.html"],
   ["/service-shop", "/service-shop.html"],
   ["/help", "/help.html"],
+  ["/terms", "/terms.html"],
+  ["/privacy", "/privacy.html"],
 ]);
 
 function isHtml(response) {

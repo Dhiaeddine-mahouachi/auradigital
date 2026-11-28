@@ -21,10 +21,11 @@ export const standardDesignsEnabled = env => env.AURAMENU_STANDARD_ENABLED === '
 // Older menus with a manual premium grant (AURAMENU_PREMIUM_MENU_IDS) keep both.
 export function menuDesignAccess(env,{id,billing,pending = false,paid = false,planId} = {}) {
   const standardOn = standardDesignsEnabled(env), premiumOn = env.AURAMENU_PREMIUM_ENABLED === 'true';
-  if ((planId || billing?.planId) === 'pro') return {standard:false,premium:premiumOn};
+  const plan = planId || billing?.planId;
+  if (plan === 'pro') return {standard:false,premium:premiumOn};
   const eligiblePeriod = pending || (paid && billing?.active);
   const grants = typeof env.AURAMENU_PREMIUM_MENU_IDS === 'string' ? env.AURAMENU_PREMIUM_MENU_IDS : '';
-  const granted = premiumOn && Boolean(id && billing && eligiblePeriod && grants.split(',').some(grant => grant.trim() === id));
+  const granted = premiumOn && Boolean(id && plan === 'onetime' && eligiblePeriod && grants.split(',').some(grant => grant.trim() === id));
   return {standard:standardOn || granted,premium:granted};
 }
 
