@@ -82,3 +82,20 @@ test("same-origin validation supports Cloudflare-routed public requests", () => 
   });
   assert.equal(sameOrigin(crossSite), false);
 });
+
+test('staging response indexing is disabled without changing production SEO', () => {
+  const request = new Request('https://auradigital-staging.example/');
+  for (const status of [200, 302, 404, 503]) {
+    const response = secureResponse(new Response(null, {
+      status, headers: { 'X-Robots-Tag': 'index, follow' }
+    }), request, { AURA_ENVIRONMENT: 'staging' }, {});
+    assert.equal(response.status, status);
+    assert.equal(response.headers.get('X-Robots-Tag'), 'noindex, nofollow, noarchive');
+  }
+  const production = secureResponse(new Response(null, {
+    headers: { 'X-Robots-Tag': 'index, follow' }
+  }), new Request('https://auradigitalworks.com/'), { AURA_ENVIRONMENT: 'production' }, {});
+  assert.equal(production.headers.get('X-Robots-Tag'), 'index, follow');
+  const unconfigured = secureResponse(new Response(null), request, {}, {});
+  assert.equal(unconfigured.headers.get('X-Robots-Tag'), null);
+});
